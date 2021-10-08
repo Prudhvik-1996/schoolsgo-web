@@ -1,4 +1,4 @@
-const String SCHOOLS_GO_BASE_URL = "http://34.66.162.174:8080/schoolsgo";
+const String SCHOOLS_GO_BASE_URL = "https://34.66.162.174:8080/schoolsgo";
 
 const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
@@ -12,3 +12,13 @@ const String RANDOMISE_SECTION_WISE_TIME_SLOTS =
     "/timetable/randomizeTimeTable";
 
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+const HEADERS = <String, String>{
+  "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+  "Access-Control-Allow-Credentials":
+      "true", // Required for cookies, authorization headers with HTTPS
+  "Access-Control-Allow-Headers":
+      "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale,Access-Control-Allow-Origin",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-type": "application/json",
+};
