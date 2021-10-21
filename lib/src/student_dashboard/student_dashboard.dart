@@ -1,6 +1,6 @@
-import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/dashboard_widgets.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -90,12 +90,11 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                                     Orientation.landscape
                                 ? 7.0
                                 : 0.0),
-                        child: ClayContainer(
+                        child: ClayButton(
                           depth: 40,
                           surfaceColor: clayContainerColor(context),
                           parentColor: clayContainerColor(context),
                           spread: 1,
-                          emboss: false,
                           borderRadius: 10,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,

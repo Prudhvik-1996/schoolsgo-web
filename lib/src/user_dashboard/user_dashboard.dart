@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -103,12 +104,11 @@ class _UserDashboardState extends State<UserDashboard> {
       },
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: ClayContainer(
+        child: ClayButton(
           depth: 40,
           surfaceColor: clayContainerColor(context),
           parentColor: clayContainerColor(context),
           spread: 1,
-          emboss: false,
           borderRadius: 10,
           child: Container(
             padding: const EdgeInsets.all(20),
