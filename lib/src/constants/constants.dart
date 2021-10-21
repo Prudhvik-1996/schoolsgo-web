@@ -1,4 +1,5 @@
-const String SCHOOLS_GO_BASE_URL = "https://34.66.162.174:8080/schoolsgo";
+const String SCHOOLS_GO_BASE_URL =
+    "https://epsiloninfinityservices.com:8000/schoolsgo";
 
 const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
@@ -10,6 +11,17 @@ const String BULK_EDIT_SECTION_WISE_TIME_SLOTS =
     "/timetable/bulkEditSectionWiseTimeSlots";
 const String RANDOMISE_SECTION_WISE_TIME_SLOTS =
     "/timetable/randomizeTimeTable";
+
+const String GET_STUDENT_ATTENDANCE_TIME_SLOTS =
+    "/attendance/getStudentAttendanceTimeSlots";
+const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS =
+    "/attendance/createOrUpdateAttendanceTimeSlotBeans";
+const String GET_STUDENT_ATTENDANCE_BEANS =
+    "/attendance/getStudentAttendanceBeans";
+const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS =
+    "/attendance/createOrUpdateStudentAttendance";
+const String BULK_EDIT_ATTENDANCE_TIME_SLOTS =
+    "/attendance/bulkEditAttendanceTimeSlots";
 
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 

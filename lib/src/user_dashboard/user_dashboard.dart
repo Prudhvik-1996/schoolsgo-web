@@ -93,7 +93,6 @@ class _UserDashboardState extends State<UserDashboard> {
       String schoolName, Object profile) {
     return InkWell(
       onTap: () {
-        //  TODO based on role navigate to specific route
         if (role == "Student") {
           Navigator.pushNamed(
             context,

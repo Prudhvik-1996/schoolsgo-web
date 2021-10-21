@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/attendance/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/profile/student/student_profile_screen.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
@@ -121,6 +122,16 @@ class _MyAppState extends State<MyApp> {
                       var argument =
                           (routeSettings.arguments as StudentProfile);
                       return StudentProfileScreen(
+                        studentProfile: argument,
+                      );
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case StudentAttendanceViewScreen.routeName:
+                    try {
+                      var argument =
+                          (routeSettings.arguments as StudentProfile);
+                      return StudentAttendanceViewScreen(
                         studentProfile: argument,
                       );
                     } catch (e) {

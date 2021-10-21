@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/model/time_slot.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:schoolsgo_web/src/time_table/modal/time_slot.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
@@ -89,7 +89,6 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
             .toSet()
             .toList();
     allStrings.sort((a, b) => a.length.compareTo(b.length));
-    print("${allStrings.last}" + "\n");
 
     List<TimeSlot> timeSlots = _sectionWiseTimeSlots
         .where((eachTimeSlot) =>
@@ -109,16 +108,8 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
       child: RepaintBoundary(
         key: GlobalKey(),
         child: Container(
-          margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+          margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           child: Container(
-            // height: height * 8 + 1,
-            decoration: BoxDecoration(
-                // border: Border.all(
-                //   width: 0.5,
-                // ),
-                ),
-            // height: 1000,
-            // width: 1000,
             child: Column(
                 children: [
                       Row(
@@ -134,7 +125,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
                                   fit: BoxFit.scaleDown,
                                   child: Text(
                                     "${widget.studentProfile.sectionName}",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.black,
                                     ),
                                   ),
@@ -159,11 +150,9 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
                                               " " *
                                                   (allStrings.last.length - 12),
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontFamily: 'monospace',
                                             color: Colors.black,
-
-                                            // fontWeight: FontWeight.bold,
                                           ),
                                           // maxLines: 1,
                                         ),
@@ -191,9 +180,8 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
                                         eachWeek +
                                             " " * (allStrings.last.length - 5),
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontFamily: 'monospace',
-                                          // fontWeight: FontWeight.bold,
                                           color: Colors.black,
                                         ),
                                       ),
@@ -209,7 +197,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
                                       e.endTime == eachTimeSlot.endTime &&
                                       e.sectionId ==
                                           widget.studentProfile.sectionId);
-                                  if (x.isNotEmpty && x.first != null) {
+                                  if (x.isNotEmpty) {
                                     if (x.first.tdsId == null) {
                                       res = "-";
                                     } else {
@@ -243,7 +231,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
                                       child: Text(
                                         res,
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontFamily: 'monospace',
                                           color: Colors.black,
                                         ),
@@ -281,7 +269,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
               : ListView(
                   physics: const BouncingScrollPhysics(),
                   controller: ScrollController(),
-                  children: [Text("Time Table")] +
+                  children: [const Text("Time Table")] +
                       _sectionWiseTimeSlots.map((e) => Text("$e")).toList(),
                 ),
       floatingActionButton: FloatingActionButton(

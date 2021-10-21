@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:schoolsgo_web/src/attendance/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
 
 class DashboardWidget<T> {
   DashboardWidget({
@@ -41,13 +43,13 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/timetable.svg"),
         title: "Time Table",
-        routeName: "/timetable",
+        routeName: StudentTimeTableView.routeName,
         argument: studentProfile,
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/attendance.svg"),
         title: "Attendance",
-        routeName: "/attendance",
+        routeName: StudentAttendanceViewScreen.routeName,
         argument: studentProfile,
       ),
       DashboardWidget(

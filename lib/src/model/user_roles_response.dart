@@ -396,17 +396,12 @@ class StudentProfile {
     map['studentPhotoUrl'] = studentPhotoUrl;
     return map;
   }
-}
 
-/// agent : 0
-/// firstName : "string"
-/// lastName : "string"
-/// mailId : "string"
-/// middleName : "string"
-/// schoolId : 0
-/// schoolName : "string"
-/// schoolPhotoUrl : "string"
-/// userId : 0
+  @override
+  String toString() {
+    return "'balanceAmount' = $balanceAmount,'fatherName' = $fatherName,'gaurdianFirstName' = $gaurdianFirstName,'gaurdianId' = $gaurdianId,'gaurdianLastName' = $gaurdianLastName,'gaurdianMailId' = $gaurdianMailId,'gaurdianMiddleName' = $gaurdianMiddleName,'gaurdianMobile' = $gaurdianMobile,'motherName' = $motherName,'rollNumber' = $rollNumber,'schoolId' = $schoolId,'schoolName' = $schoolName,'schoolPhotoUrl' = $schoolPhotoUrl,'sectionDescription' = $sectionDescription,'sectionId' = $sectionId,'sectionName' = $sectionName,'studentDob' = $studentDob,'studentFirstName' = $studentFirstName,'studentId' = $studentId,'studentLastName' = $studentLastName,'studentMailId' = $studentMailId,'studentMiddleName' = $studentMiddleName,'studentMobile' = $studentMobile,'studentPhotoUrl' = $studentPhotoUrl";
+  }
+}
 
 class AdminProfile {
   AdminProfile({

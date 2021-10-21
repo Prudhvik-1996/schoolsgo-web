@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/model/time_slot.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:schoolsgo_web/src/time_table/modal/time_slot.dart';
 
 class GetSectionWiseTimeSlotsRequest {
   String? date;
