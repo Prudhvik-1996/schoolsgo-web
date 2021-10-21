@@ -175,82 +175,84 @@ class _UserDashboardState extends State<UserDashboard> {
         title: const Text("Epsilon Diary"),
       ),
       drawer: const DefaultAppDrawer(),
-      body: _isLoading
-          ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
-            )
-          : ListView(
-              children: [buildUserDetailsWidget(_userDetails)] +
-                  _studentProfiles
-                      .map(
-                        (e) => buildRoleButton(
-                          context,
-                          "Student",
-                          ((e.studentFirstName ?? "" ' ') +
-                                  (e.studentMiddleName ?? "" ' ') +
-                                  (e.studentLastName ?? "" ' '))
-                              .split(" ")
-                              .where((i) => i != "")
-                              .join(" "),
-                          e.schoolName ?? '',
-                          e,
-                        ),
-                      )
-                      .toList() +
-                  // [
-                  //   GridView.count(
-                  //     crossAxisCount: 3,
-                  //     childAspectRatio: 2,
-                  //     shrinkWrap: true,
-                  //     physics: const NeverScrollableScrollPhysics(),
-                  //     children: _studentProfiles
-                  //         .map(
-                  //           (e) => buildRoleButton(
-                  //             context,
-                  //             "Student",
-                  //             (e.studentFirstName ?? "" ' ') +
-                  //                 (e.studentMiddleName ?? "" ' ') +
-                  //                 (e.studentLastName ?? "" ' '),
-                  //             e.schoolName ?? '',
-                  //             e,
-                  //           ),
-                  //         )
-                  //         .toList(),
-                  //   )
-                  // ] +
-                  _teacherProfiles
-                      .map(
-                        (e) => buildRoleButton(
-                          context,
-                          "Teacher",
-                          ((e.firstName ?? "" ' ') +
-                                  (e.middleName ?? "" ' ') +
-                                  (e.lastName ?? "" ' '))
-                              .split(" ")
-                              .where((i) => i != "")
-                              .join(" "),
-                          e.schoolName ?? '',
-                          e,
-                        ),
-                      )
-                      .toList() +
-                  _adminProfiles
-                      .map(
-                        (e) => buildRoleButton(
-                          context,
-                          "Admin",
-                          ((e.firstName ?? "" ' ') +
-                                  (e.middleName ?? "" ' ') +
-                                  (e.lastName ?? "" ' '))
-                              .split(" ")
-                              .where((i) => i != "")
-                              .join(" "),
-                          e.schoolName ?? '',
-                          e,
-                        ),
-                      )
-                      .toList(),
-            ),
+      body: SafeArea(
+        child: _isLoading
+            ? Center(
+                child: Image.asset('assets/images/eis_loader.gif'),
+              )
+            : ListView(
+                children: [buildUserDetailsWidget(_userDetails)] +
+                    _studentProfiles
+                        .map(
+                          (e) => buildRoleButton(
+                            context,
+                            "Student",
+                            ((e.studentFirstName ?? "" ' ') +
+                                    (e.studentMiddleName ?? "" ' ') +
+                                    (e.studentLastName ?? "" ' '))
+                                .split(" ")
+                                .where((i) => i != "")
+                                .join(" "),
+                            e.schoolName ?? '',
+                            e,
+                          ),
+                        )
+                        .toList() +
+                    // [
+                    //   GridView.count(
+                    //     crossAxisCount: 3,
+                    //     childAspectRatio: 2,
+                    //     shrinkWrap: true,
+                    //     physics: const NeverScrollableScrollPhysics(),
+                    //     children: _studentProfiles
+                    //         .map(
+                    //           (e) => buildRoleButton(
+                    //             context,
+                    //             "Student",
+                    //             (e.studentFirstName ?? "" ' ') +
+                    //                 (e.studentMiddleName ?? "" ' ') +
+                    //                 (e.studentLastName ?? "" ' '),
+                    //             e.schoolName ?? '',
+                    //             e,
+                    //           ),
+                    //         )
+                    //         .toList(),
+                    //   )
+                    // ] +
+                    _teacherProfiles
+                        .map(
+                          (e) => buildRoleButton(
+                            context,
+                            "Teacher",
+                            ((e.firstName ?? "" ' ') +
+                                    (e.middleName ?? "" ' ') +
+                                    (e.lastName ?? "" ' '))
+                                .split(" ")
+                                .where((i) => i != "")
+                                .join(" "),
+                            e.schoolName ?? '',
+                            e,
+                          ),
+                        )
+                        .toList() +
+                    _adminProfiles
+                        .map(
+                          (e) => buildRoleButton(
+                            context,
+                            "Admin",
+                            ((e.firstName ?? "" ' ') +
+                                    (e.middleName ?? "" ' ') +
+                                    (e.lastName ?? "" ' '))
+                                .split(" ")
+                                .where((i) => i != "")
+                                .join(" "),
+                            e.schoolName ?? '',
+                            e,
+                          ),
+                        )
+                        .toList(),
+              ),
+      ),
     );
   }
 }

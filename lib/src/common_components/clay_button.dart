@@ -15,6 +15,7 @@ class ClayButton extends StatefulWidget {
     this.borderRadius,
     this.customBorderRadius,
     this.depth,
+    this.doVibrate,
   }) : super(key: key);
 
   final Widget? child;
@@ -27,6 +28,7 @@ class ClayButton extends StatefulWidget {
   final double? borderRadius;
   final BorderRadius? customBorderRadius;
   final int? depth;
+  final bool? doVibrate;
 
   @override
   _ClayButtonState createState() => _ClayButtonState();
@@ -42,7 +44,7 @@ class _ClayButtonState extends State<ClayButton> {
   }
 
   void _onPointerUp(PointerUpEvent event) {
-    HapticFeedback.selectionClick();
+    if (widget.doVibrate ?? false) HapticFeedback.selectionClick();
     setState(() {
       _isPressed = false;
     });

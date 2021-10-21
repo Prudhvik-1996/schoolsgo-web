@@ -45,6 +45,9 @@ dependencies:
   scrollable_positioned_list: ^0.2.0-nullsafety.0
 
   flutter_svg: ^0.22.0
+  transparent_image: ^2.0.0
+
+  download: ^0.0.1+1
 
 dev_dependencies:
   flutter_test:
@@ -90,6 +93,12 @@ flutter:
     - assets/images/tick_icon.png
     - assets/images/cross_icon.png
     - assets/images/empty_stroke.png
+    - assets/images/pdf_default.png
+    - assets/images/mp3_blue_default.png
+    - assets/images/blue_doc.png
+    - assets/images/image_black_default.jpg
+    - assets/images/mp4_blue_default.png
+    - assets/images/avatar.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

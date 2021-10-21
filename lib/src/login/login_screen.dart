@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _googleSignInButton() {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         _handleSignIn();
       },

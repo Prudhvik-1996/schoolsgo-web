@@ -155,7 +155,9 @@ class _StudentAttendanceViewScreenState
                               padding: const EdgeInsets.fromLTRB(5, 0, 10, 0),
                               child: ClayText(
                                 convertDateToDDMMMYYY(eachDate!),
-                                textColor: Colors.black87,
+                                textColor: clayContainerTextColor(context),
+                                parentColor: clayContainerColor(context),
+                                // color: clayContainerColor(context),
                                 emboss: true,
                                 size: 18,
                               ),
@@ -238,22 +240,31 @@ class _StudentAttendanceViewScreenState
                                     );
                                   },
                                   child: ClayButton(
-                                    depth: 40,
-                                    // color: clayContainerColor(context),
+                                    depth: 20,
+                                    spread: 1,
+                                    color:
+                                        e.isPresent == null || e.isPresent == 0
+                                            ? clayContainerColor(context)
+                                            : e.isPresent == 1
+                                                ? const Color(0xFFBCF78A)
+                                                : const Color(0xFFF88C6C),
                                     surfaceColor:
                                         e.isPresent == null || e.isPresent == 0
                                             ? clayContainerColor(context)
                                             : e.isPresent == 1
                                                 ? const Color(0xFFBCF78A)
                                                 : const Color(0xFFF88C6C),
-                                    spread: 2,
                                     borderRadius: 10,
                                     child: Container(
                                       margin: const EdgeInsets.all(8),
                                       padding: const EdgeInsets.all(8),
                                       child: ClayText(
                                         convert24To12HourFormat(e.startTime!),
-                                        textColor: Colors.black87,
+                                        textColor:
+                                            clayContainerTextColor(context),
+                                        parentColor:
+                                            clayContainerColor(context),
+                                        color: clayContainerColor(context),
                                         emboss: true,
                                         size: 15,
                                       ),
@@ -449,7 +460,8 @@ class _StudentAttendanceViewScreenState
               ClayText(
                 "Attendance",
                 size: 32,
-                textColor: Colors.black87,
+                textColor: clayContainerTextColor(context),
+                parentColor: clayContainerColor(context),
                 emboss: true,
                 // depth: 2,
                 spread: 2,

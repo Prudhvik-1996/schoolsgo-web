@@ -10,6 +10,14 @@ Color clayContainerColor(BuildContext context) {
   return darkThemeColor;
 }
 
+Color clayContainerTextColor(BuildContext context) {
+  if (Theme.of(context).primaryColor == Colors.blue) {
+    return Colors.black87;
+  }
+  // return getInvertedColor(lightThemeColor);
+  return Colors.white70;
+}
+
 Color getInvertedColor(Color color) {
   final r = 255 - color.red;
   final g = 255 - color.green;

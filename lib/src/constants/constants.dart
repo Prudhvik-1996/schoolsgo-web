@@ -23,6 +23,8 @@ const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS =
 const String BULK_EDIT_ATTENDANCE_TIME_SLOTS =
     "/attendance/bulkEditAttendanceTimeSlots";
 
+const String GET_NOTICE_BOARD = "/notice_board/getNoticeBoard";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{

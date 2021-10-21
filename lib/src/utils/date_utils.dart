@@ -125,3 +125,13 @@ String convertDateToDDMMMYYY(String date) {
       : DateFormat('dd MMM, yyyy EEEE')
           .format(DateFormat("yyyy-MM-dd").parse(date));
 }
+
+String convertEpochToDDMMYYYYHHMMAA(int millis) {
+  return DateFormat("dd MMM, yyyy EEEE, h:mm a")
+      .format(DateTime.fromMillisecondsSinceEpoch(millis));
+}
+
+String convertEpochToYYYYMMDD(int millis) {
+  return DateFormat("yyyy-MM-dd")
+      .format(DateTime.fromMillisecondsSinceEpoch(millis));
+}

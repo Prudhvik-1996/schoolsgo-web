@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/attendance/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/notice_board/notice_board_view.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
 
 class DashboardWidget<T> {
@@ -31,7 +32,7 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
-        routeName: "/notice_board",
+        routeName: NoticeBoardView.routeName,
         argument: studentProfile,
       ),
       DashboardWidget(
