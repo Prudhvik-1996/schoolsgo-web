@@ -156,11 +156,12 @@ class _NoticeBoardViewState extends State<NoticeBoardView> {
                             child: getFileTypeForExtension(eachNews
                                         .newsMediaBeans![index]!.mediaType!) ==
                                     MediaFileType.IMAGE_FILES
-                                ? FadeInImage.memoryNetwork(
-                                    placeholder: kTransparentImage,
-                                    image: eachNews
-                                        .newsMediaBeans![index]!.mediaUrl!,
-                                    fit: BoxFit.cover,
+                                ? FadeInImage(
+                                    image: NetworkImage(eachNews
+                                        .newsMediaBeans![index]!.mediaUrl!),
+                                    placeholder: const AssetImage(
+                                      'assets/images/loading_grey_white.gif',
+                                    ),
                                   )
                                 : Image.asset(
                                     getAssetImageForFileType(

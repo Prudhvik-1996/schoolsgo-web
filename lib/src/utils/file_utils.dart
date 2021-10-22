@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:download/download.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
 
 enum MediaFileType {
   AUDIO_FILES,
@@ -269,13 +274,126 @@ String getAssetImageForFileType(MediaFileType fileType) {
 downloadFile(String url, {String? filename}) async {
   print(url);
 
-  // TODO should find an alternative for this
-  String allowCORSEndPoint = "https://api.allorigins.win/raw?url=";
-
   http.Response response = await http.get(
     Uri.parse(allowCORSEndPoint + url),
   );
 
   final stream = Stream.fromIterable(response.bodyBytes);
   download(stream, filename!);
+}
+
+class UploadFileToDriveResponse {
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  MediaBean? mediaBean;
+  String? responseStatus;
+
+  UploadFileToDriveResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.mediaBean,
+    this.responseStatus,
+  });
+
+  UploadFileToDriveResponse.fromJson(Map<String, dynamic> json) {
+    errorCode = json['errorCode'];
+    errorMessage = json['errorMessage'];
+    httpStatus = json['httpStatus'];
+    mediaBean = json['mediaBean'] != null
+        ? MediaBean.fromJson(json['mediaBean'])
+        : null;
+    responseStatus = json['responseStatus'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    if (mediaBean != null) {
+      data['mediaBean'] = mediaBean!.toJson();
+    }
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+}
+
+class MediaBean {
+  String? agent;
+  int? mediaId;
+  String? mediaType;
+  String? mediaUrl;
+  String? status;
+  int? diaryMediaOrder;
+  int? folderMediaId;
+
+  MediaBean({
+    this.agent,
+    this.mediaId,
+    this.mediaType,
+    this.mediaUrl,
+    this.status,
+    this.diaryMediaOrder,
+    this.folderMediaId,
+  });
+
+  MediaBean.fromJson(Map<String, dynamic> json) {
+    agent = json['agent'];
+    mediaId = json['mediaId'];
+    mediaType = json['mediaType'];
+    mediaUrl = json['mediaUrl'];
+    status = json['status'];
+    diaryMediaOrder = json['diaryMediaOrder'];
+    folderMediaId = json['folderMediaId'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['mediaId'] = mediaId;
+    data['mediaType'] = mediaType;
+    data['mediaUrl'] = mediaUrl;
+    data['status'] = status;
+    data['diaryMediaOrder'] = diaryMediaOrder;
+    data['folderMediaId'] = folderMediaId;
+    return data;
+  }
+
+  @override
+  String toString() {
+    return "{'agent' = $agent, 'mediaId' = $mediaId, 'mediaType' = $mediaType, 'mediaUrl' = $mediaUrl, 'status' = $status, 'diaryMediaOrder' = $diaryMediaOrder, 'folderMediaId' = $folderMediaId}";
+  }
+}
+
+Future<UploadFileToDriveResponse> uploadFileToDrive(
+    Object file, String fileName) async {
+  try {
+    print("Raising request to uploadFileToDrive with request $fileName");
+    String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL + UPLOAD_FILE_TO_DRIVE;
+    var request = http.MultipartRequest('POST', Uri.parse(_url));
+    Uint8List _bytesData =
+        const Base64Decoder().convert(file.toString().split(",").last);
+    List<int> _selectedFile = _bytesData;
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'file',
+        _selectedFile,
+        contentType: MediaType('application', 'octet-stream'),
+        filename: fileName,
+      ),
+    );
+    print("Request: $request");
+    var responseJson = await request.send();
+
+    UploadFileToDriveResponse uploadUint8ListFileToDriveResponse =
+        UploadFileToDriveResponse.fromJson(
+            json.decode((await http.Response.fromStream(responseJson)).body));
+    print(
+        "UploadFileToDriveResponse ${uploadUint8ListFileToDriveResponse.toJson()}");
+    return uploadUint8ListFileToDriveResponse;
+  } catch (e) {
+    rethrow;
+  }
 }

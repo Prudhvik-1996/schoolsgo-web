@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/attendance/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/notice_board_view.dart';
@@ -12,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'common_components/default_splash_screen.dart';
 import 'common_components/not_found_screen.dart';
 import 'login/login_screen.dart';
+import 'notice_board/admin_notice_board_screen.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
@@ -118,6 +120,14 @@ class _MyAppState extends State<MyApp> {
                     return StudentDashBoard(
                       studentProfile: argument,
                     );
+                  case AdminDashboard.routeName:
+                    if (routeSettings.arguments == null) {
+                      return const SplashScreen();
+                    }
+                    var argument = (routeSettings.arguments as AdminProfile);
+                    return AdminDashboard(
+                      adminProfile: argument,
+                    );
                   case StudentProfileScreen.routeName:
                     try {
                       var argument =
@@ -139,14 +149,26 @@ class _MyAppState extends State<MyApp> {
                       return const E404NotFoundScreen();
                     }
                   case NoticeBoardView.routeName:
-                    try {
-                      var argument =
-                          (routeSettings.arguments as StudentProfile);
-                      return NoticeBoardView(
-                        studentProfile: argument,
-                      );
-                    } catch (e) {
-                      return const E404NotFoundScreen();
+                    if (routeSettings.arguments is StudentProfile) {
+                      try {
+                        var argument =
+                            (routeSettings.arguments as StudentProfile);
+                        return NoticeBoardView(
+                          studentProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else {
+                      try {
+                        var argument =
+                            (routeSettings.arguments as AdminProfile);
+                        return AdminNoticeBoardScreen(
+                          adminProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
                     }
                   case StudentTimeTableView.routeName:
                     try {

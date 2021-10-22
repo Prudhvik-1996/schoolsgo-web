@@ -1,5 +1,6 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -99,6 +100,12 @@ class _UserDashboardState extends State<UserDashboard> {
             context,
             StudentDashBoard.routeName,
             arguments: profile as StudentProfile,
+          );
+        } else if (role == "Admin") {
+          Navigator.pushNamed(
+            context,
+            AdminDashboard.routeName,
+            arguments: profile as AdminProfile,
           );
         }
       },

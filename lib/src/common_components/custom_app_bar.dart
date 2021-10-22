@@ -28,7 +28,7 @@ class CustomAppBar extends StatelessWidget {
         builder: (context, c) {
           final FlexibleSpaceBarSettings? settings = context
               .dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
-          final deltaExtent = settings!.maxExtent - settings!.minExtent;
+          final deltaExtent = settings!.maxExtent - settings.minExtent;
           final t = (1.0 -
                   (settings.currentExtent - settings.minExtent) / deltaExtent)
               .clamp(0.0, 1.0);

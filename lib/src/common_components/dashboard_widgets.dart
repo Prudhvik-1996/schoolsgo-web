@@ -115,4 +115,99 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       ),
     ];
 
+List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
+        AdminProfile adminProfile) =>
+    [
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/profile.svg"),
+        title: "Profile",
+        routeName: "/profile",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        title: "Notice Board",
+        routeName: NoticeBoardView.routeName,
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/diary.svg"),
+        title: "Diary",
+        routeName: "/diary",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/timetable.svg"),
+        title: "Time Table",
+        routeName: StudentTimeTableView.routeName,
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/attendance.svg"),
+        title: "Attendance",
+        routeName: StudentAttendanceViewScreen.routeName,
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/exams.svg"),
+        title: "Exam",
+        routeName: "/exam",
+        argument: adminProfile,
+        subWidgets: [
+          DashboardWidget(
+            title: "Exam Time Table",
+            routeName: "/exam_time_table",
+            argument: adminProfile,
+          ),
+          DashboardWidget(
+            title: "Exam Marks",
+            routeName: "/exam_marks",
+            argument: adminProfile,
+          ),
+        ],
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        title: "Study Material",
+        routeName: "/study_material",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/events.svg"),
+        title: "Events",
+        routeName: "/events",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
+        title: "Online Class Room",
+        routeName: "/onlineclassroom",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/feedback.svg"),
+        title: "Feedback",
+        routeName: "/feedback",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/complainbox.svg"),
+        title: "Complain Box",
+        routeName: "/complainbox",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/fee.svg"),
+        title: "Fee",
+        routeName: "/fee",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/demo.svg"),
+        title: "Demo",
+        routeName: "/demo",
+        argument: adminProfile,
+      ),
+    ];
+
 // Profile, Notice Board, Diary, Time table, Attendance, Exam, Study Material, Events, Online Class Room, Feedback, Complain Box, Fee, Demo

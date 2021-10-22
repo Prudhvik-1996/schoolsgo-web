@@ -1,5 +1,12 @@
 const String SCHOOLS_GO_BASE_URL =
     "https://epsiloninfinityservices.com:8000/schoolsgo";
+const String SCHOOLS_GO_DRIVE_SERVICE_BASE_URL =
+    "https://epsiloninfinityservices.com:8002/eis";
+
+const String UPLOAD_FILE_TO_DRIVE = "/drive/uploadFileToDrive";
+
+// TODO should find an alternative for this
+String allowCORSEndPoint = "https://api.allorigins.win/raw?url=";
 
 const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
@@ -24,6 +31,10 @@ const String BULK_EDIT_ATTENDANCE_TIME_SLOTS =
     "/attendance/bulkEditAttendanceTimeSlots";
 
 const String GET_NOTICE_BOARD = "/notice_board/getNoticeBoard";
+const String CREATE_OR_UPDATE_NOTICE_BOARD_MEDIA_BEANS =
+    "/notice_board/createOrUpdateNoticeBoardMedia";
+const String CREATE_OR_UPDATE_NOTICE_BOARD =
+    "/notice_board/createOrUpdateNoticeBoard";
 
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
