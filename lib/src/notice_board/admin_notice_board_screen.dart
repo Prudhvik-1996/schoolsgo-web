@@ -105,7 +105,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               parentColor: Theme.of(context).primaryColor,
               spread: 1,
               borderRadius: 10,
-              child: GestureDetector(
+              child: InkWell(
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
                   child: Text(
@@ -155,7 +155,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            "Something went wrong while trying to execute your request..\nPlease try agian later"),
+                            "Something went wrong while trying to execute your request..\nPlease try again later"),
                       ),
                     );
                   }
@@ -183,7 +183,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                              "Something went wrong while trying to execute your request..\nPlease try agian later"),
+                              "Something went wrong while trying to execute your request..\nPlease try again later"),
                         ),
                       );
                     }
@@ -211,7 +211,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               parentColor: Theme.of(context).primaryColor,
               spread: 1,
               borderRadius: 10,
-              child: GestureDetector(
+              child: InkWell(
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
                   child: const Text("Cancel"),
@@ -289,7 +289,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            "Something went wrong while trying to execute your request..\nPlease try agian later"),
+                            "Something went wrong while trying to execute your request..\nPlease try again later"),
                       ),
                     );
                     setState(() {
@@ -325,7 +325,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                            "Something went wrong while trying to execute your request..\nPlease try agian later"),
+                            "Something went wrong while trying to execute your request..\nPlease try again later"),
                       ),
                     );
                     setState(() {
@@ -735,7 +735,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                          "Something went wrong while trying to upload, ${file.name}..\nPlease try agian later"),
+                                          "Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                     ),
                                   );
                                 }

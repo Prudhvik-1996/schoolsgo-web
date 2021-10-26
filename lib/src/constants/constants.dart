@@ -38,6 +38,8 @@ const String CREATE_OR_UPDATE_NOTICE_BOARD =
 
 const String GET_EVENTS = "/events/getEvents";
 const String GET_EVENT_MEDIA = "/events/getEventMedia";
+const String CREATE_OR_UPDATE_EVENTS = "/events/createOrUpdateEvents";
+const String CREATE_OR_UPDATE_EVENT_MEDIA = "/events/createOrUpdateEventMedia";
 
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 

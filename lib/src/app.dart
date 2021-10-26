@@ -13,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'common_components/default_splash_screen.dart';
 import 'common_components/not_found_screen.dart';
+import 'events/admin_each_event_screen.dart';
+import 'events/admin_events_screen.dart';
 import 'events/events_view.dart';
 import 'events/model/events.dart';
 import 'login/login_screen.dart';
@@ -184,27 +186,54 @@ class _MyAppState extends State<MyApp> {
                       return const E404NotFoundScreen();
                     }
                   case EventsView.routeName:
-                    try {
-                      var argument =
-                          (routeSettings.arguments as StudentProfile);
-                      return EventsView(
-                        studentProfile: argument,
-                      );
-                    } catch (e) {
-                      return const E404NotFoundScreen();
+                    if (routeSettings.arguments is StudentProfile) {
+                      try {
+                        var argument =
+                            (routeSettings.arguments as StudentProfile);
+                        return EventsView(
+                          studentProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else {
+                      try {
+                        var argument =
+                            (routeSettings.arguments as AdminProfile);
+                        return AdminEventsScreen(
+                          adminProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
                     }
                   case EachEventView.routeName:
-                    try {
-                      var arguments =
-                          (routeSettings.arguments! as List<Object>);
-                      var studentProfile = arguments[0] as StudentProfile;
-                      var event = arguments[1] as Event;
-                      return EachEventView(
-                        studentProfile: studentProfile,
-                        event: event,
-                      );
-                    } catch (e) {
-                      return const E404NotFoundScreen();
+                    if (routeSettings.arguments is StudentProfile) {
+                      try {
+                        var arguments =
+                            (routeSettings.arguments! as List<Object>);
+                        var studentProfile = arguments[0] as StudentProfile;
+                        var event = arguments[1] as Event;
+                        return EachEventView(
+                          studentProfile: studentProfile,
+                          event: event,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else {
+                      try {
+                        var arguments =
+                            (routeSettings.arguments! as List<Object>);
+                        var adminProfile = arguments[0] as AdminProfile;
+                        var event = arguments[1] as Event;
+                        return AdminEachEventScreen(
+                          adminProfile: adminProfile,
+                          event: event,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
                     }
                   default:
                     return const E404NotFoundScreen();
