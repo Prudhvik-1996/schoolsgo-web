@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/attendance/student_attendance_view_screen.dart';
+import 'package:schoolsgo_web/src/events/each_event_view.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/notice_board_view.dart';
 import 'package:schoolsgo_web/src/profile/student/student_profile_screen.dart';
@@ -12,6 +13,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'common_components/default_splash_screen.dart';
 import 'common_components/not_found_screen.dart';
+import 'events/events_view.dart';
+import 'events/model/events.dart';
 import 'login/login_screen.dart';
 import 'notice_board/admin_notice_board_screen.dart';
 import 'settings/settings_controller.dart';
@@ -176,6 +179,29 @@ class _MyAppState extends State<MyApp> {
                           (routeSettings.arguments as StudentProfile);
                       return StudentTimeTableView(
                         studentProfile: argument,
+                      );
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case EventsView.routeName:
+                    try {
+                      var argument =
+                          (routeSettings.arguments as StudentProfile);
+                      return EventsView(
+                        studentProfile: argument,
+                      );
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case EachEventView.routeName:
+                    try {
+                      var arguments =
+                          (routeSettings.arguments! as List<Object>);
+                      var studentProfile = arguments[0] as StudentProfile;
+                      var event = arguments[1] as Event;
+                      return EachEventView(
+                        studentProfile: studentProfile,
+                        event: event,
                       );
                     } catch (e) {
                       return const E404NotFoundScreen();

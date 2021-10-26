@@ -9,7 +9,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 import 'model/notice_board.dart';
 
@@ -269,9 +268,12 @@ class _NoticeBoardViewState extends State<NoticeBoardView> {
                 child: getFileTypeForExtension(
                             eachNews.newsMediaBeans![index]!.mediaType!) ==
                         MediaFileType.IMAGE_FILES
-                    ? FadeInImage.memoryNetwork(
-                        placeholder: kTransparentImage,
-                        image: eachNews.newsMediaBeans![index]!.mediaUrl!,
+                    ? FadeInImage(
+                        placeholder: const AssetImage(
+                          'assets/images/loading_grey_white.gif',
+                        ),
+                        image: NetworkImage(
+                            eachNews.newsMediaBeans![index]!.mediaUrl!),
                         fit: BoxFit.contain,
                       )
                     : HtmlElementView(
@@ -324,11 +326,6 @@ class _NoticeBoardViewState extends State<NoticeBoardView> {
               itemBuilder: (context, index) =>
                   buildEachNewsWidget(_noticeBoardNews[index]!),
             ),
-      // ListView(
-      //         physics: const BouncingScrollPhysics(),
-      //         children:
-      //             _noticeBoardNews.map((e) => buildEachNewsWidget(e!)).toList(),
-      //       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,

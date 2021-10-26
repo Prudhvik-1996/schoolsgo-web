@@ -36,6 +36,9 @@ const String CREATE_OR_UPDATE_NOTICE_BOARD_MEDIA_BEANS =
 const String CREATE_OR_UPDATE_NOTICE_BOARD =
     "/notice_board/createOrUpdateNoticeBoard";
 
+const String GET_EVENTS = "/events/getEvents";
+const String GET_EVENT_MEDIA = "/events/getEventMedia";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{
