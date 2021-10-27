@@ -251,14 +251,10 @@ class _AdminTeacherDealingSectionsScreenState
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ClayText(
+                Text(
                   _selectedSection == null
                       ? "Select a section"
                       : "Section: ${_selectedSection!.sectionName}",
-                  textColor: Colors.black54,
-                  spread: 2,
-                  size: 24,
-                  emboss: true,
                 ),
                 _editModeButton(),
               ],
@@ -546,6 +542,7 @@ class _AdminTeacherDealingSectionsScreenState
   Widget build(BuildContext context) {
     // print(
     //     "${_tdsList.where((e) => _selectedSection != null && e.sectionId == _selectedSection!.sectionId).length}");
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -565,7 +562,13 @@ class _AdminTeacherDealingSectionsScreenState
                 children: [
                   _buildSectionsFilter(),
                   // Text("$_selectedSection"),
-                  _selectedSection != null ? _buildTDSWidgets() : Container(),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                        screenWidth / 4, 0, screenWidth / 4, 0),
+                    child: _selectedSection != null
+                        ? _buildTDSWidgets()
+                        : Container(),
+                  ),
                 ],
               ),
             ),

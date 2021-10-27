@@ -1,4 +1,3 @@
-import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -39,14 +38,17 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
       },
       child: Container(
         padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.all(10),
+        margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
         child: ClayButton(
           depth: 40,
           surfaceColor: clayContainerColor(context),
           parentColor: clayContainerColor(context),
           spread: 1,
           borderRadius: 10,
-          child: Row(
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            // margin: const EdgeInsets.all(10),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -57,13 +59,11 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
                   ),
                 ),
                 SizedBox(width: MediaQuery.of(context).size.width * 0.005),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.7,
+                Expanded(
                   child: Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
                     ),
                   ),
                 ),
@@ -82,27 +82,31 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
                     ],
                   ),
                 ),
-              ]),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  _getHeaderRow() {
-    return EisStandardHeader(
-      title: ClayText(
-        "Time Table",
-        size: 32,
-        textColor: Colors.blueGrey,
-        spread: 2,
-      ),
-    );
-  }
+  // _getHeaderRow() {
+  //   return EisStandardHeader(
+  //     title: ClayText(
+  //       "Time Table",
+  //       size: 32,
+  //       textColor: Colors.blueGrey,
+  //       spread: 2,
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text("Time Table"),
+      ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
@@ -110,7 +114,7 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
         padding: EdgeInsets.zero,
         primary: false,
         children: <Widget>[
-          _getHeaderRow(),
+          // _getHeaderRow(),
           _getTimeTableOption(
             "Teacher Dealing Sections",
             null,

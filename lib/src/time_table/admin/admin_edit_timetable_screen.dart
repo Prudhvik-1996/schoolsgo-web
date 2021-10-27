@@ -225,15 +225,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ClayText(
+                        Text(
                           week,
-                          // emboss: true,
-                          size: 28,
-                          textColor: Colors.lightBlue[200],
-                          parentColor: Colors.blue,
-                          depth: 40,
-                          color: Colors.black,
-                          spread: 1.2,
                         ),
                       ],
                     ),
@@ -429,18 +422,15 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                     surfaceColor: Colors.blue[200],
                     borderRadius: 10,
                     child: Container(
-                      padding: const EdgeInsets.all(25),
+                      padding: const EdgeInsets.all(10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          ClayText(
-                            "${eachSection.sectionName}",
-                            style: const TextStyle(
-                              fontSize: 24,
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                            child: Text(
+                              "${eachSection.sectionName}",
                             ),
-                            textColor: Colors.black,
-                            emboss: true,
-                            spread: 1,
                           ),
                           InkWell(
                             onTap: () async {
@@ -488,7 +478,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        "Please save changes for Section ${_sectionToBeEdited!.sectionName} to proceed editing ${eachSection.sectionName}"),
+                                      "Please save changes for Section ${_sectionToBeEdited!.sectionName} to proceed editing ${eachSection.sectionName}",
+                                    ),
                                   ),
                                 );
                               } else {
@@ -510,10 +501,6 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                         _sectionToBeEdited == eachSection
                                     ? Icons.check
                                     : Icons.edit,
-                                color: _sectionToBeEdited != null &&
-                                        _sectionToBeEdited == eachSection
-                                    ? Colors.black38
-                                    : Colors.black38,
                               ),
                             ),
                           ),
@@ -564,12 +551,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
             },
             child: Container(
               margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-              child: ClayText(
+              child: const Text(
                 "Go to section",
-                textColor: Colors.black54,
-                spread: 2,
-                size: 18,
-                emboss: true,
               ),
             ),
           ),
@@ -599,12 +582,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(10, 10, 10, 5),
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-        child: ClayText(
+        child: const Text(
           "Go to section",
-          textColor: Colors.black54,
-          spread: 2,
-          size: 24,
-          emboss: true,
         ),
       ),
     );
