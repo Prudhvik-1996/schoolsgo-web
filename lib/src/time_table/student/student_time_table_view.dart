@@ -1,5 +1,9 @@
+import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/time_slot.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -25,18 +29,13 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
   bool _isLoading = false;
   List<SectionWiseTimeSlotBean> _sectionWiseTimeSlots = [];
 
-  late TabController _tabController;
-
   bool _previewMode = false;
+
+  String _selectedWeek = WEEKS[DateTime.now().weekday - 1];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: 7,
-      vsync: this,
-      initialIndex: DateTime.now().weekday - 1,
-    );
     _loadData();
   }
 
@@ -109,10 +108,61 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
         key: GlobalKey(),
         child: Container(
           margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: Container(
-            child: Column(
-                children: [
-                      Row(
+          child: Column(
+            children: [
+                  Row(
+                    children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(width: 0.5),
+                              color: Colors.blue[200],
+                            ),
+                            height: height,
+                            width: width,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                "${widget.studentProfile.sectionName}",
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          )
+                        ] +
+                        timeSlots
+                            .map(
+                              (e) => Container(
+                                height: height,
+                                width: width,
+                                decoration: BoxDecoration(
+                                  border: Border.all(width: 0.5),
+                                  color: Colors.blue[200],
+                                ),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(3.0),
+                                    child: Text(
+                                      "${convert24To12HourFormat(e.startTime!)}\n${convert24To12HourFormat(e.endTime!)}" +
+                                          " " * (allStrings.last.length - 12),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontFamily: 'monospace',
+                                        color: Colors.black,
+                                      ),
+                                      // maxLines: 1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                  )
+                ] +
+                WEEKS
+                    .map(
+                      (eachWeek) => Row(
                         children: [
                               Container(
                                 decoration: BoxDecoration(
@@ -124,124 +174,177 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: Text(
-                                    "${widget.studentProfile.sectionName}",
+                                    eachWeek +
+                                        " " * (allStrings.last.length - 5),
+                                    textAlign: TextAlign.center,
                                     style: const TextStyle(
+                                      fontFamily: 'monospace',
                                       color: Colors.black,
                                     ),
                                   ),
                                 ),
                               )
                             ] +
-                            timeSlots
-                                .map(
-                                  (e) => Container(
-                                    height: height,
-                                    width: width,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(width: 0.5),
-                                      color: Colors.blue[200],
-                                    ),
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(3.0),
-                                        child: Text(
-                                          "${convert24To12HourFormat(e.startTime!)}\n${convert24To12HourFormat(e.endTime!)}" +
-                                              " " *
-                                                  (allStrings.last.length - 12),
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(
-                                            fontFamily: 'monospace',
-                                            color: Colors.black,
-                                          ),
-                                          // maxLines: 1,
-                                        ),
-                                      ),
+                            timeSlots.map((eachTimeSlot) {
+                              String res =
+                                  "N/A" + " " * (allStrings.last.length - 5);
+                              var x = _sectionWiseTimeSlots.where((e) =>
+                                  e.week == eachWeek &&
+                                  e.startTime == eachTimeSlot.startTime &&
+                                  e.endTime == eachTimeSlot.endTime &&
+                                  e.sectionId ==
+                                      widget.studentProfile.sectionId);
+                              if (x.isNotEmpty) {
+                                if (x.first.tdsId == null) {
+                                  res = "-";
+                                } else {
+                                  res = (x.first.subjectName ?? "-")
+                                          .capitalize() +
+                                      " " *
+                                          (allStrings.last.length -
+                                              (x.first.subjectName ?? "-")
+                                                  .capitalize()
+                                                  .length) +
+                                      "\n" +
+                                      (x.first.teacherName ?? "-")
+                                          .capitalize() +
+                                      " " *
+                                          (allStrings.last.length -
+                                              (x.first.teacherName ?? "-")
+                                                  .capitalize()
+                                                  .length);
+                                }
+                              }
+                              return Container(
+                                height: height,
+                                width: width,
+                                decoration: BoxDecoration(
+                                  border: Border.all(width: 0.5),
+                                  color: Colors.blue[100],
+                                ),
+                                padding: const EdgeInsets.all(3),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    res,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      color: Colors.black,
                                     ),
                                   ),
-                                )
-                                .toList(),
-                      )
-                    ] +
-                    WEEKS
-                        .map(
-                          (eachWeek) => Row(
-                            children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(width: 0.5),
-                                      color: Colors.blue[200],
-                                    ),
-                                    height: height,
-                                    width: width,
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        eachWeek +
-                                            " " * (allStrings.last.length - 5),
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          fontFamily: 'monospace',
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ] +
-                                timeSlots.map((eachTimeSlot) {
-                                  String res = "N/A" +
-                                      " " * (allStrings.last.length - 5);
-                                  var x = _sectionWiseTimeSlots.where((e) =>
-                                      e.week == eachWeek &&
-                                      e.startTime == eachTimeSlot.startTime &&
-                                      e.endTime == eachTimeSlot.endTime &&
-                                      e.sectionId ==
-                                          widget.studentProfile.sectionId);
-                                  if (x.isNotEmpty) {
-                                    if (x.first.tdsId == null) {
-                                      res = "-";
-                                    } else {
-                                      res = (x.first.subjectName ?? "-")
-                                              .capitalize() +
-                                          " " *
-                                              (allStrings.last.length -
-                                                  (x.first.subjectName ?? "-")
-                                                      .capitalize()
-                                                      .length) +
-                                          "\n" +
-                                          (x.first.teacherName ?? "-")
-                                              .capitalize() +
-                                          " " *
-                                              (allStrings.last.length -
-                                                  (x.first.teacherName ?? "-")
-                                                      .capitalize()
-                                                      .length);
-                                    }
-                                  }
-                                  return Container(
-                                    height: height,
-                                    width: width,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(width: 0.5),
-                                      color: Colors.blue[100],
-                                    ),
-                                    padding: EdgeInsets.all(3),
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        res,
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          fontFamily: 'monospace',
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                ),
+                              );
+                            }).toList(),
+                      ),
+                    )
+                    .toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildWeekWiseTile(String week) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(15),
+          child: ListView(
+            children: [
+                  Container(
+                    margin: const EdgeInsets.all(15),
+                    child: ClayContainer(
+                      depth: 40,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 1,
+                      borderRadius: 10,
+                      child: Container(
+                        margin: const EdgeInsets.all(15),
+                        child: Center(
+                          child: Text(
+                            week,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                            ),
                           ),
-                        )
-                        .toList()),
+                        ),
+                      ),
+                    ),
+                  )
+                ] +
+                _sectionWiseTimeSlots
+                    .where((e) => e.week == week)
+                    .map(
+                      (e) => Container(
+                        margin: const EdgeInsets.all(15),
+                        child: ClayContainer(
+                          depth: 40,
+                          surfaceColor: clayContainerColor(context),
+                          parentColor: clayContainerColor(context),
+                          spread: 1,
+                          borderRadius: 10,
+                          child: Container(
+                            margin: const EdgeInsets.all(15),
+                            // child: Text(
+                            //   e.toString(),
+                            // ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: ClayText(
+                                    "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
+                                    textColor: Colors.black,
+                                    emboss: true,
+                                    // size: 14,
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      ClayText(
+                                        (e.subjectName ?? "-").capitalize(),
+                                        textColor: Colors.black,
+                                        emboss: true,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      if (e.tdsId == null)
+                                        Container()
+                                      else
+                                        Text(
+                                          (e.teacherName ?? "").capitalize(),
+                                        ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
           ),
         ),
       ),
@@ -266,11 +369,46 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
             )
           : _previewMode
               ? _previewTimeTable()
-              : ListView(
-                  physics: const BouncingScrollPhysics(),
-                  controller: ScrollController(),
-                  children: [const Text("Time Table")] +
-                      _sectionWiseTimeSlots.map((e) => Text("$e")).toList(),
+              : Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: ListView(
+                        children: WEEKS
+                            .map((e) => Container(
+                                  margin: const EdgeInsets.all(15),
+                                  child: ClayButton(
+                                    depth: 40,
+                                    surfaceColor: e == _selectedWeek
+                                        ? Theme.of(context).primaryColor
+                                        : clayContainerColor(context),
+                                    parentColor: clayContainerColor(context),
+                                    spread: 1,
+                                    borderRadius: 10,
+                                    child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedWeek = e;
+                                        });
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(15.0),
+                                        child: Center(child: Text(e)),
+                                      ),
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                    Expanded(
+                      flex: MediaQuery.of(context).orientation ==
+                              Orientation.portrait
+                          ? 4
+                          : 2,
+                      child: buildWeekWiseTile(_selectedWeek),
+                    ),
+                  ],
                 ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,

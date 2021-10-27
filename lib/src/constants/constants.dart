@@ -41,6 +41,14 @@ const String GET_EVENT_MEDIA = "/events/getEventMedia";
 const String CREATE_OR_UPDATE_EVENTS = "/events/createOrUpdateEvents";
 const String CREATE_OR_UPDATE_EVENT_MEDIA = "/events/createOrUpdateEventMedia";
 
+const String GET_SECTIONS = "/commons/getSections";
+const String GET_SUBJECTS = "/commons/getSubjects";
+const String GET_TEACHERS = "/commons/getTeachers";
+
+const String GET_TDS = "/timetable/getTeacherDealingSections";
+const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS =
+    "/timetable/createOrUpdateTeacherDealingSections";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{

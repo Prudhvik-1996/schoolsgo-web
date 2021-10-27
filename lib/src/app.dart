@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/notice_board/notice_board_view.dart';
 import 'package:schoolsgo_web/src/profile/student/student_profile_screen.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
+import 'package:schoolsgo_web/src/time_table/admin/admin_timetable_options_screen.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -176,14 +177,26 @@ class _MyAppState extends State<MyApp> {
                       }
                     }
                   case StudentTimeTableView.routeName:
-                    try {
-                      var argument =
-                          (routeSettings.arguments as StudentProfile);
-                      return StudentTimeTableView(
-                        studentProfile: argument,
-                      );
-                    } catch (e) {
-                      return const E404NotFoundScreen();
+                    if (routeSettings.arguments is StudentProfile) {
+                      try {
+                        var argument =
+                            (routeSettings.arguments as StudentProfile);
+                        return StudentTimeTableView(
+                          studentProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else {
+                      try {
+                        var argument =
+                            (routeSettings.arguments as AdminProfile);
+                        return AdminTimeTableOptions(
+                          adminProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
                     }
                   case EventsView.routeName:
                     if (routeSettings.arguments is StudentProfile) {

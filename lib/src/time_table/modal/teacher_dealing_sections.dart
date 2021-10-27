@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:http/http.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
+
 class GetTeacherDealingSectionsRequest {
   int? schoolId;
   int? teacherId;
@@ -68,6 +73,26 @@ class GetTeacherDealingSectionsResponse {
   }
 }
 
+Future<GetTeacherDealingSectionsResponse> getTeacherDealingSections(
+    GetTeacherDealingSectionsRequest getTeacherDealingSectionsRequest) async {
+  print(
+      "Raising request to getTeacherDealingSections with request ${jsonEncode(getTeacherDealingSectionsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_TDS;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getTeacherDealingSectionsRequest.toJson()),
+  );
+
+  GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
+      GetTeacherDealingSectionsResponse.fromJson(json.decode(response.body));
+  print(
+      "GetTeacherDealingSectionsResponse ${getTeacherDealingSectionsResponse.toJson()}");
+  return getTeacherDealingSectionsResponse;
+}
+
 class CreateOrUpdateTeacherDealingSectionsRequest {
   int? agentId;
   int? schoolId;
@@ -123,6 +148,30 @@ class CreateOrUpdateTeacherDealingSectionsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+}
+
+Future<CreateOrUpdateTeacherDealingSectionsResponse>
+    createOrUpdateTeacherDealingSections(
+        CreateOrUpdateTeacherDealingSectionsRequest
+            createOrUpdateTeacherDealingSectionsRequest) async {
+  print(
+      "Raising request to createOrUpdateTeacherDealingSections with request ${jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson()),
+  );
+
+  CreateOrUpdateTeacherDealingSectionsResponse
+      createOrUpdateTeacherDealingSectionsResponse =
+      CreateOrUpdateTeacherDealingSectionsResponse.fromJson(
+          json.decode(response.body));
+  print(
+      "createOrUpdateTeacherDealingSectionsResponse ${createOrUpdateTeacherDealingSectionsResponse.toJson()}");
+  return createOrUpdateTeacherDealingSectionsResponse;
 }
 
 class TeacherDealingSection {
