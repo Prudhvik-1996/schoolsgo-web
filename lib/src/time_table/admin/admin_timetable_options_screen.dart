@@ -1,6 +1,5 @@
 import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -12,8 +11,10 @@ import 'admin_edit_timetable_screen.dart';
 import 'admin_time_table_randomizer_screen.dart';
 
 class AdminTimeTableOptions extends StatefulWidget {
-  const AdminTimeTableOptions({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminTimeTableOptions({
+    Key? key,
+    required this.adminProfile,
+  }) : super(key: key);
 
   final AdminProfile adminProfile;
   static const routeName = "/timetable";
@@ -25,9 +26,6 @@ class AdminTimeTableOptions extends StatefulWidget {
 class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
   @override
   void initState() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
     super.initState();
   }
 
@@ -108,42 +106,38 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
-      body: Stack(
+      body: ListView(
+        padding: EdgeInsets.zero,
+        primary: false,
         children: <Widget>[
-          ListView(
-            padding: EdgeInsets.zero,
-            primary: false,
-            children: <Widget>[
-              _getHeaderRow(),
-              _getTimeTableOption(
-                "Teacher Dealing Sections",
-                null,
-                AdminTeacherDealingSectionsScreen(
-                  adminProfile: widget.adminProfile,
-                ),
-              ),
-              _getTimeTableOption(
-                "Section Wise Time Slots Management",
-                null,
-                AdminEditTimeTable(
-                  adminProfile: widget.adminProfile,
-                ),
-              ),
-              _getTimeTableOption(
-                "Automatic Time Table Generation",
-                null,
-                AdminTimeTableRandomizer(adminProfile: widget.adminProfile),
-              ),
-              _getTimeTableOption(
-                "All Teachers' Time Table Preview",
-                null,
-                AdminAllTeacherTimeTablePreviewScreen(
-                  adminProfile: widget.adminProfile,
-                  teacherProfile: null,
-                ),
-              ),
-            ],
-          )
+          _getHeaderRow(),
+          _getTimeTableOption(
+            "Teacher Dealing Sections",
+            null,
+            AdminTeacherDealingSectionsScreen(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getTimeTableOption(
+            "Section Wise Time Slots Management",
+            null,
+            AdminEditTimeTable(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getTimeTableOption(
+            "Automatic Time Table Generation",
+            null,
+            AdminTimeTableRandomizer(adminProfile: widget.adminProfile),
+          ),
+          _getTimeTableOption(
+            "All Teachers' Time Table Preview",
+            null,
+            AdminAllTeacherTimeTablePreviewScreen(
+              adminProfile: widget.adminProfile,
+              teacherProfile: null,
+            ),
+          ),
         ],
       ),
     );

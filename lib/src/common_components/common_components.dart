@@ -361,7 +361,11 @@ class AdminAppDrawer extends Drawer {
                                             ),
                                           ),
                                           onTap: () {
-                                            print("Entering ${e1.routeName}");
+                                            Navigator.pushNamed(
+                                              context,
+                                              e1.routeName!,
+                                              arguments: e1.argument,
+                                            );
                                           },
                                         ),
                                       ),

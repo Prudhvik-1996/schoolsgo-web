@@ -575,7 +575,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
           ),
           GridView.count(
               childAspectRatio: 2.25,
-              crossAxisCount: 3,
+              crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
               shrinkWrap: true,
               children:
                   _sectionsList.map((e) => buildSectionCheckBox(e)).toList()

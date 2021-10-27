@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dar
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'common_components/dashboard_widgets.dart';
 import 'common_components/default_splash_screen.dart';
 import 'common_components/not_found_screen.dart';
 import 'events/admin_each_event_screen.dart';
@@ -22,6 +23,10 @@ import 'login/login_screen.dart';
 import 'notice_board/admin_notice_board_screen.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'time_table/admin/admin_all_teachers_preview_time_table_screens.dart';
+import 'time_table/admin/admin_edit_timetable_screen.dart';
+import 'time_table/admin/admin_teacher_dealing_sections_screen.dart';
+import 'time_table/admin/admin_time_table_randomizer_screen.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({
@@ -186,6 +191,32 @@ class _MyAppState extends State<MyApp> {
                         );
                       } catch (e) {
                         return const E404NotFoundScreen();
+                      }
+                    } else if (routeSettings.arguments
+                        is AdminRouteWithParams<String>) {
+                      var routeArgument = (routeSettings.arguments!
+                          as AdminRouteWithParams<String>);
+                      switch (routeArgument.params![0]) {
+                        case "Teacher Dealing Sections":
+                          return AdminTeacherDealingSectionsScreen(
+                            adminProfile: routeArgument.adminProfile,
+                          );
+                        case "Section Wise Time Slots Management":
+                          return AdminEditTimeTable(
+                            adminProfile: routeArgument.adminProfile,
+                          );
+                        case "Automatic Time Table Generation":
+                          return AdminTimeTableRandomizer(
+                              adminProfile: routeArgument.adminProfile);
+                        case "All Teachers' Time Table Preview":
+                          return AdminAllTeacherTimeTablePreviewScreen(
+                            adminProfile: routeArgument.adminProfile,
+                            teacherProfile: null,
+                          );
+                        default:
+                          return AdminTimeTableOptions(
+                            adminProfile: routeArgument.adminProfile,
+                          );
                       }
                     } else {
                       try {

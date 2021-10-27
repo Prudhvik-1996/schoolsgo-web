@@ -165,7 +165,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState
                 child: GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.25,
-                  crossAxisCount: 3,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
                   children: _sectionsList
                       .map((e) => _buildSectionCheckBox(e))
@@ -208,7 +208,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState
               });
             },
             child: Center(
-              child: ClayText(
+              child: Text(
                 week,
                 style: const TextStyle(
                   fontSize: 12,
@@ -256,7 +256,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState
                 child: GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 1.75,
-                  crossAxisCount: 3,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
                   children: WEEKS.map((e) => _buildWeekCheckBox(e)).toList(),
                 ),
