@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +51,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
   @override
   void initState() {
     super.initState();
+    _sectionIndex = 0;
     _loadData();
   }
 
@@ -63,7 +66,6 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
       _isSectionPickerOpen = false;
       _previewMode = false;
       _printKeys = {};
-      _sectionIndex = 0;
     });
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -151,9 +153,6 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
             child: Center(
               child: Text(
                 section.sectionName!,
-                style: const TextStyle(
-                  color: Colors.black,
-                ),
               ),
             ),
           ),
@@ -215,78 +214,154 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
       child: ClayContainer(
         depth: 40,
         color: clayContainerColor(context),
+        surfaceColor: DateTime.now().weekday - 1 == WEEKS.indexOf(week)
+            ? Colors.blue[200]
+            : null,
         borderRadius: 10,
         child: Container(
           padding: const EdgeInsets.all(25),
-          child: Column(
-            children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          week,
-                        ),
-                      ],
+          child: sectionWiseTimeSlotsForWeek.isEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 50,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            week,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ] +
-                sectionWiseTimeSlotsForWeek
-                    .map(
-                      (e) => Container(
-                        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        child: ClayContainer(
-                          depth: 20,
-                          // height: 100,
-                          color: clayContainerColor(context),
-                          borderRadius: 10,
-                          child: Container(
-                            margin: const EdgeInsets.fromLTRB(2, 20, 0, 20),
-                            padding: const EdgeInsets.fromLTRB(15, 10, 10, 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Text(
-                                //   "${e.week} - ${e.startTime} - ${e.endTime} - ${e.managerName}",
-                                // ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    convert24To12HourFormat(e.startTime!),
-                                    // "${convert24To12HourFormat(e.startTime)}\n${convert24To12HourFormat(e.endTime)}",
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    convert24To12HourFormat(e.endTime!),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 4,
-                                  child: Container(
-                                    child: _sectionToBeEdited != section
-                                        ? Text(
-                                            (e.teacherName ?? "-")
-                                                    .capitalize() +
-                                                "\n" +
-                                                (e.subjectName ?? "-")
-                                                    .capitalize(),
-                                          )
-                                        : buildDropdownButtonToPickTDS(
-                                            section, e),
-                                  ),
-                                ),
-                              ],
-                            ),
+                    Container(
+                      height: 100,
+                      child: ClayContainer(
+                        depth: 20,
+                        color: clayContainerColor(context),
+                        borderRadius: 10,
+                        parentColor:
+                            DateTime.now().weekday - 1 == WEEKS.indexOf(week)
+                                ? Colors.blue[200]
+                                : null,
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          child: const FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text("Time Slots not assigned"),
                           ),
                         ),
                       ),
-                    )
-                    .toList(),
-          ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                week,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] +
+                      sectionWiseTimeSlotsForWeek
+                          .map(
+                            (e) => Container(
+                              margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                              child: ClayContainer(
+                                parentColor: DateTime.now().weekday - 1 ==
+                                        WEEKS.indexOf(week)
+                                    ? Colors.blue[200]
+                                    : null,
+                                depth: 20,
+                                // height: 100,
+                                color: clayContainerColor(context),
+                                borderRadius: 10,
+                                child: SizedBox(
+                                  height: 50,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Container(
+                                          margin: const EdgeInsets.all(5),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              convert24To12HourFormat(
+                                                  e.startTime!),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Container(
+                                          margin: const EdgeInsets.all(5),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              convert24To12HourFormat(
+                                                  e.endTime!),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 5,
+                                        child: _sectionToBeEdited != section
+                                            ? Container(
+                                                margin:
+                                                    const EdgeInsets.fromLTRB(
+                                                        8, 0, 8, 0),
+                                                height: 45,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Text(
+                                                        (e.subjectName ?? "-")
+                                                            .capitalize(),
+                                                      ),
+                                                    ),
+                                                    FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Text(
+                                                        (e.teacherName ?? "-")
+                                                            .capitalize(),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : buildDropdownButtonToPickTDS(
+                                                section,
+                                                e,
+                                              ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                ),
         ),
       ),
     );
@@ -304,29 +379,41 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                 (e1) => DropdownMenuItem<TeacherDealingSection>(
                   value: e1,
                   child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(5),
-                      color: e1.tdsId == timeSlotToBeEdited.tdsId
-                          ? Colors.blue[100]
-                          : Colors.grey[300],
-                    ),
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-                    child: RichText(
-                      text: TextSpan(
-                        text: (e1.teacherName ?? "-").capitalize() + "\n",
+                    height: 35,
+                    padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
+                    margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                    child: ClayContainer(
+                      depth: 40,
+                      color: clayContainerColor(context),
+                      spread: 2,
+                      borderRadius: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TextSpan(
-                            text: (e1.subjectName ?? "-").capitalize(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                          SizedBox(
+                            height: 12,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                (e1.subjectName ?? "-").capitalize(),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          )
+                          ),
+                          SizedBox(
+                            height: 12,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                (e1.teacherName ?? "-").capitalize(),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
@@ -398,6 +485,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
   }
 
   Widget buildSectionWiseTimeSlotsForAllSelectedSections() {
+    int crossAxisCount = MediaQuery.of(context).size.width ~/ 300;
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       height: 600,
@@ -408,8 +496,29 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
         allowImplicitScrolling: true,
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
+        onPageChanged: (int x) {
+          print("503: $x");
+          setState(() {
+            _sectionIndex = x;
+          });
+        },
         itemBuilder: (BuildContext context, int itemIndex) {
           Section eachSection = _sectionsList[itemIndex];
+          List<SectionWiseTimeSlotBean> sectionTimeSlotsForGivenSection =
+              _sectionWiseTimeSlots
+                  .where((e) => eachSection.sectionId == e.sectionId)
+                  .toList();
+          double heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
+                    return sectionTimeSlotsForGivenSection
+                        .where(
+                            (eachTimeSlot) => eachTimeSlot.weekId == eachWeekId)
+                        .length;
+                  }).reduce(max) *
+                  50 +
+              275;
+          double widthOfEachCard =
+              (MediaQuery.of(context).size.width - 10) / crossAxisCount;
+
           return SizedBox(
             width: MediaQuery.of(context).size.width - 10,
             child: Column(
@@ -417,9 +526,10 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                 Container(
                   margin: const EdgeInsets.all(10),
                   padding: const EdgeInsets.all(10),
-                  child: ClayButton(
+                  child: ClayContainer(
                     depth: 40,
                     surfaceColor: Colors.blue[200],
+                    parentColor: clayContainerColor(context),
                     borderRadius: 10,
                     child: Container(
                       padding: const EdgeInsets.all(10),
@@ -488,14 +598,12 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                 });
                               }
                             },
-                            child: ClayContainer(
+                            child: ClayButton(
                               color: Colors.blue[200],
                               height: 50,
                               width: 50,
                               borderRadius: 50,
                               surfaceColor: Colors.blue[200],
-                              emboss: _sectionToBeEdited != null &&
-                                  _sectionToBeEdited == eachSection,
                               child: Icon(
                                 _sectionToBeEdited != null &&
                                         _sectionToBeEdited == eachSection
@@ -511,16 +619,15 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                 ),
                 Expanded(
                   child: SafeArea(
-                    child: ListView(
+                    child: GridView.count(
                       physics: const BouncingScrollPhysics(),
                       shrinkWrap: true,
-                      children: WEEKS
-                          .map(
-                            (eachWeek) =>
-                                buildSectionWiseTimeSlotsForEachSection(
-                                    eachSection, eachWeek),
-                          )
-                          .toList(),
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: widthOfEachCard / heightOfEachCard,
+                      children: WEEKS.map((eachWeek) {
+                        return buildSectionWiseTimeSlotsForEachSection(
+                            eachSection, eachWeek);
+                      }).toList(),
                     ),
                   ),
                 ),
@@ -570,21 +677,97 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
   }
 
   Widget _selectSectionCollapsed() {
-    return InkWell(
-      onTap: () {
-        HapticFeedback.vibrate();
-        if (_isLoading) return;
-        setState(() {
-          _isSectionPickerOpen = !_isSectionPickerOpen;
-        });
-      },
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(10, 10, 10, 5),
-        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-        child: const Text(
-          "Go to section",
-        ),
+    return Container(
+      // height: 500,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: ClayButton(
+              depth: 40,
+              color: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 10,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.vibrate();
+                  if (_isLoading) return;
+                  setState(() {
+                    _isSectionPickerOpen = !_isSectionPickerOpen;
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      child: const Text(
+                        "Go to section",
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                      child: const Icon(Icons.search),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(15, 0, 10, 0),
+            child: InkWell(
+              onTap: () {
+                if (_sectionIndex == 0) return;
+                setState(() {
+                  _isSectionPickerOpen = false;
+                  _sectionIndex = _sectionIndex! - 1;
+                  pageController.animateToPage(
+                    _sectionIndex!,
+                    duration: const Duration(seconds: 1),
+                    curve: Curves.linear,
+                  );
+                });
+              },
+              child: ClayButton(
+                color: clayContainerColor(context),
+                height: 30,
+                width: 30,
+                borderRadius: 50,
+                surfaceColor: clayContainerColor(context),
+                child: const Icon(Icons.arrow_left),
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: InkWell(
+              onTap: () {
+                if (_sectionIndex == _sectionsList.length - 1) return;
+                setState(() {
+                  _isSectionPickerOpen = false;
+                  _sectionIndex = _sectionIndex! + 1;
+                  pageController.animateToPage(
+                    _sectionIndex!,
+                    duration: const Duration(seconds: 1),
+                    curve: Curves.linear,
+                  );
+                });
+              },
+              child: ClayButton(
+                color: clayContainerColor(context),
+                height: 30,
+                width: 30,
+                borderRadius: 50,
+                surfaceColor: clayContainerColor(context),
+                child: const Icon(Icons.arrow_right),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -593,17 +776,17 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 10, 10, 5),
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-      child: ClayButton(
-        depth: 40,
-        color: clayContainerColor(context),
-        spread: 2,
-        borderRadius: 10,
-        child: _isSectionPickerOpen
-            ? _selectSectionExpanded()
-            : _selectSectionCollapsed(),
-        // height: 40,
-        // color: Colors.red,
-      ),
+      child: _isSectionPickerOpen
+          ? ClayButton(
+              depth: 40,
+              color: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 10,
+              child: _selectSectionExpanded(),
+            )
+          : _selectSectionCollapsed(),
+      // height: 40,
+      // color: Colors.red,
     );
   }
 

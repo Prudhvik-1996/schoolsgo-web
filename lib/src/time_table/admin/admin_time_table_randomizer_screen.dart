@@ -237,15 +237,8 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ClayText(
+                        Text(
                           week,
-                          // emboss: true,
-                          size: 28,
-                          textColor: Colors.lightBlue[200],
-                          parentColor: Colors.blue,
-                          depth: 40,
-                          color: clayContainerTextColor(context),
-                          spread: 1.2,
                         ),
                       ],
                     ),
@@ -476,16 +469,13 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                         surfaceColor: Colors.blue[200],
                         borderRadius: 10,
                         child: Container(
-                          padding: const EdgeInsets.all(25),
+                          padding: const EdgeInsets.all(10),
                           child: Center(
-                            child: ClayText(
+                            child: Text(
                               "${eachSection.sectionName}",
                               style: const TextStyle(
                                 fontSize: 24,
                               ),
-                              textColor: clayContainerTextColor(context),
-                              emboss: true,
-                              spread: 1,
                             ),
                           ),
                         ),
@@ -726,14 +716,10 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
             },
             child: Container(
               margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-              child: ClayText(
+              child: Text(
                 !_selectedSectionMap.values.toSet().contains(true)
                     ? "Select a section"
                     : "Sections:",
-                textColor: Colors.black54,
-                spread: 2,
-                size: 18,
-                emboss: true,
               ),
             ),
           ),
@@ -760,16 +746,12 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
       },
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(10, 10, 10, 5),
+        margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-        child: ClayText(
+        child: Text(
           !_selectedSectionMap.values.toSet().contains(true)
               ? "Select a section"
               : "Sections:\n${_selectedSectionMap.keys.where((eachSection) => _selectedSectionMap[eachSection]!).map((e) => e.sectionName).toList().join(", ")}",
-          textColor: Colors.black54,
-          spread: 2,
-          size: 24,
-          emboss: true,
         ),
       ),
     );
