@@ -9,7 +9,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 
-import 'model/events.dart';
+import '../model/events.dart';
 
 class EachEventView extends StatefulWidget {
   const EachEventView({

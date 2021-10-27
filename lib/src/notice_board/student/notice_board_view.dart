@@ -10,7 +10,7 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import 'model/notice_board.dart';
+import '../model/notice_board.dart';
 
 class NoticeBoardView extends StatefulWidget {
   const NoticeBoardView({

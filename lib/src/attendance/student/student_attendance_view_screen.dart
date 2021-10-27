@@ -10,7 +10,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import 'model/attendance_beans.dart';
+import '../model/attendance_beans.dart';
 
 class StudentAttendanceViewScreen extends StatefulWidget {
   final StudentProfile studentProfile;

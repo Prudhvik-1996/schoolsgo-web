@@ -9,8 +9,8 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 
+import '../model/events.dart';
 import 'admin_each_event_screen.dart';
-import 'model/events.dart';
 
 class AdminEventsScreen extends StatefulWidget {
   const AdminEventsScreen({
