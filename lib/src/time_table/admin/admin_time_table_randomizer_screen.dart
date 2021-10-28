@@ -1,8 +1,9 @@
+import 'dart:math';
+
 import 'package:clay_containers/clay_containers.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:numberpicker/numberpicker.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
@@ -31,6 +32,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
 
   List<Section> _sectionsList = [];
   Map<Section, bool> _selectedSectionMap = {};
+  int? _sectionIndex = 0;
 
   List<TeacherDealingSection> _tdsList = [];
 
@@ -47,6 +49,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
   bool _previewMode = false;
 
   Map<Section, GlobalKey<State<StatefulWidget>>> _printKeys = {};
+  late PageController pageController;
 
   @override
   void initState() {
@@ -85,6 +88,11 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
           _selectedSectionMap[eachSection] = false;
           _isMoreOptionsSelectedMap[eachSection] = false;
           _printKeys[eachSection] = GlobalKey();
+          pageController = PageController(
+            initialPage: _sectionIndex!,
+            keepPage: true,
+            viewportFraction: 1,
+          );
         });
       }
     }
@@ -161,7 +169,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                 } else {
                   _selectedSectionMap[section] = true;
                 }
-                _isSectionPickerOpen = false;
+                // _isSectionPickerOpen = false;
               });
             },
             child: Center(
@@ -230,114 +238,163 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
         borderRadius: 10,
         child: Container(
           padding: const EdgeInsets.all(25),
-          child: Column(
-            children: [
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          week,
-                        ),
-                      ],
+          child: sectionWiseTimeSlotsForWeek.isEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 50,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            week,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ] +
-                sectionWiseTimeSlotsForWeek
-                    .map(
-                      (e) => Container(
-                        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        child: ClayContainer(
-                          depth: 20,
-                          // height: 100,
-                          color: clayContainerColor(context),
-                          borderRadius: 10,
-                          child: Stack(
+                    SizedBox(
+                      height: 100,
+                      child: ClayContainer(
+                        depth: 20,
+                        color: clayContainerColor(context),
+                        borderRadius: 10,
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          child: const FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text("Time Slots not assigned"),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: InkWell(
-                                  onTap: () {
-                                    HapticFeedback.vibrate();
-                                    if (e.isPinned ?? false) {
-                                      setState(() {
-                                        e.isPinned = false;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        e.isPinned = true;
-                                      });
-                                    }
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.all(10),
-                                    child: RotationTransition(
-                                      turns: const AlwaysStoppedAnimation(
-                                          45 / 360),
-                                      child: Icon(
-                                        Icons.push_pin,
-                                        color: e.isPinned ?? false
-                                            ? Colors.blue
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              Text(
+                                week,
                               ),
-                              Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  margin:
-                                      const EdgeInsets.fromLTRB(2, 20, 0, 20),
-                                  padding:
-                                      const EdgeInsets.fromLTRB(15, 10, 10, 10),
+                            ],
+                          ),
+                        ),
+                      ] +
+                      sectionWiseTimeSlotsForWeek
+                          .map(
+                            (e) => Container(
+                              margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                              child: ClayContainer(
+                                depth: 20,
+                                // height: 100,
+                                color: clayContainerColor(context),
+                                borderRadius: 10,
+                                child: SizedBox(
+                                  height: 50,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      // Text(
-                                      //   "${e.week} - ${e.startTime} - ${e.endTime} - ${e.managerName}",
-                                      // ),
                                       Expanded(
                                         flex: 2,
-                                        child: Text(
-                                          convert24To12HourFormat(e.startTime!),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          convert24To12HourFormat(e.endTime!),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 4,
                                         child: Container(
+                                          margin: const EdgeInsets.all(5),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              convert24To12HourFormat(
+                                                  e.startTime!),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Container(
+                                          margin: const EdgeInsets.all(5),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              convert24To12HourFormat(
+                                                  e.endTime!),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 5,
+                                        child: SizedBox(
+                                          height: 45,
                                           child: e.isPinned ?? false
-                                              ? Text(
-                                                  (e.teacherName ?? "-")
-                                                          .capitalize() +
-                                                      "\n" +
-                                                      (e.subjectName ?? "-")
-                                                          .capitalize(),
+                                              ? Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Text(
+                                                        (e.subjectName ?? "-")
+                                                            .capitalize(),
+                                                      ),
+                                                    ),
+                                                    FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Text(
+                                                        (e.teacherName ?? "-")
+                                                            .capitalize(),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 )
                                               : buildDropdownButtonToPickTDS(
                                                   section, e),
+                                        ),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          HapticFeedback.vibrate();
+                                          if (e.isPinned ?? false) {
+                                            setState(() {
+                                              e.isPinned = false;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              e.isPinned = true;
+                                            });
+                                          }
+                                        },
+                                        child: Container(
+                                          margin: const EdgeInsets.all(10),
+                                          child: RotationTransition(
+                                            turns: const AlwaysStoppedAnimation(
+                                                45 / 360),
+                                            child: Icon(
+                                              Icons.push_pin,
+                                              size: 16,
+                                              color: e.isPinned ?? false
+                                                  ? Colors.blue
+                                                  : Colors.grey,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-          ),
+                            ),
+                          )
+                          .toList(),
+                ),
         ),
       ),
     );
@@ -355,29 +412,41 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                 (e1) => DropdownMenuItem<TeacherDealingSection>(
                   value: e1,
                   child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(5),
-                      color: e1.tdsId == timeSlotToBeEdited.tdsId
-                          ? Colors.blue[100]
-                          : Colors.grey[300],
-                    ),
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
-                    margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
-                    child: RichText(
-                      text: TextSpan(
-                        text: (e1.teacherName ?? "-").capitalize() + "\n",
+                    height: 35,
+                    padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
+                    margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                    child: ClayContainer(
+                      depth: 40,
+                      color: clayContainerColor(context),
+                      spread: 2,
+                      borderRadius: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TextSpan(
-                            text: (e1.subjectName ?? "-").capitalize(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                          SizedBox(
+                            height: 12,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                (e1.subjectName ?? "-").capitalize(),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
-                          )
+                          ),
+                          SizedBox(
+                            height: 12,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                (e1.teacherName ?? "-").capitalize(),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
@@ -449,59 +518,90 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
   }
 
   Widget buildSectionWiseTimeSlotsForAllSelectedSections() {
+    int crossAxisCount = MediaQuery.of(context).size.width ~/ 300;
     return SizedBox(
       width: MediaQuery.of(context).size.width,
       child: PageView(
         physics: const BouncingScrollPhysics(),
+        controller: pageController,
         scrollDirection: Axis.horizontal,
+        onPageChanged: (int x) {
+          setState(() {
+            _sectionIndex = x;
+          });
+        },
         children: _selectedSectionMap.keys
             .where((eachSection) => _selectedSectionMap[eachSection]!)
             .map(
-              (eachSection) => SizedBox(
-                width: MediaQuery.of(context).size.width - 10,
-                child: Column(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.all(10),
-                      padding: const EdgeInsets.all(10),
-                      child: ClayContainer(
-                        depth: 40,
-                        surfaceColor: Colors.blue[200],
-                        borderRadius: 10,
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Center(
-                            child: Text(
-                              "${eachSection.sectionName}",
-                              style: const TextStyle(
-                                fontSize: 24,
-                              ),
+          (eachSection) {
+            List<SectionWiseTimeSlotBean> sectionTimeSlotsForGivenSection =
+                _sectionWiseTimeSlots
+                    .where((e) => eachSection.sectionId == e.sectionId)
+                    .toList();
+            double heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
+                      return sectionTimeSlotsForGivenSection
+                          .where((eachTimeSlot) =>
+                              eachTimeSlot.weekId == eachWeekId)
+                          .length;
+                    }).reduce(max) *
+                    50 +
+                275;
+            double widthOfEachCard =
+                (MediaQuery.of(context).size.width - 10) / crossAxisCount;
+            return SizedBox(
+              width: MediaQuery.of(context).size.width - 10,
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
+                    child: ClayContainer(
+                      depth: 40,
+                      surfaceColor: Colors.blue[200],
+                      borderRadius: 10,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        child: Center(
+                          child: Text(
+                            "${eachSection.sectionName}",
+                            style: const TextStyle(
+                              fontSize: 24,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: SafeArea(
-                        child: ListView(
-                          physics: const BouncingScrollPhysics(),
-                          shrinkWrap: true,
-                          children: [_moreOptions(eachSection)] +
-                              WEEKS
-                                  .map(
-                                    (eachWeek) =>
-                                        buildSectionWiseTimeSlotsForEachSection(
-                                            eachSection, eachWeek),
-                                  )
-                                  .toList(),
-                        ),
+                  ),
+                  Expanded(
+                    child: SafeArea(
+                      child: ListView(
+                        physics: const BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        children: [_moreOptions(eachSection)] +
+                            [
+                              GridView.count(
+                                crossAxisCount: crossAxisCount,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                childAspectRatio:
+                                    widthOfEachCard / heightOfEachCard,
+                                children: WEEKS
+                                    .map(
+                                      (eachWeek) =>
+                                          buildSectionWiseTimeSlotsForEachSection(
+                                              eachSection, eachWeek),
+                                    )
+                                    .toList(),
+                              )
+                            ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            )
-            .toList(),
+            );
+          },
+        ).toList(),
       ),
     );
   }
@@ -546,7 +646,14 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                           Expanded(
                             flex: 2,
                             child: Text(
-                                "${eachTds.teacherName!.capitalize()}\n${eachTds.subjectName!.capitalize()}"),
+                              "${eachTds.subjectName!.capitalize()}\n${eachTds.teacherName!.capitalize()}",
+                              style: TextStyle(
+                                fontSize: MediaQuery.of(context).orientation ==
+                                        Orientation.landscape
+                                    ? 14
+                                    : 9,
+                              ),
+                            ),
                           )
                         ] +
                         weeks.map((eachWeekId) {
@@ -564,39 +671,48 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                   .toList()
                                   .first;
                           return Expanded(
-                            flex: 1,
                             child: Container(
-                              margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                              child: NumberPicker(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  border: Border.all(
-                                    color: Colors.grey,
+                              margin: const EdgeInsets.all(8),
+                              child: ClayContainer(
+                                depth: 40,
+                                color: clayContainerColor(context),
+                                borderRadius: 5,
+                                height: MediaQuery.of(context).orientation ==
+                                        Orientation.portrait
+                                    ? 25
+                                    : null,
+                                child: Center(
+                                  child: DropdownButton<int>(
+                                    underline: Container(),
+                                    isExpanded: true,
+                                    icon: Container(),
+                                    value: x!.dailyLimit,
+                                    items: List.generate(
+                                      _sectionWiseTimeSlots
+                                          .where((eachTimeSlot) =>
+                                              eachTimeSlot.sectionId ==
+                                                  section.sectionId &&
+                                              eachTimeSlot.weekId == eachWeekId)
+                                          .length,
+                                      (i) => DropdownMenuItem(
+                                        child: Center(
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              "$i",
+                                            ),
+                                          ),
+                                        ),
+                                        value: i,
+                                      ),
+                                    ),
+                                    onChanged: (int? num) {
+                                      setState(() {
+                                        x.dailyLimit = num;
+                                      });
+                                    },
                                   ),
                                 ),
-                                textStyle: TextStyle(
-                                  color: Colors.grey[500],
-                                  fontSize: 8,
-                                ),
-                                selectedTextStyle: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                value: x == null ? 0 : x.dailyLimit!,
-                                minValue: 0,
-                                maxValue: _sectionWiseTimeSlots
-                                    .where((eachTimeSlot) =>
-                                        eachTimeSlot.sectionId ==
-                                            section.sectionId &&
-                                        eachTimeSlot.weekId == eachWeekId)
-                                    .length,
-                                onChanged: (dynamic num) {
-                                  if (x == null) return;
-                                  setState(() {
-                                    x.dailyLimit = num;
-                                  });
-                                },
                               ),
                             ),
                           );
@@ -612,7 +728,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.all(10),
-      child: ClayButton(
+      child: ClayContainer(
         depth: 40,
         color: clayContainerColor(context),
         borderRadius: 10,
@@ -706,22 +822,49 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         children: [
-          InkWell(
-            onTap: () {
-              HapticFeedback.vibrate();
-              if (_isLoading || _isRandomising) return;
-              setState(() {
-                _isSectionPickerOpen = !_isSectionPickerOpen;
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-              child: Text(
-                !_selectedSectionMap.values.toSet().contains(true)
-                    ? "Select a section"
-                    : "Sections:",
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () {
+                  HapticFeedback.vibrate();
+                  if (_isLoading || _isRandomising) return;
+                  setState(() {
+                    _isSectionPickerOpen = !_isSectionPickerOpen;
+                  });
+                },
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                  child: Text(
+                    !_selectedSectionMap.values.toSet().contains(true)
+                        ? "Select a section"
+                        : "Sections:",
+                  ),
+                ),
               ),
-            ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 10, 0),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _isSectionPickerOpen = false;
+                    });
+                  },
+                  child: ClayButton(
+                    color: clayContainerColor(context),
+                    height: 30,
+                    width: 30,
+                    borderRadius: 50,
+                    surfaceColor: clayContainerColor(context),
+                    child: const Icon(Icons.check),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 15,
           ),
           GridView.count(
             childAspectRatio: 2.25,
@@ -736,24 +879,89 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
   }
 
   Widget _selectSectionCollapsed() {
-    return InkWell(
-      onTap: () {
-        HapticFeedback.vibrate();
-        if (_isLoading || _isRandomising) return;
-        setState(() {
-          _isSectionPickerOpen = !_isSectionPickerOpen;
-        });
-      },
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-        child: Text(
-          !_selectedSectionMap.values.toSet().contains(true)
-              ? "Select a section"
-              : "Sections:\n${_selectedSectionMap.keys.where((eachSection) => _selectedSectionMap[eachSection]!).map((e) => e.sectionName).toList().join(", ")}",
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: ClayContainer(
+            depth: 40,
+            color: clayContainerColor(context),
+            spread: 2,
+            borderRadius: 10,
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.vibrate();
+                if (_isLoading || _isRandomising) return;
+                setState(() {
+                  _isSectionPickerOpen = !_isSectionPickerOpen;
+                });
+              },
+              child: Container(
+                width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: Text(
+                  !_selectedSectionMap.values.toSet().contains(true)
+                      ? "Select a section"
+                      : "Sections:\n${_selectedSectionMap.keys.where((eachSection) => _selectedSectionMap[eachSection]!).map((e) => e.sectionName).toList().join(", ")}",
+                ),
+              ),
+            ),
+          ),
         ),
-      ),
+        Container(
+          margin: const EdgeInsets.fromLTRB(15, 0, 10, 0),
+          child: InkWell(
+            onTap: () {
+              if (_sectionIndex == 0) return;
+              setState(() {
+                _isSectionPickerOpen = false;
+                _sectionIndex = _sectionIndex! - 1;
+                pageController.animateToPage(
+                  _sectionIndex!,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.linear,
+                );
+              });
+            },
+            child: ClayButton(
+              color: clayContainerColor(context),
+              height: 30,
+              width: 30,
+              borderRadius: 50,
+              surfaceColor: clayContainerColor(context),
+              child: const Icon(Icons.arrow_left),
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: InkWell(
+            onTap: () {
+              if (_sectionIndex ==
+                  _selectedSectionMap.values.where((e) => e).length - 1) return;
+              setState(() {
+                _isSectionPickerOpen = false;
+                _sectionIndex = _sectionIndex! + 1;
+                pageController.animateToPage(
+                  _sectionIndex!,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.linear,
+                );
+              });
+            },
+            child: ClayButton(
+              color: clayContainerColor(context),
+              height: 30,
+              width: 30,
+              borderRadius: 50,
+              surfaceColor: clayContainerColor(context),
+              child: const Icon(Icons.arrow_right),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -764,17 +972,15 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
       child: Container(
         margin: const EdgeInsets.fromLTRB(10, 10, 10, 5),
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-        child: ClayContainer(
-          depth: 40,
-          color: clayContainerColor(context),
-          spread: 2,
-          borderRadius: 10,
-          child: _isSectionPickerOpen
-              ? _selectSectionExpanded()
-              : _selectSectionCollapsed(),
-          // height: 40,
-          // color: Colors.red,
-        ),
+        child: _isSectionPickerOpen
+            ? ClayContainer(
+                depth: 40,
+                color: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 10,
+                child: _selectSectionExpanded(),
+              )
+            : _selectSectionCollapsed(),
       ),
     );
   }
@@ -857,6 +1063,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
             )
           : FloatingActionButton(
               child: const Icon(Icons.shuffle, size: 28),
+              tooltip: "Randomize",
               onPressed: () async {
                 await _randomize();
               },

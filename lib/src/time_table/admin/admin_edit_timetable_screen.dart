@@ -225,7 +225,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Container(
+                    SizedBox(
                       height: 50,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -237,7 +237,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                         ],
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       height: 100,
                       child: ClayContainer(
                         depth: 20,
@@ -497,7 +497,6 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         onPageChanged: (int x) {
-          print("503: $x");
           setState(() {
             _sectionIndex = x;
           });
@@ -677,98 +676,95 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
   }
 
   Widget _selectSectionCollapsed() {
-    return Container(
-      // height: 500,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: ClayButton(
+            depth: 40,
+            color: clayContainerColor(context),
+            spread: 2,
+            borderRadius: 10,
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.vibrate();
+                if (_isLoading) return;
+                setState(() {
+                  _isSectionPickerOpen = !_isSectionPickerOpen;
+                });
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                    child: const Text(
+                      "Go to section",
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                    child: const Icon(Icons.search),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.fromLTRB(15, 0, 10, 0),
+          child: InkWell(
+            onTap: () {
+              if (_sectionIndex == 0) return;
+              setState(() {
+                _isSectionPickerOpen = false;
+                _sectionIndex = _sectionIndex! - 1;
+                pageController.animateToPage(
+                  _sectionIndex!,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.linear,
+                );
+              });
+            },
             child: ClayButton(
-              depth: 40,
               color: clayContainerColor(context),
-              spread: 2,
-              borderRadius: 10,
-              child: InkWell(
-                onTap: () {
-                  HapticFeedback.vibrate();
-                  if (_isLoading) return;
-                  setState(() {
-                    _isSectionPickerOpen = !_isSectionPickerOpen;
-                  });
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      child: const Text(
-                        "Go to section",
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                      child: const Icon(Icons.search),
-                    ),
-                  ],
-                ),
-              ),
+              height: 30,
+              width: 30,
+              borderRadius: 50,
+              surfaceColor: clayContainerColor(context),
+              child: const Icon(Icons.arrow_left),
             ),
           ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(15, 0, 10, 0),
-            child: InkWell(
-              onTap: () {
-                if (_sectionIndex == 0) return;
-                setState(() {
-                  _isSectionPickerOpen = false;
-                  _sectionIndex = _sectionIndex! - 1;
-                  pageController.animateToPage(
-                    _sectionIndex!,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.linear,
-                  );
-                });
-              },
-              child: ClayButton(
-                color: clayContainerColor(context),
-                height: 30,
-                width: 30,
-                borderRadius: 50,
-                surfaceColor: clayContainerColor(context),
-                child: const Icon(Icons.arrow_left),
-              ),
+        ),
+        Container(
+          margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: InkWell(
+            onTap: () {
+              if (_sectionIndex == _sectionsList.length - 1) return;
+              setState(() {
+                _isSectionPickerOpen = false;
+                _sectionIndex = _sectionIndex! + 1;
+                pageController.animateToPage(
+                  _sectionIndex!,
+                  duration: const Duration(seconds: 1),
+                  curve: Curves.linear,
+                );
+              });
+            },
+            child: ClayButton(
+              color: clayContainerColor(context),
+              height: 30,
+              width: 30,
+              borderRadius: 50,
+              surfaceColor: clayContainerColor(context),
+              child: const Icon(Icons.arrow_right),
             ),
           ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-            child: InkWell(
-              onTap: () {
-                if (_sectionIndex == _sectionsList.length - 1) return;
-                setState(() {
-                  _isSectionPickerOpen = false;
-                  _sectionIndex = _sectionIndex! + 1;
-                  pageController.animateToPage(
-                    _sectionIndex!,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.linear,
-                  );
-                });
-              },
-              child: ClayButton(
-                color: clayContainerColor(context),
-                height: 30,
-                width: 30,
-                borderRadius: 50,
-                surfaceColor: clayContainerColor(context),
-                child: const Icon(Icons.arrow_right),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
