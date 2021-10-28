@@ -224,6 +224,161 @@ class StudentAppDrawer extends Drawer {
   }
 }
 
+class TeacherAppDrawer extends Drawer {
+  const TeacherAppDrawer({Key? key, required this.teacherProfile})
+      : super(key: key);
+
+  final TeacherProfile teacherProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<DashboardWidget<TeacherProfile>> dashBoardWidgets =
+        teacherDashBoardWidgets(teacherProfile);
+    return Container(
+      color: Theme.of(context).backgroundColor,
+      width: MediaQuery.of(context).orientation == Orientation.landscape
+          ? MediaQuery.of(context).size.width / 3
+          : MediaQuery.of(context).size.width,
+      child: ListView(
+        restorationId: 'DefaultAppDrawer',
+        children: <Widget>[
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: InkWell(
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        '${teacherProfile.firstName}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.settings),
+                  onTap: () {
+                    Navigator.restorablePushNamed(
+                        context, SettingsView.routeName);
+                  },
+                ),
+              ),
+              const Divider(),
+            ] +
+            dashBoardWidgets
+                .map(
+                  (e) => e.subWidgets == null || e.subWidgets!.isEmpty
+                      ? [
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                            child: ListTile(
+                              leading: SizedBox(
+                                height: 25,
+                                width: 25,
+                                child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: e.image,
+                                ),
+                              ),
+                              title: Text(
+                                "${e.title}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  e.routeName!,
+                                  arguments: e.argument as TeacherProfile,
+                                );
+                              },
+                            ),
+                          ),
+                          const Divider(),
+                        ]
+                      : [
+                          ExpansionTile(
+                              title: ListTile(
+                                leading: SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: e.image,
+                                  ),
+                                ),
+                                title: Text(
+                                  "${e.title}",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              children: e.subWidgets!
+                                  .map(
+                                    (e1) => [
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            15, 0, 0, 0),
+                                        child: ListTile(
+                                          leading: const SizedBox(
+                                            height: 25,
+                                            width: 25,
+                                            child: Icon(
+                                                Icons.format_list_bulleted),
+                                          ),
+                                          title: Text(
+                                            "${e1.title}",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            print("Entering ${e1.routeName}");
+                                          },
+                                        ),
+                                      ),
+                                      const Divider()
+                                    ],
+                                  )
+                                  .expand((i) => i)
+                                  .toList()),
+                          const Divider(),
+                        ],
+                )
+                .expand((i) => i)
+                .toList(),
+      ),
+    );
+  }
+}
+
 class AdminAppDrawer extends Drawer {
   const AdminAppDrawer({Key? key, required this.adminProfile})
       : super(key: key);
@@ -475,14 +630,17 @@ StatelessWidget buildRoleButtonForAppBar(BuildContext context, Object profile) {
                 SizedBox(
                   width: 200,
                   child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                            "${profile is StudentProfile ? profile.studentFirstName : profile is AdminProfile ? profile.firstName : ""}"),
-                        Text(
-                            "${profile is StudentProfile ? profile.schoolName : profile is AdminProfile ? profile.schoolName : ""}"),
-                      ]),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "${profile is TeacherProfile ? profile.firstName : profile is StudentProfile ? profile.studentFirstName : profile is AdminProfile ? profile.firstName : ""}",
+                      ),
+                      Text(
+                        "${profile is TeacherProfile ? profile.schoolName : profile is StudentProfile ? profile.schoolName : profile is AdminProfile ? profile.schoolName : ""}",
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

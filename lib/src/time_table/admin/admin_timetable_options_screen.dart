@@ -137,7 +137,7 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
           _getTimeTableOption(
             "All Teachers' Time Table Preview",
             null,
-            AdminAllTeacherTimeTablePreviewScreen(
+            TeacherTimeTablePreviewScreen(
               adminProfile: widget.adminProfile,
               teacherProfile: null,
             ),

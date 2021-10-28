@@ -8,21 +8,21 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
-class AdminAllTeacherTimeTablePreviewScreen extends StatefulWidget {
-  final AdminProfile adminProfile;
+class TeacherTimeTablePreviewScreen extends StatefulWidget {
+  final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
 
-  const AdminAllTeacherTimeTablePreviewScreen(
+  const TeacherTimeTablePreviewScreen(
       {Key? key, required this.adminProfile, required this.teacherProfile})
       : super(key: key);
 
   @override
-  _AdminAllTeacherTimeTablePreviewScreenState createState() =>
-      _AdminAllTeacherTimeTablePreviewScreenState();
+  _TeacherTimeTablePreviewScreenState createState() =>
+      _TeacherTimeTablePreviewScreenState();
 }
 
-class _AdminAllTeacherTimeTablePreviewScreenState
-    extends State<AdminAllTeacherTimeTablePreviewScreen> {
+class _TeacherTimeTablePreviewScreenState
+    extends State<TeacherTimeTablePreviewScreen> {
   bool _isLoading = true;
   List<Teacher> _teachersList = [];
   Teacher? _selectedTeacher;
@@ -33,6 +33,7 @@ class _AdminAllTeacherTimeTablePreviewScreenState
   void initState() {
     super.initState();
     if (widget.teacherProfile != null) {
+      print("36: ${widget.teacherProfile!.teacherName}");
       _selectedTeacher = Teacher(
         teacherName: widget.teacherProfile!.teacherName,
         schoolId: widget.teacherProfile!.schoolId,
@@ -50,9 +51,13 @@ class _AdminAllTeacherTimeTablePreviewScreenState
     });
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
-        schoolId: widget.teacherProfile == null
-            ? widget.adminProfile.schoolId
-            : widget.teacherProfile!.schoolId);
+      schoolId: widget.teacherProfile == null
+          ? widget.adminProfile!.schoolId
+          : widget.teacherProfile!.schoolId,
+      teacherId: widget.teacherProfile == null
+          ? null
+          : widget.teacherProfile!.teacherId,
+    );
     GetTeachersResponse getTeachersResponse =
         await getTeachers(getTeachersRequest);
 
@@ -67,7 +72,7 @@ class _AdminAllTeacherTimeTablePreviewScreenState
     GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
         await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
       schoolId: widget.teacherProfile == null
-          ? widget.adminProfile.schoolId
+          ? widget.adminProfile!.schoolId
           : widget.teacherProfile!.schoolId,
       // teacherId: widget.teacherProfile.teacherId,
       status: "active",
@@ -586,9 +591,11 @@ class _AdminAllTeacherTimeTablePreviewScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Teachers' time table preview"),
-      ),
+      appBar: widget.teacherProfile == null
+          ? AppBar(
+              title: const Text("Teachers' time table preview"),
+            )
+          : null,
       body: _isLoading
           ? Center(
               child: Image.asset('assets/images/eis_loader.gif'),

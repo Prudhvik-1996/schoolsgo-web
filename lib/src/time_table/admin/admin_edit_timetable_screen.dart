@@ -214,9 +214,6 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
       child: ClayContainer(
         depth: 40,
         color: clayContainerColor(context),
-        surfaceColor: DateTime.now().weekday - 1 == WEEKS.indexOf(week)
-            ? Colors.blue[200]
-            : null,
         borderRadius: 10,
         child: Container(
           padding: const EdgeInsets.all(25),
@@ -233,6 +230,13 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                         children: [
                           Text(
                             week,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: DateTime.now().weekday - 1 ==
+                                      WEEKS.indexOf(week)
+                                  ? Colors.blue[300]
+                                  : null,
+                            ),
                           ),
                         ],
                       ),
@@ -243,10 +247,6 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                         depth: 20,
                         color: clayContainerColor(context),
                         borderRadius: 10,
-                        parentColor:
-                            DateTime.now().weekday - 1 == WEEKS.indexOf(week)
-                                ? Colors.blue[200]
-                                : null,
                         child: Container(
                           padding: const EdgeInsets.all(15),
                           child: const FittedBox(
@@ -267,6 +267,13 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                             children: [
                               Text(
                                 week,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: DateTime.now().weekday - 1 ==
+                                          WEEKS.indexOf(week)
+                                      ? Colors.blue[300]
+                                      : null,
+                                ),
                               ),
                             ],
                           ),
@@ -277,10 +284,6 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                             (e) => Container(
                               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                               child: ClayContainer(
-                                parentColor: DateTime.now().weekday - 1 ==
-                                        WEEKS.indexOf(week)
-                                    ? Colors.blue[200]
-                                    : null,
                                 depth: 20,
                                 // height: 100,
                                 color: clayContainerColor(context),

@@ -7,8 +7,10 @@ import 'package:schoolsgo_web/src/notice_board/student/notice_board_view.dart';
 import 'package:schoolsgo_web/src/profile/student/student_profile_screen.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
+import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 import 'package:schoolsgo_web/src/time_table/admin/admin_timetable_options_screen.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
+import 'package:schoolsgo_web/src/time_table/teacher/teacher_time_table_view.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -131,6 +133,14 @@ class _MyAppState extends State<MyApp> {
                     return StudentDashBoard(
                       studentProfile: argument,
                     );
+                  case TeacherDashboard.routeName:
+                    if (routeSettings.arguments == null) {
+                      return const SplashScreen();
+                    }
+                    var argument = (routeSettings.arguments as TeacherProfile);
+                    return TeacherDashboard(
+                      teacherProfile: argument,
+                    );
                   case AdminDashboard.routeName:
                     if (routeSettings.arguments == null) {
                       return const SplashScreen();
@@ -192,6 +202,16 @@ class _MyAppState extends State<MyApp> {
                       } catch (e) {
                         return const E404NotFoundScreen();
                       }
+                    } else if (routeSettings.arguments is TeacherProfile) {
+                      try {
+                        var argument =
+                            (routeSettings.arguments as TeacherProfile);
+                        return TeacherTimeTableView(
+                          teacherProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
                     } else if (routeSettings.arguments
                         is AdminRouteWithParams<String>) {
                       var routeArgument = (routeSettings.arguments!
@@ -209,7 +229,7 @@ class _MyAppState extends State<MyApp> {
                           return AdminTimeTableRandomizer(
                               adminProfile: routeArgument.adminProfile);
                         case "All Teachers' Time Table Preview":
-                          return AdminAllTeacherTimeTablePreviewScreen(
+                          return TeacherTimeTablePreviewScreen(
                             adminProfile: routeArgument.adminProfile,
                             teacherProfile: null,
                           );

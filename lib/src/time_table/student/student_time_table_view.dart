@@ -1,7 +1,7 @@
+import 'dart:math';
+
 import 'package:clay_containers/widgets/clay_container.dart';
-import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
@@ -33,6 +33,9 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
 
   String _selectedWeek = WEEKS[DateTime.now().weekday - 1];
 
+  late double heightOfEachCard;
+  late double widthOfEachCard;
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +60,14 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
       setState(() {
         _sectionWiseTimeSlots =
             getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+        heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
+                  return _sectionWiseTimeSlots
+                      .where(
+                          (eachTimeSlot) => eachTimeSlot.weekId == eachWeekId)
+                      .length;
+                }).reduce(max) *
+                50 +
+            275;
       });
     }
 
@@ -257,94 +268,129 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
         child: Container(
           margin: const EdgeInsets.all(15),
           child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
             children: [
                   Container(
-                    margin: const EdgeInsets.all(15),
-                    child: ClayContainer(
-                      depth: 40,
-                      surfaceColor: clayContainerColor(context),
-                      parentColor: clayContainerColor(context),
-                      spread: 1,
-                      borderRadius: 10,
-                      child: Container(
-                        margin: const EdgeInsets.all(15),
-                        child: Center(
+                    margin: const EdgeInsets.all(3),
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
                           child: Text(
                             week,
                             style: TextStyle(
-                              fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
+                              color: DateTime.now().weekday - 1 ==
+                                      WEEKS.indexOf(week)
+                                  ? Colors.blue[300]
+                                  : null,
                             ),
                           ),
                         ),
                       ),
                     ),
-                  )
+                  ),
+                  const SizedBox(
+                    height: 4,
+                  ),
                 ] +
-                _sectionWiseTimeSlots
-                    .where((e) => e.week == week)
-                    .map(
-                      (e) => Container(
-                        margin: const EdgeInsets.all(15),
-                        child: ClayContainer(
-                          depth: 40,
-                          surfaceColor: clayContainerColor(context),
-                          parentColor: clayContainerColor(context),
-                          spread: 1,
-                          borderRadius: 10,
-                          child: Container(
-                            margin: const EdgeInsets.all(15),
-                            // child: Text(
-                            //   e.toString(),
-                            // ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: ClayText(
-                                    "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
-                                    textColor: Colors.black,
-                                    emboss: true,
-                                    // size: 14,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      ClayText(
-                                        (e.subjectName ?? "-").capitalize(),
-                                        textColor: Colors.black,
-                                        emboss: true,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      if (e.tdsId == null)
-                                        Container()
-                                      else
-                                        Text(
-                                          (e.teacherName ?? "").capitalize(),
-                                        ),
-                                    ],
-                                  ),
-                                )
-                              ],
+                (_sectionWiseTimeSlots.where((e) => e.week == week).isEmpty
+                    ? [
+                        Container(
+                          margin: const EdgeInsets.all(8),
+                          child: ClayContainer(
+                            depth: 40,
+                            surfaceColor: clayContainerColor(context),
+                            parentColor: clayContainerColor(context),
+                            spread: 1,
+                            borderRadius: 10,
+                            child: Container(
+                              height: 50,
+                              margin: const EdgeInsets.all(3),
+                              child: const Center(child: Text("No Sessions")),
                             ),
                           ),
-                        ),
-                      ),
-                    )
-                    .toList(),
+                        )
+                      ]
+                    : _sectionWiseTimeSlots
+                        .where((e) => e.week == week)
+                        .map(
+                          (e) => Container(
+                            margin: const EdgeInsets.all(8),
+                            child: ClayContainer(
+                              depth: 40,
+                              surfaceColor: clayContainerColor(context),
+                              parentColor: clayContainerColor(context),
+                              spread: 1,
+                              borderRadius: 10,
+                              child: Container(
+                                height: 50,
+                                margin: const EdgeInsets.all(3),
+                                // child: Text(
+                                //   e.toString(),
+                                // ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            8, 0, 8, 0),
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                        margin: const EdgeInsets.fromLTRB(
+                                            5, 0, 5, 0),
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                (e.subjectName ?? "-")
+                                                    .capitalize(),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 4,
+                                            ),
+                                            if (e.tdsId == null)
+                                              Container()
+                                            else
+                                              FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  (e.teacherName ?? "")
+                                                      .capitalize(),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList()),
           ),
         ),
       ),
@@ -353,6 +399,8 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
 
   @override
   Widget build(BuildContext context) {
+    int crossAxisCount = MediaQuery.of(context).size.width ~/ 300;
+    widthOfEachCard = (MediaQuery.of(context).size.width - 10) / crossAxisCount;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Time Table"),
@@ -369,46 +417,56 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView>
             )
           : _previewMode
               ? _previewTimeTable()
-              : Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: ListView(
-                        children: WEEKS
-                            .map((e) => Container(
-                                  margin: const EdgeInsets.all(15),
-                                  child: ClayButton(
-                                    depth: 40,
-                                    surfaceColor: e == _selectedWeek
-                                        ? Theme.of(context).primaryColor
-                                        : clayContainerColor(context),
-                                    parentColor: clayContainerColor(context),
-                                    spread: 1,
-                                    borderRadius: 10,
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedWeek = e;
-                                        });
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: Center(child: Text(e)),
-                                      ),
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                    Expanded(
-                      flex: MediaQuery.of(context).orientation ==
-                              Orientation.portrait
-                          ? 4
-                          : 2,
-                      child: buildWeekWiseTile(_selectedWeek),
-                    ),
-                  ],
+              // : Row(
+              //     children: [
+              //       Expanded(
+              //         flex: 1,
+              //         child: ListView(
+              //           children: WEEKS
+              //               .map((e) => Container(
+              //                     margin: const EdgeInsets.all(15),
+              //                     child: ClayButton(
+              //                       depth: 40,
+              //                       surfaceColor: e == _selectedWeek
+              //                           ? Theme.of(context).primaryColor
+              //                           : clayContainerColor(context),
+              //                       parentColor: clayContainerColor(context),
+              //                       spread: 1,
+              //                       borderRadius: 10,
+              //                       child: InkWell(
+              //                         onTap: () {
+              //                           setState(() {
+              //                             _selectedWeek = e;
+              //                           });
+              //                         },
+              //                         child: Padding(
+              //                           padding: const EdgeInsets.all(15.0),
+              //                           child: Center(child: Text(e)),
+              //                         ),
+              //                       ),
+              //                     ),
+              //                   ))
+              //               .toList(),
+              //         ),
+              //       ),
+              //       Expanded(
+              //         flex: MediaQuery.of(context).orientation ==
+              //                 Orientation.portrait
+              //             ? 4
+              //             : 2,
+              //         child: buildWeekWiseTile(_selectedWeek),
+              //       ),
+              //     ],
+              //   ),
+              : GridView.count(
+                  crossAxisCount: crossAxisCount,
+                  physics: const BouncingScrollPhysics(),
+                  childAspectRatio: widthOfEachCard / heightOfEachCard,
+                  children: WEEKS
+                      .map(
+                        (eachWeek) => buildWeekWiseTile(eachWeek),
+                      )
+                      .toList(),
                 ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,

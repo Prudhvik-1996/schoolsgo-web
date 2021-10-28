@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
+import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({Key? key, required this.loggedInUserId})
@@ -106,6 +107,12 @@ class _UserDashboardState extends State<UserDashboard> {
             context,
             AdminDashboard.routeName,
             arguments: profile as AdminProfile,
+          );
+        } else if (role == "Teacher") {
+          Navigator.pushNamed(
+            context,
+            TeacherDashboard.routeName,
+            arguments: profile as TeacherProfile,
           );
         }
       },

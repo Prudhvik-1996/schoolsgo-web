@@ -126,6 +126,101 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       ),
     ];
 
+List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(
+        TeacherProfile teacherProfile) =>
+    [
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/profile.svg"),
+        title: "Profile",
+        routeName: "/profile",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        title: "Notice Board",
+        routeName: NoticeBoardView.routeName,
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/diary.svg"),
+        title: "Diary",
+        routeName: "/diary",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/timetable.svg"),
+        title: "Time Table",
+        routeName: StudentTimeTableView.routeName,
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/attendance.svg"),
+        title: "Attendance",
+        routeName: StudentAttendanceViewScreen.routeName,
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/exams.svg"),
+        title: "Exam",
+        routeName: "/exam",
+        argument: teacherProfile,
+        subWidgets: [
+          DashboardWidget(
+            title: "Exam Time Table",
+            routeName: "/exam_time_table",
+            argument: teacherProfile,
+          ),
+          DashboardWidget(
+            title: "Exam Marks",
+            routeName: "/exam_marks",
+            argument: teacherProfile,
+          ),
+        ],
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        title: "Study Material",
+        routeName: "/study_material",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/events.svg"),
+        title: "Events",
+        routeName: "/events",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
+        title: "Online Class Room",
+        routeName: "/onlineclassroom",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/feedback.svg"),
+        title: "Feedback",
+        routeName: "/feedback",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/complainbox.svg"),
+        title: "Complain Box",
+        routeName: "/complainbox",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/fee.svg"),
+        title: "Fee",
+        routeName: "/fee",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/demo.svg"),
+        title: "Demo",
+        routeName: "/demo",
+        argument: teacherProfile,
+      ),
+    ];
+
 List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
         AdminProfile adminProfile) =>
     [
