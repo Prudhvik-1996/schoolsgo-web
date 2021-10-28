@@ -93,6 +93,7 @@ flutter:
     - assets/images/profile.svg
     - assets/images/timetable.svg
     - assets/images/tick_icon.png
+    - assets/images/logbook.svg
     - assets/images/cross_icon.png
     - assets/images/empty_stroke.png
     - assets/images/pdf_default.png

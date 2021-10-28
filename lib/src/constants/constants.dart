@@ -49,6 +49,10 @@ const String GET_TDS = "/timetable/getTeacherDealingSections";
 const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS =
     "/timetable/createOrUpdateTeacherDealingSections";
 
+const String GET_LOGBOOK = "/teachers/getTeacherLogBook";
+const String CREATE_OR_UPDATE_LOGBOOK =
+    "/teachers/createOrUpdateTeacherLogBook";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{

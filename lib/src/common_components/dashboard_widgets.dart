@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
+import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/notice_board/student/notice_board_view.dart';
+import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
 
 class DashboardWidget<T> {
@@ -43,7 +44,7 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
-        routeName: NoticeBoardView.routeName,
+        routeName: StudentNoticeBoardView.routeName,
         argument: studentProfile,
       ),
       DashboardWidget(
@@ -138,13 +139,19 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
-        routeName: NoticeBoardView.routeName,
+        routeName: StudentNoticeBoardView.routeName,
         argument: teacherProfile,
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/diary.svg"),
         title: "Diary",
         routeName: "/diary",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/logbook.svg"),
+        title: "Log Book",
+        routeName: LogbookScreen.routeName,
         argument: teacherProfile,
       ),
       DashboardWidget(
@@ -233,13 +240,19 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
-        routeName: NoticeBoardView.routeName,
+        routeName: StudentNoticeBoardView.routeName,
         argument: adminProfile,
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/diary.svg"),
         title: "Diary",
         routeName: "/diary",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/logbook.svg"),
+        title: "Log Book",
+        routeName: LogbookScreen.routeName,
         argument: adminProfile,
       ),
       DashboardWidget(

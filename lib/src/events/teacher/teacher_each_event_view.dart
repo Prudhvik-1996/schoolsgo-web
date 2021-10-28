@@ -11,23 +11,23 @@ import 'package:schoolsgo_web/src/utils/file_utils.dart';
 
 import '../model/events.dart';
 
-class EachEventView extends StatefulWidget {
-  const EachEventView({
+class TeacherEachEventView extends StatefulWidget {
+  const TeacherEachEventView({
     Key? key,
-    required this.studentProfile,
+    required this.teacherProfile,
     required this.event,
   }) : super(key: key);
 
-  final StudentProfile studentProfile;
+  final TeacherProfile teacherProfile;
   final Event event;
 
   static const routeName = "/event";
 
   @override
-  _EachEventViewState createState() => _EachEventViewState();
+  _TeacherEachEventViewState createState() => _TeacherEachEventViewState();
 }
 
-class _EachEventViewState extends State<EachEventView> {
+class _TeacherEachEventViewState extends State<TeacherEachEventView> {
   bool _isLoading = true;
   List<EventMedia> eventMedia = [];
 
@@ -140,7 +140,6 @@ class _EachEventViewState extends State<EachEventView> {
   }
 
   _performMoreActions(String choice) {
-    print("Choice: $choice");
     if (choice == "select") {
       setState(() {
         selectMode = true;
@@ -178,7 +177,7 @@ class _EachEventViewState extends State<EachEventView> {
       appBar: AppBar(
         title: Text(widget.event.eventName!),
         actions: [
-          buildRoleButtonForAppBar(context, widget.studentProfile),
+          buildRoleButtonForAppBar(context, widget.teacherProfile),
           PopupMenuButton<String>(
             onSelected: _performMoreActions,
             itemBuilder: (context) {
@@ -208,8 +207,8 @@ class _EachEventViewState extends State<EachEventView> {
           ),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
+      drawer: TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
           ? Center(

@@ -35,7 +35,6 @@ class _StudentAttendanceViewScreenState
   late double totalDays, presentDays, absentDays;
 
   late List<String?> _availableDates;
-  late List<GlobalKey> _keys;
 
   DateTime? _selectedDate;
 
@@ -349,12 +348,12 @@ class _StudentAttendanceViewScreenState
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text("No. of days present: $presentDays"),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
         Text("No. of days absent: $absentDays"),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
         Text(
           "Total Working Days: $totalDays",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ],
     );

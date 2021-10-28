@@ -11,23 +11,23 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 
-import 'each_event_view.dart';
+import 'teacher_each_event_view.dart';
 
-class EventsView extends StatefulWidget {
-  const EventsView({
+class TeacherEventsView extends StatefulWidget {
+  const TeacherEventsView({
     Key? key,
-    required this.studentProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final StudentProfile studentProfile;
+  final TeacherProfile teacherProfile;
 
   static const routeName = "/events";
 
   @override
-  _EventsViewState createState() => _EventsViewState();
+  _TeacherEventsViewState createState() => _TeacherEventsViewState();
 }
 
-class _EventsViewState extends State<EventsView> {
+class _TeacherEventsViewState extends State<TeacherEventsView> {
   bool _isLoading = true;
   List<Event> events = [];
 
@@ -42,7 +42,7 @@ class _EventsViewState extends State<EventsView> {
       _isLoading = true;
     });
     GetEventsResponse getEventsResponse = await getEvents(GetEventsRequest(
-      schoolId: widget.studentProfile.schoolId,
+      schoolId: widget.teacherProfile.schoolId,
     ));
     if (getEventsResponse.httpStatus == 'OK' &&
         getEventsResponse.responseStatus == 'success') {
@@ -60,7 +60,7 @@ class _EventsViewState extends State<EventsView> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Container(
+          content: SizedBox(
             width: MediaQuery.of(context).orientation == Orientation.portrait
                 ? MediaQuery.of(context).size.width
                 : MediaQuery.of(context).size.width / 2,
@@ -255,8 +255,8 @@ class _EventsViewState extends State<EventsView> {
         onTap: () {
           Navigator.pushNamed(
             context,
-            EachEventView.routeName,
-            arguments: [widget.studentProfile, event],
+            TeacherEachEventView.routeName,
+            arguments: [widget.teacherProfile, event],
           );
         },
         child: ClayButton(
@@ -338,11 +338,11 @@ class _EventsViewState extends State<EventsView> {
       appBar: AppBar(
         title: const Text("Events"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.studentProfile),
+          buildRoleButtonForAppBar(context, widget.teacherProfile),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
+      drawer: TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
           ? Center(

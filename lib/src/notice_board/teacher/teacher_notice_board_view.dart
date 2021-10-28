@@ -12,21 +12,21 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../model/notice_board.dart';
 
-class NoticeBoardView extends StatefulWidget {
-  const NoticeBoardView({
+class TeacherNoticeBoardView extends StatefulWidget {
+  const TeacherNoticeBoardView({
     Key? key,
-    required this.studentProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final StudentProfile studentProfile;
+  final TeacherProfile teacherProfile;
 
   static const routeName = "/noticeboard";
 
   @override
-  _NoticeBoardViewState createState() => _NoticeBoardViewState();
+  _TeacherNoticeBoardViewState createState() => _TeacherNoticeBoardViewState();
 }
 
-class _NoticeBoardViewState extends State<NoticeBoardView> {
+class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
   bool _isLoading = true;
 
   List<News?> _noticeBoardNews = [];
@@ -45,7 +45,7 @@ class _NoticeBoardViewState extends State<NoticeBoardView> {
     });
 
     GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(
-        GetNoticeBoardRequest(schoolId: widget.studentProfile.schoolId));
+        GetNoticeBoardRequest(schoolId: widget.teacherProfile.schoolId));
 
     if (getNoticeBoardResponse.httpStatus == 'OK' &&
         getNoticeBoardResponse.responseStatus == 'success') {
@@ -309,11 +309,11 @@ class _NoticeBoardViewState extends State<NoticeBoardView> {
       appBar: AppBar(
         title: const Text("Notice Board"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.studentProfile),
+          buildRoleButtonForAppBar(context, widget.teacherProfile),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
+      drawer: TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
           ? Center(
