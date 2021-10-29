@@ -1,31 +1,31 @@
-import 'package:clay_containers/clay_containers.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/logbook/model/logbook.dart';
+import 'package:schoolsgo_web/src/diary/model/diary.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
+import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class LogbookScreen extends StatefulWidget {
-  const LogbookScreen({Key? key, this.adminProfile, this.teacherProfile})
+class DiaryEditScreen extends StatefulWidget {
+  const DiaryEditScreen({Key? key, this.adminProfile, this.teacherProfile})
       : super(key: key);
 
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
 
-  static const routeName = "/logbook";
+  static const routeName = "/diary";
 
   @override
-  _LogbookScreenState createState() => _LogbookScreenState();
+  _DiaryEditScreenState createState() => _DiaryEditScreenState();
 }
 
-class _LogbookScreenState extends State<LogbookScreen> {
+class _DiaryEditScreenState extends State<DiaryEditScreen> {
   bool _isLoading = true;
 
   List<Teacher> _teachersList = [];
@@ -34,12 +34,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
   List<Section> _sectionsList = [];
   Section? _selectedSection;
 
-  List<SectionWiseTimeSlotBean> _sectionWiseTimeSlots = [];
+  List<TeacherDealingSection> _tdsList = [];
+  List<TeacherDealingSection> _filteredTdsList = [];
 
   DateTime _selectedDate = DateTime.now();
 
-  List<LogBook> _logBookList = [];
-  List<LogBook> _filteredLogBookList = [];
+  List<Diary> _diaryList = [];
+  List<Diary> _filteredDiaryList = [];
 
   @override
   void initState() {
@@ -91,70 +92,99 @@ class _LogbookScreenState extends State<LogbookScreen> {
       });
     }
 
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-        await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
+        await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.teacherProfile == null
           ? widget.adminProfile!.schoolId
           : widget.teacherProfile!.schoolId,
-      status: "active",
+      teacherId: widget.teacherProfile == null
+          ? null
+          : widget.teacherProfile!.teacherId,
     ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-        getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
+        getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
-        _sectionWiseTimeSlots =
-            getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
-
-        _sectionWiseTimeSlots.sort((a, b) =>
-            getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!)
-                .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(
-                    b.startTime!, b.weekId!)));
+        _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _filteredTdsList =
+            getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
     }
 
-    await _loadLogBook();
+    await _loadDiary();
 
     setState(() {
       _isLoading = false;
     });
   }
 
-  Future<void> _loadLogBook() async {
+  Future<void> _loadDiary() async {
     setState(() {
       _isLoading = true;
     });
-    GetLogBookResponse getLogBookResponse = await getLogBook(GetLogBookRequest(
-      schoolId: widget.teacherProfile == null
-          ? widget.adminProfile!.schoolId
-          : widget.teacherProfile!.schoolId,
-      date: _selectedDate.millisecondsSinceEpoch,
-    ));
 
-    if (getLogBookResponse.httpStatus == "OK" &&
-        getLogBookResponse.responseStatus == "success") {
+    GetDiaryResponse getDiaryResponse = await getDiary(
+      GetDiaryRequest(
+        schoolId: widget.teacherProfile == null
+            ? widget.adminProfile!.schoolId
+            : widget.teacherProfile!.schoolId,
+        teacherId: widget.teacherProfile == null
+            ? null
+            : widget.teacherProfile!.teacherId,
+        date: _selectedDate.millisecondsSinceEpoch,
+      ),
+    );
+    if (getDiaryResponse.httpStatus == "OK" &&
+        getDiaryResponse.responseStatus == "success") {
       setState(() {
-        _logBookList = getLogBookResponse.logs!.map((e) => e!).toList();
+        _diaryList = getDiaryResponse.sectionDiaryList!
+            .map((e) => e!.diaryEntries!.map((e) => e!))
+            .expand((e) => e)
+            .toList();
+        _diaryList
+            .sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
+        _filteredDiaryList = getDiaryResponse.sectionDiaryList!
+            .map((e) => e!.diaryEntries!.map((e) => e!))
+            .expand((e) => e)
+            .toList();
+        _filteredDiaryList
+            .sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
       });
-      _filterLogBookList();
     }
+
+    await _applyFilters();
+
     setState(() {
       _isLoading = false;
     });
   }
 
-  Future<void> _filterLogBookList() async {
+  Future<void> _applyFilters() async {
     setState(() {
       _isLoading = true;
-      _filteredLogBookList = _logBookList;
+    });
+    setState(() {
+      _filteredTdsList = _tdsList;
+      _filteredDiaryList = _diaryList;
     });
     if (_selectedTeacher != null) {
-      _filteredLogBookList = _filteredLogBookList
-          .where((e) => e.teacherId == _selectedTeacher!.teacherId)
-          .toList();
+      setState(() {
+        _filteredTdsList = _filteredTdsList
+            .where((e) => e.teacherId == _selectedTeacher!.teacherId)
+            .toList();
+        _filteredDiaryList = _filteredDiaryList
+            .where((e) => e.teacherId == _selectedTeacher!.teacherId)
+            .toList();
+      });
     }
     if (_selectedSection != null) {
-      _filteredLogBookList = _filteredLogBookList
-          .where((e) => e.sectionId == _selectedSection!.sectionId)
-          .toList();
+      setState(() {
+        _filteredTdsList = _filteredTdsList
+            .where((e) => e.sectionId == _selectedSection!.sectionId)
+            .toList();
+        _filteredDiaryList = _filteredDiaryList
+            .where((e) => e.sectionId == _selectedSection!.sectionId)
+            .toList();
+      });
     }
     setState(() {
       _isLoading = false;
@@ -182,7 +212,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                         setState(() {
                           _selectedTeacher = null;
                         });
-                        _filterLogBookList();
+                        _applyFilters();
                       },
                       child: const Icon(Icons.close),
                     ),
@@ -204,9 +234,12 @@ class _LogbookScreenState extends State<LogbookScreen> {
         setState(() {
           _selectedTeacher = teacher!;
         });
-        _filterLogBookList();
+        _applyFilters();
       },
       items: _teachersList
+          .where((teacher) => _filteredTdsList
+              .map((tds) => tds.teacherId)
+              .contains(teacher.teacherId))
           .map(
             (e) => DropdownMenuItem<Teacher>(
               value: e,
@@ -265,7 +298,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                         setState(() {
                           _selectedSection = null;
                         });
-                        _filterLogBookList();
+                        _applyFilters();
                       },
                       child: const Icon(Icons.close),
                     ),
@@ -287,9 +320,12 @@ class _LogbookScreenState extends State<LogbookScreen> {
         setState(() {
           _selectedSection = section!;
         });
-        _filterLogBookList();
+        _applyFilters();
       },
       items: _sectionsList
+          .where((section) => _filteredTdsList
+              .map((tds) => tds.sectionId)
+              .contains(section.sectionId))
           .map(
             (e) => DropdownMenuItem<Section>(
               value: e,
@@ -332,7 +368,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
           setState(() {
             _selectedDate = _newDate;
           });
-          _loadLogBook();
+          _loadDiary();
         },
         child: ClayButton(
           depth: 40,
@@ -380,7 +416,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
             setState(() {
               _selectedDate = _selectedDate.subtract(const Duration(days: 1));
             });
-            _loadLogBook();
+            _loadDiary();
           },
           child: ClayButton(
             color: clayContainerColor(context),
@@ -407,7 +443,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
             setState(() {
               _selectedDate = _selectedDate.add(const Duration(days: 1));
             });
-            _loadLogBook();
+            _loadDiary();
           },
           child: ClayButton(
             color: clayContainerColor(context),
@@ -422,47 +458,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
     );
   }
 
-  Future<void> _saveChanges(LogBook logBook) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    CreateOrUpdateLogBookResponse createOrUpdateLogBookResponse =
-        await createOrUpdateLogBook(CreateOrUpdateLogBookRequest(
-      date: convertDatTimeToYYYYMMDDFormat(_selectedDate),
-      schoolId: widget.adminProfile == null
-          ? widget.teacherProfile!.schoolId
-          : widget.adminProfile!.schoolId,
-      teacherId: logBook.teacherId,
-      status: "active",
-      agentId: widget.adminProfile == null
-          ? widget.teacherProfile!.teacherId
-          : widget.adminProfile!.userId,
-      sectionId: logBook.sectionId,
-      subjectId: logBook.subjectId,
-      tdsId: logBook.tdsId,
-      logbookId: logBook.id,
-      notes: logBook.notes,
-      sectionTimeSlotId: logBook.sectionTimeSlotId,
-    ));
-
-    if (createOrUpdateLogBookResponse.httpStatus != "OK" ||
-        createOrUpdateLogBookResponse.responseStatus != "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Please try again later.."),
-        ),
-      );
-    }
-
-    await _loadLogBook();
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Container _getLogBookWidget(LogBook logBook) {
+  Container _getDiaryWidget(Diary diary) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
           ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
@@ -481,14 +477,11 @@ class _LogbookScreenState extends State<LogbookScreen> {
             shrinkWrap: true,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: buildSectionNameWidget(logBook),
-                  ),
-                  Expanded(
-                    child: buildTimeSlotWidget(logBook),
+                    child: buildSectionNameWidget(diary),
                   ),
                 ],
               ),
@@ -497,10 +490,10 @@ class _LogbookScreenState extends State<LogbookScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: buildSubjectNameWidget(logBook),
+                    child: buildSubjectNameWidget(diary),
                   ),
                   Expanded(
-                    child: buildTeacherNameWidget(logBook),
+                    child: buildTeacherNameWidget(diary),
                   ),
                 ],
               ),
@@ -508,17 +501,8 @@ class _LogbookScreenState extends State<LogbookScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(child: buildNotesWidget(logBook)),
-                  buildEditButton(logBook),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Last Updated Time: ${logBook.lastUpdatedTime ?? "-"}",
-                  ),
+                  Expanded(child: buildAssignmentWidget(diary)),
+                  buildEditButton(diary),
                 ],
               ),
             ],
@@ -528,7 +512,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
     );
   }
 
-  Widget buildNotesWidget(LogBook logBook) {
+  Widget buildAssignmentWidget(Diary diary) {
     return Container(
       margin: const EdgeInsets.all(10),
       child: ClayContainer(
@@ -539,24 +523,24 @@ class _LogbookScreenState extends State<LogbookScreen> {
         borderRadius: 10,
         child: Container(
           margin: const EdgeInsets.all(10),
-          child: logBook.isEditMode
+          child: diary.isEditMode
               ? TextFormField(
                   decoration: const InputDecoration(
-                    hintText: "Notes",
+                    hintText: "Assignment",
                   ),
                   maxLines: null,
-                  initialValue: logBook.notes ?? "",
+                  initialValue: diary.assignment ?? "",
                   style: const TextStyle(
                     fontSize: 16,
                   ),
                   textAlign: TextAlign.justify,
                   onChanged: (text) => setState(() {
-                    logBook.notes = text;
+                    diary.assignment = text;
                   }),
                 )
               : Text(
-                  logBook.notes ?? "-",
-                  textAlign: logBook.notes == null
+                  diary.assignment ?? "-",
+                  textAlign: diary.assignment == null
                       ? TextAlign.center
                       : TextAlign.justify,
                 ),
@@ -565,50 +549,79 @@ class _LogbookScreenState extends State<LogbookScreen> {
     );
   }
 
-  Container buildSubjectNameWidget(LogBook logBook) {
+  Container buildSubjectNameWidget(Diary diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-      child: Text("Subject: ${logBook.subjectName}"),
+      child: Text("Subject: ${diary.subjectName!.capitalize()}"),
     );
   }
 
-  Container buildTeacherNameWidget(LogBook logBook) {
+  Container buildTeacherNameWidget(Diary diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-      child: Text("Teacher: ${logBook.teacherName}"),
+      child: Text("Teacher: ${diary.teacherFirstName!.capitalize()}"),
     );
   }
 
-  Container buildTimeSlotWidget(LogBook logBook) {
+  Container buildSectionNameWidget(Diary diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
       child: Text(
-        "${convert24To12HourFormat(logBook.startTime!)} - ${convert24To12HourFormat(logBook.endTime!)}",
+        "Section: ${diary.sectionName}",
       ),
     );
   }
 
-  Container buildSectionNameWidget(LogBook logBook) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-      child: Text(
-        "Section: ${logBook.sectionName}",
-      ),
-    );
+  Future<void> _saveChanges(Diary diary) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    CreateOrUpdateDiaryResponse createOrUpdateDiaryResponse =
+        await createOrUpdateDiary(CreateOrUpdateDiaryRequest(
+      sectionId: diary.sectionId,
+      date: _selectedDate.millisecondsSinceEpoch,
+      teacherId: diary.teacherId,
+      subjectId: diary.subjectId,
+      agentId: widget.adminProfile == null
+          ? widget.teacherProfile!.teacherId
+          : widget.adminProfile!.userId,
+      status: "active",
+      schoolId: widget.adminProfile == null
+          ? widget.teacherProfile!.schoolId
+          : widget.adminProfile!.schoolId,
+      diaryId: diary.diaryId,
+      assignment: diary.assignment,
+    ));
+
+    if (createOrUpdateDiaryResponse.httpStatus != "OK" ||
+        createOrUpdateDiaryResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Please try again later.."),
+        ),
+      );
+    }
+
+    await _loadDiary();
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
-  Container buildEditButton(LogBook logBook) {
+  Container buildEditButton(Diary diary) {
     return Container(
       margin: const EdgeInsets.all(10),
       child: InkWell(
         onTap: () {
-          if (logBook.isEditMode) {
-            if (logBook.notes != logBook.origJson()["notes"]) {
-              _saveChanges(logBook);
+          if (diary.isEditMode) {
+            if (diary.assignment != diary.origJson()["assignment"]) {
+              _saveChanges(diary);
             }
           }
           setState(() {
-            logBook.isEditMode = !logBook.isEditMode;
+            diary.isEditMode = !diary.isEditMode;
           });
         },
         child: ClayButton(
@@ -619,7 +632,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
           surfaceColor: clayContainerColor(context),
           child: Container(
             margin: const EdgeInsets.all(8),
-            child: Icon(logBook.isEditMode ? Icons.check : Icons.edit),
+            child: Icon(diary.isEditMode ? Icons.check : Icons.edit),
           ),
         ),
       ),
@@ -630,7 +643,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Log Book"),
+        title: const Text("Diary"),
         actions: [
           buildRoleButtonForAppBar(
               context,
@@ -649,7 +662,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
               child: Image.asset('assets/images/eis_loader.gif'),
             )
           : ListView(
-              children: [
+              children: <Widget>[
                     Container(
                       child: MediaQuery.of(context).orientation ==
                               Orientation.landscape
@@ -678,9 +691,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                             ),
                     ),
                   ] +
-                  _filteredLogBookList
-                      .map((e) => _getLogBookWidget(e))
-                      .toList(),
+                  _filteredDiaryList.map((e) => _getDiaryWidget(e)).toList(),
             ),
     );
   }

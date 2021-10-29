@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
+import 'package:schoolsgo_web/src/diary/admin/admin_diary_screen.dart';
+import 'package:schoolsgo_web/src/diary/student/student_diary_screen.dart';
 import 'package:schoolsgo_web/src/events/student/student_each_event_view.dart';
 import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -8,6 +10,8 @@ import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view
 import 'package:schoolsgo_web/src/profile/student/student_profile_screen.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
+import 'package:schoolsgo_web/src/suggestion_box/admin/admin_suggestion_box.dart';
+import 'package:schoolsgo_web/src/suggestion_box/student/student_suggestion_box.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 import 'package:schoolsgo_web/src/time_table/admin/admin_timetable_options_screen.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
@@ -177,6 +181,54 @@ class _MyAppState extends State<MyApp> {
                             routeSettings.arguments as AdminProfile;
                         return LogbookScreen(
                           teacherProfile: null,
+                          adminProfile: adminProfile,
+                        );
+                      } else {
+                        return const E404NotFoundScreen();
+                      }
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case DiaryEditScreen.routeName:
+                    try {
+                      if (routeSettings.arguments is StudentProfile) {
+                        var studentProfile =
+                            routeSettings.arguments as StudentProfile;
+                        return StudentDiaryScreen(
+                          studentProfile: studentProfile,
+                        );
+                      } else if (routeSettings.arguments is TeacherProfile) {
+                        var teacherProfile =
+                            routeSettings.arguments as TeacherProfile;
+                        return DiaryEditScreen(
+                          teacherProfile: teacherProfile,
+                          adminProfile: null,
+                        );
+                      } else if (routeSettings.arguments is AdminProfile) {
+                        var adminProfile =
+                            routeSettings.arguments as AdminProfile;
+                        return DiaryEditScreen(
+                          teacherProfile: null,
+                          adminProfile: adminProfile,
+                        );
+                      } else {
+                        return const E404NotFoundScreen();
+                      }
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case AdminSuggestionBox.routeName:
+                    try {
+                      if (routeSettings.arguments is StudentProfile) {
+                        var studentProfile =
+                            routeSettings.arguments as StudentProfile;
+                        return StudentSuggestionBoxView(
+                          studentProfile: studentProfile,
+                        );
+                      } else if (routeSettings.arguments is AdminProfile) {
+                        var adminProfile =
+                            routeSettings.arguments as AdminProfile;
+                        return AdminSuggestionBox(
                           adminProfile: adminProfile,
                         );
                       } else {

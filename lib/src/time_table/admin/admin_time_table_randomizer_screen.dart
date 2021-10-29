@@ -558,6 +558,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                     child: ClayContainer(
                       depth: 40,
                       surfaceColor: Colors.blue[200],
+                      parentColor: clayContainerColor(context),
                       borderRadius: 10,
                       child: Container(
                         padding: const EdgeInsets.all(10),

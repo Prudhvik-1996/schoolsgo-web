@@ -109,8 +109,8 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/complainbox.svg"),
-        title: "Complain Box",
-        routeName: "/complainbox",
+        title: "Suggestion Box",
+        routeName: "/suggestion_box",
         argument: studentProfile,
       ),
       DashboardWidget(
@@ -210,8 +210,8 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/complainbox.svg"),
-        title: "Complain Box",
-        routeName: "/complainbox",
+        title: "Suggestion Box",
+        routeName: "/suggestion_box",
         argument: teacherProfile,
       ),
       DashboardWidget(
@@ -349,8 +349,8 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/complainbox.svg"),
-        title: "Complain Box",
-        routeName: "/complainbox",
+        title: "Suggestion Box",
+        routeName: "/suggestion_box",
         argument: adminProfile,
       ),
       DashboardWidget(
@@ -367,4 +367,4 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
       ),
     ];
 
-// Profile, Notice Board, Diary, Time table, Attendance, Exam, Study Material, Events, Online Class Room, Feedback, Complain Box, Fee, Demo
+// Profile, Notice Board, Diary, Time table, Attendance, Exam, Study Material, Events, Online Class Room, Feedback, Suggestion Box, Fee, Demo

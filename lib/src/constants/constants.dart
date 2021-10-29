@@ -53,6 +53,13 @@ const String GET_LOGBOOK = "/teachers/getTeacherLogBook";
 const String CREATE_OR_UPDATE_LOGBOOK =
     "/teachers/createOrUpdateTeacherLogBook";
 
+const String GET_DIARY = "/diary/getStudentDiaryForDate";
+const String CREATE_OR_UPDATE_DIARY = "/diary/createOrUpdateDiary";
+
+const String GET_SUGGESTION_BOX = "/complaintBox/getComplaintBox";
+const String CREATE_SUGGESTION = "/complaintBox/createComplaintBox";
+const String UPDATE_SUGGESTION = "/complaintBox/updateComplaintBox";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{
