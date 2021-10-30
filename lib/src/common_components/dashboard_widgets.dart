@@ -84,7 +84,7 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
         ],
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        image: SvgPicture.asset("assets/images/study_material.svg"),
         title: "Study Material",
         routeName: "/study_material",
         argument: studentProfile,
@@ -185,7 +185,7 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(
         ],
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        image: SvgPicture.asset("assets/images/study_material.svg"),
         title: "Study Material",
         routeName: "/study_material",
         argument: teacherProfile,
@@ -324,7 +324,7 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
         ],
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        image: SvgPicture.asset("assets/images/study_material.svg"),
         title: "Study Material",
         routeName: "/study_material",
         argument: adminProfile,

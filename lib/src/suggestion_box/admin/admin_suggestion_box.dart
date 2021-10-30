@@ -37,9 +37,6 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
   List<TeacherDealingSection> _tdsList = [];
   List<TeacherDealingSection> _filteredTdsList = [];
 
-  DateTime? _selectedDate;
-  List<DateTime> _availableDates = [];
-
   List<Suggestion> _suggestions = [];
   List<Suggestion> _filteredSuggestions = [];
 
@@ -114,13 +111,6 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
             getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
         _filteredSuggestions =
             getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
-        _availableDates = _suggestions.map((e) {
-          DateTime x = DateTime.fromMillisecondsSinceEpoch(e.createTime!);
-          return DateTime(x.year, x.month, x.day);
-        }).toList();
-        _availableDates.sort((a, b) => b.compareTo(a));
-        _selectedDate =
-            _availableDates.isEmpty ? DateTime.now() : _availableDates.first;
       });
     }
 
@@ -474,49 +464,6 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
     );
   }
 
-  Widget _getDatePicker() {
-    return _availableDates.isEmpty
-        ? Container()
-        : Container(
-            margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: InkWell(
-              onTap: () async {
-                HapticFeedback.vibrate();
-                DateTime? _newDate = await showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate!,
-                  firstDate: _availableDates.last,
-                  lastDate: _availableDates.first,
-                  helpText: "Select a date",
-                  selectableDayPredicate: (DateTime val) {
-                    return _availableDates
-                        .map((e) => DateTime(e.year, e.month, e.day))
-                        .contains(val);
-                  },
-                );
-                if (_newDate == null) return;
-                setState(() {
-                  _selectedDate = _newDate;
-                });
-              },
-              child: ClayButton(
-                depth: 40,
-                color: const Color(0xFFC9EDF8),
-                parentColor: clayContainerColor(context),
-                spread: 2,
-                borderRadius: 50,
-                height: 50,
-                width: 50,
-                child: const Icon(
-                  Icons.search,
-                  color: Colors.blueGrey,
-                ),
-              ),
-            ),
-          );
-  }
-
   Container _getSuggestionWidget(Suggestion suggestion) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
@@ -799,8 +746,6 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
           Switch(
             value: _showOnlyAnonymous,
             onChanged: (bool _newValue) {
-              print("771: $_newValue");
-              print("772: $_showOnlyAnonymous");
               setState(() {
                 _showOnlyAnonymous = _newValue;
               });

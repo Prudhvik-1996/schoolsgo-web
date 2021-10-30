@@ -90,6 +90,7 @@ flutter:
     - assets/images/feedback.svg
     - assets/images/notice_board.svg
     - assets/images/onlineclassroom.svg
+    - assets/images/study_material.svg
     - assets/images/profile.svg
     - assets/images/timetable.svg
     - assets/images/tick_icon.png

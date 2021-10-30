@@ -10,6 +10,9 @@ import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view
 import 'package:schoolsgo_web/src/profile/student/student_profile_screen.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
+import 'package:schoolsgo_web/src/study_material/admin/admin_study_material_tds_screen.dart';
+import 'package:schoolsgo_web/src/study_material/student/student_study_material_tds_screen.dart';
+import 'package:schoolsgo_web/src/study_material/teacher/teacher_study_material_tds_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/admin/admin_suggestion_box.dart';
 import 'package:schoolsgo_web/src/suggestion_box/student/student_suggestion_box.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
@@ -278,6 +281,32 @@ class _MyAppState extends State<MyApp> {
                       } catch (e) {
                         return const E404NotFoundScreen();
                       }
+                    }
+                  case StudentStudyMaterialTDSScreen.routeName:
+                    try {
+                      if (routeSettings.arguments is StudentProfile) {
+                        var argument =
+                            (routeSettings.arguments as StudentProfile);
+                        return StudentStudyMaterialTDSScreen(
+                          studentProfile: argument,
+                        );
+                      } else if (routeSettings.arguments is AdminProfile) {
+                        var argument =
+                            (routeSettings.arguments as AdminProfile);
+                        return AdminStudyMaterialTDSScreen(
+                          adminProfile: argument,
+                        );
+                      } else if (routeSettings.arguments is TeacherProfile) {
+                        var argument =
+                            (routeSettings.arguments as TeacherProfile);
+                        return TeacherStudyMaterialTDSScreen(
+                          teacherProfile: argument,
+                        );
+                      } else {
+                        return const E404NotFoundScreen();
+                      }
+                    } catch (e) {
+                      return const E404NotFoundScreen();
                     }
                   case StudentTimeTableView.routeName:
                     if (routeSettings.arguments is StudentProfile) {

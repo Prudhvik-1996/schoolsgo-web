@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class ExpandableFab extends StatefulWidget {
   final String tooltip;
   final List<FloatingActionButton> expandedWidgets;
+  Axis? axis = Axis.vertical;
 
-  const ExpandableFab({
+  ExpandableFab({
     Key? key,
     required this.tooltip,
     required this.expandedWidgets,
+    this.axis,
   }) : super(key: key);
 
   @override
@@ -93,7 +95,11 @@ class _ExpandableFabState extends State<ExpandableFab>
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+    if (widget.axis == null &&
+        MediaQuery.of(context).orientation == Orientation.landscape) {
+      widget.axis = Axis.horizontal;
+    }
+    if (widget.axis == Axis.horizontal) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,

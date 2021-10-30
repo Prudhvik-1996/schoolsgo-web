@@ -10,8 +10,13 @@ class GetTeacherDealingSectionsRequest {
   int? subjectId;
   int? tdsId;
 
-  GetTeacherDealingSectionsRequest(
-      {schoolId, teacherId, sectionId, subjectId, tdsId});
+  GetTeacherDealingSectionsRequest({
+    this.schoolId,
+    this.teacherId,
+    this.sectionId,
+    this.subjectId,
+    this.tdsId,
+  });
 
   GetTeacherDealingSectionsRequest.fromJson(Map<String, dynamic> json) {
     schoolId = json['schoolId'];

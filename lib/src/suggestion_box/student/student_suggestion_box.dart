@@ -774,7 +774,6 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                               setState(() {
                                 newSuggestion.anonymous = newValue!;
                               });
-                              print(newSuggestion.anonymous);
                             },
                           ),
                           const Expanded(
