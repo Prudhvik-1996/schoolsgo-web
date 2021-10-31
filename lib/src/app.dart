@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_dashboard/admin_dashboard.dart';
@@ -475,7 +476,16 @@ class _MyAppState extends State<MyApp> {
                         return const E404NotFoundScreen();
                       }
                     }
-
+                  case AdminFeeOptionsScreen.routeName:
+                    try {
+                      var adminProfile =
+                          routeSettings.arguments! as AdminProfile;
+                      return AdminFeeOptionsScreen(
+                        adminProfile: adminProfile,
+                      );
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
                   default:
                     return const E404NotFoundScreen();
                 }

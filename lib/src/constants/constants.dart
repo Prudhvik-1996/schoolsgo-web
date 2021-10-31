@@ -67,6 +67,10 @@ const String CREATE_OR_UPDATE_STUDY_MATERIAL =
 const String CREATE_OR_UPDATE_STUDY_MATERIAL_MEDIA_MAP =
     "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterialMediaMap";
 
+const String GET_FEE_TYPES = "/fee/getFeeTypes";
+const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
+const String GET_FEE_MAP = "/fee/getFeeMap";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{
