@@ -14,12 +14,12 @@ class GetStudentAttendanceTimeSlotsRequest {
   int? managerId;
 
   GetStudentAttendanceTimeSlotsRequest({
-    attendanceTimeSlotId,
-    date,
-    schoolId,
-    sectionId,
-    status,
-    managerId,
+    this.attendanceTimeSlotId,
+    this.date,
+    this.schoolId,
+    this.sectionId,
+    this.status,
+    this.managerId,
   });
 
   GetStudentAttendanceTimeSlotsRequest.fromJson(Map<String, dynamic> json) {
@@ -50,12 +50,13 @@ class GetStudentAttendanceTimeSlotsResponse {
   String? httpStatus;
   String? responseStatus;
 
-  GetStudentAttendanceTimeSlotsResponse(
-      {attendanceTimeSlotBeans,
-      errorCode,
-      errorMessage,
-      httpStatus,
-      responseStatus});
+  GetStudentAttendanceTimeSlotsResponse({
+    this.attendanceTimeSlotBeans,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
 
   GetStudentAttendanceTimeSlotsResponse.fromJson(Map<String, dynamic> json) {
     if (json['attendanceTimeSlotBeans'] != null) {
@@ -101,26 +102,26 @@ class AttendanceTimeSlotBean {
   String? validThrough;
   String? week;
   int? weekId;
-  bool? isEdited;
+  bool isEdited = false;
 
-  AttendanceTimeSlotBean(
-      {agent,
-      attendanceTimeSlotId,
-      createTime,
-      date,
-      endTime,
-      lastUpdated,
-      managerId,
-      managerName,
-      sectionId,
-      sectionName,
-      startTime,
-      status,
-      validFrom,
-      validThrough,
-      week,
-      weekId,
-      isEdited});
+  AttendanceTimeSlotBean({
+    this.agent,
+    this.attendanceTimeSlotId,
+    this.createTime,
+    this.date,
+    this.endTime,
+    this.lastUpdated,
+    this.managerId,
+    this.managerName,
+    this.sectionId,
+    this.sectionName,
+    this.startTime,
+    this.status,
+    this.validFrom,
+    this.validThrough,
+    this.week,
+    this.weekId,
+  });
 
   AttendanceTimeSlotBean.fromJson(Map<String, dynamic> json) {
     agent = json['agent'];
@@ -190,8 +191,11 @@ class CreateOrUpdateAttendanceTimeSlotBeansRequest {
   List<AttendanceTimeSlotBean>? attendanceTimeSlotBeans;
   int? schoolId;
 
-  CreateOrUpdateAttendanceTimeSlotBeansRequest(
-      {agent, attendanceTimeSlotBeans, schoolId});
+  CreateOrUpdateAttendanceTimeSlotBeansRequest({
+    this.agent,
+    this.attendanceTimeSlotBeans,
+    this.schoolId,
+  });
 
   CreateOrUpdateAttendanceTimeSlotBeansRequest.fromJson(
       Map<String, dynamic> json) {
@@ -223,8 +227,12 @@ class CreateOrUpdateAttendanceTimeSlotBeansResponse {
   String? httpStatus;
   String? responseStatus;
 
-  CreateOrUpdateAttendanceTimeSlotBeansResponse(
-      {errorCode, errorMessage, httpStatus, responseStatus});
+  CreateOrUpdateAttendanceTimeSlotBeansResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
 
   CreateOrUpdateAttendanceTimeSlotBeansResponse.fromJson(
       Map<String, dynamic> json) {
@@ -280,16 +288,17 @@ class GetStudentAttendanceBeansRequest {
   int? studentId;
   int? teacherId;
 
-  GetStudentAttendanceBeansRequest(
-      {this.attendanceTimeSlotId,
-      this.date,
-      this.endDate,
-      this.onlineClassRoomId,
-      this.schoolId,
-      this.sectionId,
-      this.startDate,
-      this.studentId,
-      this.teacherId});
+  GetStudentAttendanceBeansRequest({
+    this.attendanceTimeSlotId,
+    this.date,
+    this.endDate,
+    this.onlineClassRoomId,
+    this.schoolId,
+    this.sectionId,
+    this.startDate,
+    this.studentId,
+    this.teacherId,
+  });
 
   GetStudentAttendanceBeansRequest.fromJson(Map<String, dynamic> json) {
     attendanceTimeSlotId = json['attendanceTimeSlotId'];
@@ -326,13 +335,14 @@ class GetStudentAttendanceBeansResponse {
   String? responseStatus;
   List<StudentAttendanceBean>? studentAttendanceBeans;
 
-  GetStudentAttendanceBeansResponse(
-      {attendanceTimeSlotBeans,
-      errorCode,
-      errorMessage,
-      httpStatus,
-      responseStatus,
-      studentAttendanceBeans});
+  GetStudentAttendanceBeansResponse({
+    this.attendanceTimeSlotBeans,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.studentAttendanceBeans,
+  });
 
   GetStudentAttendanceBeansResponse.fromJson(Map<String, dynamic> json) {
     if (json['attendanceTimeSlotBeans'] != null) {
@@ -398,30 +408,31 @@ class StudentAttendanceBean {
 
   bool? isEdited;
 
-  StudentAttendanceBean(
-      {agent,
-      atsAgent,
-      atsStatus,
-      attendanceId,
-      attendanceTimeSlotId,
-      date,
-      endTime,
-      isPresent,
-      managerId,
-      managerName,
-      markedBy,
-      markedById,
-      sectionId,
-      sectionName,
-      startTime,
-      status,
-      studentId,
-      studentName,
-      studentRollNumber,
-      validFrom,
-      validThrough,
-      week,
-      weekId});
+  StudentAttendanceBean({
+    this.agent,
+    this.atsAgent,
+    this.atsStatus,
+    this.attendanceId,
+    this.attendanceTimeSlotId,
+    this.date,
+    this.endTime,
+    this.isPresent,
+    this.managerId,
+    this.managerName,
+    this.markedBy,
+    this.markedById,
+    this.sectionId,
+    this.sectionName,
+    this.startTime,
+    this.status,
+    this.studentId,
+    this.studentName,
+    this.studentRollNumber,
+    this.validFrom,
+    this.validThrough,
+    this.week,
+    this.weekId,
+  });
 
   StudentAttendanceBean.fromJson(Map<String, dynamic> json) {
     agent = json['agent'];
@@ -503,8 +514,11 @@ class CreateOrUpdateStudentAttendanceRequest {
   int? schoolId;
   List<StudentAttendanceBean>? studentAttendanceBeans;
 
-  CreateOrUpdateStudentAttendanceRequest(
-      {agent, schoolId, studentAttendanceBeans});
+  CreateOrUpdateStudentAttendanceRequest({
+    this.agent,
+    this.schoolId,
+    this.studentAttendanceBeans,
+  });
 
   CreateOrUpdateStudentAttendanceRequest.fromJson(Map<String, dynamic> json) {
     agent = json['agent'];
@@ -535,8 +549,12 @@ class CreateOrUpdateStudentAttendanceResponse {
   String? httpStatus;
   String? responseStatus;
 
-  CreateOrUpdateStudentAttendanceResponse(
-      {errorCode, errorMessage, httpStatus, responseStatus});
+  CreateOrUpdateStudentAttendanceResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
 
   CreateOrUpdateStudentAttendanceResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];
@@ -585,8 +603,13 @@ class BulkEditAttendanceTimeSlotsRequest {
   List<TimeSlot>? timeSlots;
   List<int>? weekIds;
 
-  BulkEditAttendanceTimeSlotsRequest(
-      {agent, schoolId, sectionIds, timeSlots, weekIds});
+  BulkEditAttendanceTimeSlotsRequest({
+    this.agent,
+    this.schoolId,
+    this.sectionIds,
+    this.timeSlots,
+    this.weekIds,
+  });
 
   BulkEditAttendanceTimeSlotsRequest.fromJson(Map<String, dynamic> json) {
     agent = json['agent'];
@@ -620,8 +643,12 @@ class BulkEditAttendanceTimeSlotsResponse {
   String? httpStatus;
   String? responseStatus;
 
-  BulkEditAttendanceTimeSlotsResponse(
-      {errorCode, errorMessage, httpStatus, responseStatus});
+  BulkEditAttendanceTimeSlotsResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
 
   BulkEditAttendanceTimeSlotsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];

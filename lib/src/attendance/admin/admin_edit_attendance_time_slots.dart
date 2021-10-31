@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/common_components/app_expansion_tile.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -85,7 +86,7 @@ class _AdminEditAttendanceTimeSlotsState
   Widget buildSectionCheckBox(Section section) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayContainer(
+      child: ClayButton(
         depth: 40,
         color: _selectedSection == section
             ? Colors.blue[200]
@@ -151,7 +152,7 @@ class _AdminEditAttendanceTimeSlotsState
                 margin: const EdgeInsets.all(7),
                 child: GridView.count(
                   childAspectRatio: 2.25,
-                  crossAxisCount: 3,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
                   children: _sectionsList
                       .map((e) => buildSectionCheckBox(e))
@@ -183,11 +184,10 @@ class _AdminEditAttendanceTimeSlotsState
                   CreateOrUpdateAttendanceTimeSlotBeansRequest
                       createOrUpdateAttendanceTimeSlotBeansRequest =
                       CreateOrUpdateAttendanceTimeSlotBeansRequest(
-                    schoolId: widget.adminProfile.schoolId,
-                    agent: widget.adminProfile.userId,
-                    attendanceTimeSlotBeans: _attendanceTimeSlots
-                        .where((e) => e.isEdited ?? false)
-                        .toList(),
+                    schoolId: widget.adminProfile.schoolId!,
+                    agent: widget.adminProfile.userId!,
+                    attendanceTimeSlotBeans:
+                        _attendanceTimeSlots.where((e) => e.isEdited).toList(),
                   );
                   CreateOrUpdateAttendanceTimeSlotBeansResponse
                       createOrUpdateAttendanceTimeSlotBeansResponse =
@@ -204,7 +204,7 @@ class _AdminEditAttendanceTimeSlotsState
                         content: Text("Success!"),
                       ),
                     );
-                    _loadData();
+                    await _loadData();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -259,7 +259,7 @@ class _AdminEditAttendanceTimeSlotsState
   Widget _buildStartTimePicker(int index) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayContainer(
+      child: ClayButton(
         depth: 40,
         color: clayContainerColor(context),
         spread: 2,
@@ -273,7 +273,9 @@ class _AdminEditAttendanceTimeSlotsState
           child: InkWell(
             onTap: () async {
               HapticFeedback.vibrate();
-              await _pickStartTime(context, index);
+              if (_isEditMode) {
+                await _pickStartTime(context, index);
+              }
             },
             child: Center(
               child: Text(
@@ -315,7 +317,7 @@ class _AdminEditAttendanceTimeSlotsState
   Widget _buildEndTimePicker(int index) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayContainer(
+      child: ClayButton(
         depth: 40,
         color: clayContainerColor(context),
         spread: 2,
@@ -329,7 +331,9 @@ class _AdminEditAttendanceTimeSlotsState
           child: InkWell(
             onTap: () async {
               HapticFeedback.vibrate();
-              await _pickEndTime(context, index);
+              if (_isEditMode) {
+                await _pickEndTime(context, index);
+              }
             },
             child: Center(
               child: Text(
@@ -375,7 +379,7 @@ class _AdminEditAttendanceTimeSlotsState
                             });
                           }
                         },
-                        child: ClayContainer(
+                        child: ClayButton(
                           color: clayContainerColor(context),
                           height: 50,
                           width: 50,
@@ -450,12 +454,18 @@ class _AdminEditAttendanceTimeSlotsState
   }
 
   Widget buildAttendanceTimeSlotsForAllSelectedSections() {
-    return Column(
-      children: [_selectedSection]
-          .map(
-            (e) => buildAttendanceTimeSlotsForEachSection(e!),
-          )
-          .toList(),
+    return Container(
+      padding: MediaQuery.of(context).orientation == Orientation.landscape
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
+              MediaQuery.of(context).size.width / 4, 20)
+          : const EdgeInsets.all(20),
+      child: Column(
+        children: [_selectedSection]
+            .map(
+              (e) => buildAttendanceTimeSlotsForEachSection(e!),
+            )
+            .toList(),
+      ),
     );
   }
 

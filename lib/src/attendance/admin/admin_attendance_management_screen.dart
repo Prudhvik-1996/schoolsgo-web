@@ -10,7 +10,7 @@ import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
-import 'admin_edit_attendance_time_slots.dart';
+import 'admin_bulk_edit_attendance_time_slots_screen.dart';
 
 class AdminAttendanceManagementScreen extends StatefulWidget {
   final AdminProfile adminProfile;
@@ -95,7 +95,7 @@ class _AdminAttendanceManagementScreenState
   Widget buildSectionCheckBox(Section section) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayContainer(
+      child: ClayButton(
         depth: 40,
         color: _selectedSection == section
             ? Colors.blue[200]
@@ -157,7 +157,7 @@ class _AdminAttendanceManagementScreenState
                 margin: const EdgeInsets.all(7),
                 child: GridView.count(
                   childAspectRatio: 2.25,
-                  crossAxisCount: 3,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
                   children: _sectionsList
                       .map((e) => buildSectionCheckBox(e))
@@ -183,43 +183,42 @@ class _AdminAttendanceManagementScreenState
           content: const Text("Are you sure to save changes?"),
           actions: <Widget>[
             TextButton(
-                child: const Text("YES"),
-                onPressed: () async {
-                  HapticFeedback.vibrate();
-                  CreateOrUpdateAttendanceTimeSlotBeansRequest
-                      createOrUpdateAttendanceTimeSlotBeansRequest =
-                      CreateOrUpdateAttendanceTimeSlotBeansRequest(
-                    schoolId: widget.adminProfile.schoolId,
-                    agent: widget.adminProfile.userId,
-                    attendanceTimeSlotBeans: _attendanceTimeSlots
-                        .where((e) => e.isEdited ?? false)
-                        .toList(),
+              child: const Text("YES"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                CreateOrUpdateAttendanceTimeSlotBeansRequest
+                    createOrUpdateAttendanceTimeSlotBeansRequest =
+                    CreateOrUpdateAttendanceTimeSlotBeansRequest(
+                  schoolId: widget.adminProfile.schoolId,
+                  agent: widget.adminProfile.userId,
+                  attendanceTimeSlotBeans:
+                      _attendanceTimeSlots.where((e) => e.isEdited).toList(),
+                );
+                CreateOrUpdateAttendanceTimeSlotBeansResponse
+                    createOrUpdateAttendanceTimeSlotBeansResponse =
+                    await createOrUpdateAttendanceTimeSlotBeans(
+                        createOrUpdateAttendanceTimeSlotBeansRequest);
+                if (createOrUpdateAttendanceTimeSlotBeansResponse.httpStatus ==
+                        "OK" &&
+                    createOrUpdateAttendanceTimeSlotBeansResponse
+                            .responseStatus ==
+                        "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Success!"),
+                    ),
                   );
-                  CreateOrUpdateAttendanceTimeSlotBeansResponse
-                      createOrUpdateAttendanceTimeSlotBeansResponse =
-                      await createOrUpdateAttendanceTimeSlotBeans(
-                          createOrUpdateAttendanceTimeSlotBeansRequest);
-                  if (createOrUpdateAttendanceTimeSlotBeansResponse
-                              .httpStatus ==
-                          "OK" &&
-                      createOrUpdateAttendanceTimeSlotBeansResponse
-                              .responseStatus ==
-                          "success") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Success!"),
-                      ),
-                    );
-                    _loadData();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Error Occurred"),
-                      ),
-                    );
-                  }
-                  Navigator.of(context).pop();
-                }),
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Error Occurred"),
+                    ),
+                  );
+                }
+                _loadData();
+              },
+            ),
             TextButton(
               child: const Text("No"),
               onPressed: () {
@@ -379,12 +378,18 @@ class _AdminAttendanceManagementScreenState
   }
 
   Widget buildAttendanceTimeSlotsForAllSelectedSections() {
-    return Column(
-      children: [_selectedSection]
-          .map(
-            (e) => buildAttendanceTimeSlotsForEachSection(e!),
-          )
-          .toList(),
+    return Container(
+      padding: MediaQuery.of(context).orientation == Orientation.landscape
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
+              MediaQuery.of(context).size.width / 4, 20)
+          : const EdgeInsets.all(20),
+      child: Column(
+        children: [_selectedSection]
+            .map(
+              (e) => buildAttendanceTimeSlotsForEachSection(e!),
+            )
+            .toList(),
+      ),
     );
   }
 
@@ -392,7 +397,7 @@ class _AdminAttendanceManagementScreenState
     switch (value) {
       case 'Edit Attendance Time Slots':
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return AdminEditAttendanceTimeSlots(
+          return AdminBulkEditAttendanceTimeSlotsScreen(
             adminProfile: widget.adminProfile,
           );
         }));
