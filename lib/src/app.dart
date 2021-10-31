@@ -1,45 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
-import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
-import 'package:schoolsgo_web/src/diary/admin/admin_diary_screen.dart';
-import 'package:schoolsgo_web/src/diary/student/student_diary_screen.dart';
-import 'package:schoolsgo_web/src/events/student/student_each_event_view.dart';
-import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
-import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
-import 'package:schoolsgo_web/src/profile/student/student_profile_screen.dart';
-import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
-import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
-import 'package:schoolsgo_web/src/study_material/admin/admin_study_material_tds_screen.dart';
-import 'package:schoolsgo_web/src/study_material/student/student_study_material_tds_screen.dart';
-import 'package:schoolsgo_web/src/study_material/teacher/teacher_study_material_tds_screen.dart';
-import 'package:schoolsgo_web/src/suggestion_box/admin/admin_suggestion_box.dart';
-import 'package:schoolsgo_web/src/suggestion_box/student/student_suggestion_box.dart';
-import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
-import 'package:schoolsgo_web/src/time_table/admin/admin_timetable_options_screen.dart';
-import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
-import 'package:schoolsgo_web/src/time_table/teacher/teacher_time_table_view.dart';
-import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'admin_dashboard/admin_dashboard.dart';
+import 'attendance/student/student_attendance_view_screen.dart';
 import 'common_components/dashboard_widgets.dart';
 import 'common_components/default_splash_screen.dart';
 import 'common_components/not_found_screen.dart';
+import 'diary/admin/admin_diary_screen.dart';
+import 'diary/student/student_diary_screen.dart';
 import 'events/admin/admin_each_event_screen.dart';
 import 'events/admin/admin_events_screen.dart';
 import 'events/model/events.dart';
+import 'events/student/student_each_event_view.dart';
 import 'events/student/student_events_view.dart';
 import 'events/teacher/teacher_each_event_view.dart';
 import 'events/teacher/teacher_events_view.dart';
+import 'logbook/logbook_screen.dart';
 import 'login/login_screen.dart';
+import 'model/user_roles_response.dart';
 import 'notice_board/admin/admin_notice_board_screen.dart';
+import 'notice_board/student/student_notice_board_view.dart';
 import 'notice_board/teacher/teacher_notice_board_view.dart';
+import 'profile/admin/admin_profile_screen.dart';
+import 'profile/student/student_profile_screen.dart';
+import 'profile/teacher/teacher_profile_screen.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'splash_screen/splash_screen.dart';
+import 'student_dashboard/student_dashboard.dart';
+import 'study_material/admin/admin_study_material_tds_screen.dart';
+import 'study_material/student/student_study_material_tds_screen.dart';
+import 'study_material/teacher/teacher_study_material_tds_screen.dart';
+import 'suggestion_box/admin/admin_suggestion_box.dart';
+import 'suggestion_box/student/student_suggestion_box.dart';
+import 'teacher_dashboard/teacher_dashboard.dart';
 import 'time_table/admin/admin_all_teachers_preview_time_table_screens.dart';
 import 'time_table/admin/admin_edit_timetable_screen.dart';
 import 'time_table/admin/admin_teacher_dealing_sections_screen.dart';
 import 'time_table/admin/admin_time_table_randomizer_screen.dart';
+import 'time_table/admin/admin_timetable_options_screen.dart';
+import 'time_table/student/student_time_table_view.dart';
+import 'time_table/teacher/teacher_time_table_view.dart';
+import 'user_dashboard/user_dashboard.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({
@@ -162,11 +164,25 @@ class _MyAppState extends State<MyApp> {
                     );
                   case StudentProfileScreen.routeName:
                     try {
-                      var argument =
-                          (routeSettings.arguments as StudentProfile);
-                      return StudentProfileScreen(
-                        studentProfile: argument,
-                      );
+                      if (routeSettings.arguments is TeacherProfile) {
+                        var teacherProfile =
+                            routeSettings.arguments as TeacherProfile;
+                        return TeacherProfileScreen(
+                          teacherProfile: teacherProfile,
+                        );
+                      } else if (routeSettings.arguments is AdminProfile) {
+                        var adminProfile =
+                            routeSettings.arguments as AdminProfile;
+                        return AdminProfileScreen(
+                          adminProfile: adminProfile,
+                        );
+                      } else {
+                        var argument =
+                            (routeSettings.arguments as StudentProfile);
+                        return StudentProfileScreen(
+                          studentProfile: argument,
+                        );
+                      }
                     } catch (e) {
                       return const E404NotFoundScreen();
                     }

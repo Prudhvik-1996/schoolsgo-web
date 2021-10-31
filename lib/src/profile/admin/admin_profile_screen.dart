@@ -1,34 +1,34 @@
-import 'package:clay_containers/clay_containers.dart';
+import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
-class StudentProfileScreen extends StatefulWidget {
-  const StudentProfileScreen({Key? key, required this.studentProfile})
+class AdminProfileScreen extends StatefulWidget {
+  const AdminProfileScreen({Key? key, required this.adminProfile})
       : super(key: key);
 
-  final StudentProfile studentProfile;
+  final AdminProfile adminProfile;
 
   static const routeName = "/profile";
 
   @override
-  _StudentProfileScreenState createState() => _StudentProfileScreenState();
+  _AdminProfileScreenState createState() => _AdminProfileScreenState();
 }
 
-class _StudentProfileScreenState extends State<StudentProfileScreen> {
+class _AdminProfileScreenState extends State<AdminProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.studentProfile),
+          buildRoleButtonForAppBar(context, widget.adminProfile),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
+      drawer: AdminAppDrawer(
+        adminProfile: widget.adminProfile,
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
@@ -52,7 +52,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         'assets/images/loading_grey_white.gif',
                       ),
                       image: NetworkImage(
-                        widget.studentProfile.schoolPhotoUrl!,
+                        widget.adminProfile.schoolPhotoUrl!,
                         // "https://i.pinimg.com/originals/68/23/cc/6823ccc28eec17d215f029cc46102406.jpg",
                       ),
                       fit: BoxFit.cover,
@@ -86,13 +86,17 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                             bottomRight: Radius.circular(150.0),
                             bottomLeft: Radius.circular(150.0),
                           ),
-                          child: FadeInImage(
-                            placeholder: const AssetImage(
-                              'assets/images/loading_grey_white.gif',
-                            ),
-                            image: NetworkImage(
-                              widget.studentProfile.studentPhotoUrl!,
-                            ),
+                          // child: FadeInImage(
+                          //   placeholder: AssetImage(
+                          //     'assets/images/loading_grey_white.gif',
+                          //   ),
+                          //   image: NetworkImage(
+                          //     "https://drive.google.com/uc?id=1tSVOeWmbXL2SGJFG7iPl63kDLcOOu6w5",
+                          //   ),
+                          //   fit: BoxFit.contain,
+                          // ),
+                          child: Image.asset(
+                            "assets/images/avatar.png",
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -127,11 +131,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         child: Container(
                           margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: Text(
-                            "Section: ${widget.studentProfile.sectionName ?? "-"}",
-                            textAlign: TextAlign.end,
-                            style: const TextStyle(
-                              color: Colors.blue,
-                            ),
+                            "Name: ${widget.adminProfile.firstName ?? "-"}",
                           ),
                         ),
                       ),
@@ -143,7 +143,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         child: Container(
                           margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: Text(
-                            "Name: ${widget.studentProfile.studentFirstName ?? "-"}",
+                            "School: ${widget.adminProfile.schoolName ?? "-"}",
                           ),
                         ),
                       ),
@@ -155,43 +155,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         child: Container(
                           margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                           child: Text(
-                            "School: ${widget.studentProfile.schoolName ?? "-"}",
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                          child: Text(
-                            "Father: ${widget.studentProfile.fatherName ?? "-"}",
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                          child: Text(
-                            "Mother: ${widget.studentProfile.motherName ?? "-"}",
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                          child: Text(
-                            "Mail Id: ${widget.studentProfile.gaurdianMailId ?? "-"}",
+                            "Mail Id: ${widget.adminProfile.mailId ?? "-"}",
                           ),
                         ),
                       ),
