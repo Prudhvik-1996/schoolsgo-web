@@ -18,6 +18,7 @@ import 'events/student/student_each_event_view.dart';
 import 'events/student/student_events_view.dart';
 import 'events/teacher/teacher_each_event_view.dart';
 import 'events/teacher/teacher_events_view.dart';
+import 'feedback/teacher/feedback_screen.dart';
 import 'logbook/logbook_screen.dart';
 import 'login/login_screen.dart';
 import 'model/user_roles_response.dart';
@@ -233,6 +234,28 @@ class _MyAppState extends State<MyApp> {
                           teacherProfile: null,
                           adminProfile: adminProfile,
                         );
+                      } else {
+                        return const E404NotFoundScreen();
+                      }
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case TeacherFeedbackScreen.routeName:
+                    try {
+                      if (routeSettings.arguments is StudentProfile) {
+                        var studentProfile =
+                            routeSettings.arguments as StudentProfile;
+                        return const E404NotFoundScreen();
+                      } else if (routeSettings.arguments is TeacherProfile) {
+                        var teacherProfile =
+                            routeSettings.arguments as TeacherProfile;
+                        return TeacherFeedbackScreen(
+                          teacherProfile: teacherProfile,
+                        );
+                      } else if (routeSettings.arguments is AdminProfile) {
+                        var adminProfile =
+                            routeSettings.arguments as AdminProfile;
+                        return const E404NotFoundScreen();
                       } else {
                         return const E404NotFoundScreen();
                       }

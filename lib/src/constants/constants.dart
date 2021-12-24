@@ -71,6 +71,9 @@ const String GET_FEE_TYPES = "/fee/getFeeTypes";
 const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
 const String GET_FEE_MAP = "/fee/getFeeMap";
 
+const String GET_STUDENT_TO_TEACHER_FEEDBACK =
+    "/feedback/getStudentToTeacherFeedback";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{
