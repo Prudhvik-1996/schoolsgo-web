@@ -39,7 +39,7 @@ class _TeacherFeedbackScreenState extends State<TeacherFeedbackScreen> {
   final Map<int, String> _teacherWiseAverageRatingMap = {};
   List<DateTime> _dates = [];
   List<DateTime> _months = [];
-  ScrollController _feedbackGraphController = ScrollController();
+  final ScrollController _feedbackGraphController = ScrollController();
 
   DateFormat format = DateFormat("dd-MM-yyyy");
 
@@ -89,9 +89,9 @@ class _TeacherFeedbackScreenState extends State<TeacherFeedbackScreen> {
         ];
       }
     }
-    for (var eachTdsId in _teacherWiseFeedbackMap.keys) {
-      _teacherWiseFilteredRatingKMap[eachTdsId] =
-          _teacherWiseFeedbackMap[eachTdsId]!.map((dateString, feedbackBeans) {
+    for (var teacherId in _teacherWiseFeedbackMap.keys) {
+      _teacherWiseFilteredRatingKMap[teacherId] =
+          _teacherWiseFeedbackMap[teacherId]!.map((dateString, feedbackBeans) {
         double avgRating = feedbackBeans
             .map((e) => e.rating!.toDouble())
             .reduce((a, b) => (a + b));
@@ -123,8 +123,8 @@ class _TeacherFeedbackScreenState extends State<TeacherFeedbackScreen> {
         _index = _index.add(const Duration(days: 1));
       }
 
-      print(
-          "191: ${widget.teacherProfile.teacherId} - ${_teacherWiseFilteredRatingKMap[widget.teacherProfile.teacherId]}");
+      // print(
+      //     "191: ${widget.teacherProfile.teacherId} - ${_teacherWiseFilteredRatingKMap[widget.teacherProfile.teacherId]}");
 
       _dates = _teacherWiseFilteredRatingKMap[widget.teacherProfile.teacherId]!
           .keys
