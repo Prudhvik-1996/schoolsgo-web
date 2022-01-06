@@ -517,7 +517,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    convertEpochToDDMMYYYYHHMMAA(
+                    convertEpochToDDMMYYYYEEEEHHMMAA(
                         int.parse(eachNews.createTime!)),
                     textAlign: TextAlign.end,
                   ),
@@ -863,7 +863,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                 Expanded(
                   child: Text(
                     "Last Updated: " +
-                        convertEpochToDDMMYYYYHHMMAA(
+                        convertEpochToDDMMYYYYEEEEHHMMAA(
                             int.parse(eachNews.createTime!)),
                     textAlign: TextAlign.end,
                   ),

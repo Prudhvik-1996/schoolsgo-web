@@ -55,18 +55,21 @@ class _ClayButtonState extends State<ClayButton> {
     return Listener(
       onPointerDown: _onPointerDown,
       onPointerUp: _onPointerUp,
-      child: ClayContainer(
-        child: widget.child,
-        height: widget.height,
-        width: widget.width,
-        color: widget.color,
-        surfaceColor: widget.surfaceColor,
-        parentColor: widget.parentColor,
-        spread: widget.spread,
-        borderRadius: widget.borderRadius,
-        customBorderRadius: widget.customBorderRadius,
-        depth: widget.depth,
-        emboss: _isPressed,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: ClayContainer(
+          child: widget.child,
+          height: widget.height,
+          width: widget.width,
+          color: widget.color,
+          surfaceColor: widget.surfaceColor,
+          parentColor: widget.parentColor,
+          spread: widget.spread,
+          borderRadius: widget.borderRadius,
+          customBorderRadius: widget.customBorderRadius,
+          depth: widget.depth,
+          emboss: _isPressed,
+        ),
       ),
     );
   }

@@ -19,6 +19,7 @@ import 'events/student/student_each_event_view.dart';
 import 'events/student/student_events_view.dart';
 import 'events/teacher/teacher_each_event_view.dart';
 import 'events/teacher/teacher_events_view.dart';
+import 'feedback/student/student_feedback_screen.dart';
 import 'feedback/teacher/feedback_screen.dart';
 import 'logbook/logbook_screen.dart';
 import 'login/login_screen.dart';
@@ -246,7 +247,9 @@ class _MyAppState extends State<MyApp> {
                       if (routeSettings.arguments is StudentProfile) {
                         var studentProfile =
                             routeSettings.arguments as StudentProfile;
-                        return const E404NotFoundScreen();
+                        return StudentFeedbackScreen(
+                          studentProfile: studentProfile,
+                        );
                       } else if (routeSettings.arguments is TeacherProfile) {
                         var teacherProfile =
                             routeSettings.arguments as TeacherProfile;

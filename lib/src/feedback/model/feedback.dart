@@ -108,6 +108,8 @@ class StudentToTeacherFeedback {
   String? teacherName;
   Map<String, dynamic> __origJson = {};
 
+  bool isEdited = false;
+
   StudentToTeacherFeedback({
     this.anonymus,
     this.createTime,
@@ -275,4 +277,138 @@ Future<GetStudentToTeacherFeedbackResponse> getStudentToTeacherFeedback(
   print(
       "GetStudentToTeacherFeedbackResponse ${getStudentToTeacherFeedbackResponse.toJson()}");
   return getStudentToTeacherFeedbackResponse;
+}
+
+class CreateOrUpdateStudentToTeacherFeedbackRequest {
+/*
+{
+  "feedbackBeans": [
+    {
+      "anonymus": true,
+      "createTime": 0,
+      "feedbackId": 0,
+      "lastUpdated": 0,
+      "rating": 0,
+      "review": "string",
+      "schoolId": 0,
+      "schoolName": "string",
+      "sectionId": 0,
+      "sectionName": "string",
+      "status": "active",
+      "studentId": 0,
+      "studentName": "string",
+      "subjectId": 0,
+      "subjectName": "string",
+      "tdsId": 0,
+      "teacherId": 0,
+      "teacherName": "string"
+    }
+  ],
+  "schoolId": 0
+}
+*/
+
+  List<StudentToTeacherFeedback?>? feedbackBeans;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentToTeacherFeedbackRequest({
+    this.feedbackBeans,
+    this.schoolId,
+  });
+  CreateOrUpdateStudentToTeacherFeedbackRequest.fromJson(
+      Map<String, dynamic> json) {
+    __origJson = json;
+    if (json['feedbackBeans'] != null && (json['feedbackBeans'] is List)) {
+      final v = json['feedbackBeans'];
+      final arr0 = <StudentToTeacherFeedback>[];
+      v.forEach((v) {
+        arr0.add(StudentToTeacherFeedback.fromJson(v));
+      });
+      feedbackBeans = arr0;
+    }
+    schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (feedbackBeans != null) {
+      final v = feedbackBeans;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['feedbackBeans'] = arr0;
+    }
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStudentToTeacherFeedbackResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentToTeacherFeedbackResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(
+      Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateStudentToTeacherFeedbackResponse>
+    createOrUpdateStudentToTeacherFeedback(
+        CreateOrUpdateStudentToTeacherFeedbackRequest
+            createStudentToTeacherFeedbackRequest) async {
+  print(
+      "Raising request to createStudentToTeacherFeedback with request ${jsonEncode(createStudentToTeacherFeedbackRequest.toJson())}");
+  String _url =
+      SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createStudentToTeacherFeedbackRequest.toJson()),
+  );
+
+  CreateOrUpdateStudentToTeacherFeedbackResponse
+      createStudentToTeacherFeedbackResponse =
+      CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(
+          json.decode(response.body));
+  print(
+      "createStudentToTeacherFeedbackResponse ${createStudentToTeacherFeedbackResponse.toJson()}");
+  return createStudentToTeacherFeedbackResponse;
 }

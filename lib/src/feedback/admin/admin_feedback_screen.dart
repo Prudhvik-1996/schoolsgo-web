@@ -391,8 +391,11 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
               _applyFilters();
             },
             child: Center(
-              child: Text(
-                section.sectionName!,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  section.sectionName!,
+                ),
               ),
             ),
           ),
@@ -409,7 +412,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         margin: const EdgeInsets.all(25),
         child: _isSectionPickerOpen
             ? Container(
-                margin: const EdgeInsets.all(25),
+                margin: const EdgeInsets.all(10),
                 child: ClayContainer(
                   depth: 40,
                   color: clayContainerColor(context),
@@ -953,10 +956,6 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
           )
           .toList();
     } else if (_selectedTeacher != null) {
-      // return [_selectedTeacher]
-      //     .map((e) =>
-      //         buildChart(e, null, (e!.teacherName ?? "").capitalize(), ""))
-      //     .toList();
       return [buildTeacherWiseWidget(_selectedTeacher!)];
     }
     return _teachersList

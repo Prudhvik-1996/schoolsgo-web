@@ -184,7 +184,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                 children: [
                   Expanded(
                     child: Text(
-                      convertEpochToDDMMYYYYHHMMAA(
+                      convertEpochToDDMMYYYYEEEEHHMMAA(
                           int.parse(eachNews.createTime!)),
                       textAlign: TextAlign.end,
                     ),
