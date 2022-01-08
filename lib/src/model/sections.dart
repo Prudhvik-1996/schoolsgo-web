@@ -19,11 +19,13 @@ class GetSectionsRequest {
     this.schoolId,
     this.sectionId,
   });
+
   GetSectionsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     sectionId = int.tryParse(json["sectionId"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["schoolId"] = schoolId;
@@ -42,7 +44,8 @@ class Section {
   "schoolId": 0,
   "sectionId": 0,
   "sectionName": "string",
-  "sectionPhotoUrl": "string"
+  "sectionPhotoUrl": "string",
+  "ocrAsPerTt": false
 }
 */
 
@@ -52,6 +55,7 @@ class Section {
   int? sectionId;
   String? sectionName;
   String? sectionPhotoUrl;
+  bool? ocrAsPerTt;
   Map<String, dynamic> __origJson = {};
 
   Section({
@@ -61,7 +65,9 @@ class Section {
     this.sectionId,
     this.sectionName,
     this.sectionPhotoUrl,
+    this.ocrAsPerTt,
   });
+
   Section.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json["agent"]?.toString();
@@ -70,7 +76,9 @@ class Section {
     sectionId = int.tryParse(json["sectionId"]?.toString() ?? '');
     sectionName = json["sectionName"]?.toString();
     sectionPhotoUrl = json["sectionPhotoUrl"]?.toString();
+    ocrAsPerTt = json["ocrAsPerTt"] ?? false;
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
@@ -79,6 +87,7 @@ class Section {
     data["sectionId"] = sectionId;
     data["sectionName"] = sectionName;
     data["sectionPhotoUrl"] = sectionPhotoUrl;
+    data["ocrAsPerTt"] = ocrAsPerTt;
     return data;
   }
 
@@ -90,7 +99,7 @@ class Section {
 
   @override
   String toString() {
-    return "Section {'sectionId'=$sectionId,'schoolId'=$schoolId,'sectionName'='$sectionName','sectionPhotoUrl'='$sectionPhotoUrl','description'='$description','agent'=$agent}";
+    return "Section {'sectionId'=$sectionId,'schoolId'=$schoolId,'sectionName'='$sectionName','sectionPhotoUrl'='$sectionPhotoUrl','description'='$description','agent'=$agent,'ocrAsPerTt'=$ocrAsPerTt}";
   }
 
   @override
@@ -136,6 +145,7 @@ class GetSectionsResponse {
     this.responseStatus,
     this.sections,
   });
+
   GetSectionsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json["errorCode"]?.toString();
@@ -151,6 +161,7 @@ class GetSectionsResponse {
       sections = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;

@@ -354,7 +354,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                 context: context,
                 selectableDayPredicate: (DateTime val) {
                   return _availableDates
-                      .contains(convertDatTimeToYYYYMMDDFormat(val));
+                      .contains(convertDateTimeToYYYYMMDDFormat(val));
                 },
                 initialDate: DateTime.parse(_availableDates.first),
                 firstDate: DateTime.parse(_availableDates.last),

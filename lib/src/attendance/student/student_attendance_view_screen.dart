@@ -153,7 +153,7 @@ class _StudentAttendanceViewScreenState
                               margin: const EdgeInsets.fromLTRB(5, 0, 10, 0),
                               padding: const EdgeInsets.fromLTRB(5, 0, 10, 0),
                               child: ClayText(
-                                convertDateToDDMMMYYY(eachDate!),
+                                convertDateToDDMMMYYYEEEE(eachDate!),
                                 textColor: clayContainerTextColor(context),
                                 parentColor: clayContainerColor(context),
                                 // color: clayContainerColor(context),
@@ -191,7 +191,8 @@ class _StudentAttendanceViewScreenState
                                                 MainAxisAlignment.spaceEvenly,
                                             children: [
                                               Text(
-                                                convertDateToDDMMMYYY(eachDate),
+                                                convertDateToDDMMMYYYEEEE(
+                                                    eachDate),
                                               ),
                                               Text(
                                                 '${convert24To12HourFormat(e.startTime!)} : ${convert24To12HourFormat(e.endTime!)}',
@@ -305,7 +306,7 @@ class _StudentAttendanceViewScreenState
             context: context,
             selectableDayPredicate: (DateTime val) {
               return _availableDates
-                  .contains(convertDatTimeToYYYYMMDDFormat(val));
+                  .contains(convertDateTimeToYYYYMMDDFormat(val));
             },
             initialDate: DateTime.parse(_availableDates.first!),
             firstDate: DateTime.parse(_availableDates.last!),
@@ -317,7 +318,7 @@ class _StudentAttendanceViewScreenState
             _selectedDate = _newDate;
             _itemScrollController.scrollTo(
               index: _availableDates
-                  .indexOf(convertDatTimeToYYYYMMDDFormat(_selectedDate!)),
+                  .indexOf(convertDateTimeToYYYYMMDDFormat(_selectedDate!)),
               duration: const Duration(seconds: 1),
               curve: Curves.easeInOutCubic,
             );

@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_scr
 import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
+import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
 
 class DashboardWidget<T> {
@@ -340,6 +341,26 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
         title: "Online Class Room",
         routeName: "/onlineclassroom",
         argument: adminProfile,
+        subWidgets: [
+          DashboardWidget<AdminRouteWithParams<String>>(
+            title: "Manage Online Class Rooms",
+            routeName: AdminManageOnlineClassRoomsScreen.routeName,
+            argument: AdminRouteWithParams<String>(
+              adminProfile: adminProfile,
+              routeName: AdminManageOnlineClassRoomsScreen.routeName,
+              params: ["Manage Online Class Rooms"],
+            ),
+          ),
+          DashboardWidget<AdminRouteWithParams<String>>(
+            title: "Monitor Online Class Rooms",
+            routeName: AdminManageOnlineClassRoomsScreen.routeName,
+            argument: AdminRouteWithParams<String>(
+              adminProfile: adminProfile,
+              routeName: AdminManageOnlineClassRoomsScreen.routeName,
+              params: ["Monitor Online Class Rooms"],
+            ),
+          ),
+        ],
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/feedback.svg"),

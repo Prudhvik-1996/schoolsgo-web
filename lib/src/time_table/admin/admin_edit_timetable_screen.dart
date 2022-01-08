@@ -422,7 +422,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                 ),
               )
               .toList(),
-      onChanged: (TeacherDealingSection? selectedTds) {
+      onChanged: (TeacherDealingSection? selectedTds) async {
         if (selectedTds == TeacherDealingSection()) {
           setState(() {
             timeSlotToBeEdited.teacherId = null;
@@ -438,7 +438,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
           _sectionWiseTimeSlots
               .where((e) => e.sectionId != section.sectionId)
               .where((e) => e.teacherId == selectedTds!.teacherId)
-              .forEach((eachTimeSlot) {
+              .forEach((eachTimeSlot) async {
             int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(
                 eachTimeSlot.startTime!, eachTimeSlot.weekId!);
             int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(
@@ -449,13 +449,22 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
             int endTimeForTimeSlotToBeEdited =
                 getSecondsEquivalentOfTimeFromWHHMMSS(
                     timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
-
-            if ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
-                    startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
-                (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
-                    endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime)) {
+            if (startTimeForTimeSlotToBeEdited == eachTimeSlotStartTime &&
+                endTimeForTimeSlotToBeEdited == eachTimeSlotEndTime &&
+                selectedTds != null &&
+                eachTimeSlot.subjectId == selectedTds.subjectId) {
+              await alertUserOnMerge(
+                  "Merging Teacher ${selectedTds.teacherName}, with ${eachTimeSlot.sectionName} on subject ${eachTimeSlot.subjectName}");
+              return;
+            } else if (selectedTds != null &&
+                eachTimeSlot.subjectId != selectedTds.subjectId &&
+                ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
+                        startTimeForTimeSlotToBeEdited <=
+                            eachTimeSlotEndTime) ||
+                    (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
+                        endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
               errorMessage =
-                  "Teacher ${selectedTds!.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
+                  "Teacher ${selectedTds.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
             }
           });
 
@@ -485,6 +494,32 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
           ? null
           : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first,
     );
+  }
+
+  Future<bool> alertUserOnMerge(String warningMessage) async {
+    late bool _proceed;
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Time Table'),
+          content: Text(warningMessage),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() {
+                  _proceed = true;
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
+    return _proceed;
   }
 
   Widget buildSectionWiseTimeSlotsForAllSelectedSections() {

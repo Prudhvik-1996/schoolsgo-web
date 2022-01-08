@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_scre
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
+import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_dashboard/admin_dashboard.dart';
@@ -27,6 +28,8 @@ import 'model/user_roles_response.dart';
 import 'notice_board/admin/admin_notice_board_screen.dart';
 import 'notice_board/student/student_notice_board_view.dart';
 import 'notice_board/teacher/teacher_notice_board_view.dart';
+import 'online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
+import 'online_class_room/admin/admin_monitor_online_class_rooms_screen.dart';
 import 'profile/admin/admin_profile_screen.dart';
 import 'profile/student/student_profile_screen.dart';
 import 'profile/teacher/teacher_profile_screen.dart';
@@ -265,6 +268,43 @@ class _MyAppState extends State<MyApp> {
                       } else {
                         return const E404NotFoundScreen();
                       }
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case AdminManageOnlineClassRoomsScreen.routeName:
+                    try {
+                      if (routeSettings.arguments is StudentProfile) {
+                        var studentProfile =
+                            routeSettings.arguments as StudentProfile;
+                        return const E404NotFoundScreen();
+                      } else if (routeSettings.arguments is TeacherProfile) {
+                        var teacherProfile =
+                            routeSettings.arguments as TeacherProfile;
+                        return const E404NotFoundScreen();
+                      } else if (routeSettings.arguments
+                          is AdminRouteWithParams<String>) {
+                        var routeArgument = (routeSettings.arguments!
+                            as AdminRouteWithParams<String>);
+                        switch (routeArgument.params![0]) {
+                          case "Manage Online Class Rooms":
+                            return AdminManageOnlineClassRoomsScreen(
+                              adminProfile: routeArgument.adminProfile,
+                            );
+                          case "Monitor Online Class Rooms":
+                            return AdminMonitorOnlineClassRoomsScreen(
+                              adminProfile: routeArgument.adminProfile,
+                            );
+                          default:
+                            const E404NotFoundScreen();
+                        }
+                      } else if (routeSettings.arguments is AdminProfile) {
+                        AdminProfile adminProfile =
+                            routeSettings.arguments as AdminProfile;
+                        return AdminOnlineClassRoomsOptionsScreen(
+                          adminProfile: adminProfile,
+                        );
+                      }
+                      return const E404NotFoundScreen();
                     } catch (e) {
                       return const E404NotFoundScreen();
                     }

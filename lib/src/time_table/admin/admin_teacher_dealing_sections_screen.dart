@@ -117,7 +117,11 @@ class _AdminTeacherDealingSectionsScreenState
       _isLoading = true;
     });
 
-    if (_tdsList.where((e) => e.isEdited ?? false).isEmpty) {
+    List<TeacherDealingSection> _editedTds =
+        _tdsList.where((e) => e.isEdited).toList();
+    print("120: $_editedTds");
+
+    if (_editedTds.isEmpty) {
       setState(() {
         _isLoading = false;
       });
@@ -129,7 +133,7 @@ class _AdminTeacherDealingSectionsScreenState
         CreateOrUpdateTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
       agentId: widget.adminProfile.userId,
-      tdsList: _tdsList.where((e) => e.isEdited ?? false).toList(),
+      tdsList: _editedTds,
     );
 
     CreateOrUpdateTeacherDealingSectionsResponse

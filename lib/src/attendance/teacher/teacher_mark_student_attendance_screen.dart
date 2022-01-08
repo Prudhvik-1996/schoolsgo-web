@@ -59,7 +59,7 @@ class _TeacherMarkStudentAttendanceScreenState
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse =
         await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.teacherProfile.schoolId,
-      date: convertDatTimeToYYYYMMDDFormat(widget.selectedDate),
+      date: convertDateTimeToYYYYMMDDFormat(widget.selectedDate),
       sectionId: widget.attendanceTimeSlotBean.sectionId,
       teacherId: widget.teacherProfile.teacherId,
     ));

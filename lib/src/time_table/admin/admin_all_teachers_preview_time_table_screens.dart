@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class TeacherTimeTablePreviewScreen extends StatefulWidget {
   final AdminProfile? adminProfile;
@@ -273,9 +274,47 @@ class _TeacherTimeTablePreviewScreenState
 
     List<Container> _widgets = [];
 
+    List<TimeSlotForPreview> _previewingSlots = [];
+
     _sectionWiseTimeSlots
         .where((e) =>
             e.tdsId != null &&
+            e.weekId == weekId &&
+            e.teacherId == _selectedTeacher!.teacherId)
+        .forEach((eachTimeSlot) {
+      bool _updatedExistingPreview = false;
+      String tsTimeKey =
+          "${eachTimeSlot.week}|${eachTimeSlot.startTime}|${eachTimeSlot.endTime}";
+      _previewingSlots.forEach((eachTimeSlotToPreview) {
+        String psTimeKey =
+            "${eachTimeSlotToPreview.week}|${eachTimeSlotToPreview.startTime}|${eachTimeSlotToPreview.endTime}";
+        if (psTimeKey == tsTimeKey &&
+            eachTimeSlotToPreview.subjectId == eachTimeSlot.subjectId) {
+          eachTimeSlotToPreview.sectionNames =
+              (eachTimeSlotToPreview.sectionNames ?? "") +
+                  ", " +
+                  (eachTimeSlot.sectionName ?? "");
+          _updatedExistingPreview = true;
+        }
+      });
+      if (!_updatedExistingPreview) {
+        _previewingSlots.add(TimeSlotForPreview(
+          teacherName: eachTimeSlot.teacherName,
+          teacherId: eachTimeSlot.teacherId,
+          endTime: eachTimeSlot.endTime,
+          startTime: eachTimeSlot.startTime,
+          week: eachTimeSlot.week,
+          weekId: eachTimeSlot.weekId,
+          sectionNames: eachTimeSlot.sectionName,
+          subjectId: eachTimeSlot.subjectId,
+          subjectName: eachTimeSlot.subjectName,
+        ));
+      }
+    });
+
+    _previewingSlots
+        .where((e) =>
+            e.sectionNames != null &&
             e.weekId == weekId &&
             e.teacherId == _selectedTeacher!.teacherId)
         .forEach((e) {
@@ -317,7 +356,7 @@ class _TeacherTimeTablePreviewScreenState
             child: Padding(
               padding: const EdgeInsets.all(3.0),
               child: Text(
-                "${e.startTime} - ${e.endTime}\n${e.teacherName}\n${e.sectionName}\n${e.subjectName}",
+                "${e.startTime} - ${e.endTime}\n${(e.teacherName ?? "-").capitalize()}\n${(e.sectionNames ?? "-").trimTrailingRegex(", ")}\n${(e.subjectName ?? "-").capitalize()}",
                 textAlign: TextAlign.center,
               ),
             ),
@@ -684,4 +723,28 @@ class _TeacherTimeTablePreviewScreenState
             ),
     );
   }
+}
+
+class TimeSlotForPreview {
+  String? endTime;
+  String? startTime;
+  String? sectionNames;
+  int? teacherId;
+  String? teacherName;
+  String? week;
+  int? weekId;
+  int? subjectId;
+  String? subjectName;
+
+  TimeSlotForPreview({
+    this.endTime,
+    this.startTime,
+    this.sectionNames,
+    this.teacherId,
+    this.teacherName,
+    this.week,
+    this.weekId,
+    this.subjectId,
+    this.subjectName,
+  });
 }

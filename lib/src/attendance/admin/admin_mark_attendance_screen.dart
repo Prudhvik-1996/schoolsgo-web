@@ -77,7 +77,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse =
         await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.adminProfile.schoolId,
-      date: convertDatTimeToYYYYMMDDFormat(_selectedDate),
+      date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
       sectionId: _selectedSection!.sectionId,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" &&

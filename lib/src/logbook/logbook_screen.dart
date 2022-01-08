@@ -429,7 +429,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
 
     CreateOrUpdateLogBookResponse createOrUpdateLogBookResponse =
         await createOrUpdateLogBook(CreateOrUpdateLogBookRequest(
-      date: convertDatTimeToYYYYMMDDFormat(_selectedDate),
+      date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
       schoolId: widget.adminProfile == null
           ? widget.teacherProfile!.schoolId
           : widget.adminProfile!.schoolId,

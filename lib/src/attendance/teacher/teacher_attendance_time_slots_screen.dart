@@ -42,7 +42,7 @@ class _TeacherAttendanceTimeslotsState
       schoolId: widget.teacherProfile.schoolId,
       status: "active",
       managerId: widget.teacherProfile.teacherId,
-      date: convertDatTimeToYYYYMMDDFormat(_selectedDate),
+      date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
     ));
     if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" &&
         getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {

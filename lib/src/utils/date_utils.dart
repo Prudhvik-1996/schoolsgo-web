@@ -17,9 +17,10 @@ TimeOfDay stringToTimeOfDay(String tod) {
   }
 }
 
-int getSecondsEquivalentOfTimeFromWHHMMSS(String time, int weekId) {
+int getSecondsEquivalentOfTimeFromWHHMMSS(String? time, int? weekId) {
   try {
-    return weekId * 24 * 60 * 60 +
+    time ??= DateFormat("hh:mm:ss").format(DateTime.now());
+    return (weekId ?? DateTime.now().weekday - 1) * 24 * 60 * 60 +
         int.parse(time.split(":")[0]) * 60 * 60 +
         int.parse(time.split(":")[1]) * 60 +
         int.parse(time.split(":")[2]);
@@ -103,8 +104,12 @@ String convertDateTimeToDDMMYYYYFormat(DateTime date) {
   return DateFormat("dd-MM-yyyy").format(date == null ? DateTime.now() : date);
 }
 
-String convertDatTimeToYYYYMMDDFormat(DateTime date) {
+String convertDateTimeToYYYYMMDDFormat(DateTime? date) {
   return DateFormat("yyyy-MM-dd").format(date == null ? DateTime.now() : date);
+}
+
+DateTime convertYYYYMMDDFormatToDateTime(String? date) {
+  return date == null ? DateTime.now() : DateFormat("yyyy-MM-dd").parse(date);
 }
 
 String weekOfGivenDateInYYYYMMDDFormat(String date) {
@@ -119,11 +124,17 @@ String weekOfGivenDateInYYYYMMDDFormat(String date) {
   ][DateTime.parse(date).weekday - 1];
 }
 
-String convertDateToDDMMMYYY(String date) {
+String convertDateToDDMMMYYYEEEE(String? date) {
   return date == null
       ? "-"
       : DateFormat('dd MMM, yyyy EEEE')
           .format(DateFormat("yyyy-MM-dd").parse(date));
+}
+
+String convertDateToDDMMMEEEE(String? date) {
+  return date == null
+      ? "-"
+      : DateFormat('EEEE, dd MMM').format(DateFormat("yyyy-MM-dd").parse(date));
 }
 
 String convertEpochToDDMMYYYYEEEEHHMMAA(int millis) {

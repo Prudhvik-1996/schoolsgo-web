@@ -55,7 +55,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
         eventName: "",
         eventType: "",
         organisedBy: "",
-        eventDate: convertDatTimeToYYYYMMDDFormat(DateTime.now()),
+        eventDate: convertDateTimeToYYYYMMDDFormat(DateTime.now()),
       );
       newEvent.isEditMode = true;
       _isLoading = false;
@@ -427,7 +427,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
         );
         if (_newDate != null) {
           setState(() {
-            event.eventDate = convertDatTimeToYYYYMMDDFormat(_newDate);
+            event.eventDate = convertDateTimeToYYYYMMDDFormat(_newDate);
           });
         }
       },

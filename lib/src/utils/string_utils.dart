@@ -10,4 +10,12 @@ extension StringExtension on String {
     }
     return double.tryParse(this) != null;
   }
+
+  String trimTrailingRegex(String reg) {
+    int i = length;
+    while (startsWith(reg, i - reg.length)) {
+      i -= reg.length;
+    }
+    return substring(0, i);
+  }
 }

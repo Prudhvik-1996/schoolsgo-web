@@ -1097,7 +1097,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                               context: context,
                               selectableDayPredicate: (DateTime val) {
                                 return _availableDates.contains(
-                                    convertDatTimeToYYYYMMDDFormat(val));
+                                    convertDateTimeToYYYYMMDDFormat(val));
                               },
                               initialDate:
                                   DateTime.parse(_availableDates.first),

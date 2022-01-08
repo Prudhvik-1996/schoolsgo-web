@@ -10,6 +10,8 @@ Color clayContainerColor(BuildContext context) {
   return darkThemeColor;
 }
 
+Color onGoingClassColor = Colors.green.shade400;
+
 Color clayContainerTextColor(BuildContext context) {
   if (Theme.of(context).primaryColor == Colors.blue) {
     return Colors.black87;

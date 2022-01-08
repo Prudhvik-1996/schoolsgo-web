@@ -76,6 +76,11 @@ const String GET_STUDENT_TO_TEACHER_FEEDBACK =
 const String CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK =
     "/feedback/createOrUpdateStudentToTeacherFeedback";
 
+const String GET_ONLINE_CLASS_ROOMS = "/online_class_room/getOnlineClassRooms";
+const String CREATE_OR_UPDATE_ONLINE_CLASS_ROOMS =
+    "/online_class_room/createOrUpdateCustomOcr";
+const String UPDATE_OCR_AS_PER_TT = "/online_class_room/updateOcrAsPerTt";
+
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{

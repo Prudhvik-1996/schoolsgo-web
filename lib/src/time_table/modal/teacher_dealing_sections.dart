@@ -98,34 +98,152 @@ Future<GetTeacherDealingSectionsResponse> getTeacherDealingSections(
   return getTeacherDealingSectionsResponse;
 }
 
-class CreateOrUpdateTeacherDealingSectionsRequest {
+class TeacherDealingSection {
+/*
+{
+  "agentId": 0,
+  "description": "string",
+  "schoolId": 0,
+  "sectionId": 0,
+  "sectionName": "string",
+  "status": "string",
+  "subjectId": 0,
+  "subjectName": "string",
+  "tdsId": 0,
+  "teacherId": 0,
+  "teacherName": "string"
+}
+*/
+
   int? agentId;
+  String? description;
   int? schoolId;
-  List<TeacherDealingSection>? tdsList;
+  int? sectionId;
+  String? sectionName;
+  String? status;
+  int? subjectId;
+  String? subjectName;
+  int? tdsId;
+  int? teacherId;
+  String? teacherName;
+  Map<String, dynamic> __origJson = {};
 
-  CreateOrUpdateTeacherDealingSectionsRequest({agentId, schoolId, tdsList});
+  bool isEdited = false;
 
-  CreateOrUpdateTeacherDealingSectionsRequest.fromJson(
-      Map<String, dynamic> json) {
-    agentId = json['agentId'];
-    schoolId = json['schoolId'];
-    if (json['tdsList'] != null) {
-      tdsList = <TeacherDealingSection>[];
-      json['tdsList'].forEach((v) {
-        tdsList!.add(TeacherDealingSection.fromJson(v));
-      });
-    }
+  TeacherDealingSection({
+    this.agentId,
+    this.description,
+    this.schoolId,
+    this.sectionId,
+    this.sectionName,
+    this.status,
+    this.subjectId,
+    this.subjectName,
+    this.tdsId,
+    this.teacherId,
+    this.teacherName,
+  });
+  TeacherDealingSection.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = int.tryParse(json['agentId']?.toString() ?? '');
+    description = json['description']?.toString();
+    schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
+    sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
+    sectionName = json['sectionName']?.toString();
+    status = json['status']?.toString();
+    subjectId = int.tryParse(json['subjectId']?.toString() ?? '');
+    subjectName = json['subjectName']?.toString();
+    tdsId = int.tryParse(json['tdsId']?.toString() ?? '');
+    teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
+    teacherName = json['teacherName']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['description'] = description;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['status'] = status;
+    data['subjectId'] = subjectId;
+    data['subjectName'] = subjectName;
+    data['tdsId'] = tdsId;
+    data['teacherId'] = teacherId;
+    data['teacherName'] = teacherName;
+    return data;
   }
 
+  Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  String toString() {
+    return "'agentId': $agentId, 'description': $description, 'schoolId': $schoolId, 'sectionId': $sectionId, 'sectionName': $sectionName, 'status': $status, 'subjectId': $subjectId, 'subjectName': $subjectName, 'tdsId': $tdsId, 'teacherId': $teacherId, 'teacherName': $teacherName, 'isEdited': $isEdited";
+  }
+}
+
+class CreateOrUpdateTeacherDealingSectionsRequest {
+/*
+{
+  "agentId": 0,
+  "schoolId": 0,
+  "tdsList": [
+    {
+      "agentId": 0,
+      "description": "string",
+      "schoolId": 0,
+      "sectionId": 0,
+      "sectionName": "string",
+      "status": "string",
+      "subjectId": 0,
+      "subjectName": "string",
+      "tdsId": 0,
+      "teacherId": 0,
+      "teacherName": "string"
+    }
+  ]
+}
+*/
+
+  int? agentId;
+  int? schoolId;
+  List<TeacherDealingSection?>? tdsList;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateTeacherDealingSectionsRequest({
+    this.agentId,
+    this.schoolId,
+    this.tdsList,
+  });
+  CreateOrUpdateTeacherDealingSectionsRequest.fromJson(
+      Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = int.tryParse(json['agentId']?.toString() ?? '');
+    schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
+    if (json['tdsList'] != null && (json['tdsList'] is List)) {
+      final v = json['tdsList'];
+      final arr0 = <TeacherDealingSection>[];
+      v.forEach((v) {
+        arr0.add(TeacherDealingSection.fromJson(v));
+      });
+      tdsList = arr0;
+    }
+  }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final data = <String, dynamic>{};
     data['agentId'] = agentId;
     data['schoolId'] = schoolId;
     if (tdsList != null) {
-      data['tdsList'] = tdsList!.map((v) => v.toJson()).toList();
+      final v = tdsList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['tdsList'] = arr0;
     }
     return data;
   }
+
+  Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateOrUpdateTeacherDealingSectionsResponse {
@@ -177,77 +295,4 @@ Future<CreateOrUpdateTeacherDealingSectionsResponse>
   print(
       "createOrUpdateTeacherDealingSectionsResponse ${createOrUpdateTeacherDealingSectionsResponse.toJson()}");
   return createOrUpdateTeacherDealingSectionsResponse;
-}
-
-class TeacherDealingSection {
-  int? tdsId;
-  int? teacherId;
-  String? teacherName;
-  int? sectionId;
-  String? sectionName;
-  int? subjectId;
-  String? subjectName;
-  int? schoolId;
-  int? agentId;
-  String? description;
-  String? status;
-  bool? isEdited;
-
-  TeacherDealingSection(
-      {tdsId,
-      teacherId,
-      teacherName,
-      sectionId,
-      sectionName,
-      subjectId,
-      subjectName,
-      schoolId,
-      agentId,
-      description,
-      status});
-
-  TeacherDealingSection.fromJson(Map<String, dynamic> json) {
-    tdsId = json['tdsId'];
-    teacherId = json['teacherId'];
-    teacherName = json['teacherName'];
-    sectionId = json['sectionId'];
-    sectionName = json['sectionName'];
-    subjectId = json['subjectId'];
-    subjectName = json['subjectName'];
-    schoolId = json['schoolId'];
-    agentId = json['agentId'];
-    description = json['description'];
-    status = json['status'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['tdsId'] = tdsId;
-    data['teacherId'] = teacherId;
-    data['teacherName'] = teacherName;
-    data['sectionId'] = sectionId;
-    data['sectionName'] = sectionName;
-    data['subjectId'] = subjectId;
-    data['subjectName'] = subjectName;
-    data['schoolId'] = schoolId;
-    data['agentId'] = agentId;
-    data['description'] = description;
-    data['status'] = status;
-    return data;
-  }
-
-  @override
-  String toString() {
-    return "{'tdsId' = $tdsId, 'teacherId' = $teacherId, 'teacherName' = $teacherName, 'sectionId' = $sectionId, 'sectionName' = $sectionName, 'subjectId' = $subjectId, 'subjectName' = $subjectName, 'schoolId' = $schoolId, 'agentId' = $agentId, 'description' = $description, 'status' = $status}";
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return hashCode == other.hashCode;
-  }
-
-  @override
-  int get hashCode {
-    return tdsId != null ? tdsId! : "$teacherId|$sectionId|$subjectId".hashCode;
-  }
 }
