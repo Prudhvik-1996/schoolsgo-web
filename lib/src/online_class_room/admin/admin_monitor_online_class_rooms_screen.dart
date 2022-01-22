@@ -96,7 +96,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
               DateTime now = DateTime.now();
               DateTime i = DateTime(now.year, now.month, now.day);
               List<OnlineClassRoom> _newOcrs = [];
-              while (now.add(const Duration(days: 7)).millisecondsSinceEpoch >
+              while (now.add(const Duration(days: 6)).millisecondsSinceEpoch >
                   i.millisecondsSinceEpoch) {
                 if (eachOcr.weekId == i.weekday) {
                   OnlineClassRoom newOcr = eachOcr.clone();
@@ -293,8 +293,8 @@ class _AdminMonitorOnlineClassRoomsScreenState
             child: ClayButton(
               depth: 20,
               surfaceColor: _showAllOngoingClassRooms
-                  ? Colors.green[300]
-                  : Colors.blue[200],
+                  ? Colors.blue[200]
+                  : Colors.green[300],
               parentColor: clayContainerColor(context),
               borderRadius: 10,
               spread: 5,
@@ -433,6 +433,67 @@ class _AdminMonitorOnlineClassRoomsScreenState
     );
   }
 
+  Widget _buildPortraitWidget() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: PageView(
+        physics: const BouncingScrollPhysics(),
+        controller: pageController,
+        scrollDirection: Axis.horizontal,
+        onPageChanged: (int x) {
+          setState(() {
+            _sectionIndex = x;
+          });
+        },
+        children: _sectionsList.map((eachSection) {
+          List<OnlineClassRoom> _ongoingClasses =
+              _onlineClassRooms.where((eachOcr) {
+            if (eachOcr.sectionId != eachSection.sectionId) return false;
+            if (eachOcr.tdsId == null) return false;
+            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
+                null, DateTime.now().weekday);
+            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
+                eachOcr.startTime!, eachOcr.weekId);
+            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
+                eachOcr.endTime!, eachOcr.weekId);
+            return eachOcrStartTimeMillis <= currentMillis &&
+                currentMillis <= eachOcrEndTimeMillis;
+          }).toList();
+          List<OnlineClassRoom> _upcomingClasses =
+              _onlineClassRooms.where((eachOcr) {
+            if (eachOcr.sectionId != eachSection.sectionId) return false;
+            if (eachOcr.tdsId == null) return false;
+            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
+                null, DateTime.now().weekday);
+            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
+                eachOcr.startTime!, eachOcr.weekId);
+            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
+                eachOcr.endTime!, eachOcr.weekId);
+            return !(eachOcrStartTimeMillis <= currentMillis &&
+                currentMillis <= eachOcrEndTimeMillis);
+          }).toList();
+          return SizedBox(
+            width: MediaQuery.of(context).size.width - 10,
+            child: Column(
+              children: [
+                Flexible(
+                  fit: FlexFit.tight,
+                  child: buildOnGoingClassesWidget(_ongoingClasses),
+                ),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: _showAllOngoingClassRooms
+                      ? buildAllOngoingClasses()
+                      : buildUpcomingClassesWidget(_upcomingClasses),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget buildAllOngoingClasses() {
     List<OnlineClassRoom> _allOngoingClassRooms =
         _onlineClassRooms.where((eachOcr) {
@@ -552,7 +613,8 @@ class _AdminMonitorOnlineClassRoomsScreenState
                               child: Text.rich(
                                 TextSpan(
                                   text: convertDateToDDMMMEEEE(e.date!)
-                                      .split(", ")[0],
+                                          .split(", ")[0] +
+                                      " ",
                                   style: const TextStyle(
                                     color: Colors.pink,
                                   ),
@@ -591,7 +653,9 @@ class _AdminMonitorOnlineClassRoomsScreenState
                             FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                (e.subjectName ?? "-").capitalize(),
+                                (e.sectionName ?? "-").capitalize() +
+                                    " " +
+                                    (e.subjectName ?? "-").capitalize(),
                               ),
                             ),
                             FittedBox(
@@ -675,7 +739,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                               padding: const EdgeInsets.all(10),
                               child: Center(
                                 child: Text(
-                                  "${eachOcr.date} - ${eachOcr.startTime} - ${eachOcr.startTime}\n"
+                                  "${eachOcr.date} - ${eachOcr.startTime} - ${eachOcr.endTime}\n"
                                   "${eachOcr.sectionName ?? "-"} - ${(eachOcr.subjectName ?? "-").capitalize()} - ${(eachOcr.teacherName ?? "-").capitalize()}",
                                   style: const TextStyle(
                                     fontSize: 24,
@@ -797,7 +861,10 @@ class _AdminMonitorOnlineClassRoomsScreenState
                             TextSpan(
                               text: convertDateToDDMMMEEEE(e.date!)
                                       .split(", ")[0] +
-                                  "\n",
+                                  (MediaQuery.of(context).orientation ==
+                                          Orientation.landscape
+                                      ? "\n"
+                                      : " "),
                               style: const TextStyle(
                                 color: Colors.blue,
                                 fontSize: 11,
@@ -892,7 +959,10 @@ class _AdminMonitorOnlineClassRoomsScreenState
                 SliverFillRemaining(
                   hasScrollBody: true,
                   fillOverscroll: true,
-                  child: _buildLandscapeWidget(),
+                  child: MediaQuery.of(context).orientation ==
+                          Orientation.landscape
+                      ? _buildLandscapeWidget()
+                      : _buildPortraitWidget(),
                 ),
               ],
             ),
