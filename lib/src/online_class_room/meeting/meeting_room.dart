@@ -12,11 +12,13 @@ class MeetingRoom extends StatefulWidget {
     required this.onlineClassRoom,
     this.adminProfile,
     this.studentProfile,
+    this.teacherProfile,
   }) : super(key: key);
 
   final OnlineClassRoom onlineClassRoom;
   final AdminProfile? adminProfile;
   final StudentProfile? studentProfile;
+  final TeacherProfile? teacherProfile;
 
   @override
   _MeetingRoomState createState() => _MeetingRoomState();
@@ -44,11 +46,15 @@ class _MeetingRoomState extends State<MeetingRoom> {
         " | " +
         (widget.onlineClassRoom.teacherName ?? "").capitalize();
     nameText.text = (widget.adminProfile == null
-            ? widget.studentProfile!.studentFirstName ?? "-"
+            ? widget.teacherProfile == null
+                ? widget.studentProfile!.studentFirstName ?? "-"
+                : widget.teacherProfile!.firstName ?? "-"
             : widget.adminProfile!.firstName ?? "-")
         .capitalize();
     emailText.text = (widget.adminProfile == null
-        ? widget.studentProfile!.studentMailId ?? "-"
+        ? widget.teacherProfile == null
+            ? widget.studentProfile!.studentMailId ?? "-"
+            : widget.teacherProfile!.mailId ?? "-"
         : widget.adminProfile!.mailId ?? "-");
     JitsiMeet.addListener(
       JitsiMeetingListener(

@@ -9,23 +9,23 @@ import 'package:schoolsgo_web/src/online_class_room/model/online_class_room.dart
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class StudentOnlineClassroomScreen extends StatefulWidget {
-  const StudentOnlineClassroomScreen({
+class TeacherOnlineClassroomScreen extends StatefulWidget {
+  const TeacherOnlineClassroomScreen({
     Key? key,
-    required this.studentProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final StudentProfile studentProfile;
+  final TeacherProfile teacherProfile;
 
   static const routeName = "/onlineclassroom";
 
   @override
-  _StudentOnlineClassroomScreenState createState() =>
-      _StudentOnlineClassroomScreenState();
+  _TeacherOnlineClassroomScreenState createState() =>
+      _TeacherOnlineClassroomScreenState();
 }
 
-class _StudentOnlineClassroomScreenState
-    extends State<StudentOnlineClassroomScreen> {
+class _TeacherOnlineClassroomScreenState
+    extends State<TeacherOnlineClassroomScreen> {
   bool _isLoading = true;
 
   List<OnlineClassRoom> _onlineClassRooms = [];
@@ -44,8 +44,8 @@ class _StudentOnlineClassroomScreenState
     // Get all online class rooms
     GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
         await getOnlineClassRooms(GetOnlineClassRoomsRequest(
-      schoolId: widget.studentProfile.schoolId,
-      sectionId: widget.studentProfile.sectionId,
+      schoolId: widget.teacherProfile.schoolId,
+      teacherId: widget.teacherProfile.teacherId,
       weekId: DateTime.now().weekday,
     ));
     if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
@@ -136,7 +136,7 @@ class _StudentOnlineClassroomScreenState
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return MeetingRoom(
               onlineClassRoom: eachOnGoingClass,
-              studentProfile: widget.studentProfile,
+              teacherProfile: widget.teacherProfile,
             );
           }));
         },
@@ -408,11 +408,11 @@ class _StudentOnlineClassroomScreenState
       appBar: AppBar(
         title: const Text("Online Class Room"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.studentProfile),
+          buildRoleButtonForAppBar(context, widget.teacherProfile),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
+      drawer: TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
           ? Center(

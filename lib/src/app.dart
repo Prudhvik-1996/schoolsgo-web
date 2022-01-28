@@ -31,6 +31,7 @@ import 'notice_board/teacher/teacher_notice_board_view.dart';
 import 'online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
 import 'online_class_room/admin/admin_monitor_online_class_rooms_screen.dart';
 import 'online_class_room/student/student_online_class_room.dart';
+import 'online_class_room/teacher/teacher_online_class_room.dart';
 import 'profile/admin/admin_profile_screen.dart';
 import 'profile/student/student_profile_screen.dart';
 import 'profile/teacher/teacher_profile_screen.dart';
@@ -283,7 +284,9 @@ class _MyAppState extends State<MyApp> {
                       } else if (routeSettings.arguments is TeacherProfile) {
                         var teacherProfile =
                             routeSettings.arguments as TeacherProfile;
-                        return const E404NotFoundScreen();
+                        return TeacherOnlineClassroomScreen(
+                          teacherProfile: teacherProfile,
+                        );
                       } else if (routeSettings.arguments
                           is AdminRouteWithParams<String>) {
                         var routeArgument = (routeSettings.arguments!
@@ -455,6 +458,7 @@ class _MyAppState extends State<MyApp> {
                           return TeacherTimeTablePreviewScreen(
                             adminProfile: routeArgument.adminProfile,
                             teacherProfile: null,
+                            isOcr: false,
                           );
                         default:
                           return AdminTimeTableOptions(

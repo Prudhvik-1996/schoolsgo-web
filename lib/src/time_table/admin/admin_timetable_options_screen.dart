@@ -140,6 +140,7 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
             TeacherTimeTablePreviewScreen(
               adminProfile: widget.adminProfile,
               teacherProfile: null,
+              isOcr: false,
             ),
           ),
         ],

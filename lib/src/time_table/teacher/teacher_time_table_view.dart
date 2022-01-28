@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/online_class_room/model/online_class_room.dart';
 import 'package:schoolsgo_web/src/time_table/admin/admin_all_teachers_preview_time_table_screens.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -26,6 +27,9 @@ class TeacherTimeTableView extends StatefulWidget {
 class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
     with SingleTickerProviderStateMixin {
   bool _isLoading = false;
+  List<SectionWiseTimeSlotBean> _allSectionWiseTimeSlots = [];
+  bool _showOnlyOcr = false;
+
   List<SectionWiseTimeSlotBean> _sectionWiseTimeSlots = [];
 
   bool _previewMode = false;
@@ -43,7 +47,9 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
     setState(() {
       _isLoading = true;
       _sectionWiseTimeSlots = [];
+      _allSectionWiseTimeSlots = [];
       _previewMode = false;
+      _showOnlyOcr = false;
     });
 
     GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
@@ -55,10 +61,10 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
     if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
         getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _sectionWiseTimeSlots =
+        _allSectionWiseTimeSlots =
             getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
         heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
-                  return _sectionWiseTimeSlots
+                  return _allSectionWiseTimeSlots
                       .where(
                           (eachTimeSlot) => eachTimeSlot.weekId == eachWeekId)
                       .length;
@@ -68,6 +74,111 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
       });
     }
 
+    // Get all online class rooms
+    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
+        await getOnlineClassRooms(GetOnlineClassRoomsRequest(
+      schoolId: widget.teacherProfile.schoolId,
+      teacherId: widget.teacherProfile.teacherId,
+    ));
+    if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
+        getOnlineClassRoomsResponse.responseStatus == "success") {
+      setState(() {
+        List<OnlineClassRoom> _onlineClassRooms = [];
+        _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!
+            .map((e) => e!)
+            .toList();
+        DateTime x = DateTime.now();
+        DateTime now = DateTime(x.year, x.month, x.day);
+        var customOCRs = _onlineClassRooms
+            .where((eachOcr) =>
+                eachOcr.date != null &&
+                (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now))
+                        .inDays <
+                    7)
+            .toList();
+        var traditionalOCRs =
+            _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
+        var overLappedOCRs = [];
+        for (var eachTraditionalOcr in traditionalOCRs) {
+          for (var eachCustomOcr in customOCRs) {
+            bool isOverlapped = false;
+            int startTimeEqOfTraditionalOcr =
+                getSecondsEquivalentOfTimeFromWHHMMSS(
+                    eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
+            int startTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
+                eachCustomOcr.startTime, eachCustomOcr.weekId);
+            int endTimeEqOfTraditionalOcr =
+                getSecondsEquivalentOfTimeFromWHHMMSS(
+                    eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
+            int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
+                eachCustomOcr.endTime, eachCustomOcr.weekId);
+            if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr &&
+                    startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
+                (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr &&
+                    endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
+              isOverlapped = true;
+            }
+            if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr &&
+                endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
+              isOverlapped = true;
+            }
+            if (isOverlapped) {
+              overLappedOCRs.add(eachTraditionalOcr);
+            }
+          }
+        }
+        for (var eachOverlappedOcr in overLappedOCRs) {
+          _onlineClassRooms.remove(eachOverlappedOcr);
+        }
+        _onlineClassRooms.sort((a, b) => a.compareTo(b));
+        for (var eachOcr in _onlineClassRooms) {
+          if (!overLappedOCRs.contains(eachOcr)) {
+            _allSectionWiseTimeSlots.add(eachOcr.toSectionWiseTimeSlotBean());
+          }
+        }
+      });
+    }
+
+    await _refreshStsBeansAsPerIsOcr();
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Widget _switchToShowOnlyOcr() {
+    return Container(
+      margin: EdgeInsets.fromLTRB(20, 5, 20, 5),
+      child: Column(
+        children: [
+          Switch(
+            value: _showOnlyOcr,
+            onChanged: (bool newValue) {
+              setState(() {
+                _showOnlyOcr = newValue;
+              });
+              _refreshStsBeansAsPerIsOcr();
+            },
+          ),
+          Text(
+            _showOnlyOcr ? "Show Offline Time Table" : "Show Online Time Table",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refreshStsBeansAsPerIsOcr() async {
+    setState(() {
+      _isLoading = true;
+    });
+    setState(() {
+      _sectionWiseTimeSlots = _showOnlyOcr
+          ? _allSectionWiseTimeSlots.where((eachSts) => eachSts.isOcr).toList()
+          : _allSectionWiseTimeSlots
+              .where((eachSts) => !eachSts.isOcr)
+              .toList();
+    });
     setState(() {
       _isLoading = false;
     });
@@ -236,16 +347,30 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
               ? TeacherTimeTablePreviewScreen(
                   adminProfile: null,
                   teacherProfile: widget.teacherProfile,
+                  isOcr: _showOnlyOcr,
                 )
-              : GridView.count(
-                  crossAxisCount: crossAxisCount,
+              : ListView(
                   physics: const BouncingScrollPhysics(),
-                  childAspectRatio: widthOfEachCard / heightOfEachCard,
-                  children: WEEKS
-                      .map(
-                        (eachWeek) => buildWeekWiseTile(eachWeek),
-                      )
-                      .toList(),
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _switchToShowOnlyOcr(),
+                      ],
+                    ),
+                    GridView.count(
+                      crossAxisCount: crossAxisCount,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: widthOfEachCard / heightOfEachCard,
+                      children: WEEKS
+                          .map(
+                            (eachWeek) => buildWeekWiseTile(eachWeek),
+                          )
+                          .toList(),
+                    ),
+                  ],
                 ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).primaryColor,

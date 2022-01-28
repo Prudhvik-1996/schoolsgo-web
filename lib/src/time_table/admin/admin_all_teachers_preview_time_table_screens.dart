@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/online_class_room/model/online_class_room.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -12,10 +13,14 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 class TeacherTimeTablePreviewScreen extends StatefulWidget {
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
+  final bool isOcr;
 
-  const TeacherTimeTablePreviewScreen(
-      {Key? key, required this.adminProfile, required this.teacherProfile})
-      : super(key: key);
+  const TeacherTimeTablePreviewScreen({
+    Key? key,
+    required this.adminProfile,
+    required this.teacherProfile,
+    required this.isOcr,
+  }) : super(key: key);
 
   @override
   _TeacherTimeTablePreviewScreenState createState() =>
@@ -70,25 +75,98 @@ class _TeacherTimeTablePreviewScreenState
       });
     }
 
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-        await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
-      schoolId: widget.teacherProfile == null
-          ? widget.adminProfile!.schoolId
-          : widget.teacherProfile!.schoolId,
-      // teacherId: widget.teacherProfile.teacherId,
-      status: "active",
-    ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-        getSectionWiseTimeSlotsResponse.responseStatus == "success") {
-      setState(() {
-        _sectionWiseTimeSlots =
-            getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+    if (!widget.isOcr) {
+      GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
+          await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+        schoolId: widget.teacherProfile == null
+            ? widget.adminProfile!.schoolId
+            : widget.teacherProfile!.schoolId,
+        // teacherId: widget.teacherProfile.teacherId,
+        status: "active",
+      ));
+      if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
+          getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+        setState(() {
+          _sectionWiseTimeSlots =
+              getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
 
-        _sectionWiseTimeSlots.sort((a, b) =>
-            getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!)
-                .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(
-                    b.startTime!, b.weekId!)));
-      });
+          _sectionWiseTimeSlots.sort((a, b) =>
+              getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!)
+                  .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(
+                      b.startTime!, b.weekId!)));
+        });
+      }
+    } else {
+      // Get all online class rooms
+      GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
+          await getOnlineClassRooms(GetOnlineClassRoomsRequest(
+        schoolId: widget.adminProfile == null
+            ? widget.teacherProfile!.schoolId
+            : widget.adminProfile!.schoolId,
+        teacherId: widget.adminProfile == null
+            ? null
+            : widget.teacherProfile!.teacherId,
+      ));
+      if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
+          getOnlineClassRoomsResponse.responseStatus == "success") {
+        setState(() {
+          List<OnlineClassRoom> _onlineClassRooms = [];
+          _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!
+              .map((e) => e!)
+              .toList();
+          DateTime x = DateTime.now();
+          DateTime now = DateTime(x.year, x.month, x.day);
+          var customOCRs = _onlineClassRooms
+              .where((eachOcr) =>
+                  eachOcr.date != null &&
+                  (convertYYYYMMDDFormatToDateTime(eachOcr.date!)
+                              .difference(now))
+                          .inDays <
+                      7)
+              .toList();
+          var traditionalOCRs =
+              _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
+          var overLappedOCRs = [];
+          for (var eachTraditionalOcr in traditionalOCRs) {
+            for (var eachCustomOcr in customOCRs) {
+              bool isOverlapped = false;
+              int startTimeEqOfTraditionalOcr =
+                  getSecondsEquivalentOfTimeFromWHHMMSS(
+                      eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
+              int startTimeEqOfCustomOcr =
+                  getSecondsEquivalentOfTimeFromWHHMMSS(
+                      eachCustomOcr.startTime, eachCustomOcr.weekId);
+              int endTimeEqOfTraditionalOcr =
+                  getSecondsEquivalentOfTimeFromWHHMMSS(
+                      eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
+              int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
+                  eachCustomOcr.endTime, eachCustomOcr.weekId);
+              if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr &&
+                      startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
+                  (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr &&
+                      endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
+                isOverlapped = true;
+              }
+              if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr &&
+                  endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
+                isOverlapped = true;
+              }
+              if (isOverlapped) {
+                overLappedOCRs.add(eachTraditionalOcr);
+              }
+            }
+          }
+          for (var eachOverlappedOcr in overLappedOCRs) {
+            _onlineClassRooms.remove(eachOverlappedOcr);
+          }
+          _onlineClassRooms.sort((a, b) => a.compareTo(b));
+          for (var eachOcr in _onlineClassRooms) {
+            if (!overLappedOCRs.contains(eachOcr)) {
+              _sectionWiseTimeSlots.add(eachOcr.toSectionWiseTimeSlotBean());
+            }
+          }
+        });
+      }
     }
 
     setState(() {
@@ -335,7 +413,7 @@ class _TeacherTimeTablePreviewScreenState
       _widgets.add(
         Container(
           decoration: BoxDecoration(
-            color: Colors.red[200],
+            color: widget.isOcr ? Colors.green[200] : Colors.red[200],
             border: Border(
               left: BorderSide(
                 width: 0.05,
