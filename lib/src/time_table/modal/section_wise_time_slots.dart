@@ -116,6 +116,8 @@ class SectionWiseTimeSlotBean {
   bool? isPinned;
   bool? isEditedForRandomizing;
 
+  bool isOcr = false;
+
   SectionWiseTimeSlotBean({
     this.agent,
     this.createTime,

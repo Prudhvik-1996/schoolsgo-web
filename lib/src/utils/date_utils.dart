@@ -29,6 +29,30 @@ int getSecondsEquivalentOfTimeFromWHHMMSS(String? time, int? weekId) {
   }
 }
 
+int getSecondsEquivalentOfTimeFromDateTime(DateTime? dateTime) {
+  try {
+    dateTime ??= DateTime.now();
+    return (dateTime.weekday) * 24 * 60 * 60 +
+        dateTime.hour * 60 * 60 +
+        dateTime.minute * 60 +
+        dateTime.second;
+  } catch (e) {
+    return 0;
+  }
+}
+
+int getSecondsEquivalentOfTimeFromWHHMMA(String? time, int? weekId) {
+  try {
+    time ??= DateFormat("hh:mm a").format(DateTime.now());
+    return (weekId ?? DateTime.now().weekday - 1) * 24 * 60 * 60 +
+        int.parse(time.split(":")[0]) * 60 * 60 +
+        int.parse(time.split(":")[1]) * 60 +
+        int.parse(time.split(":")[2]);
+  } catch (e) {
+    return 0;
+  }
+}
+
 String convertHHMMSSSecondsEquivalentToHHMMA(int eq) {
   int hours = eq ~/ (3600);
   eq = eq ~/ 3600;
@@ -132,9 +156,9 @@ String convertDateToDDMMMYYYEEEE(String? date) {
 }
 
 String convertDateToDDMMMEEEE(String? date) {
-  return date == null
-      ? "-"
-      : DateFormat('EEEE, dd MMM').format(DateFormat("yyyy-MM-dd").parse(date));
+  date ??= DateFormat("yyyy-MM-dd").format(DateTime.now());
+  return DateFormat('EEEE, dd MMM')
+      .format(DateFormat("yyyy-MM-dd").parse(date));
 }
 
 String convertEpochToDDMMYYYYEEEEHHMMAA(int millis) {

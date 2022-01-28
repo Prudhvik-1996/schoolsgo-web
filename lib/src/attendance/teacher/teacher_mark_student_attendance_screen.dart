@@ -62,6 +62,7 @@ class _TeacherMarkStudentAttendanceScreenState
       date: convertDateTimeToYYYYMMDDFormat(widget.selectedDate),
       sectionId: widget.attendanceTimeSlotBean.sectionId,
       teacherId: widget.teacherProfile.teacherId,
+      attendanceTimeSlotId: widget.attendanceTimeSlotBean.attendanceTimeSlotId,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" &&
         getStudentAttendanceBeansResponse.responseStatus == "success") {

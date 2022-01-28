@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 class GetOnlineClassRoomsRequest {
@@ -47,6 +48,7 @@ class GetOnlineClassRoomsRequest {
     this.teacherId,
     this.weekId,
   });
+
   GetOnlineClassRoomsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     date = json['date']?.toString();
@@ -61,6 +63,7 @@ class GetOnlineClassRoomsRequest {
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     weekId = int.tryParse(json['weekId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['date'] = date;
@@ -168,6 +171,27 @@ class OnlineClassRoom {
     );
   }
 
+  SectionWiseTimeSlotBean toSectionWiseTimeSlotBean() {
+    return SectionWiseTimeSlotBean(
+      sectionId: sectionId,
+      subjectName: subjectName,
+      subjectId: subjectId,
+      week: week,
+      startTime: startTime,
+      endTime: endTime,
+      teacherId: teacherId,
+      teacherName: teacherName,
+      agent: agent,
+      sectionName: sectionName,
+      status: status,
+      tdsId: tdsId,
+      date: date,
+      lastUpdated: lastUpdated,
+      createTime: createTime,
+      weekId: weekId,
+    )..isOcr = true;
+  }
+
   OnlineClassRoom.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = int.tryParse(json['agent']?.toString() ?? '');
@@ -218,7 +242,7 @@ class OnlineClassRoom {
 
   @override
   String toString() {
-    return "OnlineClassRoom{'agent': $agent, 'createTime': $createTime, 'date': $date, 'endTime': $endTime, 'lastUpdated': $lastUpdated, 'ocrId': $ocrId, 'sectionId': $sectionId, 'sectionName': $sectionName, 'sectionWiseTimeSlotId': $sectionWiseTimeSlotId, 'startTime': $startTime, 'status': $status, 'subjectId': $subjectId, 'subjectName': $subjectName, 'tdsId': $tdsId, 'teacherId': $teacherId, 'teacherName': $teacherName, 'week': $week, 'weekId': $weekId}";
+    return "OnlineClassRoom{'agent': $agent, 'createTime': $createTime, 'date': $date, 'endTime': $endTime, 'lastUpdated': $lastUpdated, 'ocrId': $ocrId, 'sectionId': $sectionId, 'sectionName': $sectionName, 'sectionWiseTimeSlotId': $sectionWiseTimeSlotId, 'startTime': $startTime, 'status': $status, 'subjectId': $subjectId, 'subjectName': $subjectName, 'tdsId': $tdsId, 'teacherId': $teacherId, 'teacherName': $teacherName, 'week': $week, 'weekId': $weekId}\n";
   }
 
   @override
@@ -227,9 +251,11 @@ class OnlineClassRoom {
   }
 
   int compareTo(OnlineClassRoom other) {
-    int dateComp = convertYYYYMMDDFormatToDateTime(date)
-        .compareTo(convertYYYYMMDDFormatToDateTime(other.date));
-    if (dateComp != 0) return dateComp;
+    if (date != null && other.date != null) {
+      int dateComp = convertYYYYMMDDFormatToDateTime(date)
+          .compareTo(convertYYYYMMDDFormatToDateTime(other.date));
+      if (dateComp != 0) return dateComp;
+    }
     int timeComp = getSecondsEquivalentOfTimeFromWHHMMSS(startTime!, weekId)
         .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(
             other.startTime!, other.weekId));
@@ -283,6 +309,7 @@ class GetOnlineClassRoomsResponse {
     this.onlineClassRooms,
     this.responseStatus,
   });
+
   GetOnlineClassRoomsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -299,6 +326,7 @@ class GetOnlineClassRoomsResponse {
     }
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -360,6 +388,7 @@ class UpdateOcrAsPerTtRequest {
     this.schoolId,
     this.sectionId,
   });
+
   UpdateOcrAsPerTtRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = int.tryParse(json['agent']?.toString() ?? '');
@@ -367,6 +396,7 @@ class UpdateOcrAsPerTtRequest {
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
     sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -401,6 +431,7 @@ class UpdateOcrAsPerTtResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   UpdateOcrAsPerTtResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -408,6 +439,7 @@ class UpdateOcrAsPerTtResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -473,6 +505,7 @@ class CreateOrUpdateCustomOcrRequest {
     this.status,
     this.tdsId,
   });
+
   CreateOrUpdateCustomOcrRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = int.tryParse(json['agent']?.toString() ?? '');
@@ -484,6 +517,7 @@ class CreateOrUpdateCustomOcrRequest {
     status = json['status']?.toString();
     tdsId = int.tryParse(json['tdsId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -525,6 +559,7 @@ class CreateOrUpdateCustomOcrResponse {
     this.ocrId,
     this.responseStatus,
   });
+
   CreateOrUpdateCustomOcrResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -533,6 +568,7 @@ class CreateOrUpdateCustomOcrResponse {
     ocrId = int.tryParse(json['ocrId']?.toString() ?? '');
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

@@ -833,94 +833,84 @@ class _AdminMonitorOnlineClassRoomsScreenState
   }
 
   Widget buildUpcomingOcrContainer(OnlineClassRoom e) {
-    return SizedBox(
-      height: 85,
-      child: Container(
-        margin: const EdgeInsets.all(10),
-        child: ClayContainer(
-          depth: 20,
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          borderRadius: 10,
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 45,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text.rich(
+    return Container(
+      margin: const EdgeInsets.all(10),
+      child: ClayContainer(
+        depth: 20,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        borderRadius: 10,
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text.rich(
+                        TextSpan(
+                          text: convertDateToDDMMMEEEE(e.date!).split(", ")[0] +
+                              (MediaQuery.of(context).orientation ==
+                                      Orientation.landscape
+                                  ? "\n"
+                                  : " "),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 11,
+                          ),
+                          children: <InlineSpan>[
                             TextSpan(
                               text: convertDateToDDMMMEEEE(e.date!)
-                                      .split(", ")[0] +
-                                  (MediaQuery.of(context).orientation ==
-                                          Orientation.landscape
-                                      ? "\n"
-                                      : " "),
-                              style: const TextStyle(
-                                color: Colors.blue,
+                                  .split(", ")[1],
+                              style: TextStyle(
+                                color: clayContainerTextColor(context),
                                 fontSize: 11,
                               ),
-                              children: <InlineSpan>[
-                                TextSpan(
-                                  text: convertDateToDDMMMEEEE(e.date!)
-                                      .split(", ")[1],
-                                  style: TextStyle(
-                                    color: clayContainerTextColor(context),
-                                    fontSize: 11,
-                                  ),
-                                )
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                            )
+                          ],
                         ),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
-                          ),
-                        ),
-                      ],
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                Expanded(
-                  child: SizedBox(
-                    height: 45,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            (e.subjectName ?? "-").capitalize(),
-                          ),
-                        ),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            (e.teacherName ?? "-").capitalize(),
-                          ),
-                        ),
-                      ],
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        (e.subjectName ?? "-").capitalize(),
+                      ),
+                    ),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        (e.teacherName ?? "-").capitalize(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

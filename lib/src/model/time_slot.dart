@@ -23,6 +23,11 @@ class TimeSlot {
           timeToDouble(stringToTimeOfDay(endTime!)) ==
               timeToDouble(stringToTimeOfDay(other.endTime!));
 
+  int compareTo(TimeSlot other) {
+    return getSecondsEquivalentOfTimeFromWHHMMA(startTime!, weekId).compareTo(
+        getSecondsEquivalentOfTimeFromWHHMMA(other.startTime!, other.weekId));
+  }
+
   TimeSlot.fromJson(Map<String, dynamic> json) {
     endTime = json['endTime'];
     startTime = json['startTime'];

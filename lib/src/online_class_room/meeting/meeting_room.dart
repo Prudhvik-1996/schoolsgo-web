@@ -7,12 +7,16 @@ import 'package:schoolsgo_web/src/utils/encryption_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class MeetingRoom extends StatefulWidget {
-  const MeetingRoom(
-      {Key? key, required this.onlineClassRoom, required this.adminProfile})
-      : super(key: key);
+  const MeetingRoom({
+    Key? key,
+    required this.onlineClassRoom,
+    this.adminProfile,
+    this.studentProfile,
+  }) : super(key: key);
 
   final OnlineClassRoom onlineClassRoom;
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final StudentProfile? studentProfile;
 
   @override
   _MeetingRoomState createState() => _MeetingRoomState();
@@ -39,8 +43,13 @@ class _MeetingRoomState extends State<MeetingRoom> {
         (widget.onlineClassRoom.subjectName ?? "").capitalize() +
         " | " +
         (widget.onlineClassRoom.teacherName ?? "").capitalize();
-    nameText.text = (widget.adminProfile.firstName ?? "-").capitalize();
-    emailText.text = (widget.adminProfile.mailId ?? "-");
+    nameText.text = (widget.adminProfile == null
+            ? widget.studentProfile!.studentFirstName ?? "-"
+            : widget.adminProfile!.firstName ?? "-")
+        .capitalize();
+    emailText.text = (widget.adminProfile == null
+        ? widget.studentProfile!.studentMailId ?? "-"
+        : widget.adminProfile!.mailId ?? "-");
     JitsiMeet.addListener(
       JitsiMeetingListener(
         onConferenceWillJoin: _onConferenceWillJoin,

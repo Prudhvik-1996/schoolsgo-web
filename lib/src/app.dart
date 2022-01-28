@@ -30,6 +30,7 @@ import 'notice_board/student/student_notice_board_view.dart';
 import 'notice_board/teacher/teacher_notice_board_view.dart';
 import 'online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
 import 'online_class_room/admin/admin_monitor_online_class_rooms_screen.dart';
+import 'online_class_room/student/student_online_class_room.dart';
 import 'profile/admin/admin_profile_screen.dart';
 import 'profile/student/student_profile_screen.dart';
 import 'profile/teacher/teacher_profile_screen.dart';
@@ -276,7 +277,9 @@ class _MyAppState extends State<MyApp> {
                       if (routeSettings.arguments is StudentProfile) {
                         var studentProfile =
                             routeSettings.arguments as StudentProfile;
-                        return const E404NotFoundScreen();
+                        return StudentOnlineClassroomScreen(
+                          studentProfile: studentProfile,
+                        );
                       } else if (routeSettings.arguments is TeacherProfile) {
                         var teacherProfile =
                             routeSettings.arguments as TeacherProfile;
