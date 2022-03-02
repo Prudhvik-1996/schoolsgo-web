@@ -69,7 +69,7 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/exams.svg"),
         title: "Exam",
-        routeName: "/exam",
+        routeName: "/exams",
         argument: studentProfile,
         subWidgets: [
           DashboardWidget(
@@ -170,17 +170,17 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/exams.svg"),
         title: "Exam",
-        routeName: "/exam",
+        routeName: "/exams",
         argument: teacherProfile,
         subWidgets: [
           DashboardWidget(
-            title: "Exam Time Table",
-            routeName: "/exam_time_table",
+            title: "Manage Exams",
+            routeName: "/manage_exams",
             argument: teacherProfile,
           ),
           DashboardWidget(
-            title: "Exam Marks",
-            routeName: "/exam_marks",
+            title: "Publish Results",
+            routeName: "/publish_results",
             argument: teacherProfile,
           ),
         ],
@@ -309,17 +309,22 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
       DashboardWidget(
         image: SvgPicture.asset("assets/images/exams.svg"),
         title: "Exam",
-        routeName: "/exam",
+        routeName: "/exams",
         argument: adminProfile,
         subWidgets: [
           DashboardWidget(
-            title: "Exam Time Table",
-            routeName: "/exam_time_table",
+            title: "Manage Exams",
+            routeName: "/manage_exams",
             argument: adminProfile,
           ),
           DashboardWidget(
-            title: "Exam Marks",
-            routeName: "/exam_marks",
+            title: "Publish Results",
+            routeName: "/publish_results",
+            argument: adminProfile,
+          ),
+          DashboardWidget(
+            title: "Grading Algorithms",
+            routeName: "/grading_algorithms",
             argument: adminProfile,
           ),
         ],

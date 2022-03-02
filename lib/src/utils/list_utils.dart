@@ -1,5 +1,5 @@
 extension ListExtension on List {
-  E firstOrNull<E>() {
+  E? firstOrNull<E>() {
     return this == null || this.isEmpty ? null : this.first;
   }
 
@@ -7,6 +7,5 @@ extension ListExtension on List {
     return this == null || this.isEmpty;
   }
 
-  T tryGet<T>(int index) =>
-      index < 0 || index >= this.length ? null : this[index];
+  T tryGet<T>(int index) => index < 0 || index >= this.length ? null : this[index];
 }

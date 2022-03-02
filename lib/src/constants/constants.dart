@@ -92,3 +92,7 @@ const HEADERS = <String, String>{
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-type": "application/json",
 };
+
+const String GET_EXAMS = "/exams/getExams";
+const String GET_MARKING_ALGORITHMS = "/exams/getMarkingAlgorithms";
+const String GET_ADMIN_EXAMS = "/exams/getAdminExamDetails";

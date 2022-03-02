@@ -90,6 +90,11 @@ class Subject {
   bool operator ==(other) {
     return compareTo(other) == 0;
   }
+
+  @override
+  String toString() {
+    return "Subject: {'subjectId': $subjectId, 'subjectName: $subjectName}";
+  }
 }
 
 class GetSubjectsResponse {
@@ -160,10 +165,8 @@ class GetSubjectsResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetSubjectsResponse> getSubjects(
-    GetSubjectsRequest getSubjectsRequest) async {
-  print(
-      "Raising request to getSubjects with request ${jsonEncode(getSubjectsRequest.toJson())}");
+Future<GetSubjectsResponse> getSubjects(GetSubjectsRequest getSubjectsRequest) async {
+  print("Raising request to getSubjects with request ${jsonEncode(getSubjectsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SUBJECTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -173,8 +176,7 @@ Future<GetSubjectsResponse> getSubjects(
     body: jsonEncode(getSubjectsRequest.toJson()),
   );
 
-  GetSubjectsResponse getSubjectsResponse =
-      GetSubjectsResponse.fromJson(json.decode(response.body));
+  GetSubjectsResponse getSubjectsResponse = GetSubjectsResponse.fromJson(json.decode(response.body));
   print("GetSubjectsResponse ${getSubjectsResponse.toJson()}");
   return getSubjectsResponse;
 }

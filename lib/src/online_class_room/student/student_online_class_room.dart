@@ -147,6 +147,12 @@ class _StudentOnlineClassroomScreenState
           borderRadius: 10,
           child: Container(
             padding: const EdgeInsets.all(10),
+            height: MediaQuery.of(context).orientation == Orientation.landscape
+                ? MediaQuery.of(context).size.height - 100
+                : MediaQuery.of(context).size.width,
+            width: MediaQuery.of(context).orientation == Orientation.landscape
+                ? MediaQuery.of(context).size.height - 100
+                : MediaQuery.of(context).size.width,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -429,7 +435,19 @@ class _StudentOnlineClassroomScreenState
                     ),
                     Expanded(
                       flex: 1,
-                      child: _upComingClassesWidget(_upcomingClasses),
+                      child: Container(
+                        margin: const EdgeInsets.all(10),
+                        child: ClayContainer(
+                          depth: 20,
+                          surfaceColor: clayContainerColor(context),
+                          parentColor: clayContainerColor(context),
+                          borderRadius: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(15),
+                            child: _upComingClassesWidget(_upcomingClasses),
+                          ),
+                        ),
+                      ),
                     )
                   ],
                 )
@@ -460,24 +478,42 @@ class _StudentOnlineClassroomScreenState
                           margin: const EdgeInsets.all(10),
                           child: ClayContainer(
                             depth: 20,
-                            surfaceColor: Colors.blue[200],
+                            surfaceColor: clayContainerColor(context),
                             parentColor: clayContainerColor(context),
                             borderRadius: 10,
                             child: Container(
                               padding: const EdgeInsets.all(15),
-                              child: const FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text("Upcoming Classes"),
+                              child: Column(
+                                children: <Widget>[
+                                      Container(
+                                        margin: const EdgeInsets.all(10),
+                                        child: ClayContainer(
+                                          depth: 20,
+                                          surfaceColor: Colors.blue[200],
+                                          parentColor:
+                                              clayContainerColor(context),
+                                          borderRadius: 10,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(15),
+                                            child: const FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text("Upcoming Classes"),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ] +
+                                    (_upcomingClasses.isEmpty
+                                        ? [_noUpcomingClassesWidget()]
+                                        : _upcomingClasses
+                                            .map((e) =>
+                                                buildUpcomingClassWidget(e))
+                                            .toList()),
                               ),
                             ),
                           ),
                         ),
-                      ] +
-                      (_upcomingClasses.isEmpty
-                          ? [_noUpcomingClassesWidget()]
-                          : _upcomingClasses
-                              .map((e) => buildUpcomingClassWidget(e))
-                              .toList()),
+                      ],
                 ),
     );
   }

@@ -37,12 +37,17 @@ class _AdminManageOnlineClassRoomsScreenState
   int _sectionIndex = 0;
 
   List<OnlineClassRoom> _onlineClassRooms = [];
+  late OnlineClassRoom _newCustomOcr;
 
   late PageController pageController;
 
   @override
   void initState() {
     _loadData();
+    _newCustomOcr = OnlineClassRoom(
+      agent: widget.adminProfile.userId,
+      status: "active",
+    );
     super.initState();
   }
 
@@ -153,6 +158,10 @@ class _AdminManageOnlineClassRoomsScreenState
                   duration: const Duration(seconds: 1),
                   curve: Curves.linear,
                 );
+                _newCustomOcr.sectionId =
+                    _sectionsList[_sectionIndex].sectionId;
+                _newCustomOcr.sectionName =
+                    _sectionsList[_sectionIndex].sectionName;
                 _isSectionPickerOpen = false;
               });
               // _applyFilters();
@@ -738,6 +747,49 @@ class _AdminManageOnlineClassRoomsScreenState
     );
   }
 
+  Widget _createNewCustomOcrWidget() {
+    if (!_isEditMode) return Container();
+    return Container(
+      margin: const EdgeInsets.all(50),
+      padding: const EdgeInsets.all(50),
+      child: Center(
+        child: ClayContainer(
+          depth: 100,
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 10,
+          child: Container(
+            color: Colors.pink,
+            child: ListView(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(25),
+                  child: const Text("Create new Custom OCR"),
+                ),
+                Container(
+                  child: Text(
+                      "Section: ${_sectionsList[_sectionIndex].sectionName}"),
+                ),
+                Container(
+                  child: Text("Date picker"),
+                ),
+                Container(
+                  child: Text("Start Time Picker"),
+                ),
+                Container(
+                  child: Text("End Time Picker"),
+                ),
+                Container(
+                  child: Text("TDS Picker"),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -761,22 +813,15 @@ class _AdminManageOnlineClassRoomsScreenState
           //       _buildOnlineClassRoomWidgetsForAllSections(),
           //     ],
           //   ),
-          : CustomScrollView(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              slivers: <Widget>[
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      _sectionPicker(),
-                      // _moreOptions(),
-                    ],
-                  ),
+          : Stack(
+              children: [
+                Opacity(
+                  opacity: 1,
+                  child: _createNewCustomOcrWidget(),
                 ),
-                SliverFillRemaining(
-                  hasScrollBody: true,
-                  fillOverscroll: true,
-                  child: _buildOnlineClassRoomWidgetsForAllSections(),
+                Opacity(
+                  opacity: _isEditMode ? 0.4 : 1,
+                  child: _manageOCRsWidget(),
                 ),
               ],
             ),
@@ -804,6 +849,30 @@ class _AdminManageOnlineClassRoomsScreenState
                 ),
               ),
             ),
+    );
+  }
+
+  CustomScrollView _manageOCRsWidget() {
+    return CustomScrollView(
+      shrinkWrap: true,
+      physics: _isEditMode
+          ? const NeverScrollableScrollPhysics()
+          : const BouncingScrollPhysics(),
+      slivers: <Widget>[
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              _sectionPicker(),
+              // _moreOptions(),
+            ],
+          ),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: true,
+          fillOverscroll: true,
+          child: _buildOnlineClassRoomWidgetsForAllSections(),
+        ),
+      ],
     );
   }
 }
