@@ -1,7 +1,5 @@
-const String SCHOOLS_GO_BASE_URL =
-    "https://epsiloninfinityservices.com:8000/schoolsgo";
-const String SCHOOLS_GO_DRIVE_SERVICE_BASE_URL =
-    "https://epsiloninfinityservices.com:8002/eis";
+const String SCHOOLS_GO_BASE_URL = "https://epsiloninfinityservices.com:8000/schoolsgo";
+const String SCHOOLS_GO_DRIVE_SERVICE_BASE_URL = "https://epsiloninfinityservices.com:8002/eis";
 
 const String UPLOAD_FILE_TO_DRIVE = "/drive/uploadFileToDrive";
 
@@ -12,29 +10,19 @@ const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 
 const String GET_SECTION_WISE_TIME_SLOTS = "/timetable/getSectionWiseTimeSlots";
-const String CREATE_OR_UPDATE_SECTION_WISE_TIME_SLOTS =
-    "/timetable/createOrUpdateSectionWiseTimeSlots";
-const String BULK_EDIT_SECTION_WISE_TIME_SLOTS =
-    "/timetable/bulkEditSectionWiseTimeSlots";
-const String RANDOMISE_SECTION_WISE_TIME_SLOTS =
-    "/timetable/randomizeTimeTable";
+const String CREATE_OR_UPDATE_SECTION_WISE_TIME_SLOTS = "/timetable/createOrUpdateSectionWiseTimeSlots";
+const String BULK_EDIT_SECTION_WISE_TIME_SLOTS = "/timetable/bulkEditSectionWiseTimeSlots";
+const String RANDOMISE_SECTION_WISE_TIME_SLOTS = "/timetable/randomizeTimeTable";
 
-const String GET_STUDENT_ATTENDANCE_TIME_SLOTS =
-    "/attendance/getStudentAttendanceTimeSlots";
-const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS =
-    "/attendance/createOrUpdateAttendanceTimeSlotBeans";
-const String GET_STUDENT_ATTENDANCE_BEANS =
-    "/attendance/getStudentAttendanceBeans";
-const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS =
-    "/attendance/createOrUpdateStudentAttendance";
-const String BULK_EDIT_ATTENDANCE_TIME_SLOTS =
-    "/attendance/bulkEditAttendanceTimeSlots";
+const String GET_STUDENT_ATTENDANCE_TIME_SLOTS = "/attendance/getStudentAttendanceTimeSlots";
+const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS = "/attendance/createOrUpdateAttendanceTimeSlotBeans";
+const String GET_STUDENT_ATTENDANCE_BEANS = "/attendance/getStudentAttendanceBeans";
+const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS = "/attendance/createOrUpdateStudentAttendance";
+const String BULK_EDIT_ATTENDANCE_TIME_SLOTS = "/attendance/bulkEditAttendanceTimeSlots";
 
 const String GET_NOTICE_BOARD = "/notice_board/getNoticeBoard";
-const String CREATE_OR_UPDATE_NOTICE_BOARD_MEDIA_BEANS =
-    "/notice_board/createOrUpdateNoticeBoardMedia";
-const String CREATE_OR_UPDATE_NOTICE_BOARD =
-    "/notice_board/createOrUpdateNoticeBoard";
+const String CREATE_OR_UPDATE_NOTICE_BOARD_MEDIA_BEANS = "/notice_board/createOrUpdateNoticeBoardMedia";
+const String CREATE_OR_UPDATE_NOTICE_BOARD = "/notice_board/createOrUpdateNoticeBoard";
 
 const String GET_EVENTS = "/events/getEvents";
 const String GET_EVENT_MEDIA = "/events/getEventMedia";
@@ -46,12 +34,10 @@ const String GET_SUBJECTS = "/commons/getSubjects";
 const String GET_TEACHERS = "/commons/getTeachers";
 
 const String GET_TDS = "/timetable/getTeacherDealingSections";
-const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS =
-    "/timetable/createOrUpdateTeacherDealingSections";
+const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS = "/timetable/createOrUpdateTeacherDealingSections";
 
 const String GET_LOGBOOK = "/teachers/getTeacherLogBook";
-const String CREATE_OR_UPDATE_LOGBOOK =
-    "/teachers/createOrUpdateTeacherLogBook";
+const String CREATE_OR_UPDATE_LOGBOOK = "/teachers/createOrUpdateTeacherLogBook";
 
 const String GET_DIARY = "/diary/getStudentDiaryForDate";
 const String CREATE_OR_UPDATE_DIARY = "/diary/createOrUpdateDiary";
@@ -60,35 +46,27 @@ const String GET_SUGGESTION_BOX = "/complaintBox/getComplaintBox";
 const String CREATE_SUGGESTION = "/complaintBox/createComplaintBox";
 const String UPDATE_SUGGESTION = "/complaintBox/updateComplaintBox";
 
-const String GET_STUDY_MATERIAL =
-    "/assignmentsAndStudyMaterial/getAssignmentsAndStudyMaterial";
-const String CREATE_OR_UPDATE_STUDY_MATERIAL =
-    "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterial";
-const String CREATE_OR_UPDATE_STUDY_MATERIAL_MEDIA_MAP =
-    "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterialMediaMap";
+const String GET_STUDY_MATERIAL = "/assignmentsAndStudyMaterial/getAssignmentsAndStudyMaterial";
+const String CREATE_OR_UPDATE_STUDY_MATERIAL = "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterial";
+const String CREATE_OR_UPDATE_STUDY_MATERIAL_MEDIA_MAP = "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterialMediaMap";
 
 const String GET_FEE_TYPES = "/fee/getFeeTypes";
 const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
 const String GET_FEE_MAP = "/fee/getFeeMap";
 
-const String GET_STUDENT_TO_TEACHER_FEEDBACK =
-    "/feedback/getStudentToTeacherFeedback";
-const String CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK =
-    "/feedback/createOrUpdateStudentToTeacherFeedback";
+const String GET_STUDENT_TO_TEACHER_FEEDBACK = "/feedback/getStudentToTeacherFeedback";
+const String CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK = "/feedback/createOrUpdateStudentToTeacherFeedback";
 
 const String GET_ONLINE_CLASS_ROOMS = "/online_class_room/getOnlineClassRooms";
-const String CREATE_OR_UPDATE_ONLINE_CLASS_ROOMS =
-    "/online_class_room/createOrUpdateCustomOcr";
+const String CREATE_OR_UPDATE_ONLINE_CLASS_ROOMS = "/online_class_room/createOrUpdateCustomOcr";
 const String UPDATE_OCR_AS_PER_TT = "/online_class_room/updateOcrAsPerTt";
 
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const HEADERS = <String, String>{
   "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-  "Access-Control-Allow-Credentials":
-      "true", // Required for cookies, authorization headers with HTTPS
-  "Access-Control-Allow-Headers":
-      "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale,Access-Control-Allow-Origin",
+  "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
+  "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale,Access-Control-Allow-Origin",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-type": "application/json",
 };
@@ -96,3 +74,4 @@ const HEADERS = <String, String>{
 const String GET_EXAMS = "/exams/getExams";
 const String GET_MARKING_ALGORITHMS = "/exams/getMarkingAlgorithms";
 const String GET_ADMIN_EXAMS = "/exams/getAdminExamDetails";
+const String CREATE_OR_UPDATE_MARKING_ALGORITHM = "/exams/createOrUpdateMarkingAlgorithm";

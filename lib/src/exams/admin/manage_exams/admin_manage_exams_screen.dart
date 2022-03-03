@@ -48,8 +48,8 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
   List<AdminExamBean> _internalsForNewExam = [];
   InternalsComputationCode _internalsComputationCodeForNewExam = InternalsComputationCode.A;
 
-  List<MarkingAlgorithm> _markingAlgorithms = [];
-  MarkingAlgorithm? _selectedMarkingAlgorithm;
+  List<MarkingAlgorithmBean> _markingAlgorithms = [];
+  MarkingAlgorithmBean? _selectedMarkingAlgorithm;
   MarkingSchemeCode _markingSchemeCode = MarkingSchemeCode.B;
   bool _isGrade = false;
   bool _isGpa = false;
@@ -158,7 +158,11 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
-      body: _isCreatingNew
+      body: _isLoading
+          ? Center(
+        child: Image.asset('assets/images/eis_loader.gif'),
+      )
+          : _isCreatingNew
           ? createNewExamsWidget()
           : Stack(
         children: [
@@ -946,12 +950,13 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
             slot.date = _newDate;
           });
         },
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(10),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'Date',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
           ),
-          padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -979,12 +984,13 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
             slot.startTime = _startTimePicker;
           });
         },
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(10),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'Start Time',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
           ),
-          padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -992,8 +998,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                 slot.startTime == null ? "-" : timeOfDayToString(slot.startTime!),
               ),
             ),
-          ),
-        ),
+          ),),
       ),
     );
   }
@@ -1012,12 +1017,13 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
             slot.endTime = _endTimePicker;
           });
         },
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
-            borderRadius: BorderRadius.circular(10),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'End Time',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
           ),
-          padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
           child: Center(
             child: FittedBox(
               fit: BoxFit.scaleDown,
@@ -1025,64 +1031,62 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                 slot.endTime == null ? "-" : timeOfDayToString(slot.endTime!),
               ),
             ),
-          ),
-        ),
+          ),),
       ),
     );
   }
 
   Widget _slotSubjectPicker(DateTimeSubjectMaxMarks slot) {
-    print("1037: ${_subjectsList
-        .where((eachSubject) => !_timeTableList.map((eachSlot) => eachSlot.subject!.subjectId).contains(eachSubject.subjectId)).toList()}");
     List<Subject> _subjects = slot.subject == null ? _subjectsList.where((eachSubject) =>
     !_timeTableList.map((eachSlot) =>
     eachSlot.subject!.subjectId).contains(eachSubject.subjectId)).toList() : _subjectsList;
     return Container(
       margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: DropdownButton<Subject>(
-        isExpanded: true,
-        underline: Container(),
-        items: _subjects
-            .map(
-              (Subject e) =>
-              DropdownMenuItem(
-                value: e,
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      (e.subjectName ?? "-").capitalize(),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Subject',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
+        child: DropdownButton<Subject>(
+          isExpanded: true,
+          underline: Container(),
+          items: _subjects
+              .map(
+                (Subject e) =>
+                DropdownMenuItem(
+                  value: e,
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        (e.subjectName ?? "-").capitalize(),
+                      ),
                     ),
                   ),
                 ),
-              ),
-        )
-            .toList(),
-        value: slot.subject,
-        onChanged: (Subject? newValue) {
-          setState(() {
-            slot.subject = newValue;
-          });
-        },
-      ),
+          )
+              .toList(),
+          value: slot.subject,
+          onChanged: (Subject? newValue) {
+            setState(() {
+              slot.subject = newValue;
+            });
+          },
+        ),),
     );
   }
 
   Widget _slotMaxMarksEditor(DateTimeSubjectMaxMarks slot) {
     return Container(
       margin: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.circular(10),
-      ),
       child: TextField(
         controller: slot.maxMarksController,
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: 'Max marks',
           hintText: 'Marks',
         ),
         onChanged: (String e) {
@@ -1234,7 +1238,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
         });
         _createNewPageController.nextPage(
           duration: const Duration(
-            milliseconds: 500,
+            milliseconds: 1000,
           ),
           curve: Curves.easeIn,
         );
@@ -1285,7 +1289,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
       onTap: () {
         _createNewPageController.previousPage(
           duration: const Duration(
-            milliseconds: 500,
+            milliseconds: 1000,
           ),
           curve: Curves.easeIn,
         );
@@ -1324,7 +1328,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                   context: context,
                   initialDate: _selectedStartDate,
                   firstDate: DateTime(2021),
-                  lastDate: DateTime.now(),
+                  lastDate: DateTime(2031),
                   helpText: "Pick exam start date",
                 );
                 if (_newDate == null || _newDate == _selectedStartDate) return;
@@ -1724,12 +1728,12 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                 border: Border.all(),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: DropdownButton<MarkingAlgorithm>(
+              child: DropdownButton<MarkingAlgorithmBean>(
                 isExpanded: true,
                 underline: Container(),
                 items: _markingAlgorithms
                     .map(
-                      (MarkingAlgorithm e) =>
+                      (MarkingAlgorithmBean e) =>
                       DropdownMenuItem(
                         value: e,
                         child: Center(
@@ -1745,7 +1749,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                     .toList(),
                 value: _selectedMarkingAlgorithm,
                 hint: const Text("Choose Marking Algorithm"),
-                onChanged: (MarkingAlgorithm? newValue) {
+                onChanged: (MarkingAlgorithmBean? newValue) {
                   setState(() {
                     _selectedMarkingAlgorithm = newValue;
                   });
@@ -1848,12 +1852,12 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
         border: Border.all(),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: DropdownButton<MarkingAlgorithm>(
+      child: DropdownButton<MarkingAlgorithmBean>(
         isExpanded: true,
         underline: Container(),
         items: _markingAlgorithms
             .map(
-              (MarkingAlgorithm e) =>
+              (MarkingAlgorithmBean e) =>
               DropdownMenuItem(
                 value: e,
                 child: Center(
@@ -1875,7 +1879,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
             .first
             : null,
         hint: const Text("Choose Marking Algorithm"),
-        onChanged: (MarkingAlgorithm? newValue) {
+        onChanged: (MarkingAlgorithmBean? newValue) {
           setState(() {
             examSectionMapBean.markingAlgorithmId = newValue?.markingAlgorithmId;
             examSectionMapBean.markingAlgorithmName = newValue?.algorithmName;
