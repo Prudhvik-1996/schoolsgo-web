@@ -56,6 +56,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
   bool _isMarks = true;
 
   AdminExamBean _newExamBean = AdminExamBean();
+  AdminExamBean? _selectedExamBean;
 
   @override
   void initState() {
@@ -166,12 +167,10 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
           ? createNewExamsWidget()
           : Stack(
         children: [
-          ListView(
-            children: _exams.map((e) => eachExamWidget(e)).toList(),
-          ),
+          _getAllExamsLandscapeScreen(),
           Align(
             alignment: Alignment.bottomRight,
-            child: Container(
+            child: _exams.map((e) => e.isEditMode).contains(true) ? Container() : Container(
               margin: const EdgeInsets.all(15),
               child: GestureDetector(
                 onTap: () {
@@ -198,6 +197,396 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
     );
   }
 
+  Widget _getAllExamsLandscapeScreen() {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: _buildAllExams(),
+          ),
+          Expanded(
+            flex: 5,
+            child: _selectedExamBean == null ? Container() : _buildEachExamDetails(_selectedExamBean!),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllExams() {
+    return ListView(
+      controller: ScrollController(),
+      children: _exams.map((e) => _buildEachExamButton(e)).toList(),
+    );
+  }
+
+  Widget _buildEachExamButton(AdminExamBean eachExam) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.all(20),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            if (_selectedExamBean == eachExam) {
+              _selectedExamBean = null;
+            } else {
+              _selectedExamBean = eachExam;
+            }
+          });
+        },
+        child: ClayButton(
+          depth: 40,
+          surfaceColor: _selectedExamBean == eachExam ? Colors.blue.shade300 : clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 10,
+          child: Container(
+            margin: const EdgeInsets.all(10),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        eachExam.examName ?? "-",
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      convertDateToDDMMMYYYEEEE(eachExam.examStartDate),
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        fontSize: 9,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEachExamDetails(AdminExamBean _selectedExamBean) {
+    return _selectedExamBean.isEditMode ? _buildEditableAdminExamBeanWidget(_selectedExamBean) :
+    _buildReadableAdminExamBeanWidget(_selectedExamBean);
+  }
+
+  Container _buildReadableAdminExamBeanWidget(AdminExamBean _selectedExamBean) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text("Sections: " + _selectedExamBean.examSectionMapBeanList!.map((e) => e!.sectionName!).toList().join(", "),
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: ListView(
+                  controller: ScrollController(),
+                  children: _selectedExamBean.examSectionMapBeanList!.map((e) =>
+                      _buildSectionWiseTdsMapWidget(_selectedExamBean, e!),).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container _buildSectionWiseTdsMapWidget(AdminExamBean examBean, ExamSectionMapBean eachSectionWiseTdsMapBean) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        emboss: true,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(8),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(eachSectionWiseTdsMapBean.sectionName ?? "-"),
+                          _buildMarkingSchemeWidgetForSectionWiseTdsMapBean(eachSectionWiseTdsMapBean),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        examBean.isEditMode = true;
+                      });
+                    },
+                    child: ClayButton(
+                      depth: 40,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 1,
+                      borderRadius: 100,
+                      child: Container(
+                        margin: const EdgeInsets.all(5),
+                        child: const Icon(Icons.edit),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              for (ExamTdsMapBean eachExamTdsBean in (eachSectionWiseTdsMapBean.examTdsMapBeanList ?? []).map((e) => e!))
+                _buildEachExamTdsDetails(eachExamTdsBean),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMarkingSchemeWidgetForSectionWiseTdsMapBean(ExamSectionMapBean eachSectionWiseTdsMapBean) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        emboss: true,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Marking Algorithm: ${eachSectionWiseTdsMapBean.markingAlgorithmName ?? "-"}"),
+              const SizedBox(height: 10,),
+              ClayContainer(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Expanded(
+                            child: Text("Results are shown in"),
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            child: _markingSchemeButtonForSection(eachSectionWiseTdsMapBean, "Marks", disabled: true),
+                          ),
+                          Expanded(
+                            child: _markingSchemeButtonForSection(eachSectionWiseTdsMapBean, "Grade", disabled: true),
+                          ),
+                          Expanded(
+                            child: _markingSchemeButtonForSection(eachSectionWiseTdsMapBean, "GPA", disabled: true),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEachExamTdsDetails(ExamTdsMapBean eachExamTdsMapBean) {
+    return Container(
+      margin: const EdgeInsets.all(8),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: AnimatedSize(
+          curve: Curves.fastOutSlowIn,
+          duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
+          child: eachExamTdsMapBean.isExpanded ? Container(
+            margin: const EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildExamTdsMapBeanCollapsedWidget(eachExamTdsMapBean),
+                _buildExamTdsMapInternalsWidget(eachExamTdsMapBean),
+              ],
+            ),
+          ) : Container(
+            margin: const EdgeInsets.all(15),
+            child: _buildExamTdsMapBeanCollapsedWidget(eachExamTdsMapBean),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExamTdsMapBeanCollapsedWidget(ExamTdsMapBean eachExamTdsMapBean) {
+    return Row(
+      children: [
+        Expanded(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(eachExamTdsMapBean.examTdsDate ?? "-"),
+          ),
+        ),
+        Expanded(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text((eachExamTdsMapBean.startTime == null ? "-" : formatHHMMSStoHHMMA(eachExamTdsMapBean.startTime!)) + "-" +
+                (eachExamTdsMapBean.endTime == null ? "-" : formatHHMMSStoHHMMA(eachExamTdsMapBean.endTime!))),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Center(child: Text((eachExamTdsMapBean.subjectName ?? "-").capitalize()))),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(child: Center(child: Text((eachExamTdsMapBean.teacherName ?? "-").capitalize()))),
+                ],
+              ),
+            ],
+          ),
+        ),
+        InkWell(
+          onTap: () {
+            setState(() {
+              eachExamTdsMapBean.isExpanded = !eachExamTdsMapBean.isExpanded;
+            });
+          },
+          child: !eachExamTdsMapBean.isExpanded ? const Icon(Icons.expand_more_rounded) : const Icon(Icons.expand_less_rounded),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExamTdsMapInternalsWidget(ExamTdsMapBean eachExamTdsMapBean) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("Internals"),
+          if ((eachExamTdsMapBean.internalExamTdsMapBeanList ?? []).isEmpty)
+            Container(
+              margin: const EdgeInsets.all(15),
+              child: const Text ("No Internals added for this exam"),
+            ),
+          for (InternalExamTdsMapBean eachInternalTdsMapBean in (eachExamTdsMapBean.internalExamTdsMapBeanList ?? []).map((e) => e!))
+            _buildEachInternalTdsMapBeanWidget(eachInternalTdsMapBean),
+          if ((eachExamTdsMapBean.internalExamTdsMapBeanList ?? []).isNotEmpty)
+            Container(
+              margin: const EdgeInsets.all(15),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Marks from internals are computed using ${fromInternalsComputationCodeString(
+                          eachExamTdsMapBean.internalsComputationCode ?? "-")
+                          ?.description ?? "-"}",
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEachInternalTdsMapBeanWidget(InternalExamTdsMapBean eachInternalTdsMapBean) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: Row(
+        children: [
+          Text(
+            "Internal ${eachInternalTdsMapBean.internalNumber ?? ""}",
+          ),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(eachInternalTdsMapBean.internalExamName ?? "-"),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget createNewExamsWidget() {
     return Stack(
       children: [
@@ -205,15 +594,15 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
           physics: const NeverScrollableScrollPhysics(),
           controller: _createNewPageController,
           children: [
-            firstPageInCreateNewExam(),
-            secondPageInCreateNewExam(),
+            _firstPageInCreateNewExam(),
+            _secondPageInCreateNewExam(),
           ],
         ),
       ],
     );
   }
 
-  Container firstPageInCreateNewExam() {
+  Container _firstPageInCreateNewExam() {
     return Container(
       margin: const EdgeInsets.all(15),
       child: ClayContainer(
@@ -276,7 +665,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
     );
   }
 
-  Container secondPageInCreateNewExam() {
+  Container _secondPageInCreateNewExam() {
     return Container(
       margin: const EdgeInsets.all(15),
       child: ClayContainer(
@@ -320,21 +709,170 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: ClayButton(
-                    depth: 40,
-                    surfaceColor: Colors.blue.shade300,
-                    parentColor: clayContainerColor(context),
-                    spread: 1,
-                    borderRadius: 10,
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      child: const Text("Submit"),
-                    ),
-                  ),
+                  child: _buildCreateNewExamsButton(),
                 ),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Container _buildEditableAdminExamBeanWidget(AdminExamBean examBean) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: ClayContainer(
+        depth: 20,
+        color: clayContainerColor(context),
+        spread: 5,
+        borderRadius: 10,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: _buildExamNameTextBoxForAdminExamWidget(examBean),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  child: _closeButtonForAdminExamWidget(examBean),
+                ),
+              ],
+            ),
+            Expanded(
+              child: ListView(
+                children: [
+                  for (ExamSectionMapBean eachSectionMapBean in (examBean.examSectionMapBeanList ?? [])
+                      .where((e) => e != null)
+                      .map((e) => e!)
+                      .where((e) => (e.examTdsMapBeanList ?? []).isNotEmpty))
+                    _buildSectionWiseExamBeans(eachSectionMapBean),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  child: _buildUpdateExamButton(examBean),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpdateExamButton(AdminExamBean eachExamBean) {
+    return InkWell(
+      onTap: () async {
+        setState(() {
+          _isLoading = true;
+        });
+        // CreateOrUpdateExamResponse createOrUpdateExamResponse = await createOrUpdateExam(_newExamBean);
+        // if (createOrUpdateExamResponse.httpStatus != "OK" || createOrUpdateExamResponse.responseStatus != "success") {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(
+        //       content: Text("Something went wrong! Try again later.."),
+        //     ),
+        //   );
+        // } else {
+        //   _loadData();
+        // }
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      child: ClayButton(
+        depth: 40,
+        surfaceColor: Colors.blue.shade300,
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          child: const Text("Submit"),
+        ),
+      ),
+    );
+  }
+
+  Container _buildExamNameTextBoxForAdminExamWidget(AdminExamBean examBean) {
+    return Container(
+      margin: const EdgeInsets.all(10),
+      child: TextField(
+        controller: examBean.examNameEditingController,
+        keyboardType: TextInputType.text,
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: 'Exam Name',
+          hintText: 'Exam',
+        ),
+        onChanged: (String newText) {
+          setState(() {
+            examBean.examName = newText;
+          });
+        },
+      ),
+    );
+  }
+
+  GestureDetector _closeButtonForAdminExamWidget(AdminExamBean examBean) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          examBean.isEditMode = false;
+        });
+      },
+      child: ClayButton(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 100,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          child: const Icon(Icons.close),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreateNewExamsButton() {
+    return InkWell(
+      onTap: () async {
+        setState(() {
+          _isLoading = true;
+        });
+        CreateOrUpdateExamResponse createOrUpdateExamResponse = await createOrUpdateExam(_newExamBean);
+        if (createOrUpdateExamResponse.httpStatus != "OK" || createOrUpdateExamResponse.responseStatus != "success") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Something went wrong! Try again later.."),
+            ),
+          );
+        } else {
+          _loadData();
+        }
+        setState(() {
+          _isLoading = false;
+        });
+      },
+      child: ClayButton(
+        depth: 40,
+        surfaceColor: Colors.blue.shade300,
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          child: const Text("Submit"),
         ),
       ),
     );
@@ -376,7 +914,17 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                   )
                 ],
               ),
-              for (TeacherDealingSection eachTds in _tdsList.where((eachTds) => eachTds.sectionId == examSectionMapBean.sectionId))
+              for (TeacherDealingSection eachTds in examSectionMapBean.examId == null ? _tdsList.where((eachTds) =>
+              eachTds.sectionId == examSectionMapBean.sectionId) : (examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) =>
+                  TeacherDealingSection(
+                    teacherName: e.teacherName,
+                    teacherId: e.teacherId,
+                    tdsId: e.tdsId,
+                    sectionName: e.subjectName,
+                    sectionId: e.sectionId,
+                    subjectName: e.subjectName,
+                    subjectId: e.subjectId,
+                  )))
                 _buildTdsWiseExamWidget(eachTds, examSectionMapBean),
             ],
           ),
@@ -417,7 +965,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                   ),
                   Expanded(
                     child: Center(
-                      child: _slotDatePickerForTds(examTdsMapBean!), // TODO
+                      child: _slotDatePickerForTds(examTdsMapBean!),
                     ),
                   ),
                   Expanded(
@@ -1140,7 +1688,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                     markingAlgorithmName: _selectedMarkingAlgorithm == null ? null : _selectedMarkingAlgorithm!.algorithmName,
                     sectionId: section.sectionId,
                     sectionName: section.sectionName,
-                    markingSchemeCode: _markingSchemeCode.toString(),
+                    markingSchemeCode: _markingSchemeCode.toShortString(),
                     status: "active",
                     examTdsMapBeanList: _tdsList.where((e) => e.sectionId == section.sectionId)
                         .map((TeacherDealingSection tds) {
@@ -1159,7 +1707,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                               examTdsDate: tds.subjectId == slot.subject!.subjectId ? convertDateTimeToYYYYMMDDFormat(slot.date) : null,
                               startTime: tds.subjectId == slot.subject!.subjectId ? timeOfDayToHHMMSS(slot.startTime!) : null,
                               endTime: tds.subjectId == slot.subject!.subjectId ? timeOfDayToHHMMSS(slot.endTime!) : null,
-                              internalsComputationCode: _internalsComputationCodeForNewExam.toString(),
+                              internalsComputationCode: _internalsComputationCodeForNewExam.toShortString(),
                               tdsId: tds.tdsId,
                               teacherId: tds.teacherId,
                               teacherName: tds.teacherName,
@@ -1219,7 +1767,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                           examTdsDate: null,
                           startTime: null,
                           endTime: null,
-                          internalsComputationCode: _internalsComputationCodeForNewExam.toString(),
+                          internalsComputationCode: _internalsComputationCodeForNewExam.toShortString(),
                           tdsId: tds.tdsId,
                           teacherId: tds.teacherId,
                           teacherName: tds.teacherName,
@@ -1352,27 +1900,6 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget eachExamWidget(AdminExamBean exam) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
-      child: InkWell(
-        onTap: () {},
-        child: ClayButton(
-          depth: 40,
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            child: Text("$exam"),
-          ),
-        ),
       ),
     );
   }
@@ -1757,6 +2284,14 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
               ),
             ),
           ),
+          InkWell(
+            child: const Icon(Icons.clear),
+            onTap: () {
+              setState(() {
+                _selectedMarkingAlgorithm = null;
+              });
+            },
+          ),
           Expanded(
             flex: 1,
             child: Container(
@@ -1852,40 +2387,57 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
         border: Border.all(),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: DropdownButton<MarkingAlgorithmBean>(
-        isExpanded: true,
-        underline: Container(),
-        items: _markingAlgorithms
-            .map(
-              (MarkingAlgorithmBean e) =>
-              DropdownMenuItem(
-                value: e,
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      (e.algorithmName ?? "-").capitalize(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: DropdownButton<MarkingAlgorithmBean>(
+              isExpanded: true,
+              underline: Container(),
+              items: _markingAlgorithms
+                  .map(
+                    (MarkingAlgorithmBean e) =>
+                    DropdownMenuItem(
+                      value: e,
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            (e.algorithmName ?? "-").capitalize(),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-        )
-            .toList(),
-        value: _markingAlgorithms
-            .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
-            .isNotEmpty
-            ? _markingAlgorithms
-            .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
-            .first
-            : null,
-        hint: const Text("Choose Marking Algorithm"),
-        onChanged: (MarkingAlgorithmBean? newValue) {
-          setState(() {
-            examSectionMapBean.markingAlgorithmId = newValue?.markingAlgorithmId;
-            examSectionMapBean.markingAlgorithmName = newValue?.algorithmName;
-            examSectionMapBean.markingAlgorithmRangeBeanList = newValue?.markingAlgorithmRangeBeanList ?? [];
-          });
-        },
+              )
+                  .toList(),
+              value: _markingAlgorithms
+                  .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
+                  .isNotEmpty
+                  ? _markingAlgorithms
+                  .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
+                  .first
+                  : null,
+              hint: const Text("Choose Marking Algorithm"),
+              onChanged: (MarkingAlgorithmBean? newValue) {
+                setState(() {
+                  examSectionMapBean.markingAlgorithmId = newValue?.markingAlgorithmId;
+                  examSectionMapBean.markingAlgorithmName = newValue?.algorithmName;
+                  examSectionMapBean.markingAlgorithmRangeBeanList = newValue?.markingAlgorithmRangeBeanList ?? [];
+                });
+              },
+            ),
+          ),
+          InkWell(
+            child: const Icon(Icons.clear),
+            onTap: () {
+              setState(() {
+                examSectionMapBean.markingAlgorithmId = null;
+                examSectionMapBean.markingAlgorithmName = null;
+                examSectionMapBean.markingAlgorithmRangeBeanList = null;
+              });
+            },
+          ),
+        ],
       ),
     );
   }
@@ -1960,15 +2512,20 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
     );
   }
 
-  Widget _markingSchemeButtonForSection(ExamSectionMapBean examSectionMapBean, String type) {
+  Widget _markingSchemeButtonForSection(ExamSectionMapBean examSectionMapBean, String type, {bool disabled = false}) {
     Color color = clayContainerColor(context);
-    if ((type == "Marks" && _isMarks) || (type == "Grade" && _isGrade) || (type == "GPA" && _isGpa)) {
+    MarkingSchemeCode? x = fromMarkingSchemeCodeString(examSectionMapBean.markingSchemeCode ?? "-");
+    bool _isMarksForBean = x == null ? false : x.value[0] == "T";
+    bool _isGradeForBean = x == null ? false : x.value[1] == "T";
+    bool _isGpaForBean = x == null ? false : x.value[2] == "T";
+    if ((type == "Marks" && _isMarksForBean) || (type == "Grade" && _isGradeForBean) || (type == "GPA" && _isGpaForBean)) {
       color = Colors.blue.shade300;
     }
     return Container(
       margin: const EdgeInsets.all(5),
       child: GestureDetector(
         onTap: () {
+          if (disabled) return;
           switch (type) {
             case "Marks":
               setState(() {
@@ -2004,24 +2561,23 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
           }
           _reloadSchemeCodeForSection(examSectionMapBean, type);
         },
-        child: Center(
-          child: ClayButton(
-            depth: 40,
-            surfaceColor: color,
-            parentColor: clayContainerColor(context),
-            spread: 1,
-            borderRadius: 100,
-            child: Container(
-              margin: const EdgeInsets.all(5),
-              child: Center(
-                child: MediaQuery
-                    .of(context)
-                    .orientation == Orientation.landscape
-                    ? Text(type)
-                    : FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(type),
-                ),
+        child: ClayButton(
+          depth: 40,
+          surfaceColor: color,
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 100,
+          child: Container(
+            width: 15,
+            margin: const EdgeInsets.all(5),
+            child: Center(
+              child: MediaQuery
+                  .of(context)
+                  .orientation == Orientation.landscape
+                  ? Text(type)
+                  : FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(type),
               ),
             ),
           ),

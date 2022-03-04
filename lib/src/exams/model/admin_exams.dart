@@ -231,6 +231,7 @@ class ExamTdsMapBean {
   Map<String, dynamic> __origJson = {};
 
   TextEditingController maxMarksEditingController = TextEditingController();
+  bool isExpanded = false;
 
   ExamTdsMapBean({
     this.endTime,
@@ -576,6 +577,9 @@ class AdminExamBean {
   String? status;
   Map<String, dynamic> __origJson = {};
 
+  bool isEditMode = false;
+  TextEditingController examNameEditingController = TextEditingController();
+
   AdminExamBean({
     this.agent,
     this.examId,
@@ -585,12 +589,15 @@ class AdminExamBean {
     this.examType,
     this.schoolId,
     this.status,
-  });
+  }) {
+    examNameEditingController.text = examName ?? '';
+  }
   AdminExamBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
     examId = json['examId']?.toInt();
     examName = json['examName']?.toString();
+    examNameEditingController.text = examName ?? '';
     if (json['examSectionMapBeanList'] != null) {
       final v = json['examSectionMapBeanList'];
       final arr0 = <ExamSectionMapBean>[];
@@ -1241,4 +1248,61 @@ Future<CreateOrUpdateMarkingAlgorithmResponse> createOrUpdateMarkingAlgorithm(
       CreateOrUpdateMarkingAlgorithmResponse.fromJson(json.decode(response.body));
   print("createOrUpdateMarkingAlgorithmResponse ${createOrUpdateMarkingAlgorithmResponse.toJson()}");
   return createOrUpdateMarkingAlgorithmResponse;
+}
+
+class CreateOrUpdateExamResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateExamResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateExamResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateExamResponse> createOrUpdateExam(AdminExamBean createOrUpdateExamRequest) async {
+  print("Raising request to createOrUpdateExam with request ${jsonEncode(createOrUpdateExamRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_EXAMS;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateExamRequest.toJson()),
+  );
+
+  CreateOrUpdateExamResponse createOrUpdateExamResponse = CreateOrUpdateExamResponse.fromJson(json.decode(response.body));
+  print("createOrUpdateExamResponse ${createOrUpdateExamResponse.toJson()}");
+  return createOrUpdateExamResponse;
 }

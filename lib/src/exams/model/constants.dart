@@ -1,8 +1,29 @@
 enum InternalsComputationCode { A, B }
 
+extension InternalsComputationCodeExt on InternalsComputationCode {
+  String toShortString() {
+    return toString().split('.').last;
+  }
+
+  String get description {
+    switch (this) {
+      case InternalsComputationCode.A:
+        return "Average";
+      case InternalsComputationCode.B:
+        return "Best Of";
+      default:
+        return "-";
+    }
+  }
+}
+
 enum MarkingSchemeCode { A, B, C, D, E, F, G }
 
-extension MarkingSchemeExtension on MarkingSchemeCode {
+extension MarkingSchemeExt on MarkingSchemeCode {
+  String toShortString() {
+    return toString().split('.').last;
+  }
+
   String get description {
     switch (this) {
       case MarkingSchemeCode.A:
@@ -64,4 +85,36 @@ MarkingSchemeCode fromMarkingSchemeCodeBooleans(bool isMarks, bool isGrade, bool
     return MarkingSchemeCode.G;
   }
   return MarkingSchemeCode.A;
+}
+
+MarkingSchemeCode? fromMarkingSchemeCodeString(String value) {
+  switch (value) {
+    case "A":
+      return MarkingSchemeCode.A;
+    case "B":
+      return MarkingSchemeCode.B;
+    case "C":
+      return MarkingSchemeCode.C;
+    case "D":
+      return MarkingSchemeCode.D;
+    case "E":
+      return MarkingSchemeCode.E;
+    case "F":
+      return MarkingSchemeCode.F;
+    case "G":
+      return MarkingSchemeCode.G;
+    default:
+      return null;
+  }
+}
+
+InternalsComputationCode? fromInternalsComputationCodeString(String value) {
+  switch (value) {
+    case "A":
+      return InternalsComputationCode.A;
+    case "B":
+      return InternalsComputationCode.B;
+    default:
+      return null;
+  }
 }
