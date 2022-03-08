@@ -1306,3 +1306,699 @@ Future<CreateOrUpdateExamResponse> createOrUpdateExam(AdminExamBean createOrUpda
   print("createOrUpdateExamResponse ${createOrUpdateExamResponse.toJson()}");
   return createOrUpdateExamResponse;
 }
+
+class GetStudentExamMarksDetailsRequest {
+/*
+{
+  "examId": 0,
+  "examType": "SLIP_TEST",
+  "schoolId": 0,
+  "sectionId": 0,
+  "studentId": 0,
+  "subjectId": 0,
+  "tdsId": 0,
+  "teacherId": 0
+}
+*/
+
+  int? examId;
+  String? examType;
+  int? schoolId;
+  int? sectionId;
+  int? studentId;
+  int? subjectId;
+  int? tdsId;
+  int? teacherId;
+  Map<String, dynamic> __origJson = {};
+
+  GetStudentExamMarksDetailsRequest({
+    this.examId,
+    this.examType,
+    this.schoolId,
+    this.sectionId,
+    this.studentId,
+    this.subjectId,
+    this.tdsId,
+    this.teacherId,
+  });
+  GetStudentExamMarksDetailsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    examId = json['examId']?.toInt();
+    examType = json['examType']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    subjectId = json['subjectId']?.toInt();
+    tdsId = json['tdsId']?.toInt();
+    teacherId = json['teacherId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['examId'] = examId;
+    data['examType'] = examType;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['studentId'] = studentId;
+    data['subjectId'] = subjectId;
+    data['tdsId'] = tdsId;
+    data['teacherId'] = teacherId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class StudentInternalExamMarksDetailsBean {
+/*
+{
+  "examId": 0,
+  "examName": "string",
+  "examTdsMapId": 0,
+  "examType": "SLIP_TEST",
+  "internalExamId": 0,
+  "internalExamName": "string",
+  "internalExamType": "SLIP_TEST",
+  "internalTdsId": 0,
+  "internalTdsMapId": 0,
+  "internalsComputationCode": "A",
+  "internalsDate": "string",
+  "internalsEndTime": "",
+  "internalsMarksObtained": 0,
+  "internalsMaxMarks": 0,
+  "internalsSectionId": 0,
+  "internalsSectionName": "string",
+  "internalsStartTime": "",
+  "internalsSubjectId": 0,
+  "internalsSubjectName": "string",
+  "internalsTeacherId": 0,
+  "internalsTeacherName": "string",
+  "rollNumber": "string",
+  "schoolId": 0,
+  "studentId": 0,
+  "studentName": "string"
+}
+*/
+
+  int? examId;
+  String? examName;
+  int? examTdsMapId;
+  String? examType;
+  int? internalExamId;
+  String? internalExamName;
+  String? internalExamType;
+  int? internalTdsId;
+  int? internalTdsMapId;
+  String? internalsComputationCode;
+  String? internalsDate;
+  String? internalsEndTime;
+  int? internalsMarksObtained;
+  int? internalsMaxMarks;
+  int? internalsSectionId;
+  String? internalsSectionName;
+  String? internalsStartTime;
+  int? internalsSubjectId;
+  String? internalsSubjectName;
+  int? internalsTeacherId;
+  String? internalsTeacherName;
+  String? rollNumber;
+  int? schoolId;
+  int? studentId;
+  String? studentName;
+  int? internalNumber;
+  Map<String, dynamic> __origJson = {};
+
+  StudentInternalExamMarksDetailsBean({
+    this.examId,
+    this.examName,
+    this.examTdsMapId,
+    this.examType,
+    this.internalExamId,
+    this.internalExamName,
+    this.internalExamType,
+    this.internalTdsId,
+    this.internalTdsMapId,
+    this.internalsComputationCode,
+    this.internalsDate,
+    this.internalsEndTime,
+    this.internalsMarksObtained,
+    this.internalsMaxMarks,
+    this.internalsSectionId,
+    this.internalsSectionName,
+    this.internalsStartTime,
+    this.internalsSubjectId,
+    this.internalsSubjectName,
+    this.internalsTeacherId,
+    this.internalsTeacherName,
+    this.rollNumber,
+    this.schoolId,
+    this.studentId,
+    this.studentName,
+    this.internalNumber,
+  });
+  StudentInternalExamMarksDetailsBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    examId = json['examId']?.toInt();
+    examName = json['examName']?.toString();
+    examTdsMapId = json['examTdsMapId']?.toInt();
+    examType = json['examType']?.toString();
+    internalExamId = json['internalExamId']?.toInt();
+    internalExamName = json['internalExamName']?.toString();
+    internalExamType = json['internalExamType']?.toString();
+    internalTdsId = json['internalTdsId']?.toInt();
+    internalTdsMapId = json['internalTdsMapId']?.toInt();
+    internalsComputationCode = json['internalsComputationCode']?.toString();
+    internalsDate = json['internalsDate']?.toString();
+    internalsEndTime = json['internalsEndTime']?.toString();
+    internalsMarksObtained = json['internalsMarksObtained']?.toInt();
+    internalsMaxMarks = json['internalsMaxMarks']?.toInt();
+    internalsSectionId = json['internalsSectionId']?.toInt();
+    internalsSectionName = json['internalsSectionName']?.toString();
+    internalsStartTime = json['internalsStartTime']?.toString();
+    internalsSubjectId = json['internalsSubjectId']?.toInt();
+    internalsSubjectName = json['internalsSubjectName']?.toString();
+    internalsTeacherId = json['internalsTeacherId']?.toInt();
+    internalsTeacherName = json['internalsTeacherName']?.toString();
+    rollNumber = json['rollNumber']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    studentName = json['studentName']?.toString();
+    internalNumber = json['internalNumber']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['examId'] = examId;
+    data['examName'] = examName;
+    data['examTdsMapId'] = examTdsMapId;
+    data['examType'] = examType;
+    data['internalExamId'] = internalExamId;
+    data['internalExamName'] = internalExamName;
+    data['internalExamType'] = internalExamType;
+    data['internalTdsId'] = internalTdsId;
+    data['internalTdsMapId'] = internalTdsMapId;
+    data['internalsComputationCode'] = internalsComputationCode;
+    data['internalsDate'] = internalsDate;
+    data['internalsEndTime'] = internalsEndTime;
+    data['internalsMarksObtained'] = internalsMarksObtained;
+    data['internalsMaxMarks'] = internalsMaxMarks;
+    data['internalsSectionId'] = internalsSectionId;
+    data['internalsSectionName'] = internalsSectionName;
+    data['internalsStartTime'] = internalsStartTime;
+    data['internalsSubjectId'] = internalsSubjectId;
+    data['internalsSubjectName'] = internalsSubjectName;
+    data['internalsTeacherId'] = internalsTeacherId;
+    data['internalsTeacherName'] = internalsTeacherName;
+    data['rollNumber'] = rollNumber;
+    data['schoolId'] = schoolId;
+    data['studentId'] = studentId;
+    data['studentName'] = studentName;
+    data['internalNumber'] = internalNumber;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class StudentExamMarksDetailsBean {
+/*
+{
+  "date": "string",
+  "endTime": "",
+  "examId": 0,
+  "examName": "string",
+  "examTdsMapId": 0,
+  "examType": "SLIP_TEST",
+  "internalsComputationCode": "A",
+  "marksObtained": 0,
+  "maxMarks": 0,
+  "rollNumber": "string",
+  "schoolId": 0,
+  "sectionId": 0,
+  "sectionName": "string",
+  "startTime": "",
+  "studentId": 0,
+  "studentInternalExamMarksDetailsBeanList": [
+    {
+      "examId": 0,
+      "examName": "string",
+      "examTdsMapId": 0,
+      "examType": "SLIP_TEST",
+      "internalExamId": 0,
+      "internalExamName": "string",
+      "internalExamType": "SLIP_TEST",
+      "internalTdsId": 0,
+      "internalTdsMapId": 0,
+      "internalsComputationCode": "A",
+      "internalsDate": "string",
+      "internalsEndTime": "",
+      "internalsMarksObtained": 0,
+      "internalsMaxMarks": 0,
+      "internalsSectionId": 0,
+      "internalsSectionName": "string",
+      "internalsStartTime": "",
+      "internalsSubjectId": 0,
+      "internalsSubjectName": "string",
+      "internalsTeacherId": 0,
+      "internalsTeacherName": "string",
+      "rollNumber": "string",
+      "schoolId": 0,
+      "studentId": 0,
+      "studentName": "string"
+    }
+  ],
+  "studentName": "string",
+  "subjectId": 0,
+  "subjectName": "string",
+  "tdsId": 0,
+  "teacherId": 0,
+  "teacherName": "string"
+}
+*/
+
+  String? date;
+  String? endTime;
+  int? examId;
+  String? examName;
+  int? examTdsMapId;
+  String? examType;
+  String? internalsComputationCode;
+  int? marksObtained;
+  int? maxMarks;
+  String? rollNumber;
+  int? schoolId;
+  int? sectionId;
+  String? sectionName;
+  String? startTime;
+  int? studentId;
+  List<StudentInternalExamMarksDetailsBean?>? studentInternalExamMarksDetailsBeanList;
+  String? studentName;
+  int? subjectId;
+  String? subjectName;
+  int? tdsId;
+  int? teacherId;
+  String? teacherName;
+
+  bool isMarksEditable = false;
+  TextEditingController marksEditingController = TextEditingController();
+
+  Map<String, dynamic> __origJson = {};
+
+  StudentExamMarksDetailsBean({
+    this.date,
+    this.endTime,
+    this.examId,
+    this.examName,
+    this.examTdsMapId,
+    this.examType,
+    this.internalsComputationCode,
+    this.marksObtained,
+    this.maxMarks,
+    this.rollNumber,
+    this.schoolId,
+    this.sectionId,
+    this.sectionName,
+    this.startTime,
+    this.studentId,
+    this.studentInternalExamMarksDetailsBeanList,
+    this.studentName,
+    this.subjectId,
+    this.subjectName,
+    this.tdsId,
+    this.teacherId,
+    this.teacherName,
+  }) {
+    _adjustTextController();
+  }
+
+  void _adjustTextController() {
+    if (marksObtained == null || marksObtained == -1) {
+      marksEditingController.text = "";
+      print("1631 :: ${marksEditingController.text}");
+    } else if (marksObtained == -2) {
+      marksEditingController.text = "A";
+      print("1634 :: ${marksEditingController.text}");
+    } else {
+      marksEditingController.text = "${marksObtained ?? ""}";
+      print("1637 :: ${marksEditingController.text}");
+    }
+  }
+
+  StudentExamMarksDetailsBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    date = json['date']?.toString();
+    endTime = json['endTime']?.toString();
+    examId = json['examId']?.toInt();
+    examName = json['examName']?.toString();
+    examTdsMapId = json['examTdsMapId']?.toInt();
+    examType = json['examType']?.toString();
+    internalsComputationCode = json['internalsComputationCode']?.toString();
+    marksObtained = json['marksObtained']?.toInt();
+    _adjustTextController();
+    maxMarks = json['maxMarks']?.toInt();
+    rollNumber = json['rollNumber']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    startTime = json['startTime']?.toString();
+    studentId = json['studentId']?.toInt();
+    if (json['studentInternalExamMarksDetailsBeanList'] != null) {
+      final v = json['studentInternalExamMarksDetailsBeanList'];
+      final arr0 = <StudentInternalExamMarksDetailsBean>[];
+      v.forEach((v) {
+        arr0.add(StudentInternalExamMarksDetailsBean.fromJson(v));
+      });
+      studentInternalExamMarksDetailsBeanList = arr0;
+    }
+    studentName = json['studentName']?.toString();
+    subjectId = json['subjectId']?.toInt();
+    subjectName = json['subjectName']?.toString();
+    tdsId = json['tdsId']?.toInt();
+    teacherId = json['teacherId']?.toInt();
+    teacherName = json['teacherName']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['date'] = date;
+    data['endTime'] = endTime;
+    data['examId'] = examId;
+    data['examName'] = examName;
+    data['examTdsMapId'] = examTdsMapId;
+    data['examType'] = examType;
+    data['internalsComputationCode'] = internalsComputationCode;
+    data['marksObtained'] = marksObtained;
+    data['maxMarks'] = maxMarks;
+    data['rollNumber'] = rollNumber;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['startTime'] = startTime;
+    data['studentId'] = studentId;
+    if (studentInternalExamMarksDetailsBeanList != null) {
+      final v = studentInternalExamMarksDetailsBeanList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentInternalExamMarksDetailsBeanList'] = arr0;
+    }
+    data['studentName'] = studentName;
+    data['subjectId'] = subjectId;
+    data['subjectName'] = subjectName;
+    data['tdsId'] = tdsId;
+    data['teacherId'] = teacherId;
+    data['teacherName'] = teacherName;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  String toString() {
+    return json.encode(toJson());
+  }
+}
+
+class GetStudentExamMarksDetailsResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "studentExamMarksDetailsList": [
+    {
+      "date": "string",
+      "endTime": "",
+      "examId": 0,
+      "examName": "string",
+      "examTdsMapId": 0,
+      "examType": "SLIP_TEST",
+      "internalsComputationCode": "A",
+      "marksObtained": 0,
+      "maxMarks": 0,
+      "rollNumber": "string",
+      "schoolId": 0,
+      "sectionId": 0,
+      "sectionName": "string",
+      "startTime": "",
+      "studentId": 0,
+      "studentInternalExamMarksDetailsBeanList": [
+        {
+          "examId": 0,
+          "examName": "string",
+          "examTdsMapId": 0,
+          "examType": "SLIP_TEST",
+          "internalExamId": 0,
+          "internalExamName": "string",
+          "internalExamType": "SLIP_TEST",
+          "internalTdsId": 0,
+          "internalTdsMapId": 0,
+          "internalsComputationCode": "A",
+          "internalsDate": "string",
+          "internalsEndTime": "",
+          "internalsMarksObtained": 0,
+          "internalsMaxMarks": 0,
+          "internalsSectionId": 0,
+          "internalsSectionName": "string",
+          "internalsStartTime": "",
+          "internalsSubjectId": 0,
+          "internalsSubjectName": "string",
+          "internalsTeacherId": 0,
+          "internalsTeacherName": "string",
+          "rollNumber": "string",
+          "schoolId": 0,
+          "studentId": 0,
+          "studentName": "string"
+        }
+      ],
+      "studentName": "string",
+      "subjectId": 0,
+      "subjectName": "string",
+      "tdsId": 0,
+      "teacherId": 0,
+      "teacherName": "string"
+    }
+  ]
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  List<StudentExamMarksDetailsBean?>? studentExamMarksDetailsList;
+  Map<String, dynamic> __origJson = {};
+
+  GetStudentExamMarksDetailsResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.studentExamMarksDetailsList,
+  });
+  GetStudentExamMarksDetailsResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    if (json['studentExamMarksDetailsList'] != null) {
+      final v = json['studentExamMarksDetailsList'];
+      final arr0 = <StudentExamMarksDetailsBean>[];
+      v.forEach((v) {
+        arr0.add(StudentExamMarksDetailsBean.fromJson(v));
+      });
+      studentExamMarksDetailsList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    if (studentExamMarksDetailsList != null) {
+      final v = studentExamMarksDetailsList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentExamMarksDetailsList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetStudentExamMarksDetailsResponse> getStudentExamMarksDetails(GetStudentExamMarksDetailsRequest getStudentExamMarksDetailsRequest) async {
+  print("Raising request to getStudentExamMarksDetails with request ${jsonEncode(getStudentExamMarksDetailsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_EXAM_MARKS;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getStudentExamMarksDetailsRequest.toJson()),
+  );
+
+  GetStudentExamMarksDetailsResponse getStudentExamMarksDetailsResponse = GetStudentExamMarksDetailsResponse.fromJson(json.decode(response.body));
+  print("GetStudentExamMarksDetailsResponse ${getStudentExamMarksDetailsResponse.toJson()}");
+  return getStudentExamMarksDetailsResponse;
+}
+
+class StudentMarksUpdateBean {
+/*
+{
+  "studentId": 1,
+  "examId": 1,
+  "examTdsMapId": 1,
+  "marksObtained": 1
+}
+*/
+
+  int? studentId;
+  int? examId;
+  int? examTdsMapId;
+  int? marksObtained;
+  Map<String, dynamic> __origJson = {};
+
+  StudentMarksUpdateBean({
+    this.studentId,
+    this.examId,
+    this.examTdsMapId,
+    this.marksObtained,
+  });
+  StudentMarksUpdateBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    studentId = json['studentId']?.toInt();
+    examId = json['examId']?.toInt();
+    examTdsMapId = json['examTdsMapId']?.toInt();
+    marksObtained = json['marksObtained']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['studentId'] = studentId;
+    data['examId'] = examId;
+    data['examTdsMapId'] = examTdsMapId;
+    data['marksObtained'] = marksObtained;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStudentExamMarksRequest {
+/*
+{
+  "agentId": 1,
+  "schoolId": 1,
+  "studentExamMarksDetailsList": [
+    {
+      "studentId": 1,
+      "examId": 1,
+      "examTdsMapId": 1,
+      "marksObtained": 1
+    }
+  ]
+}
+*/
+
+  int? agentId;
+  int? schoolId;
+  List<StudentMarksUpdateBean?>? studentExamMarksDetailsList;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentExamMarksRequest({
+    this.agentId,
+    this.schoolId,
+    this.studentExamMarksDetailsList,
+  });
+  CreateOrUpdateStudentExamMarksRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    if (json['studentExamMarksDetailsList'] != null) {
+      final v = json['studentExamMarksDetailsList'];
+      final arr0 = <StudentMarksUpdateBean>[];
+      v.forEach((v) {
+        arr0.add(StudentMarksUpdateBean.fromJson(v));
+      });
+      studentExamMarksDetailsList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['schoolId'] = schoolId;
+    if (studentExamMarksDetailsList != null) {
+      final v = studentExamMarksDetailsList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentExamMarksDetailsList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStudentExamMarksResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentExamMarksResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateStudentExamMarksResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateStudentExamMarksResponse> createOrUpdateStudentExamMarks(
+    CreateOrUpdateStudentExamMarksRequest createOrUpdateStudentExamMarksRequest) async {
+  print("Raising request to createOrUpdateStudentExamMarks with request ${jsonEncode(createOrUpdateStudentExamMarksRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EXAM_MARKS;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateStudentExamMarksRequest.toJson()),
+  );
+
+  CreateOrUpdateStudentExamMarksResponse createOrUpdateStudentExamMarksResponse =
+      CreateOrUpdateStudentExamMarksResponse.fromJson(json.decode(response.body));
+  print("createOrUpdateStudentExamMarksResponse ${createOrUpdateStudentExamMarksResponse.toJson()}");
+  return createOrUpdateStudentExamMarksResponse;
+}

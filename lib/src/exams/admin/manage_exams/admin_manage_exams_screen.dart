@@ -2111,10 +2111,10 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
   }
 
   List<Widget> _addInternals() {
-    return _internalsForNewExam.map((e) => _internalsRow(e)).toList() + [_internalsRow(null)];
+    return _internalsForNewExam.map((e) => _internalsRow(e)).toList() + [_newInternalsRow(null)];
   }
 
-  Widget _internalsRow(AdminExamBean? exam) {
+  Widget _newInternalsRow(AdminExamBean? exam) {
     return Container(
       margin: const EdgeInsets.fromLTRB(5, 5, 20, 5),
       child: Row(
@@ -2199,6 +2199,47 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                   : const Icon(
                 Icons.add_circle_outline,
                 color: Colors.green,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _internalsRow(AdminExamBean exam) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(5, 5, 20, 5),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(15),
+              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+              decoration: BoxDecoration(
+                border: Border.all(),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    (exam.examName ?? "-").capitalize(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _internalsForNewExam.remove(exam);
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.all(15),
+              child: const Icon(
+                Icons.clear_rounded,
               ),
             ),
           ),

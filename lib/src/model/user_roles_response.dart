@@ -61,9 +61,7 @@ class GetUserRolesResponse {
         teacherProfiles?.add(TeacherProfile.fromJson(v));
       });
     }
-    userDetails = json['userDetails'] != null
-        ? UserDetails.fromJson(json['userDetails'])
-        : null;
+    userDetails = json['userDetails'] != null ? UserDetails.fromJson(json['userDetails']) : null;
   }
   List<AdminProfile>? adminProfiles;
   String? errorCode;
@@ -400,6 +398,16 @@ class StudentProfile {
   @override
   String toString() {
     return "'balanceAmount' = $balanceAmount,'fatherName' = $fatherName,'gaurdianFirstName' = $gaurdianFirstName,'gaurdianId' = $gaurdianId,'gaurdianLastName' = $gaurdianLastName,'gaurdianMailId' = $gaurdianMailId,'gaurdianMiddleName' = $gaurdianMiddleName,'gaurdianMobile' = $gaurdianMobile,'motherName' = $motherName,'rollNumber' = $rollNumber,'schoolId' = $schoolId,'schoolName' = $schoolName,'schoolPhotoUrl' = $schoolPhotoUrl,'sectionDescription' = $sectionDescription,'sectionId' = $sectionId,'sectionName' = $sectionName,'studentDob' = $studentDob,'studentFirstName' = $studentFirstName,'studentId' = $studentId,'studentLastName' = $studentLastName,'studentMailId' = $studentMailId,'studentMiddleName' = $studentMiddleName,'studentMobile' = $studentMobile,'studentPhotoUrl' = $studentPhotoUrl";
+  }
+
+  @override
+  int get hashCode {
+    return studentId ?? -1;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return studentId == (other as StudentProfile).studentId;
   }
 }
 

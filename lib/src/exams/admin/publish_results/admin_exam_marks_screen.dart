@@ -1,0 +1,782 @@
+import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/marks_input_formatter.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/model/admin_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/constants.dart';
+import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
+import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
+
+class AdminExamMarksScreen extends StatefulWidget {
+  const AdminExamMarksScreen({
+    Key? key,
+    required this.adminProfile,
+    required this.examBean,
+    required this.section,
+  }) : super(key: key);
+
+  final AdminProfile adminProfile;
+  final AdminExamBean examBean;
+  final Section section;
+
+  @override
+  _AdminExamMarksScreenState createState() => _AdminExamMarksScreenState();
+}
+
+class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
+  bool _isLoading = true;
+  List<StudentExamMarksDetailsBean> _studentExamMarksDetailsList = [];
+
+  List<Subject> _subjects = [];
+  List<StudentProfile> _students = [];
+
+  // List<List<StudentMarks>> _marksData = [];
+  // List<List<DataCell>> _cells = [];
+
+  final List<List<StudentExamMarksDetailsBean>> _marksGrid = [];
+  int currentCellIndexX = 0;
+  int currentCellIndexY = 0;
+
+  ScrollController horizontalBodyController = ScrollController();
+  ScrollController verticalBodyController = ScrollController();
+
+  ScrollController horizontalTitleController = ScrollController();
+  ScrollController verticalTitleController = ScrollController();
+
+  late LinkedScrollControllerGroup _controllers;
+  late ScrollController _studentsController;
+  late ScrollController _detailsController;
+  late ScrollController _marksController;
+  late ScrollController _header;
+  late ScrollController _subHeader;
+  late LinkedScrollControllerGroup _marksControllers;
+  List<ScrollController> _scrollControllers = [];
+  ScrollController sliverScrollController = ScrollController();
+
+  late ExamSectionMapBean _examSectionMapBean;
+  bool _isEditMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _examSectionMapBean = (widget.examBean.examSectionMapBeanList ?? []).map((e) => e!).where((e) => widget.section.sectionId == e.sectionId).first;
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    horizontalTitleController.dispose();
+    horizontalBodyController.dispose();
+    verticalTitleController.dispose();
+    verticalBodyController.dispose();
+
+    _studentsController.dispose();
+    _detailsController.dispose();
+    _marksController.dispose();
+    _header.dispose();
+    _subHeader.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _subjects = (widget.examBean.examSectionMapBeanList ?? [])
+          .map((ExamSectionMapBean? e) => e!)
+          .where((ExamSectionMapBean eachSectionMapBean) => eachSectionMapBean.sectionId == widget.section.sectionId)
+          .map((ExamSectionMapBean eachSectionMapBean) => eachSectionMapBean.examTdsMapBeanList ?? [])
+          .expand((List<ExamTdsMapBean?> i) => i)
+          .map((ExamTdsMapBean? examTdsMapBean) => examTdsMapBean!)
+          .where((ExamTdsMapBean examTdsMapBean) => examTdsMapBean.sectionId == widget.section.sectionId)
+          .map((ExamTdsMapBean examTdsMapBean) => Subject(
+                subjectId: examTdsMapBean.subjectId,
+                subjectName: examTdsMapBean.subjectName,
+                schoolId: widget.adminProfile.schoolId,
+              ))
+          .toList();
+      _isEditMode = false;
+    });
+
+    GetStudentExamMarksDetailsResponse getStudentExamMarksDetailsResponse = await getStudentExamMarksDetails(GetStudentExamMarksDetailsRequest(
+      schoolId: widget.adminProfile.schoolId,
+      examId: widget.examBean.examId,
+      sectionId: widget.section.sectionId,
+    ));
+    if (getStudentExamMarksDetailsResponse.httpStatus != "OK" || getStudentExamMarksDetailsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        _studentExamMarksDetailsList = getStudentExamMarksDetailsResponse.studentExamMarksDetailsList!.map((e) => e!).toList();
+        _students = _studentExamMarksDetailsList
+            .map((e) => StudentProfile(studentId: e.studentId, rollNumber: e.rollNumber, studentFirstName: e.studentName))
+            .toSet()
+            .toList();
+        // for (StudentProfile eachStudent in _students) {
+        for (int i = 0; i < _students.length; i++) {
+          List<StudentExamMarksDetailsBean> x = [];
+          // for (Subject eachSubject in _subjects) {
+          for (int j = 0; j < _subjects.length; j++) {
+            StudentExamMarksDetailsBean y =
+                _studentExamMarksDetailsList.where((e) => e.studentId == _students[i].studentId && e.subjectId == _subjects[j].subjectId).first;
+            x.add(y);
+          }
+          _marksGrid.add(x);
+        }
+      });
+      _makeCellEditable(0, 0, 0, 0);
+    }
+
+    _controllers = LinkedScrollControllerGroup();
+    _studentsController = _controllers.addAndGet();
+    _detailsController = _controllers.addAndGet();
+    _marksController = _controllers.addAndGet();
+
+    _marksControllers = LinkedScrollControllerGroup();
+    _header = _marksControllers.addAndGet();
+    _subHeader = _marksControllers.addAndGet();
+    for (int i = 0; i < _students.length; i++) {
+      _scrollControllers.add(_marksControllers.addAndGet());
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _scrollToTableWithWaitTime();
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("Publish Results"),
+        ),
+        drawer: AdminAppDrawer(
+          adminProfile: widget.adminProfile,
+        ),
+        body: _isLoading
+            ? Center(
+                child: Image.asset('assets/images/eis_loader.gif'),
+              )
+            : RawKeyboardListener(
+                onKey: (RawKeyEvent event) {
+                  print("135: $event");
+                  setState(() {
+                    if ((event.isKeyPressed(LogicalKeyboardKey.tab) || event.isKeyPressed(LogicalKeyboardKey.arrowRight)) &&
+                        currentCellIndexY <= _marksGrid[currentCellIndexX].length - 2) {
+                      _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY + 1);
+                    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft) && currentCellIndexY >= 1) {
+                      _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY - 1);
+                    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) && currentCellIndexX >= 1) {
+                      _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX - 1, currentCellIndexY);
+                    } else if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) && currentCellIndexX <= _marksGrid.length - 2) {
+                      _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX + 1, currentCellIndexY);
+                    } else {
+                      _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY);
+                    }
+                  });
+                },
+                focusNode: FocusNode(),
+                autofocus: true,
+                child: CustomScrollView(
+                  controller: sliverScrollController,
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  slivers: [
+                    SliverAppBar(
+                      pinned: false,
+                      snap: false,
+                      floating: false,
+                      stretch: true,
+                      onStretchTrigger: () {
+                        return Future<void>.value();
+                      },
+                      toolbarHeight: 0,
+                      collapsedHeight: 0,
+                      leading: null,
+                      backgroundColor: Colors.transparent,
+                      expandedHeight: (MediaQuery.of(context).size.height / 2) + 50,
+                      flexibleSpace: FlexibleSpaceBar(
+                        background: _examDetailsWidget(),
+                        stretchModes: const <StretchMode>[
+                          StretchMode.zoomBackground,
+                          StretchMode.blurBackground,
+                          StretchMode.fadeTitle,
+                        ],
+                      ),
+                    ),
+                    SliverFillRemaining(
+                      hasScrollBody: true,
+                      fillOverscroll: true,
+                      child: _marksTableWidget(),
+                    ),
+                  ],
+                ),
+              ),
+        floatingActionButton: _isLoading ? null : _changeEditModeButton());
+  }
+
+  Future<void> _saveChanges() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(widget.examBean.examName ?? "-"),
+          content: const Text("Are you sure to save changes?"),
+          actions: <Widget>[
+            TextButton(
+                child: const Text("Yes"),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await _submitChanges();
+                }),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _submitChanges() async {
+    setState(() {
+      _isLoading = true;
+    });
+    List<StudentMarksUpdateBean> x = _studentExamMarksDetailsList
+        .where((e) => e.marksObtained != StudentExamMarksDetailsBean.fromJson(e.origJson()).marksObtained)
+        .map((e) => StudentMarksUpdateBean(studentId: e.studentId, examId: e.examId, examTdsMapId: e.examTdsMapId, marksObtained: e.marksObtained))
+        .toList();
+
+    CreateOrUpdateStudentExamMarksRequest createOrUpdateStudentExamMarksRequest = CreateOrUpdateStudentExamMarksRequest(
+      schoolId: widget.adminProfile.schoolId,
+      agentId: widget.adminProfile.userId,
+      studentExamMarksDetailsList: x,
+    );
+    CreateOrUpdateStudentExamMarksResponse createOrUpdateStudentExamMarksResponse =
+        await createOrUpdateStudentExamMarks(createOrUpdateStudentExamMarksRequest);
+    if (createOrUpdateStudentExamMarksResponse.httpStatus == "OK" && createOrUpdateStudentExamMarksResponse.responseStatus == "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Success!"),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong!"),
+        ),
+      );
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Widget _changeEditModeButton() {
+    return GestureDetector(
+      onTap: () {
+        if (_isEditMode) {
+          _submitChanges();
+        }
+        setState(() {
+          _isEditMode = !_isEditMode;
+        });
+      },
+      child: ClayButton(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 100,
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          child: _isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
+        ),
+      ),
+    );
+  }
+
+  void _scrollToTableWithWaitTime() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (sliverScrollController.hasClients) {
+        Future.delayed(
+          const Duration(milliseconds: 2000),
+          () {
+            _scrollToTable();
+          },
+        );
+      }
+    });
+  }
+
+  void _scrollToTable() {
+    sliverScrollController.animateTo(
+      sliverScrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeIn,
+    );
+  }
+
+  Widget _examDetailsWidget() {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: ListView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            Container(
+              margin: const EdgeInsets.all(15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: ClayContainer(
+                      depth: 40,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 1,
+                      borderRadius: 10,
+                      emboss: true,
+                      child: Container(
+                        margin: const EdgeInsets.all(15),
+                        child: Center(
+                          child: Text(
+                            (widget.examBean.examName ?? "-").capitalize(),
+                            style: const TextStyle(
+                              fontSize: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  flex: MediaQuery.of(context).orientation == Orientation.landscape ? 2 : 1,
+                  child: Container(
+                    margin: const EdgeInsets.all(25),
+                    child: Center(
+                      child: Text(
+                        (widget.section.sectionName ?? "-").capitalize(),
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(25),
+                    child: _buildMarkingSchemeWidgetForSectionWiseTdsMapBean(
+                        (widget.examBean.examSectionMapBeanList ?? []).map((e) => e!).where((e) => e.sectionId == widget.section.sectionId).first),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMarkingSchemeWidgetForSectionWiseTdsMapBean(ExamSectionMapBean eachSectionWiseTdsMapBean) {
+    return ClayContainer(
+      depth: 40,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 1,
+      borderRadius: 10,
+      emboss: true,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Marking Algorithm: ${eachSectionWiseTdsMapBean.markingAlgorithmName ?? "-"}"),
+            const SizedBox(
+              height: 10,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            const Text("Results are shown in"),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: _markingSchemeButtonForSection("Marks"),
+                ),
+                Expanded(
+                  child: _markingSchemeButtonForSection("Grade"),
+                ),
+                Expanded(
+                  child: _markingSchemeButtonForSection("GPA"),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _markingSchemeButtonForSection(String type) {
+    Color color = clayContainerColor(context);
+    MarkingSchemeCode? x = fromMarkingSchemeCodeString(
+        (widget.examBean.examSectionMapBeanList ?? []).where((e) => e != null && e.sectionId == widget.section.sectionId).first?.markingSchemeCode ??
+            "-");
+    bool _isMarksForBean = x == null ? false : x.value[0] == "T";
+    bool _isGradeForBean = x == null ? false : x.value[1] == "T";
+    bool _isGpaForBean = x == null ? false : x.value[2] == "T";
+    if ((type == "Marks" && _isMarksForBean) || (type == "Grade" && _isGradeForBean) || (type == "GPA" && _isGpaForBean)) {
+      color = Colors.blue.shade300;
+    }
+    return Container(
+      margin: const EdgeInsets.all(5),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: color,
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 100,
+        emboss: color == Colors.blue.shade300,
+        child: Container(
+          width: 15,
+          margin: const EdgeInsets.all(5),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(type),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _marksTableWidget() {
+    return Column(
+      // shrinkWrap: true,
+      // physics: const NeverScrollableScrollPhysics(),
+      children: [
+        _headerWidget(),
+        ((_examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => e.internalExamTdsMapBeanList ?? [])).expand((i) => i).isEmpty
+            ? Container()
+            : _subHeaderWidget(),
+        Expanded(child: _studentWiseMarksWidget()),
+      ],
+    );
+  }
+
+  Widget _headerWidget() {
+    return Row(
+      children: [
+        Expanded(
+          child: InkWell(
+            onTap: _scrollToTable,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(),
+                color: Colors.blue,
+              ),
+              height: 80,
+              width: 250,
+              padding: const EdgeInsets.all(4),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: SingleChildScrollView(
+            controller: _header,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (int i = 0; i < _subjects.length; i++)
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                      color: Colors.blue,
+                    ),
+                    height: 80,
+                    width: 88 * ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length + 1),
+                    padding: const EdgeInsets.all(4),
+                    child: Center(child: Text((_subjects[i].subjectName ?? "-").capitalize())),
+                  )
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _subHeaderWidget() {
+    List<Widget> _subHeaders = [];
+    for (int i = 0; i < _subjects.length; i++) {
+      _subHeaders.add(
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(),
+            color: Colors.blue,
+          ),
+          height: 80,
+          width: 88,
+          padding: const EdgeInsets.all(4),
+          child: const Center(child: Text(("External"))),
+        ),
+      );
+      for (StudentInternalExamMarksDetailsBean x in (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!)) {
+        _subHeaders.add(
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(),
+              color: Colors.blue,
+            ),
+            height: 80,
+            width: 88,
+            padding: const EdgeInsets.all(4),
+            child: Center(child: Text((x.internalNumber == null ? "-" : "Internal ${x.internalNumber}").capitalize())),
+          ),
+        );
+      }
+    }
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(),
+              color: Colors.blue,
+            ),
+            height: 80,
+            width: 250,
+            padding: const EdgeInsets.all(4),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: SingleChildScrollView(
+            controller: _subHeader,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: _subHeaders,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _studentWiseMarksWidget() {
+    return Row(
+      children: [
+        Expanded(
+          child: ListView(
+            shrinkWrap: true,
+            controller: _studentsController,
+            children: <Widget>[
+              for (int j = 0; j < _students.length; j++)
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    color: Colors.blue,
+                  ),
+                  height: 80,
+                  width: 250,
+                  padding: const EdgeInsets.all(4),
+                  child: Center(child: Text((_students[j].rollNumber ?? "-") + (". ") + (_students[j].studentFirstName ?? "-").capitalize())),
+                )
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: ListView(
+            shrinkWrap: true,
+            controller: _marksController,
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [for (int i = 0; i < _students.length; i++) i].map((i) {
+                  return SingleChildScrollView(
+                    controller: _scrollControllers[i],
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (int j = 0; j < _subjects.length; j++)
+                          Container(
+                            height: 80,
+                            width: (88) * ((_marksGrid[i][j].studentInternalExamMarksDetailsBeanList ?? []).length + 1),
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              border: Border.all(),
+                              color: Colors.orange,
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                // _onPointerDown(j,i);
+                                _makeCellEditable(currentCellIndexX, currentCellIndexY, i, j);
+                              },
+                              child: Center(
+                                child: EachMarksCell(
+                                  section: widget.section,
+                                  adminProfile: widget.adminProfile,
+                                  examBean: widget.examBean,
+                                  marksBean: _marksGrid[i][j],
+                                  isEditMode: _isEditMode,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _makeCellEditable(int oldIndexX, int oldIndexY, int newIndexX, int newIndexY) {
+    setState(() {
+      _marksGrid[oldIndexX][oldIndexY].isMarksEditable = false;
+      _marksGrid[newIndexX][newIndexY].isMarksEditable = true;
+      currentCellIndexX = newIndexX;
+      currentCellIndexY = newIndexY;
+    });
+  }
+}
+
+//ignore: must_be_immutable
+class EachMarksCell extends StatefulWidget {
+  EachMarksCell({
+    Key? key,
+    required this.adminProfile,
+    required this.examBean,
+    required this.section,
+    required this.marksBean,
+    required this.isEditMode,
+  }) : super(key: key);
+
+  final AdminProfile adminProfile;
+  final AdminExamBean examBean;
+  final Section section;
+  final bool isEditMode;
+  StudentExamMarksDetailsBean marksBean;
+
+  @override
+  _EachMarksCellState createState() => _EachMarksCellState();
+}
+
+class _EachMarksCellState extends State<EachMarksCell> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        widget.marksBean.marksEditingController.selection =
+            TextSelection(baseOffset: 0, extentOffset: widget.marksBean.marksEditingController.text.length);
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 80,
+      width: 80 * ((widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).length + 1),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 80,
+            width: 78,
+            child: Center(
+              child: widget.isEditMode && widget.marksBean.isMarksEditable
+                  ? TextField(
+                      focusNode: _focusNode,
+                      autofocus: true,
+                      keyboardType: TextInputType.text,
+                      controller: widget.marksBean.marksEditingController,
+                      onChanged: (String e) {
+                        setState(() {
+                          if (e == "A") {
+                            widget.marksBean.marksObtained = -2;
+                          } else if (e == "-") {
+                            widget.marksBean.marksObtained = -1;
+                          } else {
+                            widget.marksBean.marksObtained = int.tryParse(e) ?? 0;
+                          }
+                        });
+                      },
+                      inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
+                      textAlign: TextAlign.center,
+                    )
+                  : Text(
+                      "${(widget.marksBean.marksObtained ?? -1) == -1 ? "-" : widget.marksBean.marksObtained == -2 ? "A" : widget.marksBean.marksObtained}"),
+            ),
+          ),
+          for (StudentInternalExamMarksDetailsBean eachInternal
+              in (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!))
+            SizedBox(
+              height: 80,
+              width: 80,
+              child: Center(
+                child: Text(
+                    "${(eachInternal.internalsMarksObtained ?? -1) == -1 ? "-" : eachInternal.internalsMarksObtained == -2 ? "A" : eachInternal.internalsMarksObtained}"),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

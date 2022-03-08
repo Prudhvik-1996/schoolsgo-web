@@ -76,3 +76,5 @@ const String GET_MARKING_ALGORITHMS = "/exams/getMarkingAlgorithms";
 const String GET_ADMIN_EXAMS = "/exams/getAdminExamDetails";
 const String CREATE_OR_UPDATE_ADMIN_EXAMS = "/exams/createOrUpdateExam";
 const String CREATE_OR_UPDATE_MARKING_ALGORITHM = "/exams/createOrUpdateMarkingAlgorithm";
+const String GET_STUDENT_EXAM_MARKS = "/exams/getStudentExamMarksDetails";
+const String CREATE_OR_UPDATE_EXAM_MARKS = "/exams/createOrUpdateStudentExamMarks";
