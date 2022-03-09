@@ -1632,13 +1632,10 @@ class StudentExamMarksDetailsBean {
   void _adjustTextController() {
     if (marksObtained == null || marksObtained == -1) {
       marksEditingController.text = "";
-      print("1631 :: ${marksEditingController.text}");
     } else if (marksObtained == -2) {
       marksEditingController.text = "A";
-      print("1634 :: ${marksEditingController.text}");
     } else {
       marksEditingController.text = "${marksObtained ?? ""}";
-      print("1637 :: ${marksEditingController.text}");
     }
   }
 

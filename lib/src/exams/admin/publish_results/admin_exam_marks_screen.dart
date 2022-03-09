@@ -62,6 +62,13 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   late ExamSectionMapBean _examSectionMapBean;
   bool _isEditMode = false;
 
+  static const double _studentColumnWidth = 200;
+  static const double _studentColumnHeight = 60;
+  static const double _cellColumnWidth = 88;
+  static const double _cellColumnHeight = 60;
+  static final Color _headerColor = Colors.blue.shade300;
+  static const double _cellPadding = 4.0;
+
   @override
   void initState() {
     super.initState();
@@ -159,7 +166,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     _scrollToTableWithWaitTime();
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Publish Results"),
+          title: Text((widget.examBean.examName ?? "-").capitalize()),
         ),
         drawer: AdminAppDrawer(
           adminProfile: widget.adminProfile,
@@ -510,14 +517,18 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
         Expanded(
           child: InkWell(
             onTap: _scrollToTable,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(),
-                color: Colors.blue,
+            child: Padding(
+              padding: const EdgeInsets.all(_cellPadding),
+              child: ClayContainer(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: _headerColor,
+                spread: 2,
+                borderRadius: 10,
+                height: _studentColumnHeight,
+                width: _studentColumnWidth,
+                child: Center(child: Text(widget.section.sectionName ?? "-")),
               ),
-              height: 80,
-              width: 250,
-              padding: const EdgeInsets.all(4),
             ),
           ),
         ),
@@ -529,15 +540,19 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             child: Row(
               children: [
                 for (int i = 0; i < _subjects.length; i++)
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      color: Colors.blue,
+                  Padding(
+                    padding: const EdgeInsets.all(_cellPadding),
+                    child: ClayContainer(
+                      depth: 40,
+                      parentColor: clayContainerColor(context),
+                      surfaceColor: _headerColor,
+                      spread: 2,
+                      borderRadius: 10,
+                      height: _cellColumnHeight,
+                      width: (_cellColumnWidth * ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length + 1)) +
+                          (2 * (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length),
+                      child: Center(child: Text((_subjects[i].subjectName ?? "-").capitalize())),
                     ),
-                    height: 80,
-                    width: 88 * ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length + 1),
-                    padding: const EdgeInsets.all(4),
-                    child: Center(child: Text((_subjects[i].subjectName ?? "-").capitalize())),
                   )
               ],
             ),
@@ -550,44 +565,53 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   Widget _subHeaderWidget() {
     List<Widget> _subHeaders = [];
     for (int i = 0; i < _subjects.length; i++) {
-      _subHeaders.add(
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(),
-            color: Colors.blue,
-          ),
-          height: 80,
-          width: 88,
-          padding: const EdgeInsets.all(4),
-          child: const Center(child: Text(("External"))),
-        ),
-      );
       for (StudentInternalExamMarksDetailsBean x in (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!)) {
         _subHeaders.add(
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(),
-              color: Colors.blue,
+          Padding(
+            padding: const EdgeInsets.all(_cellPadding),
+            child: ClayContainer(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: _headerColor,
+              spread: 2,
+              borderRadius: 10,
+              height: _cellColumnHeight,
+              width: _cellColumnWidth - _cellPadding,
+              child: Center(child: Text((x.internalNumber == null ? "-" : "Internal ${x.internalNumber}").capitalize())),
             ),
-            height: 80,
-            width: 88,
-            padding: const EdgeInsets.all(4),
-            child: Center(child: Text((x.internalNumber == null ? "-" : "Internal ${x.internalNumber}").capitalize())),
           ),
         );
       }
+      _subHeaders.add(
+        Padding(
+          padding: const EdgeInsets.all(_cellPadding),
+          child: ClayContainer(
+            depth: 40,
+            parentColor: clayContainerColor(context),
+            surfaceColor: _headerColor,
+            spread: 2,
+            borderRadius: 10,
+            height: _cellColumnHeight,
+            width: _cellColumnWidth - _cellPadding,
+            child: const Center(child: Text(("External"))),
+          ),
+        ),
+      );
     }
     return Row(
       children: [
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(),
-              color: Colors.blue,
+          child: Padding(
+            padding: const EdgeInsets.all(_cellPadding),
+            child: ClayContainer(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: _headerColor,
+              spread: 2,
+              borderRadius: 10,
+              height: _studentColumnHeight,
+              width: _studentColumnWidth,
             ),
-            height: 80,
-            width: 250,
-            padding: const EdgeInsets.all(4),
           ),
         ),
         Expanded(
@@ -596,6 +620,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             controller: _subHeader,
             scrollDirection: Axis.horizontal,
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: _subHeaders,
             ),
           ),
@@ -613,15 +638,18 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             controller: _studentsController,
             children: <Widget>[
               for (int j = 0; j < _students.length; j++)
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: Colors.blue,
+                Padding(
+                  padding: const EdgeInsets.all(_cellPadding),
+                  child: ClayContainer(
+                    depth: 40,
+                    surfaceColor: _headerColor,
+                    parentColor: clayContainerColor(context),
+                    spread: 2,
+                    borderRadius: 10,
+                    height: _studentColumnHeight,
+                    width: _studentColumnWidth,
+                    child: Center(child: Text((_students[j].rollNumber ?? "-") + (". ") + (_students[j].studentFirstName ?? "-").capitalize())),
                   ),
-                  height: 80,
-                  width: 250,
-                  padding: const EdgeInsets.all(4),
-                  child: Center(child: Text((_students[j].rollNumber ?? "-") + (". ") + (_students[j].studentFirstName ?? "-").capitalize())),
                 )
             ],
           ),
@@ -642,28 +670,17 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                     child: Row(
                       children: [
                         for (int j = 0; j < _subjects.length; j++)
-                          Container(
-                            height: 80,
-                            width: (88) * ((_marksGrid[i][j].studentInternalExamMarksDetailsBeanList ?? []).length + 1),
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              border: Border.all(),
-                              color: Colors.orange,
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                // _onPointerDown(j,i);
-                                _makeCellEditable(currentCellIndexX, currentCellIndexY, i, j);
-                              },
-                              child: Center(
-                                child: EachMarksCell(
-                                  section: widget.section,
-                                  adminProfile: widget.adminProfile,
-                                  examBean: widget.examBean,
-                                  marksBean: _marksGrid[i][j],
-                                  isEditMode: _isEditMode,
-                                ),
-                              ),
+                          GestureDetector(
+                            onTap: () {
+                              // _onPointerDown(j,i);
+                              _makeCellEditable(currentCellIndexX, currentCellIndexY, i, j);
+                            },
+                            child: EachMarksCell(
+                              section: widget.section,
+                              adminProfile: widget.adminProfile,
+                              examBean: widget.examBean,
+                              marksBean: _marksGrid[i][j],
+                              isEditMode: _isEditMode,
                             ),
                           ),
                       ],
@@ -712,6 +729,10 @@ class EachMarksCell extends StatefulWidget {
 class _EachMarksCellState extends State<EachMarksCell> {
   late FocusNode _focusNode;
 
+  static const double _cellHeight = 60;
+  static const double _width = 80;
+  static const double _cellPadding = 4.0;
+
   @override
   void initState() {
     _focusNode = FocusNode();
@@ -731,52 +752,80 @@ class _EachMarksCellState extends State<EachMarksCell> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 80,
-      width: 80 * ((widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).length + 1),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 80,
-            width: 78,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(_cellPadding),
+          child: ClayContainer(
+            depth: 40,
+            surfaceColor: clayContainerColor(context),
+            parentColor: clayContainerColor(context),
+            spread: 2,
+            borderRadius: 10,
+            height: _cellHeight,
+            width: (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).isEmpty
+                ? _width + (2 * _cellPadding)
+                : _width + (_cellPadding),
             child: Center(
               child: widget.isEditMode && widget.marksBean.isMarksEditable
-                  ? TextField(
-                      focusNode: _focusNode,
-                      autofocus: true,
-                      keyboardType: TextInputType.text,
-                      controller: widget.marksBean.marksEditingController,
-                      onChanged: (String e) {
-                        setState(() {
-                          if (e == "A") {
-                            widget.marksBean.marksObtained = -2;
-                          } else if (e == "-") {
-                            widget.marksBean.marksObtained = -1;
-                          } else {
-                            widget.marksBean.marksObtained = int.tryParse(e) ?? 0;
-                          }
-                        });
-                      },
-                      inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
-                      textAlign: TextAlign.center,
+                  ? InputDecorator(
+                      isFocused: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        focusColor: Colors.blue,
+                      ),
+                      child: TextField(
+                        focusNode: _focusNode,
+                        autofocus: true,
+                        keyboardType: TextInputType.text,
+                        controller: widget.marksBean.marksEditingController,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (String e) {
+                          setState(() {
+                            if (e == "A") {
+                              widget.marksBean.marksObtained = -2;
+                            } else if (e == "-") {
+                              widget.marksBean.marksObtained = -1;
+                            } else {
+                              widget.marksBean.marksObtained = int.tryParse(e) ?? 0;
+                            }
+                          });
+                        },
+                        inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
+                        textAlign: TextAlign.center,
+                      ),
                     )
                   : Text(
                       "${(widget.marksBean.marksObtained ?? -1) == -1 ? "-" : widget.marksBean.marksObtained == -2 ? "A" : widget.marksBean.marksObtained}"),
             ),
           ),
-          for (StudentInternalExamMarksDetailsBean eachInternal
-              in (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!))
-            SizedBox(
-              height: 80,
-              width: 80,
+        ),
+        for (StudentInternalExamMarksDetailsBean eachInternal
+            in (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!))
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: ClayContainer(
+              depth: 40,
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 10,
+              height: _cellHeight,
+              width: (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).isEmpty
+                  ? _width + (2 * _cellPadding)
+                  : _width + (_cellPadding),
               child: Center(
                 child: Text(
                     "${(eachInternal.internalsMarksObtained ?? -1) == -1 ? "-" : eachInternal.internalsMarksObtained == -2 ? "A" : eachInternal.internalsMarksObtained}"),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }
