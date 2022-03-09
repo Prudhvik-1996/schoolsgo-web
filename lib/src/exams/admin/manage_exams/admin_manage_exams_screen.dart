@@ -47,6 +47,8 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
 
   List<AdminExamBean> _internalsForNewExam = [];
   InternalsComputationCode _internalsComputationCodeForNewExam = InternalsComputationCode.A;
+  double? _internalsWeightage;
+  final TextEditingController _internalsWeightageEditingController = TextEditingController();
 
   List<MarkingAlgorithmBean> _markingAlgorithms = [];
   MarkingAlgorithmBean? _selectedMarkingAlgorithm;
@@ -568,6 +570,44 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
     );
   }
 
+  Widget _inputInternalsWeightageForExamTds(ExamTdsMapBean examTdsMapBean) {
+    return Container(
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: InputDecorator(
+          isFocused: true,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            labelText: "Internals weightage",
+            focusColor: Colors.blue,
+          ),
+          child: TextField(
+            autofocus: true,
+            keyboardType: TextInputType.text,
+            controller: examTdsMapBean.internalsWeightageEditingController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+            ),
+            onChanged: (String e) {
+              setState(() {
+                examTdsMapBean.internalsWeightage = double.tryParse(e);
+              });
+            },
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.allow(RegExp(r'(^\d*\.?\d*)')),
+            ],
+            textAlign: TextAlign.center,
+          ),
+        ),),
+    );
+  }
+
   Widget _buildEachInternalTdsMapBeanWidget(InternalExamTdsMapBean eachInternalTdsMapBean) {
     return Container(
       margin: const EdgeInsets.all(15),
@@ -643,7 +683,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                   _sectionPicker(),
                   _pickExamStartDate(),
                   _createExamsTimeTable(),
-                  ..._addInternals(),
+                  _addInternals(),
                   if (_internalsForNewExam.length > 1) _internalsComputationCode(),
                   _markingAlgorithmsAndScheme(),
                 ],
@@ -1015,7 +1055,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
               const SizedBox(
                 height: 15,
               ),
-              ..._addInternalsForTds(examTdsMapBean),
+              _addInternalsForTds(examTdsMapBean),
             ],
           ),
         ),
@@ -1023,7 +1063,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
     );
   }
 
-  List<Widget> _addInternalsForTds(ExamTdsMapBean examTdsMapBean) {
+  Widget _addInternalsForTds(ExamTdsMapBean examTdsMapBean) {
     List<Widget> _widgets = [];
     for (InternalExamTdsMapBean eachInternalExamTdsMapBean in (examTdsMapBean.internalExamTdsMapBeanList ?? []).where((e) => e != null).map((
         e) => e!)) {
@@ -1146,7 +1186,25 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
           ),
         )
     );
-    return _widgets;
+    return
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            flex: 2,
+            child: ListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: _widgets,
+            ),
+          ),
+          if (_widgets.length > 2)
+            Expanded(
+              flex: 1,
+              child: _inputInternalsWeightageForExamTds(examTdsMapBean),
+            )
+        ],
+      );
   }
 
   Widget _slotDatePickerForTds(ExamTdsMapBean examTdsMapBean) {
@@ -1664,7 +1722,15 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
         if (_timeTableList.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Please fill in the exm time slots to proceed.."),
+              content: Text("Please fill in the exam time slots to proceed.."),
+            ),
+          );
+          return;
+        }
+        if (_internalsForNewExam.length > 1 && _internalsWeightage == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Please fill in internalsWeightage to proceed.."),
             ),
           );
           return;
@@ -1712,6 +1778,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                               teacherId: tds.teacherId,
                               teacherName: tds.teacherName,
                               status: "active",
+                              internalsWeightage: _internalsWeightage,
                               internalExamTdsMapBeanList: _internalsForNewExam
                                   .map((AdminExamBean eachAdminExamBean) =>
                                   _exams
@@ -1744,7 +1811,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
                                         subjectName: eachInternalTdsMapBean.subjectName,
                                         sectionId: eachInternalTdsMapBean.sectionId,
                                         sectionName: eachInternalTdsMapBean.sectionName,
-                                        examName: _examNameEditingController.text,
+                                        examName: eachAdminExamBean.examName,
                                         maxMarks: eachInternalTdsMapBean.maxMarks,
                                         examId: null,
                                         internalExamName: eachInternalTdsMapBean.examName,
@@ -2110,8 +2177,60 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
     );
   }
 
-  List<Widget> _addInternals() {
-    return _internalsForNewExam.map((e) => _internalsRow(e)).toList() + [_newInternalsRow(null)];
+  Widget _addInternals() {
+    return Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: _internalsForNewExam.map((e) => _internalsRow(e)).toList()
+                  + [_newInternalsRow(null)],
+            ),
+          ),
+          if (_internalsForNewExam.length > 1)
+            Expanded(
+              child: _inputInternalsWeightage(),
+            ),
+        ]
+    );
+  }
+
+  Widget _inputInternalsWeightage() {
+    return Container(
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: InputDecorator(
+          isFocused: true,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            labelText: "Internals weightage",
+            focusColor: Colors.blue,
+          ),
+          child: TextField(
+            autofocus: true,
+            keyboardType: TextInputType.text,
+            controller: _internalsWeightageEditingController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+            ),
+            onChanged: (String e) {
+              setState(() {
+                _internalsWeightage = double.tryParse(e);
+              });
+            },
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.allow(RegExp(r'(^\d*\.?\d*)')),
+            ],
+            textAlign: TextAlign.center,
+          ),
+        ),),
+    );
   }
 
   Widget _newInternalsRow(AdminExamBean? exam) {

@@ -222,6 +222,7 @@ class ExamTdsMapBean {
   int? examTdsMapId;
   List<InternalExamTdsMapBean?>? internalExamTdsMapBeanList;
   String? internalsComputationCode;
+  double? internalsWeightage;
   int? maxMarks;
   int? sectionId;
   String? sectionName;
@@ -235,6 +236,7 @@ class ExamTdsMapBean {
   Map<String, dynamic> __origJson = {};
 
   TextEditingController maxMarksEditingController = TextEditingController();
+  TextEditingController internalsWeightageEditingController = TextEditingController();
   bool isExpanded = false;
 
   ExamTdsMapBean({
@@ -245,6 +247,7 @@ class ExamTdsMapBean {
     this.examTdsMapId,
     this.internalExamTdsMapBeanList,
     this.internalsComputationCode,
+    this.internalsWeightage,
     this.maxMarks,
     this.sectionId,
     this.sectionName,
@@ -257,6 +260,7 @@ class ExamTdsMapBean {
     this.teacherName,
   }) {
     maxMarksEditingController.text = "${maxMarks ?? ""}";
+    internalsWeightageEditingController.text = "${internalsWeightage ?? ""}";
   }
 
   ExamTdsMapBean.fromJson(Map<String, dynamic> json) {
@@ -275,6 +279,8 @@ class ExamTdsMapBean {
       internalExamTdsMapBeanList = arr0;
     }
     internalsComputationCode = json['internalsComputationCode']?.toString();
+    internalsWeightage = json['internalsWeightage']?.toDouble();
+    internalsWeightageEditingController.text = "${internalsWeightage ?? ""}";
     maxMarks = json['maxMarks']?.toInt();
     maxMarksEditingController.text = "${maxMarks ?? ""}";
     sectionId = json['sectionId']?.toInt();
@@ -304,6 +310,7 @@ class ExamTdsMapBean {
       data['internalExamTdsMapBeanList'] = arr0;
     }
     data['internalsComputationCode'] = internalsComputationCode;
+    data['internalsWeightage'] = internalsWeightage;
     data['maxMarks'] = maxMarks;
     data['sectionId'] = sectionId;
     data['sectionName'] = sectionName;
@@ -1608,6 +1615,7 @@ class StudentExamMarksDetailsBean {
   int? examTdsMapId;
   String? examType;
   String? internalsComputationCode;
+  double? internalsWeightage;
   int? marksObtained;
   int? maxMarks;
   String? rollNumber;
@@ -1642,6 +1650,7 @@ class StudentExamMarksDetailsBean {
     this.examTdsMapId,
     this.examType,
     this.internalsComputationCode,
+    this.internalsWeightage,
     this.marksObtained,
     this.maxMarks,
     this.rollNumber,
@@ -1680,6 +1689,7 @@ class StudentExamMarksDetailsBean {
     examTdsMapId = json['examTdsMapId']?.toInt();
     examType = json['examType']?.toString();
     internalsComputationCode = json['internalsComputationCode']?.toString();
+    internalsWeightage = json['internalsWeightage']?.toDouble();
     marksObtained = json['marksObtained']?.toInt();
     _adjustTextController();
     maxMarks = json['maxMarks']?.toInt();
@@ -1714,6 +1724,7 @@ class StudentExamMarksDetailsBean {
     data['examTdsMapId'] = examTdsMapId;
     data['examType'] = examType;
     data['internalsComputationCode'] = internalsComputationCode;
+    data['internalsWeightage'] = internalsWeightage;
     data['marksObtained'] = marksObtained;
     data['maxMarks'] = maxMarks;
     data['rollNumber'] = rollNumber;
