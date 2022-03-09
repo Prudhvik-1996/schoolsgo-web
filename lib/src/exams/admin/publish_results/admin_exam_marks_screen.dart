@@ -36,9 +36,6 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   List<Subject> _subjects = [];
   List<StudentProfile> _students = [];
 
-  // List<List<StudentMarks>> _marksData = [];
-  // List<List<DataCell>> _cells = [];
-
   final List<List<StudentExamMarksDetailsBean>> _marksGrid = [];
   int currentCellIndexX = 0;
   int currentCellIndexY = 0;
@@ -56,11 +53,12 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   late ScrollController _header;
   late ScrollController _subHeader;
   late LinkedScrollControllerGroup _marksControllers;
-  List<ScrollController> _scrollControllers = [];
+  final List<ScrollController> _scrollControllers = [];
   ScrollController sliverScrollController = ScrollController();
 
   late ExamSectionMapBean _examSectionMapBean;
   bool _isEditMode = false;
+  bool _showInternals = false;
 
   static const double _studentColumnWidth = 200;
   static const double _studentColumnHeight = 60;
@@ -68,6 +66,8 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   static const double _cellColumnHeight = 60;
   static final Color _headerColor = Colors.blue.shade300;
   static const double _cellPadding = 4.0;
+  final int _lshFlex = 1;
+  int _rhsFlex = 3;
 
   @override
   void initState() {
@@ -163,6 +163,9 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    setState(() {
+      _rhsFlex = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 2;
+    });
     _scrollToTableWithWaitTime();
     return Scaffold(
         appBar: AppBar(
@@ -177,7 +180,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
               )
             : RawKeyboardListener(
                 onKey: (RawKeyEvent event) {
-                  print("135: $event");
+                  if (!_isEditMode) return;
                   setState(() {
                     if ((event.isKeyPressed(LogicalKeyboardKey.tab) || event.isKeyPressed(LogicalKeyboardKey.arrowRight)) &&
                         currentCellIndexY <= _marksGrid[currentCellIndexX].length - 2) {
@@ -386,18 +389,22 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
               children: [
                 Expanded(
                   flex: MediaQuery.of(context).orientation == Orientation.landscape ? 2 : 1,
-                  child: Container(
-                    margin: const EdgeInsets.all(25),
-                    child: Center(
-                      child: Text(
-                        (widget.section.sectionName ?? "-").capitalize(),
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Text(
+                          (widget.section.sectionName ?? "-").capitalize(),
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
                         ),
                       ),
-                    ),
+                      _showMoreOptions(),
+                    ],
                   ),
                 ),
                 Expanded(
@@ -413,6 +420,66 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
         ),
       ),
     );
+  }
+
+  Widget _showMoreOptions() {
+    return Container(
+      margin: const EdgeInsets.all(10),
+      child: ClayContainer(
+        depth: 40,
+        parentColor: clayContainerColor(context),
+        surfaceColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        emboss: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _showInternalsButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _showInternalsButton() {
+    return ((_examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => e.internalExamTdsMapBeanList ?? [])).expand((i) => i).isEmpty
+        ? Container()
+        : Container(
+            margin: const EdgeInsets.all(10),
+            child: ClayContainer(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 10,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    const Center(child: Text("Show Internals")),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Switch(
+                      onChanged: (bool newValue) {
+                        setState(() {
+                          _showInternals = newValue;
+                        });
+                      },
+                      value: _showInternals,
+                      autofocus: false,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                  ],
+                )),
+          );
   }
 
   Widget _buildMarkingSchemeWidgetForSectionWiseTdsMapBean(ExamSectionMapBean eachSectionWiseTdsMapBean) {
@@ -498,16 +565,23 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   }
 
   Widget _marksTableWidget() {
-    return Column(
-      // shrinkWrap: true,
-      // physics: const NeverScrollableScrollPhysics(),
-      children: [
-        _headerWidget(),
-        ((_examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => e.internalExamTdsMapBeanList ?? [])).expand((i) => i).isEmpty
-            ? Container()
-            : _subHeaderWidget(),
-        Expanded(child: _studentWiseMarksWidget()),
-      ],
+    return AnimatedSize(
+      curve: Curves.fastOutSlowIn,
+      duration: const Duration(milliseconds: 750),
+      child: !_isEditMode && _showInternals
+          ? Column(
+              children: [
+                _headerWidget(),
+                _subHeaderWidget(),
+                Expanded(child: _studentWiseMarksWidget()),
+              ],
+            )
+          : Column(
+              children: [
+                _headerWidget(),
+                Expanded(child: _studentWiseMarksWidget()),
+              ],
+            ),
     );
   }
 
@@ -515,6 +589,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     return Row(
       children: [
         Expanded(
+          flex: _lshFlex,
           child: InkWell(
             onTap: _scrollToTable,
             child: Padding(
@@ -533,7 +608,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: _rhsFlex,
           child: SingleChildScrollView(
             controller: _header,
             scrollDirection: Axis.horizontal,
@@ -549,9 +624,44 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                       spread: 2,
                       borderRadius: 10,
                       height: _cellColumnHeight,
-                      width: (_cellColumnWidth * ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length + 1)) +
-                          (2 * (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length),
-                      child: Center(child: Text((_subjects[i].subjectName ?? "-").capitalize())),
+                      width: !_isEditMode && _showInternals
+                          ? (_cellColumnWidth * ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length + 1)) +
+                              (2 * (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).length)
+                          : (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).isEmpty
+                              ? _cellColumnWidth
+                              : _cellColumnWidth - _cellPadding,
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Text(
+                              ((_subjects[i].subjectName ?? "-").capitalize()),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          (!_isEditMode && _showInternals ||
+                                  ((_examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => e.internalExamTdsMapBeanList ?? []))
+                                      .expand((i) => i)
+                                      .isNotEmpty)
+                              ? Container()
+                              : Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Container(
+                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        "Max marks: ${_marksGrid[0][i].maxMarks}",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: clayContainerTextColor(context),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
                     ),
                   )
               ],
@@ -563,21 +673,53 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   }
 
   Widget _subHeaderWidget() {
+    if (((_examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => e.internalExamTdsMapBeanList ?? [])).expand((i) => i).isEmpty) {
+      return Container();
+    }
     List<Widget> _subHeaders = [];
     for (int i = 0; i < _subjects.length; i++) {
-      for (StudentInternalExamMarksDetailsBean x in (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!)) {
+      for (StudentInternalExamMarksDetailsBean eachInternalExamBean
+          in (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!)) {
         _subHeaders.add(
           Padding(
             padding: const EdgeInsets.all(_cellPadding),
-            child: ClayContainer(
-              depth: 40,
-              parentColor: clayContainerColor(context),
-              surfaceColor: _headerColor,
-              spread: 2,
-              borderRadius: 10,
-              height: _cellColumnHeight,
-              width: _cellColumnWidth - _cellPadding,
-              child: Center(child: Text((x.internalNumber == null ? "-" : "Internal ${x.internalNumber}").capitalize())),
+            child: Tooltip(
+              message: eachInternalExamBean.internalExamName ?? "-",
+              child: ClayContainer(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: _headerColor,
+                spread: 2,
+                borderRadius: 10,
+                height: _cellColumnHeight,
+                width: _cellColumnWidth - _cellPadding,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                        (eachInternalExamBean.internalNumber == null ? "-" : "Internal ${eachInternalExamBean.internalNumber}").capitalize(),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            "Max marks: ${eachInternalExamBean.internalsMaxMarks}",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: clayContainerTextColor(context),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         );
@@ -593,7 +735,32 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             borderRadius: 10,
             height: _cellColumnHeight,
             width: _cellColumnWidth - _cellPadding,
-            child: const Center(child: Text(("External"))),
+            child: Stack(
+              children: [
+                const Center(
+                  child: Text(
+                    ("External"),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Max marks: ${_marksGrid[0][i].maxMarks}",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: clayContainerTextColor(context),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -601,6 +768,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     return Row(
       children: [
         Expanded(
+          flex: _lshFlex,
           child: Padding(
             padding: const EdgeInsets.all(_cellPadding),
             child: ClayContainer(
@@ -611,11 +779,12 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
               borderRadius: 10,
               height: _studentColumnHeight,
               width: _studentColumnWidth,
+              child: const Center(child: Text("Student Name")),
             ),
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: _rhsFlex,
           child: SingleChildScrollView(
             controller: _subHeader,
             scrollDirection: Axis.horizontal,
@@ -633,6 +802,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     return Row(
       children: [
         Expanded(
+          flex: _lshFlex,
           child: ListView(
             shrinkWrap: true,
             controller: _studentsController,
@@ -655,7 +825,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
           ),
         ),
         Expanded(
-          flex: 3,
+          flex: _rhsFlex,
           child: ListView(
             shrinkWrap: true,
             controller: _marksController,
@@ -681,6 +851,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                               examBean: widget.examBean,
                               marksBean: _marksGrid[i][j],
                               isEditMode: _isEditMode,
+                              showInternals: !_isEditMode && _showInternals,
                             ),
                           ),
                       ],
@@ -714,6 +885,7 @@ class EachMarksCell extends StatefulWidget {
     required this.section,
     required this.marksBean,
     required this.isEditMode,
+    required this.showInternals,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
@@ -721,6 +893,7 @@ class EachMarksCell extends StatefulWidget {
   final Section section;
   final bool isEditMode;
   StudentExamMarksDetailsBean marksBean;
+  final bool showInternals;
 
   @override
   _EachMarksCellState createState() => _EachMarksCellState();
@@ -755,6 +928,27 @@ class _EachMarksCellState extends State<EachMarksCell> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        for (StudentInternalExamMarksDetailsBean eachInternal
+            in (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!))
+          if (widget.showInternals)
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: ClayContainer(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 10,
+                height: _cellHeight,
+                width: (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).isEmpty
+                    ? _width + (2 * _cellPadding)
+                    : _width + (_cellPadding),
+                child: Center(
+                  child: Text(
+                      "${(eachInternal.internalsMarksObtained ?? -1) == -1 ? "-" : eachInternal.internalsMarksObtained == -2 ? "A" : eachInternal.internalsMarksObtained}"),
+                ),
+              ),
+            ),
         Padding(
           padding: const EdgeInsets.all(_cellPadding),
           child: ClayContainer(
@@ -805,26 +999,6 @@ class _EachMarksCellState extends State<EachMarksCell> {
             ),
           ),
         ),
-        for (StudentInternalExamMarksDetailsBean eachInternal
-            in (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!))
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: ClayContainer(
-              depth: 40,
-              surfaceColor: clayContainerColor(context),
-              parentColor: clayContainerColor(context),
-              spread: 2,
-              borderRadius: 10,
-              height: _cellHeight,
-              width: (widget.marksBean.studentInternalExamMarksDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).isEmpty
-                  ? _width + (2 * _cellPadding)
-                  : _width + (_cellPadding),
-              child: Center(
-                child: Text(
-                    "${(eachInternal.internalsMarksObtained ?? -1) == -1 ? "-" : eachInternal.internalsMarksObtained == -2 ? "A" : eachInternal.internalsMarksObtained}"),
-              ),
-            ),
-          ),
       ],
     );
   }
