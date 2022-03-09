@@ -33,6 +33,8 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   bool _isLoading = true;
   List<StudentExamMarksDetailsBean> _studentExamMarksDetailsList = [];
 
+  MarkingAlgorithmBean? _markingAlgorithm;
+
   List<Subject> _subjects = [];
   List<StudentProfile> _students = [];
 
@@ -59,6 +61,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   late ExamSectionMapBean _examSectionMapBean;
   bool _isEditMode = false;
   bool _showInternals = false;
+  bool _showPreview = false;
 
   static const double _studentColumnWidth = 200;
   static const double _studentColumnHeight = 60;
@@ -66,7 +69,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   static const double _cellColumnHeight = 60;
   static final Color _headerColor = Colors.blue.shade300;
   static const double _cellPadding = 4.0;
-  final int _lshFlex = 1;
+  final int _lhsFlex = 1;
   int _rhsFlex = 3;
 
   @override
@@ -111,6 +114,36 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
       _isEditMode = false;
     });
 
+    int? _markingAlgorithmId =
+        (widget.examBean.examSectionMapBeanList ?? []).map((e) => e!).where((e) => e.sectionId == widget.section.sectionId!).first.markingAlgorithmId;
+    if (_markingAlgorithmId != null) {
+      GetMarkingAlgorithmsResponse getMarkingAlgorithmsResponse = await getMarkingAlgorithms(
+        GetMarkingAlgorithmsRequest(
+          schoolId: widget.adminProfile.schoolId,
+          markingAlgorithmId: _markingAlgorithmId,
+        ),
+      );
+      if (getMarkingAlgorithmsResponse.httpStatus == "OK" && getMarkingAlgorithmsResponse.responseStatus == "success") {
+        try {
+          setState(() {
+            _markingAlgorithm = getMarkingAlgorithmsResponse.markingAlgorithmBeanList!.map((e) => e!).toList().first;
+          });
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Something went wrong! Try again later.."),
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      }
+    }
+
     GetStudentExamMarksDetailsResponse getStudentExamMarksDetailsResponse = await getStudentExamMarksDetails(GetStudentExamMarksDetailsRequest(
       schoolId: widget.adminProfile.schoolId,
       examId: widget.examBean.examId,
@@ -136,6 +169,9 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
           for (int j = 0; j < _subjects.length; j++) {
             StudentExamMarksDetailsBean y =
                 _studentExamMarksDetailsList.where((e) => e.studentId == _students[i].studentId && e.subjectId == _subjects[j].subjectId).first;
+            if (_markingAlgorithm != null) {
+              y.computeGrades(_markingAlgorithm!);
+            }
             x.add(y);
           }
           _marksGrid.add(x);
@@ -235,31 +271,31 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
         floatingActionButton: _isLoading ? null : _changeEditModeButton());
   }
 
-  Future<void> _saveChanges() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(widget.examBean.examName ?? "-"),
-          content: const Text("Are you sure to save changes?"),
-          actions: <Widget>[
-            TextButton(
-                child: const Text("Yes"),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await _submitChanges();
-                }),
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // Future<void> _saveChanges() async {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(widget.examBean.examName ?? "-"),
+  //         content: const Text("Are you sure to save changes?"),
+  //         actions: <Widget>[
+  //           TextButton(
+  //               child: const Text("Yes"),
+  //               onPressed: () async {
+  //                 Navigator.of(context).pop();
+  //                 await _submitChanges();
+  //               }),
+  //           TextButton(
+  //             child: const Text("Cancel"),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> _submitChanges() async {
     setState(() {
@@ -436,6 +472,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _showInternalsButton(),
+            _showPreviewButton(),
           ],
         ),
       ),
@@ -480,6 +517,44 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                   ],
                 )),
           );
+  }
+
+  Widget _showPreviewButton() {
+    return Container(
+      margin: const EdgeInsets.all(10),
+      child: ClayContainer(
+          depth: 40,
+          parentColor: clayContainerColor(context),
+          surfaceColor: clayContainerColor(context),
+          spread: 2,
+          borderRadius: 10,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                width: 5,
+              ),
+              const Center(child: Text("Show Preview")),
+              const SizedBox(
+                width: 5,
+              ),
+              Switch(
+                onChanged: (bool newValue) {
+                  setState(() {
+                    _showPreview = newValue;
+                  });
+                },
+                value: _showPreview,
+                autofocus: false,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+            ],
+          )),
+    );
   }
 
   Widget _buildMarkingSchemeWidgetForSectionWiseTdsMapBean(ExamSectionMapBean eachSectionWiseTdsMapBean) {
@@ -589,7 +664,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     return Row(
       children: [
         Expanded(
-          flex: _lshFlex,
+          flex: _lhsFlex,
           child: InkWell(
             onTap: _scrollToTable,
             child: Padding(
@@ -768,7 +843,133 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     return Row(
       children: [
         Expanded(
-          flex: _lshFlex,
+          flex: _lhsFlex,
+          child: Padding(
+            padding: const EdgeInsets.all(_cellPadding),
+            child: ClayContainer(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: _headerColor,
+              spread: 2,
+              borderRadius: 10,
+              height: _studentColumnHeight,
+              width: _studentColumnWidth,
+              child: const Center(child: Text("Student Name")),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: _rhsFlex,
+          child: SingleChildScrollView(
+            controller: _subHeader,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: _subHeaders,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _subHeaderWidgetForPreview() {
+    if (((_examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => e.internalExamTdsMapBeanList ?? [])).expand((i) => i).isEmpty) {
+      return Container();
+    }
+    List<Widget> _subHeaders = [];
+    for (int i = 0; i < _subjects.length; i++) {
+      for (StudentInternalExamMarksDetailsBean eachInternalExamBean
+          in (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!)) {
+        _subHeaders.add(
+          Padding(
+            padding: const EdgeInsets.all(_cellPadding),
+            child: Tooltip(
+              message: eachInternalExamBean.internalExamName ?? "-",
+              child: ClayContainer(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: _headerColor,
+                spread: 2,
+                borderRadius: 10,
+                height: _cellColumnHeight,
+                width: _cellColumnWidth - _cellPadding,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                        (eachInternalExamBean.internalNumber == null ? "-" : "Internal ${eachInternalExamBean.internalNumber}").capitalize(),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            "Max marks: ${eachInternalExamBean.internalsMaxMarks}",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: clayContainerTextColor(context),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+      _subHeaders.add(
+        Padding(
+          padding: const EdgeInsets.all(_cellPadding),
+          child: ClayContainer(
+            depth: 40,
+            parentColor: clayContainerColor(context),
+            surfaceColor: _headerColor,
+            spread: 2,
+            borderRadius: 10,
+            height: _cellColumnHeight,
+            width: _cellColumnWidth - _cellPadding,
+            child: Stack(
+              children: [
+                const Center(
+                  child: Text(
+                    ("External"),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Max marks: ${_marksGrid[0][i].maxMarks}",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: clayContainerTextColor(context),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    return Row(
+      children: [
+        Expanded(
+          flex: _lhsFlex,
           child: Padding(
             padding: const EdgeInsets.all(_cellPadding),
             child: ClayContainer(
@@ -802,7 +1003,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     return Row(
       children: [
         Expanded(
-          flex: _lshFlex,
+          flex: _lhsFlex,
           child: ListView(
             shrinkWrap: true,
             controller: _studentsController,
@@ -852,6 +1053,8 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                               marksBean: _marksGrid[i][j],
                               isEditMode: _isEditMode,
                               showInternals: !_isEditMode && _showInternals,
+                              markingAlgorithm: _markingAlgorithm,
+                              previewMode: _showPreview,
                             ),
                           ),
                       ],
@@ -886,6 +1089,8 @@ class EachMarksCell extends StatefulWidget {
     required this.marksBean,
     required this.isEditMode,
     required this.showInternals,
+    required this.markingAlgorithm,
+    required this.previewMode,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
@@ -894,6 +1099,8 @@ class EachMarksCell extends StatefulWidget {
   final bool isEditMode;
   StudentExamMarksDetailsBean marksBean;
   final bool showInternals;
+  final MarkingAlgorithmBean? markingAlgorithm;
+  final bool previewMode;
 
   @override
   _EachMarksCellState createState() => _EachMarksCellState();
@@ -945,7 +1152,8 @@ class _EachMarksCellState extends State<EachMarksCell> {
                     : _width + (_cellPadding),
                 child: Center(
                   child: Text(
-                      "${(eachInternal.internalsMarksObtained ?? -1) == -1 ? "-" : eachInternal.internalsMarksObtained == -2 ? "A" : eachInternal.internalsMarksObtained}"),
+                    "${(eachInternal.internalsMarksObtained ?? -1) == -1 ? "-" : eachInternal.internalsMarksObtained == -2 ? "A" : eachInternal.internalsMarksObtained}",
+                  ),
                 ),
               ),
             ),
@@ -962,40 +1170,45 @@ class _EachMarksCellState extends State<EachMarksCell> {
                 ? _width + (2 * _cellPadding)
                 : _width + (_cellPadding),
             child: Center(
-              child: widget.isEditMode && widget.marksBean.isMarksEditable
-                  ? InputDecorator(
-                      isFocused: true,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        focusColor: Colors.blue,
-                      ),
-                      child: TextField(
-                        focusNode: _focusNode,
-                        autofocus: true,
-                        keyboardType: TextInputType.text,
-                        controller: widget.marksBean.marksEditingController,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (String e) {
-                          setState(() {
-                            if (e == "A") {
-                              widget.marksBean.marksObtained = -2;
-                            } else if (e == "-") {
-                              widget.marksBean.marksObtained = -1;
-                            } else {
-                              widget.marksBean.marksObtained = int.tryParse(e) ?? 0;
-                            }
-                          });
-                        },
-                        inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
-                        textAlign: TextAlign.center,
-                      ),
+              child: widget.previewMode
+                  ? Text(
+                      widget.marksBean.grade ?? "-",
                     )
-                  : Text(
-                      "${(widget.marksBean.marksObtained ?? -1) == -1 ? "-" : widget.marksBean.marksObtained == -2 ? "A" : widget.marksBean.marksObtained}"),
+                  : widget.isEditMode && widget.marksBean.isMarksEditable
+                      ? InputDecorator(
+                          isFocused: true,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            focusColor: Colors.blue,
+                          ),
+                          child: TextField(
+                            focusNode: _focusNode,
+                            autofocus: true,
+                            keyboardType: TextInputType.text,
+                            controller: widget.marksBean.marksEditingController,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (String e) {
+                              setState(() {
+                                if (e == "A") {
+                                  widget.marksBean.setMarks(-2, widget.markingAlgorithm);
+                                } else if (e == "-") {
+                                  widget.marksBean.setMarks(-1, widget.markingAlgorithm);
+                                } else {
+                                  widget.marksBean.setMarks(int.tryParse(e) ?? 0, widget.markingAlgorithm);
+                                }
+                              });
+                            },
+                            inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : Text(
+                          "${(widget.marksBean.marksObtained ?? -1) == -1 ? "-" : widget.marksBean.marksObtained == -2 ? "A" : widget.marksBean.marksObtained}",
+                        ),
             ),
           ),
         ),

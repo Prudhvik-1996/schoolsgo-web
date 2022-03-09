@@ -23,12 +23,14 @@ class GetAdminExamsRequest {
     this.examType,
     this.schoolId,
   });
+
   GetAdminExamsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     examId = json['examId']?.toInt();
     examType = json['examType']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['examId'] = examId;
@@ -112,6 +114,7 @@ class InternalExamTdsMapBean {
     this.teacherId,
     this.teacherName,
   });
+
   InternalExamTdsMapBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     endTime = json['endTime']?.toString();
@@ -134,6 +137,7 @@ class InternalExamTdsMapBean {
     teacherId = json['teacherId']?.toInt();
     teacherName = json['teacherName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['endTime'] = endTime;
@@ -283,6 +287,7 @@ class ExamTdsMapBean {
     teacherId = json['teacherId']?.toInt();
     teacherName = json['teacherName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['endTime'] = endTime;
@@ -418,6 +423,7 @@ class ExamSectionMapBean {
     this.sectionName,
     this.status,
   });
+
   ExamSectionMapBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     examId = json['examId']?.toInt();
@@ -446,6 +452,7 @@ class ExamSectionMapBean {
     sectionName = json['sectionName']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['examId'] = examId;
@@ -592,6 +599,7 @@ class AdminExamBean {
   }) {
     examNameEditingController.text = examName ?? '';
   }
+
   AdminExamBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -611,6 +619,7 @@ class AdminExamBean {
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -744,6 +753,7 @@ class GetAdminExamsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetAdminExamsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['adminExamBeanList'] != null) {
@@ -759,6 +769,7 @@ class GetAdminExamsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (adminExamBeanList != null) {
@@ -811,11 +822,13 @@ class GetMarkingAlgorithmsRequest {
     this.markingAlgorithmId,
     this.schoolId,
   });
+
   GetMarkingAlgorithmsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     markingAlgorithmId = json['markingAlgorithmId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['markingAlgorithmId'] = markingAlgorithmId;
@@ -897,6 +910,7 @@ class MarkingAlgorithmRangeBean {
     startRangeController.text = '${startRange ?? ''}';
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -985,6 +999,7 @@ class MarkingAlgorithmBean {
     schoolName = json['schoolName']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1056,6 +1071,7 @@ class GetMarkingAlgorithmsResponse {
     this.markingAlgorithmBeanList,
     this.responseStatus,
   });
+
   GetMarkingAlgorithmsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1071,6 +1087,7 @@ class GetMarkingAlgorithmsResponse {
     }
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1152,6 +1169,7 @@ class CreateOrUpdateMarkingAlgorithmRequest {
     this.schoolName,
     this.status,
   });
+
   CreateOrUpdateMarkingAlgorithmRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1169,6 +1187,7 @@ class CreateOrUpdateMarkingAlgorithmRequest {
     schoolName = json['schoolName']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1213,6 +1232,7 @@ class CreateOrUpdateMarkingAlgorithmResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateMarkingAlgorithmResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1220,6 +1240,7 @@ class CreateOrUpdateMarkingAlgorithmResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1272,6 +1293,7 @@ class CreateOrUpdateExamResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateExamResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1279,6 +1301,7 @@ class CreateOrUpdateExamResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1341,6 +1364,7 @@ class GetStudentExamMarksDetailsRequest {
     this.tdsId,
     this.teacherId,
   });
+
   GetStudentExamMarksDetailsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     examId = json['examId']?.toInt();
@@ -1352,6 +1376,7 @@ class GetStudentExamMarksDetailsRequest {
     tdsId = json['tdsId']?.toInt();
     teacherId = json['teacherId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['examId'] = examId;
@@ -1455,6 +1480,7 @@ class StudentInternalExamMarksDetailsBean {
     this.studentName,
     this.internalNumber,
   });
+
   StudentInternalExamMarksDetailsBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     examId = json['examId']?.toInt();
@@ -1484,6 +1510,7 @@ class StudentInternalExamMarksDetailsBean {
     studentName = json['studentName']?.toString();
     internalNumber = json['internalNumber']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['examId'] = examId;
@@ -1602,6 +1629,11 @@ class StudentExamMarksDetailsBean {
 
   Map<String, dynamic> __origJson = {};
 
+  double? gpa;
+  String? grade;
+  double? internalsGpa;
+  String? internalsGrade;
+
   StudentExamMarksDetailsBean({
     this.date,
     this.endTime,
@@ -1672,6 +1704,7 @@ class StudentExamMarksDetailsBean {
     teacherId = json['teacherId']?.toInt();
     teacherName = json['teacherName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['date'] = date;
@@ -1707,6 +1740,48 @@ class StudentExamMarksDetailsBean {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  void setMarks(int? newMarks, MarkingAlgorithmBean? markingAlgorithm) {
+    marksObtained = newMarks;
+    if (markingAlgorithm != null) computeGrades(markingAlgorithm);
+  }
+
+  void computeGrades(MarkingAlgorithmBean markingAlgorithm) {
+    if (marksObtained == null || maxMarks == null) return;
+    double percentage = (marksObtained! * 100) / maxMarks!;
+    for (MarkingAlgorithmRangeBean eachRangeBean in (markingAlgorithm.markingAlgorithmRangeBeanList ?? []).map((e) => e!)) {
+      if (eachRangeBean.startRange! < percentage && percentage < eachRangeBean.endRange!) {
+        gpa = eachRangeBean.gpa;
+        grade = eachRangeBean.grade;
+      }
+    }
+    if ((studentInternalExamMarksDetailsBeanList ?? []).isEmpty) return;
+    double? percentageForInternals = (internalsComputationCode ?? "C") == "B"
+        ? studentInternalExamMarksDetailsBeanList!
+            .map((e) => e!)
+            .where((e) => e.internalsMarksObtained != null && e.internalsMaxMarks != null)
+            .map((e) => (e.internalsMaxMarks! * 100) / (e.internalsMaxMarks!))
+            .reduce((max, element) {
+            if (max > element) {
+              return max;
+            } else {
+              return element;
+            }
+          })
+        : (internalsComputationCode ?? "C") == "A"
+            ? studentInternalExamMarksDetailsBeanList!
+                    .map((e) => e!)
+                    .where((e) => e.internalsMarksObtained != null && e.internalsMaxMarks != null)
+                    .map((e) => (e.internalsMaxMarks! * 100) / (e.internalsMaxMarks!))
+                    .reduce((a, b) => a + b) /
+                studentInternalExamMarksDetailsBeanList!
+                    .map((e) => e!)
+                    .where((e) => e.internalsMarksObtained != null && e.internalsMaxMarks != null)
+                    .length
+            : null;
+
+    if (percentageForInternals != null) {}
+  }
 
   @override
   String toString() {
@@ -1792,6 +1867,7 @@ class GetStudentExamMarksDetailsResponse {
     this.responseStatus,
     this.studentExamMarksDetailsList,
   });
+
   GetStudentExamMarksDetailsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1807,6 +1883,7 @@ class GetStudentExamMarksDetailsResponse {
       studentExamMarksDetailsList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1865,6 +1942,7 @@ class StudentMarksUpdateBean {
     this.examTdsMapId,
     this.marksObtained,
   });
+
   StudentMarksUpdateBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     studentId = json['studentId']?.toInt();
@@ -1872,6 +1950,7 @@ class StudentMarksUpdateBean {
     examTdsMapId = json['examTdsMapId']?.toInt();
     marksObtained = json['marksObtained']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['studentId'] = studentId;
@@ -1910,6 +1989,7 @@ class CreateOrUpdateStudentExamMarksRequest {
     this.schoolId,
     this.studentExamMarksDetailsList,
   });
+
   CreateOrUpdateStudentExamMarksRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -1923,6 +2003,7 @@ class CreateOrUpdateStudentExamMarksRequest {
       studentExamMarksDetailsList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -1963,6 +2044,7 @@ class CreateOrUpdateStudentExamMarksResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudentExamMarksResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1970,6 +2052,7 @@ class CreateOrUpdateStudentExamMarksResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
