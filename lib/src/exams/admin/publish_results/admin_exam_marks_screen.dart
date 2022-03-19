@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
@@ -71,6 +74,10 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   static const double _cellPadding = 4.0;
   final int _lhsFlex = 1;
   int _rhsFlex = 3;
+
+  late bool _isMarksForBean;
+  late bool _isGradeForBean;
+  late bool _isGpaForBean;
 
   @override
   void initState() {
@@ -192,6 +199,13 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
       _scrollControllers.add(_marksControllers.addAndGet());
     }
 
+    MarkingSchemeCode? x = fromMarkingSchemeCodeString(
+        (widget.examBean.examSectionMapBeanList ?? []).where((e) => e != null && e.sectionId == widget.section.sectionId).first?.markingSchemeCode ??
+            "-");
+    _isMarksForBean = x == null ? false : x.value[0] == "T";
+    _isGradeForBean = x == null ? false : x.value[1] == "T";
+    _isGpaForBean = x == null ? false : x.value[2] == "T";
+
     setState(() {
       _isLoading = false;
     });
@@ -268,7 +282,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                   ],
                 ),
               ),
-        floatingActionButton: _isLoading ? null : _changeEditModeButton());
+        floatingActionButton: _isLoading || _showPreview ? null : _changeEditModeButton());
   }
 
   // Future<void> _saveChanges() async {
@@ -607,12 +621,6 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
 
   Widget _markingSchemeButtonForSection(String type) {
     Color color = clayContainerColor(context);
-    MarkingSchemeCode? x = fromMarkingSchemeCodeString(
-        (widget.examBean.examSectionMapBeanList ?? []).where((e) => e != null && e.sectionId == widget.section.sectionId).first?.markingSchemeCode ??
-            "-");
-    bool _isMarksForBean = x == null ? false : x.value[0] == "T";
-    bool _isGradeForBean = x == null ? false : x.value[1] == "T";
-    bool _isGpaForBean = x == null ? false : x.value[2] == "T";
     if ((type == "Marks" && _isMarksForBean) || (type == "Grade" && _isGradeForBean) || (type == "GPA" && _isGpaForBean)) {
       color = Colors.blue.shade300;
     }
@@ -640,23 +648,27 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   }
 
   Widget _marksTableWidget() {
-    return AnimatedSize(
-      curve: Curves.fastOutSlowIn,
-      duration: const Duration(milliseconds: 750),
-      child: !_isEditMode && _showInternals
-          ? Column(
-              children: [
-                _headerWidget(),
-                _subHeaderWidget(),
-                Expanded(child: _studentWiseMarksWidget()),
-              ],
-            )
-          : Column(
-              children: [
-                _headerWidget(),
-                Expanded(child: _studentWiseMarksWidget()),
-              ],
-            ),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+      child: AnimatedSize(
+        curve: Curves.fastOutSlowIn,
+        duration: const Duration(milliseconds: 750),
+        child: !_isEditMode && _showInternals
+            ? Column(
+                children: [
+                  _headerWidget(),
+                  _subHeaderWidget(),
+                  Expanded(child: _studentWiseMarksWidget()),
+                ],
+              )
+            : Column(
+                children: [
+                  _showPreview ? _headerWidgetForPreview() : _headerWidget(),
+                  if (_showPreview) _subHeaderWidgetForPreview(),
+                  Expanded(child: _studentWiseMarksWidget()),
+                ],
+              ),
+      ),
     );
   }
 
@@ -738,7 +750,22 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                         ],
                       ),
                     ),
-                  )
+                  ),
+                Padding(
+                  padding: const EdgeInsets.all(_cellPadding),
+                  child: ClayContainer(
+                    depth: 40,
+                    parentColor: clayContainerColor(context),
+                    surfaceColor: _headerColor,
+                    spread: 2,
+                    borderRadius: 10,
+                    height: _cellColumnHeight,
+                    width: ((_cellColumnWidth) * ((_isMarksForBean ? 1 : 0) + (_isGradeForBean ? 1 : 0) + (_isGpaForBean ? 1 : 0))),
+                    child: const Center(
+                      child: Text("Total"),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -865,7 +892,143 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: _subHeaders,
+              children: _subHeaders +
+                  [
+                    if (_isMarksForBean)
+                      Padding(
+                        padding: const EdgeInsets.all(_cellPadding),
+                        child: ClayContainer(
+                          depth: 40,
+                          parentColor: clayContainerColor(context),
+                          surfaceColor: _headerColor,
+                          spread: 2,
+                          borderRadius: 10,
+                          height: _cellColumnHeight,
+                          width: (_cellColumnWidth - _cellPadding),
+                          child: const Center(
+                            child: Text("Marks"),
+                          ),
+                        ),
+                      ),
+                    if (_isGradeForBean)
+                      Padding(
+                        padding: const EdgeInsets.all(_cellPadding),
+                        child: ClayContainer(
+                          depth: 40,
+                          parentColor: clayContainerColor(context),
+                          surfaceColor: _headerColor,
+                          spread: 2,
+                          borderRadius: 10,
+                          height: _cellColumnHeight,
+                          width: (_cellColumnWidth - _cellPadding),
+                          child: const Center(
+                            child: Text("Grade"),
+                          ),
+                        ),
+                      ),
+                    if (_isGpaForBean)
+                      Padding(
+                        padding: const EdgeInsets.all(_cellPadding),
+                        child: ClayContainer(
+                          depth: 40,
+                          parentColor: clayContainerColor(context),
+                          surfaceColor: _headerColor,
+                          spread: 2,
+                          borderRadius: 10,
+                          height: _cellColumnHeight,
+                          width: (_cellColumnWidth - _cellPadding),
+                          child: const Center(
+                            child: Text("GPA"),
+                          ),
+                        ),
+                      ),
+                  ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _headerWidgetForPreview() {
+    double x = 0.0;
+    for (int i = 0; i < _subjects.length; i++) {
+      if ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).isNotEmpty) {
+        x += _cellColumnWidth + _cellPadding;
+      }
+      if ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).isNotEmpty && _isGradeForBean) {
+        x += _cellColumnWidth + _cellPadding;
+      }
+      x += _cellColumnWidth;
+      if (_isGradeForBean) {
+        x += _cellColumnWidth + _cellPadding;
+      }
+      if (_isGpaForBean) {
+        x += _cellColumnWidth + _cellPadding;
+      }
+    }
+    return Row(
+      children: [
+        Expanded(
+          flex: _lhsFlex,
+          child: Padding(
+            padding: const EdgeInsets.all(_cellPadding),
+            child: ClayContainer(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: _headerColor,
+              spread: 2,
+              borderRadius: 10,
+              height: _studentColumnHeight,
+              width: _studentColumnWidth,
+              child: const Center(child: Text("")),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: _rhsFlex,
+          child: SingleChildScrollView(
+            controller: _header,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: _subjects
+                      .map((e) => Padding(
+                            padding: const EdgeInsets.all(_cellPadding),
+                            child: ClayContainer(
+                              depth: 40,
+                              parentColor: clayContainerColor(context),
+                              surfaceColor: _headerColor,
+                              spread: 2,
+                              borderRadius: 10,
+                              height: _cellColumnHeight,
+                              width: (x / _subjects.length) - _cellPadding,
+                              child: Center(
+                                child: Text(
+                                  e.subjectName ?? "-",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ))
+                      .toList() +
+                  [
+                    Padding(
+                      padding: const EdgeInsets.all(_cellPadding),
+                      child: ClayContainer(
+                        depth: 40,
+                        parentColor: clayContainerColor(context),
+                        surfaceColor: _headerColor,
+                        spread: 2,
+                        borderRadius: 10,
+                        height: _cellColumnHeight,
+                        width: ((_cellColumnWidth) * ((_isMarksForBean ? 1 : 0) + (_isGradeForBean ? 1 : 0) + (_isGpaForBean ? 1 : 0))),
+                        child: const Center(
+                          child: Text("Total"),
+                        ),
+                      ),
+                    ),
+                  ],
             ),
           ),
         ),
@@ -874,18 +1037,13 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   }
 
   Widget _subHeaderWidgetForPreview() {
-    if (((_examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => e.internalExamTdsMapBeanList ?? [])).expand((i) => i).isEmpty) {
-      return Container();
-    }
     List<Widget> _subHeaders = [];
     for (int i = 0; i < _subjects.length; i++) {
-      for (StudentInternalExamMarksDetailsBean eachInternalExamBean
-          in (_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!)) {
-        _subHeaders.add(
-          Padding(
-            padding: const EdgeInsets.all(_cellPadding),
-            child: Tooltip(
-              message: eachInternalExamBean.internalExamName ?? "-",
+      _subHeaders.addAll(
+        [
+          if ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(_cellPadding),
               child: ClayContainer(
                 depth: 40,
                 parentColor: clayContainerColor(context),
@@ -894,76 +1052,92 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                 borderRadius: 10,
                 height: _cellColumnHeight,
                 width: _cellColumnWidth - _cellPadding,
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Text(
-                        (eachInternalExamBean.internalNumber == null ? "-" : "Internal ${eachInternalExamBean.internalNumber}").capitalize(),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            "Max marks: ${eachInternalExamBean.internalsMaxMarks}",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: clayContainerTextColor(context),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Center(
+                  child: Text(
+                    _marksGrid[0][i].internalsWeightage == null
+                        ? "Internals\n(Marks)"
+                        : "Internals\n(Marks / ${_marksGrid[0][i].internalsWeightage})",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          if ((_marksGrid[0][i].studentInternalExamMarksDetailsBeanList ?? []).isNotEmpty && _isGradeForBean)
+            Padding(
+              padding: const EdgeInsets.all(_cellPadding),
+              child: ClayContainer(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: _headerColor,
+                spread: 2,
+                borderRadius: 10,
+                height: _cellColumnHeight,
+                width: _cellColumnWidth - _cellPadding,
+                child: const Center(
+                  child: Text(
+                    "Internals\n(Grade)",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(_cellPadding),
+            child: ClayContainer(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: _headerColor,
+              spread: 2,
+              borderRadius: 10,
+              height: _cellColumnHeight,
+              width: _cellColumnWidth - _cellPadding,
+              child: Center(
+                child: Text(
+                  _marksGrid[0][i].internalsWeightage == null ? "Externals\n(Marks)" : "Externals\n(Marks / ${_marksGrid[0][i].maxMarks!})",
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
           ),
-        );
-      }
-      _subHeaders.add(
-        Padding(
-          padding: const EdgeInsets.all(_cellPadding),
-          child: ClayContainer(
-            depth: 40,
-            parentColor: clayContainerColor(context),
-            surfaceColor: _headerColor,
-            spread: 2,
-            borderRadius: 10,
-            height: _cellColumnHeight,
-            width: _cellColumnWidth - _cellPadding,
-            child: Stack(
-              children: [
-                const Center(
+          if (_isGradeForBean)
+            Padding(
+              padding: const EdgeInsets.all(_cellPadding),
+              child: ClayContainer(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: _headerColor,
+                spread: 2,
+                borderRadius: 10,
+                height: _cellColumnHeight,
+                width: _cellColumnWidth - _cellPadding,
+                child: const Center(
                   child: Text(
-                    ("External"),
+                    "Externals\n(Grade)",
+                    textAlign: TextAlign.center,
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        "Max marks: ${_marksGrid[0][i].maxMarks}",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: clayContainerTextColor(context),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
+          if (_isGpaForBean)
+            Padding(
+              padding: const EdgeInsets.all(_cellPadding),
+              child: ClayContainer(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: _headerColor,
+                spread: 2,
+                borderRadius: 10,
+                height: _cellColumnHeight,
+                width: _cellColumnWidth - _cellPadding,
+                child: const Center(
+                  child: Text(
+                    "GPA",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+        ],
       );
     }
     return Row(
@@ -980,7 +1154,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
               borderRadius: 10,
               height: _studentColumnHeight,
               width: _studentColumnWidth,
-              child: const Center(child: Text("Student Name")),
+              child: const Center(child: Text("")),
             ),
           ),
         ),
@@ -991,7 +1165,57 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: _subHeaders,
+              children: _subHeaders +
+                  [
+                    if (_isMarksForBean)
+                      Padding(
+                        padding: const EdgeInsets.all(_cellPadding),
+                        child: ClayContainer(
+                          depth: 40,
+                          parentColor: clayContainerColor(context),
+                          surfaceColor: _headerColor,
+                          spread: 2,
+                          borderRadius: 10,
+                          height: _cellColumnHeight,
+                          width: (_cellColumnWidth - _cellPadding),
+                          child: const Center(
+                            child: Text("Marks"),
+                          ),
+                        ),
+                      ),
+                    if (_isGradeForBean)
+                      Padding(
+                        padding: const EdgeInsets.all(_cellPadding),
+                        child: ClayContainer(
+                          depth: 40,
+                          parentColor: clayContainerColor(context),
+                          surfaceColor: _headerColor,
+                          spread: 2,
+                          borderRadius: 10,
+                          height: _cellColumnHeight,
+                          width: (_cellColumnWidth - _cellPadding),
+                          child: const Center(
+                            child: Text("Grade"),
+                          ),
+                        ),
+                      ),
+                    if (_isGpaForBean)
+                      Padding(
+                        padding: const EdgeInsets.all(_cellPadding),
+                        child: ClayContainer(
+                          depth: 40,
+                          parentColor: clayContainerColor(context),
+                          surfaceColor: _headerColor,
+                          spread: 2,
+                          borderRadius: 10,
+                          height: _cellColumnHeight,
+                          width: (_cellColumnWidth - _cellPadding),
+                          child: const Center(
+                            child: Text("CGPA"),
+                          ),
+                        ),
+                      ),
+                  ],
             ),
           ),
         ),
@@ -1035,30 +1259,321 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [for (int i = 0; i < _students.length; i++) i].map((i) {
+                  double totalMarksObtained = 0;
+                  double totalMaxMarks = 0;
+                  String overAllGrade = "-";
+                  List<double> gpaPerSubject = [];
+                  String overAllGpa = "-";
+
+                  if (_showPreview) {
+                    for (int j = 0; j < _subjects.length; j++) {
+                      double marksObtainedPerSubject = 0;
+                      double maxMarksPerSubject = 0;
+                      StudentExamMarksDetailsBean studentExamMarksDetailsBean = _marksGrid[i][j];
+                      if ((studentExamMarksDetailsBean.studentInternalExamMarksDetailsBeanList ?? []).isNotEmpty) {
+                        if (studentExamMarksDetailsBean.internalsComputationCode == "A") {
+                          marksObtainedPerSubject += (studentExamMarksDetailsBean.studentInternalExamMarksDetailsBeanList ?? [])
+                              .map((e) => e!)
+                              .map((e) =>
+                                  (e.internalsMarksObtained == -2 || e.internalsMarksObtained == -1 ? 0 : e.internalsMarksObtained ?? 0) *
+                                  (studentExamMarksDetailsBean.internalsWeightage ?? e.internalsMaxMarks!) /
+                                  (e.internalsMaxMarks!))
+                              .average;
+                          if (!(studentExamMarksDetailsBean.studentInternalExamMarksDetailsBeanList ?? [])
+                              .map((e) => e!)
+                              .map((e) => e.internalsMarksObtained)
+                              .contains(-1)) {
+                            maxMarksPerSubject += studentExamMarksDetailsBean.internalsWeightage ?? 0;
+                          }
+                        } else if (studentExamMarksDetailsBean.internalsComputationCode == "B") {
+                          marksObtainedPerSubject += (studentExamMarksDetailsBean.studentInternalExamMarksDetailsBeanList ?? [])
+                              .map((e) => e!)
+                              .map((e) =>
+                                  (e.internalsMarksObtained == -2 || e.internalsMarksObtained == -1 ? 0 : e.internalsMarksObtained ?? 0) *
+                                  (studentExamMarksDetailsBean.internalsWeightage ?? e.internalsMaxMarks!) /
+                                  (e.internalsMaxMarks!))
+                              .reduce(max);
+
+                          if (!(studentExamMarksDetailsBean.studentInternalExamMarksDetailsBeanList ?? [])
+                              .map((e) => e!)
+                              .map((e) => e.internalsMarksObtained)
+                              .contains(-1)) {
+                            maxMarksPerSubject += studentExamMarksDetailsBean.internalsWeightage ?? 0;
+                          }
+                        }
+                        totalMarksObtained += marksObtainedPerSubject;
+                        totalMaxMarks += maxMarksPerSubject;
+                      }
+                      if (studentExamMarksDetailsBean.marksObtained != -1) {
+                        marksObtainedPerSubject =
+                            (studentExamMarksDetailsBean.marksObtained == -2 ? 0 : studentExamMarksDetailsBean.marksObtained ?? 0).toDouble();
+                        maxMarksPerSubject = (studentExamMarksDetailsBean.maxMarks ?? 0).toDouble();
+
+                        totalMarksObtained += marksObtainedPerSubject;
+                        totalMaxMarks += maxMarksPerSubject;
+
+                        if (maxMarksPerSubject != 0) {
+                          int percentage = (marksObtainedPerSubject * 100 / maxMarksPerSubject).ceil();
+
+                          if (_markingAlgorithm != null && _isGpaForBean) {
+                            (_markingAlgorithm!.markingAlgorithmRangeBeanList ?? []).map((e) => e!).forEach((eachRange) {
+                              if (eachRange.startRange! <= percentage && percentage <= eachRange.endRange!) {
+                                gpaPerSubject.add(eachRange.gpa ?? 0);
+                              }
+                            });
+                          }
+                        }
+                      }
+                    }
+                  } else {
+                    for (int j = 0; j < _subjects.length; j++) {
+                      StudentExamMarksDetailsBean studentExamMarksDetailsBean = _marksGrid[i][j];
+                      double marksObtainedPerSubject = 0;
+                      double maxMarksPerSubject = 0;
+                      if (studentExamMarksDetailsBean.marksObtained != -1) {
+                        marksObtainedPerSubject =
+                            (studentExamMarksDetailsBean.marksObtained == -2 ? 0 : studentExamMarksDetailsBean.marksObtained ?? 0).toDouble();
+                        maxMarksPerSubject = (studentExamMarksDetailsBean.maxMarks ?? 0).toDouble();
+
+                        totalMarksObtained += marksObtainedPerSubject;
+                        totalMaxMarks += maxMarksPerSubject;
+
+                        if (maxMarksPerSubject != 0) {
+                          int percentage = (marksObtainedPerSubject * 100 / maxMarksPerSubject).ceil();
+
+                          if (_markingAlgorithm != null && _isGpaForBean) {
+                            (_markingAlgorithm!.markingAlgorithmRangeBeanList ?? []).map((e) => e!).forEach((eachRange) {
+                              if (eachRange.startRange! <= percentage && percentage <= eachRange.endRange!) {
+                                gpaPerSubject.add(eachRange.gpa ?? 0);
+                              }
+                            });
+                          }
+                        }
+                      }
+                    }
+                  }
+
+                  // Over all Grade computation
+                  if (totalMaxMarks != 0 && _isGradeForBean) {
+                    int percentage = (totalMarksObtained * 100 / totalMaxMarks).ceil();
+                    (_markingAlgorithm!.markingAlgorithmRangeBeanList ?? []).map((e) => e!).forEach((eachRange) {
+                      if (eachRange.startRange! <= percentage && percentage <= eachRange.endRange!) {
+                        overAllGrade = eachRange.grade ?? "-";
+                      }
+                    });
+                  }
+
+                  // Over all Gpa computation
+                  if (gpaPerSubject.isNotEmpty && _isGpaForBean) {
+                    overAllGpa = (gpaPerSubject.reduce((a, b) => a + b) / gpaPerSubject.length).toString();
+                  }
+
                   return SingleChildScrollView(
                     controller: _scrollControllers[i],
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        for (int j = 0; j < _subjects.length; j++)
-                          GestureDetector(
-                            onTap: () {
-                              // _onPointerDown(j,i);
-                              _makeCellEditable(currentCellIndexX, currentCellIndexY, i, j);
-                            },
-                            child: EachMarksCell(
-                              section: widget.section,
-                              adminProfile: widget.adminProfile,
-                              examBean: widget.examBean,
-                              marksBean: _marksGrid[i][j],
-                              isEditMode: _isEditMode,
-                              showInternals: !_isEditMode && _showInternals,
-                              markingAlgorithm: _markingAlgorithm,
-                              previewMode: _showPreview,
-                            ),
+                    child: _showPreview
+                        ? Row(
+                            children: List.generate(_subjects.length, (j) {
+                                  List<StudentInternalExamMarksDetailsBean> internalsList =
+                                      (_marksGrid[i][j].studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!).toList();
+                                  String code = _marksGrid[i][j].internalsComputationCode ?? "";
+                                  int? internalsResults;
+                                  if (internalsList.isNotEmpty && code == "A") {
+                                    internalsResults = (internalsList.map((e) => e.internalsMarksObtained ?? -1).contains(-1))
+                                        ? null
+                                        : (internalsList
+                                                    .map((e) => (e.internalsMarksObtained ?? 0) == -1
+                                                        ? 0
+                                                        : ((e.internalsMarksObtained ?? 0) * 100 / e.internalsMaxMarks!))
+                                                    .reduce((a, b) => (a) + (b)) /
+                                                internalsList.length)
+                                            .ceil();
+                                  } else if (internalsList.isNotEmpty && code == "B") {
+                                    internalsResults = (internalsList
+                                            .map((e) => (e.internalsMarksObtained ?? 0) == -1
+                                                ? 0
+                                                : ((e.internalsMarksObtained ?? 0) * 100 / e.internalsMaxMarks!))
+                                            .reduce(max))
+                                        .ceil();
+                                  }
+                                  String internalsGrade = "-";
+                                  if (internalsResults != null) {
+                                    (_markingAlgorithm!.markingAlgorithmRangeBeanList ?? [])
+                                        .map((e) => e!)
+                                        .forEach((MarkingAlgorithmRangeBean markingAlgorithmRangeBean) {
+                                      if (markingAlgorithmRangeBean.startRange! <= internalsResults! &&
+                                          internalsResults <= markingAlgorithmRangeBean.endRange!) {
+                                        internalsGrade = markingAlgorithmRangeBean.grade!;
+                                      }
+                                    });
+                                  }
+                                  double? externalMarksObtained = _marksGrid[i][j].marksObtained == null ||
+                                          _marksGrid[i][j].marksObtained! == -1 ||
+                                          _marksGrid[i][j].marksObtained! == -2
+                                      ? null
+                                      : _marksGrid[i][j].marksObtained!.toDouble();
+                                  String externalsGrade = "-";
+                                  if (_isGradeForBean && externalMarksObtained != null) {
+                                    (_markingAlgorithm!.markingAlgorithmRangeBeanList ?? [])
+                                        .map((e) => e!)
+                                        .forEach((MarkingAlgorithmRangeBean markingAlgorithmRangeBean) {
+                                      if (markingAlgorithmRangeBean.startRange! <= externalMarksObtained * 100 / _marksGrid[i][j].maxMarks! &&
+                                          externalMarksObtained * 100 / _marksGrid[i][j].maxMarks! <= markingAlgorithmRangeBean.endRange!) {
+                                        externalsGrade = markingAlgorithmRangeBean.grade!;
+                                      }
+                                    });
+                                  }
+                                  double? externalsGpa;
+                                  if (_isGpaForBean) {
+                                    int percentage = (100 *
+                                            (((internalsResults ?? 0) * ((_marksGrid[i][j].internalsWeightage ?? 0) / 100.0)) +
+                                                (externalMarksObtained ?? 0)) /
+                                            ((_marksGrid[i][j].internalsWeightage ?? 0) + _marksGrid[i][j].maxMarks!))
+                                        .ceil();
+                                    (_markingAlgorithm!.markingAlgorithmRangeBeanList ?? [])
+                                        .map((e) => e!)
+                                        .forEach((MarkingAlgorithmRangeBean markingAlgorithmRangeBean) {
+                                      if (markingAlgorithmRangeBean.startRange! <= percentage && percentage <= markingAlgorithmRangeBean.endRange!) {
+                                        externalsGpa = markingAlgorithmRangeBean.gpa!;
+                                      }
+                                    });
+                                  }
+                                  return <Widget>[
+                                    if ((_marksGrid[i][j].studentInternalExamMarksDetailsBeanList ?? []).isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.all(_cellPadding),
+                                        child: ClayContainer(
+                                          depth: 40,
+                                          parentColor: clayContainerColor(context),
+                                          surfaceColor: clayContainerColor(context),
+                                          spread: 2,
+                                          borderRadius: 10,
+                                          height: _cellColumnHeight,
+                                          width: _cellColumnWidth - _cellPadding,
+                                          child: Center(
+                                            child: Text(
+                                              internalsResults == null
+                                                  ? "-"
+                                                  : (internalsResults * ((_marksGrid[i][j].internalsWeightage ?? 0) / 100.0)).toStringAsFixed(2),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if ((_marksGrid[i][j].studentInternalExamMarksDetailsBeanList ?? []).isNotEmpty && _isGradeForBean)
+                                      Padding(
+                                        padding: const EdgeInsets.all(_cellPadding),
+                                        child: ClayContainer(
+                                          depth: 40,
+                                          parentColor: clayContainerColor(context),
+                                          surfaceColor: clayContainerColor(context),
+                                          spread: 2,
+                                          borderRadius: 10,
+                                          height: _cellColumnHeight,
+                                          width: _cellColumnWidth - _cellPadding,
+                                          child: Center(
+                                            child: Text(
+                                              internalsGrade,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(_cellPadding),
+                                      child: ClayContainer(
+                                        depth: 40,
+                                        parentColor: clayContainerColor(context),
+                                        surfaceColor: clayContainerColor(context),
+                                        spread: 2,
+                                        borderRadius: 10,
+                                        height: _cellColumnHeight,
+                                        width: _cellColumnWidth - _cellPadding,
+                                        child: Center(
+                                          child: Text(
+                                            externalMarksObtained == null ? "-" : externalMarksObtained.toString(),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    if (_isGradeForBean)
+                                      Padding(
+                                        padding: const EdgeInsets.all(_cellPadding),
+                                        child: ClayContainer(
+                                          depth: 40,
+                                          parentColor: clayContainerColor(context),
+                                          surfaceColor: clayContainerColor(context),
+                                          spread: 2,
+                                          borderRadius: 10,
+                                          height: _cellColumnHeight,
+                                          width: _cellColumnWidth - _cellPadding,
+                                          child: Center(
+                                            child: Text(
+                                              externalsGrade,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (_isGpaForBean)
+                                      Padding(
+                                        padding: const EdgeInsets.all(_cellPadding),
+                                        child: ClayContainer(
+                                          depth: 40,
+                                          parentColor: clayContainerColor(context),
+                                          surfaceColor: _headerColor,
+                                          spread: 2,
+                                          borderRadius: 10,
+                                          height: _cellColumnHeight,
+                                          width: _cellColumnWidth - _cellPadding,
+                                          child: Center(
+                                            child: Text(
+                                              (internalsResults == null && internalsList.isNotEmpty) ||
+                                                      externalMarksObtained == null ||
+                                                      externalsGpa == null
+                                                  ? "-"
+                                                  : externalsGpa.toString(),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ];
+                                }).expand((i) => i).toList() +
+                                _totalWidgets(
+                                  totalMarksObtained,
+                                  totalMaxMarks,
+                                  overAllGrade,
+                                  overAllGpa,
+                                ),
+                          )
+                        : Row(
+                            children: <Widget>[
+                                  for (int j = 0; j < _subjects.length; j++)
+                                    GestureDetector(
+                                      onTap: () {
+                                        // _onPointerDown(j,i);
+                                        _makeCellEditable(currentCellIndexX, currentCellIndexY, i, j);
+                                      },
+                                      child: EachMarksCell(
+                                        section: widget.section,
+                                        adminProfile: widget.adminProfile,
+                                        examBean: widget.examBean,
+                                        marksBean: _marksGrid[i][j],
+                                        isEditMode: _isEditMode,
+                                        showInternals: !_isEditMode && _showInternals,
+                                        markingAlgorithm: _markingAlgorithm,
+                                      ),
+                                    ),
+                                ] +
+                                _totalWidgets(
+                                  totalMarksObtained,
+                                  totalMaxMarks,
+                                  overAllGrade,
+                                  overAllGpa,
+                                ),
                           ),
-                      ],
-                    ),
                   );
                 }).toList(),
               ),
@@ -1067,6 +1582,64 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
         ),
       ],
     );
+  }
+
+  List<Widget> _totalWidgets(
+    double? totalMarksObtained,
+    double? totalMaxMarks,
+    String? overAllGrade,
+    String? overAllGpa,
+  ) {
+    return [
+      if (_isMarksForBean)
+        Padding(
+          padding: const EdgeInsets.all(_cellPadding),
+          child: ClayContainer(
+            depth: 40,
+            parentColor: clayContainerColor(context),
+            surfaceColor: _headerColor,
+            spread: 2,
+            borderRadius: 10,
+            height: _cellColumnHeight,
+            width: (_cellColumnWidth - _cellPadding),
+            child: Center(
+              child: Text("$totalMarksObtained / $totalMaxMarks"),
+            ),
+          ),
+        ),
+      if (_isGradeForBean)
+        Padding(
+          padding: const EdgeInsets.all(_cellPadding),
+          child: ClayContainer(
+            depth: 40,
+            parentColor: clayContainerColor(context),
+            surfaceColor: _headerColor,
+            spread: 2,
+            borderRadius: 10,
+            height: _cellColumnHeight,
+            width: (_cellColumnWidth - _cellPadding),
+            child: Center(
+              child: Text("$overAllGrade"),
+            ),
+          ),
+        ),
+      if (_isGpaForBean)
+        Padding(
+          padding: const EdgeInsets.all(_cellPadding),
+          child: ClayContainer(
+            depth: 40,
+            parentColor: clayContainerColor(context),
+            surfaceColor: _headerColor,
+            spread: 2,
+            borderRadius: 10,
+            height: _cellColumnHeight,
+            width: (_cellColumnWidth - _cellPadding),
+            child: Center(
+              child: Text("$overAllGpa"),
+            ),
+          ),
+        ),
+    ];
   }
 
   void _makeCellEditable(int oldIndexX, int oldIndexY, int newIndexX, int newIndexY) {
@@ -1090,7 +1663,6 @@ class EachMarksCell extends StatefulWidget {
     required this.isEditMode,
     required this.showInternals,
     required this.markingAlgorithm,
-    required this.previewMode,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
@@ -1100,7 +1672,6 @@ class EachMarksCell extends StatefulWidget {
   StudentExamMarksDetailsBean marksBean;
   final bool showInternals;
   final MarkingAlgorithmBean? markingAlgorithm;
-  final bool previewMode;
 
   @override
   _EachMarksCellState createState() => _EachMarksCellState();
@@ -1170,45 +1741,41 @@ class _EachMarksCellState extends State<EachMarksCell> {
                 ? _width + (2 * _cellPadding)
                 : _width + (_cellPadding),
             child: Center(
-              child: widget.previewMode
-                  ? Text(
-                      widget.marksBean.grade ?? "-",
-                    )
-                  : widget.isEditMode && widget.marksBean.isMarksEditable
-                      ? InputDecorator(
-                          isFocused: true,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            focusColor: Colors.blue,
-                          ),
-                          child: TextField(
-                            focusNode: _focusNode,
-                            autofocus: true,
-                            keyboardType: TextInputType.text,
-                            controller: widget.marksBean.marksEditingController,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                            onChanged: (String e) {
-                              setState(() {
-                                if (e == "A") {
-                                  widget.marksBean.setMarks(-2, widget.markingAlgorithm);
-                                } else if (e == "-") {
-                                  widget.marksBean.setMarks(-1, widget.markingAlgorithm);
-                                } else {
-                                  widget.marksBean.setMarks(int.tryParse(e) ?? 0, widget.markingAlgorithm);
-                                }
-                              });
-                            },
-                            inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
-                            textAlign: TextAlign.center,
-                          ),
-                        )
-                      : Text(
-                          "${(widget.marksBean.marksObtained ?? -1) == -1 ? "-" : widget.marksBean.marksObtained == -2 ? "A" : widget.marksBean.marksObtained}",
+              child: widget.isEditMode && widget.marksBean.isMarksEditable
+                  ? InputDecorator(
+                      isFocused: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
+                        focusColor: Colors.blue,
+                      ),
+                      child: TextField(
+                        focusNode: _focusNode,
+                        autofocus: true,
+                        keyboardType: TextInputType.text,
+                        controller: widget.marksBean.marksEditingController,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (String e) {
+                          setState(() {
+                            if (e == "A") {
+                              widget.marksBean.setMarks(-2, widget.markingAlgorithm);
+                            } else if (e == "-") {
+                              widget.marksBean.setMarks(-1, widget.markingAlgorithm);
+                            } else {
+                              widget.marksBean.setMarks(int.tryParse(e) ?? 0, widget.markingAlgorithm);
+                            }
+                          });
+                        },
+                        inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : Text(
+                      "${(widget.marksBean.marksObtained ?? -1) == -1 ? "-" : widget.marksBean.marksObtained == -2 ? "A" : widget.marksBean.marksObtained}",
+                    ),
             ),
           ),
         ),

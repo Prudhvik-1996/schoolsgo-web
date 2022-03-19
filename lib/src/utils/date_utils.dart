@@ -5,8 +5,7 @@ String getCurrentDateString() {
   return DateFormat("dd/MM/yyyy").format(DateTime.now());
 }
 
-double timeToDouble(TimeOfDay myTime) =>
-    myTime.hour * 60 * 60 + myTime.minute * 60.0;
+double timeToDouble(TimeOfDay myTime) => myTime.hour * 60 * 60 + myTime.minute * 60.0;
 
 TimeOfDay stringToTimeOfDay(String tod) {
   final format = DateFormat.jm(); //"6:00 AM"
@@ -32,10 +31,7 @@ int getSecondsEquivalentOfTimeFromWHHMMSS(String? time, int? weekId) {
 int getSecondsEquivalentOfTimeFromDateTime(DateTime? dateTime) {
   try {
     dateTime ??= DateTime.now();
-    return (dateTime.weekday) * 24 * 60 * 60 +
-        dateTime.hour * 60 * 60 +
-        dateTime.minute * 60 +
-        dateTime.second;
+    return (dateTime.weekday) * 24 * 60 * 60 + dateTime.hour * 60 * 60 + dateTime.minute * 60 + dateTime.second;
   } catch (e) {
     return 0;
   }
@@ -77,15 +73,13 @@ String convertHHMMSSSecondsEquivalentToHHMMA(int eq) {
 String timeOfDayToString(TimeOfDay tod) {
   final format = DateFormat.jm(); //"6:00 AM"
   final now = new DateTime.now();
-  return format
-      .format(DateTime(now.year, now.month, now.day, tod.hour, tod.minute));
+  return format.format(DateTime(now.year, now.month, now.day, tod.hour, tod.minute));
 }
 
 String timeOfDayToHHMMSS(TimeOfDay tod) {
   final format = DateFormat("HH:mm:ss");
   final now = new DateTime.now();
-  return format
-      .format(DateTime(now.year, now.month, now.day, tod.hour, tod.minute));
+  return format.format(DateTime(now.year, now.month, now.day, tod.hour, tod.minute));
 }
 
 TimeOfDay formatHHMMSSToTimeOfDay(String tod) {
@@ -137,41 +131,26 @@ DateTime convertYYYYMMDDFormatToDateTime(String? date) {
 }
 
 String weekOfGivenDateInYYYYMMDDFormat(String date) {
-  return [
-    "MON",
-    "TUE",
-    "WED",
-    "THU",
-    "FRI",
-    "SAT",
-    "SUN"
-  ][DateTime.parse(date).weekday - 1];
+  return ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"][DateTime.parse(date).weekday - 1];
 }
 
 String convertDateToDDMMMYYYEEEE(String? date) {
-  return date == null
-      ? "-"
-      : DateFormat('dd MMM, yyyy EEEE')
-          .format(DateFormat("yyyy-MM-dd").parse(date));
+  return date == null ? "-" : DateFormat('dd MMM, yyyy EEEE').format(DateFormat("yyyy-MM-dd").parse(date));
 }
 
 String convertDateToDDMMMEEEE(String? date) {
   date ??= DateFormat("yyyy-MM-dd").format(DateTime.now());
-  return DateFormat('EEEE, dd MMM')
-      .format(DateFormat("yyyy-MM-dd").parse(date));
+  return DateFormat('EEEE, dd MMM').format(DateFormat("yyyy-MM-dd").parse(date));
 }
 
 String convertEpochToDDMMYYYYEEEEHHMMAA(int millis) {
-  return DateFormat("dd MMM, yyyy EEEE, h:mm a")
-      .format(DateTime.fromMillisecondsSinceEpoch(millis));
+  return DateFormat("dd MMM, yyyy EEEE, h:mm a").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }
 
 String convertEpochToDDMMYYYYHHMMAA(int millis) {
-  return DateFormat("dd MMM, yyyy, h:mm a")
-      .format(DateTime.fromMillisecondsSinceEpoch(millis));
+  return DateFormat("dd MMM, yyyy, h:mm a").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }
 
 String convertEpochToYYYYMMDD(int millis) {
-  return DateFormat("yyyy-MM-dd")
-      .format(DateTime.fromMillisecondsSinceEpoch(millis));
+  return DateFormat("yyyy-MM-dd").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }

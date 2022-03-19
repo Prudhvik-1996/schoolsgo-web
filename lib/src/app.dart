@@ -3,7 +3,7 @@ import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_scre
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_manage_exams_screen.dart';
+import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_create_or_manage_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_results_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
@@ -147,8 +147,7 @@ class _MyAppState extends State<MyApp> {
                   case UserDashboard.routeName:
                     try {
                       return UserDashboard(
-                        loggedInUserId:
-                            loggedInUserId ?? (routeSettings.arguments as int),
+                        loggedInUserId: loggedInUserId ?? (routeSettings.arguments as int),
                       );
                     } catch (e) {
                       return const E404NotFoundScreen();
@@ -180,20 +179,17 @@ class _MyAppState extends State<MyApp> {
                   case StudentProfileScreen.routeName:
                     try {
                       if (routeSettings.arguments is TeacherProfile) {
-                        var teacherProfile =
-                            routeSettings.arguments as TeacherProfile;
+                        var teacherProfile = routeSettings.arguments as TeacherProfile;
                         return TeacherProfileScreen(
                           teacherProfile: teacherProfile,
                         );
                       } else if (routeSettings.arguments is AdminProfile) {
-                        var adminProfile =
-                            routeSettings.arguments as AdminProfile;
+                        var adminProfile = routeSettings.arguments as AdminProfile;
                         return AdminProfileScreen(
                           adminProfile: adminProfile,
                         );
                       } else {
-                        var argument =
-                            (routeSettings.arguments as StudentProfile);
+                        var argument = (routeSettings.arguments as StudentProfile);
                         return StudentProfileScreen(
                           studentProfile: argument,
                         );
@@ -204,15 +200,13 @@ class _MyAppState extends State<MyApp> {
                   case LogbookScreen.routeName:
                     try {
                       if (routeSettings.arguments is TeacherProfile) {
-                        var teacherProfile =
-                            routeSettings.arguments as TeacherProfile;
+                        var teacherProfile = routeSettings.arguments as TeacherProfile;
                         return LogbookScreen(
                           teacherProfile: teacherProfile,
                           adminProfile: null,
                         );
                       } else if (routeSettings.arguments is AdminProfile) {
-                        var adminProfile =
-                            routeSettings.arguments as AdminProfile;
+                        var adminProfile = routeSettings.arguments as AdminProfile;
                         return LogbookScreen(
                           teacherProfile: null,
                           adminProfile: adminProfile,
@@ -226,21 +220,18 @@ class _MyAppState extends State<MyApp> {
                   case DiaryEditScreen.routeName:
                     try {
                       if (routeSettings.arguments is StudentProfile) {
-                        var studentProfile =
-                            routeSettings.arguments as StudentProfile;
+                        var studentProfile = routeSettings.arguments as StudentProfile;
                         return StudentDiaryScreen(
                           studentProfile: studentProfile,
                         );
                       } else if (routeSettings.arguments is TeacherProfile) {
-                        var teacherProfile =
-                            routeSettings.arguments as TeacherProfile;
+                        var teacherProfile = routeSettings.arguments as TeacherProfile;
                         return DiaryEditScreen(
                           teacherProfile: teacherProfile,
                           adminProfile: null,
                         );
                       } else if (routeSettings.arguments is AdminProfile) {
-                        var adminProfile =
-                            routeSettings.arguments as AdminProfile;
+                        var adminProfile = routeSettings.arguments as AdminProfile;
                         return DiaryEditScreen(
                           teacherProfile: null,
                           adminProfile: adminProfile,
@@ -254,20 +245,17 @@ class _MyAppState extends State<MyApp> {
                   case TeacherFeedbackScreen.routeName:
                     try {
                       if (routeSettings.arguments is StudentProfile) {
-                        var studentProfile =
-                            routeSettings.arguments as StudentProfile;
+                        var studentProfile = routeSettings.arguments as StudentProfile;
                         return StudentFeedbackScreen(
                           studentProfile: studentProfile,
                         );
                       } else if (routeSettings.arguments is TeacherProfile) {
-                        var teacherProfile =
-                            routeSettings.arguments as TeacherProfile;
+                        var teacherProfile = routeSettings.arguments as TeacherProfile;
                         return TeacherFeedbackScreen(
                           teacherProfile: teacherProfile,
                         );
                       } else if (routeSettings.arguments is AdminProfile) {
-                        var adminProfile =
-                            routeSettings.arguments as AdminProfile;
+                        var adminProfile = routeSettings.arguments as AdminProfile;
                         return AdminFeedbackScreen(
                           adminProfile: adminProfile,
                         );
@@ -280,21 +268,17 @@ class _MyAppState extends State<MyApp> {
                   case AdminManageOnlineClassRoomsScreen.routeName:
                     try {
                       if (routeSettings.arguments is StudentProfile) {
-                        var studentProfile =
-                            routeSettings.arguments as StudentProfile;
+                        var studentProfile = routeSettings.arguments as StudentProfile;
                         return StudentOnlineClassroomScreen(
                           studentProfile: studentProfile,
                         );
                       } else if (routeSettings.arguments is TeacherProfile) {
-                        var teacherProfile =
-                            routeSettings.arguments as TeacherProfile;
+                        var teacherProfile = routeSettings.arguments as TeacherProfile;
                         return TeacherOnlineClassroomScreen(
                           teacherProfile: teacherProfile,
                         );
-                      } else if (routeSettings.arguments
-                          is AdminRouteWithParams<String>) {
-                        var routeArgument = (routeSettings.arguments!
-                            as AdminRouteWithParams<String>);
+                      } else if (routeSettings.arguments is AdminRouteWithParams<String>) {
+                        var routeArgument = (routeSettings.arguments! as AdminRouteWithParams<String>);
                         switch (routeArgument.params![0]) {
                           case "Manage Online Class Rooms":
                             return AdminManageOnlineClassRoomsScreen(
@@ -308,8 +292,7 @@ class _MyAppState extends State<MyApp> {
                             const E404NotFoundScreen();
                         }
                       } else if (routeSettings.arguments is AdminProfile) {
-                        AdminProfile adminProfile =
-                            routeSettings.arguments as AdminProfile;
+                        AdminProfile adminProfile = routeSettings.arguments as AdminProfile;
                         return AdminOnlineClassRoomsOptionsScreen(
                           adminProfile: adminProfile,
                         );
@@ -321,14 +304,12 @@ class _MyAppState extends State<MyApp> {
                   case AdminSuggestionBox.routeName:
                     try {
                       if (routeSettings.arguments is StudentProfile) {
-                        var studentProfile =
-                            routeSettings.arguments as StudentProfile;
+                        var studentProfile = routeSettings.arguments as StudentProfile;
                         return StudentSuggestionBoxView(
                           studentProfile: studentProfile,
                         );
                       } else if (routeSettings.arguments is AdminProfile) {
-                        var adminProfile =
-                            routeSettings.arguments as AdminProfile;
+                        var adminProfile = routeSettings.arguments as AdminProfile;
                         return AdminSuggestionBox(
                           adminProfile: adminProfile,
                         );
@@ -341,21 +322,18 @@ class _MyAppState extends State<MyApp> {
                   case StudentAttendanceViewScreen.routeName:
                     try {
                       if (routeSettings.arguments is StudentProfile) {
-                        var argument =
-                            (routeSettings.arguments as StudentProfile);
+                        var argument = (routeSettings.arguments as StudentProfile);
                         return StudentAttendanceViewScreen(
                           studentProfile: argument,
                         );
                       }
                       if (routeSettings.arguments is TeacherProfile) {
-                        var argument =
-                            (routeSettings.arguments as TeacherProfile);
+                        var argument = (routeSettings.arguments as TeacherProfile);
                         return TeacherAttendanceTimeslots(
                           teacherProfile: argument,
                         );
                       } else {
-                        var argument =
-                            (routeSettings.arguments as AdminProfile);
+                        var argument = (routeSettings.arguments as AdminProfile);
                         return AdminAttendanceOptionsScreen(
                           adminProfile: argument,
                         );
@@ -366,8 +344,7 @@ class _MyAppState extends State<MyApp> {
                   case StudentNoticeBoardView.routeName:
                     if (routeSettings.arguments is StudentProfile) {
                       try {
-                        var argument =
-                            (routeSettings.arguments as StudentProfile);
+                        var argument = (routeSettings.arguments as StudentProfile);
                         return StudentNoticeBoardView(
                           studentProfile: argument,
                         );
@@ -376,8 +353,7 @@ class _MyAppState extends State<MyApp> {
                       }
                     } else if (routeSettings.arguments is TeacherProfile) {
                       try {
-                        var argument =
-                            (routeSettings.arguments as TeacherProfile);
+                        var argument = (routeSettings.arguments as TeacherProfile);
                         return TeacherNoticeBoardView(
                           teacherProfile: argument,
                         );
@@ -386,8 +362,7 @@ class _MyAppState extends State<MyApp> {
                       }
                     } else {
                       try {
-                        var argument =
-                            (routeSettings.arguments as AdminProfile);
+                        var argument = (routeSettings.arguments as AdminProfile);
                         return AdminNoticeBoardScreen(
                           adminProfile: argument,
                         );
@@ -398,20 +373,17 @@ class _MyAppState extends State<MyApp> {
                   case StudentStudyMaterialTDSScreen.routeName:
                     try {
                       if (routeSettings.arguments is StudentProfile) {
-                        var argument =
-                            (routeSettings.arguments as StudentProfile);
+                        var argument = (routeSettings.arguments as StudentProfile);
                         return StudentStudyMaterialTDSScreen(
                           studentProfile: argument,
                         );
                       } else if (routeSettings.arguments is AdminProfile) {
-                        var argument =
-                            (routeSettings.arguments as AdminProfile);
+                        var argument = (routeSettings.arguments as AdminProfile);
                         return AdminStudyMaterialTDSScreen(
                           adminProfile: argument,
                         );
                       } else if (routeSettings.arguments is TeacherProfile) {
-                        var argument =
-                            (routeSettings.arguments as TeacherProfile);
+                        var argument = (routeSettings.arguments as TeacherProfile);
                         return TeacherStudyMaterialTDSScreen(
                           teacherProfile: argument,
                         );
@@ -424,8 +396,7 @@ class _MyAppState extends State<MyApp> {
                   case StudentTimeTableView.routeName:
                     if (routeSettings.arguments is StudentProfile) {
                       try {
-                        var argument =
-                            (routeSettings.arguments as StudentProfile);
+                        var argument = (routeSettings.arguments as StudentProfile);
                         return StudentTimeTableView(
                           studentProfile: argument,
                         );
@@ -434,18 +405,15 @@ class _MyAppState extends State<MyApp> {
                       }
                     } else if (routeSettings.arguments is TeacherProfile) {
                       try {
-                        var argument =
-                            (routeSettings.arguments as TeacherProfile);
+                        var argument = (routeSettings.arguments as TeacherProfile);
                         return TeacherTimeTableView(
                           teacherProfile: argument,
                         );
                       } catch (e) {
                         return const E404NotFoundScreen();
                       }
-                    } else if (routeSettings.arguments
-                        is AdminRouteWithParams<String>) {
-                      var routeArgument = (routeSettings.arguments!
-                          as AdminRouteWithParams<String>);
+                    } else if (routeSettings.arguments is AdminRouteWithParams<String>) {
+                      var routeArgument = (routeSettings.arguments! as AdminRouteWithParams<String>);
                       switch (routeArgument.params![0]) {
                         case "Teacher Dealing Sections":
                           return AdminTeacherDealingSectionsScreen(
@@ -456,8 +424,7 @@ class _MyAppState extends State<MyApp> {
                             adminProfile: routeArgument.adminProfile,
                           );
                         case "Automatic Time Table Generation":
-                          return AdminTimeTableRandomizer(
-                              adminProfile: routeArgument.adminProfile);
+                          return AdminTimeTableRandomizer(adminProfile: routeArgument.adminProfile);
                         case "All Teachers' Time Table Preview":
                           return TeacherTimeTablePreviewScreen(
                             adminProfile: routeArgument.adminProfile,
@@ -471,8 +438,7 @@ class _MyAppState extends State<MyApp> {
                       }
                     } else {
                       try {
-                        var argument =
-                            (routeSettings.arguments as AdminProfile);
+                        var argument = (routeSettings.arguments as AdminProfile);
                         return AdminTimeTableOptions(
                           adminProfile: argument,
                         );
@@ -483,8 +449,7 @@ class _MyAppState extends State<MyApp> {
                   case StudentEventsView.routeName:
                     if (routeSettings.arguments is StudentProfile) {
                       try {
-                        var argument =
-                            (routeSettings.arguments as StudentProfile);
+                        var argument = (routeSettings.arguments as StudentProfile);
                         return StudentEventsView(
                           studentProfile: argument,
                         );
@@ -494,8 +459,7 @@ class _MyAppState extends State<MyApp> {
                     }
                     if (routeSettings.arguments is TeacherProfile) {
                       try {
-                        var argument =
-                            (routeSettings.arguments as TeacherProfile);
+                        var argument = (routeSettings.arguments as TeacherProfile);
                         return TeacherEventsView(
                           teacherProfile: argument,
                         );
@@ -504,8 +468,7 @@ class _MyAppState extends State<MyApp> {
                       }
                     } else {
                       try {
-                        var argument =
-                            (routeSettings.arguments as AdminProfile);
+                        var argument = (routeSettings.arguments as AdminProfile);
                         return AdminEventsScreen(
                           adminProfile: argument,
                         );
@@ -514,11 +477,9 @@ class _MyAppState extends State<MyApp> {
                       }
                     }
                   case StudentEachEventView.routeName:
-                    if ((routeSettings.arguments! as List<Object>)[0]
-                        is StudentProfile) {
+                    if ((routeSettings.arguments! as List<Object>)[0] is StudentProfile) {
                       try {
-                        var arguments =
-                            (routeSettings.arguments! as List<Object>);
+                        var arguments = (routeSettings.arguments! as List<Object>);
                         var studentProfile = arguments[0] as StudentProfile;
                         var event = arguments[1] as Event;
                         return StudentEachEventView(
@@ -528,11 +489,9 @@ class _MyAppState extends State<MyApp> {
                       } catch (e) {
                         return const E404NotFoundScreen();
                       }
-                    } else if ((routeSettings.arguments! as List<Object>)[0]
-                        is TeacherProfile) {
+                    } else if ((routeSettings.arguments! as List<Object>)[0] is TeacherProfile) {
                       try {
-                        var arguments =
-                            (routeSettings.arguments! as List<Object>);
+                        var arguments = (routeSettings.arguments! as List<Object>);
                         var teacherProfile = arguments[0] as TeacherProfile;
                         var event = arguments[1] as Event;
                         return TeacherEachEventView(
@@ -544,8 +503,7 @@ class _MyAppState extends State<MyApp> {
                       }
                     } else {
                       try {
-                        var arguments =
-                            (routeSettings.arguments! as List<Object>);
+                        var arguments = (routeSettings.arguments! as List<Object>);
                         var adminProfile = arguments[0] as AdminProfile;
                         var event = arguments[1] as Event;
                         return AdminEachEventScreen(
@@ -558,8 +516,7 @@ class _MyAppState extends State<MyApp> {
                     }
                   case AdminFeeOptionsScreen.routeName:
                     try {
-                      var adminProfile =
-                          routeSettings.arguments! as AdminProfile;
+                      var adminProfile = routeSettings.arguments! as AdminProfile;
                       return AdminFeeOptionsScreen(
                         adminProfile: adminProfile,
                       );
@@ -568,19 +525,17 @@ class _MyAppState extends State<MyApp> {
                     }
                   case AdminExamsScreen.routeName:
                     try {
-                      var adminProfile =
-                          routeSettings.arguments! as AdminProfile;
+                      var adminProfile = routeSettings.arguments! as AdminProfile;
                       return AdminExamsScreen(
                         adminProfile: adminProfile,
                       );
                     } catch (e) {
                       return const E404NotFoundScreen();
                     }
-                  case AdminManageExamsScreen.routeName:
+                  case AdminCreateOrManageExamsScreen.routeName:
                     try {
-                      var adminProfile =
-                          routeSettings.arguments! as AdminProfile;
-                      return AdminManageExamsScreen(
+                      var adminProfile = routeSettings.arguments! as AdminProfile;
+                      return AdminCreateOrManageExamsScreen(
                         adminProfile: adminProfile,
                       );
                     } catch (e) {
@@ -588,8 +543,7 @@ class _MyAppState extends State<MyApp> {
                     }
                   case AdminPublishResultsScreen.routeName:
                     try {
-                      var adminProfile =
-                          routeSettings.arguments! as AdminProfile;
+                      var adminProfile = routeSettings.arguments! as AdminProfile;
                       return AdminPublishResultsScreen(
                         adminProfile: adminProfile,
                       );
@@ -598,8 +552,7 @@ class _MyAppState extends State<MyApp> {
                     }
                   case AdminGradingAlgorithmsScreen.routeName:
                     try {
-                      var adminProfile =
-                          routeSettings.arguments! as AdminProfile;
+                      var adminProfile = routeSettings.arguments! as AdminProfile;
                       return AdminGradingAlgorithmsScreen(
                         adminProfile: adminProfile,
                       );

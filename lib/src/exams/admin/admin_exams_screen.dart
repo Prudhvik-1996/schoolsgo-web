@@ -3,7 +3,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_manage_exams_screen.dart';
+import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_create_or_manage_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_results_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
@@ -21,8 +21,7 @@ class AdminExamsScreen extends StatefulWidget {
 }
 
 class _AdminExamsScreenState extends State<AdminExamsScreen> {
-  Widget _getExamsOption(
-      String title, String? description, StatefulWidget nextWidget) {
+  Widget _getExamsOption(String title, String? description, StatefulWidget nextWidget) {
     return Container(
       padding: const EdgeInsets.all(10),
       margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
@@ -97,7 +96,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
           _getExamsOption(
             "Manage Exams",
             null,
-            AdminManageExamsScreen(
+            AdminCreateOrManageExamsScreen(
               adminProfile: widget.adminProfile,
             ),
           ),
