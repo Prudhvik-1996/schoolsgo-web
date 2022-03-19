@@ -14,11 +14,11 @@ import '../model/events.dart';
 class StudentEachEventView extends StatefulWidget {
   const StudentEachEventView({
     Key? key,
-    required this.schoolId,
+    required this.studentProfile,
     required this.event,
   }) : super(key: key);
 
-  final StudentProfile schoolId;
+  final StudentProfile studentProfile;
   final Event event;
 
   static const routeName = "/event";
@@ -47,15 +47,10 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
       _isLoading = true;
       selectedIndices = [];
     });
-    GetEventMediaResponse getEventMediaResponse = await getEventMedia(
-        GetEventMediaRequest(eventId: widget.event.eventId));
-    if (getEventMediaResponse.httpStatus == 'OK' &&
-        getEventMediaResponse.responseStatus == 'success') {
+    GetEventMediaResponse getEventMediaResponse = await getEventMedia(GetEventMediaRequest(eventId: widget.event.eventId));
+    if (getEventMediaResponse.httpStatus == 'OK' && getEventMediaResponse.responseStatus == 'success') {
       setState(() {
-        eventMedia = getEventMediaResponse.eventMedia!
-            .map((e) => e!)
-            .where((e) => e.status == 'active')
-            .toList();
+        eventMedia = getEventMediaResponse.eventMedia!.map((e) => e!).where((e) => e.status == 'active').toList();
       });
       for (int index = 0; index < eventMedia.length; index++) {
         // ignore: undefined_prefixed_name
@@ -86,8 +81,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
                 width: 6,
               )
             : null,
-        borderRadius:
-            selectedIndices.contains(index) ? BorderRadius.circular(10) : null,
+        borderRadius: selectedIndices.contains(index) ? BorderRadius.circular(10) : null,
       ),
       child: GestureDetector(
         onTap: () {
@@ -118,8 +112,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
           parentColor: clayContainerColor(context),
           spread: 1,
           borderRadius: 10,
-          child: getFileTypeForExtension(eachEventMedia.mediaType!) ==
-                  MediaFileType.IMAGE_FILES
+          child: getFileTypeForExtension(eachEventMedia.mediaType!) == MediaFileType.IMAGE_FILES
               ? FadeInImage(
                   image: NetworkImage(eachEventMedia.mediaUrl!),
                   placeholder: const AssetImage(
@@ -157,9 +150,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
       for (int selectedIndex in selectedIndices) {
         downloadFile(
           eventMedia[selectedIndex].mediaUrl!,
-          filename: getCurrentTimeStringInDDMMYYYYHHMMSS() +
-              "." +
-              eventMedia[selectedIndex].mediaType!,
+          filename: getCurrentTimeStringInDDMMYYYYHHMMSS() + "." + eventMedia[selectedIndex].mediaType!,
         );
       }
     }
@@ -167,17 +158,13 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
 
   @override
   Widget build(BuildContext context) {
-    int count =
-        MediaQuery.of(context).orientation == Orientation.landscape ? 6 : 3;
-    double mainMargin =
-        MediaQuery.of(context).orientation == Orientation.landscape
-            ? MediaQuery.of(context).size.width / 20
-            : 10;
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 6 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 20 : 10;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.event.eventName!),
         actions: [
-          buildRoleButtonForAppBar(context, widget.schoolId),
+          buildRoleButtonForAppBar(context, widget.studentProfile),
           PopupMenuButton<String>(
             onSelected: _performMoreActions,
             itemBuilder: (context) {
@@ -208,7 +195,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
         ],
       ),
       drawer: StudentAppDrawer(
-        studentProfile: widget.schoolId,
+        studentProfile: widget.studentProfile,
       ),
       body: _isLoading
           ? Center(
@@ -216,8 +203,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
             )
           : previewingIndex == null
               ? Container(
-                  margin: EdgeInsets.fromLTRB(
-                      mainMargin, 20, mainMargin, mainMargin),
+                  margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
                   child: GridView.count(
                     primary: false,
                     padding: const EdgeInsets.all(1.5),
@@ -226,10 +212,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
                     mainAxisSpacing: 1.0,
                     crossAxisSpacing: 1.0,
                     physics: const BouncingScrollPhysics(),
-                    children:
-                        List<int>.generate(eventMedia.length, (i) => i * 1)
-                            .map((i) => buildEventMediaWidget(i))
-                            .toList(),
+                    children: List<int>.generate(eventMedia.length, (i) => i * 1).map((i) => buildEventMediaWidget(i)).toList(),
                   ),
                 )
               : Center(
@@ -254,13 +237,8 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
                                       child: const Icon(Icons.download_rounded),
                                       onTap: () {
                                         downloadFile(
-                                          eventMedia[previewingIndex!]
-                                              .mediaUrl!,
-                                          filename:
-                                              getCurrentTimeStringInDDMMYYYYHHMMSS() +
-                                                  "." +
-                                                  eventMedia[previewingIndex!]
-                                                      .mediaType!,
+                                          eventMedia[previewingIndex!].mediaUrl!,
+                                          filename: getCurrentTimeStringInDDMMYYYYHHMMSS() + "." + eventMedia[previewingIndex!].mediaType!,
                                         );
                                       },
                                     ),
@@ -281,8 +259,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
                                       child: const Icon(Icons.open_in_new),
                                       onTap: () {
                                         window.open(
-                                          eventMedia[previewingIndex!]
-                                              .mediaUrl!,
+                                          eventMedia[previewingIndex!].mediaUrl!,
                                           '_blank',
                                         );
                                       },
@@ -335,8 +312,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
                                     child: InkWell(
                                       onTap: () {
                                         setState(() {
-                                          previewingIndex =
-                                              previewingIndex! - 1;
+                                          previewingIndex = previewingIndex! - 1;
                                         });
                                       },
                                       child: const SizedBox(
@@ -353,21 +329,16 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
                           SizedBox(
                             width: MediaQuery.of(context).size.width / 2,
                             height: MediaQuery.of(context).size.height / 1,
-                            child: getFileTypeForExtension(
-                                        eventMedia[previewingIndex!]
-                                            .mediaType!) ==
-                                    MediaFileType.IMAGE_FILES
+                            child: getFileTypeForExtension(eventMedia[previewingIndex!].mediaType!) == MediaFileType.IMAGE_FILES
                                 ? FadeInImage(
                                     placeholder: const AssetImage(
                                       'assets/images/loading_grey_white.gif',
                                     ),
-                                    image: NetworkImage(
-                                        eventMedia[previewingIndex!].mediaUrl!),
+                                    image: NetworkImage(eventMedia[previewingIndex!].mediaUrl!),
                                     fit: BoxFit.contain,
                                   )
                                 : HtmlElementView(
-                                    viewType:
-                                        eventMedia[previewingIndex!].mediaUrl!,
+                                    viewType: eventMedia[previewingIndex!].mediaUrl!,
                                   ),
                           ),
                           Container(
@@ -386,8 +357,7 @@ class _StudentEachEventViewState extends State<StudentEachEventView> {
                                     child: InkWell(
                                       onTap: () {
                                         setState(() {
-                                          previewingIndex =
-                                              previewingIndex! + 1;
+                                          previewingIndex = previewingIndex! + 1;
                                         });
                                       },
                                       child: const SizedBox(

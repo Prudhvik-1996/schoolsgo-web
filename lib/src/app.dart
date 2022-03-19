@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/exams/admin/admin_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_create_or_manage_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_results_screen.dart';
+import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
@@ -483,7 +484,7 @@ class _MyAppState extends State<MyApp> {
                         var studentProfile = arguments[0] as StudentProfile;
                         var event = arguments[1] as Event;
                         return StudentEachEventView(
-                          schoolId: studentProfile,
+                          studentProfile: studentProfile,
                           event: event,
                         );
                       } catch (e) {
@@ -524,13 +525,24 @@ class _MyAppState extends State<MyApp> {
                       return const E404NotFoundScreen();
                     }
                   case AdminExamsScreen.routeName:
-                    try {
-                      var adminProfile = routeSettings.arguments! as AdminProfile;
-                      return AdminExamsScreen(
-                        adminProfile: adminProfile,
-                      );
-                    } catch (e) {
-                      return const E404NotFoundScreen();
+                    if (routeSettings.arguments is StudentProfile) {
+                      try {
+                        var argument = (routeSettings.arguments as StudentProfile);
+                        return StudentExamsScreen(
+                          studentProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else {
+                      try {
+                        var adminProfile = routeSettings.arguments! as AdminProfile;
+                        return AdminExamsScreen(
+                          adminProfile: adminProfile,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
                     }
                   case AdminCreateOrManageExamsScreen.routeName:
                     try {
