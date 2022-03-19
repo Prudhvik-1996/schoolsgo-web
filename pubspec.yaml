@@ -59,6 +59,7 @@ dependencies:
   jitsi_meet: ^4.0.0
 
   linked_scroll_controller: ^0.2.0
+  screenshot: ^1.2.3
 
 dev_dependencies:
   flutter_test:

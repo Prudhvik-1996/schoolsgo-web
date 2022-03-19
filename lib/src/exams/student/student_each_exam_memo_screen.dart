@@ -1,8 +1,12 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/src/iterable_extensions.dart';
+import 'package:download/download.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/model/admin_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/constants.dart';
@@ -11,6 +15,7 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:screenshot/screenshot.dart';
 
 class StudentEachExamMemoScreen extends StatefulWidget {
   const StudentEachExamMemoScreen({
@@ -35,6 +40,8 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
   bool _hasInternals = false;
 
   bool _isLoading = true;
+  bool _isPrinting = false;
+
   late bool _isMarksForBean;
   late bool _isGradeForBean;
   late bool _isGpaForBean;
@@ -47,6 +54,8 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
   static const double _cellColumnHeight = 60;
   static final Color _headerColor = Colors.blue.shade300;
   static const double _cellPadding = 4.0;
+
+  ScreenshotController screenshotController = ScreenshotController();
 
   @override
   void initState() {
@@ -248,8 +257,57 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
           ? Center(
               child: Image.asset('assets/images/eis_loader.gif'),
             )
-          : ListView(
+          : bodyWidget(),
+      floatingActionButton: _isLoading
+          ? Container()
+          : GestureDetector(
+              child: ClayButton(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 100,
+                child: Container(
+                  margin: const EdgeInsets.all(10),
+                  child: const Icon(Icons.print_sharp),
+                ),
+              ),
+              onTap: () async {
+                setState(() {
+                  _isPrinting = true;
+                });
+                await screenshotController.capture(delay: const Duration(milliseconds: 10)).then((Uint8List? image) async {
+                  if (image != null) {
+                    download(Stream.fromIterable(image), "image.png");
+                  }
+                });
+                setState(() {
+                  _isPrinting = false;
+                });
+              },
+            ),
+    );
+  }
+
+  Widget bodyWidget() {
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      color: clayContainerColor(context),
+      child: SingleChildScrollView(
+        child: Screenshot(
+          controller: screenshotController,
+          child: Container(
+            decoration: BoxDecoration(
+              color: clayContainerColor(context),
+            ),
+            child: ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
               children: <Widget>[
+                const SizedBox(
+                  height: 20,
+                ),
                 Container(
                   margin: MediaQuery.of(context).orientation == Orientation.landscape
                       ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 5, 0, MediaQuery.of(context).size.width / 5, 0)
@@ -257,8 +315,29 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
                   child: examDetailsWidget(),
                 ),
                 marksTable.isEmpty ? Container() : marksTableWidget(),
+                const SizedBox(
+                  height: 20,
+                ),
+                if (_isPrinting)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.all(10),
+                        child: const Text("© Powered by Epsilon Infinity Services Pvt. Ltd."),
+                      ),
+                    ],
+                  ),
+                if (_isPrinting)
+                  const SizedBox(
+                    height: 20,
+                  ),
               ],
             ),
+          ),
+        ),
+      ),
     );
   }
 
