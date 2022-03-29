@@ -14,21 +14,17 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminManageOnlineClassRoomsScreen extends StatefulWidget {
-  const AdminManageOnlineClassRoomsScreen(
-      {Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminManageOnlineClassRoomsScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
   static const routeName = "/onlineclassroom";
 
   @override
-  _AdminManageOnlineClassRoomsScreenState createState() =>
-      _AdminManageOnlineClassRoomsScreenState();
+  _AdminManageOnlineClassRoomsScreenState createState() => _AdminManageOnlineClassRoomsScreenState();
 }
 
-class _AdminManageOnlineClassRoomsScreenState
-    extends State<AdminManageOnlineClassRoomsScreen> {
+class _AdminManageOnlineClassRoomsScreenState extends State<AdminManageOnlineClassRoomsScreen> {
   bool _isLoading = true;
   bool _isEditMode = false;
 
@@ -68,24 +64,19 @@ class _AdminManageOnlineClassRoomsScreenState
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
     // Get all online class rooms
-    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
-        await getOnlineClassRooms(GetOnlineClassRoomsRequest(
+    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse = await getOnlineClassRooms(GetOnlineClassRoomsRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
-    if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
-        getOnlineClassRoomsResponse.responseStatus == "success") {
+    if (getOnlineClassRoomsResponse.httpStatus == "OK" && getOnlineClassRoomsResponse.responseStatus == "success") {
       setState(() {
-        _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!
-            .map((e) => e!)
-            .toList();
+        _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!.map((e) => e!).toList();
         _onlineClassRooms.sort((a, b) => a.compareTo(b));
       });
     }
@@ -95,13 +86,11 @@ class _AdminManageOnlineClassRoomsScreenState
     });
   }
 
-  Future<void> _updateSectionOCRAsPerTTFlag(
-      Section section, bool ocrAsPerTt) async {
+  Future<void> _updateSectionOCRAsPerTTFlag(Section section, bool ocrAsPerTt) async {
     setState(() {
       _isLoading = true;
     });
-    UpdateOcrAsPerTtResponse updateOcrAsPerTtResponse =
-        await updateOcrAsPerTtRooms(
+    UpdateOcrAsPerTtResponse updateOcrAsPerTtResponse = await updateOcrAsPerTtRooms(
       UpdateOcrAsPerTtRequest(
         schoolId: widget.adminProfile.schoolId,
         sectionId: section.sectionId,
@@ -110,8 +99,7 @@ class _AdminManageOnlineClassRoomsScreenState
       ),
     );
 
-    if (updateOcrAsPerTtResponse.httpStatus != "OK" ||
-        updateOcrAsPerTtResponse.responseStatus != "success") {
+    if (updateOcrAsPerTtResponse.httpStatus != "OK" || updateOcrAsPerTtResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong.. Please try again later!"),
@@ -136,9 +124,7 @@ class _AdminManageOnlineClassRoomsScreenState
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _sectionsList.indexOf(section) == _sectionIndex
-            ? Colors.blue[200]
-            : clayContainerColor(context),
+        color: _sectionsList.indexOf(section) == _sectionIndex ? Colors.blue[200] : clayContainerColor(context),
         spread: _sectionsList.indexOf(section) == _sectionIndex ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -158,10 +144,8 @@ class _AdminManageOnlineClassRoomsScreenState
                   duration: const Duration(seconds: 1),
                   curve: Curves.linear,
                 );
-                _newCustomOcr.sectionId =
-                    _sectionsList[_sectionIndex].sectionId;
-                _newCustomOcr.sectionName =
-                    _sectionsList[_sectionIndex].sectionName;
+                _newCustomOcr.sectionId = _sectionsList[_sectionIndex].sectionId;
+                _newCustomOcr.sectionName = _sectionsList[_sectionIndex].sectionName;
                 _isSectionPickerOpen = false;
               });
               // _applyFilters();
@@ -211,8 +195,7 @@ class _AdminManageOnlineClassRoomsScreenState
             childAspectRatio: 2.25,
             crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
             shrinkWrap: true,
-            children:
-                _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
+            children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
           ),
         ],
       ),
@@ -248,7 +231,7 @@ class _AdminManageOnlineClassRoomsScreenState
                   ),
                 ),
               ),
-              if (_isEditMode)
+              if (_isEditMode && !widget.adminProfile.isMegaAdmin)
                 Expanded(
                   flex: 1,
                   child: buildIsOcrAsPerTtSwitch(),
@@ -303,11 +286,7 @@ class _AdminManageOnlineClassRoomsScreenState
 
   Widget buildOnlineClassRoomsForSectionAndWeek(Section section, String week) {
     List<OnlineClassRoom> sectionWiseOCRsForWeek = _onlineClassRooms
-        .where((e) =>
-            section.sectionId == e.sectionId &&
-            e.week == week &&
-            e.sectionWiseTimeSlotId != null &&
-            e.sectionWiseTimeSlotId != 0)
+        .where((e) => section.sectionId == e.sectionId && e.week == week && e.sectionWiseTimeSlotId != null && e.sectionWiseTimeSlotId != 0)
         .toList();
 
     return Container(
@@ -386,27 +365,17 @@ class _AdminManageOnlineClassRoomsScreenState
       DateTime now = DateTime(x.year, x.month, x.day);
 
       var customCRs = _onlineClassRooms.where((eachOcr) {
-        return eachOcr.date != null &&
-            (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now))
-                    .inDays <
-                7;
+        return eachOcr.date != null && (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now)).inDays < 7;
       });
 
       _thisOcrOverlappedWith = customCRs.where((eachOcr) {
-        int startTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            onlineClassRoom.startTime, onlineClassRoom.weekId);
-        int startTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            eachOcr.startTime, eachOcr.weekId);
-        int endTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            onlineClassRoom.endTime, onlineClassRoom.weekId);
-        int endTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            eachOcr.endTime, eachOcr.weekId);
-        if ((startTimeEqOfEachOcr < startTimeEqOfThisOcr &&
-                startTimeEqOfThisOcr < endTimeEqOfEachOcr) ||
-            (startTimeEqOfEachOcr < endTimeEqOfThisOcr &&
-                endTimeEqOfThisOcr < endTimeEqOfEachOcr)) return true;
-        if (startTimeEqOfEachOcr == startTimeEqOfThisOcr &&
-            endTimeEqOfEachOcr == endTimeEqOfThisOcr) return true;
+        int startTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(onlineClassRoom.startTime, onlineClassRoom.weekId);
+        int startTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.startTime, eachOcr.weekId);
+        int endTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(onlineClassRoom.endTime, onlineClassRoom.weekId);
+        int endTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.endTime, eachOcr.weekId);
+        if ((startTimeEqOfEachOcr < startTimeEqOfThisOcr && startTimeEqOfThisOcr < endTimeEqOfEachOcr) ||
+            (startTimeEqOfEachOcr < endTimeEqOfThisOcr && endTimeEqOfThisOcr < endTimeEqOfEachOcr)) return true;
+        if (startTimeEqOfEachOcr == startTimeEqOfThisOcr && endTimeEqOfEachOcr == endTimeEqOfThisOcr) return true;
         return false;
       }).toList();
     }
@@ -416,8 +385,7 @@ class _AdminManageOnlineClassRoomsScreenState
       child: _thisOcrOverlappedWith.isNotEmpty
           ? Tooltip(
               message: _getOverlappedMessage(_thisOcrOverlappedWith),
-              child: buildTtOcrClayContainer(
-                  _thisOcrOverlappedWith, onlineClassRoom),
+              child: buildTtOcrClayContainer(_thisOcrOverlappedWith, onlineClassRoom),
             )
           : buildTtOcrClayContainer(_thisOcrOverlappedWith, onlineClassRoom),
     );
@@ -431,16 +399,12 @@ class _AdminManageOnlineClassRoomsScreenState
             .join("\n");
   }
 
-  ClayContainer buildTtOcrClayContainer(
-      List<OnlineClassRoom> _thisOcrOverlappedWith,
-      OnlineClassRoom onlineClassRoom) {
+  ClayContainer buildTtOcrClayContainer(List<OnlineClassRoom> _thisOcrOverlappedWith, OnlineClassRoom onlineClassRoom) {
     return ClayContainer(
       depth: 20,
       // height: 100,
       parentColor: clayContainerColor(context),
-      surfaceColor: _thisOcrOverlappedWith.isNotEmpty
-          ? Colors.red
-          : clayContainerColor(context),
+      surfaceColor: _thisOcrOverlappedWith.isNotEmpty ? Colors.red : clayContainerColor(context),
       borderRadius: 10,
       child: SizedBox(
         height: 50,
@@ -504,9 +468,7 @@ class _AdminManageOnlineClassRoomsScreenState
 
   Widget buildCustomOnlineClassRoomsForSection(Section section) {
     List<OnlineClassRoom> sectionWiseOCRsForWeek = _onlineClassRooms
-        .where((e) =>
-            section.sectionId == e.sectionId &&
-            (e.sectionWiseTimeSlotId == null || e.sectionWiseTimeSlotId == 0))
+        .where((e) => section.sectionId == e.sectionId && (e.sectionWiseTimeSlotId == null || e.sectionWiseTimeSlotId == 0))
         .toList();
     return Container(
       margin: const EdgeInsets.all(10),
@@ -660,20 +622,13 @@ class _AdminManageOnlineClassRoomsScreenState
           });
         },
         children: _sectionsList.map((eachSection) {
-          List<OnlineClassRoom> onlineClassRoomsForGivenSection =
-              _onlineClassRooms
-                  .where((e) => eachSection.sectionId == e.sectionId)
-                  .toList();
+          List<OnlineClassRoom> onlineClassRoomsForGivenSection = _onlineClassRooms.where((e) => eachSection.sectionId == e.sectionId).toList();
           double heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
-                    return onlineClassRoomsForGivenSection
-                        .where(
-                            (eachTimeSlot) => eachTimeSlot.weekId == eachWeekId)
-                        .length;
+                    return onlineClassRoomsForGivenSection.where((eachTimeSlot) => eachTimeSlot.weekId == eachWeekId).length;
                   }).reduce(max) *
                   50 +
               275;
-          double widthOfEachCard =
-              (MediaQuery.of(context).size.width - 10) / crossAxisCount;
+          double widthOfEachCard = (MediaQuery.of(context).size.width - 10) / crossAxisCount;
           return SizedBox(
             width: MediaQuery.of(context).size.width - 10,
             child: Column(
@@ -713,23 +668,20 @@ class _AdminManageOnlineClassRoomsScreenState
                           children: (eachSection.ocrAsPerTt ?? false)
                               ? WEEKS
                                       .map(
-                                        (eachWeek) =>
-                                            buildOnlineClassRoomsForSectionAndWeek(
+                                        (eachWeek) => buildOnlineClassRoomsForSectionAndWeek(
                                           eachSection,
                                           eachWeek,
                                         ),
                                       )
                                       .toList() +
                                   [
-                                    buildCustomOnlineClassRoomsForSection(
-                                        eachSection),
+                                    buildCustomOnlineClassRoomsForSection(eachSection),
                                     const SizedBox(
                                       height: 100,
                                     ),
                                   ]
                               : [
-                                  buildCustomOnlineClassRoomsForSection(
-                                      eachSection),
+                                  buildCustomOnlineClassRoomsForSection(eachSection),
                                   const SizedBox(
                                     height: 100,
                                   ),
@@ -748,7 +700,7 @@ class _AdminManageOnlineClassRoomsScreenState
   }
 
   Widget _createNewCustomOcrWidget() {
-    if (!_isEditMode) return Container();
+    if (!_isEditMode || widget.adminProfile.isMegaAdmin) return Container();
     return Container(
       margin: const EdgeInsets.all(50),
       padding: const EdgeInsets.all(50),
@@ -767,8 +719,7 @@ class _AdminManageOnlineClassRoomsScreenState
                   child: const Text("Create new Custom OCR"),
                 ),
                 Container(
-                  child: Text(
-                      "Section: ${_sectionsList[_sectionIndex].sectionName}"),
+                  child: Text("Section: ${_sectionsList[_sectionIndex].sectionName}"),
                 ),
                 Container(
                   child: Text("Date picker"),
@@ -825,7 +776,7 @@ class _AdminManageOnlineClassRoomsScreenState
                 ),
               ],
             ),
-      floatingActionButton: _isLoading
+      floatingActionButton: _isLoading || widget.adminProfile.isMegaAdmin
           ? Container()
           : MouseRegion(
               cursor: SystemMouseCursors.click,
@@ -855,9 +806,7 @@ class _AdminManageOnlineClassRoomsScreenState
   CustomScrollView _manageOCRsWidget() {
     return CustomScrollView(
       shrinkWrap: true,
-      physics: _isEditMode
-          ? const NeverScrollableScrollPhysics()
-          : const BouncingScrollPhysics(),
+      physics: _isEditMode && !widget.adminProfile.isMegaAdmin ? const NeverScrollableScrollPhysics() : const BouncingScrollPhysics(),
       slivers: <Widget>[
         SliverToBoxAdapter(
           child: Column(

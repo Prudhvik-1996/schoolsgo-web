@@ -30,8 +30,7 @@ class AdminStudyMaterialScreen extends StatefulWidget {
   final TeacherDealingSection tds;
 
   @override
-  _AdminStudyMaterialScreenState createState() =>
-      _AdminStudyMaterialScreenState();
+  _AdminStudyMaterialScreenState createState() => _AdminStudyMaterialScreenState();
 }
 
 class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
@@ -72,15 +71,13 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
       );
     });
 
-    GetStudyMaterialResponse getStudyMaterialResponse =
-        await getStudyMaterial(GetStudyMaterialRequest(
+    GetStudyMaterialResponse getStudyMaterialResponse = await getStudyMaterial(GetStudyMaterialRequest(
       schoolId: widget.adminProfile.schoolId,
       tdsId: widget.tds.tdsId,
       subjectId: widget.tds.subjectId,
       teacherId: widget.tds.teacherId,
     ));
-    if (getStudyMaterialResponse.httpStatus != "OK" ||
-        getStudyMaterialResponse.responseStatus != "success") {
+    if (getStudyMaterialResponse.httpStatus != "OK" || getStudyMaterialResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong! Try again later.."),
@@ -88,10 +85,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
       );
     } else {
       setState(() {
-        _studyMaterial = getStudyMaterialResponse
-            .assignmentsAndStudyMaterialBeans!
-            .map((e) => e!)
-            .toList();
+        _studyMaterial = getStudyMaterialResponse.assignmentsAndStudyMaterialBeans!.map((e) => e!).toList();
       });
     }
 
@@ -126,10 +120,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
         setState(() {
           _selectedDate = _newDate;
           _itemScrollController.scrollTo(
-            index: _studyMaterial
-                .map((e) => e.createTime)
-                .toList()
-                .indexOf(_selectedDate!),
+            index: _studyMaterial.map((e) => e.createTime).toList().indexOf(_selectedDate!),
             duration: const Duration(seconds: 1),
             curve: Curves.easeInOutCubic,
           );
@@ -157,8 +148,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
           );
           if (_newDate == null) return;
           setState(() {
-            studyMaterial.dueDate =
-                _newDate.millisecondsSinceEpoch + 5 * 3600 + 30 * 60;
+            studyMaterial.dueDate = _newDate.millisecondsSinceEpoch + 5 * 3600 + 30 * 60;
           });
         },
         child: ClayButton(
@@ -181,9 +171,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                     ),
                   if (studyMaterial.dueDate != null)
                     Text(
-                      convertDateTimeToDDMMYYYYFormat(
-                          DateTime.fromMillisecondsSinceEpoch(
-                              studyMaterial.dueDate!)),
+                      convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(studyMaterial.dueDate!)),
                     ),
                 ],
               ),
@@ -220,9 +208,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                     onTap: () {
                       downloadFile(
                         studyMaterial.mediaList![index]!.mediaUrl!,
-                        filename: getCurrentTimeStringInDDMMYYYYHHMMSS() +
-                            "." +
-                            studyMaterial.mediaList![index]!.mediaType!,
+                        filename: getCurrentTimeStringInDDMMYYYYHHMMSS() + "." + studyMaterial.mediaList![index]!.mediaType!,
                       );
                     },
                   ),
@@ -258,15 +244,12 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
               SizedBox(
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height / 1,
-                child: getFileTypeForExtension(
-                            studyMaterial.mediaList![index]!.mediaType!) ==
-                        MediaFileType.IMAGE_FILES
+                child: getFileTypeForExtension(studyMaterial.mediaList![index]!.mediaType!) == MediaFileType.IMAGE_FILES
                     ? FadeInImage(
                         placeholder: const AssetImage(
                           'assets/images/loading_grey_white.gif',
                         ),
-                        image: NetworkImage(
-                            studyMaterial.mediaList![index]!.mediaUrl!),
+                        image: NetworkImage(studyMaterial.mediaList![index]!.mediaUrl!),
                         fit: BoxFit.contain,
                       )
                     : HtmlElementView(
@@ -283,9 +266,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                   width: 25,
                   child: FittedBox(
                     fit: BoxFit.contain,
-                    child: index == studyMaterial.mediaList!.length - 1
-                        ? null
-                        : const Icon(Icons.arrow_right),
+                    child: index == studyMaterial.mediaList!.length - 1 ? null : const Icon(Icons.arrow_right),
                   ),
                 ),
               ),
@@ -334,28 +315,21 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                   _isLoading = true;
                 });
 
-                CreateOrUpdateStudyMaterialRequest
-                    createOrUpdateStudyMaterialRequest =
-                    CreateOrUpdateStudyMaterialRequest(
+                CreateOrUpdateStudyMaterialRequest createOrUpdateStudyMaterialRequest = CreateOrUpdateStudyMaterialRequest(
                   description: studyMaterial.description,
                   studyMaterialType: studyMaterial.studyMaterialType,
                   status: studyMaterial.status,
                   agentId: widget.adminProfile.userId,
                   tdsId: widget.tds.tdsId,
                   schoolId: widget.adminProfile.schoolId,
-                  assignmentsAndStudyMaterialId:
-                      studyMaterial.assignmentAndStudyMaterialId,
+                  assignmentsAndStudyMaterialId: studyMaterial.assignmentAndStudyMaterialId,
                   dueDate: studyMaterial.dueDate,
                 );
 
-                CreateOrUpdateStudyMaterialResponse
-                    createOrUpdateStudyMaterialResponse =
-                    await createOrUpdateStudyMaterial(
-                        createOrUpdateStudyMaterialRequest);
+                CreateOrUpdateStudyMaterialResponse createOrUpdateStudyMaterialResponse =
+                    await createOrUpdateStudyMaterial(createOrUpdateStudyMaterialRequest);
 
-                if (createOrUpdateStudyMaterialResponse.httpStatus != "OK" ||
-                    createOrUpdateStudyMaterialResponse.responseStatus !=
-                        "success") {
+                if (createOrUpdateStudyMaterialResponse.httpStatus != "OK" || createOrUpdateStudyMaterialResponse.responseStatus != "success") {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Something went wrong! Try again later.."),
@@ -367,30 +341,20 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
 
                 studyMaterial.mediaList!.map((e) => e!).forEach((e) {
                   setState(() {
-                    e.assignmentAndStudyMaterialId =
-                        createOrUpdateStudyMaterialResponse
-                            .assignmentAndStudyMaterialId;
+                    e.assignmentAndStudyMaterialId = createOrUpdateStudyMaterialResponse.assignmentAndStudyMaterialId;
                   });
                 });
 
-                CreateOrUpdateStudyMaterialMediaMapResponse
-                    createOrUpdateStudyMaterialMediaMapResponse =
-                    await createOrUpdateStudyMaterialMediaMap(
-                        CreateOrUpdateStudyMaterialMediaMapRequest(
+                CreateOrUpdateStudyMaterialMediaMapResponse createOrUpdateStudyMaterialMediaMapResponse =
+                    await createOrUpdateStudyMaterialMediaMap(CreateOrUpdateStudyMaterialMediaMapRequest(
                   schoolId: widget.adminProfile.schoolId,
                   agentId: widget.adminProfile.userId,
-                  mediaList: studyMaterial.mediaList!
-                      .map((e) => e!)
-                      .where((e) => !DeepCollectionEquality()
-                          .equals(e.toJson(), e.origJson()))
-                      .toList(),
+                  mediaList:
+                      studyMaterial.mediaList!.map((e) => e!).where((e) => !DeepCollectionEquality().equals(e.toJson(), e.origJson())).toList(),
                 ));
 
-                if (createOrUpdateStudyMaterialMediaMapResponse.httpStatus !=
-                        "OK" ||
-                    createOrUpdateStudyMaterialMediaMapResponse
-                            .responseStatus !=
-                        "success") {
+                if (createOrUpdateStudyMaterialMediaMapResponse.httpStatus != "OK" ||
+                    createOrUpdateStudyMaterialMediaMapResponse.responseStatus != "success") {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Something went wrong! Try again later.."),
@@ -428,8 +392,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
   Widget _getStudyMaterialEditWidget(StudyMaterial studyMaterial) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
@@ -486,8 +449,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                     child: InkWell(
                       onTap: () async {
                         HapticFeedback.vibrate();
-                        if (!DeepCollectionEquality().equals(
-                            studyMaterial.toJson(), studyMaterial.origJson())) {
+                        if (!DeepCollectionEquality().equals(studyMaterial.toJson(), studyMaterial.origJson())) {
                           if ((studyMaterial.description ?? "").trim() != "") {
                             _saveChanges(studyMaterial);
                           }
@@ -527,8 +489,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                       child: _getDropDownForStudyMaterialType(studyMaterial),
                     ),
                   ),
-                  if (studyMaterial.studyMaterialType! == "ASSIGNMENT")
-                    _getDatePickerForAssignment(studyMaterial)
+                  if (studyMaterial.studyMaterialType! == "ASSIGNMENT") _getDatePickerForAssignment(studyMaterial)
                 ],
               ),
               Row(
@@ -565,25 +526,12 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                     crossAxisSpacing: 5.0,
                     mainAxisSpacing: 5.0,
                   ),
-                  itemCount: studyMaterial.mediaList!
-                          .where((i) =>
-                              i!.assignmentAndStudyMaterialMediaStatus !=
-                              'inactive')
-                          .toList()
-                          .length +
-                      1,
+                  itemCount: studyMaterial.mediaList!.where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive').toList().length + 1,
                   itemBuilder: (context, index) {
-                    if (index ==
-                        studyMaterial.mediaList!
-                            .where((i) =>
-                                i!.assignmentAndStudyMaterialMediaStatus !=
-                                'inactive')
-                            .toList()
-                            .length) {
+                    if (index == studyMaterial.mediaList!.where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive').toList().length) {
                       return InkWell(
                         onTap: () {
-                          html.FileUploadInputElement uploadInput =
-                              html.FileUploadInputElement();
+                          html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
                           uploadInput.multiple = true;
                           uploadInput.draggable = true;
                           uploadInput.accept =
@@ -604,47 +552,28 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                                     });
 
                                     try {
-                                      UploadFileToDriveResponse
-                                          uploadFileResponse =
-                                          await uploadFileToDrive(
-                                              reader.result!, file.name);
+                                      UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
 
-                                      StudyMaterialMedia
-                                          studyMaterialMediaBean =
-                                          StudyMaterialMedia();
-                                      studyMaterialMediaBean
-                                              .assignmentAndStudyMaterialId =
-                                          studyMaterial
-                                              .assignmentAndStudyMaterialId;
+                                      StudyMaterialMedia studyMaterialMediaBean = StudyMaterialMedia();
+                                      studyMaterialMediaBean.assignmentAndStudyMaterialId = studyMaterial.assignmentAndStudyMaterialId;
                                       studyMaterialMediaBean.status = "active";
-                                      studyMaterialMediaBean.mediaType =
-                                          uploadFileResponse
-                                              .mediaBean!.mediaType;
-                                      studyMaterialMediaBean.mediaUrl =
-                                          uploadFileResponse
-                                              .mediaBean!.mediaUrl;
-                                      studyMaterialMediaBean.mediaId =
-                                          uploadFileResponse.mediaBean!.mediaId;
-                                      studyMaterialMediaBean
-                                              .assignmentAndStudyMaterialMediaStatus =
-                                          "active";
+                                      studyMaterialMediaBean.mediaType = uploadFileResponse.mediaBean!.mediaType;
+                                      studyMaterialMediaBean.mediaUrl = uploadFileResponse.mediaBean!.mediaUrl;
+                                      studyMaterialMediaBean.mediaId = uploadFileResponse.mediaBean!.mediaId;
+                                      studyMaterialMediaBean.assignmentAndStudyMaterialMediaStatus = "active";
 
-                                      if (studyMaterial.mediaList == null &&
-                                          studyMaterial.mediaList!.isEmpty) {
+                                      if (studyMaterial.mediaList == null && studyMaterial.mediaList!.isEmpty) {
                                         setState(() {
                                           studyMaterial.mediaList = [];
                                         });
                                       }
                                       setState(() {
-                                        studyMaterial.mediaList!
-                                            .add(studyMaterialMediaBean);
+                                        studyMaterial.mediaList!.add(studyMaterialMediaBean);
                                       });
                                     } catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
-                                          content: Text(
-                                              "Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                                          content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                         ),
                                       );
                                     }
@@ -686,19 +615,14 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                             height: 100,
                             width: 100,
                             padding: const EdgeInsets.all(2),
-                            child: getFileTypeForExtension(studyMaterial
-                                        .mediaList!
-                                        .where((i) =>
-                                            i!.assignmentAndStudyMaterialMediaStatus !=
-                                            'inactive')
+                            child: getFileTypeForExtension(studyMaterial.mediaList!
+                                        .where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive')
                                         .toList()[index]!
                                         .mediaType!) ==
                                     MediaFileType.IMAGE_FILES
                                 ? FadeInImage(
                                     image: NetworkImage(studyMaterial.mediaList!
-                                        .where((i) =>
-                                            i!.assignmentAndStudyMaterialMediaStatus !=
-                                            'inactive')
+                                        .where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive')
                                         .toList()[index]!
                                         .mediaUrl!),
                                     placeholder: const AssetImage(
@@ -709,9 +633,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                                     getAssetImageForFileType(
                                       getFileTypeForExtension(
                                         studyMaterial.mediaList!
-                                            .where((i) =>
-                                                i!.assignmentAndStudyMaterialMediaStatus !=
-                                                'inactive')
+                                            .where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive')
                                             .toList()[index]!
                                             .mediaType!,
                                       ),
@@ -725,34 +647,24 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                               onTap: () {
                                 setState(() {
                                   if (studyMaterial.mediaList!
-                                          .where((i) =>
-                                              i!.assignmentAndStudyMaterialMediaStatus !=
-                                              'inactive')
+                                          .where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive')
                                           .toList()[index]!
                                           .assignmentAndStudyMaterialMediaStatus ==
                                       "active") {
                                     studyMaterial.mediaList!
-                                            .where((i) =>
-                                                i!.assignmentAndStudyMaterialMediaStatus !=
-                                                'inactive')
-                                            .toList()[index]!
-                                            .assignmentAndStudyMaterialMediaStatus =
-                                        "inactive";
+                                        .where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive')
+                                        .toList()[index]!
+                                        .assignmentAndStudyMaterialMediaStatus = "inactive";
                                   } else {
                                     studyMaterial.mediaList!
-                                            .where((i) =>
-                                                i!.assignmentAndStudyMaterialMediaStatus !=
-                                                'inactive')
-                                            .toList()[index]!
-                                            .assignmentAndStudyMaterialMediaStatus =
-                                        "active";
+                                        .where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive')
+                                        .toList()[index]!
+                                        .assignmentAndStudyMaterialMediaStatus = "active";
                                   }
                                 });
                               },
                               child: studyMaterial.mediaList!
-                                          .where((i) =>
-                                              i!.assignmentAndStudyMaterialMediaStatus !=
-                                              'inactive')
+                                          .where((i) => i!.assignmentAndStudyMaterialMediaStatus != 'inactive')
                                           .toList()[index]!
                                           .assignmentAndStudyMaterialMediaStatus ==
                                       "active"
@@ -782,8 +694,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
   Widget _getStudyMaterialWidget(StudyMaterial studyMaterial) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
@@ -819,9 +730,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                                   alignment: Alignment.topLeft,
                                   fit: BoxFit.scaleDown,
                                   child: Text(
-                                    studyMaterial.studyMaterialType!
-                                        .toUpperCase()
-                                        .replaceAll("_", " "),
+                                    studyMaterial.studyMaterialType!.toUpperCase().replaceAll("_", " "),
                                     style: TextStyle(
                                       color: Theme.of(context).primaryColor,
                                     ),
@@ -829,8 +738,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                                 ),
                               ),
                             ),
-                            if (studyMaterial.studyMaterialType! ==
-                                "ASSIGNMENT")
+                            if (studyMaterial.studyMaterialType! == "ASSIGNMENT")
                               FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
@@ -846,9 +754,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                               child: InkWell(
                                 onTap: () async {
                                   HapticFeedback.vibrate();
-                                  if (_studyMaterial
-                                      .map((e) => e.isEditMode)
-                                      .contains(true)) {
+                                  if (_studyMaterial.map((e) => e.isEditMode).contains(true)) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
@@ -908,8 +814,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                   child: GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                       crossAxisSpacing: 5.0,
                       mainAxisSpacing: 5.0,
@@ -925,12 +830,9 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                           height: 100,
                           width: 100,
                           padding: const EdgeInsets.all(2),
-                          child: getFileTypeForExtension(studyMaterial
-                                      .mediaList![index]!.mediaType!) ==
-                                  MediaFileType.IMAGE_FILES
+                          child: getFileTypeForExtension(studyMaterial.mediaList![index]!.mediaType!) == MediaFileType.IMAGE_FILES
                               ? FadeInImage(
-                                  image: NetworkImage(studyMaterial
-                                      .mediaList![index]!.mediaUrl!),
+                                  image: NetworkImage(studyMaterial.mediaList![index]!.mediaUrl!),
                                   placeholder: const AssetImage(
                                     'assets/images/loading_grey_white.gif',
                                   ),
@@ -938,8 +840,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                               : Image.asset(
                                   getAssetImageForFileType(
                                     getFileTypeForExtension(
-                                      studyMaterial
-                                          .mediaList![index]!.mediaType!,
+                                      studyMaterial.mediaList![index]!.mediaType!,
                                     ),
                                   ),
                                   scale: 0.5,
@@ -1015,16 +916,14 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                     SliverList(
                       delegate: SliverChildListDelegate(
                         [
-                          MediaQuery.of(context).orientation ==
-                                  Orientation.portrait
+                          MediaQuery.of(context).orientation == Orientation.portrait
                               ? ConstrainedBox(
                                   constraints: const BoxConstraints(
                                     maxHeight: 150.0,
                                     minHeight: 150.0,
                                   ),
                                   child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       buildTdsDetailWidget(
                                         context,
@@ -1047,8 +946,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                                     minHeight: 50.0,
                                   ),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       Expanded(
                                         child: buildTdsDetailWidget(
@@ -1080,8 +978,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                       child: ScrollablePositionedList.builder(
                         itemScrollController: _itemScrollController,
                         itemCount: _studyMaterial.length,
-                        itemBuilder: (context, index) => _studyMaterial[index]
-                                .isEditMode
+                        itemBuilder: (context, index) => _studyMaterial[index].isEditMode && !widget.adminProfile.isMegaAdmin
                             ? _getStudyMaterialEditWidget(_studyMaterial[index])
                             : _getStudyMaterialWidget(_studyMaterial[index]),
                       ),
@@ -1101,35 +998,34 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
       //             tooltip: "Close",
       //           )
       //         : _getDatePicker(),
-      floatingActionButton: _isAddNew
-          ? FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  _isAddNew = !_isAddNew;
-                });
-              },
-              child:
-                  _isAddNew ? const Icon(Icons.close) : const Icon(Icons.add),
-              tooltip: "Close",
-            )
-          : ExpandableFab(
-              axis: Axis.vertical,
-              tooltip: "More Options",
-              expandedWidgets: [
-                _getDatePicker(),
-                FloatingActionButton(
+      floatingActionButton: widget.adminProfile.isMegaAdmin
+          ? Container()
+          : _isAddNew
+              ? FloatingActionButton(
                   onPressed: () {
                     setState(() {
                       _isAddNew = !_isAddNew;
                     });
                   },
-                  child: _isAddNew
-                      ? const Icon(Icons.close)
-                      : const Icon(Icons.add),
+                  child: _isAddNew ? const Icon(Icons.close) : const Icon(Icons.add),
                   tooltip: "Close",
+                )
+              : ExpandableFab(
+                  axis: Axis.vertical,
+                  tooltip: "More Options",
+                  expandedWidgets: [
+                    _getDatePicker(),
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          _isAddNew = !_isAddNew;
+                        });
+                      },
+                      child: _isAddNew ? const Icon(Icons.close) : const Icon(Icons.add),
+                      tooltip: "Close",
+                    ),
+                  ],
                 ),
-              ],
-            ),
       // floatingActionButtonLocation:
       //     MediaQuery.of(context).orientation == Orientation.landscape
       //         ? FloatingActionButtonLocation.endTop

@@ -46,15 +46,10 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
       _isLoading = true;
       selectedIndices = [];
     });
-    GetEventMediaResponse getEventMediaResponse = await getEventMedia(
-        GetEventMediaRequest(eventId: widget.event.eventId));
-    if (getEventMediaResponse.httpStatus == 'OK' &&
-        getEventMediaResponse.responseStatus == 'success') {
+    GetEventMediaResponse getEventMediaResponse = await getEventMedia(GetEventMediaRequest(eventId: widget.event.eventId));
+    if (getEventMediaResponse.httpStatus == 'OK' && getEventMediaResponse.responseStatus == 'success') {
       setState(() {
-        eventMedia = getEventMediaResponse.eventMedia!
-            .map((e) => e!)
-            .where((e) => e.status == 'active')
-            .toList();
+        eventMedia = getEventMediaResponse.eventMedia!.map((e) => e!).where((e) => e.status == 'active').toList();
       });
       for (int index = 0; index < eventMedia.length; index++) {
         // ignore: undefined_prefixed_name
@@ -85,8 +80,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                 width: 6,
               )
             : null,
-        borderRadius:
-            selectedIndices.contains(index) ? BorderRadius.circular(10) : null,
+        borderRadius: selectedIndices.contains(index) ? BorderRadius.circular(10) : null,
       ),
       child: GestureDetector(
         onTap: () {
@@ -117,8 +111,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
           parentColor: clayContainerColor(context),
           spread: 1,
           borderRadius: 10,
-          child: getFileTypeForExtension(eachEventMedia.mediaType!) ==
-                  MediaFileType.IMAGE_FILES
+          child: getFileTypeForExtension(eachEventMedia.mediaType!) == MediaFileType.IMAGE_FILES
               ? FadeInImage(
                   image: NetworkImage(eachEventMedia.mediaUrl!),
                   placeholder: const AssetImage(
@@ -157,9 +150,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
       for (int selectedIndex in selectedIndices) {
         downloadFile(
           eventMedia[selectedIndex].mediaUrl!,
-          filename: getCurrentTimeStringInDDMMYYYYHHMMSS() +
-              "." +
-              eventMedia[selectedIndex].mediaType!,
+          filename: getCurrentTimeStringInDDMMYYYYHHMMSS() + "." + eventMedia[selectedIndex].mediaType!,
         );
       }
     } else if (choice == "delete") {
@@ -167,8 +158,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text(
-                "Are you sure you want to delete the selected items?"),
+            title: const Text("Are you sure you want to delete the selected items?"),
             actions: [
               TextButton(
                 onPressed: () async {
@@ -182,20 +172,17 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                     eventMedia[i].agent = widget.adminProfile.userId.toString();
                     mediaToBeDeleted.add(eventMedia[i]);
                   }
-                  CreateOrUpdateEventMediaResponse response =
-                      await createOrUpdateEventMedia(
+                  CreateOrUpdateEventMediaResponse response = await createOrUpdateEventMedia(
                     CreateOrUpdateEventMediaRequest(
                       eventMediaBeans: mediaToBeDeleted,
                       schoolId: widget.adminProfile.schoolId,
                       agent: widget.adminProfile.userId.toString(),
                     ),
                   );
-                  if (response.httpStatus != 'OK' ||
-                      response.responseStatus != 'success') {
+                  if (response.httpStatus != 'OK' || response.responseStatus != 'success') {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                            "Something went wrong..\nPlease try again later"),
+                        content: Text("Something went wrong..\nPlease try again later"),
                       ),
                     );
                   } else {
@@ -227,12 +214,8 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int count =
-        MediaQuery.of(context).orientation == Orientation.landscape ? 6 : 3;
-    double mainMargin =
-        MediaQuery.of(context).orientation == Orientation.landscape
-            ? MediaQuery.of(context).size.width / 20
-            : 10;
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 6 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 20 : 10;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.event.eventName!),
@@ -247,7 +230,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                     value: "select",
                     child: Text("Select"),
                   ),
-                if (selectMode && selectedIndices.isNotEmpty)
+                if (!widget.adminProfile.isMegaAdmin && selectMode && selectedIndices.isNotEmpty)
                   const PopupMenuItem<String>(
                     value: "delete",
                     child: Text("Delete"),
@@ -281,8 +264,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
             )
           : previewingIndex == null
               ? Container(
-                  margin: EdgeInsets.fromLTRB(
-                      mainMargin, 20, mainMargin, mainMargin),
+                  margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
                   child: GridView.count(
                     primary: false,
                     padding: const EdgeInsets.all(1.5),
@@ -291,10 +273,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                     mainAxisSpacing: 1.0,
                     crossAxisSpacing: 1.0,
                     physics: const BouncingScrollPhysics(),
-                    children:
-                        List<int>.generate(eventMedia.length, (i) => i * 1)
-                            .map((i) => buildEventMediaWidget(i))
-                            .toList(),
+                    children: List<int>.generate(eventMedia.length, (i) => i * 1).map((i) => buildEventMediaWidget(i)).toList(),
                   ),
                 )
               : Center(
@@ -319,13 +298,8 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                                       child: const Icon(Icons.download_rounded),
                                       onTap: () {
                                         downloadFile(
-                                          eventMedia[previewingIndex!]
-                                              .mediaUrl!,
-                                          filename:
-                                              getCurrentTimeStringInDDMMYYYYHHMMSS() +
-                                                  "." +
-                                                  eventMedia[previewingIndex!]
-                                                      .mediaType!,
+                                          eventMedia[previewingIndex!].mediaUrl!,
+                                          filename: getCurrentTimeStringInDDMMYYYYHHMMSS() + "." + eventMedia[previewingIndex!].mediaType!,
                                         );
                                       },
                                     ),
@@ -346,8 +320,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                                       child: const Icon(Icons.open_in_new),
                                       onTap: () {
                                         window.open(
-                                          eventMedia[previewingIndex!]
-                                              .mediaUrl!,
+                                          eventMedia[previewingIndex!].mediaUrl!,
                                           '_blank',
                                         );
                                       },
@@ -400,8 +373,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                                     child: InkWell(
                                       onTap: () {
                                         setState(() {
-                                          previewingIndex =
-                                              previewingIndex! - 1;
+                                          previewingIndex = previewingIndex! - 1;
                                         });
                                       },
                                       child: const SizedBox(
@@ -418,21 +390,16 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                           SizedBox(
                             width: MediaQuery.of(context).size.width / 2,
                             height: MediaQuery.of(context).size.height / 1,
-                            child: getFileTypeForExtension(
-                                        eventMedia[previewingIndex!]
-                                            .mediaType!) ==
-                                    MediaFileType.IMAGE_FILES
+                            child: getFileTypeForExtension(eventMedia[previewingIndex!].mediaType!) == MediaFileType.IMAGE_FILES
                                 ? FadeInImage(
                                     placeholder: const AssetImage(
                                       'assets/images/loading_grey_white.gif',
                                     ),
-                                    image: NetworkImage(
-                                        eventMedia[previewingIndex!].mediaUrl!),
+                                    image: NetworkImage(eventMedia[previewingIndex!].mediaUrl!),
                                     fit: BoxFit.contain,
                                   )
                                 : HtmlElementView(
-                                    viewType:
-                                        eventMedia[previewingIndex!].mediaUrl!,
+                                    viewType: eventMedia[previewingIndex!].mediaUrl!,
                                   ),
                           ),
                           Container(
@@ -451,8 +418,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                                     child: InkWell(
                                       onTap: () {
                                         setState(() {
-                                          previewingIndex =
-                                              previewingIndex! + 1;
+                                          previewingIndex = previewingIndex! + 1;
                                         });
                                       },
                                       child: const SizedBox(
@@ -471,7 +437,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                     ],
                   ),
                 ),
-      floatingActionButton: _isLoading
+      floatingActionButton: _isLoading && widget.adminProfile.isMegaAdmin
           ? null
           : FloatingActionButton(
               onPressed: () async {
@@ -496,33 +462,25 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                               _isLoading = true;
                             });
                             try {
-                              UploadFileToDriveResponse uploadFileResponse =
-                                  await uploadFileToDrive(
-                                      reader.result!, file.name);
+                              UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
 
                               EventMedia newEventMedia = EventMedia(
                                 status: "active",
                                 agent: widget.adminProfile.userId.toString(),
                                 eventId: widget.event.eventId,
-                                mediaType:
-                                    uploadFileResponse.mediaBean!.mediaType!,
-                                mediaUrl:
-                                    uploadFileResponse.mediaBean!.mediaUrl!,
+                                mediaType: uploadFileResponse.mediaBean!.mediaType!,
+                                mediaUrl: uploadFileResponse.mediaBean!.mediaUrl!,
                                 mediaId: uploadFileResponse.mediaBean!.mediaId!,
                               );
-                              CreateOrUpdateEventMediaResponse response =
-                                  await createOrUpdateEventMedia(
-                                      CreateOrUpdateEventMediaRequest(
+                              CreateOrUpdateEventMediaResponse response = await createOrUpdateEventMedia(CreateOrUpdateEventMediaRequest(
                                 agent: widget.adminProfile.userId.toString(),
                                 schoolId: widget.adminProfile.schoolId,
                                 eventMediaBeans: [newEventMedia],
                               ));
-                              if (response.httpStatus != 'OK' ||
-                                  response.responseStatus != 'success') {
+                              if (response.httpStatus != 'OK' || response.responseStatus != 'success') {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                        "Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                                    content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                   ),
                                 );
                               }
@@ -530,8 +488,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                      "Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                                  content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                 ),
                               );
                             }
@@ -545,8 +502,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                   );
                 } catch (e) {
                   const SnackBar(
-                    content:
-                        Text("Something went wrong..\nPlease try again later"),
+                    content: Text("Something went wrong..\nPlease try again later"),
                   );
                 }
               },

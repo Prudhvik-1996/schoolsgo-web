@@ -182,7 +182,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
           _getAllExamsLandscapeScreen(),
           Align(
             alignment: Alignment.bottomRight,
-            child: allAvailableExams.map((e) => e.isEditMode).contains(true) ? Container() : Container(
+            child: allAvailableExams.map((e) => e.isEditMode).contains(true) || widget.adminProfile.isMegaAdmin ? Container() : Container(
               margin: const EdgeInsets.all(15),
               child: GestureDetector(
                 onTap: () {
@@ -2212,7 +2212,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
 
   Widget _buildEachExamDetails(AdminExamBean _selectedExamBean) {
     return
-      _selectedExamBean.isEditMode ? _buildEditableAdminExamBeanWidget(_selectedExamBean) :
+      !widget.adminProfile.isMegaAdmin && _selectedExamBean.isEditMode ? _buildEditableAdminExamBeanWidget(_selectedExamBean) :
       _buildReadableAdminExamBeanWidget(_selectedExamBean);
   }
 
@@ -2409,7 +2409,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                       ),
                     ),
                   ),
-                  InkWell(
+                  widget.adminProfile.isMegaAdmin ? Container() : InkWell(
                     onTap: () {
                       setState(() {
                         examBean.isEditMode = true;

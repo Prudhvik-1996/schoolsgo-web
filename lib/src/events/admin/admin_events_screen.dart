@@ -49,8 +49,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
         schoolId: widget.adminProfile.schoolId,
         status: "active",
         description: "",
-        coverPhotoUrl:
-            "https://drive.google.com/uc?id=1tSVOeWmbXL2SGJFG7iPl63kDLcOOu6w5",
+        coverPhotoUrl: "https://drive.google.com/uc?id=1tSVOeWmbXL2SGJFG7iPl63kDLcOOu6w5",
         coverPhotoUrlId: 550,
         eventName: "",
         eventType: "",
@@ -71,8 +70,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
     GetEventsResponse getEventsResponse = await getEvents(GetEventsRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
-    if (getEventsResponse.httpStatus == 'OK' &&
-        getEventsResponse.responseStatus == 'success') {
+    if (getEventsResponse.httpStatus == 'OK' && getEventsResponse.responseStatus == 'success') {
       setState(() {
         events = getEventsResponse.events!.map((e) => e!).toList();
       });
@@ -151,10 +149,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
               "Event Name",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 10
-                        : 18,
+                fontSize: MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 18,
               ),
             ),
           ),
@@ -162,10 +157,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
             child: Text(
               event.eventName!,
               style: TextStyle(
-                fontSize:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 10
-                        : 18,
+                fontSize: MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 18,
               ),
             ),
           ),
@@ -181,10 +173,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
               "Event Date",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 10
-                        : 18,
+                fontSize: MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 18,
               ),
             ),
           ),
@@ -192,10 +181,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
             child: Text(
               event.eventDate!,
               style: TextStyle(
-                fontSize:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 10
-                        : 18,
+                fontSize: MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 18,
               ),
             ),
           ),
@@ -211,10 +197,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
               "Description",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 10
-                        : 18,
+                fontSize: MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 18,
               ),
             ),
           ),
@@ -222,10 +205,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
             child: Text(
               event.description!,
               style: TextStyle(
-                fontSize:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? 10
-                        : 18,
+                fontSize: MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 18,
               ),
             ),
           ),
@@ -264,14 +244,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
             ],
           ),
           content: SizedBox(
-            height: MediaQuery.of(context).size.height /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 10
-                    : 2.5),
-            width: MediaQuery.of(context).size.height /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 2.5
-                    : 10),
+            height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
+            width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
             child: FadeInImage(
               placeholder: const AssetImage(
                 'assets/images/loading_grey_white.gif',
@@ -301,14 +275,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
             openMediaFromUrl(event);
           },
           child: Container(
-            height: MediaQuery.of(context).size.height /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 10
-                    : 2.5),
-            width: MediaQuery.of(context).size.height /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 2.5
-                    : 10),
+            height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
+            width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
             child: FadeInImage(
               placeholder: const AssetImage(
                 'assets/images/loading_grey_white.gif',
@@ -489,8 +457,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
           title: buildEditableEventWidget(
             event,
             isPreview: true,
-            isLandscape:
-                MediaQuery.of(context).orientation == Orientation.landscape,
+            isLandscape: MediaQuery.of(context).orientation == Orientation.landscape,
           ),
           actions: [
             ClayButton(
@@ -518,23 +485,17 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                     _isLoading = true;
                   });
                   event.agent = widget.adminProfile.userId.toString();
-                  event.eventDate = DateTime.parse(event.eventDate!)
-                      .millisecondsSinceEpoch
-                      .toString();
-                  CreateOrUpdateEventsRequest request =
-                      CreateOrUpdateEventsRequest(
+                  event.eventDate = DateTime.parse(event.eventDate!).millisecondsSinceEpoch.toString();
+                  CreateOrUpdateEventsRequest request = CreateOrUpdateEventsRequest(
                     schoolId: widget.adminProfile.schoolId,
                     agent: widget.adminProfile.userId.toString(),
                     eventBeans: [event],
                   );
-                  CreateOrUpdateEventsResponse response =
-                      await createOrUpdateEvents(request);
-                  if (response.httpStatus != 'OK' ||
-                      response.responseStatus != 'success') {
+                  CreateOrUpdateEventsResponse response = await createOrUpdateEvents(request);
+                  if (response.httpStatus != 'OK' || response.responseStatus != 'success') {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                            "Something went wrong while trying to execute your request..\nPlease try again later"),
+                        content: Text("Something went wrong while trying to execute your request..\nPlease try again later"),
                       ),
                     );
                   }
@@ -568,8 +529,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
     );
   }
 
-  Widget buildEditableEventWidget(Event event,
-      {bool isPreview = false, bool isLandscape = true}) {
+  Widget buildEditableEventWidget(Event event, {bool isPreview = false, bool isLandscape = true}) {
     return Container(
       margin: const EdgeInsets.all(15),
       child: ClayContainer(
@@ -592,12 +552,10 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                               margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                               child: InkWell(
                                 onTap: () {
-                                  FileUploadInputElement uploadInput =
-                                      FileUploadInputElement();
+                                  FileUploadInputElement uploadInput = FileUploadInputElement();
                                   uploadInput.multiple = false;
                                   uploadInput.draggable = true;
-                                  uploadInput.accept =
-                                      '.png,.jpg,.jpeg,.PNG,.JPG,.JPEG';
+                                  uploadInput.accept = '.png,.jpg,.jpeg,.PNG,.JPG,.JPEG';
                                   uploadInput.click();
                                   uploadInput.onChange.listen(
                                     (changeEvent) {
@@ -608,31 +566,21 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                         reader.onLoadEnd.listen(
                                           (loadEndEvent) async {
                                             // _file = file;
-                                            print(
-                                                "File uploaded: " + file.name);
+                                            print("File uploaded: " + file.name);
                                             setState(() {
                                               _isLoading = true;
                                             });
 
                                             try {
-                                              UploadFileToDriveResponse
-                                                  uploadFileResponse =
-                                                  await uploadFileToDrive(
-                                                      reader.result!,
-                                                      file.name);
+                                              UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
 
-                                              event.coverPhotoUrl =
-                                                  uploadFileResponse
-                                                      .mediaBean!.mediaUrl;
-                                              event.coverPhotoUrlId =
-                                                  uploadFileResponse
-                                                      .mediaBean!.mediaId;
+                                              event.coverPhotoUrl = uploadFileResponse.mediaBean!.mediaUrl;
+                                              event.coverPhotoUrlId = uploadFileResponse.mediaBean!.mediaId;
                                             } catch (e) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
+                                              ScaffoldMessenger.of(context).showSnackBar(
                                                 SnackBar(
-                                                  content: Text(
-                                                      "Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                                                  content:
+                                                      Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                                 ),
                                               );
                                             }
@@ -647,16 +595,9 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                   );
                                 },
                                 child: Container(
-                                  height: MediaQuery.of(context).size.height /
-                                      (MediaQuery.of(context).orientation ==
-                                              Orientation.portrait
-                                          ? 10
-                                          : 2.5),
-                                  width: MediaQuery.of(context).size.height /
-                                      (MediaQuery.of(context).orientation ==
-                                              Orientation.portrait
-                                          ? 2.5
-                                          : 10),
+                                  height:
+                                      MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
+                                  width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
                                   child: FadeInImage(
                                     placeholder: const AssetImage(
                                       'assets/images/loading_grey_white.gif',
@@ -668,16 +609,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                               ),
                             )
                           : Container(
-                              height: MediaQuery.of(context).size.height /
-                                  (MediaQuery.of(context).orientation ==
-                                          Orientation.portrait
-                                      ? 10
-                                      : 2.5),
-                              width: MediaQuery.of(context).size.height /
-                                  (MediaQuery.of(context).orientation ==
-                                          Orientation.portrait
-                                      ? 2.5
-                                      : 10),
+                              height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
+                              width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
                               margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                               child: FadeInImage(
                                 placeholder: const AssetImage(
@@ -693,9 +626,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                       child: Container(
                         margin: const EdgeInsets.all(20),
                         child: Column(
-                          children: event.isEditMode && !isPreview
-                              ? editableEventDetailsChildren(event)
-                              : eventDetailsChildren(event),
+                          children: event.isEditMode && !isPreview ? editableEventDetailsChildren(event) : eventDetailsChildren(event),
                         ),
                       ),
                     ),
@@ -800,16 +731,15 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(5),
-                                    child:
-                                        (event.status ?? "inactive") == "active"
-                                            ? const Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
-                                              )
-                                            : const Icon(
-                                                Icons.add,
-                                                color: Colors.green,
-                                              ),
+                                    child: (event.status ?? "inactive") == "active"
+                                        ? const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          )
+                                        : const Icon(
+                                            Icons.add,
+                                            color: Colors.green,
+                                          ),
                                   ),
                                 ),
                               ),
@@ -829,9 +759,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                     if (event.isEditMode) {
                                       saveChanges(event);
                                     } else {
-                                      if (events
-                                          .where((e) => e.isEditMode)
-                                          .isEmpty) {
+                                      if (events.where((e) => e.isEditMode).isEmpty) {
                                         setState(() {
                                           event.isEditMode = !event.isEditMode;
                                         });
@@ -841,9 +769,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                   child: Container(
                                     padding: const EdgeInsets.all(5),
                                     child: Icon(
-                                      event.isEditMode
-                                          ? Icons.check
-                                          : Icons.edit,
+                                      event.isEditMode ? Icons.check : Icons.edit,
                                     ),
                                   ),
                                 ),
@@ -855,8 +781,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                 margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                                 child: InkWell(
                                   onTap: () {
-                                    FileUploadInputElement uploadInput =
-                                        FileUploadInputElement();
+                                    FileUploadInputElement uploadInput = FileUploadInputElement();
                                     uploadInput.multiple = false;
                                     uploadInput.draggable = true;
                                     uploadInput.accept = '.png,.jpg,.jpeg';
@@ -870,31 +795,21 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                           reader.onLoadEnd.listen(
                                             (loadEndEvent) async {
                                               // _file = file;
-                                              print("File uploaded: " +
-                                                  file.name);
+                                              print("File uploaded: " + file.name);
                                               setState(() {
                                                 _isLoading = true;
                                               });
 
                                               try {
-                                                UploadFileToDriveResponse
-                                                    uploadFileResponse =
-                                                    await uploadFileToDrive(
-                                                        reader.result!,
-                                                        file.name);
+                                                UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
 
-                                                event.coverPhotoUrl =
-                                                    uploadFileResponse
-                                                        .mediaBean!.mediaUrl;
-                                                event.coverPhotoUrlId =
-                                                    uploadFileResponse
-                                                        .mediaBean!.mediaId;
+                                                event.coverPhotoUrl = uploadFileResponse.mediaBean!.mediaUrl;
+                                                event.coverPhotoUrlId = uploadFileResponse.mediaBean!.mediaId;
                                               } catch (e) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
+                                                ScaffoldMessenger.of(context).showSnackBar(
                                                   SnackBar(
-                                                    content: Text(
-                                                        "Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                                                    content:
+                                                        Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                                   ),
                                                 );
                                               }
@@ -909,16 +824,10 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                     );
                                   },
                                   child: Container(
-                                    height: MediaQuery.of(context).size.height /
-                                        (MediaQuery.of(context).orientation ==
-                                                Orientation.portrait
-                                            ? 10
-                                            : 2.5),
-                                    width: MediaQuery.of(context).size.height /
-                                        (MediaQuery.of(context).orientation ==
-                                                Orientation.portrait
-                                            ? 2.5
-                                            : 10),
+                                    height:
+                                        MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
+                                    width:
+                                        MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
                                     child: FadeInImage(
                                       placeholder: const AssetImage(
                                         'assets/images/loading_grey_white.gif',
@@ -930,16 +839,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                 ),
                               )
                             : Container(
-                                height: MediaQuery.of(context).size.height /
-                                    (MediaQuery.of(context).orientation ==
-                                            Orientation.portrait
-                                        ? 10
-                                        : 2.5),
-                                width: MediaQuery.of(context).size.height /
-                                    (MediaQuery.of(context).orientation ==
-                                            Orientation.portrait
-                                        ? 2.5
-                                        : 10),
+                                height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
+                                width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
                                 margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                                 child: FadeInImage(
                                   placeholder: const AssetImage(
@@ -950,9 +851,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                 ),
                               ),
                       ] +
-                      (event.isEditMode && !isPreview
-                          ? editableEventDetailsChildren(event)
-                          : eventDetailsChildren(event)),
+                      (event.isEditMode && !isPreview ? editableEventDetailsChildren(event) : eventDetailsChildren(event)),
                 ),
         ),
       ),
@@ -961,12 +860,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int count =
-        MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
-    double mainMargin =
-        MediaQuery.of(context).orientation == Orientation.landscape
-            ? MediaQuery.of(context).size.width / 10
-            : 10;
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Events"),
@@ -1000,9 +895,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
           : ListView(
               children: [
                 Container(
-                  margin: EdgeInsets.fromLTRB(
-                      mainMargin, 20, mainMargin, mainMargin),
-                  child: isPreviewMode
+                  margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
+                  child: isPreviewMode || widget.adminProfile.isMegaAdmin
                       ? GridView.count(
                           primary: false,
                           padding: const EdgeInsets.all(1.5),
@@ -1012,14 +906,12 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                           crossAxisSpacing: 1.0,
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
-                          children:
-                              events.map((e) => buildEventWidget(e)).toList(),
+                          children: events.map((e) => buildEventWidget(e)).toList(),
                         )
                       : isNewEvent
                           ? buildEditableEventWidget(
                               newEvent,
-                              isLandscape: MediaQuery.of(context).orientation ==
-                                  Orientation.landscape,
+                              isLandscape: MediaQuery.of(context).orientation == Orientation.landscape,
                             )
                           : ListView(
                               physics: const NeverScrollableScrollPhysics(),
@@ -1028,9 +920,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                   .map(
                                     (e) => buildEditableEventWidget(
                                       e,
-                                      isLandscape:
-                                          MediaQuery.of(context).orientation ==
-                                              Orientation.landscape,
+                                      isLandscape: MediaQuery.of(context).orientation == Orientation.landscape,
                                     ),
                                   )
                                   .toList(),
@@ -1038,7 +928,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                 ),
               ],
             ),
-      floatingActionButton: _isLoading || isPreviewMode
+      floatingActionButton: _isLoading || isPreviewMode || widget.adminProfile.isMegaAdmin
           ? null
           : FloatingActionButton(
               onPressed: () {
@@ -1046,8 +936,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                   isNewEvent = !isNewEvent;
                 });
               },
-              child:
-                  isNewEvent ? const Icon(Icons.close) : const Icon(Icons.add),
+              child: isNewEvent ? const Icon(Icons.close) : const Icon(Icons.add),
             ),
     );
   }

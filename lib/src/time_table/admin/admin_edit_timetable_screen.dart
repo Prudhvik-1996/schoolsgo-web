@@ -20,15 +20,13 @@ import 'admin_edit_section_wise_time_slots.dart';
 class AdminEditTimeTable extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminEditTimeTable({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminEditTimeTable({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
   _AdminEditTimeTableState createState() => _AdminEditTimeTableState();
 }
 
-class _AdminEditTimeTableState extends State<AdminEditTimeTable>
-    with TickerProviderStateMixin {
+class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProviderStateMixin {
   bool _isLoading = true;
 
   List<Section> _sectionsList = [];
@@ -70,11 +68,9 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
@@ -91,27 +87,22 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
       }
     }
 
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-        await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
     ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-        getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _sectionWiseTimeSlots =
-            getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+        _sectionWiseTimeSlots = getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
       });
     }
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
@@ -173,19 +164,14 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
       return;
     }
 
-    CreateOrUpdateSectionWiseTimeSlotsResponse
-        createOrUpdateSectionWiseTimeSlotsResponse =
-        await createOrUpdateSectionWiseTimeSlots(
+    CreateOrUpdateSectionWiseTimeSlotsResponse createOrUpdateSectionWiseTimeSlotsResponse = await createOrUpdateSectionWiseTimeSlots(
       CreateOrUpdateSectionWiseTimeSlotsRequest(
         schoolId: widget.adminProfile.schoolId,
         agent: widget.adminProfile.userId,
-        sectionWiseTimeSlotBeans:
-            _sectionWiseTimeSlots.where((e) => e.isEdited ?? false).toList(),
+        sectionWiseTimeSlotBeans: _sectionWiseTimeSlots.where((e) => e.isEdited ?? false).toList(),
       ),
     );
-    if (createOrUpdateSectionWiseTimeSlotsResponse.httpStatus != 'OK' ||
-        createOrUpdateSectionWiseTimeSlotsResponse.responseStatus !=
-            "success") {
+    if (createOrUpdateSectionWiseTimeSlotsResponse.httpStatus != 'OK' || createOrUpdateSectionWiseTimeSlotsResponse.responseStatus != "success") {
       HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -204,9 +190,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
 
   Widget buildSectionWiseTimeSlotsForEachSection(Section section, String week) {
     List<SectionWiseTimeSlotBean> sectionWiseTimeSlotsForWeek =
-        _sectionWiseTimeSlots
-            .where((e) => section.sectionId == e.sectionId && e.week == week)
-            .toList();
+        _sectionWiseTimeSlots.where((e) => section.sectionId == e.sectionId && e.week == week).toList();
 
     return Container(
       margin: const EdgeInsets.all(10),
@@ -232,10 +216,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                             week,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: DateTime.now().weekday - 1 ==
-                                      WEEKS.indexOf(week)
-                                  ? Colors.blue[300]
-                                  : null,
+                              color: DateTime.now().weekday - 1 == WEEKS.indexOf(week) ? Colors.blue[300] : null,
                             ),
                           ),
                         ],
@@ -269,10 +250,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                 week,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: DateTime.now().weekday - 1 ==
-                                          WEEKS.indexOf(week)
-                                      ? Colors.blue[300]
-                                      : null,
+                                  color: DateTime.now().weekday - 1 == WEEKS.indexOf(week) ? Colors.blue[300] : null,
                                 ),
                               ),
                             ],
@@ -292,8 +270,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                   height: 50,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
                                         flex: 2,
@@ -302,8 +279,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                           child: FittedBox(
                                             fit: BoxFit.scaleDown,
                                             child: Text(
-                                              convert24To12HourFormat(
-                                                  e.startTime!),
+                                              convert24To12HourFormat(e.startTime!),
                                             ),
                                           ),
                                         ),
@@ -315,8 +291,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                           child: FittedBox(
                                             fit: BoxFit.scaleDown,
                                             child: Text(
-                                              convert24To12HourFormat(
-                                                  e.endTime!),
+                                              convert24To12HourFormat(e.endTime!),
                                             ),
                                           ),
                                         ),
@@ -325,28 +300,22 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                         flex: 5,
                                         child: _sectionToBeEdited != section
                                             ? Container(
-                                                margin:
-                                                    const EdgeInsets.fromLTRB(
-                                                        8, 0, 8, 0),
+                                                margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                                                 height: 45,
                                                 child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
                                                   children: [
                                                     FittedBox(
                                                       fit: BoxFit.scaleDown,
                                                       child: Text(
-                                                        (e.subjectName ?? "-")
-                                                            .capitalize(),
+                                                        (e.subjectName ?? "-").capitalize(),
                                                       ),
                                                     ),
                                                     FittedBox(
                                                       fit: BoxFit.scaleDown,
                                                       child: Text(
-                                                        (e.teacherName ?? "-")
-                                                            .capitalize(),
+                                                        (e.teacherName ?? "-").capitalize(),
                                                       ),
                                                     ),
                                                   ],
@@ -370,58 +339,55 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
     );
   }
 
-  DropdownButton<TeacherDealingSection> buildDropdownButtonToPickTDS(
-      Section section, SectionWiseTimeSlotBean timeSlotToBeEdited) {
+  DropdownButton<TeacherDealingSection> buildDropdownButtonToPickTDS(Section section, SectionWiseTimeSlotBean timeSlotToBeEdited) {
     return DropdownButton(
       underline: Container(),
       isExpanded: true,
-      items:
-          (_tdsList.where((e1) => e1.sectionId == section.sectionId).toList() +
-                  [TeacherDealingSection()])
-              .map(
-                (e1) => DropdownMenuItem<TeacherDealingSection>(
-                  value: e1,
-                  child: Container(
-                    width: double.infinity,
-                    height: 35,
-                    padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
-                    margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                    child: ClayContainer(
-                      depth: 40,
-                      color: clayContainerColor(context),
-                      spread: 2,
-                      borderRadius: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 12,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                (e1.subjectName ?? "-").capitalize(),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
+      items: (_tdsList.where((e1) => e1.sectionId == section.sectionId).toList() + [TeacherDealingSection()])
+          .map(
+            (e1) => DropdownMenuItem<TeacherDealingSection>(
+              value: e1,
+              child: Container(
+                width: double.infinity,
+                height: 35,
+                padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
+                margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                child: ClayContainer(
+                  depth: 40,
+                  color: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 12,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            (e1.subjectName ?? "-").capitalize(),
+                            textAlign: TextAlign.center,
                           ),
-                          SizedBox(
-                            height: 12,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                (e1.teacherName ?? "-").capitalize(),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      SizedBox(
+                        height: 12,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            (e1.teacherName ?? "-").capitalize(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              )
-              .toList(),
+              ),
+            ),
+          )
+          .toList(),
       onChanged: (TeacherDealingSection? selectedTds) async {
         if (selectedTds == TeacherDealingSection()) {
           setState(() {
@@ -439,16 +405,10 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
               .where((e) => e.sectionId != section.sectionId)
               .where((e) => e.teacherId == selectedTds!.teacherId)
               .forEach((eachTimeSlot) async {
-            int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachTimeSlot.startTime!, eachTimeSlot.weekId!);
-            int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachTimeSlot.endTime!, eachTimeSlot.weekId!);
-            int startTimeForTimeSlotToBeEdited =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
-            int endTimeForTimeSlotToBeEdited =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
+            int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.startTime!, eachTimeSlot.weekId!);
+            int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.endTime!, eachTimeSlot.weekId!);
+            int startTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
+            int endTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
             if (startTimeForTimeSlotToBeEdited == eachTimeSlotStartTime &&
                 endTimeForTimeSlotToBeEdited == eachTimeSlotEndTime &&
                 selectedTds != null &&
@@ -458,11 +418,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
               return;
             } else if (selectedTds != null &&
                 eachTimeSlot.subjectId != selectedTds.subjectId &&
-                ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
-                        startTimeForTimeSlotToBeEdited <=
-                            eachTimeSlotEndTime) ||
-                    (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
-                        endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
+                ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
+                    (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
               errorMessage =
                   "Teacher ${selectedTds.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
             }
@@ -490,9 +447,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
           });
         }
       },
-      value: timeSlotToBeEdited.tdsId == null
-          ? null
-          : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first,
+      value: timeSlotToBeEdited.tdsId == null ? null : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first,
     );
   }
 
@@ -542,19 +497,13 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
         itemBuilder: (BuildContext context, int itemIndex) {
           Section eachSection = _sectionsList[itemIndex];
           List<SectionWiseTimeSlotBean> sectionTimeSlotsForGivenSection =
-              _sectionWiseTimeSlots
-                  .where((e) => eachSection.sectionId == e.sectionId)
-                  .toList();
+              _sectionWiseTimeSlots.where((e) => eachSection.sectionId == e.sectionId).toList();
           double heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
-                    return sectionTimeSlotsForGivenSection
-                        .where(
-                            (eachTimeSlot) => eachTimeSlot.weekId == eachWeekId)
-                        .length;
+                    return sectionTimeSlotsForGivenSection.where((eachTimeSlot) => eachTimeSlot.weekId == eachWeekId).length;
                   }).reduce(max) *
                   50 +
               275;
-          double widthOfEachCard =
-              (MediaQuery.of(context).size.width - 10) / crossAxisCount;
+          double widthOfEachCard = (MediaQuery.of(context).size.width - 10) / crossAxisCount;
 
           return SizedBox(
             width: MediaQuery.of(context).size.width - 10,
@@ -579,76 +528,70 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                               "${eachSection.sectionName}",
                             ),
                           ),
-                          InkWell(
-                            onTap: () async {
-                              HapticFeedback.vibrate();
-                              if (_sectionToBeEdited != null &&
-                                  _sectionToBeEdited == eachSection) {
-                                if (_sectionWiseTimeSlots
-                                    .where((e) => e.isEdited ?? false)
-                                    .isEmpty) {
-                                  setState(() {
-                                    _sectionToBeEdited = null;
-                                  });
-                                  return;
-                                }
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text("Time Table"),
-                                      content: Text(
-                                          "Proceed to Save Changes for Section,\n${eachSection.sectionName}"),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text("Proceed"),
-                                          onPressed: () async {
-                                            Navigator.of(context).pop();
-                                            await _saveChanges();
-                                            setState(() {
-                                              _sectionToBeEdited = null;
-                                            });
-                                          },
+                          widget.adminProfile.isMegaAdmin
+                              ? Container()
+                              : InkWell(
+                                  onTap: () async {
+                                    HapticFeedback.vibrate();
+                                    if (_sectionToBeEdited != null && _sectionToBeEdited == eachSection) {
+                                      if (_sectionWiseTimeSlots.where((e) => e.isEdited ?? false).isEmpty) {
+                                        setState(() {
+                                          _sectionToBeEdited = null;
+                                        });
+                                        return;
+                                      }
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: const Text("Time Table"),
+                                            content: Text("Proceed to Save Changes for Section,\n${eachSection.sectionName}"),
+                                            actions: [
+                                              TextButton(
+                                                child: const Text("Proceed"),
+                                                onPressed: () async {
+                                                  Navigator.of(context).pop();
+                                                  await _saveChanges();
+                                                  setState(() {
+                                                    _sectionToBeEdited = null;
+                                                  });
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: const Text("Cancel"),
+                                                onPressed: () async {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    } else if (_sectionToBeEdited != null && _sectionToBeEdited != eachSection) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Please save changes for Section ${_sectionToBeEdited!.sectionName} to proceed editing ${eachSection.sectionName}",
+                                          ),
                                         ),
-                                        TextButton(
-                                          child: const Text("Cancel"),
-                                          onPressed: () async {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
+                                      );
+                                    } else {
+                                      setState(() {
+                                        _sectionToBeEdited = eachSection;
+                                      });
+                                    }
                                   },
-                                );
-                              } else if (_sectionToBeEdited != null &&
-                                  _sectionToBeEdited != eachSection) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      "Please save changes for Section ${_sectionToBeEdited!.sectionName} to proceed editing ${eachSection.sectionName}",
+                                  child: ClayButton(
+                                    color: Colors.blue[200],
+                                    height: 50,
+                                    width: 50,
+                                    borderRadius: 50,
+                                    surfaceColor: Colors.blue[200],
+                                    child: Icon(
+                                      _sectionToBeEdited != null && _sectionToBeEdited == eachSection ? Icons.check : Icons.edit,
                                     ),
                                   ),
-                                );
-                              } else {
-                                setState(() {
-                                  _sectionToBeEdited = eachSection;
-                                });
-                              }
-                            },
-                            child: ClayButton(
-                              color: Colors.blue[200],
-                              height: 50,
-                              width: 50,
-                              borderRadius: 50,
-                              surfaceColor: Colors.blue[200],
-                              child: Icon(
-                                _sectionToBeEdited != null &&
-                                        _sectionToBeEdited == eachSection
-                                    ? Icons.check
-                                    : Icons.edit,
-                              ),
-                            ),
-                          ),
+                                ),
                         ],
                       ),
                     ),
@@ -662,8 +605,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                       crossAxisCount: crossAxisCount,
                       childAspectRatio: widthOfEachCard / heightOfEachCard,
                       children: WEEKS.map((eachWeek) {
-                        return buildSectionWiseTimeSlotsForEachSection(
-                            eachSection, eachWeek);
+                        return buildSectionWiseTimeSlotsForEachSection(eachSection, eachWeek);
                       }).toList(),
                     ),
                   ),
@@ -704,8 +646,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
               childAspectRatio: 2.25,
               crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
               shrinkWrap: true,
-              children:
-                  _sectionsList.map((e) => buildSectionCheckBox(e)).toList()
+              children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList()
               // + _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
               ),
         ],
@@ -841,19 +782,21 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
     return Scaffold(
       appBar: AppBar(
         title: const Text("Time Table"),
-        actions: <Widget>[
-          PopupMenuButton<String>(
-            onSelected: handleNextScreenOptions,
-            itemBuilder: (BuildContext context) {
-              return {'Edit Attendance Time Slots'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          ),
-        ],
+        actions: widget.adminProfile.isMegaAdmin
+            ? null
+            : <Widget>[
+                PopupMenuButton<String>(
+                  onSelected: handleNextScreenOptions,
+                  itemBuilder: (BuildContext context) {
+                    return {'Edit Attendance Time Slots'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
+              ],
       ),
       body: _isLoading
           ? Center(
@@ -876,15 +819,12 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                     SliverFillRemaining(
                       hasScrollBody: true,
                       fillOverscroll: true,
-                      child: !_selectedSectionMap.values.toSet().contains(true)
-                          ? Container()
-                          : buildSectionWiseTimeSlotsForAllSelectedSections(),
+                      child: !_selectedSectionMap.values.toSet().contains(true) ? Container() : buildSectionWiseTimeSlotsForAllSelectedSections(),
                     ),
                   ],
                 ),
       floatingActionButton: FloatingActionButton(
-        child:
-            Icon(_previewMode ? Icons.close : Icons.preview_outlined, size: 28),
+        child: Icon(_previewMode ? Icons.close : Icons.preview_outlined, size: 28),
         onPressed: () {
           setState(() {
             _previewMode = !_previewMode;
@@ -895,25 +835,17 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
   }
 
   Widget _previewTimeTable(Section section) {
-    List<String> allStrings = _tdsList
-            .map((e) => (e.teacherName ?? "-").capitalize())
-            .toSet()
-            .toList() +
-        _tdsList
-            .map((e) => (e.subjectName ?? "-").capitalize())
-            .toSet()
-            .toList();
+    List<String> allStrings = _tdsList.map((e) => (e.teacherName ?? "-").capitalize()).toSet().toList() +
+        _tdsList.map((e) => (e.subjectName ?? "-").capitalize()).toSet().toList();
     allStrings.sort((a, b) => a.length.compareTo(b.length));
 
     List<TimeSlot> timeSlots = _sectionWiseTimeSlots
         .where((eachTimeSlot) => eachTimeSlot.sectionId == section.sectionId)
-        .map((e) =>
-            TimeSlot(weekId: 0, startTime: (e.startTime), endTime: (e.endTime)))
+        .map((e) => TimeSlot(weekId: 0, startTime: (e.startTime), endTime: (e.endTime)))
         .toSet()
         .toList();
     double height = 25;
-    double width =
-        (MediaQuery.of(context).size.width - 21) / (timeSlots.length + 1);
+    double width = (MediaQuery.of(context).size.width - 21) / (timeSlots.length + 1);
     return RepaintBoundary(
       key: _printKeys[section],
       child: Container(
@@ -985,8 +917,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      eachWeek +
-                                          " " * (allStrings.last.length - 5),
+                                      eachWeek + " " * (allStrings.last.length - 5),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         fontFamily: 'monospace',
@@ -997,8 +928,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                 )
                               ] +
                               timeSlots.map((eachTimeSlot) {
-                                String res =
-                                    "N/A" + " " * (allStrings.last.length - 5);
+                                String res = "N/A" + " " * (allStrings.last.length - 5);
                                 var x = _sectionWiseTimeSlots.where((e) =>
                                     e.week == eachWeek &&
                                     e.startTime == eachTimeSlot.startTime &&
@@ -1008,21 +938,11 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
                                   if (x.first.tdsId == null) {
                                     res = "-";
                                   } else {
-                                    res = (x.first.subjectName ?? "-")
-                                            .capitalize() +
-                                        " " *
-                                            (allStrings.last.length -
-                                                (x.first.subjectName ?? "-")
-                                                    .capitalize()
-                                                    .length) +
+                                    res = (x.first.subjectName ?? "-").capitalize() +
+                                        " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length) +
                                         "\n" +
-                                        (x.first.teacherName ?? "-")
-                                            .capitalize() +
-                                        " " *
-                                            (allStrings.last.length -
-                                                (x.first.teacherName ?? "-")
-                                                    .capitalize()
-                                                    .length);
+                                        (x.first.teacherName ?? "-").capitalize() +
+                                        " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length);
                                   }
                                 }
                                 return Container(
@@ -1062,10 +982,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable>
       child: ListView(
         // shrinkWrap: true,
         // physics: NeverScrollableScrollPhysics(),
-        children: _sectionsList
-            .where((eachSection) => _selectedSectionMap[eachSection]!)
-            .map((e) => _previewTimeTable(e))
-            .toList(),
+        children: _sectionsList.where((eachSection) => _selectedSectionMap[eachSection]!).map((e) => _previewTimeTable(e)).toList(),
       ),
     );
   }

@@ -13,8 +13,7 @@ import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart'
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 class LogbookScreen extends StatefulWidget {
-  const LogbookScreen({Key? key, this.adminProfile, this.teacherProfile})
-      : super(key: key);
+  const LogbookScreen({Key? key, this.adminProfile, this.teacherProfile}) : super(key: key);
 
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
@@ -53,61 +52,43 @@ class _LogbookScreenState extends State<LogbookScreen> {
     });
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
-      schoolId: widget.teacherProfile == null
-          ? widget.adminProfile!.schoolId
-          : widget.teacherProfile!.schoolId,
-      teacherId: widget.teacherProfile == null
-          ? null
-          : widget.teacherProfile!.teacherId,
+      schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
+      teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
     );
-    GetTeachersResponse getTeachersResponse =
-        await getTeachers(getTeachersRequest);
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
         if (_teachersList.length == 1) {
           _selectedTeacher = _teachersList[0];
         } else {
-          _teachersList.sort((a, b) =>
-              (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
+          _teachersList.sort((a, b) => (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
         }
       });
     }
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.teacherProfile == null
-          ? widget.adminProfile!.schoolId
-          : widget.teacherProfile!.schoolId,
+      schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-        await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
-      schoolId: widget.teacherProfile == null
-          ? widget.adminProfile!.schoolId
-          : widget.teacherProfile!.schoolId,
+    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+      schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
       status: "active",
     ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-        getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _sectionWiseTimeSlots =
-            getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+        _sectionWiseTimeSlots = getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
 
         _sectionWiseTimeSlots.sort((a, b) =>
-            getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!)
-                .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(
-                    b.startTime!, b.weekId!)));
+            getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime!, b.weekId!)));
       });
     }
 
@@ -123,14 +104,11 @@ class _LogbookScreenState extends State<LogbookScreen> {
       _isLoading = true;
     });
     GetLogBookResponse getLogBookResponse = await getLogBook(GetLogBookRequest(
-      schoolId: widget.teacherProfile == null
-          ? widget.adminProfile!.schoolId
-          : widget.teacherProfile!.schoolId,
+      schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
       date: _selectedDate.millisecondsSinceEpoch,
     ));
 
-    if (getLogBookResponse.httpStatus == "OK" &&
-        getLogBookResponse.responseStatus == "success") {
+    if (getLogBookResponse.httpStatus == "OK" && getLogBookResponse.responseStatus == "success") {
       setState(() {
         _logBookList = getLogBookResponse.logs!.map((e) => e!).toList();
       });
@@ -147,14 +125,10 @@ class _LogbookScreenState extends State<LogbookScreen> {
       _filteredLogBookList = _logBookList;
     });
     if (_selectedTeacher != null) {
-      _filteredLogBookList = _filteredLogBookList
-          .where((e) => e.teacherId == _selectedTeacher!.teacherId)
-          .toList();
+      _filteredLogBookList = _filteredLogBookList.where((e) => e.teacherId == _selectedTeacher!.teacherId).toList();
     }
     if (_selectedSection != null) {
-      _filteredLogBookList = _filteredLogBookList
-          .where((e) => e.sectionId == _selectedSection!.sectionId)
-          .toList();
+      _filteredLogBookList = _filteredLogBookList.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
     }
     setState(() {
       _isLoading = false;
@@ -373,10 +347,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
         message: "Previous Day",
         child: InkWell(
           onTap: () {
-            if (_selectedDate.millisecondsSinceEpoch ==
-                DateTime.now()
-                    .subtract(const Duration(days: 364))
-                    .millisecondsSinceEpoch) return;
+            if (_selectedDate.millisecondsSinceEpoch == DateTime.now().subtract(const Duration(days: 364)).millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.subtract(const Duration(days: 1));
             });
@@ -402,8 +373,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
         message: "Next Day",
         child: InkWell(
           onTap: () {
-            if (_selectedDate.millisecondsSinceEpoch ==
-                DateTime.now().millisecondsSinceEpoch) return;
+            if (_selectedDate.millisecondsSinceEpoch == DateTime.now().millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.add(const Duration(days: 1));
             });
@@ -427,17 +397,12 @@ class _LogbookScreenState extends State<LogbookScreen> {
       _isLoading = true;
     });
 
-    CreateOrUpdateLogBookResponse createOrUpdateLogBookResponse =
-        await createOrUpdateLogBook(CreateOrUpdateLogBookRequest(
+    CreateOrUpdateLogBookResponse createOrUpdateLogBookResponse = await createOrUpdateLogBook(CreateOrUpdateLogBookRequest(
       date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
-      schoolId: widget.adminProfile == null
-          ? widget.teacherProfile!.schoolId
-          : widget.adminProfile!.schoolId,
+      schoolId: widget.adminProfile == null ? widget.teacherProfile!.schoolId : widget.adminProfile!.schoolId,
       teacherId: logBook.teacherId,
       status: "active",
-      agentId: widget.adminProfile == null
-          ? widget.teacherProfile!.teacherId
-          : widget.adminProfile!.userId,
+      agentId: widget.adminProfile == null ? widget.teacherProfile!.teacherId : widget.adminProfile!.userId,
       sectionId: logBook.sectionId,
       subjectId: logBook.subjectId,
       tdsId: logBook.tdsId,
@@ -446,8 +411,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
       sectionTimeSlotId: logBook.sectionTimeSlotId,
     ));
 
-    if (createOrUpdateLogBookResponse.httpStatus != "OK" ||
-        createOrUpdateLogBookResponse.responseStatus != "success") {
+    if (createOrUpdateLogBookResponse.httpStatus != "OK" || createOrUpdateLogBookResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong! Please try again later.."),
@@ -465,8 +429,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
   Container _getLogBookWidget(LogBook logBook) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
@@ -509,7 +472,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(child: buildNotesWidget(logBook)),
-                  buildEditButton(logBook),
+                  (widget.adminProfile != null && widget.adminProfile!.isMegaAdmin) ? Container() : buildEditButton(logBook),
                 ],
               ),
               Row(
@@ -556,9 +519,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                 )
               : Text(
                   logBook.notes ?? "-",
-                  textAlign: logBook.notes == null
-                      ? TextAlign.center
-                      : TextAlign.justify,
+                  textAlign: logBook.notes == null ? TextAlign.center : TextAlign.justify,
                 ),
         ),
       ),
@@ -632,11 +593,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
       appBar: AppBar(
         title: const Text("Log Book"),
         actions: [
-          buildRoleButtonForAppBar(
-              context,
-              widget.teacherProfile == null
-                  ? widget.adminProfile!
-                  : widget.teacherProfile!),
+          buildRoleButtonForAppBar(context, widget.teacherProfile == null ? widget.adminProfile! : widget.teacherProfile!),
         ],
       ),
       drawer: widget.teacherProfile == null
@@ -651,8 +608,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
           : ListView(
               children: [
                     Container(
-                      child: MediaQuery.of(context).orientation ==
-                              Orientation.landscape
+                      child: MediaQuery.of(context).orientation == Orientation.landscape
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -678,9 +634,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                             ),
                     ),
                   ] +
-                  _filteredLogBookList
-                      .map((e) => _getLogBookWidget(e))
-                      .toList(),
+                  _filteredLogBookList.map((e) => _getLogBookWidget(e)).toList(),
             ),
     );
   }

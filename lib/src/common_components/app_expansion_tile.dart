@@ -26,8 +26,7 @@ class AppExpansionTile extends StatefulWidget {
   AppExpansionTileState createState() => AppExpansionTileState();
 }
 
-class AppExpansionTileState extends State<AppExpansionTile>
-    with SingleTickerProviderStateMixin {
+class AppExpansionTileState extends State<AppExpansionTile> with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   CurvedAnimation? _easeOutAnimation;
   CurvedAnimation? _easeInAnimation;
@@ -47,17 +46,13 @@ class AppExpansionTileState extends State<AppExpansionTile>
       reverseDuration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    _isExpanded =
-        PageStorage.of(context)?.readState(context) ?? widget.initiallyExpanded;
-    _easeOutAnimation =
-        CurvedAnimation(parent: _controller!, curve: Curves.easeOut);
-    _easeInAnimation =
-        CurvedAnimation(parent: _controller!, curve: Curves.easeIn);
+    _isExpanded = PageStorage.of(context)?.readState(context) ?? widget.initiallyExpanded;
+    _easeOutAnimation = CurvedAnimation(parent: _controller!, curve: Curves.easeOut);
+    _easeInAnimation = CurvedAnimation(parent: _controller!, curve: Curves.easeIn);
     _borderColor = ColorTween();
     _headerColor = ColorTween();
     _iconColor = ColorTween();
-    _iconTurns = Tween<double>(begin: 0.0, end: 0.5)
-        .animate((_isExpanded) ? _easeOutAnimation! : _easeInAnimation!);
+    _iconTurns = Tween<double>(begin: 0.0, end: 0.5).animate((_isExpanded) ? _easeOutAnimation! : _easeInAnimation!);
     _backgroundColor = ColorTween();
 
     if (_isExpanded) _controller!.value = 1.0;
@@ -115,18 +110,13 @@ class AppExpansionTileState extends State<AppExpansionTile>
         children: <Widget>[
           IconTheme.merge(
             data: _isExpanded
-                ? IconThemeData(
-                    color: _iconColor!.evaluate(_easeOutAnimation!)!)
-                : IconThemeData(
-                    color: _iconColor!.evaluate(_easeInAnimation!)!),
+                ? IconThemeData(color: _iconColor!.evaluate(_easeOutAnimation!)!)
+                : IconThemeData(color: _iconColor!.evaluate(_easeInAnimation!)!),
             child: ListTile(
               onTap: toggle,
               leading: widget.leading,
               title: DefaultTextStyle(
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText1!
-                    .copyWith(color: titleColor),
+                style: Theme.of(context).textTheme.bodyText1!.copyWith(color: titleColor),
                 child: widget.title!,
               ),
               trailing: widget.trailing == null
@@ -139,9 +129,7 @@ class AppExpansionTileState extends State<AppExpansionTile>
           ),
           ClipRect(
             child: Align(
-              heightFactor: _isExpanded
-                  ? _easeOutAnimation!.value
-                  : _easeInAnimation!.value,
+              heightFactor: _isExpanded ? _easeOutAnimation!.value : _easeInAnimation!.value,
               child: child,
             ),
           ),

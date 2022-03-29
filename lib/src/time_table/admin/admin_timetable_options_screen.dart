@@ -28,8 +28,7 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
     super.initState();
   }
 
-  Widget _getTimeTableOption(
-      String title, String? description, StatefulWidget nextWidget) {
+  Widget _getTimeTableOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -115,13 +114,15 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
         primary: false,
         children: <Widget>[
           // _getHeaderRow(),
-          _getTimeTableOption(
-            "Teacher Dealing Sections",
-            null,
-            AdminTeacherDealingSectionsScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
+          widget.adminProfile.isMegaAdmin
+              ? Container()
+              : _getTimeTableOption(
+                  "Teacher Dealing Sections",
+                  null,
+                  AdminTeacherDealingSectionsScreen(
+                    adminProfile: widget.adminProfile,
+                  ),
+                ),
           _getTimeTableOption(
             "Section Wise Time Slots Management",
             null,
@@ -129,11 +130,13 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
               adminProfile: widget.adminProfile,
             ),
           ),
-          _getTimeTableOption(
-            "Automatic Time Table Generation",
-            null,
-            AdminTimeTableRandomizer(adminProfile: widget.adminProfile),
-          ),
+          widget.adminProfile.isMegaAdmin
+              ? Container()
+              : _getTimeTableOption(
+                  "Automatic Time Table Generation",
+                  null,
+                  AdminTimeTableRandomizer(adminProfile: widget.adminProfile),
+                ),
           _getTimeTableOption(
             "All Teachers' Time Table Preview",
             null,

@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_resu
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
+import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -176,6 +177,14 @@ class _MyAppState extends State<MyApp> {
                     var argument = (routeSettings.arguments as AdminProfile);
                     return AdminDashboard(
                       adminProfile: argument,
+                    );
+                  case MegaAdminHomePage.routeName:
+                    if (routeSettings.arguments == null) {
+                      return const SplashScreen();
+                    }
+                    var argument = (routeSettings.arguments as List<MegaAdminProfile>);
+                    return MegaAdminHomePage(
+                      megaAdminProfiles: argument,
                     );
                   case StudentProfileScreen.routeName:
                     try {

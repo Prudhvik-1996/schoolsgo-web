@@ -15,16 +15,13 @@ import 'admin_bulk_edit_attendance_time_slots_screen.dart';
 class AdminAttendanceManagementScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminAttendanceManagementScreen({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminAttendanceManagementScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminAttendanceManagementScreenState createState() =>
-      _AdminAttendanceManagementScreenState();
+  _AdminAttendanceManagementScreenState createState() => _AdminAttendanceManagementScreenState();
 }
 
-class _AdminAttendanceManagementScreenState
-    extends State<AdminAttendanceManagementScreen> {
+class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagementScreen> {
   bool _isLoading = true;
 
   List<Section> _sectionsList = [];
@@ -54,35 +51,27 @@ class _AdminAttendanceManagementScreenState
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
-    GetStudentAttendanceTimeSlotsResponse
-        getStudentAttendanceTimeSlotsResponse =
-        await getStudentAttendanceTimeSlots(
-            GetStudentAttendanceTimeSlotsRequest(
+    GetStudentAttendanceTimeSlotsResponse getStudentAttendanceTimeSlotsResponse =
+        await getStudentAttendanceTimeSlots(GetStudentAttendanceTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
     ));
-    if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" &&
-        getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {
+    if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" && getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _attendanceTimeSlots =
-            getStudentAttendanceTimeSlotsResponse.attendanceTimeSlotBeans!;
+        _attendanceTimeSlots = getStudentAttendanceTimeSlotsResponse.attendanceTimeSlotBeans!;
       });
     }
 
-    GetTeachersResponse getTeachersResponse = await getTeachers(
-        GetTeachersRequest(schoolId: widget.adminProfile.schoolId));
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    GetTeachersResponse getTeachersResponse = await getTeachers(GetTeachersRequest(schoolId: widget.adminProfile.schoolId));
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachers = getTeachersResponse.teachers!;
       });
@@ -97,9 +86,7 @@ class _AdminAttendanceManagementScreenState
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _selectedSection == section
-            ? Colors.blue[200]
-            : clayContainerColor(context),
+        color: _selectedSection == section ? Colors.blue[200] : clayContainerColor(context),
         spread: _selectedSection == section ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -147,9 +134,7 @@ class _AdminAttendanceManagementScreenState
             allowExpansion: !_isEditMode,
             key: expansionTile,
             title: Text(
-              _selectedSection == null
-                  ? "Select a section"
-                  : "Section: ${_selectedSection!.sectionName!}",
+              _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
             ),
             children: <Widget>[
               Container(
@@ -159,9 +144,7 @@ class _AdminAttendanceManagementScreenState
                   childAspectRatio: 2.25,
                   crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
-                  children: _sectionsList
-                      .map((e) => buildSectionCheckBox(e))
-                      .toList(),
+                  children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
                 ),
               ),
             ],
@@ -187,23 +170,16 @@ class _AdminAttendanceManagementScreenState
               onPressed: () async {
                 HapticFeedback.vibrate();
                 Navigator.of(context).pop();
-                CreateOrUpdateAttendanceTimeSlotBeansRequest
-                    createOrUpdateAttendanceTimeSlotBeansRequest =
+                CreateOrUpdateAttendanceTimeSlotBeansRequest createOrUpdateAttendanceTimeSlotBeansRequest =
                     CreateOrUpdateAttendanceTimeSlotBeansRequest(
                   schoolId: widget.adminProfile.schoolId,
                   agent: widget.adminProfile.userId,
-                  attendanceTimeSlotBeans:
-                      _attendanceTimeSlots.where((e) => e.isEdited).toList(),
+                  attendanceTimeSlotBeans: _attendanceTimeSlots.where((e) => e.isEdited).toList(),
                 );
-                CreateOrUpdateAttendanceTimeSlotBeansResponse
-                    createOrUpdateAttendanceTimeSlotBeansResponse =
-                    await createOrUpdateAttendanceTimeSlotBeans(
-                        createOrUpdateAttendanceTimeSlotBeansRequest);
-                if (createOrUpdateAttendanceTimeSlotBeansResponse.httpStatus ==
-                        "OK" &&
-                    createOrUpdateAttendanceTimeSlotBeansResponse
-                            .responseStatus ==
-                        "success") {
+                CreateOrUpdateAttendanceTimeSlotBeansResponse createOrUpdateAttendanceTimeSlotBeansResponse =
+                    await createOrUpdateAttendanceTimeSlotBeans(createOrUpdateAttendanceTimeSlotBeansRequest);
+                if (createOrUpdateAttendanceTimeSlotBeansResponse.httpStatus == "OK" &&
+                    createOrUpdateAttendanceTimeSlotBeansResponse.responseStatus == "success") {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Success!"),
@@ -241,10 +217,7 @@ class _AdminAttendanceManagementScreenState
   }
 
   Widget buildAttendanceTimeSlotsForEachSection(Section section) {
-    List<AttendanceTimeSlotBean> attendanceTimeSlotsForSection =
-        _attendanceTimeSlots
-            .where((e) => e.sectionId == section.sectionId)
-            .toList();
+    List<AttendanceTimeSlotBean> attendanceTimeSlotsForSection = _attendanceTimeSlots.where((e) => e.sectionId == section.sectionId).toList();
 
     return Container(
       margin: const EdgeInsets.all(10),
@@ -261,30 +234,30 @@ class _AdminAttendanceManagementScreenState
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(section.sectionName!),
-                      InkWell(
-                        onTap: () {
-                          HapticFeedback.vibrate();
-                          if (_isEditMode) {
-                            _saveChanges();
-                          } else {
-                            setState(() {
-                              _isEditMode = true;
-                            });
-                          }
-                        },
-                        child: ClayButton(
-                          color: clayContainerColor(context),
-                          height: 50,
-                          width: 50,
-                          borderRadius: 50,
-                          child: Icon(
-                            _isEditMode ? Icons.check : Icons.edit,
-                            color: _isEditMode
-                                ? Colors.green[200]
-                                : Colors.black38,
-                          ),
-                        ),
-                      )
+                      widget.adminProfile.isMegaAdmin
+                          ? Container()
+                          : InkWell(
+                              onTap: () {
+                                HapticFeedback.vibrate();
+                                if (_isEditMode) {
+                                  _saveChanges();
+                                } else {
+                                  setState(() {
+                                    _isEditMode = true;
+                                  });
+                                }
+                              },
+                              child: ClayButton(
+                                color: clayContainerColor(context),
+                                height: 50,
+                                width: 50,
+                                borderRadius: 50,
+                                child: Icon(
+                                  _isEditMode ? Icons.check : Icons.edit,
+                                  color: _isEditMode ? Colors.green[200] : Colors.black38,
+                                ),
+                              ),
+                            )
                     ],
                   ),
                   const SizedBox(
@@ -304,9 +277,7 @@ class _AdminAttendanceManagementScreenState
                             padding: const EdgeInsets.fromLTRB(15, 10, 10, 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: _isEditMode
-                                  ? CrossAxisAlignment.center
-                                  : CrossAxisAlignment.start,
+                              crossAxisAlignment: _isEditMode ? CrossAxisAlignment.center : CrossAxisAlignment.start,
                               children: [
                                 // Text(
                                 //   "${e.week} - ${e.startTime} - ${e.endTime} - ${e.managerName}",
@@ -336,8 +307,7 @@ class _AdminAttendanceManagementScreenState
                                           isExpanded: true,
                                           items: _teachers
                                               .map(
-                                                (e1) =>
-                                                    DropdownMenuItem<Teacher>(
+                                                (e1) => DropdownMenuItem<Teacher>(
                                                   value: e1,
                                                   child: Text(e1.teacherName!),
                                                 ),
@@ -347,18 +317,11 @@ class _AdminAttendanceManagementScreenState
                                             setState(() {
                                               e.managerId = e1?.teacherId;
                                               e.managerName = e1?.teacherName;
-                                              e.agent =
-                                                  widget.adminProfile.agent;
+                                              e.agent = widget.adminProfile.agent;
                                               e.isEdited = true;
                                             });
                                           },
-                                          value: e.managerId == null
-                                              ? null
-                                              : _teachers
-                                                  .where((e1) =>
-                                                      e1.teacherId ==
-                                                      e.managerId)
-                                                  .first,
+                                          value: e.managerId == null ? null : _teachers.where((e1) => e1.teacherId == e.managerId).first,
                                         )
                                       : Text(
                                           e.managerName!,
@@ -380,8 +343,7 @@ class _AdminAttendanceManagementScreenState
   Widget buildAttendanceTimeSlotsForAllSelectedSections() {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: Column(
         children: [_selectedSection]
@@ -410,19 +372,21 @@ class _AdminAttendanceManagementScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text("Attendance Management"),
-        actions: <Widget>[
-          PopupMenuButton<String>(
-            onSelected: handleNextScreenOptions,
-            itemBuilder: (BuildContext context) {
-              return {'Edit Attendance Time Slots'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          ),
-        ],
+        actions: widget.adminProfile.isMegaAdmin
+            ? null
+            : <Widget>[
+                PopupMenuButton<String>(
+                  onSelected: handleNextScreenOptions,
+                  itemBuilder: (BuildContext context) {
+                    return {'Edit Attendance Time Slots'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
+              ],
       ),
       body: _isLoading
           ? Center(
@@ -436,9 +400,7 @@ class _AdminAttendanceManagementScreenState
               child: ListView(
                 children: [
                   _buildSectionsFilter(),
-                  _selectedSection == null
-                      ? Container()
-                      : buildAttendanceTimeSlotsForAllSelectedSections(),
+                  _selectedSection == null ? Container() : buildAttendanceTimeSlotsForAllSelectedSections(),
                 ],
               ),
             ),

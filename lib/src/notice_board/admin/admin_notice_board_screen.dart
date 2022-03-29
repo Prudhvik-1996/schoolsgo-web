@@ -15,8 +15,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../model/notice_board.dart';
 
 class AdminNoticeBoardScreen extends StatefulWidget {
-  const AdminNoticeBoardScreen({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminNoticeBoardScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
   static const routeName = "/noticeboard";
@@ -56,14 +55,11 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
       );
     });
 
-    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(
-        GetNoticeBoardRequest(schoolId: widget.adminProfile.schoolId));
+    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(schoolId: widget.adminProfile.schoolId));
 
-    if (getNoticeBoardResponse.httpStatus == 'OK' &&
-        getNoticeBoardResponse.responseStatus == 'success') {
+    if (getNoticeBoardResponse.httpStatus == 'OK' && getNoticeBoardResponse.responseStatus == 'success') {
       setState(() {
-        _noticeBoardNews =
-            getNoticeBoardResponse.noticeBoard!.news!.reversed.toList();
+        _noticeBoardNews = getNoticeBoardResponse.noticeBoard!.news!.reversed.toList();
       });
     }
 
@@ -82,14 +78,8 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               : "Are you sure you want to submit changes for the following news?"),
           content: Container(
             margin: const EdgeInsets.all(20),
-            width: (MediaQuery.of(context).size.width) /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 1
-                    : 2),
-            height: (MediaQuery.of(context).size.height) /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 2
-                    : 1),
+            width: (MediaQuery.of(context).size.width) / (MediaQuery.of(context).orientation == Orientation.portrait ? 1 : 2),
+            height: (MediaQuery.of(context).size.height) / (MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 1),
             child: ListView(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
@@ -108,8 +98,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               child: InkWell(
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-                  child: Text(
-                      eachNews.status == "inactive" ? "Confirm" : "Submit"),
+                  child: Text(eachNews.status == "inactive" ? "Confirm" : "Submit"),
                 ),
                 onTap: () async {
                   Navigator.pop(context);
@@ -118,17 +107,13 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                   });
                   bool _errorOccurred = false;
                   List<NewsMediaBeans> _newsMediaBeansToBeEdited = [];
-                  List<NewsMediaBeans?> _originalNewsMediaBeans =
-                      _noticeBoardNews
-                          .map((News? e) => News.fromJson(e!.origJson()))
-                          .map((News e) => e.newsMediaBeans)
-                          .expand((List<NewsMediaBeans?>? i) => i!)
-                          .toList();
+                  List<NewsMediaBeans?> _originalNewsMediaBeans = _noticeBoardNews
+                      .map((News? e) => News.fromJson(e!.origJson()))
+                      .map((News e) => e.newsMediaBeans)
+                      .expand((List<NewsMediaBeans?>? i) => i!)
+                      .toList();
                   List<NewsMediaBeans?> _currentNewsMediaBeans =
-                      _noticeBoardNews
-                          .map((News? e) => e!.newsMediaBeans)
-                          .expand((List<NewsMediaBeans?>? i) => i!)
-                          .toList();
+                      _noticeBoardNews.map((News? e) => e!.newsMediaBeans).expand((List<NewsMediaBeans?>? i) => i!).toList();
 
                   for (var eachNewMediaBean in _currentNewsMediaBeans) {
                     if (!_originalNewsMediaBeans.contains(eachNewMediaBean)) {
@@ -136,37 +121,26 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     }
                   }
 
-                  CreateOrUpdateNoticeBoardMediaRequest
-                      createOrUpdateNoticeBoardMediaRequest =
-                      CreateOrUpdateNoticeBoardMediaRequest(
+                  CreateOrUpdateNoticeBoardMediaRequest createOrUpdateNoticeBoardMediaRequest = CreateOrUpdateNoticeBoardMediaRequest(
                     schoolId: widget.adminProfile.schoolId,
                     agent: widget.adminProfile.userId.toString(),
                     newsMediaBeans: _newsMediaBeansToBeEdited,
                   );
 
-                  CreateOrUpdateNoticeBoardMediaResponse
-                      createOrUpdateNoticeBoardMediaResponse =
-                      await createOrUpdateNoticeBoardMedia(
-                          createOrUpdateNoticeBoardMediaRequest);
-                  if (createOrUpdateNoticeBoardMediaResponse.httpStatus !=
-                          'OK' ||
-                      createOrUpdateNoticeBoardMediaResponse.responseStatus !=
-                          'success') {
+                  CreateOrUpdateNoticeBoardMediaResponse createOrUpdateNoticeBoardMediaResponse =
+                      await createOrUpdateNoticeBoardMedia(createOrUpdateNoticeBoardMediaRequest);
+                  if (createOrUpdateNoticeBoardMediaResponse.httpStatus != 'OK' ||
+                      createOrUpdateNoticeBoardMediaResponse.responseStatus != 'success') {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                            "Something went wrong while trying to execute your request..\nPlease try again later"),
+                        content: Text("Something went wrong while trying to execute your request..\nPlease try again later"),
                       ),
                     );
                   }
 
                   News _oldNews = News.fromJson(eachNews.origJson());
-                  if (_oldNews.description != eachNews.description ||
-                      _oldNews.title != eachNews.title ||
-                      _oldNews.status != eachNews.status) {
-                    CreateOrUpdateNoticeBoardResponse
-                        createOrUpdateNoticeBoardResponse =
-                        await createOrUpdateNoticeBoard(
+                  if (_oldNews.description != eachNews.description || _oldNews.title != eachNews.title || _oldNews.status != eachNews.status) {
+                    CreateOrUpdateNoticeBoardResponse createOrUpdateNoticeBoardResponse = await createOrUpdateNoticeBoard(
                       CreateOrUpdateNoticeBoardRequest(
                         schoolId: eachNews.schoolId,
                         description: eachNews.description,
@@ -177,13 +151,10 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       ),
                     );
 
-                    if (createOrUpdateNoticeBoardResponse.httpStatus != 'OK' ||
-                        createOrUpdateNoticeBoardResponse.responseStatus !=
-                            'success') {
+                    if (createOrUpdateNoticeBoardResponse.httpStatus != 'OK' || createOrUpdateNoticeBoardResponse.responseStatus != 'success') {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text(
-                              "Something went wrong while trying to execute your request..\nPlease try again later"),
+                          content: Text("Something went wrong while trying to execute your request..\nPlease try again later"),
                         ),
                       );
                     }
@@ -232,18 +203,11 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
-              "Are you sure you want to submit changes for the following news?"),
+          title: const Text("Are you sure you want to submit changes for the following news?"),
           content: Container(
             margin: const EdgeInsets.all(20),
-            width: (MediaQuery.of(context).size.width) /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 1
-                    : 2),
-            height: (MediaQuery.of(context).size.height) /
-                (MediaQuery.of(context).orientation == Orientation.portrait
-                    ? 2
-                    : 1),
+            width: (MediaQuery.of(context).size.width) / (MediaQuery.of(context).orientation == Orientation.portrait ? 1 : 2),
+            height: (MediaQuery.of(context).size.height) / (MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 1),
             child: ListView(
               shrinkWrap: true,
               physics: const BouncingScrollPhysics(),
@@ -270,9 +234,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     _isLoading = true;
                   });
 
-                  CreateOrUpdateNoticeBoardResponse
-                      createOrUpdateNoticeBoardResponse =
-                      await createOrUpdateNoticeBoard(
+                  CreateOrUpdateNoticeBoardResponse createOrUpdateNoticeBoardResponse = await createOrUpdateNoticeBoard(
                     CreateOrUpdateNoticeBoardRequest(
                       schoolId: newNews.schoolId,
                       description: newNews.description,
@@ -283,13 +245,10 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     ),
                   );
 
-                  if (createOrUpdateNoticeBoardResponse.httpStatus != 'OK' ||
-                      createOrUpdateNoticeBoardResponse.responseStatus !=
-                          'success') {
+                  if (createOrUpdateNoticeBoardResponse.httpStatus != 'OK' || createOrUpdateNoticeBoardResponse.responseStatus != 'success') {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                            "Something went wrong while trying to execute your request..\nPlease try again later"),
+                        content: Text("Something went wrong while trying to execute your request..\nPlease try again later"),
                       ),
                     );
                     setState(() {
@@ -305,27 +264,19 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     });
                   }
 
-                  CreateOrUpdateNoticeBoardMediaRequest
-                      createOrUpdateNoticeBoardMediaRequest =
-                      CreateOrUpdateNoticeBoardMediaRequest(
+                  CreateOrUpdateNoticeBoardMediaRequest createOrUpdateNoticeBoardMediaRequest = CreateOrUpdateNoticeBoardMediaRequest(
                     schoolId: widget.adminProfile.schoolId,
                     agent: widget.adminProfile.userId.toString(),
-                    newsMediaBeans:
-                        newNews.newsMediaBeans!.map((e) => e!).toList(),
+                    newsMediaBeans: newNews.newsMediaBeans!.map((e) => e!).toList(),
                   );
 
-                  CreateOrUpdateNoticeBoardMediaResponse
-                      createOrUpdateNoticeBoardMediaResponse =
-                      await createOrUpdateNoticeBoardMedia(
-                          createOrUpdateNoticeBoardMediaRequest);
-                  if (createOrUpdateNoticeBoardMediaResponse.httpStatus !=
-                          'OK' ||
-                      createOrUpdateNoticeBoardMediaResponse.responseStatus !=
-                          'success') {
+                  CreateOrUpdateNoticeBoardMediaResponse createOrUpdateNoticeBoardMediaResponse =
+                      await createOrUpdateNoticeBoardMedia(createOrUpdateNoticeBoardMediaRequest);
+                  if (createOrUpdateNoticeBoardMediaResponse.httpStatus != 'OK' ||
+                      createOrUpdateNoticeBoardMediaResponse.responseStatus != 'success') {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                            "Something went wrong while trying to execute your request..\nPlease try again later"),
+                        content: Text("Something went wrong while trying to execute your request..\nPlease try again later"),
                       ),
                     );
                     setState(() {
@@ -446,10 +397,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               ],
             ),
           ),
-          eachNews.newsMediaBeans!
-                  .where((i) => i!.status != 'inactive')
-                  .toList()
-                  .isEmpty
+          eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList().isEmpty
               ? Container()
               : Container(
                   // height: 150,
@@ -458,16 +406,12 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                   child: GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                       crossAxisSpacing: 5.0,
                       mainAxisSpacing: 5.0,
                     ),
-                    itemCount: eachNews.newsMediaBeans!
-                        .where((i) => i!.status != 'inactive')
-                        .toList()
-                        .length,
+                    itemCount: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList().length,
                     itemBuilder: (context, index) {
                       return InkWell(
                         onTap: () {
@@ -478,32 +422,23 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                           height: 100,
                           width: 100,
                           padding: const EdgeInsets.all(2),
-                          child: getFileTypeForExtension(eachNews
-                                      .newsMediaBeans!
-                                      .where((i) => i!.status != 'inactive')
-                                      .toList()[index]!
-                                      .mediaType!) ==
-                                  MediaFileType.IMAGE_FILES
-                              ? FadeInImage(
-                                  image: NetworkImage(eachNews.newsMediaBeans!
-                                      .where((i) => i!.status != 'inactive')
-                                      .toList()[index]!
-                                      .mediaUrl!),
-                                  placeholder: const AssetImage(
-                                    'assets/images/loading_grey_white.gif',
-                                  ),
-                                )
-                              : Image.asset(
-                                  getAssetImageForFileType(
-                                    getFileTypeForExtension(
-                                      eachNews.newsMediaBeans!
-                                          .where((i) => i!.status != 'inactive')
-                                          .toList()[index]!
-                                          .mediaType!,
+                          child:
+                              getFileTypeForExtension(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
+                                      MediaFileType.IMAGE_FILES
+                                  ? FadeInImage(
+                                      image: NetworkImage(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
+                                      placeholder: const AssetImage(
+                                        'assets/images/loading_grey_white.gif',
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      getAssetImageForFileType(
+                                        getFileTypeForExtension(
+                                          eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!,
+                                        ),
+                                      ),
+                                      scale: 0.5,
                                     ),
-                                  ),
-                                  scale: 0.5,
-                                ),
                         ),
                       );
                     },
@@ -517,8 +452,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    convertEpochToDDMMYYYYEEEEHHMMAA(
-                        int.parse(eachNews.createTime!)),
+                    convertEpochToDDMMYYYYEEEEHHMMAA(int.parse(eachNews.createTime!)),
                     textAlign: TextAlign.end,
                   ),
                 ),
@@ -672,21 +606,12 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                 crossAxisSpacing: 5.0,
                 mainAxisSpacing: 5.0,
               ),
-              itemCount: eachNews.newsMediaBeans!
-                      .where((i) => i!.status != 'inactive')
-                      .toList()
-                      .length +
-                  1,
+              itemCount: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList().length + 1,
               itemBuilder: (context, index) {
-                if (index ==
-                    eachNews.newsMediaBeans!
-                        .where((i) => i!.status != 'inactive')
-                        .toList()
-                        .length) {
+                if (index == eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList().length) {
                   return InkWell(
                     onTap: () {
-                      html.FileUploadInputElement uploadInput =
-                          html.FileUploadInputElement();
+                      html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
                       uploadInput.multiple = true;
                       uploadInput.draggable = true;
                       uploadInput.accept =
@@ -707,23 +632,16 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                                 });
 
                                 try {
-                                  UploadFileToDriveResponse uploadFileResponse =
-                                      await uploadFileToDrive(
-                                          reader.result!, file.name);
+                                  UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
 
-                                  NewsMediaBeans newsMediaBean =
-                                      NewsMediaBeans();
+                                  NewsMediaBeans newsMediaBean = NewsMediaBeans();
                                   newsMediaBean.newsId = eachNews.newsId;
                                   newsMediaBean.status = "active";
-                                  newsMediaBean.mediaType =
-                                      uploadFileResponse.mediaBean!.mediaType;
-                                  newsMediaBean.mediaUrl =
-                                      uploadFileResponse.mediaBean!.mediaUrl;
-                                  newsMediaBean.mediaId =
-                                      uploadFileResponse.mediaBean!.mediaId;
+                                  newsMediaBean.mediaType = uploadFileResponse.mediaBean!.mediaType;
+                                  newsMediaBean.mediaUrl = uploadFileResponse.mediaBean!.mediaUrl;
+                                  newsMediaBean.mediaId = uploadFileResponse.mediaBean!.mediaId;
 
-                                  if (eachNews.newsMediaBeans == null &&
-                                      eachNews.newsMediaBeans!.isEmpty) {
+                                  if (eachNews.newsMediaBeans == null && eachNews.newsMediaBeans!.isEmpty) {
                                     setState(() {
                                       eachNews.newsMediaBeans = [];
                                     });
@@ -734,8 +652,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                                 } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(
-                                          "Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                                      content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                     ),
                                   );
                                 }
@@ -779,62 +696,39 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       children: [
                         Align(
                           alignment: Alignment.center,
-                          child: getFileTypeForExtension(eachNews
-                                      .newsMediaBeans!
-                                      .where((i) => i!.status != 'inactive')
-                                      .toList()[index]!
-                                      .mediaType!) ==
-                                  MediaFileType.IMAGE_FILES
-                              ? FadeInImage(
-                                  image: NetworkImage(eachNews.newsMediaBeans!
-                                      .where((i) => i!.status != 'inactive')
-                                      .toList()[index]!
-                                      .mediaUrl!),
-                                  placeholder: const AssetImage(
-                                    'assets/images/loading_grey_white.gif',
-                                  ),
-                                )
-                              : Image.asset(
-                                  getAssetImageForFileType(
-                                    getFileTypeForExtension(
-                                      eachNews.newsMediaBeans!
-                                          .where((i) => i!.status != 'inactive')
-                                          .toList()[index]!
-                                          .mediaType!,
+                          child:
+                              getFileTypeForExtension(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
+                                      MediaFileType.IMAGE_FILES
+                                  ? FadeInImage(
+                                      image: NetworkImage(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
+                                      placeholder: const AssetImage(
+                                        'assets/images/loading_grey_white.gif',
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      getAssetImageForFileType(
+                                        getFileTypeForExtension(
+                                          eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!,
+                                        ),
+                                      ),
+                                      scale: 0.5,
                                     ),
-                                  ),
-                                  scale: 0.5,
-                                ),
                         ),
                         Align(
                           alignment: Alignment.topRight,
                           child: InkWell(
                             onTap: () {
-                              if (eachNews.newsMediaBeans!
-                                      .where((i) => i!.status != 'inactive')
-                                      .toList()[index]!
-                                      .status ==
-                                  'active') {
+                              if (eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.status == 'active') {
                                 setState(() {
-                                  eachNews.newsMediaBeans!
-                                      .where((i) => i!.status != 'inactive')
-                                      .toList()[index]!
-                                      .status = 'inactive';
+                                  eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.status = 'inactive';
                                 });
                               } else {
                                 setState(() {
-                                  eachNews.newsMediaBeans!
-                                      .where((i) => i!.status != 'inactive')
-                                      .toList()[index]!
-                                      .status = 'active';
+                                  eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.status = 'active';
                                 });
                               }
                             },
-                            child: eachNews.newsMediaBeans!
-                                        .where((i) => i!.status != 'inactive')
-                                        .toList()[index]!
-                                        .status ==
-                                    'active'
+                            child: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.status == 'active'
                                 ? const Icon(
                                     Icons.delete,
                                     color: Colors.red,
@@ -862,9 +756,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    "Last Updated: " +
-                        convertEpochToDDMMYYYYEEEEHHMMAA(
-                            int.parse(eachNews.createTime!)),
+                    "Last Updated: " + convertEpochToDDMMYYYYEEEEHHMMAA(int.parse(eachNews.createTime!)),
                     textAlign: TextAlign.end,
                   ),
                 ),
@@ -879,15 +771,9 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
   openMediaBeans(News eachNews, int index) {
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
-      eachNews.newsMediaBeans!
-          .where((i) => i!.status != 'inactive')
-          .toList()[index]!
-          .mediaUrl!,
+      eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
       (int viewId) => html.IFrameElement()
-        ..src = eachNews.newsMediaBeans!
-            .where((i) => i!.status != 'inactive')
-            .toList()[index]!
-            .mediaUrl!
+        ..src = eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!
         ..allowFullscreen = false
         ..style.border = 'none'
         ..height = '500'
@@ -910,16 +796,10 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     child: const Icon(Icons.download_rounded),
                     onTap: () {
                       downloadFile(
-                        eachNews.newsMediaBeans!
-                            .where((i) => i!.status != 'inactive')
-                            .toList()[index]!
-                            .mediaUrl!,
+                        eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                         filename: getCurrentTimeStringInDDMMYYYYHHMMSS() +
                             "." +
-                            eachNews.newsMediaBeans!
-                                .where((i) => i!.status != 'inactive')
-                                .toList()[index]!
-                                .mediaType!,
+                            eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!,
                       );
                     },
                   ),
@@ -927,10 +807,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     child: const Icon(Icons.open_in_new),
                     onTap: () {
                       html.window.open(
-                        eachNews.newsMediaBeans!
-                            .where((i) => i!.status != 'inactive')
-                            .toList()[index]!
-                            .mediaUrl!,
+                        eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                         '_blank',
                       );
                     },
@@ -958,25 +835,16 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               SizedBox(
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height / 1,
-                child: getFileTypeForExtension(eachNews.newsMediaBeans!
-                            .where((i) => i!.status != 'inactive')
-                            .toList()[index]!
-                            .mediaType!) ==
+                child: getFileTypeForExtension(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
                         MediaFileType.IMAGE_FILES
                     ? FadeInImage(
-                        image: NetworkImage(eachNews.newsMediaBeans!
-                            .where((i) => i!.status != 'inactive')
-                            .toList()[index]!
-                            .mediaUrl!),
+                        image: NetworkImage(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
                         placeholder: const AssetImage(
                           'assets/images/loading_grey_white.gif',
                         ),
                       )
                     : HtmlElementView(
-                        viewType: eachNews.newsMediaBeans!
-                            .where((i) => i!.status != 'inactive')
-                            .toList()[index]!
-                            .mediaUrl!,
+                        viewType: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                       ),
               ),
               InkWell(
@@ -989,12 +857,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                   width: 25,
                   child: FittedBox(
                     fit: BoxFit.contain,
-                    child: index ==
-                            eachNews.newsMediaBeans!
-                                    .where((i) => i!.status != 'inactive')
-                                    .toList()
-                                    .length -
-                                1
+                    child: index == eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList().length - 1
                         ? null
                         : const Icon(Icons.arrow_right),
                   ),
@@ -1041,24 +904,16 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                   itemScrollController: _itemScrollController,
                   itemCount: _noticeBoardNews.length,
                   itemBuilder: (context, index) => Container(
-                    margin: MediaQuery.of(context).orientation ==
-                            Orientation.landscape
-                        ? EdgeInsets.fromLTRB(
-                            MediaQuery.of(context).size.width / 4,
-                            20,
-                            MediaQuery.of(context).size.width / 4,
-                            20)
+                    margin: MediaQuery.of(context).orientation == Orientation.landscape
+                        ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
                         : const EdgeInsets.all(20),
                     child: _noticeBoardNews[index]!.isEditMode
                         ? buildEachEditableNewsWidget(_noticeBoardNews[index]!)
                         : buildEachNewsWidget(
-                            _noticeBoardNews[index]!,
-                            _noticeBoardNews
-                                .where((e) => e!.isEditMode)
-                                .isEmpty),
+                            _noticeBoardNews[index]!, _noticeBoardNews.where((e) => e!.isEditMode).isEmpty && !widget.adminProfile.isMegaAdmin),
                   ),
                 ),
-      floatingActionButton: _isLoading
+      floatingActionButton: _isLoading || widget.adminProfile.isMegaAdmin
           ? null
           : Container(
               margin: const EdgeInsets.fromLTRB(0, 100, 0, 0),
@@ -1086,21 +941,15 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                         ),
                         FloatingActionButton(
                           onPressed: () async {
-                            List<int> millisList = _noticeBoardNews
-                                .map((e) => int.parse(e!.createTime!))
-                                .toList();
+                            List<int> millisList = _noticeBoardNews.map((e) => int.parse(e!.createTime!)).toList();
                             millisList.sort((b, a) => a.compareTo(b));
-                            List<String> _availableDates = millisList
-                                .map((e) => convertEpochToYYYYMMDD(e))
-                                .toList();
+                            List<String> _availableDates = millisList.map((e) => convertEpochToYYYYMMDD(e)).toList();
                             DateTime? _newDate = await showDatePicker(
                               context: context,
                               selectableDayPredicate: (DateTime val) {
-                                return _availableDates.contains(
-                                    convertDateTimeToYYYYMMDDFormat(val));
+                                return _availableDates.contains(convertDateTimeToYYYYMMDDFormat(val));
                               },
-                              initialDate:
-                                  DateTime.parse(_availableDates.first),
+                              initialDate: DateTime.parse(_availableDates.first),
                               firstDate: DateTime.parse(_availableDates.last),
                               lastDate: DateTime.parse(_availableDates.first),
                               helpText: "Select a date",
@@ -1108,9 +957,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                             if (_newDate == null) return;
                             setState(() {
                               _itemScrollController.scrollTo(
-                                index: _availableDates.indexOf(
-                                    convertEpochToYYYYMMDD(
-                                        _newDate.millisecondsSinceEpoch)),
+                                index: _availableDates.indexOf(convertEpochToYYYYMMDD(_newDate.millisecondsSinceEpoch)),
                                 duration: const Duration(seconds: 1),
                                 curve: Curves.easeInOutCubic,
                               );
@@ -1119,9 +966,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                           tooltip: "Search",
                           child: const Icon(Icons.search),
                         ),
-                        if (_noticeBoardNews
-                            .where((e) => e!.newsId == null)
-                            .isEmpty)
+                        if (_noticeBoardNews.where((e) => e!.newsId == null).isEmpty)
                           FloatingActionButton(
                             onPressed: () {
                               setState(() {
@@ -1135,9 +980,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     ),
             ),
       floatingActionButtonLocation:
-          MediaQuery.of(context).orientation == Orientation.landscape
-              ? FloatingActionButtonLocation.endTop
-              : FloatingActionButtonLocation.endFloat,
+          MediaQuery.of(context).orientation == Orientation.landscape ? FloatingActionButtonLocation.endTop : FloatingActionButtonLocation.endFloat,
     );
   }
 }

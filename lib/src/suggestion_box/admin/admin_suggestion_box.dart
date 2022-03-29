@@ -13,8 +13,7 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminSuggestionBox extends StatefulWidget {
-  const AdminSuggestionBox({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminSuggestionBox({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
@@ -58,18 +57,15 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetTeachersResponse getTeachersResponse =
-        await getTeachers(getTeachersRequest);
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
         if (_teachersList.length == 1) {
           _selectedTeacher = _teachersList[0];
         } else {
-          _teachersList.sort((a, b) =>
-              (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
+          _teachersList.sort((a, b) => (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
         }
       });
     }
@@ -77,40 +73,31 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
-        _filteredTdsList =
-            getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _filteredTdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
     }
 
-    GetSuggestionBoxResponse getSuggestionBoxResponse =
-        await getSuggestionBox(GetSuggestionBoxRequest(
+    GetSuggestionBoxResponse getSuggestionBoxResponse = await getSuggestionBox(GetSuggestionBoxRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
-    if (getSuggestionBoxResponse.httpStatus == "OK" &&
-        getSuggestionBoxResponse.responseStatus == "success") {
+    if (getSuggestionBoxResponse.httpStatus == "OK" && getSuggestionBoxResponse.responseStatus == "success") {
       setState(() {
-        _suggestions =
-            getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
-        _filteredSuggestions =
-            getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
+        _suggestions = getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
+        _filteredSuggestions = getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
       });
     }
 
@@ -131,35 +118,24 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
     });
     if (_selectedTeacher != null) {
       setState(() {
-        _filteredTdsList = _filteredTdsList
-            .where((e) => e.teacherId == _selectedTeacher!.teacherId)
-            .toList();
-        _filteredSuggestions = _filteredSuggestions
-            .where((e) => e.teacherId == _selectedTeacher!.teacherId)
-            .toList();
+        _filteredTdsList = _filteredTdsList.where((e) => e.teacherId == _selectedTeacher!.teacherId).toList();
+        _filteredSuggestions = _filteredSuggestions.where((e) => e.teacherId == _selectedTeacher!.teacherId).toList();
       });
     }
     if (_selectedSection != null) {
       setState(() {
-        _filteredTdsList = _filteredTdsList
-            .where((e) => e.sectionId == _selectedSection!.sectionId)
-            .toList();
-        _filteredSuggestions = _filteredSuggestions
-            .where((e) => e.sectionId == _selectedSection!.sectionId)
-            .toList();
+        _filteredTdsList = _filteredTdsList.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
+        _filteredSuggestions = _filteredSuggestions.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
       });
     }
     if (_showOnlyAnonymous) {
       setState(() {
-        _filteredSuggestions =
-            _filteredSuggestions.where((e) => e.anonymous!).toList();
+        _filteredSuggestions = _filteredSuggestions.where((e) => e.anonymous!).toList();
       });
     }
     if (_selectedComplainStatus != null) {
       setState(() {
-        _filteredSuggestions = _filteredSuggestions
-            .where((e) => e.complainStatus == _selectedComplainStatus)
-            .toList();
+        _filteredSuggestions = _filteredSuggestions.where((e) => e.complainStatus == _selectedComplainStatus).toList();
       });
     }
     setState(() {
@@ -213,9 +189,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
         _applyFilters();
       },
       items: _teachersList
-          .where((teacher) => _filteredTdsList
-              .map((tds) => tds.teacherId)
-              .contains(teacher.teacherId))
+          .where((teacher) => _filteredTdsList.map((tds) => tds.teacherId).contains(teacher.teacherId))
           .map(
             (e) => DropdownMenuItem<Teacher>(
               value: e,
@@ -299,9 +273,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
         _applyFilters();
       },
       items: _sectionsList
-          .where((section) => _filteredTdsList
-              .map((tds) => tds.sectionId)
-              .contains(section.sectionId))
+          .where((section) => _filteredTdsList.map((tds) => tds.sectionId).contains(section.sectionId))
           .map(
             (e) => DropdownMenuItem<Section>(
               value: e,
@@ -357,8 +329,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
             childAspectRatio: 2.25,
             crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
             shrinkWrap: true,
-            children:
-                _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
+            children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
           ),
         ],
       ),
@@ -385,9 +356,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                _selectedSection == null
-                    ? "Select a section"
-                    : "Section: ${_selectedSection!.sectionName!}",
+                _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
               ),
             ),
           ),
@@ -401,14 +370,8 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _selectedSection != null &&
-                _selectedSection!.sectionId == section.sectionId
-            ? Colors.blue[200]
-            : clayContainerColor(context),
-        spread: _selectedSection != null &&
-                _selectedSection!.sectionId == section.sectionId!
-            ? 0
-            : 2,
+        color: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue[200] : clayContainerColor(context),
+        spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId! ? 0 : 2,
         borderRadius: 10,
         child: Container(
           decoration: BoxDecoration(
@@ -421,8 +384,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
               HapticFeedback.vibrate();
               if (_isLoading) return;
               setState(() {
-                if (_selectedSection != null &&
-                    _selectedSection!.sectionId == section.sectionId) {
+                if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
                   _selectedSection = null;
                 } else {
                   _selectedSection = section;
@@ -467,8 +429,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
   Container _getSuggestionWidget(Suggestion suggestion) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
@@ -488,9 +449,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
                 children: [
                   Expanded(
                     child: Text(
-                      suggestion.anonymous!
-                          ? "Anonymous"
-                          : "Section: ${suggestion.sectionName}",
+                      suggestion.anonymous! ? "Anonymous" : "Section: ${suggestion.sectionName}",
                       style: TextStyle(
                         color: (suggestion.anonymous!) ? null : Colors.blue,
                       ),
@@ -516,10 +475,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
                                         child: Text(
                                           e,
                                           textAlign: TextAlign.end,
-                                          style: TextStyle(
-                                              color: e == "INITIATED"
-                                                  ? Colors.red
-                                                  : Colors.green),
+                                          style: TextStyle(color: e == "INITIATED" ? Colors.red : Colors.green),
                                         ),
                                       ),
                                     )
@@ -528,16 +484,12 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
                             : Text(
                                 "${suggestion.complainStatus}",
                                 textAlign: TextAlign.end,
-                                style: TextStyle(
-                                    color:
-                                        suggestion.complainStatus == "INITIATED"
-                                            ? Colors.red
-                                            : Colors.green),
+                                style: TextStyle(color: suggestion.complainStatus == "INITIATED" ? Colors.red : Colors.green),
                               ),
                         const SizedBox(
                           width: 15,
                         ),
-                        buildEditButton(suggestion),
+                        widget.adminProfile.isMegaAdmin ? Container() : buildEditButton(suggestion),
                       ],
                     ),
                   ),
@@ -548,16 +500,11 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                    child: Text(suggestion.anonymous ?? false
-                        ? ""
-                        : "Student Name: ${suggestion.postingStudentName}"),
+                    child: Text(suggestion.anonymous ?? false ? "" : "Student Name: ${suggestion.postingStudentName}"),
                   ),
                   Expanded(
                     child: Text(
-                      "Raised Against: " +
-                          (suggestion.teacherId == null
-                              ? "${widget.adminProfile.schoolName}"
-                              : "${suggestion.teacherName}"),
+                      "Raised Against: " + (suggestion.teacherId == null ? "${widget.adminProfile.schoolName}" : "${suggestion.teacherName}"),
                       textAlign: TextAlign.end,
                     ),
                   ),
@@ -610,16 +557,14 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
       _isLoading = true;
     });
 
-    UpdateSuggestionResponse updateSuggestionResponse =
-        await updateSuggestion(UpdateSuggestionRequest(
+    UpdateSuggestionResponse updateSuggestionResponse = await updateSuggestion(UpdateSuggestionRequest(
       schoolId: widget.adminProfile.schoolId,
       agent: widget.adminProfile.userId,
       complaintId: suggestion.complaintId,
       complaintStatus: suggestion.complainStatus,
     ));
 
-    if (updateSuggestionResponse.httpStatus != "OK" ||
-        updateSuggestionResponse.responseStatus != "success") {
+    if (updateSuggestionResponse.httpStatus != "OK" || updateSuggestionResponse.responseStatus != "success") {
       setState(() {
         suggestion.complainStatus = suggestion.origJson()["complainStatus"];
       });
@@ -643,8 +588,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
       child: InkWell(
         onTap: () {
           if (suggestion.isEditMode) {
-            if (suggestion.complainStatus !=
-                suggestion.origJson()["complainStatus"]) {
+            if (suggestion.complainStatus != suggestion.origJson()["complainStatus"]) {
               _saveChanges(suggestion);
             }
           }
@@ -726,8 +670,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
                     child: Text(
                       e,
                       textAlign: TextAlign.end,
-                      style: TextStyle(
-                          color: e == "INITIATED" ? Colors.red : Colors.green),
+                      style: TextStyle(color: e == "INITIATED" ? Colors.red : Colors.green),
                     ),
                   ),
                 ),
@@ -782,19 +725,15 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
               physics: const BouncingScrollPhysics(),
               children: <Widget>[
                     Container(
-                      child: MediaQuery.of(context).orientation ==
-                              Orientation.landscape
+                      child: MediaQuery.of(context).orientation == Orientation.landscape
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(child: _sectionPicker()),
-                                if (!_isSectionPickerOpen)
-                                  Expanded(child: _selectTeacher()),
-                                if (!_isSectionPickerOpen)
-                                  Expanded(child: _selectStatus()),
-                                if (!_isSectionPickerOpen)
-                                  showOnlyAnonymousSwitch(),
+                                if (!_isSectionPickerOpen) Expanded(child: _selectTeacher()),
+                                if (!_isSectionPickerOpen) Expanded(child: _selectStatus()),
+                                if (!_isSectionPickerOpen) showOnlyAnonymousSwitch(),
                               ],
                             )
                           : Column(
@@ -811,9 +750,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
                             ),
                     ),
                   ] +
-                  _filteredSuggestions
-                      .map((e) => _getSuggestionWidget(e))
-                      .toList(),
+                  _filteredSuggestions.map((e) => _getSuggestionWidget(e)).toList(),
             ),
     );
   }

@@ -11,12 +11,10 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 class AdminMarkAttendanceScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminMarkAttendanceScreen({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminMarkAttendanceScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminMarkAttendanceScreenState createState() =>
-      _AdminMarkAttendanceScreenState();
+  _AdminMarkAttendanceScreenState createState() => _AdminMarkAttendanceScreenState();
 }
 
 class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
@@ -51,11 +49,9 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
@@ -74,19 +70,15 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
       _isLoading = true;
     });
 
-    GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse =
-        await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
+    GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.adminProfile.schoolId,
       date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
       sectionId: _selectedSection!.sectionId,
     ));
-    if (getStudentAttendanceBeansResponse.httpStatus == "OK" &&
-        getStudentAttendanceBeansResponse.responseStatus == "success") {
+    if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {
-        _studentAttendanceBeans =
-            getStudentAttendanceBeansResponse.studentAttendanceBeans!;
-        _attendanceTimeSlotBeans =
-            getStudentAttendanceBeansResponse.attendanceTimeSlotBeans!;
+        _studentAttendanceBeans = getStudentAttendanceBeansResponse.studentAttendanceBeans!;
+        _attendanceTimeSlotBeans = getStudentAttendanceBeansResponse.attendanceTimeSlotBeans!;
         _studentProfiles = _studentAttendanceBeans
             .map(
               (e) => StudentProfile(
@@ -98,8 +90,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
             )
             .toSet()
             .toList();
-        _studentProfiles.sort((a, b) => (int.tryParse(a.rollNumber!) ?? 0)
-            .compareTo((int.tryParse(b.rollNumber!) ?? 0)));
+        _studentProfiles.sort((a, b) => (int.tryParse(a.rollNumber!) ?? 0).compareTo((int.tryParse(b.rollNumber!) ?? 0)));
       });
     }
 
@@ -123,23 +114,15 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                   setState(() {
                     _isLoading = true;
                   });
-                  CreateOrUpdateStudentAttendanceRequest
-                      createOrUpdateStudentAttendanceRequest =
-                      CreateOrUpdateStudentAttendanceRequest(
+                  CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest = CreateOrUpdateStudentAttendanceRequest(
                     schoolId: widget.adminProfile.schoolId,
                     agent: widget.adminProfile.userId,
-                    studentAttendanceBeans: _studentAttendanceBeans
-                        .where((e) => e.isEdited ?? false)
-                        .toList(),
+                    studentAttendanceBeans: _studentAttendanceBeans.where((e) => e.isEdited ?? false).toList(),
                   );
-                  CreateOrUpdateStudentAttendanceResponse
-                      createOrUpdateStudentAttendanceResponse =
-                      await createOrUpdateStudentAttendance(
-                          createOrUpdateStudentAttendanceRequest);
-                  if (createOrUpdateStudentAttendanceResponse.httpStatus ==
-                          "OK" &&
-                      createOrUpdateStudentAttendanceResponse.responseStatus ==
-                          "success") {
+                  CreateOrUpdateStudentAttendanceResponse createOrUpdateStudentAttendanceResponse =
+                      await createOrUpdateStudentAttendance(createOrUpdateStudentAttendanceRequest);
+                  if (createOrUpdateStudentAttendanceResponse.httpStatus == "OK" &&
+                      createOrUpdateStudentAttendanceResponse.responseStatus == "success") {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Success!"),
@@ -229,9 +212,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
         },
         child: ClayContainer(
           depth: 40,
-          color: _selectedSection == section
-              ? Colors.blue[200]
-              : clayContainerColor(context),
+          color: _selectedSection == section ? Colors.blue[200] : clayContainerColor(context),
           spread: _selectedSection == section ? 0 : 2,
           borderRadius: 10,
           child: Container(
@@ -267,9 +248,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
             allowExpansion: !_isEditMode,
             key: expansionTile,
             title: Text(
-              _selectedSection == null
-                  ? "Select a section"
-                  : "Section: ${_selectedSection!.sectionName}",
+              _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
             ),
             children: <Widget>[
               Container(
@@ -279,9 +258,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                   childAspectRatio: 2.25,
                   crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
-                  children: _sectionsList
-                      .map((e) => buildSectionCheckBox(e))
-                      .toList(),
+                  children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
                 ),
               ),
             ],
@@ -318,9 +295,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
               String _rollNumber = "N/A";
               String _name = "N/A";
 
-              _rollNumber = _eachStudent.rollNumber == null
-                  ? "N/A"
-                  : _eachStudent.rollNumber.toString();
+              _rollNumber = _eachStudent.rollNumber == null ? "N/A" : _eachStudent.rollNumber.toString();
               _name = _eachStudent.studentFirstName!;
 
               return Container(
@@ -342,8 +317,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
     );
   }
 
-  Widget markAttendanceButton(
-      StudentAttendanceBean studentAttendanceBean, int markPresent) {
+  Widget markAttendanceButton(StudentAttendanceBean studentAttendanceBean, int markPresent) {
     return GestureDetector(
       child: Container(
         height: 50,
@@ -425,8 +399,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
       ),
       onTap: () {
         _studentAttendanceBeans
-            .where((eachStudentAttendanceBean) =>
-                eachStudentAttendanceBean.attendanceTimeSlotId == atsId)
+            .where((eachStudentAttendanceBean) => eachStudentAttendanceBean.attendanceTimeSlotId == atsId)
             .forEach((eachStudentAttendanceBean) {
           setState(() {
             eachStudentAttendanceBean.isPresent = markPresent;
@@ -457,14 +430,13 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                       border: Border.all(width: 2, color: Colors.white),
                       color: Colors.lightBlueAccent,
                     ),
-                    child: _isEditMode
+                    child: _isEditMode && !widget.adminProfile.isMegaAdmin
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
@@ -477,8 +449,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   markAttendanceForAllStudentsButton(
@@ -500,8 +471,7 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                         : Center(
                             child: Text(
                               "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}\n${e.managerName}",
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                   );
@@ -511,13 +481,9 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
             _studentProfiles
                 .map((eachStudent) => Row(
                       children: _attendanceTimeSlotBeans.map((eachATSBean) {
-                        StudentAttendanceBean studentAttendanceBean =
-                            _studentAttendanceBeans
-                                .where((e) =>
-                                    e.studentId == eachStudent.studentId &&
-                                    e.attendanceTimeSlotId ==
-                                        eachATSBean.attendanceTimeSlotId)
-                                .first;
+                        StudentAttendanceBean studentAttendanceBean = _studentAttendanceBeans
+                            .where((e) => e.studentId == eachStudent.studentId && e.attendanceTimeSlotId == eachATSBean.attendanceTimeSlotId)
+                            .first;
                         return GestureDetector(
                           onLongPress: () {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -541,13 +507,11 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                                       ? Colors.redAccent[100]
                                       : Colors.lightBlueAccent[100],
                             ),
-                            child: _isEditMode
+                            child: _isEditMode && !widget.adminProfile.isMegaAdmin
                                 ? Center(
                                     child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                       children: <Widget>[
                                         markAttendanceButton(
                                           studentAttendanceBean,
@@ -635,52 +599,50 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                         flex: 3,
                         child: _getDatePicker(),
                       ),
-                      InkWell(
-                        onTap: () {
-                          if (_isEditMode) {
-                            _saveChanges();
-                          } else {
-                            setState(() {
-                              _isEditMode = !_isEditMode;
-                            });
-                          }
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                          child: _isEditMode
-                              ? ClayContainer(
-                                  emboss: true,
-                                  color: clayContainerColor(context),
-                                  height: 50,
-                                  width: 50,
-                                  borderRadius: 50,
-                                  spread: 4,
-                                  child: const Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                  ),
-                                )
-                              : ClayContainer(
-                                  color: clayContainerColor(context),
-                                  height: 50,
-                                  width: 50,
-                                  borderRadius: 50,
-                                  spread: 4,
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: _isEditMode
-                                        ? Colors.green[200]
-                                        : Colors.black38,
-                                  ),
-                                ),
-                        ),
-                      ),
+                      widget.adminProfile.isMegaAdmin
+                          ? Container()
+                          : InkWell(
+                              onTap: () {
+                                if (_isEditMode) {
+                                  _saveChanges();
+                                } else {
+                                  setState(() {
+                                    _isEditMode = !_isEditMode;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                                child: _isEditMode
+                                    ? ClayContainer(
+                                        emboss: true,
+                                        color: clayContainerColor(context),
+                                        height: 50,
+                                        width: 50,
+                                        borderRadius: 50,
+                                        spread: 4,
+                                        child: const Icon(
+                                          Icons.check,
+                                          color: Colors.green,
+                                        ),
+                                      )
+                                    : ClayContainer(
+                                        color: clayContainerColor(context),
+                                        height: 50,
+                                        width: 50,
+                                        borderRadius: 50,
+                                        spread: 4,
+                                        child: Icon(
+                                          Icons.edit,
+                                          color: _isEditMode ? Colors.green[200] : Colors.black38,
+                                        ),
+                                      ),
+                              ),
+                            ),
                     ],
                   ),
                   _buildSectionsFilter(),
-                  _attendanceTimeSlotBeans.isEmpty
-                      ? Container()
-                      : _buildAttendanceTable(),
+                  _attendanceTimeSlotBeans.isEmpty ? Container() : _buildAttendanceTable(),
                 ],
               ),
             ),

@@ -105,7 +105,7 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
               child: Image.asset('assets/images/eis_loader.gif'),
             )
           : _bodyScreen(),
-      floatingActionButton: _isLoading
+      floatingActionButton: _isLoading || widget.adminProfile.isMegaAdmin
           ? null
           : Column(
               mainAxisSize: MainAxisSize.min,
@@ -305,11 +305,11 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                       ),
                     ),
                   ),
-                  if (_isAddNew)
+                  if (!widget.adminProfile.isMegaAdmin && _isAddNew)
                     const SizedBox(
                       width: 15,
                     ),
-                  if (_isAddNew)
+                  if (!widget.adminProfile.isMegaAdmin && _isAddNew)
                     InkWell(
                       onTap: () {
                         setState(() {
@@ -331,11 +331,11 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                         ),
                       ),
                     ),
-                  if (_isAddNew)
+                  if (!widget.adminProfile.isMegaAdmin && _isAddNew)
                     const SizedBox(
                       width: 15,
                     ),
-                  if (_isAddNew)
+                  if (!widget.adminProfile.isMegaAdmin && _isAddNew)
                     InkWell(
                       onTap: () {
                         setState(() {
@@ -552,7 +552,7 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                       ),
                     ),
                   ),
-                  if (_isAddNew)
+                  if (!widget.adminProfile.isMegaAdmin && _isAddNew)
                     Expanded(
                       flex: 2,
                       child: Center(

@@ -5,13 +5,14 @@ import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class UserDashboard extends StatefulWidget {
-  const UserDashboard({Key? key, required this.loggedInUserId})
-      : super(key: key);
+  const UserDashboard({Key? key, required this.loggedInUserId}) : super(key: key);
 
   final int? loggedInUserId;
 
@@ -28,6 +29,8 @@ class _UserDashboardState extends State<UserDashboard> {
   List<StudentProfile> _studentProfiles = [];
   List<TeacherProfile> _teacherProfiles = [];
   List<AdminProfile> _adminProfiles = [];
+  List<OtherUserRoleProfile> _otherRoleProfile = [];
+  List<MegaAdminProfile> _megaAdminProfiles = [];
 
   @override
   void initState() {
@@ -40,12 +43,9 @@ class _UserDashboardState extends State<UserDashboard> {
       _isLoading = true;
     });
 
-    GetUserRolesRequest getUserRolesRequest =
-        GetUserRolesRequest(userId: widget.loggedInUserId);
-    GetUserRolesResponse getUserRolesResponse =
-        await getUserRoles(getUserRolesRequest);
-    if (getUserRolesResponse.httpStatus != "OK" ||
-        getUserRolesResponse.responseStatus != "success") {
+    GetUserRolesRequest getUserRolesRequest = GetUserRolesRequest(userId: widget.loggedInUserId);
+    GetUserRolesDetailsResponse getUserRolesResponse = await getUserRoles(getUserRolesRequest);
+    if (getUserRolesResponse.httpStatus != "OK" || getUserRolesResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Error Occurred"),
@@ -59,9 +59,11 @@ class _UserDashboardState extends State<UserDashboard> {
       );
       setState(() {
         _userDetails = getUserRolesResponse.userDetails!;
-        _studentProfiles = getUserRolesResponse.studentProfiles!;
-        _teacherProfiles = getUserRolesResponse.teacherProfiles!;
-        _adminProfiles = getUserRolesResponse.adminProfiles!;
+        _studentProfiles = (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList();
+        _teacherProfiles = (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList();
+        _adminProfiles = (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).toList();
+        _otherRoleProfile = (getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e!).toList();
+        _megaAdminProfiles = (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList();
       });
     }
     setState(() {
@@ -74,12 +76,8 @@ class _UserDashboardState extends State<UserDashboard> {
       margin: const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
-        surfaceColor: Theme.of(context).primaryColor == Colors.blue
-            ? Colors.blue[200]
-            : Theme.of(context).primaryColor,
-        parentColor: Theme.of(context).primaryColor == Colors.blue
-            ? Colors.blue[200]
-            : Theme.of(context).primaryColor,
+        surfaceColor: Theme.of(context).primaryColor == Colors.blue ? Colors.blue[200] : Theme.of(context).primaryColor,
+        parentColor: Theme.of(context).primaryColor == Colors.blue ? Colors.blue[200] : Theme.of(context).primaryColor,
         spread: 1,
         emboss: false,
         borderRadius: 10,
@@ -92,8 +90,7 @@ class _UserDashboardState extends State<UserDashboard> {
     );
   }
 
-  Widget buildRoleButton(BuildContext context, String role, String name,
-      String schoolName, Object profile) {
+  Widget buildRoleButton(BuildContext context, String role, String name, String schoolName, Object? profile) {
     return InkWell(
       onTap: () {
         if (role == "Student") {
@@ -113,6 +110,12 @@ class _UserDashboardState extends State<UserDashboard> {
             context,
             TeacherDashboard.routeName,
             arguments: profile as TeacherProfile,
+          );
+        } else if (role == "Mega Admin") {
+          Navigator.pushNamed(
+            context,
+            MegaAdminHomePage.routeName,
+            arguments: profile as List<MegaAdminProfile>,
           );
         }
       },
@@ -196,14 +199,26 @@ class _UserDashboardState extends State<UserDashboard> {
               )
             : ListView(
                 children: [buildUserDetailsWidget(_userDetails)] +
+                    [
+                      _megaAdminProfiles.isNotEmpty
+                          ? buildRoleButton(
+                              context,
+                              "Mega Admin",
+                              ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
+                                  .split(" ")
+                                  .where((i) => i != "")
+                                  .join(" "),
+                              "Franchise: " + (_megaAdminProfiles[0].franchiseName ?? "-").capitalize(),
+                              _megaAdminProfiles,
+                            )
+                          : Container()
+                    ] +
                     _studentProfiles
                         .map(
                           (e) => buildRoleButton(
                             context,
                             "Student",
-                            ((e.studentFirstName ?? "" ' ') +
-                                    (e.studentMiddleName ?? "" ' ') +
-                                    (e.studentLastName ?? "" ' '))
+                            ((e.studentFirstName ?? "" ' ') + (e.studentMiddleName ?? "" ' ') + (e.studentLastName ?? "" ' '))
                                 .split(" ")
                                 .where((i) => i != "")
                                 .join(" "),
@@ -238,12 +253,7 @@ class _UserDashboardState extends State<UserDashboard> {
                           (e) => buildRoleButton(
                             context,
                             "Teacher",
-                            ((e.firstName ?? "" ' ') +
-                                    (e.middleName ?? "" ' ') +
-                                    (e.lastName ?? "" ' '))
-                                .split(" ")
-                                .where((i) => i != "")
-                                .join(" "),
+                            ((e.firstName ?? "" ' ') + (e.middleName ?? "" ' ') + (e.lastName ?? "" ' ')).split(" ").where((i) => i != "").join(" "),
                             e.schoolName ?? '',
                             e,
                           ),
@@ -254,17 +264,28 @@ class _UserDashboardState extends State<UserDashboard> {
                           (e) => buildRoleButton(
                             context,
                             "Admin",
-                            ((e.firstName ?? "" ' ') +
-                                    (e.middleName ?? "" ' ') +
-                                    (e.lastName ?? "" ' '))
-                                .split(" ")
-                                .where((i) => i != "")
-                                .join(" "),
+                            ((e.firstName ?? "" ' ') + (e.middleName ?? "" ' ') + (e.lastName ?? "" ' ')).split(" ").where((i) => i != "").join(" "),
                             e.schoolName ?? '',
                             e,
                           ),
                         )
-                        .toList(),
+                        .toList() +
+                    _otherRoleProfile
+                        .map(
+                          (e) => buildRoleButton(
+                            context,
+                            (e.roleName ?? "-").capitalize(),
+                            (e.userName ?? "-"),
+                            e.schoolName ?? '',
+                            e,
+                          ),
+                        )
+                        .toList() +
+                    [
+                      const SizedBox(
+                        height: 100,
+                      ),
+                    ],
               ),
       ),
     );

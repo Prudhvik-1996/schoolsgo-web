@@ -230,7 +230,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
               )
             : RawKeyboardListener(
                 onKey: (RawKeyEvent event) {
-                  if (!_isEditMode) return;
+                  if (!_isEditMode || widget.adminProfile.isMegaAdmin) return;
                   setState(() {
                     if ((event.isKeyPressed(LogicalKeyboardKey.tab) || event.isKeyPressed(LogicalKeyboardKey.arrowRight)) &&
                         currentCellIndexY <= _marksGrid[currentCellIndexX].length - 2) {
@@ -282,7 +282,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                   ],
                 ),
               ),
-        floatingActionButton: _isLoading || _showPreview ? null : _changeEditModeButton());
+        floatingActionButton: widget.adminProfile.isMegaAdmin || _isLoading || _showPreview ? null : _changeEditModeButton());
   }
 
   // Future<void> _saveChanges() async {
@@ -1561,7 +1561,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                                         adminProfile: widget.adminProfile,
                                         examBean: widget.examBean,
                                         marksBean: _marksGrid[i][j],
-                                        isEditMode: _isEditMode,
+                                        isEditMode: !widget.adminProfile.isMegaAdmin && _isEditMode,
                                         showInternals: !_isEditMode && _showInternals,
                                         markingAlgorithm: _markingAlgorithm,
                                       ),
