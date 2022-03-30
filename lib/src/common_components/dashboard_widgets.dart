@@ -33,9 +33,7 @@ class AdminRouteWithParams<T> {
   });
 }
 
-List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
-        StudentProfile studentProfile) =>
-    [
+List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile studentProfile) => [
       DashboardWidget(
         image: SvgPicture.asset("assets/images/profile.svg"),
         title: "Profile",
@@ -128,9 +126,7 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(
       ),
     ];
 
-List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(
-        TeacherProfile teacherProfile) =>
-    [
+List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile teacherProfile) => [
       DashboardWidget(
         image: SvgPicture.asset("assets/images/profile.svg"),
         title: "Profile",
@@ -229,9 +225,7 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(
       ),
     ];
 
-List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
-        AdminProfile adminProfile) =>
-    [
+List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProfile) => [
       DashboardWidget(
         image: SvgPicture.asset("assets/images/profile.svg"),
         title: "Profile",
@@ -280,15 +274,16 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(
               params: ["Section Wise Time Slots Management"],
             ),
           ),
-          DashboardWidget<AdminRouteWithParams<String>>(
-            title: "Automatic Time Table Generation",
-            routeName: StudentTimeTableView.routeName,
-            argument: AdminRouteWithParams<String>(
-              adminProfile: adminProfile,
+          if (!adminProfile.isMegaAdmin)
+            DashboardWidget<AdminRouteWithParams<String>>(
+              title: "Automatic Time Table Generation",
               routeName: StudentTimeTableView.routeName,
-              params: ["Automatic Time Table Generation"],
+              argument: AdminRouteWithParams<String>(
+                adminProfile: adminProfile,
+                routeName: StudentTimeTableView.routeName,
+                params: ["Automatic Time Table Generation"],
+              ),
             ),
-          ),
           DashboardWidget<AdminRouteWithParams<String>>(
             title: "All Teachers' Time Table Preview",
             routeName: StudentTimeTableView.routeName,
