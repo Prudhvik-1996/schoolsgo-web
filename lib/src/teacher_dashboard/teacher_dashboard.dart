@@ -7,8 +7,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
 class TeacherDashboard extends StatefulWidget {
-  const TeacherDashboard({Key? key, required this.teacherProfile})
-      : super(key: key);
+  const TeacherDashboard({Key? key, required this.teacherProfile}) : super(key: key);
 
   final TeacherProfile teacherProfile;
 
@@ -21,12 +20,8 @@ class TeacherDashboard extends StatefulWidget {
 class _TeacherDashboardState extends State<TeacherDashboard> {
   @override
   Widget build(BuildContext context) {
-    int count =
-        MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
-    double mainMargin =
-        MediaQuery.of(context).orientation == Orientation.landscape
-            ? MediaQuery.of(context).size.width / 10
-            : 10;
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
       restorationId: 'TeacherDashBoard',
       appBar: AppBar(
@@ -74,7 +69,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
               physics: const NeverScrollableScrollPhysics(),
               children: teacherDashBoardWidgets(widget.teacherProfile)
                   .map(
-                    (e) => InkWell(
+                    (e) => GestureDetector(
                       onTap: () {
                         print("Entering ${e.routeName}");
                         Navigator.pushNamed(
@@ -85,11 +80,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(10),
-                        margin: EdgeInsets.all(
-                            MediaQuery.of(context).orientation ==
-                                    Orientation.landscape
-                                ? 7.0
-                                : 0.0),
+                        margin: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 7.0 : 0.0),
                         child: ClayButton(
                           depth: 40,
                           surfaceColor: clayContainerColor(context),
@@ -117,11 +108,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                                 flex: 1,
                                 child: Container(
                                   height: 20,
-                                  padding: EdgeInsets.all(
-                                      MediaQuery.of(context).orientation ==
-                                              Orientation.landscape
-                                          ? 5
-                                          : 2),
+                                  padding: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 2),
                                   width: double.infinity,
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,

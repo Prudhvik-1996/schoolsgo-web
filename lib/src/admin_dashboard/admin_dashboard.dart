@@ -7,8 +7,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminDashboard({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
   static const routeName = "/admin_dashboard";
@@ -20,12 +19,8 @@ class AdminDashboard extends StatefulWidget {
 class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
-    int count =
-        MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
-    double mainMargin =
-        MediaQuery.of(context).orientation == Orientation.landscape
-            ? MediaQuery.of(context).size.width / 10
-            : 10;
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
       restorationId: 'AdminDashBoard',
       appBar: AppBar(
@@ -73,7 +68,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               physics: const NeverScrollableScrollPhysics(),
               children: adminDashBoardWidgets(widget.adminProfile)
                   .map(
-                    (e) => InkWell(
+                    (e) => GestureDetector(
                       onTap: () {
                         print("Entering ${e.routeName}");
                         Navigator.pushNamed(
@@ -84,11 +79,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(10),
-                        margin: EdgeInsets.all(
-                            MediaQuery.of(context).orientation ==
-                                    Orientation.landscape
-                                ? 7.0
-                                : 0.0),
+                        margin: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 7.0 : 0.0),
                         child: ClayButton(
                           depth: 40,
                           surfaceColor: clayContainerColor(context),
@@ -116,11 +107,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 flex: 1,
                                 child: Container(
                                   height: 20,
-                                  padding: EdgeInsets.all(
-                                      MediaQuery.of(context).orientation ==
-                                              Orientation.landscape
-                                          ? 5
-                                          : 2),
+                                  padding: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 2),
                                   width: double.infinity,
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,

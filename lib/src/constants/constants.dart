@@ -6,6 +6,8 @@ const String UPLOAD_FILE_TO_DRIVE = "/drive/uploadFileToDrive";
 // TODO should find an alternative for this
 String allowCORSEndPoint = "https://api.allorigins.win/raw?url=";
 
+String INR_SYMBOL = "₹";
+
 const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 
@@ -50,10 +52,6 @@ const String GET_STUDY_MATERIAL = "/assignmentsAndStudyMaterial/getAssignmentsAn
 const String CREATE_OR_UPDATE_STUDY_MATERIAL = "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterial";
 const String CREATE_OR_UPDATE_STUDY_MATERIAL_MEDIA_MAP = "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterialMediaMap";
 
-const String GET_FEE_TYPES = "/fee/getFeeTypes";
-const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
-const String GET_FEE_MAP = "/fee/getFeeMap";
-
 const String GET_STUDENT_TO_TEACHER_FEEDBACK = "/feedback/getStudentToTeacherFeedback";
 const String CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK = "/feedback/createOrUpdateStudentToTeacherFeedback";
 
@@ -78,3 +76,11 @@ const String CREATE_OR_UPDATE_ADMIN_EXAMS = "/exams/createOrUpdateExam";
 const String CREATE_OR_UPDATE_MARKING_ALGORITHM = "/exams/createOrUpdateMarkingAlgorithm";
 const String GET_STUDENT_EXAM_MARKS = "/exams/getStudentExamMarksDetails";
 const String CREATE_OR_UPDATE_EXAM_MARKS = "/exams/createOrUpdateStudentExamMarks";
+
+const String GET_FEE_TYPES = "/fee/getFeeTypes";
+const String CREATE_OR_UPDATE_FEE_TYPES = "/fee/createOrUpdateFeeTypes";
+const String GET_SECTION_WISE_ANNUAL_FEES = "/fee/getSectionWiseAnnualFees";
+const String CREATE_OR_UPDATE_SECTION_WISE_ANNUAL_FEES = "/fee/createOrUpdateSectionFeeMap";
+const String GET_STUDENT_WISE_ANNUAL_FEES = "/fee/getStudentWiseAnnualFees";
+// const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
+// const String GET_FEE_MAP = "/fee/getFeeMap";

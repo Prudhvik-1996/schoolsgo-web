@@ -213,6 +213,17 @@ class _UserDashboardState extends State<UserDashboard> {
                             )
                           : Container()
                     ] +
+                    _adminProfiles
+                        .map(
+                          (e) => buildRoleButton(
+                            context,
+                            "Admin",
+                            ((e.firstName ?? "" ' ') + (e.middleName ?? "" ' ') + (e.lastName ?? "" ' ')).split(" ").where((i) => i != "").join(" "),
+                            e.schoolName ?? '',
+                            e,
+                          ),
+                        )
+                        .toList() +
                     _studentProfiles
                         .map(
                           (e) => buildRoleButton(
@@ -253,17 +264,6 @@ class _UserDashboardState extends State<UserDashboard> {
                           (e) => buildRoleButton(
                             context,
                             "Teacher",
-                            ((e.firstName ?? "" ' ') + (e.middleName ?? "" ' ') + (e.lastName ?? "" ' ')).split(" ").where((i) => i != "").join(" "),
-                            e.schoolName ?? '',
-                            e,
-                          ),
-                        )
-                        .toList() +
-                    _adminProfiles
-                        .map(
-                          (e) => buildRoleButton(
-                            context,
-                            "Admin",
                             ((e.firstName ?? "" ' ') + (e.middleName ?? "" ' ') + (e.lastName ?? "" ' ')).split(" ").where((i) => i != "").join(" "),
                             e.schoolName ?? '',
                             e,

@@ -225,7 +225,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                 physics: const BouncingScrollPhysics(),
                 children: [
                   _examNameTextBox(),
-                  SectionPickerWidget(
+                  MultipleSectionPickerWidget(
                     selectedSectionsList: selectedSectionsList,
                     availableSections: _sectionsList,
                   ),
