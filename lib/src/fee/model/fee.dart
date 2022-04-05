@@ -118,6 +118,11 @@ class CustomFeeType {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  String toString() {
+    return "{\n\t'customFeeType': $customFeeType, \n\t'customFeeTypeDescription': $customFeeTypeDescription, \n\t'customFeeTypeId': $customFeeTypeId, \n\t'customFeeTypeStatus': $customFeeTypeStatus, \n\t'feeType': $feeType, \n\t'feeTypeDescription': $feeTypeDescription, \n\t'feeTypeId': $feeTypeId, \n\t'feeTypeStatus': $feeTypeStatus, \n\t'schoolDisplayName': $schoolDisplayName, \n\t'schoolId': $schoolId, \n}";
+  }
 }
 
 class FeeType {
@@ -209,6 +214,11 @@ class FeeType {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  String toString() {
+    return "{\n\t'customFeeTypesList': $customFeeTypesList, \n\t'feeType': $feeType, \n\t'feeTypeDescription': $feeTypeDescription, \n\t'feeTypeId': $feeTypeId, \n\t'feeTypeStatus': $feeTypeStatus, \n\t'schoolDisplayName': $schoolDisplayName, \n\t'schoolId': $schoolId, \n}";
+  }
 }
 
 class GetFeeTypesResponse {
@@ -964,6 +974,7 @@ class StudentWiseAnnualFeesBean {
   int? studentId;
   String? studentName;
   int? studentWalletBalance;
+  String? rollNumber;
   Map<String, dynamic> __origJson = {};
 
   StudentWiseAnnualFeesBean({
@@ -975,6 +986,7 @@ class StudentWiseAnnualFeesBean {
     this.studentId,
     this.studentName,
     this.studentWalletBalance,
+    this.rollNumber,
   });
   StudentWiseAnnualFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -993,6 +1005,7 @@ class StudentWiseAnnualFeesBean {
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
     studentWalletBalance = json['studentWalletBalance']?.toInt();
+    rollNumber = json['rollNumber']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -1011,6 +1024,7 @@ class StudentWiseAnnualFeesBean {
     data['studentId'] = studentId;
     data['studentName'] = studentName;
     data['studentWalletBalance'] = studentWalletBalance;
+    data['rollNumber'] = rollNumber;
     return data;
   }
 
