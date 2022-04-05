@@ -249,6 +249,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
 
   @override
   Widget build(BuildContext context) {
+    int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -307,13 +308,51 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                     ),
                   ] +
                   [
-                    GridView.count(
-                      crossAxisCount: 3,
+                    // GridView.count(
+                    //   crossAxisCount: 3,
+                    //   shrinkWrap: true,
+                    //   childAspectRatio: 9 / 16,
+                    //   physics: const NeverScrollableScrollPhysics(),
+                    //   children: _sectionsList
+                    //       .map((eachSection) => sectionWiseAnnualFeeBeanWidget(actualSectionWiseAnnualFeeBeanMap[eachSection]!))
+                    //       .toList(),
+                    // ),
+                    ListView(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      children: _sectionsList
-                          .map((eachSection) => sectionWiseAnnualFeeBeanWidget(actualSectionWiseAnnualFeeBeanMap[eachSection]!))
-                          .toList(),
+                      children: [
+                        for (int i = 0; i < _sectionsList.length / perRowCount; i = i + 1)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              for (int j = 0; j < perRowCount; j++)
+                                Expanded(
+                                  child: Container(
+                                    margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                                    width: perRowCount == 3
+                                        ? (MediaQuery.of(context).size.width / 3) - (3 * 25)
+                                        : MediaQuery.of(context).size.width - 25,
+                                    child: ClayContainer(
+                                      surfaceColor: clayContainerColor(context),
+                                      parentColor: clayContainerColor(context),
+                                      spread: 1,
+                                      borderRadius: 10,
+                                      depth: 40,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(20),
+                                        child: ((i * perRowCount + j) >= _sectionsList.length)
+                                            ? Container()
+                                            : sectionWiseAnnualFeeBeanWidget(
+                                                actualSectionWiseAnnualFeeBeanMap[_sectionsList[(i * perRowCount + j)]]!),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                      ],
                     ),
                   ],
             ),
@@ -321,100 +360,85 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
   }
 
   Widget sectionWiseAnnualFeeBeanWidget(SectionWiseAnnualFeeMapBean sectionWiseAnnualFee) {
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: ClayContainer(
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          depth: 40,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        sectionWiseAnnualFee.sectionName ?? "-",
-                        style: const TextStyle(
-                          color: Colors.blue,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                    if (toBeEdited != null && toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId)
-                      Container(
-                        margin: const EdgeInsets.all(8),
-                        child: GestureDetector(
-                          onTap: () {
-                            loadSectionWiseAnnualFeeMap(_sectionsList.where((e) => e.sectionId == toBeEdited!.sectionId).first);
-                            setState(() {
-                              toBeEdited = null;
-                            });
-                          },
-                          child: ClayButton(
-                            depth: 40,
-                            surfaceColor: clayContainerColor(context),
-                            parentColor: clayContainerColor(context),
-                            spread: 1,
-                            borderRadius: 100,
-                            child: Container(
-                              margin: const EdgeInsets.all(10),
-                              child: const Icon(Icons.clear),
-                            ),
-                          ),
-                        ),
-                      ),
-                    Container(
-                      margin: const EdgeInsets.all(8),
-                      child: GestureDetector(
-                        onTap: () async {
-                          if (toBeEdited == null) {
-                            setState(() {
-                              toBeEdited = Section(sectionId: sectionWiseAnnualFee.sectionId, sectionName: sectionWiseAnnualFee.sectionName);
-                            });
-                          } else if (toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId) {
-                            await _saveChanges(_sectionsList.where((e) => e.sectionId == toBeEdited!.sectionId).first);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Save changes for ${toBeEdited!.sectionName} to proceed.."),
-                              ),
-                            );
-                          }
-                        },
-                        child: ClayButton(
-                          depth: 40,
-                          surfaceColor: clayContainerColor(context),
-                          parentColor: clayContainerColor(context),
-                          spread: 1,
-                          borderRadius: 100,
-                          child: Container(
-                            margin: const EdgeInsets.all(10),
-                            child: toBeEdited != null && toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId
-                                ? const Icon(Icons.check)
-                                : const Icon(Icons.edit),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: Text(
+                sectionWiseAnnualFee.sectionName ?? "-",
+                style: const TextStyle(
+                  color: Colors.blue,
+                  fontSize: 18,
                 ),
-                Expanded(
-                  child: ListView(
-                    physics: const BouncingScrollPhysics(),
-                    children: buildSectionWiseAnnualFeesWidgets(sectionWiseAnnualFee),
+              ),
+            ),
+            if (toBeEdited != null && toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId)
+              Container(
+                margin: const EdgeInsets.all(8),
+                child: GestureDetector(
+                  onTap: () {
+                    loadSectionWiseAnnualFeeMap(_sectionsList.where((e) => e.sectionId == toBeEdited!.sectionId).first);
+                    setState(() {
+                      toBeEdited = null;
+                    });
+                  },
+                  child: ClayButton(
+                    depth: 40,
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 100,
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: const Icon(Icons.clear),
+                    ),
                   ),
                 ),
-              ],
+              ),
+            Container(
+              margin: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () async {
+                  if (toBeEdited == null) {
+                    setState(() {
+                      toBeEdited = Section(sectionId: sectionWiseAnnualFee.sectionId, sectionName: sectionWiseAnnualFee.sectionName);
+                    });
+                  } else if (toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId) {
+                    await _saveChanges(_sectionsList.where((e) => e.sectionId == toBeEdited!.sectionId).first);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Save changes for ${toBeEdited!.sectionName} to proceed.."),
+                      ),
+                    );
+                  }
+                },
+                child: ClayButton(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 1,
+                  borderRadius: 100,
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    child: toBeEdited != null && toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId
+                        ? const Icon(Icons.check)
+                        : const Icon(Icons.edit),
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ),
-      ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          // physics: const BouncingScrollPhysics(),
+          children: buildSectionWiseAnnualFeesWidgets(sectionWiseAnnualFee),
+        ),
+      ],
     );
   }
 
