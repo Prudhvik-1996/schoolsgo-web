@@ -6,8 +6,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
 class StudentProfileScreen extends StatefulWidget {
-  const StudentProfileScreen({Key? key, required this.studentProfile})
-      : super(key: key);
+  const StudentProfileScreen({Key? key, required this.studentProfile}) : super(key: key);
 
   final StudentProfile studentProfile;
 
@@ -42,8 +41,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 Align(
                   alignment: Alignment.topCenter,
                   child: SizedBox(
-                    height: MediaQuery.of(context).orientation ==
-                            Orientation.landscape
+                    height: MediaQuery.of(context).orientation == Orientation.landscape
                         ? MediaQuery.of(context).size.height * 0.6
                         : MediaQuery.of(context).size.height * 0.4,
                     width: double.infinity,
@@ -62,14 +60,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Container(
-                    height: MediaQuery.of(context).orientation ==
-                            Orientation.landscape
-                        ? 150
-                        : 100,
-                    width: MediaQuery.of(context).orientation ==
-                            Orientation.landscape
-                        ? 150
-                        : 100,
+                    height: MediaQuery.of(context).orientation == Orientation.landscape ? 150 : 100,
+                    width: MediaQuery.of(context).orientation == Orientation.landscape ? 150 : 100,
                     margin: const EdgeInsets.fromLTRB(50, 0, 50, 0),
                     child: ClayButton(
                       depth: 100,
@@ -105,8 +97,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           ),
           Container(
             margin: MediaQuery.of(context).orientation == Orientation.landscape
-                ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-                    MediaQuery.of(context).size.width / 4, 20)
+                ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
                 : const EdgeInsets.all(20),
             // padding: EdgeInsets.all(25),
             child: ClayContainer(

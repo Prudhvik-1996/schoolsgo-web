@@ -26,12 +26,10 @@ class StudentStudyMaterialScreen extends StatefulWidget {
   final TeacherDealingSection tds;
 
   @override
-  _StudentStudyMaterialScreenState createState() =>
-      _StudentStudyMaterialScreenState();
+  _StudentStudyMaterialScreenState createState() => _StudentStudyMaterialScreenState();
 }
 
-class _StudentStudyMaterialScreenState
-    extends State<StudentStudyMaterialScreen> {
+class _StudentStudyMaterialScreenState extends State<StudentStudyMaterialScreen> {
   bool _isLoading = true;
 
   List<StudyMaterial> _studyMaterial = [];
@@ -51,8 +49,7 @@ class _StudentStudyMaterialScreenState
       _isLoading = true;
     });
 
-    GetStudyMaterialResponse getStudyMaterialResponse =
-        await getStudyMaterial(GetStudyMaterialRequest(
+    GetStudyMaterialResponse getStudyMaterialResponse = await getStudyMaterial(GetStudyMaterialRequest(
       schoolId: widget.studentProfile.schoolId,
       sectionId: widget.studentProfile.sectionId,
       tdsId: widget.tds.tdsId,
@@ -60,8 +57,7 @@ class _StudentStudyMaterialScreenState
       teacherId: widget.tds.teacherId,
       studentId: widget.studentProfile.studentId,
     ));
-    if (getStudyMaterialResponse.httpStatus != "OK" ||
-        getStudyMaterialResponse.responseStatus != "success") {
+    if (getStudyMaterialResponse.httpStatus != "OK" || getStudyMaterialResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong! Try again later.."),
@@ -69,10 +65,7 @@ class _StudentStudyMaterialScreenState
       );
     } else {
       setState(() {
-        _studyMaterial = getStudyMaterialResponse
-            .assignmentsAndStudyMaterialBeans!
-            .map((e) => e!)
-            .toList();
+        _studyMaterial = getStudyMaterialResponse.assignmentsAndStudyMaterialBeans!.map((e) => e!).toList();
       });
     }
 
@@ -110,10 +103,7 @@ class _StudentStudyMaterialScreenState
           setState(() {
             _selectedDate = _newDate;
             _itemScrollController.scrollTo(
-              index: _studyMaterial
-                  .map((e) => e.createTime)
-                  .toList()
-                  .indexOf(_selectedDate!),
+              index: _studyMaterial.map((e) => e.createTime).toList().indexOf(_selectedDate!),
               duration: const Duration(seconds: 1),
               curve: Curves.easeInOutCubic,
             );
@@ -167,9 +157,7 @@ class _StudentStudyMaterialScreenState
                     onTap: () {
                       downloadFile(
                         studyMaterial.mediaList![index]!.mediaUrl!,
-                        filename: getCurrentTimeStringInDDMMYYYYHHMMSS() +
-                            "." +
-                            studyMaterial.mediaList![index]!.mediaType!,
+                        filename: getCurrentTimeStringInDDMMYYYYHHMMSS() + "." + studyMaterial.mediaList![index]!.mediaType!,
                       );
                     },
                   ),
@@ -205,15 +193,12 @@ class _StudentStudyMaterialScreenState
               SizedBox(
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height / 1,
-                child: getFileTypeForExtension(
-                            studyMaterial.mediaList![index]!.mediaType!) ==
-                        MediaFileType.IMAGE_FILES
+                child: getFileTypeForExtension(studyMaterial.mediaList![index]!.mediaType!) == MediaFileType.IMAGE_FILES
                     ? FadeInImage(
                         placeholder: const AssetImage(
                           'assets/images/loading_grey_white.gif',
                         ),
-                        image: NetworkImage(
-                            studyMaterial.mediaList![index]!.mediaUrl!),
+                        image: NetworkImage(studyMaterial.mediaList![index]!.mediaUrl!),
                         fit: BoxFit.contain,
                       )
                     : HtmlElementView(
@@ -230,9 +215,7 @@ class _StudentStudyMaterialScreenState
                   width: 25,
                   child: FittedBox(
                     fit: BoxFit.contain,
-                    child: index == studyMaterial.mediaList!.length - 1
-                        ? null
-                        : const Icon(Icons.arrow_right),
+                    child: index == studyMaterial.mediaList!.length - 1 ? null : const Icon(Icons.arrow_right),
                   ),
                 ),
               ),
@@ -246,8 +229,7 @@ class _StudentStudyMaterialScreenState
   Widget _getStudyMaterialWidget(StudyMaterial studyMaterial) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
@@ -283,9 +265,7 @@ class _StudentStudyMaterialScreenState
                                   alignment: Alignment.topLeft,
                                   fit: BoxFit.scaleDown,
                                   child: Text(
-                                    studyMaterial.studyMaterialType!
-                                        .toUpperCase()
-                                        .replaceAll("_", " "),
+                                    studyMaterial.studyMaterialType!.toUpperCase().replaceAll("_", " "),
                                     style: const TextStyle(
                                       color: Colors.blue,
                                     ),
@@ -293,8 +273,7 @@ class _StudentStudyMaterialScreenState
                                 ),
                               ),
                             ),
-                            if (studyMaterial.studyMaterialType! ==
-                                "ASSIGNMENT")
+                            if (studyMaterial.studyMaterialType! == "ASSIGNMENT")
                               FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
@@ -331,8 +310,7 @@ class _StudentStudyMaterialScreenState
                   child: GridView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                       crossAxisSpacing: 5.0,
                       mainAxisSpacing: 5.0,
@@ -348,12 +326,9 @@ class _StudentStudyMaterialScreenState
                           height: 100,
                           width: 100,
                           padding: const EdgeInsets.all(2),
-                          child: getFileTypeForExtension(studyMaterial
-                                      .mediaList![index]!.mediaType!) ==
-                                  MediaFileType.IMAGE_FILES
+                          child: getFileTypeForExtension(studyMaterial.mediaList![index]!.mediaType!) == MediaFileType.IMAGE_FILES
                               ? FadeInImage(
-                                  image: NetworkImage(studyMaterial
-                                      .mediaList![index]!.mediaUrl!),
+                                  image: NetworkImage(studyMaterial.mediaList![index]!.mediaUrl!),
                                   placeholder: const AssetImage(
                                     'assets/images/loading_grey_white.gif',
                                   ),
@@ -361,8 +336,7 @@ class _StudentStudyMaterialScreenState
                               : Image.asset(
                                   getAssetImageForFileType(
                                     getFileTypeForExtension(
-                                      studyMaterial
-                                          .mediaList![index]!.mediaType!,
+                                      studyMaterial.mediaList![index]!.mediaType!,
                                     ),
                                   ),
                                   scale: 0.5,
@@ -418,8 +392,7 @@ class _StudentStudyMaterialScreenState
                                 minHeight: 150.0,
                               ),
                               child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   buildTdsDetailWidget(
                                     context,
@@ -442,8 +415,7 @@ class _StudentStudyMaterialScreenState
                                 minHeight: 50.0,
                               ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Expanded(
                                     child: buildTdsDetailWidget(
@@ -475,8 +447,7 @@ class _StudentStudyMaterialScreenState
                   child: ScrollablePositionedList.builder(
                     itemScrollController: _itemScrollController,
                     itemCount: _studyMaterial.length,
-                    itemBuilder: (context, index) =>
-                        _getStudyMaterialWidget(_studyMaterial[index]),
+                    itemBuilder: (context, index) => _getStudyMaterialWidget(_studyMaterial[index]),
                   ),
                 ),
               ],

@@ -11,16 +11,13 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 class TeacherAttendanceTimeslots extends StatefulWidget {
   final TeacherProfile teacherProfile;
 
-  const TeacherAttendanceTimeslots({Key? key, required this.teacherProfile})
-      : super(key: key);
+  const TeacherAttendanceTimeslots({Key? key, required this.teacherProfile}) : super(key: key);
 
   @override
-  _TeacherAttendanceTimeslotsState createState() =>
-      _TeacherAttendanceTimeslotsState();
+  _TeacherAttendanceTimeslotsState createState() => _TeacherAttendanceTimeslotsState();
 }
 
-class _TeacherAttendanceTimeslotsState
-    extends State<TeacherAttendanceTimeslots> {
+class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots> {
   bool _isLoading = true;
   List<AttendanceTimeSlotBean> _attendanceTimeSlots = [];
   DateTime _selectedDate = DateTime.now();
@@ -35,20 +32,16 @@ class _TeacherAttendanceTimeslotsState
     setState(() {
       _isLoading = true;
     });
-    GetStudentAttendanceTimeSlotsResponse
-        getStudentAttendanceTimeSlotsResponse =
-        await getStudentAttendanceTimeSlots(
-            GetStudentAttendanceTimeSlotsRequest(
+    GetStudentAttendanceTimeSlotsResponse getStudentAttendanceTimeSlotsResponse =
+        await getStudentAttendanceTimeSlots(GetStudentAttendanceTimeSlotsRequest(
       schoolId: widget.teacherProfile.schoolId,
       status: "active",
       managerId: widget.teacherProfile.teacherId,
       date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
     ));
-    if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" &&
-        getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {
+    if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" && getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _attendanceTimeSlots =
-            getStudentAttendanceTimeSlotsResponse.attendanceTimeSlotBeans!;
+        _attendanceTimeSlots = getStudentAttendanceTimeSlotsResponse.attendanceTimeSlotBeans!;
       });
     }
     setState(() {
@@ -179,9 +172,7 @@ class _TeacherAttendanceTimeslotsState
                 children: [
                       _getDatePicker(),
                     ] +
-                    _attendanceTimeSlots
-                        .map((e) => buildEachATSWidget(e))
-                        .toList(),
+                    _attendanceTimeSlots.map((e) => buildEachATSWidget(e)).toList(),
               ),
             ),
     );

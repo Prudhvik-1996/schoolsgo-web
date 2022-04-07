@@ -8,23 +8,18 @@ import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_cl
 import 'admin_monitor_online_class_rooms_screen.dart';
 
 class AdminOnlineClassRoomsOptionsScreen extends StatefulWidget {
-  const AdminOnlineClassRoomsOptionsScreen(
-      {Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminOnlineClassRoomsOptionsScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
   static const routeName = "/onlineclassroom";
 
   @override
-  _AdminOnlineClassRoomsOptionsScreenState createState() =>
-      _AdminOnlineClassRoomsOptionsScreenState();
+  _AdminOnlineClassRoomsOptionsScreenState createState() => _AdminOnlineClassRoomsOptionsScreenState();
 }
 
-class _AdminOnlineClassRoomsOptionsScreenState
-    extends State<AdminOnlineClassRoomsOptionsScreen> {
-  Widget _getOcrOption(
-      String title, String? description, StatefulWidget nextWidget) {
+class _AdminOnlineClassRoomsOptionsScreenState extends State<AdminOnlineClassRoomsOptionsScreen> {
+  Widget _getOcrOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {

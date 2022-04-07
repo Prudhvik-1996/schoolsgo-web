@@ -14,20 +14,17 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'admin_study_material_screen.dart';
 
 class AdminStudyMaterialTDSScreen extends StatefulWidget {
-  const AdminStudyMaterialTDSScreen({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminStudyMaterialTDSScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
   static const routeName = "/study_material";
 
   @override
-  _AdminStudyMaterialTdsScreenState createState() =>
-      _AdminStudyMaterialTdsScreenState();
+  _AdminStudyMaterialTdsScreenState createState() => _AdminStudyMaterialTdsScreenState();
 }
 
-class _AdminStudyMaterialTdsScreenState
-    extends State<AdminStudyMaterialTDSScreen> {
+class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScreen> {
   bool _isLoading = true;
 
   List<Teacher> _teachersList = [];
@@ -52,34 +49,28 @@ class _AdminStudyMaterialTdsScreenState
       _isLoading = true;
     });
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
-        _filteredTdsList =
-            getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _filteredTdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
     }
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetTeachersResponse getTeachersResponse =
-        await getTeachers(getTeachersRequest);
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
         if (_teachersList.length == 1) {
           _selectedTeacher = _teachersList[0];
         } else {
-          _teachersList.sort((a, b) =>
-              (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
+          _teachersList.sort((a, b) => (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
         }
       });
     }
@@ -87,11 +78,9 @@ class _AdminStudyMaterialTdsScreenState
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
@@ -115,17 +104,13 @@ class _AdminStudyMaterialTdsScreenState
 
     if (_selectedSection != null) {
       setState(() {
-        _filteredTdsList = _filteredTdsList
-            .where((e) => e.sectionId == _selectedSection!.sectionId)
-            .toList();
+        _filteredTdsList = _filteredTdsList.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
       });
     }
 
     if (_selectedTeacher != null) {
       setState(() {
-        _filteredTdsList = _filteredTdsList
-            .where((e) => e.teacherId == _selectedTeacher!.teacherId)
-            .toList();
+        _filteredTdsList = _filteredTdsList.where((e) => e.teacherId == _selectedTeacher!.teacherId).toList();
       });
     }
 
@@ -180,9 +165,7 @@ class _AdminStudyMaterialTdsScreenState
         _applyFilters();
       },
       items: _teachersList
-          .where((teacher) => _filteredTdsList
-              .map((tds) => tds.teacherId)
-              .contains(teacher.teacherId))
+          .where((teacher) => _filteredTdsList.map((tds) => tds.teacherId).contains(teacher.teacherId))
           .map(
             (e) => DropdownMenuItem<Teacher>(
               value: e,
@@ -324,8 +307,7 @@ class _AdminStudyMaterialTdsScreenState
             childAspectRatio: 2.25,
             crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
             shrinkWrap: true,
-            children:
-                _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
+            children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
           ),
         ],
       ),
@@ -358,9 +340,7 @@ class _AdminStudyMaterialTdsScreenState
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            _selectedSection == null
-                                ? "Select a section"
-                                : "Section: ${_selectedSection!.sectionName!}",
+                            _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
                           ),
                         ),
                       ),
@@ -392,9 +372,7 @@ class _AdminStudyMaterialTdsScreenState
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      _selectedSection == null
-                          ? "Select a section"
-                          : "Section: ${_selectedSection!.sectionName!}",
+                      _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
                     ),
                   ),
                 ),
@@ -408,14 +386,8 @@ class _AdminStudyMaterialTdsScreenState
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _selectedSection != null &&
-                _selectedSection!.sectionId == section.sectionId
-            ? Colors.blue[200]
-            : clayContainerColor(context),
-        spread: _selectedSection != null &&
-                _selectedSection!.sectionId == section.sectionId!
-            ? 0
-            : 2,
+        color: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue[200] : clayContainerColor(context),
+        spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId! ? 0 : 2,
         borderRadius: 10,
         child: Container(
           decoration: BoxDecoration(
@@ -428,8 +400,7 @@ class _AdminStudyMaterialTdsScreenState
               HapticFeedback.vibrate();
               if (_isLoading) return;
               setState(() {
-                if (_selectedSection != null &&
-                    _selectedSection!.sectionId == section.sectionId) {
+                if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
                   _selectedSection = null;
                 } else {
                   _selectedSection = section;
@@ -534,11 +505,7 @@ class _AdminStudyMaterialTdsScreenState
         Expanded(
           child: Center(
             child: Text(
-              _filteredTdsList
-                      .where((e) => e.sectionId == sectionId)
-                      .first
-                      .sectionName ??
-                  "-",
+              _filteredTdsList.where((e) => e.sectionId == sectionId).first.sectionName ?? "-",
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
@@ -548,26 +515,15 @@ class _AdminStudyMaterialTdsScreenState
       ],
     ));
     int i = 0;
-    while (i <
-        _filteredTdsList
-            .where((e) => e.sectionId == sectionId)
-            .toList()
-            .length) {
+    while (i < _filteredTdsList.where((e) => e.sectionId == sectionId).toList().length) {
       List<Widget> x = [];
       for (int j = 0; j < n; j++) {
-        if (i >=
-            _filteredTdsList
-                .where((e) => e.sectionId == sectionId)
-                .toList()
-                .length) {
+        if (i >= _filteredTdsList.where((e) => e.sectionId == sectionId).toList().length) {
           x.add(Expanded(
             child: Container(),
           ));
         } else {
-          x.add(Expanded(
-              child: _sectionWiseTdsButtonWidget(_filteredTdsList
-                  .where((e) => e.sectionId == sectionId)
-                  .toList()[i])));
+          x.add(Expanded(child: _sectionWiseTdsButtonWidget(_filteredTdsList.where((e) => e.sectionId == sectionId).toList()[i])));
         }
         i = i + 1;
       }
@@ -738,10 +694,8 @@ class _AdminStudyMaterialTdsScreenState
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Expanded(child: _sectionPicker()),
-                              if (!_isSectionPickerOpen)
-                                Expanded(child: _selectTeacher()),
-                              if (!_isSectionPickerOpen)
-                                Expanded(child: Container()),
+                              if (!_isSectionPickerOpen) Expanded(child: _selectTeacher()),
+                              if (!_isSectionPickerOpen) Expanded(child: Container()),
                             ],
                           )
                         : Column(
@@ -753,12 +707,7 @@ class _AdminStudyMaterialTdsScreenState
                   ] +
                   ((_selectedTeacher != null)
                       ? _buildAllTdsGrid()
-                      : _filteredTdsList
-                          .map((tds) => tds.sectionId)
-                          .map((e) => e!)
-                          .toSet()
-                          .map((e) => _sectionWiseTdsWidget(e))
-                          .toList()),
+                      : _filteredTdsList.map((tds) => tds.sectionId).map((e) => e!).toSet().map((e) => _sectionWiseTdsWidget(e)).toList()),
             ),
     );
   }

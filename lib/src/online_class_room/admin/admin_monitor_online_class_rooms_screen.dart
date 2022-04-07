@@ -12,20 +12,16 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminMonitorOnlineClassRoomsScreen extends StatefulWidget {
-  const AdminMonitorOnlineClassRoomsScreen(
-      {Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminMonitorOnlineClassRoomsScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
   static const routeName = "/onlineclassroom";
   @override
-  _AdminMonitorOnlineClassRoomsScreenState createState() =>
-      _AdminMonitorOnlineClassRoomsScreenState();
+  _AdminMonitorOnlineClassRoomsScreenState createState() => _AdminMonitorOnlineClassRoomsScreenState();
 }
 
-class _AdminMonitorOnlineClassRoomsScreenState
-    extends State<AdminMonitorOnlineClassRoomsScreen> {
+class _AdminMonitorOnlineClassRoomsScreenState extends State<AdminMonitorOnlineClassRoomsScreen> {
   bool _isLoading = true;
 
   List<Section> _sectionsList = [];
@@ -61,31 +57,21 @@ class _AdminMonitorOnlineClassRoomsScreenState
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
     // Get all online class rooms
-    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
-        await getOnlineClassRooms(GetOnlineClassRoomsRequest(
+    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse = await getOnlineClassRooms(GetOnlineClassRoomsRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
 
-    if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
-        getOnlineClassRoomsResponse.responseStatus == "success") {
+    if (getOnlineClassRoomsResponse.httpStatus == "OK" && getOnlineClassRoomsResponse.responseStatus == "success") {
       setState(() {
-        List<OnlineClassRoom> _allOnlineClassRooms = getOnlineClassRoomsResponse
-            .onlineClassRooms!
-            .map((e) => e!)
-            .toList();
-        _allOnlineClassRooms
-            .map((eachOcr) => _getAllOverlappedOcrs(eachOcr))
-            .expand((i) => i)
-            .toList()
-            .forEach((eachOverlappedOcr) {
+        List<OnlineClassRoom> _allOnlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!.map((e) => e!).toList();
+        _allOnlineClassRooms.map((eachOcr) => _getAllOverlappedOcrs(eachOcr)).expand((i) => i).toList().forEach((eachOverlappedOcr) {
           _allOnlineClassRooms.remove(eachOverlappedOcr);
         });
         _allOnlineClassRooms.sort((a, b) => a.compareTo(b));
@@ -96,8 +82,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
               DateTime now = DateTime.now();
               DateTime i = DateTime(now.year, now.month, now.day);
               List<OnlineClassRoom> _newOcrs = [];
-              while (now.add(const Duration(days: 6)).millisecondsSinceEpoch >
-                  i.millisecondsSinceEpoch) {
+              while (now.add(const Duration(days: 6)).millisecondsSinceEpoch > i.millisecondsSinceEpoch) {
                 if (eachOcr.weekId == i.weekday) {
                   OnlineClassRoom newOcr = eachOcr.clone();
                   newOcr.date = convertDateTimeToYYYYMMDDFormat(i);
@@ -126,28 +111,17 @@ class _AdminMonitorOnlineClassRoomsScreenState
       DateTime now = DateTime(x.year, x.month, x.day);
 
       var customCRs = _onlineClassRooms.where((eachOcr) {
-        return eachOcr.date != null &&
-            convertYYYYMMDDFormatToDateTime(eachOcr.date!)
-                    .difference(now)
-                    .inDays <
-                7;
+        return eachOcr.date != null && convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now).inDays < 7;
       });
 
       _thisOcrOverlappedWith = customCRs.where((eachOcr) {
-        int startTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            onlineClassRoom.startTime, onlineClassRoom.weekId);
-        int startTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            eachOcr.startTime, eachOcr.weekId);
-        int endTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            onlineClassRoom.endTime, onlineClassRoom.weekId);
-        int endTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-            eachOcr.endTime, eachOcr.weekId);
-        if ((startTimeEqOfEachOcr < startTimeEqOfThisOcr &&
-                startTimeEqOfThisOcr < endTimeEqOfEachOcr) ||
-            (startTimeEqOfEachOcr < endTimeEqOfThisOcr &&
-                endTimeEqOfThisOcr < endTimeEqOfEachOcr)) return true;
-        if (startTimeEqOfEachOcr == startTimeEqOfThisOcr &&
-            endTimeEqOfEachOcr == endTimeEqOfThisOcr) return true;
+        int startTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(onlineClassRoom.startTime, onlineClassRoom.weekId);
+        int startTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.startTime, eachOcr.weekId);
+        int endTimeEqOfThisOcr = getSecondsEquivalentOfTimeFromWHHMMSS(onlineClassRoom.endTime, onlineClassRoom.weekId);
+        int endTimeEqOfEachOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.endTime, eachOcr.weekId);
+        if ((startTimeEqOfEachOcr < startTimeEqOfThisOcr && startTimeEqOfThisOcr < endTimeEqOfEachOcr) ||
+            (startTimeEqOfEachOcr < endTimeEqOfThisOcr && endTimeEqOfThisOcr < endTimeEqOfEachOcr)) return true;
+        if (startTimeEqOfEachOcr == startTimeEqOfThisOcr && endTimeEqOfEachOcr == endTimeEqOfThisOcr) return true;
         return false;
       }).toList();
     }
@@ -159,9 +133,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _sectionsList.indexOf(section) == _sectionIndex
-            ? Colors.blue[200]
-            : clayContainerColor(context),
+        color: _sectionsList.indexOf(section) == _sectionIndex ? Colors.blue[200] : clayContainerColor(context),
         spread: _sectionsList.indexOf(section) == _sectionIndex ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -230,8 +202,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
             childAspectRatio: 2.25,
             crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
             shrinkWrap: true,
-            children:
-                _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
+            children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
           ),
         ],
       ),
@@ -292,9 +263,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
             },
             child: ClayButton(
               depth: 20,
-              surfaceColor: _showAllOngoingClassRooms
-                  ? Colors.blue[200]
-                  : Colors.green[300],
+              surfaceColor: _showAllOngoingClassRooms ? Colors.blue[200] : Colors.green[300],
               parentColor: clayContainerColor(context),
               borderRadius: 10,
               spread: 5,
@@ -304,8 +273,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                   fit: BoxFit.scaleDown,
                   child: Text(
                     _showAllOngoingClassRooms
-                        ? "Show upcoming Classes\nfor ${_sectionsList[_sectionIndex].sectionName ?? "-"}"
-                            .toUpperCase()
+                        ? "Show upcoming Classes\nfor ${_sectionsList[_sectionIndex].sectionName ?? "-"}".toUpperCase()
                         : "Show all\non-going classes".toUpperCase(),
                     textAlign: TextAlign.center,
                   ),
@@ -354,31 +322,21 @@ class _AdminMonitorOnlineClassRoomsScreenState
           });
         },
         children: _sectionsList.map((eachSection) {
-          List<OnlineClassRoom> _ongoingClasses =
-              _onlineClassRooms.where((eachOcr) {
+          List<OnlineClassRoom> _ongoingClasses = _onlineClassRooms.where((eachOcr) {
             if (eachOcr.sectionId != eachSection.sectionId) return false;
             if (eachOcr.tdsId == null) return false;
-            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                null, DateTime.now().weekday);
-            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.startTime!, eachOcr.weekId);
-            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.endTime!, eachOcr.weekId);
-            return eachOcrStartTimeMillis <= currentMillis &&
-                currentMillis <= eachOcrEndTimeMillis;
+            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(null, DateTime.now().weekday);
+            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.startTime!, eachOcr.weekId);
+            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.endTime!, eachOcr.weekId);
+            return eachOcrStartTimeMillis <= currentMillis && currentMillis <= eachOcrEndTimeMillis;
           }).toList();
-          List<OnlineClassRoom> _upcomingClasses =
-              _onlineClassRooms.where((eachOcr) {
+          List<OnlineClassRoom> _upcomingClasses = _onlineClassRooms.where((eachOcr) {
             if (eachOcr.sectionId != eachSection.sectionId) return false;
             if (eachOcr.tdsId == null) return false;
-            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                null, DateTime.now().weekday);
-            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.startTime!, eachOcr.weekId);
-            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.endTime!, eachOcr.weekId);
-            return !(eachOcrStartTimeMillis <= currentMillis &&
-                currentMillis <= eachOcrEndTimeMillis);
+            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(null, DateTime.now().weekday);
+            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.startTime!, eachOcr.weekId);
+            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.endTime!, eachOcr.weekId);
+            return !(eachOcrStartTimeMillis <= currentMillis && currentMillis <= eachOcrEndTimeMillis);
           }).toList();
           return SizedBox(
             width: MediaQuery.of(context).size.width - 10,
@@ -418,9 +376,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                       ),
                       Expanded(
                         flex: 1,
-                        child: _showAllOngoingClassRooms
-                            ? buildAllOngoingClasses()
-                            : buildUpcomingClassesWidget(_upcomingClasses),
+                        child: _showAllOngoingClassRooms ? buildAllOngoingClasses() : buildUpcomingClassesWidget(_upcomingClasses),
                       ),
                     ],
                   ),
@@ -446,31 +402,21 @@ class _AdminMonitorOnlineClassRoomsScreenState
           });
         },
         children: _sectionsList.map((eachSection) {
-          List<OnlineClassRoom> _ongoingClasses =
-              _onlineClassRooms.where((eachOcr) {
+          List<OnlineClassRoom> _ongoingClasses = _onlineClassRooms.where((eachOcr) {
             if (eachOcr.sectionId != eachSection.sectionId) return false;
             if (eachOcr.tdsId == null) return false;
-            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                null, DateTime.now().weekday);
-            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.startTime!, eachOcr.weekId);
-            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.endTime!, eachOcr.weekId);
-            return eachOcrStartTimeMillis <= currentMillis &&
-                currentMillis <= eachOcrEndTimeMillis;
+            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(null, DateTime.now().weekday);
+            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.startTime!, eachOcr.weekId);
+            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.endTime!, eachOcr.weekId);
+            return eachOcrStartTimeMillis <= currentMillis && currentMillis <= eachOcrEndTimeMillis;
           }).toList();
-          List<OnlineClassRoom> _upcomingClasses =
-              _onlineClassRooms.where((eachOcr) {
+          List<OnlineClassRoom> _upcomingClasses = _onlineClassRooms.where((eachOcr) {
             if (eachOcr.sectionId != eachSection.sectionId) return false;
             if (eachOcr.tdsId == null) return false;
-            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                null, DateTime.now().weekday);
-            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.startTime!, eachOcr.weekId);
-            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachOcr.endTime!, eachOcr.weekId);
-            return !(eachOcrStartTimeMillis <= currentMillis &&
-                currentMillis <= eachOcrEndTimeMillis);
+            int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(null, DateTime.now().weekday);
+            int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.startTime!, eachOcr.weekId);
+            int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.endTime!, eachOcr.weekId);
+            return !(eachOcrStartTimeMillis <= currentMillis && currentMillis <= eachOcrEndTimeMillis);
           }).toList();
           return SizedBox(
             width: MediaQuery.of(context).size.width - 10,
@@ -482,9 +428,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                 ),
                 Flexible(
                   fit: FlexFit.loose,
-                  child: _showAllOngoingClassRooms
-                      ? buildAllOngoingClasses()
-                      : buildUpcomingClassesWidget(_upcomingClasses),
+                  child: _showAllOngoingClassRooms ? buildAllOngoingClasses() : buildUpcomingClassesWidget(_upcomingClasses),
                 ),
               ],
             ),
@@ -495,17 +439,12 @@ class _AdminMonitorOnlineClassRoomsScreenState
   }
 
   Widget buildAllOngoingClasses() {
-    List<OnlineClassRoom> _allOngoingClassRooms =
-        _onlineClassRooms.where((eachOcr) {
+    List<OnlineClassRoom> _allOngoingClassRooms = _onlineClassRooms.where((eachOcr) {
       if (eachOcr.tdsId == null) return false;
-      int currentMillis =
-          getSecondsEquivalentOfTimeFromWHHMMSS(null, DateTime.now().weekday);
-      int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-          eachOcr.startTime!, eachOcr.weekId);
-      int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(
-          eachOcr.endTime!, eachOcr.weekId);
-      return eachOcrStartTimeMillis <= currentMillis &&
-          currentMillis <= eachOcrEndTimeMillis;
+      int currentMillis = getSecondsEquivalentOfTimeFromWHHMMSS(null, DateTime.now().weekday);
+      int eachOcrStartTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.startTime!, eachOcr.weekId);
+      int eachOcrEndTimeMillis = getSecondsEquivalentOfTimeFromWHHMMSS(eachOcr.endTime!, eachOcr.weekId);
+      return eachOcrStartTimeMillis <= currentMillis && currentMillis <= eachOcrEndTimeMillis;
     }).toList();
     return Container(
       margin: const EdgeInsets.all(10),
@@ -558,9 +497,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                           ),
                         )
                       ]
-                    : _allOngoingClassRooms
-                        .map((eachOcr) => buildOngoingOcrContainer(eachOcr))
-                        .toList()),
+                    : _allOngoingClassRooms.map((eachOcr) => buildOngoingOcrContainer(eachOcr)).toList()),
           ),
         ),
       ),
@@ -577,10 +514,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  _sectionIndex = _sectionsList
-                      .map((e) => e.sectionId)
-                      .toList()
-                      .indexOf(e.sectionId);
+                  _sectionIndex = _sectionsList.map((e) => e.sectionId).toList().indexOf(e.sectionId);
                   pageController.animateToPage(
                     _sectionIndex,
                     duration: const Duration(seconds: 1),
@@ -612,16 +546,13 @@ class _AdminMonitorOnlineClassRoomsScreenState
                               // ),
                               child: Text.rich(
                                 TextSpan(
-                                  text: convertDateToDDMMMEEEE(e.date!)
-                                          .split(", ")[0] +
-                                      " ",
+                                  text: convertDateToDDMMMEEEE(e.date!).split(", ")[0] + " ",
                                   style: const TextStyle(
                                     color: Colors.pink,
                                   ),
                                   children: <InlineSpan>[
                                     TextSpan(
-                                      text: convertDateToDDMMMEEEE(e.date!)
-                                          .split(", ")[1],
+                                      text: convertDateToDDMMMEEEE(e.date!).split(", ")[1],
                                       style: const TextStyle(
                                         color: Colors.red,
                                       ),
@@ -653,9 +584,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                             FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                (e.sectionName ?? "-").capitalize() +
-                                    " " +
-                                    (e.subjectName ?? "-").capitalize(),
+                                (e.sectionName ?? "-").capitalize() + " " + (e.subjectName ?? "-").capitalize(),
                               ),
                             ),
                             FittedBox(
@@ -722,8 +651,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                         padding: const EdgeInsets.all(10),
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) {
                               return MeetingRoom(
                                 onlineClassRoom: eachOcr,
                                 adminProfile: widget.adminProfile,
@@ -856,18 +784,14 @@ class _AdminMonitorOnlineClassRoomsScreenState
                       child: Text.rich(
                         TextSpan(
                           text: convertDateToDDMMMEEEE(e.date!).split(", ")[0] +
-                              (MediaQuery.of(context).orientation ==
-                                      Orientation.landscape
-                                  ? "\n"
-                                  : " "),
+                              (MediaQuery.of(context).orientation == Orientation.landscape ? "\n" : " "),
                           style: const TextStyle(
                             color: Colors.blue,
                             fontSize: 11,
                           ),
                           children: <InlineSpan>[
                             TextSpan(
-                              text: convertDateToDDMMMEEEE(e.date!)
-                                  .split(", ")[1],
+                              text: convertDateToDDMMMEEEE(e.date!).split(", ")[1],
                               style: TextStyle(
                                 color: clayContainerTextColor(context),
                                 fontSize: 11,
@@ -949,10 +873,7 @@ class _AdminMonitorOnlineClassRoomsScreenState
                 SliverFillRemaining(
                   hasScrollBody: true,
                   fillOverscroll: true,
-                  child: MediaQuery.of(context).orientation ==
-                          Orientation.landscape
-                      ? _buildLandscapeWidget()
-                      : _buildPortraitWidget(),
+                  child: MediaQuery.of(context).orientation == Orientation.landscape ? _buildLandscapeWidget() : _buildPortraitWidget(),
                 ),
               ],
             ),

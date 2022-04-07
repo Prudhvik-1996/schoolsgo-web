@@ -1137,3 +1137,166 @@ Future<GetStudentWiseAnnualFeesResponse> getStudentWiseAnnualFees(GetStudentWise
   print("GetStudentWiseAnnualFeesResponse ${getStudentWiseAnnualFeesResponse.toJson()}");
   return getStudentWiseAnnualFeesResponse;
 }
+
+class StudentAnnualFeeMapUpdateBean {
+/*
+{
+  "amount": 0,
+  "schoolId": 0,
+  "sectionFeeMapId": 0,
+  "studentFeeMapId": 0,
+  "studentId": 0
+}
+*/
+
+  int? amount;
+  int? schoolId;
+  int? sectionFeeMapId;
+  int? studentFeeMapId;
+  int? studentId;
+  Map<String, dynamic> __origJson = {};
+
+  StudentAnnualFeeMapUpdateBean({
+    this.amount,
+    this.schoolId,
+    this.sectionFeeMapId,
+    this.studentFeeMapId,
+    this.studentId,
+  });
+  StudentAnnualFeeMapUpdateBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    amount = json['amount']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    sectionFeeMapId = json['sectionFeeMapId']?.toInt();
+    studentFeeMapId = json['studentFeeMapId']?.toInt();
+    studentId = json['studentId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['amount'] = amount;
+    data['schoolId'] = schoolId;
+    data['sectionFeeMapId'] = sectionFeeMapId;
+    data['studentFeeMapId'] = studentFeeMapId;
+    data['studentId'] = studentId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStudentAnnualFeeMapRequest {
+/*
+{
+  "agent": 0,
+  "schoolId": 0,
+  "studentAnnualFeeMapBeanList": [
+    {
+      "amount": 0,
+      "schoolId": 0,
+      "sectionFeeMapId": 0,
+      "studentFeeMapId": 0,
+      "studentId": 0
+    }
+  ]
+}
+*/
+
+  int? agent;
+  int? schoolId;
+  List<StudentAnnualFeeMapUpdateBean?>? studentAnnualFeeMapBeanList;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentAnnualFeeMapRequest({
+    this.agent,
+    this.schoolId,
+    this.studentAnnualFeeMapBeanList,
+  });
+  CreateOrUpdateStudentAnnualFeeMapRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    if (json['studentAnnualFeeMapBeanList'] != null) {
+      final v = json['studentAnnualFeeMapBeanList'];
+      final arr0 = <StudentAnnualFeeMapUpdateBean>[];
+      v.forEach((v) {
+        arr0.add(StudentAnnualFeeMapUpdateBean.fromJson(v));
+      });
+      studentAnnualFeeMapBeanList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['schoolId'] = schoolId;
+    if (studentAnnualFeeMapBeanList != null) {
+      final v = studentAnnualFeeMapBeanList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentAnnualFeeMapBeanList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStudentAnnualFeeMapResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentAnnualFeeMapResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateStudentAnnualFeeMapResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateStudentAnnualFeeMapResponse> createOrUpdateStudentAnnualFeeMap(
+    CreateOrUpdateStudentAnnualFeeMapRequest createOrUpdateStudentAnnualFeeMapRequest) async {
+  print("Raising request to createOrUpdateStudentAnnualFeeMap with request ${jsonEncode(createOrUpdateStudentAnnualFeeMapRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_WISE_ANNUAL_FEES;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateStudentAnnualFeeMapRequest.toJson()),
+  );
+
+  CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse =
+      CreateOrUpdateStudentAnnualFeeMapResponse.fromJson(json.decode(response.body));
+  print("CreateOrUpdateStudentAnnualFeeMapResponse ${createOrUpdateStudentAnnualFeeMapResponse.toJson()}");
+  return createOrUpdateStudentAnnualFeeMapResponse;
+}

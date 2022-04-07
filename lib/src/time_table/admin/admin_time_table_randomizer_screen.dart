@@ -18,16 +18,13 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 class AdminTimeTableRandomizer extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminTimeTableRandomizer({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminTimeTableRandomizer({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminTimeTableRandomizerState createState() =>
-      _AdminTimeTableRandomizerState();
+  _AdminTimeTableRandomizerState createState() => _AdminTimeTableRandomizerState();
 }
 
-class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
-    with TickerProviderStateMixin {
+class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> with TickerProviderStateMixin {
   bool _isLoading = true;
 
   List<Section> _sectionsList = [];
@@ -75,11 +72,9 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
@@ -97,27 +92,22 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
       }
     }
 
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-        await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
     ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-        getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _sectionWiseTimeSlots =
-            getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+        _sectionWiseTimeSlots = getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
       });
     }
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
@@ -130,8 +120,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
             .map((eachTds) => _sectionWiseTimeSlots
                 .map((eachTimeSlot) => eachTimeSlot.weekId)
                 .toSet()
-                .map((eachWeekId) => TdsDailyLimitBeans(
-                    weekId: eachWeekId, tds: eachTds, dailyLimit: 1)))
+                .map((eachWeekId) => TdsDailyLimitBeans(weekId: eachWeekId, tds: eachTds, dailyLimit: 1)))
             .toList()
             .expand((i) => i)
             .toList());
@@ -148,9 +137,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _selectedSectionMap[section]!
-            ? Colors.blue[200]
-            : clayContainerColor(context),
+        color: _selectedSectionMap[section]! ? Colors.blue[200] : clayContainerColor(context),
         spread: _selectedSectionMap[section]! ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -195,19 +182,14 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
       return;
     }
 
-    CreateOrUpdateSectionWiseTimeSlotsResponse
-        createOrUpdateSectionWiseTimeSlotsResponse =
-        await createOrUpdateSectionWiseTimeSlots(
+    CreateOrUpdateSectionWiseTimeSlotsResponse createOrUpdateSectionWiseTimeSlotsResponse = await createOrUpdateSectionWiseTimeSlots(
       CreateOrUpdateSectionWiseTimeSlotsRequest(
         schoolId: widget.adminProfile.schoolId,
         agent: widget.adminProfile.userId,
-        sectionWiseTimeSlotBeans:
-            _sectionWiseTimeSlots.where((e) => e.isEdited ?? false).toList(),
+        sectionWiseTimeSlotBeans: _sectionWiseTimeSlots.where((e) => e.isEdited ?? false).toList(),
       ),
     );
-    if (createOrUpdateSectionWiseTimeSlotsResponse.httpStatus != 'OK' ||
-        createOrUpdateSectionWiseTimeSlotsResponse.responseStatus !=
-            "success") {
+    if (createOrUpdateSectionWiseTimeSlotsResponse.httpStatus != 'OK' || createOrUpdateSectionWiseTimeSlotsResponse.responseStatus != "success") {
       HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -225,9 +207,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
 
   Widget buildSectionWiseTimeSlotsForEachSection(Section section, String week) {
     List<SectionWiseTimeSlotBean> sectionWiseTimeSlotsForWeek =
-        _sectionWiseTimeSlots
-            .where((e) => section.sectionId == e.sectionId && e.week == week)
-            .toList();
+        _sectionWiseTimeSlots.where((e) => section.sectionId == e.sectionId && e.week == week).toList();
 
     return Container(
       margin: const EdgeInsets.all(10),
@@ -299,8 +279,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                   height: 50,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
                                         flex: 2,
@@ -309,8 +288,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                           child: FittedBox(
                                             fit: BoxFit.scaleDown,
                                             child: Text(
-                                              convert24To12HourFormat(
-                                                  e.startTime!),
+                                              convert24To12HourFormat(e.startTime!),
                                             ),
                                           ),
                                         ),
@@ -322,8 +300,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                           child: FittedBox(
                                             fit: BoxFit.scaleDown,
                                             child: Text(
-                                              convert24To12HourFormat(
-                                                  e.endTime!),
+                                              convert24To12HourFormat(e.endTime!),
                                             ),
                                           ),
                                         ),
@@ -334,29 +311,24 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                           height: 45,
                                           child: e.isPinned ?? false
                                               ? Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
                                                   children: [
                                                     FittedBox(
                                                       fit: BoxFit.scaleDown,
                                                       child: Text(
-                                                        (e.subjectName ?? "-")
-                                                            .capitalize(),
+                                                        (e.subjectName ?? "-").capitalize(),
                                                       ),
                                                     ),
                                                     FittedBox(
                                                       fit: BoxFit.scaleDown,
                                                       child: Text(
-                                                        (e.teacherName ?? "-")
-                                                            .capitalize(),
+                                                        (e.teacherName ?? "-").capitalize(),
                                                       ),
                                                     ),
                                                   ],
                                                 )
-                                              : buildDropdownButtonToPickTDS(
-                                                  section, e),
+                                              : buildDropdownButtonToPickTDS(section, e),
                                         ),
                                       ),
                                       InkWell(
@@ -375,14 +347,11 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                         child: Container(
                                           margin: const EdgeInsets.all(10),
                                           child: RotationTransition(
-                                            turns: const AlwaysStoppedAnimation(
-                                                45 / 360),
+                                            turns: const AlwaysStoppedAnimation(45 / 360),
                                             child: Icon(
                                               Icons.push_pin,
                                               size: 16,
-                                              color: e.isPinned ?? false
-                                                  ? Colors.blue
-                                                  : Colors.grey,
+                                              color: e.isPinned ?? false ? Colors.blue : Colors.grey,
                                             ),
                                           ),
                                         ),
@@ -400,58 +369,55 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
     );
   }
 
-  DropdownButton<TeacherDealingSection> buildDropdownButtonToPickTDS(
-      Section section, SectionWiseTimeSlotBean timeSlotToBeEdited) {
+  DropdownButton<TeacherDealingSection> buildDropdownButtonToPickTDS(Section section, SectionWiseTimeSlotBean timeSlotToBeEdited) {
     return DropdownButton(
       underline: Container(),
       isExpanded: true,
-      items:
-          (_tdsList.where((e1) => e1.sectionId == section.sectionId).toList() +
-                  [TeacherDealingSection()])
-              .map(
-                (e1) => DropdownMenuItem<TeacherDealingSection>(
-                  value: e1,
-                  child: Container(
-                    width: double.infinity,
-                    height: 35,
-                    padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
-                    margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                    child: ClayContainer(
-                      depth: 40,
-                      color: clayContainerColor(context),
-                      spread: 2,
-                      borderRadius: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 12,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                (e1.subjectName ?? "-").capitalize(),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
+      items: (_tdsList.where((e1) => e1.sectionId == section.sectionId).toList() + [TeacherDealingSection()])
+          .map(
+            (e1) => DropdownMenuItem<TeacherDealingSection>(
+              value: e1,
+              child: Container(
+                width: double.infinity,
+                height: 35,
+                padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
+                margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
+                child: ClayContainer(
+                  depth: 40,
+                  color: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height: 12,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            (e1.subjectName ?? "-").capitalize(),
+                            textAlign: TextAlign.center,
                           ),
-                          SizedBox(
-                            height: 12,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                (e1.teacherName ?? "-").capitalize(),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      SizedBox(
+                        height: 12,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            (e1.teacherName ?? "-").capitalize(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              )
-              .toList(),
+              ),
+            ),
+          )
+          .toList(),
       onChanged: (TeacherDealingSection? selectedTds) {
         if (selectedTds == TeacherDealingSection()) {
           setState(() {
@@ -469,21 +435,13 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
               .where((e) => e.sectionId != section.sectionId)
               .where((e) => e.teacherId == selectedTds!.teacherId)
               .forEach((eachTimeSlot) {
-            int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachTimeSlot.startTime!, eachTimeSlot.weekId!);
-            int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachTimeSlot.endTime!, eachTimeSlot.weekId!);
-            int startTimeForTimeSlotToBeEdited =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
-            int endTimeForTimeSlotToBeEdited =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
+            int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.startTime!, eachTimeSlot.weekId!);
+            int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.endTime!, eachTimeSlot.weekId!);
+            int startTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
+            int endTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
 
-            if ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
-                    startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
-                (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime &&
-                    endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime)) {
+            if ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
+                (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime)) {
               errorMessage =
                   "Teacher ${selectedTds!.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
             }
@@ -511,9 +469,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
           });
         }
       },
-      value: timeSlotToBeEdited.tdsId == null
-          ? null
-          : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first,
+      value: timeSlotToBeEdited.tdsId == null ? null : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first,
     );
   }
 
@@ -530,24 +486,16 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
             _sectionIndex = x;
           });
         },
-        children: _selectedSectionMap.keys
-            .where((eachSection) => _selectedSectionMap[eachSection]!)
-            .map(
+        children: _selectedSectionMap.keys.where((eachSection) => _selectedSectionMap[eachSection]!).map(
           (eachSection) {
             List<SectionWiseTimeSlotBean> sectionTimeSlotsForGivenSection =
-                _sectionWiseTimeSlots
-                    .where((e) => eachSection.sectionId == e.sectionId)
-                    .toList();
+                _sectionWiseTimeSlots.where((e) => eachSection.sectionId == e.sectionId).toList();
             double heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
-                      return sectionTimeSlotsForGivenSection
-                          .where((eachTimeSlot) =>
-                              eachTimeSlot.weekId == eachWeekId)
-                          .length;
+                      return sectionTimeSlotsForGivenSection.where((eachTimeSlot) => eachTimeSlot.weekId == eachWeekId).length;
                     }).reduce(max) *
                     50 +
                 275;
-            double widthOfEachCard =
-                (MediaQuery.of(context).size.width - 10) / crossAxisCount;
+            double widthOfEachCard = (MediaQuery.of(context).size.width - 10) / crossAxisCount;
             return SizedBox(
               width: MediaQuery.of(context).size.width - 10,
               child: Column(
@@ -584,13 +532,10 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                 crossAxisCount: crossAxisCount,
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
-                                childAspectRatio:
-                                    widthOfEachCard / heightOfEachCard,
+                                childAspectRatio: widthOfEachCard / heightOfEachCard,
                                 children: WEEKS
                                     .map(
-                                      (eachWeek) =>
-                                          buildSectionWiseTimeSlotsForEachSection(
-                                              eachSection, eachWeek),
+                                      (eachWeek) => buildSectionWiseTimeSlotsForEachSection(eachSection, eachWeek),
                                     )
                                     .toList(),
                               )
@@ -609,8 +554,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
 
   Container _tableForWeekDayTdsLimitMap(Section section) {
     List<int> weeks = _sectionWiseTimeSlots
-        .where((e) =>
-            e.sectionWiseTimeSlotId != null && e.sectionId == section.sectionId)
+        .where((e) => e.sectionWiseTimeSlotId != null && e.sectionId == section.sectionId)
         .map((e) => e.weekId!)
         .toSet()
         .toList();
@@ -649,26 +593,19 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                             child: Text(
                               "${eachTds.subjectName!.capitalize()}\n${eachTds.teacherName!.capitalize()}",
                               style: TextStyle(
-                                fontSize: MediaQuery.of(context).orientation ==
-                                        Orientation.landscape
-                                    ? 14
-                                    : 9,
+                                fontSize: MediaQuery.of(context).orientation == Orientation.landscape ? 14 : 9,
                               ),
                             ),
                           )
                         ] +
                         weeks.map((eachWeekId) {
                           TdsDailyLimitBeans? x = _tdsDailyLimit
-                                  .where((eachLimit) =>
-                                      eachWeekId == eachLimit.weekId &&
-                                      eachLimit.tds!.tdsId == eachTds.tdsId)
+                                  .where((eachLimit) => eachWeekId == eachLimit.weekId && eachLimit.tds!.tdsId == eachTds.tdsId)
                                   .toList()
                                   .isEmpty
                               ? null
                               : _tdsDailyLimit
-                                  .where((eachLimit) =>
-                                      eachWeekId == eachLimit.weekId &&
-                                      eachLimit.tds!.tdsId == eachTds.tdsId)
+                                  .where((eachLimit) => eachWeekId == eachLimit.weekId && eachLimit.tds!.tdsId == eachTds.tdsId)
                                   .toList()
                                   .first;
                           return Expanded(
@@ -678,10 +615,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                 depth: 40,
                                 color: clayContainerColor(context),
                                 borderRadius: 5,
-                                height: MediaQuery.of(context).orientation ==
-                                        Orientation.portrait
-                                    ? 25
-                                    : null,
+                                height: MediaQuery.of(context).orientation == Orientation.portrait ? 25 : null,
                                 child: Center(
                                   child: DropdownButton<int>(
                                     underline: Container(),
@@ -690,10 +624,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                     value: x!.dailyLimit,
                                     items: List.generate(
                                       _sectionWiseTimeSlots
-                                          .where((eachTimeSlot) =>
-                                              eachTimeSlot.sectionId ==
-                                                  section.sectionId &&
-                                              eachTimeSlot.weekId == eachWeekId)
+                                          .where((eachTimeSlot) => eachTimeSlot.sectionId == section.sectionId && eachTimeSlot.weekId == eachWeekId)
                                           .length,
                                       (i) => DropdownMenuItem(
                                         child: Center(
@@ -754,8 +685,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                 onTap: () {
                   HapticFeedback.vibrate();
                   setState(() {
-                    _isMoreOptionsSelectedMap[section] =
-                        !_isMoreOptionsSelectedMap[section]!;
+                    _isMoreOptionsSelectedMap[section] = !_isMoreOptionsSelectedMap[section]!;
                   });
                 },
               ),
@@ -804,8 +734,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
             ),
             onTap: () {
               setState(() {
-                _isMoreOptionsSelectedMap[section] =
-                    !_isMoreOptionsSelectedMap[section]!;
+                _isMoreOptionsSelectedMap[section] = !_isMoreOptionsSelectedMap[section]!;
               });
             },
           ),
@@ -838,9 +767,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                   child: Text(
-                    !_selectedSectionMap.values.toSet().contains(true)
-                        ? "Select a section"
-                        : "Sections:",
+                    !_selectedSectionMap.values.toSet().contains(true) ? "Select a section" : "Sections:",
                   ),
                 ),
               ),
@@ -871,8 +798,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
             childAspectRatio: 2.25,
             crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
             shrinkWrap: true,
-            children:
-                _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
+            children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
           ),
         ],
       ),
@@ -940,8 +866,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
           margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
           child: InkWell(
             onTap: () {
-              if (_sectionIndex ==
-                  _selectedSectionMap.values.where((e) => e).length - 1) return;
+              if (_sectionIndex == _selectedSectionMap.values.where((e) => e).length - 1) return;
               setState(() {
                 _isSectionPickerOpen = false;
                 _sectionIndex = _sectionIndex! + 1;
@@ -989,8 +914,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
   Widget _moreOptions(Section section) {
     return AnimatedSize(
       curve: Curves.fastOutSlowIn,
-      duration: Duration(
-          milliseconds: _isMoreOptionsSelectedMap[section]! ? 750 : 500),
+      duration: Duration(milliseconds: _isMoreOptionsSelectedMap[section]! ? 750 : 500),
       child: _selectedSectionMap.values.toSet().contains(true)
           ? _isMoreOptionsSelectedMap[section]!
               ? _moreOptionsExpanded(section)
@@ -1073,25 +997,17 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
   }
 
   Widget _previewTimeTable(Section section) {
-    List<String> allStrings = _tdsList
-            .map((e) => (e.teacherName ?? "-").capitalize())
-            .toSet()
-            .toList() +
-        _tdsList
-            .map((e) => (e.subjectName ?? "-").capitalize())
-            .toSet()
-            .toList();
+    List<String> allStrings = _tdsList.map((e) => (e.teacherName ?? "-").capitalize()).toSet().toList() +
+        _tdsList.map((e) => (e.subjectName ?? "-").capitalize()).toSet().toList();
     allStrings.sort((a, b) => a.length.compareTo(b.length));
 
     List<TimeSlot> timeSlots = _sectionWiseTimeSlots
         .where((eachTimeSlot) => eachTimeSlot.sectionId == section.sectionId)
-        .map((e) =>
-            TimeSlot(weekId: 0, startTime: (e.startTime), endTime: (e.endTime)))
+        .map((e) => TimeSlot(weekId: 0, startTime: (e.startTime), endTime: (e.endTime)))
         .toSet()
         .toList();
     double height = 25;
-    double width =
-        (MediaQuery.of(context).size.width - 21) / (timeSlots.length + 1);
+    double width = (MediaQuery.of(context).size.width - 21) / (timeSlots.length + 1);
     return RepaintBoundary(
       key: _printKeys[section],
       child: Container(
@@ -1163,8 +1079,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     child: Text(
-                                      eachWeek +
-                                          " " * (allStrings.last.length - 5),
+                                      eachWeek + " " * (allStrings.last.length - 5),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         fontFamily: 'monospace',
@@ -1175,8 +1090,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                 )
                               ] +
                               timeSlots.map((eachTimeSlot) {
-                                String res =
-                                    "N/A" + " " * (allStrings.last.length - 5);
+                                String res = "N/A" + " " * (allStrings.last.length - 5);
                                 var x = _sectionWiseTimeSlots.where((e) =>
                                     e.week == eachWeek &&
                                     e.startTime == eachTimeSlot.startTime &&
@@ -1186,21 +1100,11 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
                                   if (x.first.tdsId == null) {
                                     res = "-";
                                   } else {
-                                    res = (x.first.subjectName ?? "-")
-                                            .capitalize() +
-                                        " " *
-                                            (allStrings.last.length -
-                                                (x.first.subjectName ?? "-")
-                                                    .capitalize()
-                                                    .length) +
+                                    res = (x.first.subjectName ?? "-").capitalize() +
+                                        " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length) +
                                         "\n" +
-                                        (x.first.teacherName ?? "-")
-                                            .capitalize() +
-                                        " " *
-                                            (allStrings.last.length -
-                                                (x.first.teacherName ?? "-")
-                                                    .capitalize()
-                                                    .length);
+                                        (x.first.teacherName ?? "-").capitalize() +
+                                        " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length);
                                   }
                                 }
                                 return Container(
@@ -1240,10 +1144,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
       child: ListView(
         // shrinkWrap: true,
         // physics: NeverScrollableScrollPhysics(),
-        children: _sectionsList
-            .where((eachSection) => _selectedSectionMap[eachSection]!)
-            .map((e) => _previewTimeTable(e))
-            .toList(),
+        children: _sectionsList.where((eachSection) => _selectedSectionMap[eachSection]!).map((e) => _previewTimeTable(e)).toList(),
       ),
     );
   }
@@ -1255,30 +1156,24 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
         _isMoreOptionsSelectedMap[eachSection] = false;
       }
     });
-    if (_selectedSectionMap.values.toSet().length == 1 &&
-        _selectedSectionMap.values.toSet().contains(false)) {
+    if (_selectedSectionMap.values.toSet().length == 1 && _selectedSectionMap.values.toSet().contains(false)) {
       setState(() {
         _isRandomising = false;
       });
       return;
     }
-    RandomizeSectionWiseTimeSlotsRequest randomizeSectionWiseTimeSlotsRequest =
-        RandomizeSectionWiseTimeSlotsRequest(
+    RandomizeSectionWiseTimeSlotsRequest randomizeSectionWiseTimeSlotsRequest = RandomizeSectionWiseTimeSlotsRequest(
       tdsList: _tdsList,
       agent: widget.adminProfile.userId,
       randomisingTimeSlotList: _sectionWiseTimeSlots
           .where((e) =>
-              _selectedSectionMap.keys
-                  .where((eachSection) => _selectedSectionMap[eachSection]!)
-                  .map((e) => e.sectionId)
-                  .contains(e.sectionId) &&
+              _selectedSectionMap.keys.where((eachSection) => _selectedSectionMap[eachSection]!).map((e) => e.sectionId).contains(e.sectionId) &&
               !(e.tdsId == null && e.isPinned != null && e.isPinned!))
           .map(
             (e) => RandomisingTimeSlot(
               endTime: e.endTime,
               startTime: e.startTime,
-              tds: ((e.isPinned != null && e.isPinned!) &&
-                      _tdsList.where((e1) => e1.tdsId == e.tdsId).isNotEmpty)
+              tds: ((e.isPinned != null && e.isPinned!) && _tdsList.where((e1) => e1.tdsId == e.tdsId).isNotEmpty)
                   ? _tdsList.where((e1) => e1.tdsId == e.tdsId).first
                   : null,
               timeSlotId: e.sectionWiseTimeSlotId,
@@ -1293,9 +1188,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
       sectionWiseTimeSlotBeanList: _sectionWiseTimeSlots,
     );
 
-    RandomizeSectionWiseTimeSlotsResponse response =
-        await randomizeSectionWiseTimeSlots(
-            randomizeSectionWiseTimeSlotsRequest);
+    RandomizeSectionWiseTimeSlotsResponse response = await randomizeSectionWiseTimeSlots(randomizeSectionWiseTimeSlotsRequest);
 
     if (response.httpStatus != 'OK' || response.responseStatus != "success") {
       HapticFeedback.vibrate();
@@ -1312,9 +1205,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer>
 
     for (var newSlot in response.sectionWiseTimeSlotBeanList!) {
       _sectionWiseTimeSlots
-          .where((oldSlot) =>
-              oldSlot.sectionWiseTimeSlotId == newSlot.sectionWiseTimeSlotId &&
-              newSlot.tdsId != null)
+          .where((oldSlot) => oldSlot.sectionWiseTimeSlotId == newSlot.sectionWiseTimeSlotId && newSlot.tdsId != null)
           .forEach((oldSlot) {
         setState(() {
           oldSlot.tdsId = newSlot.tdsId;

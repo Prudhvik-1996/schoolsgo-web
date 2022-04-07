@@ -14,17 +14,13 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 class AdminTeacherDealingSectionsScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminTeacherDealingSectionsScreen(
-      {Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminTeacherDealingSectionsScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminTeacherDealingSectionsScreenState createState() =>
-      _AdminTeacherDealingSectionsScreenState();
+  _AdminTeacherDealingSectionsScreenState createState() => _AdminTeacherDealingSectionsScreenState();
 }
 
-class _AdminTeacherDealingSectionsScreenState
-    extends State<AdminTeacherDealingSectionsScreen> {
+class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingSectionsScreen> {
   late bool _isLoading;
   late bool _isEditMode;
 
@@ -52,57 +48,45 @@ class _AdminTeacherDealingSectionsScreenState
       _sectionsList = [];
       _tdsList = [];
       _newTds = TeacherDealingSection(
-        sectionId:
-            _selectedSection != null ? _selectedSection!.sectionId : null,
-        sectionName:
-            _selectedSection != null ? _selectedSection!.sectionName : null,
+        sectionId: _selectedSection != null ? _selectedSection!.sectionId : null,
+        sectionName: _selectedSection != null ? _selectedSection!.sectionName : null,
       );
     });
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
-    GetTeachersRequest getTeachersRequest =
-        GetTeachersRequest(schoolId: widget.adminProfile.schoolId);
-    GetTeachersResponse getTeachersResponse =
-        await getTeachers(getTeachersRequest);
+    GetTeachersRequest getTeachersRequest = GetTeachersRequest(schoolId: widget.adminProfile.schoolId);
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
       });
     }
 
-    GetSubjectsRequest getSubjectsRequest =
-        GetSubjectsRequest(schoolId: widget.adminProfile.schoolId);
-    GetSubjectsResponse getSubjectsResponse =
-        await getSubjects(getSubjectsRequest);
+    GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(schoolId: widget.adminProfile.schoolId);
+    GetSubjectsResponse getSubjectsResponse = await getSubjects(getSubjectsRequest);
 
-    if (getSubjectsResponse.httpStatus == "OK" &&
-        getSubjectsResponse.responseStatus == "success") {
+    if (getSubjectsResponse.httpStatus == "OK" && getSubjectsResponse.responseStatus == "success") {
       setState(() {
         _subjectsList = getSubjectsResponse.subjects!.map((e) => e!).toList();
       });
     }
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
@@ -117,8 +101,7 @@ class _AdminTeacherDealingSectionsScreenState
       _isLoading = true;
     });
 
-    List<TeacherDealingSection> _editedTds =
-        _tdsList.where((e) => e.isEdited).toList();
+    List<TeacherDealingSection> _editedTds = _tdsList.where((e) => e.isEdited).toList();
     print("120: $_editedTds");
 
     if (_editedTds.isEmpty) {
@@ -128,22 +111,16 @@ class _AdminTeacherDealingSectionsScreenState
       return;
     }
 
-    CreateOrUpdateTeacherDealingSectionsRequest
-        createOrUpdateTeacherDealingSectionsRequest =
-        CreateOrUpdateTeacherDealingSectionsRequest(
+    CreateOrUpdateTeacherDealingSectionsRequest createOrUpdateTeacherDealingSectionsRequest = CreateOrUpdateTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
       agentId: widget.adminProfile.userId,
       tdsList: _editedTds,
     );
 
-    CreateOrUpdateTeacherDealingSectionsResponse
-        createOrUpdateTeacherDealingSectionsResponse =
-        await createOrUpdateTeacherDealingSections(
-            createOrUpdateTeacherDealingSectionsRequest);
+    CreateOrUpdateTeacherDealingSectionsResponse createOrUpdateTeacherDealingSectionsResponse =
+        await createOrUpdateTeacherDealingSections(createOrUpdateTeacherDealingSectionsRequest);
 
-    if (createOrUpdateTeacherDealingSectionsResponse.httpStatus != 'OK' ||
-        createOrUpdateTeacherDealingSectionsResponse.responseStatus !=
-            "success") {
+    if (createOrUpdateTeacherDealingSectionsResponse.httpStatus != 'OK' || createOrUpdateTeacherDealingSectionsResponse.responseStatus != "success") {
       HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -197,9 +174,7 @@ class _AdminTeacherDealingSectionsScreenState
       margin: const EdgeInsets.all(5),
       child: ClayContainer(
         depth: 40,
-        color: _selectedSection == section
-            ? Theme.of(context).primaryColor.withOpacity(0.4)
-            : clayContainerColor(context),
+        color: _selectedSection == section ? Theme.of(context).primaryColor.withOpacity(0.4) : clayContainerColor(context),
         spread: _selectedSection == section ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -256,15 +231,12 @@ class _AdminTeacherDealingSectionsScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _selectedSection == null
-                      ? "Select a section"
-                      : "Section: ${_selectedSection!.sectionName}",
+                  _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
                 ),
                 _editModeButton(),
               ],
             ),
-            backgroundColor:
-                Theme.of(context).colorScheme.secondary.withOpacity(0.025),
+            backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.025),
             children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(7),
@@ -273,9 +245,7 @@ class _AdminTeacherDealingSectionsScreenState
                   childAspectRatio: 2.25,
                   crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
-                  children: _sectionsList
-                      .map((e) => buildSectionCheckBox(e))
-                      .toList(),
+                  children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
                 ),
               ),
             ],
@@ -528,12 +498,8 @@ class _AdminTeacherDealingSectionsScreenState
           padding: const EdgeInsets.all(25),
           child: Column(
             children: _tdsList
-                    .where((e) =>
-                        e.sectionId == _selectedSection!.sectionId &&
-                        e.status == 'active')
-                    .map((e) => _isEditMode
-                        ? _buildTDSWidgetEditMode(e)
-                        : _buildTDSWidgetViewMode(e))
+                    .where((e) => e.sectionId == _selectedSection!.sectionId && e.status == 'active')
+                    .map((e) => _isEditMode ? _buildTDSWidgetEditMode(e) : _buildTDSWidgetViewMode(e))
                     .toList() +
                 [_isEditMode ? _buildNewTdsWidget() : Container()],
           ),
@@ -567,11 +533,8 @@ class _AdminTeacherDealingSectionsScreenState
                   _buildSectionsFilter(),
                   // Text("$_selectedSection"),
                   Container(
-                    padding: EdgeInsets.fromLTRB(
-                        screenWidth / 4, 0, screenWidth / 4, 0),
-                    child: _selectedSection != null
-                        ? _buildTDSWidgets()
-                        : Container(),
+                    padding: EdgeInsets.fromLTRB(screenWidth / 4, 0, screenWidth / 4, 0),
+                    child: _selectedSection != null ? _buildTDSWidgets() : Container(),
                   ),
                 ],
               ),

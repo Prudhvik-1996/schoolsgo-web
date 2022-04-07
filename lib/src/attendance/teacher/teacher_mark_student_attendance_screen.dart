@@ -18,12 +18,10 @@ class TeacherMarkStudentAttendanceScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TeacherMarkStudentAttendanceScreenState createState() =>
-      _TeacherMarkStudentAttendanceScreenState();
+  _TeacherMarkStudentAttendanceScreenState createState() => _TeacherMarkStudentAttendanceScreenState();
 }
 
-class _TeacherMarkStudentAttendanceScreenState
-    extends State<TeacherMarkStudentAttendanceScreen> {
+class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentAttendanceScreen> {
   bool _isLoading = true;
   bool _isEditMode = false;
 
@@ -56,19 +54,16 @@ class _TeacherMarkStudentAttendanceScreenState
       _isLoading = true;
     });
 
-    GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse =
-        await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
+    GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.teacherProfile.schoolId,
       date: convertDateTimeToYYYYMMDDFormat(widget.selectedDate),
       sectionId: widget.attendanceTimeSlotBean.sectionId,
       teacherId: widget.teacherProfile.teacherId,
       attendanceTimeSlotId: widget.attendanceTimeSlotBean.attendanceTimeSlotId,
     ));
-    if (getStudentAttendanceBeansResponse.httpStatus == "OK" &&
-        getStudentAttendanceBeansResponse.responseStatus == "success") {
+    if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {
-        _studentAttendanceBeans =
-            getStudentAttendanceBeansResponse.studentAttendanceBeans!;
+        _studentAttendanceBeans = getStudentAttendanceBeansResponse.studentAttendanceBeans!;
         _studentProfiles = _studentAttendanceBeans
             .map(
               (e) => StudentProfile(
@@ -80,8 +75,7 @@ class _TeacherMarkStudentAttendanceScreenState
             )
             .toSet()
             .toList();
-        _studentProfiles.sort((a, b) => (int.tryParse(a.rollNumber!) ?? 0)
-            .compareTo((int.tryParse(b.rollNumber!) ?? 0)));
+        _studentProfiles.sort((a, b) => (int.tryParse(a.rollNumber!) ?? 0).compareTo((int.tryParse(b.rollNumber!) ?? 0)));
       });
     }
 
@@ -105,23 +99,15 @@ class _TeacherMarkStudentAttendanceScreenState
                   setState(() {
                     _isLoading = true;
                   });
-                  CreateOrUpdateStudentAttendanceRequest
-                      createOrUpdateStudentAttendanceRequest =
-                      CreateOrUpdateStudentAttendanceRequest(
+                  CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest = CreateOrUpdateStudentAttendanceRequest(
                     schoolId: widget.teacherProfile.schoolId,
                     agent: widget.teacherProfile.teacherId,
-                    studentAttendanceBeans: _studentAttendanceBeans
-                        .where((e) => e.isEdited ?? false)
-                        .toList(),
+                    studentAttendanceBeans: _studentAttendanceBeans.where((e) => e.isEdited ?? false).toList(),
                   );
-                  CreateOrUpdateStudentAttendanceResponse
-                      createOrUpdateStudentAttendanceResponse =
-                      await createOrUpdateStudentAttendance(
-                          createOrUpdateStudentAttendanceRequest);
-                  if (createOrUpdateStudentAttendanceResponse.httpStatus ==
-                          "OK" &&
-                      createOrUpdateStudentAttendanceResponse.responseStatus ==
-                          "success") {
+                  CreateOrUpdateStudentAttendanceResponse createOrUpdateStudentAttendanceResponse =
+                      await createOrUpdateStudentAttendance(createOrUpdateStudentAttendanceRequest);
+                  if (createOrUpdateStudentAttendanceResponse.httpStatus == "OK" &&
+                      createOrUpdateStudentAttendanceResponse.responseStatus == "success") {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Success!"),
@@ -184,9 +170,7 @@ class _TeacherMarkStudentAttendanceScreenState
               String _rollNumber = "N/A";
               String _name = "N/A";
 
-              _rollNumber = _eachStudent.rollNumber == null
-                  ? "N/A"
-                  : _eachStudent.rollNumber.toString();
+              _rollNumber = _eachStudent.rollNumber == null ? "N/A" : _eachStudent.rollNumber.toString();
               _name = _eachStudent.studentFirstName!;
 
               return Container(
@@ -208,8 +192,7 @@ class _TeacherMarkStudentAttendanceScreenState
     );
   }
 
-  Widget markAttendanceButton(
-      StudentAttendanceBean studentAttendanceBean, int markPresent) {
+  Widget markAttendanceButton(StudentAttendanceBean studentAttendanceBean, int markPresent) {
     return GestureDetector(
       child: Container(
         height: 50,
@@ -291,15 +274,13 @@ class _TeacherMarkStudentAttendanceScreenState
       ),
       onTap: () {
         _studentAttendanceBeans
-            .where((eachStudentAttendanceBean) =>
-                eachStudentAttendanceBean.attendanceTimeSlotId == atsId)
+            .where((eachStudentAttendanceBean) => eachStudentAttendanceBean.attendanceTimeSlotId == atsId)
             .forEach((eachStudentAttendanceBean) {
           setState(() {
             eachStudentAttendanceBean.isPresent = markPresent;
             eachStudentAttendanceBean.agent = widget.teacherProfile.teacherId;
             eachStudentAttendanceBean.isEdited = true;
-            eachStudentAttendanceBean.markedById =
-                widget.teacherProfile.teacherId;
+            eachStudentAttendanceBean.markedById = widget.teacherProfile.teacherId;
           });
         });
       },
@@ -330,8 +311,7 @@ class _TeacherMarkStudentAttendanceScreenState
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
@@ -344,8 +324,7 @@ class _TeacherMarkStudentAttendanceScreenState
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   markAttendanceForAllStudentsButton(
@@ -367,8 +346,7 @@ class _TeacherMarkStudentAttendanceScreenState
                         : Center(
                             child: Text(
                               "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}\n${e.managerName}",
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                   );
@@ -377,15 +355,10 @@ class _TeacherMarkStudentAttendanceScreenState
             ] +
             _studentProfiles
                 .map((eachStudent) => Row(
-                      children:
-                          [widget.attendanceTimeSlotBean].map((eachATSBean) {
-                        StudentAttendanceBean studentAttendanceBean =
-                            _studentAttendanceBeans
-                                .where((e) =>
-                                    e.studentId == eachStudent.studentId &&
-                                    e.attendanceTimeSlotId ==
-                                        eachATSBean.attendanceTimeSlotId)
-                                .first;
+                      children: [widget.attendanceTimeSlotBean].map((eachATSBean) {
+                        StudentAttendanceBean studentAttendanceBean = _studentAttendanceBeans
+                            .where((e) => e.studentId == eachStudent.studentId && e.attendanceTimeSlotId == eachATSBean.attendanceTimeSlotId)
+                            .first;
                         return GestureDetector(
                           onLongPress: () {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -412,15 +385,11 @@ class _TeacherMarkStudentAttendanceScreenState
                             child: _isEditMode
                                 ? Center(
                                     child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                       children: <Widget>[
-                                        markAttendanceButton(
-                                            studentAttendanceBean, 1),
-                                        markAttendanceButton(
-                                            studentAttendanceBean, -1),
+                                        markAttendanceButton(studentAttendanceBean, 1),
+                                        markAttendanceButton(studentAttendanceBean, -1),
                                       ],
                                     ),
                                   )

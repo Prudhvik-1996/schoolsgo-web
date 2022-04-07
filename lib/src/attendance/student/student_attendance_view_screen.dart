@@ -17,16 +17,13 @@ class StudentAttendanceViewScreen extends StatefulWidget {
 
   static const routeName = "/attendance";
 
-  const StudentAttendanceViewScreen({Key? key, required this.studentProfile})
-      : super(key: key);
+  const StudentAttendanceViewScreen({Key? key, required this.studentProfile}) : super(key: key);
 
   @override
-  _StudentAttendanceViewScreenState createState() =>
-      _StudentAttendanceViewScreenState();
+  _StudentAttendanceViewScreenState createState() => _StudentAttendanceViewScreenState();
 }
 
-class _StudentAttendanceViewScreenState
-    extends State<StudentAttendanceViewScreen> {
+class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScreen> {
   bool _isLoading = true;
 
   List<StudentAttendanceBean> _studentAttendanceBeans = [];
@@ -58,52 +55,34 @@ class _StudentAttendanceViewScreenState
       _selectedDate = null;
     });
 
-    GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse =
-        await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
+    GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.studentProfile.schoolId,
       studentId: widget.studentProfile.studentId,
       sectionId: widget.studentProfile.sectionId,
     ));
-    if (getStudentAttendanceBeansResponse.httpStatus == "OK" &&
-        getStudentAttendanceBeansResponse.responseStatus == "success") {
+    if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {
-        _studentAttendanceBeans =
-            getStudentAttendanceBeansResponse.studentAttendanceBeans!;
+        _studentAttendanceBeans = getStudentAttendanceBeansResponse.studentAttendanceBeans!;
       });
     }
     setState(() {
-      _availableDates = _studentAttendanceBeans
-          .where((e) => e.startTime != null)
-          .map((e) => e.date)
-          .toSet()
-          .toList();
+      _availableDates = _studentAttendanceBeans.where((e) => e.startTime != null).map((e) => e.date).toSet().toList();
     });
 
     _studentAttendanceBeans.map((e) => e.date).toSet().forEach((eachDate) {
-      List<StudentAttendanceBean> iterableSlots = _studentAttendanceBeans
-          .where((e) => e.date == eachDate)
-          .where((e) => e.startTime != null)
-          .toList();
+      List<StudentAttendanceBean> iterableSlots = _studentAttendanceBeans.where((e) => e.date == eachDate).where((e) => e.startTime != null).toList();
 
       if (iterableSlots.isNotEmpty) {
         setState(() {
           int totalSlotsPerDay = iterableSlots.length;
-          int unmarkedSlotsPerDay = iterableSlots
-              .where((e) => e.isPresent == null || e.isPresent == 0)
-              .length;
-          int markedPresentSlotsPerDay = iterableSlots
-              .where((e) => e.isPresent != null && e.isPresent == 1)
-              .length;
-          int markedAbsentSlotsPerDay = iterableSlots
-              .where((e) => e.isPresent != null && e.isPresent == -1)
-              .length;
+          int unmarkedSlotsPerDay = iterableSlots.where((e) => e.isPresent == null || e.isPresent == 0).length;
+          int markedPresentSlotsPerDay = iterableSlots.where((e) => e.isPresent != null && e.isPresent == 1).length;
+          int markedAbsentSlotsPerDay = iterableSlots.where((e) => e.isPresent != null && e.isPresent == -1).length;
 
           if (unmarkedSlotsPerDay != totalSlotsPerDay) {
             totalDays += 1;
-            presentDays += markedPresentSlotsPerDay /
-                (totalSlotsPerDay - unmarkedSlotsPerDay);
-            absentDays += markedAbsentSlotsPerDay /
-                (totalSlotsPerDay - unmarkedSlotsPerDay);
+            presentDays += markedPresentSlotsPerDay / (totalSlotsPerDay - unmarkedSlotsPerDay);
+            absentDays += markedAbsentSlotsPerDay / (totalSlotsPerDay - unmarkedSlotsPerDay);
           }
         });
       }
@@ -121,10 +100,7 @@ class _StudentAttendanceViewScreenState
       _dateWiseAttendanceBeans = [];
     });
     _studentAttendanceBeans.map((e) => e.date).toSet().forEach((eachDate) {
-      List<StudentAttendanceBean> iterableSlots = _studentAttendanceBeans
-          .where((e) => e.date == eachDate)
-          .where((e) => e.startTime != null)
-          .toList();
+      List<StudentAttendanceBean> iterableSlots = _studentAttendanceBeans.where((e) => e.date == eachDate).where((e) => e.startTime != null).toList();
 
       if (iterableSlots.isNotEmpty) {
         setState(() {
@@ -185,14 +161,11 @@ class _StudentAttendanceViewScreenState
                                       builder: (BuildContext context) {
                                         return AlertDialog(
                                           title: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                             children: [
                                               Text(
-                                                convertDateToDDMMMYYYEEEE(
-                                                    eachDate),
+                                                convertDateToDDMMMYYYEEEE(eachDate),
                                               ),
                                               Text(
                                                 '${convert24To12HourFormat(e.startTime!)} : ${convert24To12HourFormat(e.endTime!)}',
@@ -204,18 +177,14 @@ class _StudentAttendanceViewScreenState
                                               Expanded(
                                                 flex: 2,
                                                 child: Text(
-                                                  (e.isPresent == null ||
-                                                              e.isPresent == 0
-                                                          ? "Attendance manager:"
-                                                          : "Marked by:") +
+                                                  (e.isPresent == null || e.isPresent == 0 ? "Attendance manager:" : "Marked by:") +
                                                       "\n" +
                                                       "${e.managerName}",
                                                 ),
                                               ),
                                               Expanded(
                                                 flex: 1,
-                                                child: e.isPresent == null ||
-                                                        e.isPresent == 0
+                                                child: e.isPresent == null || e.isPresent == 0
                                                     ? Image.asset(
                                                         'assets/images/empty_stroke.png',
                                                         height: 50,
@@ -242,28 +211,24 @@ class _StudentAttendanceViewScreenState
                                   child: ClayButton(
                                     depth: 20,
                                     spread: 1,
-                                    color:
-                                        e.isPresent == null || e.isPresent == 0
-                                            ? clayContainerColor(context)
-                                            : e.isPresent == 1
-                                                ? const Color(0xFFBCF78A)
-                                                : const Color(0xFFF88C6C),
-                                    surfaceColor:
-                                        e.isPresent == null || e.isPresent == 0
-                                            ? clayContainerColor(context)
-                                            : e.isPresent == 1
-                                                ? const Color(0xFFBCF78A)
-                                                : const Color(0xFFF88C6C),
+                                    color: e.isPresent == null || e.isPresent == 0
+                                        ? clayContainerColor(context)
+                                        : e.isPresent == 1
+                                            ? const Color(0xFFBCF78A)
+                                            : const Color(0xFFF88C6C),
+                                    surfaceColor: e.isPresent == null || e.isPresent == 0
+                                        ? clayContainerColor(context)
+                                        : e.isPresent == 1
+                                            ? const Color(0xFFBCF78A)
+                                            : const Color(0xFFF88C6C),
                                     borderRadius: 10,
                                     child: Container(
                                       margin: const EdgeInsets.all(8),
                                       padding: const EdgeInsets.all(8),
                                       child: ClayText(
                                         convert24To12HourFormat(e.startTime!),
-                                        textColor:
-                                            clayContainerTextColor(context),
-                                        parentColor:
-                                            clayContainerColor(context),
+                                        textColor: clayContainerTextColor(context),
+                                        parentColor: clayContainerColor(context),
                                         color: clayContainerColor(context),
                                         emboss: true,
                                         size: 15,
@@ -305,8 +270,7 @@ class _StudentAttendanceViewScreenState
           DateTime? _newDate = await showDatePicker(
             context: context,
             selectableDayPredicate: (DateTime val) {
-              return _availableDates
-                  .contains(convertDateTimeToYYYYMMDDFormat(val));
+              return _availableDates.contains(convertDateTimeToYYYYMMDDFormat(val));
             },
             initialDate: DateTime.parse(_availableDates.first!),
             firstDate: DateTime.parse(_availableDates.last!),
@@ -317,8 +281,7 @@ class _StudentAttendanceViewScreenState
           setState(() {
             _selectedDate = _newDate;
             _itemScrollController.scrollTo(
-              index: _availableDates
-                  .indexOf(convertDateTimeToYYYYMMDDFormat(_selectedDate!)),
+              index: _availableDates.indexOf(convertDateTimeToYYYYMMDDFormat(_selectedDate!)),
               duration: const Duration(seconds: 1),
               curve: Curves.easeInOutCubic,
             );
@@ -399,8 +362,7 @@ class _StudentAttendanceViewScreenState
                 child: ScrollablePositionedList.builder(
                   itemScrollController: _itemScrollController,
                   itemCount: _dateWiseAttendanceBeans.length,
-                  itemBuilder: (context, index) =>
-                      _dateWiseAttendanceBeans[index],
+                  itemBuilder: (context, index) => _dateWiseAttendanceBeans[index],
                 ),
               ),
             ],
@@ -434,8 +396,7 @@ class _StudentAttendanceViewScreenState
                 child: ScrollablePositionedList.builder(
                   itemScrollController: _itemScrollController,
                   itemCount: _dateWiseAttendanceBeans.length,
-                  itemBuilder: (context, index) =>
-                      _dateWiseAttendanceBeans[index],
+                  itemBuilder: (context, index) => _dateWiseAttendanceBeans[index],
                 ),
               ),
             ],
@@ -497,11 +458,7 @@ class _StudentAttendanceViewScreenState
                       lineWidth: 15.0,
                       percent: totalDays == 0 ? 0 : presentDays / totalDays,
                       center: Text(
-                        totalDays == 0
-                            ? "N/A"
-                            : (presentDays * 100.0 / totalDays)
-                                    .toStringAsFixed(2) +
-                                " %",
+                        totalDays == 0 ? "N/A" : (presentDays * 100.0 / totalDays).toStringAsFixed(2) + " %",
                       ),
                       progressColor: Colors.blueAccent,
                       circularStrokeCap: CircularStrokeCap.round,

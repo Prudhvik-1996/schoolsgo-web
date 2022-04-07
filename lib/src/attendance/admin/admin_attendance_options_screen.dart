@@ -10,18 +10,14 @@ import 'admin_mark_attendance_screen.dart';
 class AdminAttendanceOptionsScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminAttendanceOptionsScreen({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminAttendanceOptionsScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminAttendanceOptionsScreenState createState() =>
-      _AdminAttendanceOptionsScreenState();
+  _AdminAttendanceOptionsScreenState createState() => _AdminAttendanceOptionsScreenState();
 }
 
-class _AdminAttendanceOptionsScreenState
-    extends State<AdminAttendanceOptionsScreen> {
-  Widget _getAttendanceOption(
-      String title, String? description, StatefulWidget nextWidget) {
+class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScreen> {
+  Widget _getAttendanceOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {

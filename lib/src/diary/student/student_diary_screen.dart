@@ -57,18 +57,15 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.studentProfile.schoolId,
     );
-    GetTeachersResponse getTeachersResponse =
-        await getTeachers(getTeachersRequest);
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
         if (_teachersList.length == 1) {
           _selectedTeacher = _teachersList[0];
         } else {
-          _teachersList.sort((a, b) =>
-              (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
+          _teachersList.sort((a, b) => (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
         }
       });
     }
@@ -77,33 +74,27 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
       schoolId: widget.studentProfile.schoolId,
       sectionId: widget.studentProfile.sectionId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
         if (_sectionsList.length == 1) {
           _selectedSection = _sectionsList[0];
         } else {
-          _sectionsList
-              .sort((b, a) => (a.sectionId ?? 0).compareTo((b.sectionId ?? 0)));
+          _sectionsList.sort((b, a) => (a.sectionId ?? 0).compareTo((b.sectionId ?? 0)));
         }
       });
     }
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.studentProfile.schoolId,
       sectionId: widget.studentProfile.sectionId,
     ));
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
-        _filteredTdsList =
-            getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _filteredTdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
     }
 
@@ -127,21 +118,12 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
         date: _selectedDate.millisecondsSinceEpoch,
       ),
     );
-    if (getDiaryResponse.httpStatus == "OK" &&
-        getDiaryResponse.responseStatus == "success") {
+    if (getDiaryResponse.httpStatus == "OK" && getDiaryResponse.responseStatus == "success") {
       setState(() {
-        _diaryList = getDiaryResponse.sectionDiaryList!
-            .map((e) => e!.diaryEntries!.map((e) => e!))
-            .expand((e) => e)
-            .toList();
-        _diaryList
-            .sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
-        _filteredDiaryList = getDiaryResponse.sectionDiaryList!
-            .map((e) => e!.diaryEntries!.map((e) => e!))
-            .expand((e) => e)
-            .toList();
-        _filteredDiaryList
-            .sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
+        _diaryList = getDiaryResponse.sectionDiaryList!.map((e) => e!.diaryEntries!.map((e) => e!)).expand((e) => e).toList();
+        _diaryList.sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
+        _filteredDiaryList = getDiaryResponse.sectionDiaryList!.map((e) => e!.diaryEntries!.map((e) => e!)).expand((e) => e).toList();
+        _filteredDiaryList.sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
       });
     }
 
@@ -162,22 +144,14 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
     });
     if (_selectedTeacher != null) {
       setState(() {
-        _filteredTdsList = _filteredTdsList
-            .where((e) => e.teacherId == _selectedTeacher!.teacherId)
-            .toList();
-        _filteredDiaryList = _filteredDiaryList
-            .where((e) => e.teacherId == _selectedTeacher!.teacherId)
-            .toList();
+        _filteredTdsList = _filteredTdsList.where((e) => e.teacherId == _selectedTeacher!.teacherId).toList();
+        _filteredDiaryList = _filteredDiaryList.where((e) => e.teacherId == _selectedTeacher!.teacherId).toList();
       });
     }
     if (_selectedSection != null) {
       setState(() {
-        _filteredTdsList = _filteredTdsList
-            .where((e) => e.sectionId == _selectedSection!.sectionId)
-            .toList();
-        _filteredDiaryList = _filteredDiaryList
-            .where((e) => e.sectionId == _selectedSection!.sectionId)
-            .toList();
+        _filteredTdsList = _filteredTdsList.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
+        _filteredDiaryList = _filteredDiaryList.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
       });
     }
     setState(() {
@@ -231,9 +205,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
         _applyFilters();
       },
       items: _teachersList
-          .where((teacher) => _filteredTdsList
-              .map((tds) => tds.teacherId)
-              .contains(teacher.teacherId))
+          .where((teacher) => _filteredTdsList.map((tds) => tds.teacherId).contains(teacher.teacherId))
           .map(
             (e) => DropdownMenuItem<Teacher>(
               value: e,
@@ -317,9 +289,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
         _applyFilters();
       },
       items: _sectionsList
-          .where((section) => _filteredTdsList
-              .map((tds) => tds.sectionId)
-              .contains(section.sectionId))
+          .where((section) => _filteredTdsList.map((tds) => tds.sectionId).contains(section.sectionId))
           .map(
             (e) => DropdownMenuItem<Section>(
               value: e,
@@ -403,10 +373,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
         message: "Previous Day",
         child: InkWell(
           onTap: () {
-            if (_selectedDate.millisecondsSinceEpoch ==
-                DateTime.now()
-                    .subtract(const Duration(days: 364))
-                    .millisecondsSinceEpoch) return;
+            if (_selectedDate.millisecondsSinceEpoch == DateTime.now().subtract(const Duration(days: 364)).millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.subtract(const Duration(days: 1));
             });
@@ -432,8 +399,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
         message: "Next Day",
         child: InkWell(
           onTap: () {
-            if (_selectedDate.millisecondsSinceEpoch ==
-                DateTime.now().millisecondsSinceEpoch) return;
+            if (_selectedDate.millisecondsSinceEpoch == DateTime.now().millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.add(const Duration(days: 1));
             });
@@ -455,8 +421,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
   Container _getDiaryWidget(Diary diary) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
@@ -518,8 +483,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
           margin: const EdgeInsets.all(10),
           child: Text(
             diary.assignment ?? "-",
-            textAlign:
-                diary.assignment == null ? TextAlign.center : TextAlign.justify,
+            textAlign: diary.assignment == null ? TextAlign.center : TextAlign.justify,
           ),
         ),
       ),
@@ -600,8 +564,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
           : ListView(
               children: <Widget>[
                     Container(
-                      child: MediaQuery.of(context).orientation ==
-                              Orientation.landscape
+                      child: MediaQuery.of(context).orientation == Orientation.landscape
                           ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

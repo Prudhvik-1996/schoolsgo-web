@@ -13,16 +13,14 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class StudentSuggestionBoxView extends StatefulWidget {
-  const StudentSuggestionBoxView({Key? key, required this.studentProfile})
-      : super(key: key);
+  const StudentSuggestionBoxView({Key? key, required this.studentProfile}) : super(key: key);
 
   final StudentProfile studentProfile;
 
   static const routeName = "/suggestion_box";
 
   @override
-  _StudentSuggestionBoxViewState createState() =>
-      _StudentSuggestionBoxViewState();
+  _StudentSuggestionBoxViewState createState() => _StudentSuggestionBoxViewState();
 }
 
 class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
@@ -70,47 +68,37 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.studentProfile.schoolId,
     );
-    GetTeachersResponse getTeachersResponse =
-        await getTeachers(getTeachersRequest);
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
         if (_teachersList.length == 1) {
           _selectedTeacher = _teachersList[0];
         } else {
-          _teachersList.sort((a, b) =>
-              (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
+          _teachersList.sort((a, b) => (a.teacherName ?? "-").compareTo((b.teacherName ?? "-")));
         }
       });
     }
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.studentProfile.schoolId,
     ));
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
-        _filteredTdsList =
-            getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _filteredTdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
     }
 
-    GetSuggestionBoxResponse getSuggestionBoxResponse =
-        await getSuggestionBox(GetSuggestionBoxRequest(
+    GetSuggestionBoxResponse getSuggestionBoxResponse = await getSuggestionBox(GetSuggestionBoxRequest(
       schoolId: widget.studentProfile.schoolId,
       postingStudentId: widget.studentProfile.studentId,
     ));
-    if (getSuggestionBoxResponse.httpStatus == "OK" &&
-        getSuggestionBoxResponse.responseStatus == "success") {
+    if (getSuggestionBoxResponse.httpStatus == "OK" && getSuggestionBoxResponse.responseStatus == "success") {
       setState(() {
-        _suggestions =
-            getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
-        _filteredSuggestions =
-            getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
+        _suggestions = getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
+        _filteredSuggestions = getSuggestionBoxResponse.complaintBeans!.map((e) => e!).toList();
       });
     }
 
@@ -126,16 +114,12 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
       _isLoading = true;
     });
     setState(() {
-      _filteredTdsList = _tdsList
-          .where((e) => e.sectionId == widget.studentProfile.sectionId)
-          .toList();
+      _filteredTdsList = _tdsList.where((e) => e.sectionId == widget.studentProfile.sectionId).toList();
       _filteredSuggestions = _suggestions;
     });
     if (_selectedComplainStatus != null) {
       setState(() {
-        _filteredSuggestions = _filteredSuggestions
-            .where((e) => e.complainStatus == _selectedComplainStatus)
-            .toList();
+        _filteredSuggestions = _filteredSuggestions.where((e) => e.complainStatus == _selectedComplainStatus).toList();
       });
     }
     setState(() {
@@ -146,8 +130,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
   Container _getSuggestionWidget(Suggestion suggestion) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
@@ -167,9 +150,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                 children: [
                   Expanded(
                     child: Text(
-                      suggestion.anonymous!
-                          ? "Anonymous"
-                          : "Section: ${suggestion.sectionName}",
+                      suggestion.anonymous! ? "Anonymous" : "Section: ${suggestion.sectionName}",
                       style: TextStyle(
                         color: (suggestion.anonymous!) ? null : Colors.blue,
                       ),
@@ -183,19 +164,13 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                         Text(
                           "${suggestion.complainStatus}",
                           textAlign: TextAlign.end,
-                          style: TextStyle(
-                              color: suggestion.complainStatus == "INITIATED"
-                                  ? Colors.red
-                                  : Colors.green),
+                          style: TextStyle(color: suggestion.complainStatus == "INITIATED" ? Colors.red : Colors.green),
                         ),
-                        if (_isEditMode &&
-                            suggestion.complainStatus != "RESOLVED")
+                        if (_isEditMode && suggestion.complainStatus != "RESOLVED")
                           const SizedBox(
                             width: 15,
                           ),
-                        _isEditMode && suggestion.complainStatus != "RESOLVED"
-                            ? buildDeleteButton(suggestion)
-                            : Container(),
+                        _isEditMode && suggestion.complainStatus != "RESOLVED" ? buildDeleteButton(suggestion) : Container(),
                       ],
                     ),
                   ),
@@ -207,17 +182,12 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                 children: [
                   Expanded(
                     child: Text(
-                      suggestion.anonymous!
-                          ? ""
-                          : "Student Name: ${suggestion.postingStudentName}",
+                      suggestion.anonymous! ? "" : "Student Name: ${suggestion.postingStudentName}",
                     ),
                   ),
                   Expanded(
                     child: Text(
-                      "Raised Against: " +
-                          (suggestion.teacherId == null
-                              ? "${widget.studentProfile.schoolName}"
-                              : "${suggestion.teacherName}"),
+                      "Raised Against: " + (suggestion.teacherId == null ? "${widget.studentProfile.schoolName}" : "${suggestion.teacherName}"),
                       textAlign: TextAlign.end,
                     ),
                   ),
@@ -280,8 +250,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
       ),
     );
 
-    if (updateSuggestionResponse.httpStatus != "OK" ||
-        updateSuggestionResponse.responseStatus != "success") {
+    if (updateSuggestionResponse.httpStatus != "OK" || updateSuggestionResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong! Try again later.."),
@@ -408,8 +377,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
             selectableDayPredicate: (DateTime val) {
               return _filteredSuggestions
                   .map((e) {
-                    DateTime x =
-                        DateTime.fromMillisecondsSinceEpoch(e.createTime!);
+                    DateTime x = DateTime.fromMillisecondsSinceEpoch(e.createTime!);
                     return DateTime(x.year, x.month, x.day);
                   })
                   .toList()
@@ -417,24 +385,21 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
             },
             initialDate: _filteredSuggestions
                 .map((e) {
-                  DateTime x =
-                      DateTime.fromMillisecondsSinceEpoch(e.createTime!);
+                  DateTime x = DateTime.fromMillisecondsSinceEpoch(e.createTime!);
                   return DateTime(x.year, x.month, x.day);
                 })
                 .toList()
                 .first,
             firstDate: _filteredSuggestions
                 .map((e) {
-                  DateTime x =
-                      DateTime.fromMillisecondsSinceEpoch(e.createTime!);
+                  DateTime x = DateTime.fromMillisecondsSinceEpoch(e.createTime!);
                   return DateTime(x.year, x.month, x.day);
                 })
                 .toList()
                 .last,
             lastDate: _filteredSuggestions
                 .map((e) {
-                  DateTime x =
-                      DateTime.fromMillisecondsSinceEpoch(e.createTime!);
+                  DateTime x = DateTime.fromMillisecondsSinceEpoch(e.createTime!);
                   return DateTime(x.year, x.month, x.day);
                 })
                 .toList()
@@ -447,8 +412,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
             _itemScrollController.scrollTo(
               index: _filteredSuggestions
                   .map((e) {
-                    DateTime x =
-                        DateTime.fromMillisecondsSinceEpoch(e.createTime!);
+                    DateTime x = DateTime.fromMillisecondsSinceEpoch(e.createTime!);
                     return DateTime(x.year, x.month, x.day);
                   })
                   .toList()
@@ -576,9 +540,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
         _applyFilters();
       },
       items: _teachersList
-          .where((teacher) => _filteredTdsList
-              .map((tds) => tds.teacherId)
-              .contains(teacher.teacherId))
+          .where((teacher) => _filteredTdsList.map((tds) => tds.teacherId).contains(teacher.teacherId))
           .map(
             (e) => DropdownMenuItem<Teacher>(
               value: e,
@@ -620,8 +582,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
     return Center(
       child: Container(
         padding: MediaQuery.of(context).orientation == Orientation.landscape
-            ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-                MediaQuery.of(context).size.width / 4, 20)
+            ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
             : const EdgeInsets.all(20),
         child: ClayContainer(
           depth: 40,
@@ -663,12 +624,10 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                                       value: e,
                                     ))
                                 .toList(),
-                            value:
-                                newSuggestion.isEditMode ? "School" : "Teacher",
+                            value: newSuggestion.isEditMode ? "School" : "Teacher",
                             onChanged: (String? newValue) {
                               setState(() {
-                                newSuggestion.isEditMode =
-                                    (newValue ?? "School") == "School";
+                                newSuggestion.isEditMode = (newValue ?? "School") == "School";
                               });
                             },
                           )
@@ -682,8 +641,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: Text(
-                          "Student Name: ${widget.studentProfile.studentFirstName}"),
+                      child: Text("Student Name: ${widget.studentProfile.studentFirstName}"),
                     ),
                     Expanded(
                       child: newSuggestion.isEditMode
@@ -777,8 +735,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                             },
                           ),
                           const Expanded(
-                            child: Text(
-                                "Mark the box to drop the suggestion anonymously"),
+                            child: Text("Mark the box to drop the suggestion anonymously"),
                           ),
                         ],
                       ),
@@ -786,8 +743,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                     TextButton(
                       child: const Text("Submit"),
                       onPressed: () {
-                        if (newSuggestion.isEditMode == false &&
-                            newSuggestion.teacherId == null) {
+                        if (newSuggestion.isEditMode == false && newSuggestion.teacherId == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Select a teacher to proceed"),
@@ -795,8 +751,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                           );
                           return;
                         }
-                        if (newSuggestion.title == null ||
-                            newSuggestion.title!.isEmpty) {
+                        if (newSuggestion.title == null || newSuggestion.title!.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text("Enter a title to the suggestion"),
@@ -804,12 +759,10 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                           );
                           return;
                         }
-                        if (newSuggestion.description == null ||
-                            newSuggestion.description!.isEmpty) {
+                        if (newSuggestion.description == null || newSuggestion.description!.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                  "Write a detailed description to the suggestion"),
+                              content: Text("Write a detailed description to the suggestion"),
                             ),
                           );
                           return;
@@ -819,8 +772,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: const Text('Suggestion Box'),
-                              content: const Text(
-                                  "Are you sure to drop the suggestion?"),
+                              content: const Text("Are you sure to drop the suggestion?"),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () async {
@@ -828,32 +780,21 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                                     setState(() {
                                       _isLoading = true;
                                     });
-                                    CreateSuggestionResponse
-                                        createSuggestionResponse =
-                                        await createSuggestion(
-                                            CreateSuggestionRequest(
+                                    CreateSuggestionResponse createSuggestionResponse = await createSuggestion(CreateSuggestionRequest(
                                       agent: newSuggestion.agent,
-                                      postingStudentId:
-                                          newSuggestion.postingStudentId,
+                                      postingStudentId: newSuggestion.postingStudentId,
                                       schoolId: widget.studentProfile.schoolId,
                                       description: newSuggestion.description,
                                       title: newSuggestion.title,
                                       againstTeacherId: newSuggestion.teacherId,
                                       anonymous: newSuggestion.anonymous,
-                                      postingUserId:
-                                          widget.studentProfile.gaurdianId,
+                                      postingUserId: widget.studentProfile.gaurdianId,
                                     ));
 
-                                    if (createSuggestionResponse.httpStatus !=
-                                            "OK" ||
-                                        createSuggestionResponse
-                                                .responseStatus !=
-                                            "success") {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                    if (createSuggestionResponse.httpStatus != "OK" || createSuggestionResponse.responseStatus != "success") {
+                                      ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                          content: Text(
-                                              "Something went wrong! Try again later.."),
+                                          content: Text("Something went wrong! Try again later.."),
                                         ),
                                       );
                                     } else {
@@ -947,8 +888,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                       child: ScrollablePositionedList.builder(
                         itemScrollController: _itemScrollController,
                         itemCount: _filteredSuggestions.length,
-                        itemBuilder: (context, index) =>
-                            _getSuggestionWidget(_filteredSuggestions[index]),
+                        itemBuilder: (context, index) => _getSuggestionWidget(_filteredSuggestions[index]),
                       ),
                     ),
                   ],
@@ -956,8 +896,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
       floatingActionButton: _isLoading
           ? null
           : FloatingActionButton(
-              child:
-                  _isAddNew ? const Icon(Icons.close) : const Icon(Icons.add),
+              child: _isAddNew ? const Icon(Icons.close) : const Icon(Icons.add),
               onPressed: () {
                 setState(() {
                   _isAddNew = !_isAddNew;

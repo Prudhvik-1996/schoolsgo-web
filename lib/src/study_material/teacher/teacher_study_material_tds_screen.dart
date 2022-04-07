@@ -9,20 +9,17 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class TeacherStudyMaterialTDSScreen extends StatefulWidget {
-  const TeacherStudyMaterialTDSScreen({Key? key, required this.teacherProfile})
-      : super(key: key);
+  const TeacherStudyMaterialTDSScreen({Key? key, required this.teacherProfile}) : super(key: key);
 
   final TeacherProfile teacherProfile;
 
   static const routeName = "/study_material";
 
   @override
-  _TeacherStudyMaterialTdsScreenState createState() =>
-      _TeacherStudyMaterialTdsScreenState();
+  _TeacherStudyMaterialTdsScreenState createState() => _TeacherStudyMaterialTdsScreenState();
 }
 
-class _TeacherStudyMaterialTdsScreenState
-    extends State<TeacherStudyMaterialTDSScreen> {
+class _TeacherStudyMaterialTdsScreenState extends State<TeacherStudyMaterialTDSScreen> {
   bool _isLoading = true;
 
   List<TeacherDealingSection> _tdsList = [];
@@ -38,13 +35,11 @@ class _TeacherStudyMaterialTdsScreenState
       _isLoading = true;
     });
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.teacherProfile.schoolId,
       teacherId: widget.teacherProfile.teacherId,
     ));
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });

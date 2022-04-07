@@ -14,17 +14,13 @@ import 'package:schoolsgo_web/src/utils/list_utils.dart';
 class AdminBulkEditAttendanceTimeSlotsScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminBulkEditAttendanceTimeSlotsScreen(
-      {Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminBulkEditAttendanceTimeSlotsScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminBulkEditAttendanceTimeSlotsScreenState createState() =>
-      _AdminBulkEditAttendanceTimeSlotsScreenState();
+  _AdminBulkEditAttendanceTimeSlotsScreenState createState() => _AdminBulkEditAttendanceTimeSlotsScreenState();
 }
 
-class _AdminBulkEditAttendanceTimeSlotsScreenState
-    extends State<AdminBulkEditAttendanceTimeSlotsScreen> {
+class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAttendanceTimeSlotsScreen> {
   bool _isLoading = true;
 
   List<Section> _sectionsList = [];
@@ -54,11 +50,9 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
         for (var e in _sectionsList) {
@@ -95,9 +89,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _selectedSectionsMap[section.sectionId]!
-            ? Colors.blue[200]
-            : clayContainerColor(context),
+        color: _selectedSectionsMap[section.sectionId]! ? Colors.blue[200] : clayContainerColor(context),
         spread: _selectedSectionsMap[section.sectionId]! ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -161,9 +153,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
                   childAspectRatio: 2.25,
                   crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
-                  children: _sectionsList
-                      .map((e) => _buildSectionCheckBox(e))
-                      .toList(),
+                  children: _sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
                 ),
               ),
             ],
@@ -179,9 +169,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
       margin: const EdgeInsets.all(10),
       child: ClayContainer(
         depth: 40,
-        color: _selectedWeeksMap[week]!
-            ? Colors.blue[200]
-            : clayContainerColor(context),
+        color: _selectedWeeksMap[week]! ? Colors.blue[200] : clayContainerColor(context),
         spread: _selectedWeeksMap[week]! ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -267,8 +255,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
     if (_startTimePicker == null) return;
     setState(() {
       if (_timeSlots.tryGet(index) == null) {
-        _timeSlots.add(TimeSlot(
-            startTime: timeOfDayToHHMMSS(_startTimePicker), endTime: null));
+        _timeSlots.add(TimeSlot(startTime: timeOfDayToHHMMSS(_startTimePicker), endTime: null));
       } else {
         _timeSlots[index].startTime = timeOfDayToHHMMSS(_startTimePicker);
       }
@@ -296,8 +283,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
             },
             child: Center(
               child: Text(
-                _timeSlots.tryGet(index) != null &&
-                        _timeSlots.tryGet(index).startTime != null
+                _timeSlots.tryGet(index) != null && _timeSlots.tryGet(index).startTime != null
                     ? formatHHMMSStoHHMMA(_timeSlots.tryGet(index).startTime)
                     : "-",
               ),
@@ -311,8 +297,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
   Future<void> _pickEndTime(BuildContext context, int index) async {
     TimeOfDay? _endTimePicker = await showTimePicker(
       context: context,
-      initialTime: index + 1 >= _timeSlots.length ||
-              _timeSlots[index + 1].startTime == null
+      initialTime: index + 1 >= _timeSlots.length || _timeSlots[index + 1].startTime == null
           ? const TimeOfDay(hour: 0, minute: 0)
           : formatHHMMSSToTimeOfDay(_timeSlots[index + 1].startTime!),
     );
@@ -320,8 +305,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
     if (_endTimePicker == null) return;
     setState(() {
       if (_timeSlots.tryGet(index) == null) {
-        _timeSlots.add(TimeSlot(
-            startTime: null, endTime: timeOfDayToHHMMSS(_endTimePicker)));
+        _timeSlots.add(TimeSlot(startTime: null, endTime: timeOfDayToHHMMSS(_endTimePicker)));
       } else {
         _timeSlots[index].endTime = timeOfDayToHHMMSS(_endTimePicker);
       }
@@ -349,8 +333,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
             },
             child: Center(
               child: Text(
-                _timeSlots.tryGet(index) != null &&
-                        _timeSlots.tryGet(index).endTime != null
+                _timeSlots.tryGet(index) != null && _timeSlots.tryGet(index).endTime != null
                     ? formatHHMMSStoHHMMA(_timeSlots.tryGet(index).endTime)
                     : "-",
               ),
@@ -406,10 +389,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
                               onTap: () {
                                 HapticFeedback.vibrate();
                                 if (index == _timeSlots.length - 1) {
-                                  if (_timeSlots.tryGet(index).startTime ==
-                                          null ||
-                                      _timeSlots.tryGet(index).endTime ==
-                                          null) {
+                                  if (_timeSlots.tryGet(index).startTime == null || _timeSlots.tryGet(index).endTime == null) {
                                     return;
                                   }
                                   setState(() {
@@ -419,10 +399,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
                                     ));
                                   });
                                 } else {
-                                  if (_timeSlots.tryGet(index).startTime ==
-                                          null ||
-                                      _timeSlots.tryGet(index).endTime ==
-                                          null) {
+                                  if (_timeSlots.tryGet(index).startTime == null || _timeSlots.tryGet(index).endTime == null) {
                                     return;
                                   }
                                   setState(() {
@@ -493,33 +470,19 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState
                   setState(() {
                     _isLoading = true;
                   });
-                  BulkEditAttendanceTimeSlotsRequest
-                      bulkEditAttendanceTimeSlotsRequest =
-                      BulkEditAttendanceTimeSlotsRequest(
+                  BulkEditAttendanceTimeSlotsRequest bulkEditAttendanceTimeSlotsRequest = BulkEditAttendanceTimeSlotsRequest(
                     schoolId: widget.adminProfile.schoolId,
                     agent: widget.adminProfile.userId,
-                    sectionIds: _selectedSectionsMap.keys
-                        .where((eachSectionId) =>
-                            _selectedSectionsMap[eachSectionId] ?? false)
-                        .toList(),
+                    sectionIds: _selectedSectionsMap.keys.where((eachSectionId) => _selectedSectionsMap[eachSectionId] ?? false).toList(),
                     weekIds: _selectedWeeksMap.keys
-                        .where((eachWeekId) =>
-                            _selectedWeeksMap[eachWeekId] ?? false)
+                        .where((eachWeekId) => _selectedWeeksMap[eachWeekId] ?? false)
                         .map((e) => WEEKS.indexOf(e) + 1)
                         .toList(),
-                    timeSlots: _timeSlots
-                        .where((eachTimeSlot) =>
-                            eachTimeSlot.startTime != null &&
-                            eachTimeSlot.endTime != null)
-                        .toList(),
+                    timeSlots: _timeSlots.where((eachTimeSlot) => eachTimeSlot.startTime != null && eachTimeSlot.endTime != null).toList(),
                   );
-                  BulkEditAttendanceTimeSlotsResponse
-                      bulkEditAttendanceTimeSlotsResponse =
-                      await bulkEditAttendanceTimeSlots(
-                          bulkEditAttendanceTimeSlotsRequest);
-                  if (bulkEditAttendanceTimeSlotsResponse.httpStatus == "OK" &&
-                      bulkEditAttendanceTimeSlotsResponse.responseStatus ==
-                          "success") {
+                  BulkEditAttendanceTimeSlotsResponse bulkEditAttendanceTimeSlotsResponse =
+                      await bulkEditAttendanceTimeSlots(bulkEditAttendanceTimeSlotsRequest);
+                  if (bulkEditAttendanceTimeSlotsResponse.httpStatus == "OK" && bulkEditAttendanceTimeSlotsResponse.responseStatus == "success") {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Success!"),

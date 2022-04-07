@@ -44,8 +44,7 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
     GetEventsResponse getEventsResponse = await getEvents(GetEventsRequest(
       schoolId: widget.teacherProfile.schoolId,
     ));
-    if (getEventsResponse.httpStatus == 'OK' &&
-        getEventsResponse.responseStatus == 'success') {
+    if (getEventsResponse.httpStatus == 'OK' && getEventsResponse.responseStatus == 'success') {
       setState(() {
         events = getEventsResponse.events!.map((e) => e!).toList();
       });
@@ -328,12 +327,8 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
 
   @override
   Widget build(BuildContext context) {
-    int count =
-        MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
-    double mainMargin =
-        MediaQuery.of(context).orientation == Orientation.landscape
-            ? MediaQuery.of(context).size.width / 10
-            : 10;
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Events"),
@@ -349,8 +344,7 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
               child: Image.asset('assets/images/eis_loader.gif'),
             )
           : Container(
-              margin:
-                  EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
+              margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
               child: GridView.count(
                 primary: false,
                 padding: const EdgeInsets.all(1.5),

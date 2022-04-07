@@ -1,4 +1,5 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+// ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,12 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
   List<StudentAnnualFeeBean> studentAnnualFeeBeans = [];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  List<FeeType> feeTypesForSelectedSection = [];
+  List<StudentWiseAnnualFeesBean> studentWiseAnnualFeesBeans = [];
+  List<SectionWiseAnnualFeesBean> sectionWiseAnnualFeeBeansList = [];
+
+  int? editingStudentId;
 
   @override
   void initState() {
@@ -81,9 +88,6 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
 
   loadSectionWiseStudentsFeeMap() async {
     if (selectedSection == null) return;
-    List<FeeType> feeTypesForSelectedSection = [];
-    List<SectionWiseAnnualFeesBean> sectionWiseAnnualFeeBeansList = [];
-    List<StudentWiseAnnualFeesBean> studentWiseAnnualFeesBeans = [];
     setState(() {
       _isLoading = true;
     });
@@ -132,7 +136,6 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         }
       }
     });
-    print("120: $feeTypesForSelectedSection");
     GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = await getStudentWiseAnnualFees(GetStudentWiseAnnualFeesRequest(
       schoolId: widget.adminProfile.schoolId,
       sectionId: selectedSection!.sectionId,
@@ -147,81 +150,186 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
     } else {
       setState(() {
         studentWiseAnnualFeesBeans = getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList();
-        for (StudentWiseAnnualFeesBean eachAnnualFeeBean in getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList()) {
-          studentAnnualFeeBeans.add(
-            StudentAnnualFeeBean(
-              studentId: eachAnnualFeeBean.studentId,
-              rollNumber: eachAnnualFeeBean.rollNumber,
-              studentName: eachAnnualFeeBean.studentName,
-              totalFee: eachAnnualFeeBean.actualFee,
-              totalFeePaid: eachAnnualFeeBean.feePaid,
-              walletBalance: eachAnnualFeeBean.studentWalletBalance,
-              studentAnnualFeeTypeBeans: feeTypesForSelectedSection
-                  .map(
-                    (eachFeeType) => StudentAnnualFeeTypeBean(
-                      feeTypeId: eachFeeType.feeTypeId,
-                      feeType: eachFeeType.feeType,
-                      studentFeeMapId: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
-                          .map((e) => e!)
-                          .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
-                              eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
-                          .firstOrNull
-                          ?.studentFeeMapId,
-                      amount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
-                          .map((e) => e!)
-                          .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
-                              eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
-                          .firstOrNull
-                          ?.amount,
-                      amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
-                          .map((e) => e!)
-                          .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
-                              eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
-                          .firstOrNull
-                          ?.amountPaid,
-                      studentAnnualCustomFeeTypeBeans: (eachFeeType.customFeeTypesList ?? [])
-                          .where((eachCustomFeeType) => eachCustomFeeType != null)
-                          .map((eachCustomFeeType) => eachCustomFeeType!)
-                          .map(
-                            (eachCustomFeeType) => StudentAnnualCustomFeeTypeBean(
-                              customFeeTypeId: eachCustomFeeType.customFeeTypeId,
-                              customFeeType: eachCustomFeeType.customFeeType,
-                              studentFeeMapId: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
-                                  .map((e) => e!)
-                                  .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
-                                      eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
-                                      eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
-                                  .firstOrNull
-                                  ?.studentFeeMapId,
-                              amount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
-                                  .map((e) => e!)
-                                  .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
-                                      eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
-                                      eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
-                                  .firstOrNull
-                                  ?.amount,
-                              amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
-                                  .map((e) => e!)
-                                  .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
-                                      eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
-                                      eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
-                                  .firstOrNull
-                                  ?.amountPaid,
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  )
-                  .toList(),
-            ),
-          );
-        }
       });
+      generateStudentMap();
     }
-    print("217: $studentAnnualFeeBeans");
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void generateStudentMap() {
+    setState(() {
+      studentAnnualFeeBeans = [];
+      for (StudentWiseAnnualFeesBean eachAnnualFeeBean in studentWiseAnnualFeesBeans) {
+        studentAnnualFeeBeans.add(
+          StudentAnnualFeeBean(
+            studentId: eachAnnualFeeBean.studentId,
+            rollNumber: eachAnnualFeeBean.rollNumber,
+            studentName: eachAnnualFeeBean.studentName,
+            totalFee: eachAnnualFeeBean.actualFee,
+            totalFeePaid: eachAnnualFeeBean.feePaid,
+            walletBalance: eachAnnualFeeBean.studentWalletBalance,
+            studentAnnualFeeTypeBeans: feeTypesForSelectedSection
+                .map(
+                  (eachFeeType) => StudentAnnualFeeTypeBean(
+                    feeTypeId: eachFeeType.feeTypeId,
+                    feeType: eachFeeType.feeType,
+                    studentFeeMapId: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.studentFeeMapId,
+                    sectionFeeMapId: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.sectionFeeMapId,
+                    amount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.amount,
+                    amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.amountPaid,
+                    studentAnnualCustomFeeTypeBeans: (eachFeeType.customFeeTypesList ?? [])
+                        .where((eachCustomFeeType) => eachCustomFeeType != null)
+                        .map((eachCustomFeeType) => eachCustomFeeType!)
+                        .map(
+                          (eachCustomFeeType) => StudentAnnualCustomFeeTypeBean(
+                            customFeeTypeId: eachCustomFeeType.customFeeTypeId,
+                            customFeeType: eachCustomFeeType.customFeeType,
+                            studentFeeMapId: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.studentFeeMapId,
+                            sectionFeeMapId: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.sectionFeeMapId,
+                            amount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.amount,
+                            amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.amountPaid,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                )
+                .toList(),
+          ),
+        );
+      }
+    });
+  }
+
+  Future<void> _saveChanges(int studentId) async {
+    showDialog(
+      context: _scaffoldKey.currentContext!,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Fee Management'),
+          content: const Text("Are you sure to save changes?\n"
+              "These changes will effect the student fees (if already paid, difference amount would be added to the student wallet balance)"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("YES"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = true;
+                });
+                CreateOrUpdateStudentAnnualFeeMapRequest createOrUpdateStudentAnnualFeeMapRequest = CreateOrUpdateStudentAnnualFeeMapRequest(
+                  schoolId: widget.adminProfile.schoolId,
+                  agent: widget.adminProfile.userId,
+                  studentAnnualFeeMapBeanList: studentAnnualFeeBeans
+                          .where((e) => e.studentId == studentId)
+                          .map((e) => e.studentAnnualFeeTypeBeans ?? [])
+                          .expand((i) => i)
+                          .where((e) => (e.studentAnnualCustomFeeTypeBeans ?? []).isEmpty)
+                          .map((e) => StudentAnnualFeeMapUpdateBean(
+                                schoolId: widget.adminProfile.schoolId,
+                                studentId: studentId,
+                                amount: e.amount,
+                                sectionFeeMapId: e.sectionFeeMapId,
+                                studentFeeMapId: e.studentFeeMapId,
+                              ))
+                          .toList() +
+                      studentAnnualFeeBeans
+                          .where((e) => e.studentId == studentId)
+                          .map((e) => e.studentAnnualFeeTypeBeans ?? [])
+                          .expand((i) => i)
+                          .map((e) => e.studentAnnualCustomFeeTypeBeans ?? [])
+                          .expand((i) => i)
+                          .map((e) => StudentAnnualFeeMapUpdateBean(
+                                schoolId: widget.adminProfile.schoolId,
+                                studentId: studentId,
+                                amount: e.amount,
+                                sectionFeeMapId: e.sectionFeeMapId,
+                                studentFeeMapId: e.studentFeeMapId,
+                              ))
+                          .toList(),
+                );
+                CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse =
+                    await createOrUpdateStudentAnnualFeeMap(createOrUpdateStudentAnnualFeeMapRequest);
+                if (createOrUpdateStudentAnnualFeeMapResponse.httpStatus == "OK" &&
+                    createOrUpdateStudentAnnualFeeMapResponse.responseStatus == "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Changes updated successfully"),
+                    ),
+                  );
+                  await _loadData();
+                  setState(() {
+                    editingStudentId = null;
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong, Please try again later.."),
+                    ),
+                  );
+                }
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+            ),
+            TextButton(
+              child: const Text("No"),
+              onPressed: () {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -267,17 +375,6 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       Row(
         children: [
           Expanded(
-            // child: Container(
-            //   margin: const EdgeInsets.all(4),
-            //   child: ClayContainer(
-            //     surfaceColor: clayContainerColor(context),
-            //     parentColor: clayContainerColor(context),
-            //     spread: 1,
-            //     borderRadius: 10,
-            //     depth: 40,
-            //     emboss: true,
-            //     child: Container(
-            //       padding: const EdgeInsets.all(20),
             child: Text(
               "${studentWiseAnnualFeesBean.rollNumber ?? "-"}. ${studentWiseAnnualFeesBean.studentName}",
               style: const TextStyle(
@@ -285,10 +382,78 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
               ),
               textAlign: TextAlign.center,
             ),
-            //     ),
-            //   ),
-            // ),
           ),
+          if (editingStudentId == null)
+            Container(
+              margin: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    editingStudentId = studentWiseAnnualFeesBean.studentId;
+                  });
+                },
+                child: ClayButton(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 1,
+                  borderRadius: 100,
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    child: const Icon(Icons.edit),
+                  ),
+                ),
+              ),
+            ),
+          if (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
+            Container(
+              margin: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  setState(() {
+                    editingStudentId = null;
+                    generateStudentMap();
+                  });
+                  setState(() {
+                    _isLoading = false;
+                  });
+                },
+                child: ClayButton(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 1,
+                  borderRadius: 100,
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    child: const Icon(Icons.clear),
+                  ),
+                ),
+              ),
+            ),
+          if (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
+            Container(
+              margin: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () async {
+                  await _saveChanges(editingStudentId!);
+                },
+                child: ClayButton(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 1,
+                  borderRadius: 100,
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    child: const Icon(Icons.check),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -297,27 +462,6 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         height: 15,
       ),
     );
-    // rows.add(
-    //   Row(
-    //     children: [
-    //       Expanded(
-    //         child: Text(
-    //           "Actual Fee\n ${studentWiseAnnualFeesBean.totalFee == null ? "-" : "$INR_SYMBOL ${studentWiseAnnualFeesBean.totalFee! / 100}"}",
-    //         ),
-    //       ),
-    //       Expanded(
-    //         child: Text(
-    //           "Fee Paid\n ${studentWiseAnnualFeesBean.totalFeePaid == null ? "-" : "$INR_SYMBOL ${studentWiseAnnualFeesBean.totalFeePaid! / 100}"}",
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
-    // rows.add(
-    //   const SizedBox(
-    //     height: 15,
-    //   ),
-    // );
     List<Widget> feeStats = [];
     for (StudentAnnualFeeTypeBean eachStudentAnnualFeeTypeBean in (studentWiseAnnualFeesBean.studentAnnualFeeTypeBeans ?? [])) {
       feeStats.add(
@@ -326,9 +470,45 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             Expanded(
               child: Text(eachStudentAnnualFeeTypeBean.feeType ?? "-"),
             ),
-            eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0
+            eachStudentAnnualFeeTypeBean.amount == null
                 ? Container()
-                : Text("$INR_SYMBOL ${(eachStudentAnnualFeeTypeBean.amount! / 100).toStringAsFixed(2)}"),
+                : (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
+                    ? SizedBox(
+                        width: 60,
+                        child: TextField(
+                          controller: eachStudentAnnualFeeTypeBean.amountController,
+                          keyboardType: TextInputType.text,
+                          decoration: const InputDecoration(
+                            border: UnderlineInputBorder(),
+                            labelText: 'Amount',
+                            hintText: 'Amount',
+                            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                            TextInputFormatter.withFunction((oldValue, newValue) {
+                              try {
+                                final text = newValue.text;
+                                if (text.isNotEmpty) double.parse(text);
+                                return newValue;
+                              } catch (e) {}
+                              return oldValue;
+                            }),
+                          ],
+                          onChanged: (String e) {
+                            setState(() {
+                              eachStudentAnnualFeeTypeBean.amount = (double.parse(e) * 100).round();
+                            });
+                          },
+                          style: const TextStyle(
+                            fontSize: 12,
+                          ),
+                          autofocus: true,
+                        ),
+                      )
+                    : eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0
+                        ? Container()
+                        : Text("$INR_SYMBOL ${(eachStudentAnnualFeeTypeBean.amount! / 100).toStringAsFixed(2)}"),
           ],
         ),
       );
@@ -349,9 +529,45 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
               Expanded(
                 child: Text(eachStudentAnnualCustomFeeTypeBean.customFeeType ?? "-"),
               ),
-              eachStudentAnnualCustomFeeTypeBean.amount == null || eachStudentAnnualCustomFeeTypeBean.amount == 0
+              eachStudentAnnualCustomFeeTypeBean.amount == null
                   ? Container()
-                  : Text("$INR_SYMBOL ${(eachStudentAnnualCustomFeeTypeBean.amount! / 100).toStringAsFixed(2)}"),
+                  : (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
+                      ? SizedBox(
+                          width: 60,
+                          child: TextField(
+                            controller: eachStudentAnnualCustomFeeTypeBean.amountController,
+                            keyboardType: TextInputType.text,
+                            decoration: const InputDecoration(
+                              border: UnderlineInputBorder(),
+                              labelText: 'Amount',
+                              hintText: 'Amount',
+                              contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                              TextInputFormatter.withFunction((oldValue, newValue) {
+                                try {
+                                  final text = newValue.text;
+                                  if (text.isNotEmpty) double.parse(text);
+                                  return newValue;
+                                } catch (e) {}
+                                return oldValue;
+                              }),
+                            ],
+                            onChanged: (String e) {
+                              setState(() {
+                                eachStudentAnnualCustomFeeTypeBean.amount = (double.parse(e) * 100).round();
+                              });
+                            },
+                            style: const TextStyle(
+                              fontSize: 12,
+                            ),
+                            autofocus: true,
+                          ),
+                        )
+                      : eachStudentAnnualCustomFeeTypeBean.amount == null || eachStudentAnnualCustomFeeTypeBean.amount == 0
+                          ? Container()
+                          : Text("$INR_SYMBOL ${(eachStudentAnnualCustomFeeTypeBean.amount! / 100).toStringAsFixed(2)}"),
             ],
           ),
         );
@@ -740,7 +956,10 @@ class StudentAnnualFeeTypeBean {
   int? amount;
   int? amountPaid;
   int? studentFeeMapId;
+  int? sectionFeeMapId;
   List<StudentAnnualCustomFeeTypeBean>? studentAnnualCustomFeeTypeBeans;
+
+  TextEditingController amountController = TextEditingController();
 
   StudentAnnualFeeTypeBean({
     this.feeTypeId,
@@ -748,8 +967,11 @@ class StudentAnnualFeeTypeBean {
     this.amount,
     this.amountPaid,
     this.studentFeeMapId,
+    this.sectionFeeMapId,
     this.studentAnnualCustomFeeTypeBeans,
-  });
+  }) {
+    amountController.text = amount == null ? "" : "${amount! / 100}";
+  }
 
   @override
   String toString() {
@@ -762,15 +984,21 @@ class StudentAnnualCustomFeeTypeBean {
   String? customFeeType;
   int? amount;
   int? amountPaid;
+  int? sectionFeeMapId;
   int? studentFeeMapId;
+
+  TextEditingController amountController = TextEditingController();
 
   StudentAnnualCustomFeeTypeBean({
     this.customFeeTypeId,
     this.customFeeType,
     this.amount,
     this.amountPaid,
+    this.sectionFeeMapId,
     this.studentFeeMapId,
-  });
+  }) {
+    amountController.text = amount == null ? "" : "${amount! / 100}";
+  }
 
   @override
   String toString() {

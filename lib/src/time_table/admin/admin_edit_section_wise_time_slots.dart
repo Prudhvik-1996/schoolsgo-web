@@ -17,16 +17,13 @@ import 'admin_bulk_edit_section_wise_time_slots.dart';
 class AdminEditSectionWiseTimeSlots extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminEditSectionWiseTimeSlots({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminEditSectionWiseTimeSlots({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminEditSectionWiseTimeSlotsState createState() =>
-      _AdminEditSectionWiseTimeSlotsState();
+  _AdminEditSectionWiseTimeSlotsState createState() => _AdminEditSectionWiseTimeSlotsState();
 }
 
-class _AdminEditSectionWiseTimeSlotsState
-    extends State<AdminEditSectionWiseTimeSlots> {
+class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTimeSlots> {
   bool _isLoading = true;
 
   List<Section> _sectionsList = [];
@@ -57,37 +54,30 @@ class _AdminEditSectionWiseTimeSlotsState
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-        await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
     ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-        getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _sectionWiseTimeSlots =
-            getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+        _sectionWiseTimeSlots = getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
       });
     }
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {});
     }
     setState(() {
@@ -100,9 +90,7 @@ class _AdminEditSectionWiseTimeSlotsState
       margin: const EdgeInsets.all(5),
       child: ClayContainer(
         depth: 40,
-        color: _selectedSection == section
-            ? Theme.of(context).primaryColor.withOpacity(0.4)
-            : clayContainerColor(context),
+        color: _selectedSection == section ? Theme.of(context).primaryColor.withOpacity(0.4) : clayContainerColor(context),
         spread: _selectedSection == section ? 0 : 2,
         borderRadius: 10,
         child: Container(
@@ -155,9 +143,7 @@ class _AdminEditSectionWiseTimeSlotsState
             allowExpansion: !_isEditMode,
             key: expansionTile,
             title: ClayText(
-              _selectedSection == null
-                  ? "Select a section"
-                  : "Section: ${_selectedSection!.sectionName}",
+              _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
               textColor: Colors.black54,
               spread: 2,
               size: 24,
@@ -172,9 +158,7 @@ class _AdminEditSectionWiseTimeSlotsState
                   childAspectRatio: 2.25,
                   crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
                   shrinkWrap: true,
-                  children: _sectionsList
-                      .map((e) => buildSectionCheckBox(e))
-                      .toList(),
+                  children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
                 ),
               ),
             ],
@@ -211,26 +195,19 @@ class _AdminEditSectionWiseTimeSlotsState
               child: const Text("YES"),
               onPressed: () async {
                 Navigator.of(context).pop();
-                CreateOrUpdateSectionWiseTimeSlotsResponse
-                    createOrUpdateSectionWiseTimeSlotsResponse =
-                    await createOrUpdateSectionWiseTimeSlots(
+                CreateOrUpdateSectionWiseTimeSlotsResponse createOrUpdateSectionWiseTimeSlotsResponse = await createOrUpdateSectionWiseTimeSlots(
                   CreateOrUpdateSectionWiseTimeSlotsRequest(
                     schoolId: widget.adminProfile.schoolId,
                     agent: widget.adminProfile.userId,
-                    sectionWiseTimeSlotBeans: _sectionWiseTimeSlots
-                        .where((e) => e.isEdited ?? false)
-                        .toList(),
+                    sectionWiseTimeSlotBeans: _sectionWiseTimeSlots.where((e) => e.isEdited ?? false).toList(),
                   ),
                 );
-                if (createOrUpdateSectionWiseTimeSlotsResponse.httpStatus !=
-                        'OK' ||
-                    createOrUpdateSectionWiseTimeSlotsResponse.responseStatus !=
-                        "success") {
+                if (createOrUpdateSectionWiseTimeSlotsResponse.httpStatus != 'OK' ||
+                    createOrUpdateSectionWiseTimeSlotsResponse.responseStatus != "success") {
                   HapticFeedback.vibrate();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content:
-                          Text("Something went wrong..\nPlease try later.."),
+                      content: Text("Something went wrong..\nPlease try later.."),
                     ),
                   );
                   setState(() {
@@ -262,17 +239,13 @@ class _AdminEditSectionWiseTimeSlotsState
     _loadData();
   }
 
-  Future<void> _pickStartTime(
-      BuildContext context, SectionWiseTimeSlotBean e) async {
+  Future<void> _pickStartTime(BuildContext context, SectionWiseTimeSlotBean e) async {
     TimeOfDay? _startTimePicker = await showTimePicker(
       context: context,
-      initialTime: e.startTime == null
-          ? const TimeOfDay(hour: 0, minute: 0)
-          : formatHHMMSSToTimeOfDay(e.startTime!),
+      initialTime: e.startTime == null ? const TimeOfDay(hour: 0, minute: 0) : formatHHMMSSToTimeOfDay(e.startTime!),
     );
 
-    if (_startTimePicker == null ||
-        e.startTime == timeOfDayToHHMMSS(_startTimePicker)) return;
+    if (_startTimePicker == null || e.startTime == timeOfDayToHHMMSS(_startTimePicker)) return;
     setState(() {
       e.startTime = timeOfDayToHHMMSS(_startTimePicker);
       e.isEdited = true;
@@ -310,17 +283,13 @@ class _AdminEditSectionWiseTimeSlotsState
     );
   }
 
-  Future<void> _pickEndTime(
-      BuildContext context, SectionWiseTimeSlotBean e) async {
+  Future<void> _pickEndTime(BuildContext context, SectionWiseTimeSlotBean e) async {
     TimeOfDay? _endTimePicker = await showTimePicker(
       context: context,
-      initialTime: e.endTime == null
-          ? const TimeOfDay(hour: 0, minute: 0)
-          : formatHHMMSSToTimeOfDay(e.endTime!),
+      initialTime: e.endTime == null ? const TimeOfDay(hour: 0, minute: 0) : formatHHMMSSToTimeOfDay(e.endTime!),
     );
 
-    if (_endTimePicker == null ||
-        e.endTime == timeOfDayToHHMMSS(_endTimePicker)) return;
+    if (_endTimePicker == null || e.endTime == timeOfDayToHHMMSS(_endTimePicker)) return;
     setState(() {
       e.endTime = timeOfDayToHHMMSS(_endTimePicker);
       e.isEdited = true;
@@ -360,10 +329,7 @@ class _AdminEditSectionWiseTimeSlotsState
 
   Widget buildAttendanceTimeSlotsForEachSection(Section section) {
     List<SectionWiseTimeSlotBean> _timeslotsForThisSection =
-        _sectionWiseTimeSlots
-                .where((e) => e.sectionId == section.sectionId)
-                .toList() +
-            (_isEditMode ? [_newSectionWiseTimeSlotBean] : []);
+        _sectionWiseTimeSlots.where((e) => e.sectionId == section.sectionId).toList() + (_isEditMode ? [_newSectionWiseTimeSlotBean] : []);
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.all(10),
@@ -406,9 +372,7 @@ class _AdminEditSectionWiseTimeSlotsState
                             borderRadius: 50,
                             child: Icon(
                               _isEditMode ? Icons.check : Icons.edit,
-                              color: _isEditMode
-                                  ? Colors.green[200]
-                                  : Colors.black38,
+                              color: _isEditMode ? Colors.green[200] : Colors.black38,
                             ),
                           ),
                         ),
@@ -419,8 +383,7 @@ class _AdminEditSectionWiseTimeSlotsState
                     height: 25,
                   ),
                 ] +
-                [for (var i = 0; i < _timeslotsForThisSection.length; i += 1) i]
-                    .map(
+                [for (var i = 0; i < _timeslotsForThisSection.length; i += 1) i].map(
                   (index) {
                     var e = _timeslotsForThisSection[index];
                     // if (_timeslotsForThisSection[index].sectionId !=
@@ -451,27 +414,22 @@ class _AdminEditSectionWiseTimeSlotsState
                               children: [
                                     Expanded(
                                       flex: 1,
-                                      child: _isEditMode &&
-                                              e.sectionWiseTimeSlotId == null
+                                      child: _isEditMode && e.sectionWiseTimeSlotId == null
                                           ? DropdownButton<String>(
                                               isExpanded: true,
                                               hint: const Text("Week"),
                                               onChanged: (String? newWeek) {
                                                 setState(() {
-                                                  e.weekId =
-                                                      WEEKS.indexOf(newWeek!) +
-                                                          1;
+                                                  e.weekId = WEEKS.indexOf(newWeek!) + 1;
                                                   e.week = newWeek;
                                                   e.isEdited = true;
-                                                  e.agent = widget
-                                                      .adminProfile.userId;
+                                                  e.agent = widget.adminProfile.userId;
                                                 });
                                               },
                                               value: e.week,
                                               items: WEEKS
                                                   .map(
-                                                    (eachWeek) =>
-                                                        DropdownMenuItem(
+                                                    (eachWeek) => DropdownMenuItem(
                                                       value: eachWeek,
                                                       child: Text(eachWeek),
                                                     ),
@@ -482,9 +440,7 @@ class _AdminEditSectionWiseTimeSlotsState
                                               e.week ?? "-",
                                             ),
                                     ),
-                                    Expanded(
-                                        flex: 2,
-                                        child: _buildStartTimePicker(e)),
+                                    Expanded(flex: 2, child: _buildStartTimePicker(e)),
                                     Expanded(
                                       flex: 2,
                                       child: _buildEndTimePicker(e),
@@ -516,20 +472,12 @@ class _AdminEditSectionWiseTimeSlotsState
                                                       color: Colors.green,
                                                     ),
                                                     onTap: () {
-                                                      if (e.sectionWiseTimeSlotId ==
-                                                          null) {
-                                                        if (e.weekId == null ||
-                                                            e.startTime ==
-                                                                null ||
-                                                            e.endTime == null) {
-                                                          HapticFeedback
-                                                              .vibrate();
-                                                          ScaffoldMessenger.of(
-                                                                  context)
-                                                              .showSnackBar(
+                                                      if (e.sectionWiseTimeSlotId == null) {
+                                                        if (e.weekId == null || e.startTime == null || e.endTime == null) {
+                                                          HapticFeedback.vibrate();
+                                                          ScaffoldMessenger.of(context).showSnackBar(
                                                             const SnackBar(
-                                                              content: Text(
-                                                                  "Select Week, StartTime and EndTime.."),
+                                                              content: Text("Select Week, StartTime and EndTime.."),
                                                             ),
                                                           );
                                                           return;
@@ -539,22 +487,13 @@ class _AdminEditSectionWiseTimeSlotsState
                                                         e.status = 'active';
                                                         e.isEdited = true;
                                                       });
-                                                      if (e.sectionWiseTimeSlotId ==
-                                                          null) {
+                                                      if (e.sectionWiseTimeSlotId == null) {
                                                         setState(() {
-                                                          _sectionWiseTimeSlots
-                                                              .add(e);
-                                                          _newSectionWiseTimeSlotBean =
-                                                              SectionWiseTimeSlotBean(
-                                                            sectionName:
-                                                                _selectedSection!
-                                                                    .sectionName,
-                                                            sectionId:
-                                                                _selectedSection!
-                                                                    .sectionId,
-                                                            agent: widget
-                                                                .adminProfile
-                                                                .userId,
+                                                          _sectionWiseTimeSlots.add(e);
+                                                          _newSectionWiseTimeSlotBean = SectionWiseTimeSlotBean(
+                                                            sectionName: _selectedSection!.sectionName,
+                                                            sectionId: _selectedSection!.sectionId,
+                                                            agent: widget.adminProfile.userId,
                                                           );
                                                         });
                                                       }
@@ -629,9 +568,7 @@ class _AdminEditSectionWiseTimeSlotsState
               child: ListView(
                 children: [
                   _buildSectionsFilter(),
-                  _selectedSection == null
-                      ? Container()
-                      : buildAttendanceTimeSlotsForAllSelectedSections(),
+                  _selectedSection == null ? Container() : buildAttendanceTimeSlotsForAllSelectedSections(),
                 ],
               ),
             ),

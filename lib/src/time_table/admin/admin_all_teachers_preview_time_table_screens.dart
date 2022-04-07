@@ -23,12 +23,10 @@ class TeacherTimeTablePreviewScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TeacherTimeTablePreviewScreenState createState() =>
-      _TeacherTimeTablePreviewScreenState();
+  _TeacherTimeTablePreviewScreenState createState() => _TeacherTimeTablePreviewScreenState();
 }
 
-class _TeacherTimeTablePreviewScreenState
-    extends State<TeacherTimeTablePreviewScreen> {
+class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewScreen> {
   bool _isLoading = true;
   List<Teacher> _teachersList = [];
   Teacher? _selectedTeacher;
@@ -57,18 +55,12 @@ class _TeacherTimeTablePreviewScreenState
     });
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
-      schoolId: widget.teacherProfile == null
-          ? widget.adminProfile!.schoolId
-          : widget.teacherProfile!.schoolId,
-      teacherId: widget.teacherProfile == null
-          ? null
-          : widget.teacherProfile!.teacherId,
+      schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
+      teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
     );
-    GetTeachersResponse getTeachersResponse =
-        await getTeachers(getTeachersRequest);
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
         _selectedTeacher = _teachersList[0];
@@ -76,79 +68,48 @@ class _TeacherTimeTablePreviewScreenState
     }
 
     if (!widget.isOcr) {
-      GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-          await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
-        schoolId: widget.teacherProfile == null
-            ? widget.adminProfile!.schoolId
-            : widget.teacherProfile!.schoolId,
+      GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+        schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
         // teacherId: widget.teacherProfile.teacherId,
         status: "active",
       ));
-      if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-          getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+      if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
         setState(() {
-          _sectionWiseTimeSlots =
-              getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+          _sectionWiseTimeSlots = getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
 
-          _sectionWiseTimeSlots.sort((a, b) =>
-              getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!)
-                  .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(
-                      b.startTime!, b.weekId!)));
+          _sectionWiseTimeSlots.sort((a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!)
+              .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime!, b.weekId!)));
         });
       }
     } else {
       // Get all online class rooms
-      GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
-          await getOnlineClassRooms(GetOnlineClassRoomsRequest(
-        schoolId: widget.adminProfile == null
-            ? widget.teacherProfile!.schoolId
-            : widget.adminProfile!.schoolId,
-        teacherId: widget.adminProfile == null
-            ? null
-            : widget.teacherProfile!.teacherId,
+      GetOnlineClassRoomsResponse getOnlineClassRoomsResponse = await getOnlineClassRooms(GetOnlineClassRoomsRequest(
+        schoolId: widget.adminProfile == null ? widget.teacherProfile!.schoolId : widget.adminProfile!.schoolId,
+        teacherId: widget.adminProfile == null ? null : widget.teacherProfile!.teacherId,
       ));
-      if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
-          getOnlineClassRoomsResponse.responseStatus == "success") {
+      if (getOnlineClassRoomsResponse.httpStatus == "OK" && getOnlineClassRoomsResponse.responseStatus == "success") {
         setState(() {
           List<OnlineClassRoom> _onlineClassRooms = [];
-          _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!
-              .map((e) => e!)
-              .toList();
+          _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!.map((e) => e!).toList();
           DateTime x = DateTime.now();
           DateTime now = DateTime(x.year, x.month, x.day);
           var customOCRs = _onlineClassRooms
-              .where((eachOcr) =>
-                  eachOcr.date != null &&
-                  (convertYYYYMMDDFormatToDateTime(eachOcr.date!)
-                              .difference(now))
-                          .inDays <
-                      7)
+              .where((eachOcr) => eachOcr.date != null && (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now)).inDays < 7)
               .toList();
-          var traditionalOCRs =
-              _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
+          var traditionalOCRs = _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
           var overLappedOCRs = [];
           for (var eachTraditionalOcr in traditionalOCRs) {
             for (var eachCustomOcr in customOCRs) {
               bool isOverlapped = false;
-              int startTimeEqOfTraditionalOcr =
-                  getSecondsEquivalentOfTimeFromWHHMMSS(
-                      eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
-              int startTimeEqOfCustomOcr =
-                  getSecondsEquivalentOfTimeFromWHHMMSS(
-                      eachCustomOcr.startTime, eachCustomOcr.weekId);
-              int endTimeEqOfTraditionalOcr =
-                  getSecondsEquivalentOfTimeFromWHHMMSS(
-                      eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
-              int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-                  eachCustomOcr.endTime, eachCustomOcr.weekId);
-              if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr &&
-                      startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
-                  (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr &&
-                      endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
+              int startTimeEqOfTraditionalOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
+              int startTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachCustomOcr.startTime, eachCustomOcr.weekId);
+              int endTimeEqOfTraditionalOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
+              int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachCustomOcr.endTime, eachCustomOcr.weekId);
+              if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr && startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
+                  (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr && endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
                 isOverlapped = true;
               }
-              if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr &&
-                  endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
+              if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr && endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
                 isOverlapped = true;
               }
               if (isOverlapped) {
@@ -335,18 +296,14 @@ class _TeacherTimeTablePreviewScreenState
       );
     }
     List<int> timeValues = _sectionWiseTimeSlots
-        .map((e) => [
-              getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0),
-              getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0)
-            ])
+        .map((e) => [getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0), getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0)])
         .expand((i) => i)
         .toList();
 
     int minimumTimeValue = timeValues.reduce(min);
     int maximumTimeValue = timeValues.reduce(max);
 
-    double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) /
-        (MediaQuery.of(context).size.width - 50);
+    double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) / (MediaQuery.of(context).size.width - 50);
 
     int curMin = minimumTimeValue;
 
@@ -354,24 +311,13 @@ class _TeacherTimeTablePreviewScreenState
 
     List<TimeSlotForPreview> _previewingSlots = [];
 
-    _sectionWiseTimeSlots
-        .where((e) =>
-            e.tdsId != null &&
-            e.weekId == weekId &&
-            e.teacherId == _selectedTeacher!.teacherId)
-        .forEach((eachTimeSlot) {
+    _sectionWiseTimeSlots.where((e) => e.tdsId != null && e.weekId == weekId && e.teacherId == _selectedTeacher!.teacherId).forEach((eachTimeSlot) {
       bool _updatedExistingPreview = false;
-      String tsTimeKey =
-          "${eachTimeSlot.week}|${eachTimeSlot.startTime}|${eachTimeSlot.endTime}";
+      String tsTimeKey = "${eachTimeSlot.week}|${eachTimeSlot.startTime}|${eachTimeSlot.endTime}";
       _previewingSlots.forEach((eachTimeSlotToPreview) {
-        String psTimeKey =
-            "${eachTimeSlotToPreview.week}|${eachTimeSlotToPreview.startTime}|${eachTimeSlotToPreview.endTime}";
-        if (psTimeKey == tsTimeKey &&
-            eachTimeSlotToPreview.subjectId == eachTimeSlot.subjectId) {
-          eachTimeSlotToPreview.sectionNames =
-              (eachTimeSlotToPreview.sectionNames ?? "") +
-                  ", " +
-                  (eachTimeSlot.sectionName ?? "");
+        String psTimeKey = "${eachTimeSlotToPreview.week}|${eachTimeSlotToPreview.startTime}|${eachTimeSlotToPreview.endTime}";
+        if (psTimeKey == tsTimeKey && eachTimeSlotToPreview.subjectId == eachTimeSlot.subjectId) {
+          eachTimeSlotToPreview.sectionNames = (eachTimeSlotToPreview.sectionNames ?? "") + ", " + (eachTimeSlot.sectionName ?? "");
           _updatedExistingPreview = true;
         }
       });
@@ -390,21 +336,14 @@ class _TeacherTimeTablePreviewScreenState
       }
     });
 
-    _previewingSlots
-        .where((e) =>
-            e.sectionNames != null &&
-            e.weekId == weekId &&
-            e.teacherId == _selectedTeacher!.teacherId)
-        .forEach((e) {
+    _previewingSlots.where((e) => e.sectionNames != null && e.weekId == weekId && e.teacherId == _selectedTeacher!.teacherId).forEach((e) {
       if (curMin != getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0)) {
         _widgets.add(
           Container(
             decoration: BoxDecoration(
               color: Colors.blue[100],
             ),
-            width: (getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0) -
-                    curMin) /
-                widthEquivalentInSeconds,
+            width: (getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0) - curMin) / widthEquivalentInSeconds,
             height: height,
             child: const Center(child: Text("")),
           ),
@@ -425,8 +364,7 @@ class _TeacherTimeTablePreviewScreenState
               ),
             ),
           ),
-          width: (getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0) -
-                  getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0)) /
+          width: (getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0) - getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0)) /
               widthEquivalentInSeconds,
           height: height,
           child: FittedBox(
@@ -491,18 +429,14 @@ class _TeacherTimeTablePreviewScreenState
 
   Container _buildGrid() {
     List<int> timeValues = _sectionWiseTimeSlots
-        .map((e) => [
-              getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0),
-              getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0)
-            ])
+        .map((e) => [getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0), getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0)])
         .expand((i) => i)
         .toList();
 
     int minimumTimeValue = timeValues.reduce(min);
     int maximumTimeValue = timeValues.reduce(max);
 
-    double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) /
-        (MediaQuery.of(context).size.width - 50);
+    double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) / (MediaQuery.of(context).size.width - 50);
 
     int nextMinHourEquivalent = minimumTimeValue + minimumTimeValue % 3600;
     // print(minimumTimeValue);
@@ -531,8 +465,7 @@ class _TeacherTimeTablePreviewScreenState
             ),
           ),
           height: 70 * 7.0,
-          width: (timeSlotValues[i + 1] - timeSlotValues[i]) /
-              widthEquivalentInSeconds,
+          width: (timeSlotValues[i + 1] - timeSlotValues[i]) / widthEquivalentInSeconds,
           child: const Text(
             "",
             textAlign: TextAlign.end,
@@ -548,9 +481,7 @@ class _TeacherTimeTablePreviewScreenState
           ),
         ),
         height: 70 * 7.0,
-        width:
-            (timeSlotValues.last - timeSlotValues[timeSlotValues.length - 2]) /
-                widthEquivalentInSeconds,
+        width: (timeSlotValues.last - timeSlotValues[timeSlotValues.length - 2]) / widthEquivalentInSeconds,
         child: const Text(
           "",
           textAlign: TextAlign.end,
@@ -592,18 +523,14 @@ class _TeacherTimeTablePreviewScreenState
 
   Container _buildXAxis() {
     List<int> timeValues = _sectionWiseTimeSlots
-        .map((e) => [
-              getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0),
-              getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0)
-            ])
+        .map((e) => [getSecondsEquivalentOfTimeFromWHHMMSS(e.startTime!, 0), getSecondsEquivalentOfTimeFromWHHMMSS(e.endTime!, 0)])
         .expand((i) => i)
         .toList();
 
     int minimumTimeValue = timeValues.reduce(min);
     int maximumTimeValue = timeValues.reduce(max);
 
-    double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) /
-        (MediaQuery.of(context).size.width - 50);
+    double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) / (MediaQuery.of(context).size.width - 50);
 
     int nextMinHourEquivalent = minimumTimeValue + minimumTimeValue % 3600;
     // print(minimumTimeValue);
@@ -632,8 +559,7 @@ class _TeacherTimeTablePreviewScreenState
             ),
           ),
           height: 70 * 8.0,
-          width: (timeSlotValues[i + 1] - timeSlotValues[i]) /
-              widthEquivalentInSeconds,
+          width: (timeSlotValues[i + 1] - timeSlotValues[i]) / widthEquivalentInSeconds,
           child: RotatedBox(
             quarterTurns: 3,
             child: FittedBox(
@@ -656,9 +582,7 @@ class _TeacherTimeTablePreviewScreenState
           ),
         ),
         height: 70,
-        width:
-            (timeSlotValues.last - timeSlotValues[timeSlotValues.length - 2]) /
-                widthEquivalentInSeconds,
+        width: (timeSlotValues.last - timeSlotValues[timeSlotValues.length - 2]) / widthEquivalentInSeconds,
         child: RotatedBox(
           quarterTurns: 3,
           child: FittedBox(
@@ -756,25 +680,18 @@ class _TeacherTimeTablePreviewScreenState
                                           padding: const EdgeInsets.all(5),
                                           child: widget.teacherProfile == null
                                               ? Container()
-                                              : widget.teacherProfile!
-                                                          .teacherPhotoUrl ==
-                                                      null
+                                              : widget.teacherProfile!.teacherPhotoUrl == null
                                                   ? Image.asset(
                                                       "assets/images/avatar.png",
                                                       fit: BoxFit.contain,
                                                     )
                                                   : Image.network(
-                                                      widget.teacherProfile!
-                                                          .teacherPhotoUrl!,
+                                                      widget.teacherProfile!.teacherPhotoUrl!,
                                                       fit: BoxFit.contain,
                                                     ),
                                         ),
                                         title: Text(
-                                          widget.teacherProfile == null
-                                              ? "-"
-                                              : widget.teacherProfile!
-                                                      .teacherName ??
-                                                  "-",
+                                          widget.teacherProfile == null ? "-" : widget.teacherProfile!.teacherName ?? "-",
                                           style: const TextStyle(
                                             fontSize: 14,
                                           ),
@@ -787,9 +704,7 @@ class _TeacherTimeTablePreviewScreenState
                                 ListView(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  children: [1, 2, 3, 4, 5, 6, 7]
-                                      .map((e) => _previewTimeTable(e))
-                                      .toList(),
+                                  children: [1, 2, 3, 4, 5, 6, 7].map((e) => _previewTimeTable(e)).toList(),
                                 ),
                                 Opacity(opacity: 0.05, child: _buildGrid()),
                               ],

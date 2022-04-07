@@ -82,5 +82,6 @@ const String CREATE_OR_UPDATE_FEE_TYPES = "/fee/createOrUpdateFeeTypes";
 const String GET_SECTION_WISE_ANNUAL_FEES = "/fee/getSectionWiseAnnualFees";
 const String CREATE_OR_UPDATE_SECTION_WISE_ANNUAL_FEES = "/fee/createOrUpdateSectionFeeMap";
 const String GET_STUDENT_WISE_ANNUAL_FEES = "/fee/getStudentWiseAnnualFees";
+const String CREATE_OR_UPDATE_STUDENT_WISE_ANNUAL_FEES = "/fee/createOrUpdateStudentAnnualFeeMap";
 // const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
 // const String GET_FEE_MAP = "/fee/getFeeMap";

@@ -16,8 +16,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminFeedbackScreen extends StatefulWidget {
-  const AdminFeedbackScreen({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminFeedbackScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
@@ -79,8 +78,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getTeachersResponse.httpStatus == "OK" &&
-        getTeachersResponse.responseStatus == "success") {
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachersList = getTeachersResponse.teachers!;
         for (var eachTeacher in _teachersList) {
@@ -95,172 +93,121 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
     // Get all TDS
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
       ),
     );
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
         _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
       });
     }
 
     // Get all teachers feedback
-    GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse =
-        await getStudentToTeacherFeedback(
+    GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse = await getStudentToTeacherFeedback(
       GetStudentToTeacherFeedbackRequest(
         schoolId: widget.adminProfile.schoolId,
         teacherWiseAverageRating: true,
         adminView: true,
       ),
     );
-    if (getStudentToTeacherFeedbackResponse.httpStatus == "OK" &&
-        getStudentToTeacherFeedbackResponse.responseStatus == "success") {
+    if (getStudentToTeacherFeedbackResponse.httpStatus == "OK" && getStudentToTeacherFeedbackResponse.responseStatus == "success") {
       setState(() {
-        _feedbackBeans = getStudentToTeacherFeedbackResponse.feedbackBeans!
-            .map((e) => e!)
-            .where((e) => e.feedbackId != null)
-            .toList();
+        _feedbackBeans = getStudentToTeacherFeedbackResponse.feedbackBeans!.map((e) => e!).where((e) => e.feedbackId != null).toList();
       });
     }
 
     // teacherId, dateString, feedbackBean
-    Map<int, Map<String, List<StudentToTeacherFeedback>>>
-        _teacherWiseFeedbackMap = {};
+    Map<int, Map<String, List<StudentToTeacherFeedback>>> _teacherWiseFeedbackMap = {};
 
     for (var eachTeacher in _teachersList) {
       _teacherWiseFeedbackMap[eachTeacher.teacherId!] = {};
       for (var eachFeedbackBean in _feedbackBeans) {
         if (eachFeedbackBean.teacherId == eachTeacher.teacherId) {
-          String dateString = dateFormat.format(
-              DateTime.fromMillisecondsSinceEpoch(
-                  eachFeedbackBean.createTime!));
-          if (_teacherWiseFeedbackMap[eachFeedbackBean.teacherId]!
-              .containsKey(dateString)) {
-            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString]!
-                .add(eachFeedbackBean);
+          String dateString = dateFormat.format(DateTime.fromMillisecondsSinceEpoch(eachFeedbackBean.createTime!));
+          if (_teacherWiseFeedbackMap[eachFeedbackBean.teacherId]!.containsKey(dateString)) {
+            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString]!.add(eachFeedbackBean);
           } else {
-            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString] = [
-              eachFeedbackBean
-            ];
+            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString] = [eachFeedbackBean];
           }
         }
       }
 
-      _teacherWiseRatingKMap[eachTeacher.teacherId!] =
-          _teacherWiseFeedbackMap[eachTeacher.teacherId]!
-              .map((dateString, feedbackBeans) {
-        double avgRating = feedbackBeans
-            .map((e) => e.rating!.toDouble())
-            .reduce((a, b) => (a + b));
+      _teacherWiseRatingKMap[eachTeacher.teacherId!] = _teacherWiseFeedbackMap[eachTeacher.teacherId]!.map((dateString, feedbackBeans) {
+        double avgRating = feedbackBeans.map((e) => e.rating!.toDouble()).reduce((a, b) => (a + b));
         return MapEntry(dateString, avgRating / feedbackBeans.length);
       });
 
       _teacherWiseAverageRatingMap[eachTeacher.teacherId!] = "N/A";
 
-      List<DateTime> _dates = _teacherWiseRatingKMap[eachTeacher.teacherId!]!
-          .keys
-          .map((eachDateString) => dateFormat.parse(eachDateString))
-          .toList();
+      List<DateTime> _dates = _teacherWiseRatingKMap[eachTeacher.teacherId!]!.keys.map((eachDateString) => dateFormat.parse(eachDateString)).toList();
       _dates.sort();
 
       if (_dates.isEmpty) continue;
 
       DateTime _index = _dates.first.add(const Duration(days: 1));
-      while (_index.millisecondsSinceEpoch <=
-          DateTime.now().millisecondsSinceEpoch) {
-        if (!_teacherWiseRatingKMap[eachTeacher.teacherId]!
-            .keys
-            .contains(dateFormat.format(_index))) {
-          _teacherWiseRatingKMap[eachTeacher.teacherId]![dateFormat
-              .format(_index)] = _teacherWiseRatingKMap[eachTeacher.teacherId]![
-                  dateFormat.format(_index.add(const Duration(days: -1)))] ??
-              0.0;
+      while (_index.millisecondsSinceEpoch <= DateTime.now().millisecondsSinceEpoch) {
+        if (!_teacherWiseRatingKMap[eachTeacher.teacherId]!.keys.contains(dateFormat.format(_index))) {
+          _teacherWiseRatingKMap[eachTeacher.teacherId]![dateFormat.format(_index)] =
+              _teacherWiseRatingKMap[eachTeacher.teacherId]![dateFormat.format(_index.add(const Duration(days: -1)))] ?? 0.0;
         }
         _index = _index.add(const Duration(days: 1));
       }
-      print(
-          "152: ${eachTeacher.teacherId}: ${_teacherWiseRatingKMap[eachTeacher.teacherId!]}");
+      print("152: ${eachTeacher.teacherId}: ${_teacherWiseRatingKMap[eachTeacher.teacherId!]}");
 
-      _teacherWiseAverageRatingMap[eachTeacher.teacherId!] =
-          (_teacherWiseRatingKMap[eachTeacher.teacherId]!
-                      .values
-                      .reduce((a, b) => a + b) /
-                  _teacherWiseRatingKMap[eachTeacher.teacherId]!.values.length)
-              .toStringAsFixed(2);
+      _teacherWiseAverageRatingMap[eachTeacher.teacherId!] = (_teacherWiseRatingKMap[eachTeacher.teacherId]!.values.reduce((a, b) => a + b) /
+              _teacherWiseRatingKMap[eachTeacher.teacherId]!.values.length)
+          .toStringAsFixed(2);
     }
 
     // tdsId, dateString, feedbackBean
-    Map<int, Map<String, List<StudentToTeacherFeedback>>> _tdsWiseFeedbackMap =
-        {};
+    Map<int, Map<String, List<StudentToTeacherFeedback>>> _tdsWiseFeedbackMap = {};
 
     for (var eachTds in _tdsList) {
       _tdsWiseFeedbackMap[eachTds.tdsId!] = {};
       for (var eachFeedbackBean in _feedbackBeans) {
         if (eachFeedbackBean.tdsId == eachTds.tdsId) {
-          String dateString = dateFormat.format(
-              DateTime.fromMillisecondsSinceEpoch(
-                  eachFeedbackBean.createTime!));
-          if (_tdsWiseFeedbackMap[eachFeedbackBean.tdsId]!
-              .containsKey(dateString)) {
-            _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString]!
-                .add(eachFeedbackBean);
+          String dateString = dateFormat.format(DateTime.fromMillisecondsSinceEpoch(eachFeedbackBean.createTime!));
+          if (_tdsWiseFeedbackMap[eachFeedbackBean.tdsId]!.containsKey(dateString)) {
+            _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString]!.add(eachFeedbackBean);
           } else {
-            _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString] = [
-              eachFeedbackBean
-            ];
+            _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString] = [eachFeedbackBean];
           }
         }
       }
 
-      _tdsWiseRatingKMap[eachTds.tdsId!] =
-          _tdsWiseFeedbackMap[eachTds.tdsId]!.map((dateString, feedbackBeans) {
-        double avgRating = feedbackBeans
-            .map((e) => e.rating!.toDouble())
-            .reduce((a, b) => (a + b));
+      _tdsWiseRatingKMap[eachTds.tdsId!] = _tdsWiseFeedbackMap[eachTds.tdsId]!.map((dateString, feedbackBeans) {
+        double avgRating = feedbackBeans.map((e) => e.rating!.toDouble()).reduce((a, b) => (a + b));
         return MapEntry(dateString, avgRating / feedbackBeans.length);
       });
 
       _tdsWiseAverageRatingMap[eachTds.tdsId!] = "N/A";
 
-      List<DateTime> _dates = _tdsWiseRatingKMap[eachTds.tdsId!]!
-          .keys
-          .map((eachDateString) => dateFormat.parse(eachDateString))
-          .toList();
+      List<DateTime> _dates = _tdsWiseRatingKMap[eachTds.tdsId!]!.keys.map((eachDateString) => dateFormat.parse(eachDateString)).toList();
       _dates.sort();
 
       if (_dates.isEmpty) continue;
 
       DateTime _index = _dates.first.add(const Duration(days: 1));
-      while (_index.millisecondsSinceEpoch <=
-          DateTime.now().millisecondsSinceEpoch) {
-        if (!_tdsWiseRatingKMap[eachTds.tdsId]!
-            .keys
-            .contains(dateFormat.format(_index))) {
+      while (_index.millisecondsSinceEpoch <= DateTime.now().millisecondsSinceEpoch) {
+        if (!_tdsWiseRatingKMap[eachTds.tdsId]!.keys.contains(dateFormat.format(_index))) {
           _tdsWiseRatingKMap[eachTds.tdsId]![dateFormat.format(_index)] =
-              _tdsWiseRatingKMap[eachTds.tdsId]![dateFormat
-                      .format(_index.add(const Duration(days: -1)))] ??
-                  0.0;
+              _tdsWiseRatingKMap[eachTds.tdsId]![dateFormat.format(_index.add(const Duration(days: -1)))] ?? 0.0;
         }
         _index = _index.add(const Duration(days: 1));
       }
       print("217: ${eachTds.tdsId}: ${_tdsWiseRatingKMap[eachTds.tdsId!]}");
 
       _tdsWiseAverageRatingMap[eachTds.tdsId!] =
-          (_tdsWiseRatingKMap[eachTds.tdsId]!.values.reduce((a, b) => a + b) /
-                  _tdsWiseRatingKMap[eachTds.tdsId]!.values.length)
-              .toStringAsFixed(2);
+          (_tdsWiseRatingKMap[eachTds.tdsId]!.values.reduce((a, b) => a + b) / _tdsWiseRatingKMap[eachTds.tdsId]!.values.length).toStringAsFixed(2);
     }
 
     print("TDS wise avg feedback: $_tdsWiseAverageRatingMap");
@@ -301,8 +248,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
             childAspectRatio: 2.25,
             crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
             shrinkWrap: true,
-            children:
-                _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
+            children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
           ),
         ],
       ),
@@ -333,9 +279,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
               Expanded(
                 child: Center(
                   child: Text(
-                    _selectedSection == null
-                        ? "Select a section"
-                        : "Section: ${_selectedSection!.sectionName!}",
+                    _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
                   ),
                 ),
               ),
@@ -360,14 +304,8 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
       margin: const EdgeInsets.all(5),
       child: ClayButton(
         depth: 40,
-        color: _selectedSection != null &&
-                _selectedSection!.sectionId == section.sectionId
-            ? Colors.blue[200]
-            : clayContainerColor(context),
-        spread: _selectedSection != null &&
-                _selectedSection!.sectionId == section.sectionId!
-            ? 0
-            : 2,
+        color: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue[200] : clayContainerColor(context),
+        spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId! ? 0 : 2,
         borderRadius: 10,
         child: Container(
           decoration: BoxDecoration(
@@ -380,8 +318,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
               HapticFeedback.vibrate();
               if (_isLoading) return;
               setState(() {
-                if (_selectedSection != null &&
-                    _selectedSection!.sectionId == section.sectionId) {
+                if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
                   _selectedSection = null;
                 } else {
                   _selectedSection = section;
@@ -500,9 +437,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
 
   DropdownSearch<Teacher> searchableDropdownButtonForTeacher() {
     return DropdownSearch<Teacher>(
-      mode: MediaQuery.of(context).orientation == Orientation.portrait
-          ? Mode.BOTTOM_SHEET
-          : Mode.MENU,
+      mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
       selectedItem: _selectedTeacher,
       items: _teachersList,
       itemAsString: (Teacher? teacher) {
@@ -521,8 +456,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         });
       },
       showClearButton: true,
-      compareFn: (item, selectedItem) =>
-          item?.teacherId == selectedItem?.teacherId,
+      compareFn: (item, selectedItem) => item?.teacherId == selectedItem?.teacherId,
       dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
       filterFn: (Teacher? teacher, String? key) {
         return teacher!.teacherName!.toLowerCase().contains(key!.toLowerCase());
@@ -532,8 +466,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
 
   void _applyFilters() {}
 
-  Widget buildChart(Teacher? teacher, TeacherDealingSection? tds,
-      String? leftTopHeader, String? rightTopHeader) {
+  Widget buildChart(Teacher? teacher, TeacherDealingSection? tds, String? leftTopHeader, String? rightTopHeader) {
     return Container(
       height: 300,
       decoration: const BoxDecoration(
@@ -550,14 +483,8 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
       margin: const EdgeInsets.fromLTRB(5, 15, 5, 15),
       child: Stack(
         children: [
-          ((teacher != null &&
-                      teacher.teacherId != null &&
-                      _teacherWiseRatingKMap[teacher.teacherId]!
-                          .keys
-                          .isEmpty) ||
-                  (tds != null &&
-                      tds.tdsId != null &&
-                      _tdsWiseRatingKMap[tds.tdsId]!.keys.isEmpty))
+          ((teacher != null && teacher.teacherId != null && _teacherWiseRatingKMap[teacher.teacherId]!.keys.isEmpty) ||
+                  (tds != null && tds.tdsId != null && _tdsWiseRatingKMap[tds.tdsId]!.keys.isEmpty))
               ? const Center(
                   child: Text(
                     "N/A",
@@ -588,17 +515,13 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
                                       .length)
                               : (tds != null
                                   ? _tdsWiseRatingKMap[tds.tdsId]!.keys.length
-                                  : _teacherWiseRatingKMap[teacher!.teacherId]!
-                                      .keys
-                                      .length)) *
+                                  : _teacherWiseRatingKMap[teacher!.teacherId]!.keys.length)) *
                           (_isMonthWiseFeedback ? 75.0 : 50.0),
                       padding: const EdgeInsets.only(
                         left: 24.0,
                         right: 24.0,
                       ),
-                      child: tds != null
-                          ? buildLineChart(null, tds.tdsId)
-                          : buildLineChart(teacher!.teacherId, null),
+                      child: tds != null ? buildLineChart(null, tds.tdsId) : buildLineChart(teacher!.teacherId, null),
                     ),
                   ],
                 ),
@@ -635,9 +558,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
 
   Widget buildLineChart(int? teacherId, int? tdsId) {
     return LineChart(
-      _isMonthWiseFeedback
-          ? buildMonthlyLineChartData(teacherId, tdsId)
-          : buildDailyLineChartData(teacherId, tdsId),
+      _isMonthWiseFeedback ? buildMonthlyLineChartData(teacherId, tdsId) : buildDailyLineChartData(teacherId, tdsId),
       swapAnimationDuration: const Duration(milliseconds: 500), // Optional
       swapAnimationCurve: Curves.easeInOutSine, // Optional
     );
@@ -646,24 +567,13 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
   LineChartData buildMonthlyLineChartData(int? teacherId, int? tdsId) {
     List<DateTime> _months = [];
     if (teacherId != null) {
-      _months = _teacherWiseRatingKMap[teacherId]!
-          .keys
-          .map((e) => dateFormat.parse(e))
-          .map((e) => DateTime(e.year, e.month, 1))
-          .toSet()
-          .toList();
+      _months = _teacherWiseRatingKMap[teacherId]!.keys.map((e) => dateFormat.parse(e)).map((e) => DateTime(e.year, e.month, 1)).toSet().toList();
     } else if (tdsId != null) {
-      _months = _tdsWiseRatingKMap[tdsId]!
-          .keys
-          .map((e) => dateFormat.parse(e))
-          .map((e) => DateTime(e.year, e.month, 1))
-          .toSet()
-          .toList();
+      _months = _tdsWiseRatingKMap[tdsId]!.keys.map((e) => dateFormat.parse(e)).map((e) => DateTime(e.year, e.month, 1)).toSet().toList();
     }
     _months.sort();
 
-    List<String> xAxis =
-        _months.map((e) => DateFormat("MMM\nyyyy").format(e)).toList();
+    List<String> xAxis = _months.map((e) => DateFormat("MMM\nyyyy").format(e)).toList();
 
     List<MapEntry<double, double>> plottedPoints = [];
     if (teacherId != null) {
@@ -671,13 +581,9 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         var x = _teacherWiseRatingKMap[teacherId]!
             .keys
             .map((eachDate) => dateFormat.parse(eachDate))
-            .where((eachDate) =>
-                eachDate.year == eachMonth.year &&
-                eachDate.month == eachMonth.month)
+            .where((eachDate) => eachDate.year == eachMonth.year && eachDate.month == eachMonth.month)
             .map((eachDate) {
-          return _teacherWiseRatingKMap[teacherId]![
-                  dateFormat.format(eachDate)] ??
-              0;
+          return _teacherWiseRatingKMap[teacherId]![dateFormat.format(eachDate)] ?? 0;
         });
         double avg = x.reduce((a, b) => a + b) / x.length;
         plottedPoints.add(MapEntry(_months.indexOf(eachMonth).toDouble(), avg));
@@ -687,9 +593,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         var x = _tdsWiseRatingKMap[tdsId]!
             .keys
             .map((eachDate) => dateFormat.parse(eachDate))
-            .where((eachDate) =>
-                eachDate.year == eachMonth.year &&
-                eachDate.month == eachMonth.month)
+            .where((eachDate) => eachDate.year == eachMonth.year && eachDate.month == eachMonth.month)
             .map((eachDate) {
           return _tdsWiseRatingKMap[tdsId]![dateFormat.format(eachDate)] ?? 0;
         });
@@ -704,33 +608,23 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
   LineChartData buildDailyLineChartData(int? teacherId, int? tdsId) {
     List<DateTime> _dates = [];
     if (teacherId != null) {
-      _dates = _teacherWiseRatingKMap[teacherId]!
-          .keys
-          .map((e) => dateFormat.parse(e))
-          .toList();
+      _dates = _teacherWiseRatingKMap[teacherId]!.keys.map((e) => dateFormat.parse(e)).toList();
     } else if (tdsId != null) {
-      _dates = _tdsWiseRatingKMap[tdsId]!
-          .keys
-          .map((e) => dateFormat.parse(e))
-          .toList();
+      _dates = _tdsWiseRatingKMap[tdsId]!.keys.map((e) => dateFormat.parse(e)).toList();
     }
     _dates.sort();
-    List<String> xAxis =
-        _dates.map((e) => DateFormat("dd\nMMM\nyyyy").format(e)).toList();
+    List<String> xAxis = _dates.map((e) => DateFormat("dd\nMMM\nyyyy").format(e)).toList();
     List<MapEntry<double, double>> plottedPoints = _dates
         .map((e) => MapEntry(
             _dates.indexOf(e).toDouble(),
             teacherId != null
-                ? _teacherWiseRatingKMap[teacherId]![dateFormat.format(e)]!
-                    .toDouble()
-                : _tdsWiseRatingKMap[tdsId!]![dateFormat.format(e)]!
-                    .toDouble()))
+                ? _teacherWiseRatingKMap[teacherId]![dateFormat.format(e)]!.toDouble()
+                : _tdsWiseRatingKMap[tdsId!]![dateFormat.format(e)]!.toDouble()))
         .toList();
     return getLineChartData(xAxis, plottedPoints);
   }
 
-  LineChartData getLineChartData(
-      List<String> xAxis, List<MapEntry<double, double>> plottedPoints) {
+  LineChartData getLineChartData(List<String> xAxis, List<MapEntry<double, double>> plottedPoints) {
     return LineChartData(
       gridData: FlGridData(
         show: true,
@@ -780,9 +674,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
       maxY: 7,
       lineBarsData: [
         LineChartBarData(
-          spots: plottedPoints
-              .map((e) => FlSpot(e.key, (e.value * 100).toInt() / 100.0))
-              .toList(),
+          spots: plottedPoints.map((e) => FlSpot(e.key, (e.value * 100).toInt() / 100.0)).toList(),
           isCurved: false,
           colors: gradientColors,
           barWidth: 5,
@@ -792,8 +684,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
           ),
           belowBarData: BarAreaData(
             show: true,
-            colors:
-                gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+            colors: gradientColors.map((color) => color.withOpacity(0.3)).toList(),
           ),
         ),
       ],
@@ -848,32 +739,20 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
             )
           : ListView(
               children: <Widget>[
-                    if (MediaQuery.of(context).orientation ==
-                        Orientation.landscape)
+                    if (MediaQuery.of(context).orientation == Orientation.landscape)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (_selectedTeacher == null)
-                            Expanded(child: _sectionPicker()),
-                          if (_selectedSection == null && !_isSectionPickerOpen)
-                            Expanded(child: _selectTeacher()),
+                          if (_selectedTeacher == null) Expanded(child: _sectionPicker()),
+                          if (_selectedSection == null && !_isSectionPickerOpen) Expanded(child: _selectTeacher()),
                           if (!_isSectionPickerOpen) _buildMonthlySwitch()
                         ],
                       ),
-                    if (MediaQuery.of(context).orientation ==
-                            Orientation.portrait &&
-                        _selectedTeacher == null)
-                      _sectionPicker(),
-                    if (MediaQuery.of(context).orientation ==
-                            Orientation.portrait &&
-                        _selectedSection == null &&
-                        !_isSectionPickerOpen)
+                    if (MediaQuery.of(context).orientation == Orientation.portrait && _selectedTeacher == null) _sectionPicker(),
+                    if (MediaQuery.of(context).orientation == Orientation.portrait && _selectedSection == null && !_isSectionPickerOpen)
                       _selectTeacher(),
-                    if (MediaQuery.of(context).orientation ==
-                            Orientation.portrait &&
-                        !_isSectionPickerOpen)
-                      _buildMonthlySwitch(),
+                    if (MediaQuery.of(context).orientation == Orientation.portrait && !_isSectionPickerOpen) _buildMonthlySwitch(),
                   ] +
                   // (_selectedSection == null ? [] : [])+
                   buildGraphs(),
@@ -892,9 +771,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
             depth: 15,
             spread: 2,
             emboss: !_isMonthWiseFeedback,
-            surfaceColor: _isMonthWiseFeedback
-                ? clayContainerColor(context)
-                : Colors.lightGreen.shade400,
+            surfaceColor: _isMonthWiseFeedback ? clayContainerColor(context) : Colors.lightGreen.shade400,
             parentColor: clayContainerColor(context),
             borderRadius: 1000,
             height: 30,
@@ -921,9 +798,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
             depth: 15,
             spread: 2,
             emboss: _isMonthWiseFeedback,
-            surfaceColor: !_isMonthWiseFeedback
-                ? clayContainerColor(context)
-                : Colors.lightGreen.shade400,
+            surfaceColor: !_isMonthWiseFeedback ? clayContainerColor(context) : Colors.lightGreen.shade400,
             parentColor: clayContainerColor(context),
             borderRadius: 1000,
             height: 30,
@@ -950,17 +825,15 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
           .map(
             (e) => Container(
               margin: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-              child: buildChart(null, e, (e.sectionName ?? "").capitalize(),
-                  "${(e.teacherName ?? "").capitalize()}\n ${(e.subjectName ?? "").capitalize()}"),
+              child: buildChart(
+                  null, e, (e.sectionName ?? "").capitalize(), "${(e.teacherName ?? "").capitalize()}\n ${(e.subjectName ?? "").capitalize()}"),
             ),
           )
           .toList();
     } else if (_selectedTeacher != null) {
       return [buildTeacherWiseWidget(_selectedTeacher!)];
     }
-    return _teachersList
-        .map((eachTeacher) => buildTeacherWiseWidget(eachTeacher))
-        .toList();
+    return _teachersList.map((eachTeacher) => buildTeacherWiseWidget(eachTeacher)).toList();
   }
 
   Widget buildTeacherWiseWidget(Teacher teacher) {
@@ -971,8 +844,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         child: GestureDetector(
           onTap: () {
             setState(() {
-              _isTeacherExpandedMap[teacher.teacherId!] =
-                  !_isTeacherExpandedMap[teacher.teacherId!]!;
+              _isTeacherExpandedMap[teacher.teacherId!] = !_isTeacherExpandedMap[teacher.teacherId!]!;
             });
           },
           child: ClayButton(
@@ -986,16 +858,11 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
                   ? Column(
                       children: [
                             buildTeacherStatsRow(teacher),
-                            buildChart(teacher, null,
-                                (teacher.teacherName ?? "").capitalize(), ""),
+                            buildChart(teacher, null, (teacher.teacherName ?? "").capitalize(), ""),
                           ] +
                           _tdsList
-                              .where((eachTds) =>
-                                  eachTds.teacherId == teacher.teacherId)
-                              .map((e) => buildChart(
-                                  null,
-                                  e,
-                                  (e.sectionName ?? "").capitalize(),
+                              .where((eachTds) => eachTds.teacherId == teacher.teacherId)
+                              .map((e) => buildChart(null, e, (e.sectionName ?? "").capitalize(),
                                   "${(e.teacherName ?? "").capitalize()}\n ${(e.subjectName ?? "").capitalize()}"))
                               .toList(),
                     )
@@ -1016,12 +883,9 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Tooltip(
-            message:
-                "Over all rating: ${_teacherWiseAverageRatingMap[teacher.teacherId!]!}",
+            message: "Over all rating: ${_teacherWiseAverageRatingMap[teacher.teacherId!]!}",
             child: RatingBarIndicator(
-              rating: double.tryParse(
-                      _teacherWiseAverageRatingMap[teacher.teacherId!]!) ??
-                  0.0,
+              rating: double.tryParse(_teacherWiseAverageRatingMap[teacher.teacherId!]!) ?? 0.0,
               direction: Axis.horizontal,
               itemCount: 5,
               itemPadding: const EdgeInsets.symmetric(
