@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const Color lightThemeColor = Color(0xFFF2F2F2);
 const Color darkThemeColor = Color(0xFF3A3A3A);
@@ -27,3 +28,9 @@ Color getInvertedColor(Color color) {
 
   return Color.fromARGB((color.opacity * 255).round(), r, g, b);
 }
+
+Map<String, TextTheme> textThemesMap = {
+  'Roboto': GoogleFonts.robotoTextTheme(),
+  'Open Sans': GoogleFonts.openSansTextTheme(),
+  'PT Serif': GoogleFonts.ptSerifTextTheme(),
+};

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/colors.dart';
 import 'settings_controller.dart';
 
 class SettingsView extends StatelessWidget {
@@ -40,6 +41,23 @@ class SettingsView extends StatelessWidget {
                   child: Text("Light Theme"),
                 ),
               ],
+            ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.text_format),
+            title: DropdownButton<String>(
+              underline: Container(),
+              value: controller.textTheme,
+              onChanged: controller.updateTextTheme,
+              items: textThemesMap.keys
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Text(e, style: textThemesMap[e]!.headline3),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
           const Divider(),

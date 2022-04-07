@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_create_or_manage_exams_screen.dart';
@@ -123,8 +124,18 @@ class _MyAppState extends State<MyApp> {
           title: "Epsilon Diary",
           debugShowCheckedModeBanner: false,
           restorationScopeId: 'app',
-          theme: ThemeData(),
-          darkTheme: ThemeData.dark(),
+          theme: ThemeData(
+            textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
+              bodyColor: Colors.black,
+              displayColor: Colors.black,
+            ),
+          ),
+          darkTheme: ThemeData.dark().copyWith(
+            textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
+              bodyColor: Colors.white,
+              displayColor: Colors.white,
+            ),
+          ),
           themeMode: widget.settingsController.themeMode,
           onUnknownRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(

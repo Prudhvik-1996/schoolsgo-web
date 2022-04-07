@@ -8,12 +8,14 @@ class SettingsController with ChangeNotifier {
   final SettingsService _settingsService;
 
   late ThemeMode _themeMode;
+  late String _textTheme;
 
   ThemeMode get themeMode => _themeMode;
+  String get textTheme => _textTheme;
 
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
-
+    _textTheme = await _settingsService.textTheme();
     notifyListeners();
   }
 
@@ -27,5 +29,17 @@ class SettingsController with ChangeNotifier {
     notifyListeners();
 
     await _settingsService.updateThemeMode(_themeMode);
+  }
+
+  Future<void> updateTextTheme(String? newTextTheme) async {
+    if (newTextTheme == null) return;
+
+    if (newTextTheme == _textTheme) return;
+
+    _textTheme = newTextTheme;
+
+    notifyListeners();
+
+    await _settingsService.updateTextTheme(_textTheme);
   }
 }
