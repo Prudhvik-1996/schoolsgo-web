@@ -632,9 +632,9 @@ class GetSectionWiseAnnualFeesResponse {
     if (sectionWiseAnnualFeesBeanList != null) {
       final v = sectionWiseAnnualFeesBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['sectionWiseAnnualFeesBeanList'] = arr0;
     }
     return data;
@@ -712,9 +712,9 @@ class CreateOrUpdateSectionFeeMapRequest {
     if (sectionWiseFeesBeanList != null) {
       final v = sectionWiseFeesBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['sectionWiseFeesBeanList'] = arr0;
     }
     return data;
@@ -1016,9 +1016,9 @@ class StudentWiseAnnualFeesBean {
     if (studentAnnualFeeMapBeanList != null) {
       final v = studentAnnualFeeMapBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['studentAnnualFeeMapBeanList'] = arr0;
     }
     data['studentId'] = studentId;
@@ -1111,9 +1111,9 @@ class GetStudentWiseAnnualFeesResponse {
     if (studentWiseAnnualFeesBeanList != null) {
       final v = studentWiseAnnualFeesBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['studentWiseAnnualFeesBeanList'] = arr0;
     }
     return data;
@@ -1231,9 +1231,9 @@ class CreateOrUpdateStudentAnnualFeeMapRequest {
     if (studentAnnualFeeMapBeanList != null) {
       final v = studentAnnualFeeMapBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['studentAnnualFeeMapBeanList'] = arr0;
     }
     return data;
@@ -1299,4 +1299,313 @@ Future<CreateOrUpdateStudentAnnualFeeMapResponse> createOrUpdateStudentAnnualFee
       CreateOrUpdateStudentAnnualFeeMapResponse.fromJson(json.decode(response.body));
   print("CreateOrUpdateStudentAnnualFeeMapResponse ${createOrUpdateStudentAnnualFeeMapResponse.toJson()}");
   return createOrUpdateStudentAnnualFeeMapResponse;
+}
+
+class GetTermsRequest {
+/*
+{
+  "schoolId": 0,
+  "termId": 0
+}
+*/
+
+  int? schoolId;
+  int? termId;
+  Map<String, dynamic> __origJson = {};
+
+  GetTermsRequest({
+    this.schoolId,
+    this.termId,
+  });
+  GetTermsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    schoolId = json['schoolId']?.toInt();
+    termId = json['termId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['schoolId'] = schoolId;
+    data['termId'] = termId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class TermBean {
+/*
+{
+  "schoolDisplayName": "string",
+  "schoolId": 0,
+  "status": "active",
+  "termEndDate": "string",
+  "termId": 0,
+  "termName": "string",
+  "termNumber": 0,
+  "termStartDate": "string"
+}
+*/
+
+  String? schoolDisplayName;
+  int? schoolId;
+  String? status;
+  String? termEndDate;
+  int? termId;
+  String? termName;
+  int? termNumber;
+  String? termStartDate;
+  Map<String, dynamic> __origJson = {};
+
+  bool isEditMode = false;
+  TextEditingController termNameController = TextEditingController();
+
+  TermBean({
+    this.schoolDisplayName,
+    this.schoolId,
+    this.status,
+    this.termEndDate,
+    this.termId,
+    this.termName,
+    this.termNumber,
+    this.termStartDate,
+  }) {
+    termNameController.text = termName ?? "";
+  }
+
+  TermBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    schoolDisplayName = json['schoolDisplayName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    termEndDate = json['termEndDate']?.toString();
+    termId = json['termId']?.toInt();
+    termName = json['termName']?.toString();
+    termNameController.text = termName ?? "";
+    termNumber = json['termNumber']?.toInt();
+    termStartDate = json['termStartDate']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['schoolDisplayName'] = schoolDisplayName;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    data['termEndDate'] = termEndDate;
+    data['termId'] = termId;
+    data['termName'] = termName;
+    data['termNumber'] = termNumber;
+    data['termStartDate'] = termStartDate;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetTermsResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "termBeanList": [
+    {
+      "schoolDisplayName": "string",
+      "schoolId": 0,
+      "status": "active",
+      "termEndDate": "string",
+      "termId": 0,
+      "termName": "string",
+      "termNumber": 0,
+      "termStartDate": "string"
+    }
+  ]
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  List<TermBean?>? termBeanList;
+  Map<String, dynamic> __origJson = {};
+
+  GetTermsResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.termBeanList,
+  });
+  GetTermsResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    if (json['termBeanList'] != null) {
+      final v = json['termBeanList'];
+      final arr0 = <TermBean>[];
+      v.forEach((v) {
+        arr0.add(TermBean.fromJson(v));
+      });
+      termBeanList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    if (termBeanList != null) {
+      final v = termBeanList;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['termBeanList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetTermsResponse> getTerms(GetTermsRequest getTermsRequest) async {
+  print("Raising request to getTerms with request ${jsonEncode(getTermsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_TERMS;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getTermsRequest.toJson()),
+  );
+
+  GetTermsResponse getTermsResponse = GetTermsResponse.fromJson(json.decode(response.body));
+  print("GetTermsResponse ${getTermsResponse.toJson()}");
+  return getTermsResponse;
+}
+
+class CreateOrUpdateTermRequest {
+/*
+{
+  "agent": 0,
+  "schoolId": 0,
+  "status": "active",
+  "termEndDate": "string",
+  "termId": 0,
+  "termName": "string",
+  "termNumber": 0,
+  "termStartDate": "string"
+}
+*/
+
+  int? agent;
+  int? schoolId;
+  String? status;
+  String? termEndDate;
+  int? termId;
+  String? termName;
+  int? termNumber;
+  String? termStartDate;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateTermRequest({
+    this.agent,
+    this.schoolId,
+    this.status,
+    this.termEndDate,
+    this.termId,
+    this.termName,
+    this.termNumber,
+    this.termStartDate,
+  });
+  CreateOrUpdateTermRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    termEndDate = json['termEndDate']?.toString();
+    termId = json['termId']?.toInt();
+    termName = json['termName']?.toString();
+    termNumber = json['termNumber']?.toInt();
+    termStartDate = json['termStartDate']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    data['termEndDate'] = termEndDate;
+    data['termId'] = termId;
+    data['termName'] = termName;
+    data['termNumber'] = termNumber;
+    data['termStartDate'] = termStartDate;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateTermResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "termId": 0
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  int? termId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateTermResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.termId,
+  });
+  CreateOrUpdateTermResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    termId = json['termId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    data['termId'] = termId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateTermResponse> createOrUpdateTerm(CreateOrUpdateTermRequest createOrUpdateTermRequest) async {
+  print("Raising request to createOrUpdateTerm with request ${jsonEncode(createOrUpdateTermRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_TERM;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateTermRequest.toJson()),
+  );
+
+  CreateOrUpdateTermResponse createOrUpdateTermResponse = CreateOrUpdateTermResponse.fromJson(json.decode(response.body));
+  print("CreateOrUpdateTermResponse ${createOrUpdateTermResponse.toJson()}");
+  return createOrUpdateTermResponse;
 }

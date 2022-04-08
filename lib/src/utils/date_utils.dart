@@ -138,6 +138,10 @@ String convertDateToDDMMMYYYEEEE(String? date) {
   return date == null ? "-" : DateFormat('dd MMM, yyyy EEEE').format(DateFormat("yyyy-MM-dd").parse(date));
 }
 
+String convertDateToDDMMMYYY(String? date) {
+  return date == null ? "-" : DateFormat('dd MMM, yyyy').format(DateFormat("yyyy-MM-dd").parse(date));
+}
+
 String convertDateToDDMMMEEEE(String? date) {
   date ??= DateFormat("yyyy-MM-dd").format(DateTime.now());
   return DateFormat('EEEE, dd MMM').format(DateFormat("yyyy-MM-dd").parse(date));

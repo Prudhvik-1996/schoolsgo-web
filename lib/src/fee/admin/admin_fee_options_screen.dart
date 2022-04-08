@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_assign_fee_type_to_sections_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_fee_types_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
@@ -113,6 +114,13 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
             "Student Fee Management",
             null,
             AdminStudentFeeManagementScreen(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getTimeTableOption(
+            "Terms Management",
+            null,
+            AdminManageTermsScreen(
               adminProfile: widget.adminProfile,
             ),
           ),
