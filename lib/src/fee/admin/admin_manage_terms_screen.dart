@@ -75,61 +75,45 @@ class _AdminManageTermsScreenState extends State<AdminManageTermsScreen> {
           : ListView(
               children: terms.map((e) => buildTermWidget(e)).toList(),
             ),
-      // floatingActionButton: _isLoading || terms.where((e) => e.termId == null).isEmpty
-      //     ? null
-      //     : GestureDetector(
-      //         onTap: () {
-      //           //  TODO add new term
-      //         },
-      //         child: ClayButton(
-      //           depth: 40,
-      //           surfaceColor: clayContainerColor(context),
-      //           parentColor: clayContainerColor(context),
-      //           spread: 1,
-      //           borderRadius: 100,
-      //           child: Container(
-      //             margin: const EdgeInsets.all(10),
-      //             child: const Icon(Icons.add),
-      //           ),
-      //         ),
-      //       ),
-      floatingActionButton: _isEditMode && !terms.map((e) => e.isEditMode).contains(true)
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      terms.add(
-                        TermBean(
-                          schoolId: widget.adminProfile.schoolId,
-                          schoolDisplayName: widget.adminProfile.schoolName,
-                          status: "active",
-                        )..isEditMode = true,
-                      );
-                    });
-                  },
-                  child: ClayButton(
-                    depth: 40,
-                    surfaceColor: clayContainerColor(context),
-                    parentColor: clayContainerColor(context),
-                    spread: 1,
-                    borderRadius: 100,
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      child: const Icon(Icons.add),
+      floatingActionButton: widget.adminProfile.isMegaAdmin
+          ? null
+          : _isEditMode && !terms.map((e) => e.isEditMode).contains(true)
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          terms.add(
+                            TermBean(
+                              schoolId: widget.adminProfile.schoolId,
+                              schoolDisplayName: widget.adminProfile.schoolName,
+                              status: "active",
+                            )..isEditMode = true,
+                          );
+                        });
+                      },
+                      child: ClayButton(
+                        depth: 40,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        spread: 1,
+                        borderRadius: 100,
+                        child: Container(
+                          margin: const EdgeInsets.all(10),
+                          child: const Icon(Icons.add),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                buildMasterEditButton(context),
-              ],
-            )
-          : buildMasterEditButton(context),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    buildMasterEditButton(context),
+                  ],
+                )
+              : buildMasterEditButton(context),
     );
   }
 
