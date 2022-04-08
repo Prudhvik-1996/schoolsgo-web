@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_section_wise_term_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -162,7 +163,13 @@ class _AdminManageTermsScreenState extends State<AdminManageTermsScreen> {
             )
           : GestureDetector(
               onTap: () {
-                //  TODO navigate to term screen
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AdminSectionWiseTermFeeScreen(
+                    adminProfile: widget.adminProfile,
+                    termIndex: terms.indexOf(term),
+                    terms: terms,
+                  );
+                }));
               },
               child: ClayButton(
                 surfaceColor: clayContainerColor(context),

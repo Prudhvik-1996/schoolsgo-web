@@ -62,6 +62,8 @@ dependencies:
   linked_scroll_controller: ^0.2.0
   screenshot: ^1.2.3
 
+  horizontal_data_table: ^3.6.1+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

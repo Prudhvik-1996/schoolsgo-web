@@ -538,7 +538,7 @@ class SectionWiseAnnualFeesBean {
   });
   SectionWiseAnnualFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    amount = json['amount']?.toInt();
+    amount = json['annualFeeAmount']?.toInt();
     customFeeType = json['customFeeType']?.toString();
     customFeeTypeId = json['customFeeTypeId']?.toInt();
     feeType = json['feeType']?.toString();
@@ -552,7 +552,7 @@ class SectionWiseAnnualFeesBean {
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['amount'] = amount;
+    data['annualFeeAmount'] = amount;
     data['customFeeType'] = customFeeType;
     data['customFeeTypeId'] = customFeeTypeId;
     data['feeType'] = feeType;
@@ -1608,4 +1608,431 @@ Future<CreateOrUpdateTermResponse> createOrUpdateTerm(CreateOrUpdateTermRequest 
   CreateOrUpdateTermResponse createOrUpdateTermResponse = CreateOrUpdateTermResponse.fromJson(json.decode(response.body));
   print("CreateOrUpdateTermResponse ${createOrUpdateTermResponse.toJson()}");
   return createOrUpdateTermResponse;
+}
+
+class GetSectionWiseTermFeesRequest {
+/*
+{
+  "customFeeTypeId": 0,
+  "feeTypeId": 0,
+  "schoolId": 0,
+  "sectionId": 0,
+  "termId": 0
+}
+*/
+
+  int? customFeeTypeId;
+  int? feeTypeId;
+  int? schoolId;
+  int? sectionId;
+  int? termId;
+  Map<String, dynamic> __origJson = {};
+
+  GetSectionWiseTermFeesRequest({
+    this.customFeeTypeId,
+    this.feeTypeId,
+    this.schoolId,
+    this.sectionId,
+    this.termId,
+  });
+  GetSectionWiseTermFeesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    customFeeTypeId = json['customFeeTypeId']?.toInt();
+    feeTypeId = json['feeTypeId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    termId = json['termId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['customFeeTypeId'] = customFeeTypeId;
+    data['feeTypeId'] = feeTypeId;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['termId'] = termId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class SectionWiseTermFeesBean {
+/*
+{
+  "annualFeeAmount": 0,
+  "customFeeType": "string",
+  "customFeeTypeId": 0,
+  "feeType": "string",
+  "feeTypeId": 0,
+  "schoolDisplayName": "string",
+  "schoolId": 0,
+  "sectionFeeMapId": 0,
+  "sectionId": 0,
+  "sectionName": "string",
+  "sectionWiseFeesStatus": "active",
+  "termFeeAmount": 0,
+  "termFeeMapId": 0
+}
+*/
+
+  int? termId;
+  int? annualFeeAmount;
+  String? customFeeType;
+  int? customFeeTypeId;
+  String? feeType;
+  int? feeTypeId;
+  String? schoolDisplayName;
+  int? schoolId;
+  int? sectionFeeMapId;
+  int? sectionId;
+  String? sectionName;
+  String? sectionWiseFeesStatus;
+  int? termFeeAmount;
+  int? termFeeMapId;
+  Map<String, dynamic> __origJson = {};
+
+  SectionWiseTermFeesBean({
+    this.termId,
+    this.annualFeeAmount,
+    this.customFeeType,
+    this.customFeeTypeId,
+    this.feeType,
+    this.feeTypeId,
+    this.schoolDisplayName,
+    this.schoolId,
+    this.sectionFeeMapId,
+    this.sectionId,
+    this.sectionName,
+    this.sectionWiseFeesStatus,
+    this.termFeeAmount,
+    this.termFeeMapId,
+  });
+  SectionWiseTermFeesBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    termId = json['termId']?.toInt();
+    annualFeeAmount = json['annualFeeAmount']?.toInt();
+    customFeeType = json['customFeeType']?.toString();
+    customFeeTypeId = json['customFeeTypeId']?.toInt();
+    feeType = json['feeType']?.toString();
+    feeTypeId = json['feeTypeId']?.toInt();
+    schoolDisplayName = json['schoolDisplayName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    sectionFeeMapId = json['sectionFeeMapId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    sectionWiseFeesStatus = json['sectionWiseFeesStatus']?.toString();
+    termFeeAmount = json['termFeeAmount']?.toInt();
+    termFeeMapId = json['termFeeMapId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['termId'] = termId;
+    data['annualFeeAmount'] = annualFeeAmount;
+    data['customFeeType'] = customFeeType;
+    data['customFeeTypeId'] = customFeeTypeId;
+    data['feeType'] = feeType;
+    data['feeTypeId'] = feeTypeId;
+    data['schoolDisplayName'] = schoolDisplayName;
+    data['schoolId'] = schoolId;
+    data['sectionFeeMapId'] = sectionFeeMapId;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['sectionWiseFeesStatus'] = sectionWiseFeesStatus;
+    data['termFeeAmount'] = termFeeAmount;
+    data['termFeeMapId'] = termFeeMapId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetSectionWiseTermFeesResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "sectionWiseTermFeesBeanList": [
+    {
+      "annualFeeAmount": 0,
+      "customFeeType": "string",
+      "customFeeTypeId": 0,
+      "feeType": "string",
+      "feeTypeId": 0,
+      "schoolDisplayName": "string",
+      "schoolId": 0,
+      "sectionFeeMapId": 0,
+      "sectionId": 0,
+      "sectionName": "string",
+      "sectionWiseFeesStatus": "active",
+      "termFeeAmount": 0,
+      "termFeeMapId": 0
+    }
+  ]
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  List<SectionWiseTermFeesBean?>? sectionWiseTermFeesBeanList;
+  Map<String, dynamic> __origJson = {};
+
+  GetSectionWiseTermFeesResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.sectionWiseTermFeesBeanList,
+  });
+  GetSectionWiseTermFeesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    if (json['sectionWiseTermFeesBeanList'] != null) {
+      final v = json['sectionWiseTermFeesBeanList'];
+      final arr0 = <SectionWiseTermFeesBean>[];
+      v.forEach((v) {
+        arr0.add(SectionWiseTermFeesBean.fromJson(v));
+      });
+      sectionWiseTermFeesBeanList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    if (sectionWiseTermFeesBeanList != null) {
+      final v = sectionWiseTermFeesBeanList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['sectionWiseTermFeesBeanList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetSectionWiseTermFeesResponse> getSectionWiseTermFees(GetSectionWiseTermFeesRequest getSectionWiseTermFeesRequest) async {
+  print("Raising request to getSectionWiseTermFees with request ${jsonEncode(getSectionWiseTermFeesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_SECTION_WISE_TERM_FEES;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getSectionWiseTermFeesRequest.toJson()),
+  );
+
+  GetSectionWiseTermFeesResponse getSectionWiseTermFeesResponse = GetSectionWiseTermFeesResponse.fromJson(json.decode(response.body));
+  print("GetSectionWiseTermFeesResponse ${getSectionWiseTermFeesResponse.toJson()}");
+  return getSectionWiseTermFeesResponse;
+}
+
+class UpdateSectionWiseTermFeeBean {
+/*
+{
+  "amount": 0,
+  "schoolId": 0,
+  "schoolName": "string",
+  "sectionFeeMapId": 0,
+  "sectionId": 0,
+  "sectionName": "string",
+  "status": "active",
+  "termFeeMapId": 0,
+  "termId": 0,
+  "termName": "string",
+  "termNumber": 0
+}
+*/
+
+  int? amount;
+  int? schoolId;
+  String? schoolName;
+  int? sectionFeeMapId;
+  int? sectionId;
+  String? sectionName;
+  String? status;
+  int? termFeeMapId;
+  int? termId;
+  String? termName;
+  int? termNumber;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateSectionWiseTermFeeBean({
+    this.amount,
+    this.schoolId,
+    this.schoolName,
+    this.sectionFeeMapId,
+    this.sectionId,
+    this.sectionName,
+    this.status,
+    this.termFeeMapId,
+    this.termId,
+    this.termName,
+    this.termNumber,
+  });
+  UpdateSectionWiseTermFeeBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    amount = json['amount']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    sectionFeeMapId = json['sectionFeeMapId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    status = json['status']?.toString();
+    termFeeMapId = json['termFeeMapId']?.toInt();
+    termId = json['termId']?.toInt();
+    termName = json['termName']?.toString();
+    termNumber = json['termNumber']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['amount'] = amount;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['sectionFeeMapId'] = sectionFeeMapId;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['status'] = status;
+    data['termFeeMapId'] = termFeeMapId;
+    data['termId'] = termId;
+    data['termName'] = termName;
+    data['termNumber'] = termNumber;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateSectionWiseTermFeeMapRequest {
+/*
+{
+  "agent": 0,
+  "schoolId": 0,
+  "sectionWiseTermFeeList": [
+    {
+      "amount": 0,
+      "schoolId": 0,
+      "schoolName": "string",
+      "sectionFeeMapId": 0,
+      "sectionId": 0,
+      "sectionName": "string",
+      "status": "active",
+      "termFeeMapId": 0,
+      "termId": 0,
+      "termName": "string",
+      "termNumber": 0
+    }
+  ]
+}
+*/
+
+  int? agent;
+  int? schoolId;
+  List<UpdateSectionWiseTermFeeBean?>? sectionWiseTermFeeList;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSectionWiseTermFeeMapRequest({
+    this.agent,
+    this.schoolId,
+    this.sectionWiseTermFeeList,
+  });
+  CreateOrUpdateSectionWiseTermFeeMapRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    if (json['sectionWiseTermFeeList'] != null) {
+      final v = json['sectionWiseTermFeeList'];
+      final arr0 = <UpdateSectionWiseTermFeeBean>[];
+      v.forEach((v) {
+        arr0.add(UpdateSectionWiseTermFeeBean.fromJson(v));
+      });
+      sectionWiseTermFeeList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['schoolId'] = schoolId;
+    if (sectionWiseTermFeeList != null) {
+      final v = sectionWiseTermFeeList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['sectionWiseTermFeeList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateSectionWiseTermFeeMapResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSectionWiseTermFeeMapResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateSectionWiseTermFeeMapResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateSectionWiseTermFeeMapResponse> createOrUpdateSectionWiseTermFeeMap(
+    CreateOrUpdateSectionWiseTermFeeMapRequest createOrUpdateSectionWiseTermFeeMapRequest) async {
+  print("Raising request to createOrUpdateSectionWiseTermFeeMap with request ${jsonEncode(createOrUpdateSectionWiseTermFeeMapRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_SECTION_WISE_TERM_FEES;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateSectionWiseTermFeeMapRequest.toJson()),
+  );
+
+  CreateOrUpdateSectionWiseTermFeeMapResponse createOrUpdateSectionWiseTermFeeMapResponse =
+      CreateOrUpdateSectionWiseTermFeeMapResponse.fromJson(json.decode(response.body));
+  print("CreateOrUpdateSectionWiseTermFeeMapResponse ${createOrUpdateSectionWiseTermFeeMapResponse.toJson()}");
+  return createOrUpdateSectionWiseTermFeeMapResponse;
 }
