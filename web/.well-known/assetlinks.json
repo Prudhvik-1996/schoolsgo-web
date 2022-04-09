@@ -1,0 +1,11 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.epsilon.schoolsgo",
+      "sha256_cert_fingerprints":
+      ["79:E8:20:21:B9:9D:49:C8:D2:A1:66:57:14:6A:61:FF:E6:C5:63:81:21:79:B1:8D:E6:15:81:C2:23:35:3D:28", "99:72:E8:AD:4A:DF:D1:50:14:34:3A:47:05:23:E9:EA:75:4D:B7:72:06:78:68:CF:C1:28:91:A6:0F:54:08:52"]
+    }
+  }
+]
