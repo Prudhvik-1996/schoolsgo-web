@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:http/http.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
+
 /// adminProfiles : [{"agent":0,"firstName":"string","lastName":"string","mailId":"string","middleName":"string","schoolId":0,"schoolName":"string","schoolPhotoUrl":"string","userId":0}]
 /// errorCode : "INTERNAL_SERVER_ERROR"
 /// errorMessage : "string"
@@ -811,4 +816,138 @@ class GetUserRolesDetailsResponse {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetStudentProfileRequest {
+/*
+{
+  "sectionId": 0,
+  "studentId": 0
+}
+*/
+
+  int? sectionId;
+  int? studentId;
+  Map<String, dynamic> __origJson = {};
+
+  GetStudentProfileRequest({
+    this.sectionId,
+    this.studentId,
+  });
+  GetStudentProfileRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    sectionId = json['sectionId']?.toInt();
+    studentId = json['studentId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['sectionId'] = sectionId;
+    data['studentId'] = studentId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetStudentProfileResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "studentProfiles": [
+    {
+      "balanceAmount": 0,
+      "fatherName": "string",
+      "gaurdianFirstName": "string",
+      "gaurdianId": 0,
+      "gaurdianLastName": "string",
+      "gaurdianMailId": "string",
+      "gaurdianMiddleName": "string",
+      "gaurdianMobile": "string",
+      "motherName": "string",
+      "rollNumber": "string",
+      "schoolId": 0,
+      "schoolName": "string",
+      "schoolPhotoUrl": "string",
+      "sectionDescription": "string",
+      "sectionId": 0,
+      "sectionName": "string",
+      "studentDob": "string",
+      "studentFirstName": "string",
+      "studentId": 0,
+      "studentLastName": "string",
+      "studentMailId": "string",
+      "studentMiddleName": "string",
+      "studentMobile": "string",
+      "studentPhotoUrl": "string"
+    }
+  ]
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  List<StudentProfile?>? studentProfiles;
+  Map<String, dynamic> __origJson = {};
+
+  GetStudentProfileResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.studentProfiles,
+  });
+  GetStudentProfileResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    if (json['studentProfiles'] != null) {
+      final v = json['studentProfiles'];
+      final arr0 = <StudentProfile>[];
+      v.forEach((v) {
+        arr0.add(StudentProfile.fromJson(v));
+      });
+      studentProfiles = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    if (studentProfiles != null) {
+      final v = studentProfiles;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentProfiles'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetStudentProfileResponse> getStudentProfile(GetStudentProfileRequest getStudentProfileRequest) async {
+  print("Raising request to getStudentProfile with request ${jsonEncode(getStudentProfileRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_PROFILE;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getStudentProfileRequest.toJson()),
+  );
+
+  GetStudentProfileResponse getStudentProfileResponse = GetStudentProfileResponse.fromJson(json.decode(response.body));
+  print("GetStudentProfileResponse ${getStudentProfileResponse.toJson()}");
+  return getStudentProfileResponse;
 }

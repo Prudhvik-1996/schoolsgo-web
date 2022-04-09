@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_pay_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -170,6 +171,8 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             totalFee: eachAnnualFeeBean.actualFee,
             totalFeePaid: eachAnnualFeeBean.feePaid,
             walletBalance: eachAnnualFeeBean.studentWalletBalance,
+            sectionId: eachAnnualFeeBean.sectionId,
+            sectionName: eachAnnualFeeBean.sectionName,
             studentAnnualFeeTypeBeans: feeTypesForSelectedSection
                 .map(
                   (eachFeeType) => StudentAnnualFeeTypeBean(
@@ -740,6 +743,17 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 child: GestureDetector(
                                   onTap: () {
                                     // TODO Go to pay fee page
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return AdminPayFeeScreen(
+                                            studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
+                                            adminProfile: widget.adminProfile,
+                                          );
+                                        },
+                                      ),
+                                    );
                                   },
                                   child: ClayButton(
                                     depth: 40,
@@ -933,6 +947,8 @@ class StudentAnnualFeeBean {
   int? totalFee;
   int? totalFeePaid;
   int? walletBalance;
+  int? sectionId;
+  String? sectionName;
 
   StudentAnnualFeeBean({
     this.studentId,
@@ -942,6 +958,8 @@ class StudentAnnualFeeBean {
     this.totalFee,
     this.totalFeePaid,
     this.walletBalance,
+    this.sectionId,
+    this.sectionName,
   });
 
   @override

@@ -34,6 +34,7 @@ const String CREATE_OR_UPDATE_EVENT_MEDIA = "/events/createOrUpdateEventMedia";
 const String GET_SECTIONS = "/commons/getSections";
 const String GET_SUBJECTS = "/commons/getSubjects";
 const String GET_TEACHERS = "/commons/getTeachers";
+const String GET_STUDENT_PROFILE = "/students/getStudentProfile";
 
 const String GET_TDS = "/timetable/getTeacherDealingSections";
 const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS = "/timetable/createOrUpdateTeacherDealingSections";
@@ -87,5 +88,6 @@ const String GET_TERMS = "/fee/getTerms";
 const String CREATE_OR_UPDATE_TERM = "/fee/createOrUpdateTerm";
 const String GET_SECTION_WISE_TERM_FEES = "/fee/getSectionWiseTermFees";
 const String CREATE_SECTION_WISE_TERM_FEES = "/fee/createOrUpdateSectionWiseTermFeeMap";
+const String GET_STUDENT_WISE_TERM_FEES = "/fee/getStudentWiseTermFees";
 // const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
 // const String GET_FEE_MAP = "/fee/getFeeMap";

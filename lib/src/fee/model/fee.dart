@@ -1811,9 +1811,9 @@ class GetSectionWiseTermFeesResponse {
     if (sectionWiseTermFeesBeanList != null) {
       final v = sectionWiseTermFeesBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['sectionWiseTermFeesBeanList'] = arr0;
     }
     return data;
@@ -1967,9 +1967,9 @@ class CreateOrUpdateSectionWiseTermFeeMapRequest {
     if (sectionWiseTermFeeList != null) {
       final v = sectionWiseTermFeeList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['sectionWiseTermFeeList'] = arr0;
     }
     return data;
@@ -2035,4 +2035,448 @@ Future<CreateOrUpdateSectionWiseTermFeeMapResponse> createOrUpdateSectionWiseTer
       CreateOrUpdateSectionWiseTermFeeMapResponse.fromJson(json.decode(response.body));
   print("CreateOrUpdateSectionWiseTermFeeMapResponse ${createOrUpdateSectionWiseTermFeeMapResponse.toJson()}");
   return createOrUpdateSectionWiseTermFeeMapResponse;
+}
+
+class GetStudentWiseTermFeesRequest {
+/*
+{
+  "customFeeTypeId": 0,
+  "feeTypeId": 0,
+  "schoolId": 0,
+  "sectionId": 0,
+  "studentId": 0,
+  "termId": 0
+}
+*/
+
+  int? customFeeTypeId;
+  int? feeTypeId;
+  int? schoolId;
+  int? sectionId;
+  int? studentId;
+  int? termId;
+  Map<String, dynamic> __origJson = {};
+
+  GetStudentWiseTermFeesRequest({
+    this.customFeeTypeId,
+    this.feeTypeId,
+    this.schoolId,
+    this.sectionId,
+    this.studentId,
+    this.termId,
+  });
+  GetStudentWiseTermFeesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    customFeeTypeId = json['customFeeTypeId']?.toInt();
+    feeTypeId = json['feeTypeId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    termId = json['termId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['customFeeTypeId'] = customFeeTypeId;
+    data['feeTypeId'] = feeTypeId;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['studentId'] = studentId;
+    data['termId'] = termId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class StudentWiseTermFeeMapBean {
+/*
+{
+  "amount": 0,
+  "customFeeType": "string",
+  "customFeeTypeId": 0,
+  "feePaid": 0,
+  "feePaidId": 0,
+  "feeType": "string",
+  "feeTypeId": 0,
+  "modeOfPayment": "CASH",
+  "paymentDate": "string",
+  "schoolDisplayName": "string",
+  "schoolId": 0,
+  "sectionFeeMapId": 0,
+  "sectionId": 0,
+  "sectionName": "string",
+  "studentFeeMapId": 0,
+  "studentId": 0,
+  "studentName": "string",
+  "studentWalletBalance": 0,
+  "termEndDate": "string",
+  "termFee": 0,
+  "termFeeMapId": 0,
+  "termId": 0,
+  "termName": "string",
+  "termNumber": 0,
+  "termStartDate": "string",
+  "transactionDescription": "string",
+  "transactionId": 0,
+  "transactionKind": "CR",
+  "transactionStatus": "SUCCESS",
+  "transactionType": "string"
+}
+*/
+
+  int? amount;
+  String? customFeeType;
+  int? customFeeTypeId;
+  int? feePaid;
+  int? feePaidId;
+  String? feeType;
+  int? feeTypeId;
+  String? modeOfPayment;
+  String? paymentDate;
+  String? schoolDisplayName;
+  int? schoolId;
+  int? sectionFeeMapId;
+  int? sectionId;
+  String? sectionName;
+  int? studentFeeMapId;
+  int? studentId;
+  String? studentName;
+  int? studentWalletBalance;
+  String? termEndDate;
+  int? termFee;
+  int? termFeeMapId;
+  int? termId;
+  String? termName;
+  int? termNumber;
+  String? termStartDate;
+  String? transactionDescription;
+  int? transactionId;
+  String? transactionKind;
+  String? transactionStatus;
+  String? transactionType;
+  Map<String, dynamic> __origJson = {};
+
+  StudentWiseTermFeeMapBean({
+    this.amount,
+    this.customFeeType,
+    this.customFeeTypeId,
+    this.feePaid,
+    this.feePaidId,
+    this.feeType,
+    this.feeTypeId,
+    this.modeOfPayment,
+    this.paymentDate,
+    this.schoolDisplayName,
+    this.schoolId,
+    this.sectionFeeMapId,
+    this.sectionId,
+    this.sectionName,
+    this.studentFeeMapId,
+    this.studentId,
+    this.studentName,
+    this.studentWalletBalance,
+    this.termEndDate,
+    this.termFee,
+    this.termFeeMapId,
+    this.termId,
+    this.termName,
+    this.termNumber,
+    this.termStartDate,
+    this.transactionDescription,
+    this.transactionId,
+    this.transactionKind,
+    this.transactionStatus,
+    this.transactionType,
+  });
+  StudentWiseTermFeeMapBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    amount = json['amount']?.toInt();
+    customFeeType = json['customFeeType']?.toString();
+    customFeeTypeId = json['customFeeTypeId']?.toInt();
+    feePaid = json['feePaid']?.toInt();
+    feePaidId = json['feePaidId']?.toInt();
+    feeType = json['feeType']?.toString();
+    feeTypeId = json['feeTypeId']?.toInt();
+    modeOfPayment = json['modeOfPayment']?.toString();
+    paymentDate = json['paymentDate']?.toString();
+    schoolDisplayName = json['schoolDisplayName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    sectionFeeMapId = json['sectionFeeMapId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    studentFeeMapId = json['studentFeeMapId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    studentName = json['studentName']?.toString();
+    studentWalletBalance = json['studentWalletBalance']?.toInt();
+    termEndDate = json['termEndDate']?.toString();
+    termFee = json['termFee']?.toInt();
+    termFeeMapId = json['termFeeMapId']?.toInt();
+    termId = json['termId']?.toInt();
+    termName = json['termName']?.toString();
+    termNumber = json['termNumber']?.toInt();
+    termStartDate = json['termStartDate']?.toString();
+    transactionDescription = json['transactionDescription']?.toString();
+    transactionId = json['transactionId']?.toInt();
+    transactionKind = json['transactionKind']?.toString();
+    transactionStatus = json['transactionStatus']?.toString();
+    transactionType = json['transactionType']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['amount'] = amount;
+    data['customFeeType'] = customFeeType;
+    data['customFeeTypeId'] = customFeeTypeId;
+    data['feePaid'] = feePaid;
+    data['feePaidId'] = feePaidId;
+    data['feeType'] = feeType;
+    data['feeTypeId'] = feeTypeId;
+    data['modeOfPayment'] = modeOfPayment;
+    data['paymentDate'] = paymentDate;
+    data['schoolDisplayName'] = schoolDisplayName;
+    data['schoolId'] = schoolId;
+    data['sectionFeeMapId'] = sectionFeeMapId;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['studentFeeMapId'] = studentFeeMapId;
+    data['studentId'] = studentId;
+    data['studentName'] = studentName;
+    data['studentWalletBalance'] = studentWalletBalance;
+    data['termEndDate'] = termEndDate;
+    data['termFee'] = termFee;
+    data['termFeeMapId'] = termFeeMapId;
+    data['termId'] = termId;
+    data['termName'] = termName;
+    data['termNumber'] = termNumber;
+    data['termStartDate'] = termStartDate;
+    data['transactionDescription'] = transactionDescription;
+    data['transactionId'] = transactionId;
+    data['transactionKind'] = transactionKind;
+    data['transactionStatus'] = transactionStatus;
+    data['transactionType'] = transactionType;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class StudentWiseTermFeesBean {
+/*
+{
+  "actualFee": 0,
+  "feePaid": 0,
+  "sectionId": 0,
+  "sectionName": "string",
+  "studentId": 0,
+  "studentName": "string",
+  "studentWiseTermFeeMapBeanList": [
+    {
+      "amount": 0,
+      "customFeeType": "string",
+      "customFeeTypeId": 0,
+      "feePaid": 0,
+      "feePaidId": 0,
+      "feeType": "string",
+      "feeTypeId": 0,
+      "modeOfPayment": "CASH",
+      "paymentDate": "string",
+      "schoolDisplayName": "string",
+      "schoolId": 0,
+      "sectionFeeMapId": 0,
+      "sectionId": 0,
+      "sectionName": "string",
+      "studentFeeMapId": 0,
+      "studentId": 0,
+      "studentName": "string",
+      "studentWalletBalance": 0,
+      "termEndDate": "string",
+      "termFee": 0,
+      "termFeeMapId": 0,
+      "termId": 0,
+      "termName": "string",
+      "termNumber": 0,
+      "termStartDate": "string",
+      "transactionDescription": "string",
+      "transactionId": 0,
+      "transactionKind": "CR",
+      "transactionStatus": "SUCCESS",
+      "transactionType": "string"
+    }
+  ]
+}
+*/
+
+  int? actualFee;
+  int? feePaid;
+  int? sectionId;
+  String? sectionName;
+  int? studentId;
+  String? studentName;
+  List<StudentWiseTermFeeMapBean?>? studentWiseTermFeeMapBeanList;
+  Map<String, dynamic> __origJson = {};
+
+  StudentWiseTermFeesBean({
+    this.actualFee,
+    this.feePaid,
+    this.sectionId,
+    this.sectionName,
+    this.studentId,
+    this.studentName,
+    this.studentWiseTermFeeMapBeanList,
+  });
+  StudentWiseTermFeesBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    actualFee = json['actualFee']?.toInt();
+    feePaid = json['feePaid']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    studentId = json['studentId']?.toInt();
+    studentName = json['studentName']?.toString();
+    if (json['studentWiseTermFeeMapBeanList'] != null) {
+      final v = json['studentWiseTermFeeMapBeanList'];
+      final arr0 = <StudentWiseTermFeeMapBean>[];
+      v.forEach((v) {
+        arr0.add(StudentWiseTermFeeMapBean.fromJson(v));
+      });
+      studentWiseTermFeeMapBeanList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['actualFee'] = actualFee;
+    data['feePaid'] = feePaid;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['studentId'] = studentId;
+    data['studentName'] = studentName;
+    if (studentWiseTermFeeMapBeanList != null) {
+      final v = studentWiseTermFeeMapBeanList;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['studentWiseTermFeeMapBeanList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetStudentWiseTermFeesResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "studentWiseTermFeesBeanList": [
+    {
+      "actualFee": 0,
+      "feePaid": 0,
+      "sectionId": 0,
+      "sectionName": "string",
+      "studentId": 0,
+      "studentName": "string",
+      "studentWiseTermFeeMapBeanList": [
+        {
+          "amount": 0,
+          "customFeeType": "string",
+          "customFeeTypeId": 0,
+          "feePaid": 0,
+          "feePaidId": 0,
+          "feeType": "string",
+          "feeTypeId": 0,
+          "modeOfPayment": "CASH",
+          "paymentDate": "string",
+          "schoolDisplayName": "string",
+          "schoolId": 0,
+          "sectionFeeMapId": 0,
+          "sectionId": 0,
+          "sectionName": "string",
+          "studentFeeMapId": 0,
+          "studentId": 0,
+          "studentName": "string",
+          "studentWalletBalance": 0,
+          "termEndDate": "string",
+          "termFee": 0,
+          "termFeeMapId": 0,
+          "termId": 0,
+          "termName": "string",
+          "termNumber": 0,
+          "termStartDate": "string",
+          "transactionDescription": "string",
+          "transactionId": 0,
+          "transactionKind": "CR",
+          "transactionStatus": "SUCCESS",
+          "transactionType": "string"
+        }
+      ]
+    }
+  ]
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  List<StudentWiseTermFeesBean?>? studentWiseTermFeesBeanList;
+  Map<String, dynamic> __origJson = {};
+
+  GetStudentWiseTermFeesResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.studentWiseTermFeesBeanList,
+  });
+  GetStudentWiseTermFeesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    if (json['studentWiseTermFeesBeanList'] != null) {
+      final v = json['studentWiseTermFeesBeanList'];
+      final arr0 = <StudentWiseTermFeesBean>[];
+      v.forEach((v) {
+        arr0.add(StudentWiseTermFeesBean.fromJson(v));
+      });
+      studentWiseTermFeesBeanList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    if (studentWiseTermFeesBeanList != null) {
+      final v = studentWiseTermFeesBeanList;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['studentWiseTermFeesBeanList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetStudentWiseTermFeesResponse> getStudentWiseTermFees(GetStudentWiseTermFeesRequest getStudentWiseTermFeesRequest) async {
+  print("Raising request to getStudentWiseTermFees with request ${jsonEncode(getStudentWiseTermFeesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_WISE_TERM_FEES;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getStudentWiseTermFeesRequest.toJson()),
+  );
+
+  GetStudentWiseTermFeesResponse getStudentWiseTermFeesResponse = GetStudentWiseTermFeesResponse.fromJson(json.decode(response.body));
+  print("GetStudentWiseTermFeesResponse ${getStudentWiseTermFeesResponse.toJson()}");
+  return getStudentWiseTermFeesResponse;
 }
