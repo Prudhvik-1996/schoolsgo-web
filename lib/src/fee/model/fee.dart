@@ -2259,6 +2259,77 @@ class StudentWiseTermFeeMapBean {
   Map<String, dynamic> origJson() => __origJson;
 }
 
+class StudentWalletTransactionBean {
+/*
+{
+  "studentId": 70,
+  "studentName": "Kaushal",
+  "transactionId": 1649708722944,
+  "amount": 10000,
+  "date": "2022-04-11",
+  "transactionKind": "CR",
+  "transactionType": "LOAD_WALLET",
+  "description": "LOADING WALLET WITH AMOUNT 10000 FOR STUDENT Kaushal",
+  "transactionStatus": "SUCCESS",
+  "agent": 127
+}
+*/
+
+  int? studentId;
+  String? studentName;
+  int? transactionId;
+  int? amount;
+  String? date;
+  String? transactionKind;
+  String? transactionType;
+  String? description;
+  String? transactionStatus;
+  int? agent;
+  Map<String, dynamic> __origJson = {};
+
+  StudentWalletTransactionBean({
+    this.studentId,
+    this.studentName,
+    this.transactionId,
+    this.amount,
+    this.date,
+    this.transactionKind,
+    this.transactionType,
+    this.description,
+    this.transactionStatus,
+    this.agent,
+  });
+  StudentWalletTransactionBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    studentId = json['studentId']?.toInt();
+    studentName = json['studentName']?.toString();
+    transactionId = json['transactionId']?.toInt();
+    amount = json['amount']?.toInt();
+    date = json['date']?.toString();
+    transactionKind = json['transactionKind']?.toString();
+    transactionType = json['transactionType']?.toString();
+    description = json['description']?.toString();
+    transactionStatus = json['transactionStatus']?.toString();
+    agent = json['agent']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['studentId'] = studentId;
+    data['studentName'] = studentName;
+    data['transactionId'] = transactionId;
+    data['amount'] = amount;
+    data['date'] = date;
+    data['transactionKind'] = transactionKind;
+    data['transactionType'] = transactionType;
+    data['description'] = description;
+    data['transactionStatus'] = transactionStatus;
+    data['agent'] = agent;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
 class StudentWiseTermFeesBean {
 /*
 {
@@ -2312,6 +2383,7 @@ class StudentWiseTermFeesBean {
   int? studentId;
   String? studentName;
   List<StudentWiseTermFeeMapBean?>? studentWiseTermFeeMapBeanList;
+  List<StudentWalletTransactionBean?>? studentWalletTransactionBeans;
   Map<String, dynamic> __origJson = {};
 
   StudentWiseTermFeesBean({
@@ -2322,6 +2394,7 @@ class StudentWiseTermFeesBean {
     this.studentId,
     this.studentName,
     this.studentWiseTermFeeMapBeanList,
+    this.studentWalletTransactionBeans,
   });
   StudentWiseTermFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -2339,6 +2412,14 @@ class StudentWiseTermFeesBean {
       });
       studentWiseTermFeeMapBeanList = arr0;
     }
+    if (json['studentWalletTransactionBeans'] != null) {
+      final v = json['studentWalletTransactionBeans'];
+      final arr1 = <StudentWalletTransactionBean>[];
+      v.forEach((v) {
+        arr1.add(StudentWalletTransactionBean.fromJson(v));
+      });
+      studentWalletTransactionBeans = arr1;
+    }
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -2355,6 +2436,14 @@ class StudentWiseTermFeesBean {
         arr0.add(v!.toJson());
       }
       data['studentWiseTermFeeMapBeanList'] = arr0;
+    }
+    if (studentWalletTransactionBeans != null) {
+      final v = studentWalletTransactionBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['studentWalletTransactionBeans'] = arr0;
     }
     return data;
   }
@@ -2479,4 +2568,156 @@ Future<GetStudentWiseTermFeesResponse> getStudentWiseTermFees(GetStudentWiseTerm
   GetStudentWiseTermFeesResponse getStudentWiseTermFeesResponse = GetStudentWiseTermFeesResponse.fromJson(json.decode(response.body));
   print("GetStudentWiseTermFeesResponse ${getStudentWiseTermFeesResponse.toJson()}");
   return getStudentWiseTermFeesResponse;
+}
+
+class CreateOrUpdateStudentFeePaidRequest {
+/*
+{
+  "agent": 0,
+  "loadWalletAmount": 0,
+  "schoolId": 0,
+  "studentId": 0,
+  "studentTermFeeMapList": [
+    {
+      "amount": 0,
+      "customFeeType": "string",
+      "customFeeTypeId": 0,
+      "feePaid": 0,
+      "feePaidId": 0,
+      "feeType": "string",
+      "feeTypeId": 0,
+      "modeOfPayment": "CASH",
+      "paymentDate": "string",
+      "schoolDisplayName": "string",
+      "schoolId": 0,
+      "sectionFeeMapId": 0,
+      "sectionId": 0,
+      "sectionName": "string",
+      "studentFeeMapId": 0,
+      "studentId": 0,
+      "studentName": "string",
+      "studentWalletBalance": 0,
+      "termEndDate": "string",
+      "termFee": 0,
+      "termFeeMapId": 0,
+      "termId": 0,
+      "termName": "string",
+      "termNumber": 0,
+      "termStartDate": "string",
+      "transactionDescription": "string",
+      "transactionId": 0,
+      "transactionKind": "CR",
+      "transactionStatus": "SUCCESS",
+      "transactionType": "string"
+    }
+  ]
+}
+*/
+
+  int? agent;
+  int? loadWalletAmount;
+  int? schoolId;
+  int? studentId;
+  List<StudentWiseTermFeeMapBean?>? studentTermFeeMapList;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentFeePaidRequest({
+    this.agent,
+    this.loadWalletAmount,
+    this.schoolId,
+    this.studentId,
+    this.studentTermFeeMapList,
+  });
+  CreateOrUpdateStudentFeePaidRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    loadWalletAmount = json['loadWalletAmount']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    if (json['studentTermFeeMapList'] != null) {
+      final v = json['studentTermFeeMapList'];
+      final arr0 = <StudentWiseTermFeeMapBean>[];
+      v.forEach((v) {
+        arr0.add(StudentWiseTermFeeMapBean.fromJson(v));
+      });
+      studentTermFeeMapList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['loadWalletAmount'] = loadWalletAmount;
+    data['schoolId'] = schoolId;
+    data['studentId'] = studentId;
+    if (studentTermFeeMapList != null) {
+      final v = studentTermFeeMapList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentTermFeeMapList'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStudentFeePaidResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentFeePaidResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateStudentFeePaidResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateStudentFeePaidResponse> createOrUpdateStudentFeePaid(
+    CreateOrUpdateStudentFeePaidRequest createOrUpdateStudentFeePaidRequest) async {
+  print("Raising request to createOrUpdateStudentFeePaid with request ${jsonEncode(createOrUpdateStudentFeePaidRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_FEE_PAID;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateStudentFeePaidRequest.toJson()),
+  );
+
+  CreateOrUpdateStudentFeePaidResponse createOrUpdateStudentFeePaidResponse =
+      CreateOrUpdateStudentFeePaidResponse.fromJson(json.decode(response.body));
+  print("CreateOrUpdateStudentFeePaidResponse ${createOrUpdateStudentFeePaidResponse.toJson()}");
+  return createOrUpdateStudentFeePaidResponse;
 }

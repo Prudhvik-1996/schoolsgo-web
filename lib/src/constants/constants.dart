@@ -89,5 +89,6 @@ const String CREATE_OR_UPDATE_TERM = "/fee/createOrUpdateTerm";
 const String GET_SECTION_WISE_TERM_FEES = "/fee/getSectionWiseTermFees";
 const String CREATE_SECTION_WISE_TERM_FEES = "/fee/createOrUpdateSectionWiseTermFeeMap";
 const String GET_STUDENT_WISE_TERM_FEES = "/fee/getStudentWiseTermFees";
+const String CREATE_OR_UPDATE_FEE_PAID = "/fee/createOrUpdateStudentFeePaid";
 // const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
 // const String GET_FEE_MAP = "/fee/getFeeMap";

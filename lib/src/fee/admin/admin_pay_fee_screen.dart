@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -36,10 +38,11 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
   late StudentProfile studentProfile;
   List<_StudentFeePaidBean> studentFeePaidBeans = [];
   int walletBalance = 0;
+  int newWalletBalance = 0;
   TextEditingController totalAmountPayingController = TextEditingController();
   int? totalAmountPaying;
   int totalFee = 0;
-  int minTotalAmountPayable = 0;
+  int maxTotalAmountPayable = 0;
 
   @override
   void initState() {
@@ -65,6 +68,7 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
       setState(() {
         studentProfile = getStudentProfileResponse.studentProfiles!.map((e) => e!).toList().first;
         walletBalance = studentProfile.balanceAmount ?? 0;
+        newWalletBalance = walletBalance;
       });
     }
     GetTermsResponse getTermsResponse = await getTerms(GetTermsRequest(
@@ -129,7 +133,8 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
           }
         } else {
           if (list.where((e) => e.feeTypeId == eachStudentWiseTermFeeMapBean.feeTypeId).isEmpty) {
-            list.add(_StudentFeePaidForFeeTypeBean(
+            list.add(
+              _StudentFeePaidForFeeTypeBean(
                 studentId: studentWiseTermFeesBean?.studentId,
                 feeTypeId: eachStudentWiseTermFeeMapBean.feeTypeId,
                 feeType: eachStudentWiseTermFeeMapBean.feeType,
@@ -138,23 +143,23 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                     studentId: studentWiseTermFeesBean?.studentId,
                     customFeeTypeId: eachStudentWiseTermFeeMapBean.customFeeTypeId,
                     customFeeType: eachStudentWiseTermFeeMapBean.customFeeType,
-                  )
-                ]));
+                  ),
+                ],
+              ),
+            );
           } else {
             if (list
                 .map((e) => e.studentFeePaidForCustomFeeTypeBeans ?? [])
                 .expand((i) => i)
                 .where((e) => e.customFeeTypeId == eachStudentWiseTermFeeMapBean.customFeeTypeId)
                 .isNotEmpty) return;
-            list
-                .where((e) => e.feeTypeId == eachStudentWiseTermFeeMapBean.feeTypeId)
-                .first
-                .studentFeePaidForCustomFeeTypeBeans
-                ?.add(_StudentFeePaidForCustomFeeTypeBean(
-                  studentId: studentWiseTermFeesBean?.studentId,
-                  customFeeTypeId: eachStudentWiseTermFeeMapBean.customFeeTypeId,
-                  customFeeType: eachStudentWiseTermFeeMapBean.customFeeType,
-                ));
+            list.where((e) => e.feeTypeId == eachStudentWiseTermFeeMapBean.feeTypeId).first.studentFeePaidForCustomFeeTypeBeans?.add(
+                  _StudentFeePaidForCustomFeeTypeBean(
+                    studentId: studentWiseTermFeesBean?.studentId,
+                    customFeeTypeId: eachStudentWiseTermFeeMapBean.customFeeTypeId,
+                    customFeeType: eachStudentWiseTermFeeMapBean.customFeeType,
+                  ),
+                );
           }
         }
       });
@@ -177,6 +182,7 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                     amount: e?.feePaid,
                     transactionId: e?.transactionId == null ? "-" : e?.transactionId.toString(),
                     transactionTime: e?.paymentDate,
+                    description: e?.transactionDescription,
                   ))
               .toList();
           eachStudentFeePaidForFeeTypeBean.transactionsList = transactions.isEmpty ? null : transactions;
@@ -212,6 +218,7 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                       amount: e?.feePaid,
                       transactionId: e?.transactionId == null ? "-" : e?.transactionId.toString(),
                       transactionTime: e?.paymentDate,
+                      description: e?.transactionDescription,
                     ))
                 .toList();
             eachStudentFeePaidForCustomFeeTypeBean.transactionsList = transactions.isEmpty ? null : transactions;
@@ -220,13 +227,13 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
           }
         }
       }
-      int totalFeePaid = list
+      int _totalFeePaid = list
           .map((e) => (e.studentFeePaidForCustomFeeTypeBeans ?? []).isEmpty
               ? (e.feePaid ?? 0)
               : (e.studentFeePaidForCustomFeeTypeBeans!.map((c) => c.feePaid ?? 0).toList().sum))
           .toList()
           .sum;
-      int totalFee = list
+      int _totalFee = list
           .map((e) => (e.studentFeePaidForCustomFeeTypeBeans ?? []).isEmpty
               ? (e.fee ?? 0)
               : (e.studentFeePaidForCustomFeeTypeBeans!.map((c) => c.fee ?? 0).toList().sum))
@@ -237,8 +244,8 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
         termId: eachTerm.termId,
         termName: eachTerm.termName,
         studentFeePaidForFeeTypeBeans: list,
-        totalFeePaid: totalFeePaid,
-        totalFee: totalFee,
+        totalFeePaid: _totalFeePaid,
+        totalFee: _totalFee,
       ));
     }
     for (TermBean eachTerm in terms) {
@@ -249,15 +256,15 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                 : (e.studentFeePaidForCustomFeeTypeBeans ?? []).map((c) => c.fee ?? 0).toList().sum)
             .toList()
             .sum;
-        minTotalAmountPayable += (eachStudentFeePaidBean.studentFeePaidForFeeTypeBeans ?? [])
+        maxTotalAmountPayable += (eachStudentFeePaidBean.studentFeePaidForFeeTypeBeans ?? [])
             .map((e) => (e.studentFeePaidForCustomFeeTypeBeans ?? []).isEmpty
-                ? e.feePaying ?? 0
-                : (e.studentFeePaidForCustomFeeTypeBeans ?? []).map((c) => c.feePaying ?? 0).toList().sum)
+                ? (e.fee ?? 0) - (e.feePaid ?? 0)
+                : (e.studentFeePaidForCustomFeeTypeBeans ?? []).map((c) => (c.fee ?? 0) - (c.feePaid ?? 0)).toList().sum)
             .toList()
             .sum;
       }
     }
-    totalAmountPayingController.text = "${(totalAmountPaying ?? minTotalAmountPayable) / 100}";
+    totalAmountPayingController.text = "${(totalAmountPaying ?? maxTotalAmountPayable) / 100}";
     setState(() {
       _isLoading = false;
     });
@@ -268,7 +275,7 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Assign Fee Types To Sections"),
+        title: const Text("Student Fee Management"),
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
@@ -286,8 +293,6 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                 // SelectableText("$studentFeePaidBeans"),
                 for (_StudentFeePaidBean eachStudentFeePaid in studentFeePaidBeans)
                   if ((eachStudentFeePaid.studentFeePaidForFeeTypeBeans ?? []).isNotEmpty) buildTermWiseWidget(eachStudentFeePaid),
-                //  TODO VIEW_RECEIPT
-                showReceiptsButton(),
                 MediaQuery.of(context).orientation == Orientation.portrait
                     ? Column(
                         mainAxisSize: MainAxisSize.min,
@@ -298,15 +303,25 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                       )
                     : Row(
                         mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Expanded(
+                          Flexible(
                             child: walletBalanceWidget(),
                           ),
-                          Expanded(
+                          Flexible(
                             child: totalAmountPayableEditor(),
                           )
                         ],
-                      )
+                      ),
+                //  TODO VIEW_RECEIPT
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(child: showReceiptsButton()),
+                    Expanded(child: payFeeButton()),
+                  ],
+                ),
               ],
             ),
     );
@@ -314,9 +329,7 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
 
   Widget showReceiptsButton() {
     return Container(
-      margin: MediaQuery.of(context).orientation == Orientation.portrait
-          ? const EdgeInsets.fromLTRB(25, 10, 25, 10)
-          : EdgeInsets.fromLTRB(25, 10, 3 * MediaQuery.of(context).size.width / 4, 10),
+      margin: const EdgeInsets.all(15),
       child: GestureDetector(
         onTap: () {
           // TODO Go to receipt page
@@ -343,95 +356,261 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
     );
   }
 
-  Widget walletBalanceWidget() {
+  Future<void> _saveChanges() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Student Fee Management'),
+          content: const Text("Are you accept payment?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("YES"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = true;
+                });
+                CreateOrUpdateStudentFeePaidRequest createOrUpdateStudentFeePaidRequest = CreateOrUpdateStudentFeePaidRequest(
+                    studentId: widget.studentWiseAnnualFeesBean.studentId,
+                    schoolId: widget.adminProfile.schoolId,
+                    agent: widget.adminProfile.userId,
+                    loadWalletAmount: newWalletBalance - walletBalance,
+                    studentTermFeeMapList: studentFeePaidBeans
+                        .map((_StudentFeePaidBean eachStudentFeePaidBean) {
+                          List<StudentWiseTermFeeMapBean> list = [];
+                          for (_StudentFeePaidForFeeTypeBean eachStudentFeePaidForFeeTypeBean
+                              in (eachStudentFeePaidBean.studentFeePaidForFeeTypeBeans ?? [])) {
+                            if ((eachStudentFeePaidForFeeTypeBean.studentFeePaidForCustomFeeTypeBeans ?? []).isEmpty) {
+                              if (eachStudentFeePaidForFeeTypeBean.feePaying != 0) {
+                                list.add(
+                                  StudentWiseTermFeeMapBean(
+                                    schoolId: widget.adminProfile.schoolId,
+                                    studentId: widget.studentWiseAnnualFeesBean.studentId,
+                                    sectionId: widget.studentWiseAnnualFeesBean.sectionId,
+                                    feeTypeId: eachStudentFeePaidForFeeTypeBean.feeTypeId,
+                                    amount: eachStudentFeePaidForFeeTypeBean.feePaying,
+                                    termId: eachStudentFeePaidBean.termId,
+                                  ),
+                                );
+                              }
+                            } else {
+                              for (_StudentFeePaidForCustomFeeTypeBean eachStudentFeePaidForCustomFeeTypeBean
+                                  in (eachStudentFeePaidForFeeTypeBean.studentFeePaidForCustomFeeTypeBeans ?? [])) {
+                                if (eachStudentFeePaidForCustomFeeTypeBean.feePaying != 0) {
+                                  list.add(
+                                    StudentWiseTermFeeMapBean(
+                                      schoolId: widget.adminProfile.schoolId,
+                                      studentId: widget.studentWiseAnnualFeesBean.studentId,
+                                      sectionId: widget.studentWiseAnnualFeesBean.sectionId,
+                                      feeTypeId: eachStudentFeePaidForFeeTypeBean.feeTypeId,
+                                      customFeeTypeId: eachStudentFeePaidForCustomFeeTypeBean.customFeeTypeId,
+                                      amount: eachStudentFeePaidForCustomFeeTypeBean.feePaying,
+                                      termId: eachStudentFeePaidBean.termId,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          }
+                          return list;
+                        })
+                        .expand((i) => i)
+                        .toList());
+                print("CreateOrUpdateStudentFeePaidRequest: ${jsonEncode(createOrUpdateStudentFeePaidRequest.toJson())}");
+                CreateOrUpdateStudentFeePaidResponse createOrUpdateStudentFeePaidResponse =
+                    await createOrUpdateStudentFeePaid(createOrUpdateStudentFeePaidRequest);
+                setState(() {
+                  _isLoading = false;
+                });
+                if (createOrUpdateStudentFeePaidResponse.httpStatus != "OK" || createOrUpdateStudentFeePaidResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                } else {
+                  _loadData();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget payFeeButton() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: Text("Wallet Balance: ${walletBalance == 0 ? "-" : "$INR_SYMBOL ${walletBalance / 100}"}"),
+      margin: const EdgeInsets.all(15),
+      child: GestureDetector(
+        onTap: () async {
+          if (_errorText != null) return;
+          await _saveChanges();
+        },
+        child: ClayButton(
+          depth: 40,
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 5,
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              child: Text(
+                "Pay Fee",
+                style: TextStyle(
+                  color: _errorText != null ? Colors.grey : Colors.green,
+                ),
+              ),
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget totalAmountPayableEditor() {
-    int totalDue = totalFee - minTotalAmountPayable;
-    String? _errorText;
+  Widget walletBalanceWidget() {
     return Container(
       margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text("Total amount paying: "),
-          SizedBox(
-            width: 100,
-            child: TextField(
-              controller: totalAmountPayingController,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                errorText: _errorText,
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(
-                    color: Colors.blue,
-                  ),
-                ),
-                label: totalDue == 0
-                    ? null
-                    : Text(
-                        'Due: $INR_SYMBOL ${totalDue / 100}',
-                        textAlign: TextAlign.end,
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          child: Text("Wallet Balance: $INR_SYMBOL ${newWalletBalance / 100}"),
+        ),
+      ),
+    );
+  }
+
+  String? get _errorText {
+    try {
+      totalAmountPaying = (double.parse(totalAmountPayingController.text) * 100).toInt();
+      if ((totalAmountPaying ?? 0) < maxTotalAmountPayable) {
+        return "Cannot reduce below declared fields";
+      } else {
+        if ((studentWiseTermFeesBean?.actualFee ?? 0) < walletBalance + (totalAmountPaying ?? 0)) {
+          return "Cannot pay amount greater than total fee to be paid (i.e., $INR_SYMBOL ${((widget.studentWiseAnnualFeesBean.totalFee ?? 0) - (widget.studentWiseAnnualFeesBean.totalFeePaid ?? 0)) / 100})";
+        }
+      }
+      return null;
+    } catch (e) {}
+  }
+
+  Widget totalAmountPayableEditor() {
+    int totalDue = maxTotalAmountPayable - ((double.tryParse(totalAmountPayingController.text) ?? 0) * 100).round();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Expanded(child: Text("Total amount paying: ")),
+                  SizedBox(
+                    width: 100,
+                    child: TextField(
+                      controller: totalAmountPayingController,
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        // errorText: _errorText,
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(
+                            color: Colors.blue,
+                          ),
+                        ),
+                        label: totalDue <= 0
+                            ? null
+                            : Text(
+                                'Due: $INR_SYMBOL ${totalDue / 100}',
+                                textAlign: TextAlign.end,
+                              ),
+                        prefix: Text(INR_SYMBOL),
+                        // floatingLabelAlignment: FloatingLabelAlignment.center,
+                        labelStyle: const TextStyle(
+                          color: Colors.red,
+                        ),
+                        hintText: 'Amount',
+                        contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                       ),
-                suffix: Text(INR_SYMBOL),
-                // floatingLabelAlignment: FloatingLabelAlignment.center,
-                labelStyle: const TextStyle(
-                  color: Colors.red,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                        TextInputFormatter.withFunction((oldValue, newValue) {
+                          try {
+                            final text = newValue.text;
+                            if (text.isNotEmpty) double.parse(text);
+                            return newValue;
+                          } catch (e) {}
+                          return oldValue;
+                        }),
+                      ],
+                      onChanged: (String e) {
+                        setState(() {
+                          try {
+                            totalAmountPaying = (double.parse(e) * 100).toInt();
+                            print(
+                                "434: ${(studentWiseTermFeesBean?.actualFee ?? 0)} $newWalletBalance = $walletBalance + ${totalAmountPaying ?? 0} - $totalFee;");
+                            newWalletBalance = walletBalance + (totalAmountPaying ?? 0) - maxTotalAmountPayable;
+                            //  TODO revise and auto populate all amounts
+                          } catch (e) {}
+                        });
+                      },
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                      autofocus: true,
+                    ),
+                  ),
+                ],
+              ),
+              if (_errorText != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _errorText!,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                hintText: 'Amount',
-                contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                TextInputFormatter.withFunction((oldValue, newValue) {
-                  try {
-                    final text = newValue.text;
-                    if (text.isNotEmpty) double.parse(text);
-                    return newValue;
-                  } catch (e) {}
-                  return oldValue;
-                }),
-              ],
-              onChanged: (String e) {
-                setState(() {
-                  try {
-                    if (double.parse(e) * 100 < minTotalAmountPayable) {
-                      _errorText = "Cannot reduce below declared fields";
-                      return;
-                    } else {
-                      _errorText = null;
-                    }
-                    // TODO change wallet balance here
-                    setState(() {
-                      totalAmountPaying = (double.parse(e) * 100).toInt();
-                    });
-                    if (double.parse(e) * 100 > totalFee) {
-                      setState(() {
-                        walletBalance += (double.parse(e) * 100).round() - totalFee;
-                      });
-                    }
-                  } catch (e) {}
-                });
-              },
-              style: const TextStyle(
-                fontSize: 12,
-              ),
-              autofocus: true,
-            ),
+              if (newWalletBalance > 0)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text("Loading to wallet: $INR_SYMBOL ${(newWalletBalance - walletBalance) / 100}"),
+                      )
+                    ],
+                  ),
+                )
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -664,6 +843,7 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                     hintText: 'Amount',
                     contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                   ),
+                  enabled: eachStudentFeePaidForFeeTypeBean.fee != eachStudentFeePaidForFeeTypeBean.feePaying,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                     TextInputFormatter.withFunction((oldValue, newValue) {
@@ -809,6 +989,7 @@ class _AdminPayFeeScreenState extends State<AdminPayFeeScreen> {
                         hintText: '${(eachStudentFeePaidForCustomFeeTypeBean.fee ?? 0) - (eachStudentFeePaidForCustomFeeTypeBean.feePaid ?? 0)}',
                         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                       ),
+                      enabled: eachStudentFeePaidForCustomFeeTypeBean.fee != eachStudentFeePaidForCustomFeeTypeBean.feePaying,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                         TextInputFormatter.withFunction((oldValue, newValue) {
@@ -1158,11 +1339,13 @@ class _Transaction {
   int? amount;
   String? transactionId;
   String? transactionTime;
+  String? description;
 
   _Transaction({
     this.amount,
     this.transactionId,
     this.transactionTime,
+    this.description,
   });
 
   @override
