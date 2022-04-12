@@ -268,46 +268,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.adminProfile.firstName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.adminProfile.schoolName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 Container(
                   margin: const EdgeInsets.fromLTRB(50, 10, 50, 10),
                   child: pinTextField(),
@@ -351,6 +312,58 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  List<Widget> commonWidgets() {
+    return [
+      Container(
+        margin: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                ((widget.adminProfile.firstName ?? "" ' ') + (widget.adminProfile.middleName ?? "" ' ') + (widget.adminProfile.lastName ?? "" ' '))
+                    .split(" ")
+                    .where((i) => i != "")
+                    .join(" "),
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).dialogBackgroundColor,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              padding: const EdgeInsets.all(10),
+              child: const SizedBox(
+                width: 50,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text("Admin"),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(widget.adminProfile.schoolName ?? "-"),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
   void _onPointerDownForPin(PointerDownEvent event) {
     setState(() {
       showPin = true;
@@ -385,7 +398,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
         suffix: Listener(
           onPointerDown: _onPointerDownForPin,
           onPointerUp: _onPointerUpForPin,
-          child: const Icon(Icons.remove_red_eye),
+          child: const MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Icon(Icons.remove_red_eye),
+          ),
         ),
         label: const Text(
           'PIN',
@@ -444,46 +460,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.adminProfile.firstName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.adminProfile.schoolName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 const SizedBox(
                   height: 15,
                 ),
@@ -526,46 +503,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.adminProfile.firstName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.adminProfile.schoolName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 const SizedBox(
                   height: 15,
                 ),

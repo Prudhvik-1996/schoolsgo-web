@@ -246,6 +246,61 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
   bool showNewPin = false;
   bool showConfirmPin = false;
 
+  List<Widget> commonWidgets() {
+    return [
+      Container(
+        margin: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                ((widget.teacherProfile.firstName ?? "" ' ') +
+                        (widget.teacherProfile.middleName ?? "" ' ') +
+                        (widget.teacherProfile.lastName ?? "" ' '))
+                    .split(" ")
+                    .where((i) => i != "")
+                    .join(" "),
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).dialogBackgroundColor,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              padding: const EdgeInsets.all(10),
+              child: const SizedBox(
+                width: 50,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text("Teacher"),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(widget.teacherProfile.schoolName ?? "-"),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
   Widget pinScreen() {
     if (fourDigitPin == null) {
       setState(() {
@@ -269,46 +324,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.teacherProfile.firstName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.teacherProfile.schoolName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 Container(
                   margin: const EdgeInsets.fromLTRB(50, 10, 50, 10),
                   child: pinTextField(),
@@ -386,7 +402,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         suffix: Listener(
           onPointerDown: _onPointerDownForPin,
           onPointerUp: _onPointerUpForPin,
-          child: const Icon(Icons.remove_red_eye),
+          child: const MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Icon(Icons.remove_red_eye),
+          ),
         ),
         label: const Text(
           'PIN',
@@ -445,46 +464,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.teacherProfile.firstName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.teacherProfile.schoolName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 const SizedBox(
                   height: 15,
                 ),
@@ -527,46 +507,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.teacherProfile.firstName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.teacherProfile.schoolName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 const SizedBox(
                   height: 15,
                 ),

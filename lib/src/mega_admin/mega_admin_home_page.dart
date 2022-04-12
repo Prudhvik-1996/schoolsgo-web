@@ -220,6 +220,53 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
   bool showNewPin = false;
   bool showConfirmPin = false;
 
+  List<Widget> commonWidgets() {
+    return [
+      Container(
+        margin: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                (widget.megaAdminProfiles.first.userName ?? "-").trim(),
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).dialogBackgroundColor,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              padding: const EdgeInsets.all(10),
+              child: const SizedBox(
+                width: 50,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text("Mega Admin"),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(widget.megaAdminProfiles.first.franchiseName ?? "-"),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
   Widget pinScreen() {
     if (fourDigitPin == null) {
       setState(() {
@@ -243,46 +290,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.megaAdminProfiles.first.userName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Mega Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.megaAdminProfiles.first.franchiseName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 Container(
                   margin: const EdgeInsets.fromLTRB(50, 10, 50, 10),
                   child: pinTextField(),
@@ -360,7 +368,10 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
         suffix: Listener(
           onPointerDown: _onPointerDownForPin,
           onPointerUp: _onPointerUpForPin,
-          child: const Icon(Icons.remove_red_eye),
+          child: const MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Icon(Icons.remove_red_eye),
+          ),
         ),
         label: const Text(
           'PIN',
@@ -419,46 +430,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.megaAdminProfiles.first.userName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.megaAdminProfiles.first.franchiseName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 const SizedBox(
                   height: 15,
                 ),
@@ -501,46 +473,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.megaAdminProfiles.first.schoolName ?? "-",
-                          style: Theme.of(context).textTheme.headline4,
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).dialogBackgroundColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        padding: const EdgeInsets.all(10),
-                        child: const SizedBox(
-                          width: 50,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text("Admin"),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(widget.megaAdminProfiles.first.franchiseName ?? "-"),
-                      ),
-                    ],
-                  ),
-                ),
+                ...commonWidgets(),
                 const SizedBox(
                   height: 15,
                 ),

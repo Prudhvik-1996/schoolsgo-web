@@ -109,42 +109,42 @@ class _UserDashboardState extends State<UserDashboard> {
   }
 
   Widget buildRoleButton(BuildContext context, String role, String name, String schoolName, Object? profile) {
-    return InkWell(
-      onTap: () {
-        if (role == "Student") {
-          Navigator.pushNamed(
-            context,
-            StudentDashBoard.routeName,
-            arguments: profile as StudentProfile,
-          );
-        } else if (role == "Admin") {
-          Navigator.pushNamed(
-            context,
-            AdminDashboard.routeName,
-            arguments: profile as AdminProfile,
-          );
-        } else if (role == "Teacher") {
-          Navigator.pushNamed(
-            context,
-            TeacherDashboard.routeName,
-            arguments: profile as TeacherProfile,
-          );
-        } else if (role == "Mega Admin") {
-          Navigator.pushNamed(
-            context,
-            MegaAdminHomePage.routeName,
-            arguments: [(profile as List<MegaAdminProfile>), schoolName],
-          );
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: ClayButton(
-          depth: 40,
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: ClayButton(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: GestureDetector(
+          onTap: () {
+            if (role == "Student") {
+              Navigator.pushNamed(
+                context,
+                StudentDashBoard.routeName,
+                arguments: profile as StudentProfile,
+              );
+            } else if (role == "Admin") {
+              Navigator.pushNamed(
+                context,
+                AdminDashboard.routeName,
+                arguments: profile as AdminProfile,
+              );
+            } else if (role == "Teacher") {
+              Navigator.pushNamed(
+                context,
+                TeacherDashboard.routeName,
+                arguments: profile as TeacherProfile,
+              );
+            } else if (role == "Mega Admin") {
+              Navigator.pushNamed(
+                context,
+                MegaAdminHomePage.routeName,
+                arguments: [(profile as List<MegaAdminProfile>), schoolName],
+              );
+            }
+          },
           child: Container(
             padding: const EdgeInsets.all(20),
             // child: Text("Student: ${e.studentFirstName}"),
@@ -236,7 +236,10 @@ class _UserDashboardState extends State<UserDashboard> {
                           (e) => buildRoleButton(
                             context,
                             "Admin",
-                            ((e.firstName ?? "" ' ') + (e.middleName ?? "" ' ') + (e.lastName ?? "" ' ')).split(" ").where((i) => i != "").join(" "),
+                            ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
+                                .split(" ")
+                                .where((i) => i != "")
+                                .join(" "),
                             e.schoolName ?? '',
                             e,
                           ),
@@ -256,33 +259,15 @@ class _UserDashboardState extends State<UserDashboard> {
                           ),
                         )
                         .toList() +
-                    // [
-                    //   GridView.count(
-                    //     crossAxisCount: 3,
-                    //     childAspectRatio: 2,
-                    //     shrinkWrap: true,
-                    //     physics: const NeverScrollableScrollPhysics(),
-                    //     children: _studentProfiles
-                    //         .map(
-                    //           (e) => buildRoleButton(
-                    //             context,
-                    //             "Student",
-                    //             (e.studentFirstName ?? "" ' ') +
-                    //                 (e.studentMiddleName ?? "" ' ') +
-                    //                 (e.studentLastName ?? "" ' '),
-                    //             e.schoolName ?? '',
-                    //             e,
-                    //           ),
-                    //         )
-                    //         .toList(),
-                    //   )
-                    // ] +
                     _teacherProfiles
                         .map(
                           (e) => buildRoleButton(
                             context,
                             "Teacher",
-                            ((e.firstName ?? "" ' ') + (e.middleName ?? "" ' ') + (e.lastName ?? "" ' ')).split(" ").where((i) => i != "").join(" "),
+                            ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
+                                .split(" ")
+                                .where((i) => i != "")
+                                .join(" "),
                             e.schoolName ?? '',
                             e,
                           ),
