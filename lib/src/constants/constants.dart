@@ -1,5 +1,6 @@
 const String SCHOOLS_GO_BASE_URL = "https://epsiloninfinityservices.com:8000/schoolsgo";
 const String SCHOOLS_GO_DRIVE_SERVICE_BASE_URL = "https://epsiloninfinityservices.com:8002/eis";
+const String SCHOOLS_GO_MESSAGING_SERVICE_BASE_URL = "https://epsiloninfinityservices.com:8001/schoolsgo";
 
 const String UPLOAD_FILE_TO_DRIVE = "/drive/uploadFileToDrive";
 
@@ -10,6 +11,10 @@ String INR_SYMBOL = "₹";
 
 const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
+const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
+
+const String REQUEST_OTP = "/auth/requestOtp";
+const String SEND_EMAIL = "/mailing/sendMail";
 
 const String GET_SECTION_WISE_TIME_SLOTS = "/timetable/getSectionWiseTimeSlots";
 const String CREATE_OR_UPDATE_SECTION_WISE_TIME_SLOTS = "/timetable/createOrUpdateSectionWiseTimeSlots";

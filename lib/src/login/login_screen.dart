@@ -22,19 +22,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId:
-        "480997552358-t9ir5mnb6t91gcemhdmdivh3a1uo3208.apps.googleusercontent.com",
+    clientId: "480997552358-t9ir5mnb6t91gcemhdmdivh3a1uo3208.apps.googleusercontent.com",
   );
 
   Future<String?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleSignInAccount =
-          await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
       setState(() {
         _currentUser = googleSignInAccount;
       });
-      final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount!.authentication;
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
@@ -142,8 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
           UserDetails getUserDetailsRequest = UserDetails(
             mailId: _currentUser!.email,
           );
-          GetUserDetailsResponse getUserDetailsResponse =
-              await getUserDetails(getUserDetailsRequest);
+          GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(getUserDetailsRequest);
           if (getUserDetailsResponse.responseStatus != "success" ||
               getUserDetailsResponse.httpStatus != "OK" ||
               getUserDetailsResponse.userDetails!.isEmpty) {
@@ -159,8 +155,10 @@ class _LoginScreenState extends State<LoginScreen> {
           } else {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setBool('IS_USER_LOGGED_IN', true);
-            await prefs.setInt('LOGGED_IN_USER_ID',
-                getUserDetailsResponse.userDetails!.first.userId!);
+            await prefs.setInt('LOGGED_IN_USER_ID', getUserDetailsResponse.userDetails!.first.userId!);
+            if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
+              await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
+            }
             setState(() {
               _isLoading = false;
             });

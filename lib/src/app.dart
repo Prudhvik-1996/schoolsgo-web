@@ -102,7 +102,7 @@ class _MyAppState extends State<MyApp> {
     if (isUserLoggedIn) {
       Navigator.restorablePushNamed(
         context,
-        UserDashboard.routeName,
+        SplashScreen.routeName,
       );
     } else {
       Navigator.restorablePushNamed(
@@ -193,9 +193,12 @@ class _MyAppState extends State<MyApp> {
                     if (routeSettings.arguments == null) {
                       return const SplashScreen();
                     }
-                    var argument = (routeSettings.arguments as List<MegaAdminProfile>);
+                    var arguments = (routeSettings.arguments! as List<Object>);
+                    var adminProfiles = arguments[0] as List<MegaAdminProfile>;
+                    var franchiseName = arguments[1] as String;
                     return MegaAdminHomePage(
-                      megaAdminProfiles: argument,
+                      megaAdminProfiles: adminProfiles,
+                      franchiseName: franchiseName,
                     );
                   case StudentProfileScreen.routeName:
                     try {

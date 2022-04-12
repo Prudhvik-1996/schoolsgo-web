@@ -2150,7 +2150,7 @@ class StudentWiseTermFeeMapBean {
   int? termNumber;
   String? termStartDate;
   String? transactionDescription;
-  int? transactionId;
+  String? transactionId;
   String? transactionKind;
   String? transactionStatus;
   String? transactionType;
@@ -2216,7 +2216,7 @@ class StudentWiseTermFeeMapBean {
     termNumber = json['termNumber']?.toInt();
     termStartDate = json['termStartDate']?.toString();
     transactionDescription = json['transactionDescription']?.toString();
-    transactionId = json['transactionId']?.toInt();
+    transactionId = json['transactionId']?.toString();
     transactionKind = json['transactionKind']?.toString();
     transactionStatus = json['transactionStatus']?.toString();
     transactionType = json['transactionType']?.toString();
@@ -2277,7 +2277,7 @@ class StudentWalletTransactionBean {
 
   int? studentId;
   String? studentName;
-  int? transactionId;
+  String? transactionId;
   int? amount;
   String? date;
   String? transactionKind;
@@ -2303,7 +2303,7 @@ class StudentWalletTransactionBean {
     __origJson = json;
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
-    transactionId = json['transactionId']?.toInt();
+    transactionId = json['transactionId']?.toString();
     amount = json['amount']?.toInt();
     date = json['date']?.toString();
     transactionKind = json['transactionKind']?.toString();
@@ -2328,6 +2328,11 @@ class StudentWalletTransactionBean {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  String toString() {
+    return "StudentWalletTransactionBean {'studentId': $studentId, 'studentName': $studentName, 'transactionId': $transactionId, 'amount': $amount, 'date': $date, 'transactionKind': $transactionKind, 'transactionType': $transactionType, 'description': $description, 'transactionStatus': $transactionStatus, 'agent': $agent}";
+  }
 }
 
 class StudentWiseTermFeesBean {

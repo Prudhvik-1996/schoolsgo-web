@@ -6,10 +6,12 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
+import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({Key? key, required this.loggedInUserId}) : super(key: key);
@@ -31,6 +33,8 @@ class _UserDashboardState extends State<UserDashboard> {
   List<AdminProfile> _adminProfiles = [];
   List<OtherUserRoleProfile> _otherRoleProfile = [];
   List<MegaAdminProfile> _megaAdminProfiles = [];
+
+  String? fourDigitPin;
 
   @override
   void initState() {
@@ -66,6 +70,20 @@ class _UserDashboardState extends State<UserDashboard> {
         _megaAdminProfiles = (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList();
       });
     }
+
+    userDetails.GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(
+      userDetails.UserDetails(
+        userId: widget.loggedInUserId,
+      ),
+    );
+    if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
+    } else {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('USER_FOUR_DIGIT_PIN');
+    }
+
     setState(() {
       _isLoading = false;
     });
@@ -115,7 +133,7 @@ class _UserDashboardState extends State<UserDashboard> {
           Navigator.pushNamed(
             context,
             MegaAdminHomePage.routeName,
-            arguments: profile as List<MegaAdminProfile>,
+            arguments: [(profile as List<MegaAdminProfile>), schoolName],
           );
         }
       },

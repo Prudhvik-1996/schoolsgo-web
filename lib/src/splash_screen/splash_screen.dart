@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/default_splash_screen.dart';
 import 'package:schoolsgo_web/src/login/login_screen.dart';
+import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,6 +44,14 @@ class _SplashScreenState extends State<SplashScreen> {
       setState(() {
         loggedInUserId = id;
       });
+      GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(
+        UserDetails(
+          userId: id,
+        ),
+      );
+      if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
+        await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
+      }
     }
 
     print("57:");
