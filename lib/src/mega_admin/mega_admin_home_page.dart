@@ -232,7 +232,10 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
             Expanded(
               child: Text(
                 (widget.megaAdminProfiles.first.userName ?? "-").trim(),
-                style: Theme.of(context).textTheme.headline4,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             Container(
@@ -377,7 +380,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           'PIN',
           textAlign: TextAlign.end,
         ),
-        hintText: 'PIN',
+        hintText: '4-digit PIN',
         errorText: _errorTextToLogin,
         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
       ),
@@ -541,7 +544,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           textAlign: TextAlign.end,
         ),
         errorText: errorTextForNewPin,
-        hintText: 'PIN',
+        hintText: '4-digit PIN',
         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
       ),
       inputFormatters: [
@@ -620,7 +623,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           'PIN',
           textAlign: TextAlign.end,
         ),
-        hintText: 'PIN',
+        hintText: '4-digit PIN',
         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
       ),
       inputFormatters: [

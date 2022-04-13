@@ -263,7 +263,10 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
                     .split(" ")
                     .where((i) => i != "")
                     .join(" "),
-                style: Theme.of(context).textTheme.headline4,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(
@@ -411,7 +414,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           'PIN',
           textAlign: TextAlign.end,
         ),
-        hintText: 'PIN',
+        hintText: '4-digit PIN',
         errorText: _errorTextToLogin,
         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
       ),
@@ -575,7 +578,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           textAlign: TextAlign.end,
         ),
         errorText: errorTextForNewPin,
-        hintText: 'PIN',
+        hintText: '4-digit PIN',
         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
       ),
       inputFormatters: [
@@ -654,7 +657,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           'PIN',
           textAlign: TextAlign.end,
         ),
-        hintText: 'PIN',
+        hintText: '4-digit PIN',
         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
       ),
       inputFormatters: [
