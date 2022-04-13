@@ -2151,6 +2151,7 @@ class StudentWiseTermFeeMapBean {
   String? termStartDate;
   String? transactionDescription;
   String? transactionId;
+  String? masterTransactionId;
   String? transactionKind;
   String? transactionStatus;
   String? transactionType;
@@ -2184,6 +2185,7 @@ class StudentWiseTermFeeMapBean {
     this.termStartDate,
     this.transactionDescription,
     this.transactionId,
+    this.masterTransactionId,
     this.transactionKind,
     this.transactionStatus,
     this.transactionType,
@@ -2217,6 +2219,7 @@ class StudentWiseTermFeeMapBean {
     termStartDate = json['termStartDate']?.toString();
     transactionDescription = json['transactionDescription']?.toString();
     transactionId = json['transactionId']?.toString();
+    masterTransactionId = json['masterTransactionId']?.toString();
     transactionKind = json['transactionKind']?.toString();
     transactionStatus = json['transactionStatus']?.toString();
     transactionType = json['transactionType']?.toString();
@@ -2250,6 +2253,7 @@ class StudentWiseTermFeeMapBean {
     data['termStartDate'] = termStartDate;
     data['transactionDescription'] = transactionDescription;
     data['transactionId'] = transactionId;
+    data['masterTransactionId'] = masterTransactionId;
     data['transactionKind'] = transactionKind;
     data['transactionStatus'] = transactionStatus;
     data['transactionType'] = transactionType;
@@ -2278,6 +2282,7 @@ class StudentWalletTransactionBean {
   int? studentId;
   String? studentName;
   String? transactionId;
+  String? masterTransactionId;
   int? amount;
   String? date;
   String? transactionKind;
@@ -2291,6 +2296,7 @@ class StudentWalletTransactionBean {
     this.studentId,
     this.studentName,
     this.transactionId,
+    this.masterTransactionId,
     this.amount,
     this.date,
     this.transactionKind,
@@ -2304,6 +2310,7 @@ class StudentWalletTransactionBean {
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
     transactionId = json['transactionId']?.toString();
+    masterTransactionId = json['masterTransactionId']?.toString();
     amount = json['amount']?.toInt();
     date = json['date']?.toString();
     transactionKind = json['transactionKind']?.toString();
@@ -2317,6 +2324,7 @@ class StudentWalletTransactionBean {
     data['studentId'] = studentId;
     data['studentName'] = studentName;
     data['transactionId'] = transactionId;
+    data['masterTransactionId'] = masterTransactionId;
     data['amount'] = amount;
     data['date'] = date;
     data['transactionKind'] = transactionKind;
@@ -2331,7 +2339,7 @@ class StudentWalletTransactionBean {
 
   @override
   String toString() {
-    return "StudentWalletTransactionBean {'studentId': $studentId, 'studentName': $studentName, 'transactionId': $transactionId, 'amount': $amount, 'date': $date, 'transactionKind': $transactionKind, 'transactionType': $transactionType, 'description': $description, 'transactionStatus': $transactionStatus, 'agent': $agent}";
+    return "StudentWalletTransactionBean {'studentId': $studentId, 'studentName': $studentName, 'transactionId': $transactionId, 'masterTransactionId': $masterTransactionId, 'amount': $amount, 'date': $date, 'transactionKind': $transactionKind, 'transactionType': $transactionType, 'description': $description, 'transactionStatus': $transactionStatus, 'agent': $agent}";
   }
 }
 

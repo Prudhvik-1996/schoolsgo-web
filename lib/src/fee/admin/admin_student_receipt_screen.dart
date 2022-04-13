@@ -94,11 +94,10 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
     });
     setState(() {
       studentWiseAnnualTransactionHistory = _StudentWiseAnnualTransactionHistory(
-        studentId: studentProfile.studentId,
-        studentName: studentProfile.studentFirstName,
         sectionId: studentProfile.sectionId,
         sectionName: studentProfile.sectionName,
         studentTermWiseTransactionHistoryBeans: [],
+        studentProfile: studentProfile,
       );
       (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
           .where((e) => e != null)
@@ -130,6 +129,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
               _StudentTermWiseFeeTypeTransactionHistory(
                 feeTypeId: eachStudentWiseTermFeeMapBean.feeTypeId,
                 feeType: eachStudentWiseTermFeeMapBean.feeType,
+                totalFee: eachStudentWiseTermFeeMapBean.termFee,
                 studentTermWiseCustomFeeTypeTransactionHistory: [],
                 transactions: [],
                 termId: eachStudentWiseTermFeeMapBean.termId,
@@ -156,6 +156,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
                   transactions: [],
                   feeTypeId: eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId,
                   feeType: eachStudentTermWiseFeeTypeTransactionHistory.feeType,
+                  totalFee: eachStudentWiseTermFeeMapBean.termFee,
                   customFeeTypeId: eachStudentWiseTermFeeMapBean.customFeeTypeId,
                   customFeeType: eachStudentWiseTermFeeMapBean.customFeeType,
                   termId: eachStudentWiseTermFeeMapBean.termId,
@@ -184,6 +185,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
                   feePaidId: eachStudentWiseTermFeeMapBean.feeTypeId,
                   amount: eachStudentWiseTermFeeMapBean.feePaid,
                   transactionId: eachStudentWiseTermFeeMapBean.transactionId,
+                  masterTransactionId: eachStudentWiseTermFeeMapBean.masterTransactionId,
                   transactionTime: eachStudentWiseTermFeeMapBean.paymentDate,
                   transactionDescription: eachStudentWiseTermFeeMapBean.transactionDescription,
                   kind: eachStudentWiseTermFeeMapBean.transactionKind,
@@ -203,6 +205,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
                   amount: eachStudentWiseTermFeeMapBean.feePaid,
                   feePaidId: eachStudentWiseTermFeeMapBean.feeTypeId,
                   transactionId: eachStudentWiseTermFeeMapBean.transactionId,
+                  masterTransactionId: eachStudentWiseTermFeeMapBean.masterTransactionId,
                   transactionTime: eachStudentWiseTermFeeMapBean.paymentDate,
                   transactionDescription: eachStudentWiseTermFeeMapBean.transactionDescription,
                   kind: eachStudentWiseTermFeeMapBean.transactionKind,
@@ -214,6 +217,42 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
           });
         });
       });
+
+      studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+          ?.forEach((_StudentTermWiseTransactionHistory eachStudentTermWiseTransactionHistory) {
+        eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans
+            ?.forEach((_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory) {
+          if (eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty) {
+            eachStudentTermWiseFeeTypeTransactionHistory.totalFeePaid =
+                eachStudentTermWiseFeeTypeTransactionHistory.transactions!.map((e) => e.amount ?? 0).sum;
+          } else {
+            eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory
+                ?.forEach((_StudentTermWiseCustomFeeTypeTransactionHistory eachStudentTermWiseCustomFeeTypeTransactionHistory) {
+              eachStudentTermWiseCustomFeeTypeTransactionHistory.totalFeePaid =
+                  eachStudentTermWiseCustomFeeTypeTransactionHistory.transactions!.map((e) => e.amount ?? 0).sum;
+            });
+          }
+        });
+      });
+
+      studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+          ?.forEach((_StudentTermWiseTransactionHistory eachStudentTermWiseTransactionHistory) {
+        eachStudentTermWiseTransactionHistory.totalFee = eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans
+            ?.map((e) => e.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty
+                ? (e.totalFee ?? 0)
+                : e.studentTermWiseCustomFeeTypeTransactionHistory!.map((c) => c.totalFee ?? 0).sum)
+            .sum;
+        eachStudentTermWiseTransactionHistory.totalFeePaid = eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans
+            ?.map((e) => e.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty
+                ? (e.totalFeePaid ?? 0)
+                : e.studentTermWiseCustomFeeTypeTransactionHistory!.map((c) => c.totalFeePaid ?? 0).sum)
+            .sum;
+      });
+
+      studentWiseAnnualTransactionHistory.totalFee =
+          studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans?.map((e) => e.totalFee ?? 0).sum;
+      studentWiseAnnualTransactionHistory.totalFeePaid =
+          studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans?.map((e) => e.totalFeePaid ?? 0).sum;
 
       studentWiseAnnualTransactionHistory.studentWalletTransactionHistoryBeans =
           (studentWiseTermFeesBean?.studentWalletTransactionBeans ?? []).map((e) => e!).toList();
@@ -521,8 +560,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
 }
 
 class _StudentWiseAnnualTransactionHistory {
-  int? studentId;
-  String? studentName;
+  StudentProfile? studentProfile;
   int? sectionId;
   String? sectionName;
   int? totalFee;
@@ -532,8 +570,7 @@ class _StudentWiseAnnualTransactionHistory {
   List<_StudentTermWiseTransactionHistory>? studentTermWiseTransactionHistoryBeans;
 
   _StudentWiseAnnualTransactionHistory({
-    this.studentId,
-    this.studentName,
+    this.studentProfile,
     this.sectionId,
     this.sectionName,
     this.totalFee,
@@ -544,7 +581,7 @@ class _StudentWiseAnnualTransactionHistory {
 
   @override
   String toString() {
-    return "_StudentWiseAnnualTransactionHistory {'studentId': $studentId, 'studentName': $studentName, 'sectionId': $sectionId, 'sectionName': $sectionName, 'totalFee': $totalFee, 'totalFeePaid': $totalFeePaid, 'studentWalletTransactionHistoryBeans': $studentWalletTransactionHistoryBeans, 'studentTermWiseTransactionHistoryBeans': $studentTermWiseTransactionHistoryBeans}";
+    return "_StudentWiseAnnualTransactionHistory {'sectionId': $sectionId, 'sectionName': $sectionName, 'totalFee': $totalFee, 'totalFeePaid': $totalFeePaid, 'studentWalletTransactionHistoryBeans': $studentWalletTransactionHistoryBeans, 'studentTermWiseTransactionHistoryBeans': $studentTermWiseTransactionHistoryBeans}";
   }
 }
 
@@ -600,6 +637,7 @@ class _StudentTermWiseFeeTypeTransactionHistory {
 class _FeeTypeTransaction {
   int? amount;
   String? transactionId;
+  String? masterTransactionId;
   String? transactionTime;
   String? transactionDescription;
   int? feeTypeId;
@@ -612,6 +650,7 @@ class _FeeTypeTransaction {
   _FeeTypeTransaction({
     this.amount,
     this.transactionId,
+    this.masterTransactionId,
     this.transactionTime,
     this.transactionDescription,
     this.feeTypeId,
@@ -624,7 +663,7 @@ class _FeeTypeTransaction {
 
   @override
   String toString() {
-    return "_FeeTypeTransaction {'amount': $amount, 'transactionId': $transactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'feePaidId': $feePaidId}";
+    return "_FeeTypeTransaction {'amount': $amount, 'transactionId': $transactionId, 'masterTransactionId': $masterTransactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'feePaidId': $feePaidId}";
   }
 }
 
@@ -659,6 +698,7 @@ class _StudentTermWiseCustomFeeTypeTransactionHistory {
 class _CustomFeeTypeTransaction {
   int? amount;
   String? transactionId;
+  String? masterTransactionId;
   String? transactionTime;
   String? transactionDescription;
   int? feeTypeId;
@@ -673,6 +713,7 @@ class _CustomFeeTypeTransaction {
   _CustomFeeTypeTransaction({
     this.amount,
     this.transactionId,
+    this.masterTransactionId,
     this.transactionTime,
     this.transactionDescription,
     this.feeTypeId,
@@ -687,7 +728,7 @@ class _CustomFeeTypeTransaction {
 
   @override
   String toString() {
-    return "_CustomFeeTypeTransaction {'amount': $amount, 'transactionId': $transactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'customFeeTypeId': $customFeeTypeId, 'customFeeType': $customFeeType, 'feePaidId': $feePaidId}";
+    return "_CustomFeeTypeTransaction {'amount': $amount, 'transactionId': $transactionId, 'masterTransactionId': $masterTransactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'customFeeTypeId': $customFeeTypeId, 'customFeeType': $customFeeType, 'feePaidId': $feePaidId}";
   }
 }
 

@@ -8,7 +8,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_pay_fee_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_pay_student_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_receipt_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -757,7 +757,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) {
-                                          return AdminPayFeeScreen(
+                                          return PayStudentFeeScreen(
                                             studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
                                             adminProfile: widget.adminProfile,
                                           );
