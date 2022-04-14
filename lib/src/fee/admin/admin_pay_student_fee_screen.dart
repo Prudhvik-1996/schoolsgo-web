@@ -287,9 +287,8 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
           }
         });
       });
+      totalFeeNowPayingEditingController.text = "${totalFeeNowPaying / 100}";
     });
-
-    totalFeeNowPayingEditingController.text = "${totalFeeNowPaying / 100}";
 
     setState(() {
       _isLoading = false;
@@ -864,8 +863,8 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
       child: GestureDetector(
-        onTap: () {
-          // TODO Pay fee
+        onTap: () async {
+          await _payFeeAction();
         },
         child: ClayButton(
           depth: 40,
@@ -886,6 +885,88 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _payFeeAction() async {
+    List<StudentWiseTermFeeMapBean> feePayingBeans = [];
+    studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+        ?.forEach((_StudentTermWiseTransactionHistory eachStudentTermWiseTransactionHistory) {
+      eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans
+          ?.forEach((_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory) {
+        if (eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty) {
+          if (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying != 0) {
+            feePayingBeans.add(StudentWiseTermFeeMapBean(
+              sectionId: studentWiseAnnualTransactionHistory.studentProfile?.sectionId,
+              studentId: studentWiseAnnualTransactionHistory.studentProfile?.studentId,
+              schoolId: studentWiseAnnualTransactionHistory.studentProfile?.schoolId,
+              termId: eachStudentTermWiseTransactionHistory.termId,
+              feeTypeId: eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId,
+              customFeeTypeId: null,
+              modeOfPayment: "CASH",
+              amount: eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying,
+            ));
+          }
+        } else {
+          eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory
+              ?.forEach((_StudentTermWiseCustomFeeTypeTransactionHistory eachStudentTermWiseCustomFeeTypeTransactionHistory) {
+            if (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying != 0) {
+              feePayingBeans.add(StudentWiseTermFeeMapBean(
+                sectionId: studentWiseAnnualTransactionHistory.studentProfile?.sectionId,
+                studentId: studentWiseAnnualTransactionHistory.studentProfile?.studentId,
+                schoolId: studentWiseAnnualTransactionHistory.studentProfile?.schoolId,
+                termId: eachStudentTermWiseTransactionHistory.termId,
+                feeTypeId: eachStudentTermWiseCustomFeeTypeTransactionHistory.feeTypeId,
+                customFeeTypeId: eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId,
+                modeOfPayment: "CASH",
+                amount: eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying,
+              ));
+            }
+          });
+        }
+      });
+    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Student Fee Management'),
+          content: const Text("Are you accept payment?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("YES"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = true;
+                });
+                CreateOrUpdateStudentFeePaidRequest createOrUpdateStudentFeePaidRequest = CreateOrUpdateStudentFeePaidRequest(
+                  studentId: widget.studentWiseAnnualFeesBean.studentId,
+                  schoolId: widget.adminProfile.schoolId,
+                  agent: widget.adminProfile.userId,
+                  loadWalletAmount: (newWalletBalance ?? 0) - (studentProfile.balanceAmount ?? 0),
+                  studentTermFeeMapList: feePayingBeans,
+                );
+                CreateOrUpdateStudentFeePaidResponse createOrUpdateStudentFeePaidResponse =
+                    await createOrUpdateStudentFeePaid(createOrUpdateStudentFeePaidRequest);
+                setState(() {
+                  _isLoading = false;
+                });
+                if (createOrUpdateStudentFeePaidResponse.httpStatus != "OK" || createOrUpdateStudentFeePaidResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                } else {
+                  _loadData();
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -2588,6 +2588,7 @@ class CreateOrUpdateStudentFeePaidRequest {
 {
   "agent": 0,
   "loadWalletAmount": 0,
+  "masterTransactionId": "string",
   "schoolId": 0,
   "studentId": 0,
   "studentTermFeeMapList": [
@@ -2599,6 +2600,7 @@ class CreateOrUpdateStudentFeePaidRequest {
       "feePaidId": 0,
       "feeType": "string",
       "feeTypeId": 0,
+      "masterTransactionId": "string",
       "modeOfPayment": "CASH",
       "paymentDate": "string",
       "schoolDisplayName": "string",
@@ -2618,7 +2620,7 @@ class CreateOrUpdateStudentFeePaidRequest {
       "termNumber": 0,
       "termStartDate": "string",
       "transactionDescription": "string",
-      "transactionId": 0,
+      "transactionId": "string",
       "transactionKind": "CR",
       "transactionStatus": "SUCCESS",
       "transactionType": "string"
@@ -2629,6 +2631,7 @@ class CreateOrUpdateStudentFeePaidRequest {
 
   int? agent;
   int? loadWalletAmount;
+  String? masterTransactionId;
   int? schoolId;
   int? studentId;
   List<StudentWiseTermFeeMapBean?>? studentTermFeeMapList;
@@ -2637,6 +2640,7 @@ class CreateOrUpdateStudentFeePaidRequest {
   CreateOrUpdateStudentFeePaidRequest({
     this.agent,
     this.loadWalletAmount,
+    this.masterTransactionId,
     this.schoolId,
     this.studentId,
     this.studentTermFeeMapList,
@@ -2645,6 +2649,7 @@ class CreateOrUpdateStudentFeePaidRequest {
     __origJson = json;
     agent = json['agent']?.toInt();
     loadWalletAmount = json['loadWalletAmount']?.toInt();
+    masterTransactionId = json['masterTransactionId']?.toString();
     schoolId = json['schoolId']?.toInt();
     studentId = json['studentId']?.toInt();
     if (json['studentTermFeeMapList'] != null) {
@@ -2660,6 +2665,7 @@ class CreateOrUpdateStudentFeePaidRequest {
     final data = <String, dynamic>{};
     data['agent'] = agent;
     data['loadWalletAmount'] = loadWalletAmount;
+    data['masterTransactionId'] = masterTransactionId;
     data['schoolId'] = schoolId;
     data['studentId'] = studentId;
     if (studentTermFeeMapList != null) {
