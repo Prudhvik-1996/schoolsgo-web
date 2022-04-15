@@ -2152,6 +2152,7 @@ class StudentWiseTermFeeMapBean {
   String? transactionDescription;
   String? transactionId;
   String? masterTransactionId;
+  String? masterTransactionDate;
   String? transactionKind;
   String? transactionStatus;
   String? transactionType;
@@ -2186,6 +2187,7 @@ class StudentWiseTermFeeMapBean {
     this.transactionDescription,
     this.transactionId,
     this.masterTransactionId,
+    this.masterTransactionDate,
     this.transactionKind,
     this.transactionStatus,
     this.transactionType,
@@ -2220,6 +2222,7 @@ class StudentWiseTermFeeMapBean {
     transactionDescription = json['transactionDescription']?.toString();
     transactionId = json['transactionId']?.toString();
     masterTransactionId = json['masterTransactionId']?.toString();
+    masterTransactionDate = json['masterTransactionDate']?.toString();
     transactionKind = json['transactionKind']?.toString();
     transactionStatus = json['transactionStatus']?.toString();
     transactionType = json['transactionType']?.toString();
@@ -2254,6 +2257,7 @@ class StudentWiseTermFeeMapBean {
     data['transactionDescription'] = transactionDescription;
     data['transactionId'] = transactionId;
     data['masterTransactionId'] = masterTransactionId;
+    data['masterTransactionDate'] = masterTransactionDate;
     data['transactionKind'] = transactionKind;
     data['transactionStatus'] = transactionStatus;
     data['transactionType'] = transactionType;
@@ -2283,6 +2287,7 @@ class StudentWalletTransactionBean {
   String? studentName;
   String? transactionId;
   String? masterTransactionId;
+  String? masterTransactionDate;
   int? amount;
   String? date;
   String? transactionKind;
@@ -2297,6 +2302,7 @@ class StudentWalletTransactionBean {
     this.studentName,
     this.transactionId,
     this.masterTransactionId,
+    this.masterTransactionDate,
     this.amount,
     this.date,
     this.transactionKind,
@@ -2311,6 +2317,7 @@ class StudentWalletTransactionBean {
     studentName = json['studentName']?.toString();
     transactionId = json['transactionId']?.toString();
     masterTransactionId = json['masterTransactionId']?.toString();
+    masterTransactionDate = json['masterTransactionDate']?.toString();
     amount = json['amount']?.toInt();
     date = json['date']?.toString();
     transactionKind = json['transactionKind']?.toString();
@@ -2325,6 +2332,7 @@ class StudentWalletTransactionBean {
     data['studentName'] = studentName;
     data['transactionId'] = transactionId;
     data['masterTransactionId'] = masterTransactionId;
+    data['masterTransactionDate'] = masterTransactionDate;
     data['amount'] = amount;
     data['date'] = date;
     data['transactionKind'] = transactionKind;
