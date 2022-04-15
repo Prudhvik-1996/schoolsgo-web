@@ -63,6 +63,7 @@ dependencies:
   screenshot: ^1.2.3
 
   horizontal_data_table: ^3.6.1+1
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
