@@ -348,7 +348,9 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                   ),
                 ),
                 MediaQuery.of(context).orientation == Orientation.portrait
-                    ? Column(
+                    ? ListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         children: [
                           Row(
                             children: [
@@ -356,7 +358,7 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                             ],
                           ),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Container(
                             margin: MediaQuery.of(context).orientation == Orientation.portrait
@@ -365,7 +367,7 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                             child: totalAmountPayingInNumbers(),
                           ),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Container(
                             margin: EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 10, 0, MediaQuery.of(context).size.width / 10, 0),
@@ -373,33 +375,34 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                           ),
                         ],
                       )
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    : ListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              // SizedBox(
-                              //   width: MediaQuery.of(context).size.width / 5,
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 5,
+                              ),
+                              // const Expanded(
+                              //   child: Text(""),
                               // ),
-                              const Expanded(
-                                child: Text(""),
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.all(8.0),
+                                  child: totalAmountPayingInNumbers(),
+                                ),
                               ),
                               totalAmountPayingTextField(),
-                              Container(
-                                margin: const EdgeInsets.all(8.0),
-                                child: totalAmountPayingInNumbers(),
-                              ),
                               payFeeButton(),
-                              const Expanded(
-                                child: Text(""),
-                              ),
-                              // SizedBox(
-                              //   width: MediaQuery.of(context).size.width / 5,
+                              // const Expanded(
+                              //   child: Text(""),
                               // ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 5,
+                              ),
                             ],
                           ),
                           const SizedBox(
@@ -419,7 +422,7 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
       child: AutoSizeText(
-        "* Paying fee: " + convertIntoWords(totalFeeNowPaying ~/ 100).capitalize() + " Rupees",
+        "* Paying fee: " + ((totalFeeNowPaying ~/ 100) == 1 ? "One Rupee" : convertIntoWords(totalFeeNowPaying ~/ 100).capitalize() + " Rupees"),
         maxLines: 2,
         textAlign: TextAlign.center,
       ),
@@ -452,17 +455,6 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
     for (_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory
         in eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans ?? []) {
       if (eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty) {
-        // int maxFeeValue = studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
-        //         ?.map((e) => e.studentTermWiseFeeTypeTransactionHistoryBeans)
-        //         .map((e) => e ?? [])
-        //         .expand((i) => i)
-        //         .where((e) => e.feeTypeId == eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId)
-        //         .map((e) {
-        //       print("461: ${e.totalTermFee ?? 0} - ${e.totalTermFeePaid ?? 0} - ${e.feeNowPaying ?? 0}");
-        //       return (e.totalTermFee ?? 0) - (e.totalTermFeePaid ?? 0) - (e.feeNowPaying ?? 0);
-        //     }).sum ??
-        //     0;
-        // print("463: $maxFeeValue");
         widgets.add(
           Row(
             children: [
@@ -512,7 +504,12 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                                         (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) ==
                                     0
                                 ? Colors.green
-                                : Colors.red,
+                                : ((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                            (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                            (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                        0
+                                    ? Colors.blue
+                                    : Colors.red,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
@@ -523,11 +520,21 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                                         (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) ==
                                     0
                                 ? Colors.green
-                                : Colors.red,
+                                : ((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                            (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                            (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                        0
+                                    ? Colors.blue
+                                    : Colors.red,
                           ),
                         ),
                         label: Text(
-                          'Due: $INR_SYMBOL ${((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) == 0 ? 0 : (((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) / 100)}',
+                          ((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                      (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                      (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                  0
+                              ? "Extra: ${-1 * ((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) / 100}"
+                              : 'Due: $INR_SYMBOL ${(((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) / 100)}',
                           textAlign: TextAlign.end,
                         ),
                         suffix: Text(INR_SYMBOL),
@@ -537,13 +544,17 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                                       (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) ==
                                   0
                               ? Colors.green
-                              : Colors.red,
+                              : ((eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                          (eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                          (eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                      0
+                                  ? Colors.blue
+                                  : Colors.red,
                         ),
                         hintText: 'Amount',
                         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                       ),
-                      enabled:
-                          eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee != eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid,
+                      enabled: false,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                         TextInputFormatter.withFunction((oldValue, newValue) {
@@ -551,6 +562,9 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                             final text = newValue.text;
                             if (text.isNotEmpty) double.parse(text);
                             if (double.parse(text) * 100 > (eachStudentTermWiseFeeTypeTransactionHistory.totalAnnualFee ?? 0)) {
+                              return oldValue;
+                            }
+                            if (double.parse(text) * 100 > _maxFeeValue(eachStudentTermWiseFeeTypeTransactionHistory)) {
                               return oldValue;
                             }
                             return newValue;
@@ -606,22 +620,6 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
         );
         for (_StudentTermWiseCustomFeeTypeTransactionHistory eachStudentTermWiseCustomFeeTypeTransactionHistory
             in eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory ?? []) {
-          // int maxCustomFeeValue = studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
-          //         ?.map((_StudentTermWiseTransactionHistory eachStudentTermWiseTransactionHistory) =>
-          //             eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans
-          //                 ?.map((_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory) =>
-          //                     eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory
-          //                         ?.where((e) => e.customFeeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId)
-          //                         .map((_StudentTermWiseCustomFeeTypeTransactionHistory x) {
-          //                       print("614: ${(x.totalTermFee ?? 0)} -${x.totalTermFeePaid ?? 0} - ${(x.feeNowPaying ?? 0)}");
-          //                       return (x.totalTermFee ?? 0) - (x.totalTermFeePaid ?? 0) - (x.feeNowPaying ?? 0);
-          //                     }).sum ??
-          //                     0)
-          //                 .sum ??
-          //             0)
-          //         .sum ??
-          //     0;
-          // print("623: $maxCustomFeeValue");
           widgets.add(
             Row(
               children: [
@@ -682,7 +680,12 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                                           (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) ==
                                       0
                                   ? Colors.green
-                                  : Colors.red,
+                                  : ((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                              (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                              (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                          0
+                                      ? Colors.blue
+                                      : Colors.red,
                             ),
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -693,11 +696,21 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                                           (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) ==
                                       0
                                   ? Colors.green
-                                  : Colors.red,
+                                  : ((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                              (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                              (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                          0
+                                      ? Colors.blue
+                                      : Colors.red,
                             ),
                           ),
                           label: Text(
-                            'Due: $INR_SYMBOL ${((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) < 0 ? 0 : ((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) / 100}',
+                            ((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                        (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                        (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                    0
+                                ? "Extra: ${-1 * ((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) / 100}"
+                                : 'Due: $INR_SYMBOL ${(((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) / 100)}',
                             textAlign: TextAlign.end,
                           ),
                           suffix: Text(INR_SYMBOL),
@@ -707,21 +720,28 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
                                         (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) ==
                                     0
                                 ? Colors.green
-                                : Colors.red,
+                                : ((eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) -
+                                            (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0) -
+                                            (eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0)) <
+                                        0
+                                    ? Colors.blue
+                                    : Colors.red,
                           ),
                           hintText:
                               '${(eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0) - (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0)}',
                           contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                         ),
-                        enabled: eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee !=
-                            eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid,
+                        enabled: false,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
                           TextInputFormatter.withFunction((oldValue, newValue) {
                             try {
                               final text = newValue.text;
                               if (text.isNotEmpty) double.parse(text);
-                              if (double.parse(text) * 100 > (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalAnnualFee ?? 0)) {
+                              // if (double.parse(text) * 100 > (eachStudentTermWiseCustomFeeTypeTransactionHistory.totalAnnualFee ?? 0)) {
+                              //   return oldValue;
+                              // }
+                              if (double.parse(text) * 100 > _maxCustomFeeValue(eachStudentTermWiseCustomFeeTypeTransactionHistory)) {
                                 return oldValue;
                               }
                               return newValue;
@@ -778,8 +798,8 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
           children: [
             const Expanded(child: Text("")),
             Text(
-              "Due: $INR_SYMBOL $termWiseDue",
-              style: const TextStyle(color: Colors.red),
+              termWiseDue < 0 ? "Paying Extra: $INR_SYMBOL ${-1 * termWiseDue}" : "Due: $INR_SYMBOL $termWiseDue",
+              style: TextStyle(color: termWiseDue < 0 ? Colors.blue : Colors.red),
             ),
           ],
         ),
@@ -791,6 +811,43 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
       ),
     );
     return widgets;
+  }
+
+  int _maxFeeValue(_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory) {
+    return studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+            ?.map((e) => e.studentTermWiseFeeTypeTransactionHistoryBeans)
+            .map((e) => e ?? [])
+            .expand((i) => i)
+            .where((e) => e.feeTypeId == eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId)
+            .map((e) {
+          if (e.termId == eachStudentTermWiseFeeTypeTransactionHistory.termId) {
+            return (e.totalTermFee ?? 0) - (e.totalTermFeePaid ?? 0);
+          } else {
+            return (e.totalTermFee ?? 0) - (e.totalTermFeePaid ?? 0) - (e.feeNowPaying ?? 0);
+          }
+        }).sum ??
+        0;
+  }
+
+  int _maxCustomFeeValue(_StudentTermWiseCustomFeeTypeTransactionHistory eachStudentTermWiseCustomFeeTypeTransactionHistory) {
+    return studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+            ?.map((_StudentTermWiseTransactionHistory eachStudentTermWiseTransactionHistory) =>
+                eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans
+                    ?.map((_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory) =>
+                        eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory
+                            ?.where((e) => e.customFeeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId)
+                            .map((_StudentTermWiseCustomFeeTypeTransactionHistory x) {
+                          if (x.termId == eachStudentTermWiseCustomFeeTypeTransactionHistory.termId) {
+                            return (x.totalTermFee ?? 0) - (x.totalTermFeePaid ?? 0);
+                          } else {
+                            return (x.totalTermFee ?? 0) - (x.totalTermFeePaid ?? 0) - (x.feeNowPaying ?? 0);
+                          }
+                        }).sum ??
+                        0)
+                    .sum ??
+                0)
+            .sum ??
+        0;
   }
 
   Widget totalAmountPayingTextField() {
@@ -985,19 +1042,13 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
     );
   }
 
-  String? get _totalDueAmount {
-    if ((widget.studentWiseAnnualFeesBean.totalFee ?? 0) - (widget.studentWiseAnnualFeesBean.totalFeePaid ?? 0) - totalFeeNowPaying > 0) {
-      return "Due: $INR_SYMBOL ${((widget.studentWiseAnnualFeesBean.totalFee ?? 0) - (widget.studentWiseAnnualFeesBean.totalFeePaid ?? 0) - totalFeeNowPaying) / 100}";
-    }
-    return null;
-  }
-
   Future<void> modifyAllNowPayingFees() async {
     setState(() {
       _isLoading = true;
     });
+    int totalSupportFee = totalFeeNowPaying;
+    List<_SupportClassForFee> supports = [];
     setState(() {
-      List<_SupportClassForFee> supports = [];
       studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
           ?.forEach((_StudentTermWiseTransactionHistory eachStudentTermWiseTransactionHistory) {
         eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistoryBeans
@@ -1032,7 +1083,6 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
       });
       supports.sort((a, b) => (a.feePayable - b.feePayable));
 
-      int totalSupportFee = totalFeeNowPaying;
       supports.where((e) => e.feePayable != 0).forEach((e) {
         if (totalSupportFee >= e.feePayable) {
           e.feePayingNow = e.feePayable;
@@ -1083,7 +1133,198 @@ class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
         });
       });
     });
+    setState(() {
+      int totalTermsFees = studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans?.map((e) => e.totalTermFee ?? 0).sum ?? 0;
+      if (totalTermsFees < (widget.studentWiseAnnualFeesBean.totalFee ?? 0) && totalSupportFee > 0) {
+        List<_SupportClassForFee> newSupports = [];
+        if ((studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans ?? []).isEmpty) return;
+        studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans?.last.studentTermWiseFeeTypeTransactionHistoryBeans
+            ?.forEach((_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory) {
+          if (eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty) {
+            int totalPrevTermsFeeForFeeType = studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+                    ?.where((e) => e.termId != studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans?.last.termId)
+                    .map((e) => e.studentTermWiseFeeTypeTransactionHistoryBeans ?? [])
+                    .expand((i) => i)
+                    .where((e) => e.feeTypeId == eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId)
+                    .map((e) => e.totalTermFee ?? 0)
+                    .sum ??
+                0;
+            int totalAnnualFeeForFeeType = eachStudentTermWiseFeeTypeTransactionHistory.totalAnnualFee ?? 0;
+            // int lastTermFeeForFeeType = eachStudentTermWiseFeeTypeTransactionHistory.totalTermFee ?? 0;
+            // int feePayable = lastTermFeeForFeeType;
+            int feePaidForLastTerm = eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid ?? 0;
+            int feeNowPaying = eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying ?? 0;
+            // if ((totalAnnualFeeForFeeType - totalPrevTermsFeeForFeeType) < totalSupportFee) {
+            //   feePayable = (totalSupportFee - (totalAnnualFeeForFeeType - totalPrevTermsFeeForFeeType));
+            //   totalSupportFee = totalSupportFee - (totalAnnualFeeForFeeType - totalPrevTermsFeeForFeeType);
+            // } else {
+            //   feePayable = totalSupportFee;
+            //   totalSupportFee -= totalSupportFee;
+            // }
+            newSupports.add(_SupportClassForFee(
+                termId: eachStudentTermWiseFeeTypeTransactionHistory.termId,
+                feeTypeId: eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId,
+                customFeeTypeId: null,
+                totalFeePaid: eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid,
+                totalAnnualFee: eachStudentTermWiseFeeTypeTransactionHistory.totalAnnualFee,
+                totalTermFee: eachStudentTermWiseFeeTypeTransactionHistory.totalTermFeePaid,
+                feePayable: totalAnnualFeeForFeeType - totalPrevTermsFeeForFeeType - feePaidForLastTerm - feeNowPaying
+                // +
+                // (supports
+                //         .where((e) =>
+                //             e.termId == eachStudentTermWiseFeeTypeTransactionHistory.termId &&
+                //             e.feeTypeId == eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId &&
+                //             e.customFeeTypeId == null)
+                //         .firstOrNull
+                //         ?.feePayingNow ??
+                //     0
+                // ),
+                ));
+          } else {
+            eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory
+                ?.forEach((_StudentTermWiseCustomFeeTypeTransactionHistory eachStudentTermWiseCustomFeeTypeTransactionHistory) {
+              int totalPrevTermsFeeForCustomFeeType = studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+                      ?.where((e) => e.termId != studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans?.last.termId)
+                      .map((e) => e.studentTermWiseFeeTypeTransactionHistoryBeans ?? [])
+                      .expand((i) => i)
+                      .where((e) => e.feeTypeId == eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId)
+                      .map((e) => e.studentTermWiseCustomFeeTypeTransactionHistory ?? [])
+                      .expand((i) => i)
+                      .where((e) => e.customFeeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId)
+                      .map((e) => e.totalTermFee ?? 0)
+                      .sum ??
+                  0;
+              int totalAnnualFeeForCustomFeeType = eachStudentTermWiseCustomFeeTypeTransactionHistory.totalAnnualFee ?? 0;
+              // int lastTermFeeForCustomFeeType = eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFee ?? 0;
+              int feePaidForLastTerm = eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid ?? 0;
+              int feeNowPaying = eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying ?? 0;
+              // int feePayable = lastTermFeeForCustomFeeType;
+              // if ((totalAnnualFeeForCustomFeeType - totalPrevTermsFeeForCustomFeeType) < totalSupportFee) {
+              //   feePayable = (totalSupportFee - (totalAnnualFeeForCustomFeeType - totalPrevTermsFeeForCustomFeeType));
+              //   totalSupportFee = totalSupportFee - (totalAnnualFeeForCustomFeeType - totalPrevTermsFeeForCustomFeeType);
+              // } else {
+              //   feePayable = totalSupportFee;
+              //   totalSupportFee -= totalSupportFee;
+              // }
+              newSupports.add(_SupportClassForFee(
+                  termId: eachStudentTermWiseCustomFeeTypeTransactionHistory.termId,
+                  feeTypeId: eachStudentTermWiseCustomFeeTypeTransactionHistory.feeTypeId,
+                  customFeeTypeId: eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId,
+                  totalFeePaid: eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid,
+                  totalAnnualFee: eachStudentTermWiseCustomFeeTypeTransactionHistory.totalAnnualFee,
+                  totalTermFee: eachStudentTermWiseCustomFeeTypeTransactionHistory.totalTermFeePaid,
+                  feePayable: totalAnnualFeeForCustomFeeType - totalPrevTermsFeeForCustomFeeType - feePaidForLastTerm - feeNowPaying
+                  // +
+                  // (supports
+                  //         .where((e) =>
+                  //             e.termId == eachStudentTermWiseCustomFeeTypeTransactionHistory.termId &&
+                  //             e.feeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.feeTypeId &&
+                  //             e.customFeeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId)
+                  //         .firstOrNull
+                  //         ?.feePayingNow ??
+                  //     0
+                  // ),
+                  ));
+            });
+          }
+        });
+        newSupports.sort((a, b) => (a.feePayable - b.feePayable));
+        newSupports.where((e) => e.feePayable != 0).forEach((e) {
+          if (totalSupportFee >= e.feePayable) {
+            int? oldFeePaying = studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+                ?.where((c) => c.termId == e.termId)
+                .map((e) => e.studentTermWiseFeeTypeTransactionHistoryBeans ?? [])
+                .expand((i) => i)
+                .where((c) => c.feeTypeId == e.feeTypeId)
+                .map((c) {
+              if (c.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty && e.customFeeTypeId == null) {
+                return c.feeNowPaying;
+              } else {
+                return c.studentTermWiseCustomFeeTypeTransactionHistory!
+                    .where((d) => d.customFeeTypeId == e.customFeeTypeId)
+                    .firstOrNull
+                    ?.feeNowPaying;
+              }
+            }).first;
+            e.feePayingNow = (oldFeePaying ?? 0) + e.feePayable;
+            totalSupportFee -= (e.feePayingNow ?? 0) - (oldFeePaying ?? 0);
+          }
+        });
+        if (totalSupportFee > 0) {
+          newSupports.where((e) => e.feePayable != 0).forEach((e) {
+            int? oldFeePaying = studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans
+                ?.where((c) => c.termId == e.termId)
+                .map((e) => e.studentTermWiseFeeTypeTransactionHistoryBeans ?? [])
+                .expand((i) => i)
+                .where((c) => c.feeTypeId == e.feeTypeId)
+                .map((c) {
+              if (c.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty && e.customFeeTypeId == null) {
+                return c.feeNowPaying;
+              } else {
+                return c.studentTermWiseCustomFeeTypeTransactionHistory!
+                    .where((d) => d.customFeeTypeId == e.customFeeTypeId)
+                    .firstOrNull
+                    ?.feeNowPaying;
+              }
+            }).first;
+            if (e.feePayable > 0 && totalSupportFee > 0 && (e.feePayingNow ?? 0) < e.feePayable && e.feePayable >= totalSupportFee) {
+              e.feePayingNow = (oldFeePaying ?? 0) + totalSupportFee;
+              totalSupportFee -= (e.feePayingNow ?? 0) - (oldFeePaying ?? 0);
+            }
+          });
+        }
 
+        studentWiseAnnualTransactionHistory.studentTermWiseTransactionHistoryBeans?.last.studentTermWiseFeeTypeTransactionHistoryBeans
+            ?.forEach((_StudentTermWiseFeeTypeTransactionHistory eachStudentTermWiseFeeTypeTransactionHistory) {
+          if (eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory!.isEmpty) {
+            if (newSupports
+                    .where((e) =>
+                        e.termId == eachStudentTermWiseFeeTypeTransactionHistory.termId &&
+                        e.feeTypeId == eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId &&
+                        e.customFeeTypeId == null)
+                    .firstOrNull
+                    ?.feePayingNow !=
+                null) {
+              eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying = newSupports
+                  .where((e) =>
+                      e.termId == eachStudentTermWiseFeeTypeTransactionHistory.termId &&
+                      e.feeTypeId == eachStudentTermWiseFeeTypeTransactionHistory.feeTypeId &&
+                      e.customFeeTypeId == null)
+                  .firstOrNull
+                  ?.feePayingNow;
+            }
+            eachStudentTermWiseFeeTypeTransactionHistory.feeNowPayingController.text =
+                eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying == null
+                    ? ""
+                    : "${eachStudentTermWiseFeeTypeTransactionHistory.feeNowPaying! / 100}";
+          } else {
+            eachStudentTermWiseFeeTypeTransactionHistory.studentTermWiseCustomFeeTypeTransactionHistory
+                ?.forEach((_StudentTermWiseCustomFeeTypeTransactionHistory eachStudentTermWiseCustomFeeTypeTransactionHistory) {
+              if (newSupports
+                      .where((e) =>
+                          e.termId == eachStudentTermWiseCustomFeeTypeTransactionHistory.termId &&
+                          e.feeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.feeTypeId &&
+                          e.customFeeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId)
+                      .firstOrNull
+                      ?.feePayingNow !=
+                  null) {
+                eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying = newSupports
+                    .where((e) =>
+                        e.termId == eachStudentTermWiseCustomFeeTypeTransactionHistory.termId &&
+                        e.feeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.feeTypeId &&
+                        e.customFeeTypeId == eachStudentTermWiseCustomFeeTypeTransactionHistory.customFeeTypeId)
+                    .firstOrNull
+                    ?.feePayingNow;
+              }
+              eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPayingController.text =
+                  eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying == null
+                      ? ""
+                      : "${eachStudentTermWiseCustomFeeTypeTransactionHistory.feeNowPaying! / 100}";
+            });
+          }
+        });
+      }
+    });
     setState(() {
       _isLoading = false;
     });
@@ -1118,7 +1359,7 @@ class _StudentWiseAnnualTransactionHistory {
 
   @override
   String toString() {
-    return "_StudentWiseAnnualTransactionHistory {'sectionId': $sectionId, 'sectionName': $sectionName, 'totalFee': $totalFee, 'totalFeePaid': $totalFeePaid, 'studentWalletTransactionHistoryBeans': $studentWalletTransactionHistoryBeans, 'studentTermWiseTransactionHistoryBeans': $studentTermWiseTransactionHistoryBeans}";
+    return "{'studentProfile': $studentProfile, 'sectionId': $sectionId, 'sectionName': $sectionName, 'totalFee': $totalFee, 'totalFeePaid': $totalFeePaid, 'studentWalletTransactionHistoryBeans': $studentWalletTransactionHistoryBeans, 'studentTermWiseTransactionHistoryBeans': $studentTermWiseTransactionHistoryBeans}";
   }
 }
 
@@ -1142,7 +1383,7 @@ class _StudentTermWiseTransactionHistory {
 
   @override
   String toString() {
-    return "_StudentTermWiseTransactionHistory {'termId': $termId, 'termName': $termName, 'totalTermFee': $totalTermFee, 'totalTermFeePaid': $totalTermFeePaid, 'totalAnnualFee': $totalAnnualFee, 'studentTermWiseFeeTypeTransactionHistoryBeans': $studentTermWiseFeeTypeTransactionHistoryBeans}";
+    return "{'termId': $termId, 'termName': $termName, 'totalTermFee': $totalTermFee, 'totalTermFeePaid': $totalTermFeePaid, 'totalAnnualFee': $totalAnnualFee, 'studentTermWiseFeeTypeTransactionHistoryBeans': $studentTermWiseFeeTypeTransactionHistoryBeans}";
   }
 }
 
@@ -1177,7 +1418,7 @@ class _StudentTermWiseFeeTypeTransactionHistory {
 
   @override
   String toString() {
-    return "_StudentTermWiseFeeTypeTransactionHistory {'feeTypeId': $feeTypeId, 'feeType': $feeType, 'totalTermFee': $totalTermFee, 'totalTermFeePaid': $totalTermFeePaid, 'transactions': $transactions, 'studentTermWiseCustomFeeTypeTransactionHistory': $studentTermWiseCustomFeeTypeTransactionHistory, 'termId': $termId, 'totalAnnualFee': $totalAnnualFee}";
+    return "{'feeNowPaying': $feeNowPaying, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'totalTermFee': $totalTermFee, 'totalTermFeePaid': $totalTermFeePaid, 'transactions': $transactions, 'studentTermWiseCustomFeeTypeTransactionHistory': $studentTermWiseCustomFeeTypeTransactionHistory, 'termId': $termId, 'totalAnnualFee': $totalAnnualFee}";
   }
 }
 
@@ -1210,7 +1451,7 @@ class _FeeTypeTransaction {
 
   @override
   String toString() {
-    return "_FeeTypeTransaction {'transactionAmount': $transactionAmount, 'transactionId': $transactionId, 'masterTransactionId': $masterTransactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'feePaidId': $feePaidId}";
+    return "{'transactionAmount': $transactionAmount, 'transactionId': $transactionId, 'masterTransactionId': $masterTransactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'feePaidId': $feePaidId, 'modeOfPayment': $modeOfPayment, 'type': $type, 'kind': $kind}";
   }
 }
 
@@ -1246,7 +1487,7 @@ class _StudentTermWiseCustomFeeTypeTransactionHistory {
 
   @override
   String toString() {
-    return "_StudentTermWiseCustomFeeTypeTransactionHistory {'feeTypeId': $feeTypeId, 'feeType': $feeType, 'customFeeTypeId': $customFeeTypeId, 'customFeeType': $customFeeType, 'totalTermFee': $totalTermFee, 'totalTermFeePaid': $totalTermFeePaid, 'totalAnnualFee': $totalAnnualFee, 'transactions': $transactions}";
+    return "{'feeNowPaying': $feeNowPaying, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'customFeeTypeId': $customFeeTypeId, 'customFeeType': $customFeeType, 'totalTermFee': $totalTermFee, 'totalTermFeePaid': $totalTermFeePaid, 'totalAnnualFee': $totalAnnualFee, 'transactions': $transactions, 'termId': $termId}";
   }
 }
 
@@ -1283,7 +1524,7 @@ class _CustomFeeTypeTransaction {
 
   @override
   String toString() {
-    return "_CustomFeeTypeTransaction {'transactionAmount': $transactionAmount, 'transactionId': $transactionId, 'masterTransactionId': $masterTransactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'customFeeTypeId': $customFeeTypeId, 'customFeeType': $customFeeType, 'feePaidId': $feePaidId}";
+    return "{'transactionAmount': $transactionAmount, 'transactionId': $transactionId, 'masterTransactionId': $masterTransactionId, 'transactionTime': $transactionTime, 'transactionDescription': $transactionDescription, 'feeTypeId': $feeTypeId, 'feeType': $feeType, 'customFeeTypeId': $customFeeTypeId, 'customFeeType': $customFeeType, 'feePaidId': $feePaidId, 'modeOfPayment': $modeOfPayment, 'type': $type, 'kind': $kind}";
   }
 }
 

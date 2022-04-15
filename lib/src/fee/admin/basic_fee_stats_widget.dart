@@ -150,37 +150,15 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
         children: [
           const Expanded(
             child: Text(
-              "Wallet Balance:",
-            ),
-          ),
-          Text(
-            "$INR_SYMBOL ${((studentWiseAnnualFeesBean.walletBalance ?? 0) / 100).toString()}",
-            textAlign: TextAlign.end,
-            style: const TextStyle(
-              color: Colors.blue,
-            ),
-          ),
-        ],
-      ),
-    );
-    feeStats.add(
-      Row(
-        children: [
-          const Expanded(
-            child: Text(
               "Fee to be paid:",
             ),
           ),
           Text(
-            "$INR_SYMBOL ${(((studentWiseAnnualFeesBean.totalFee ?? 0) - (studentWiseAnnualFeesBean.totalFeePaid ?? 0) - (studentWiseAnnualFeesBean.walletBalance ?? 0)) / 100).toString()}",
+            "$INR_SYMBOL ${(((studentWiseAnnualFeesBean.totalFee ?? 0) - (studentWiseAnnualFeesBean.totalFeePaid ?? 0)) / 100).toString()}",
             textAlign: TextAlign.end,
             style: TextStyle(
-              color: ((studentWiseAnnualFeesBean.totalFee ?? 0) -
-                          (studentWiseAnnualFeesBean.totalFeePaid ?? 0) -
-                          (studentWiseAnnualFeesBean.walletBalance ?? 0)) ==
-                      0
-                  ? null
-                  : const Color(0xffff5733),
+              color:
+                  ((studentWiseAnnualFeesBean.totalFee ?? 0) - (studentWiseAnnualFeesBean.totalFeePaid ?? 0)) == 0 ? null : const Color(0xffff5733),
             ),
           ),
         ],
