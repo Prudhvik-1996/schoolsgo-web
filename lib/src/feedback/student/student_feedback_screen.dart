@@ -1,4 +1,5 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -47,23 +48,20 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
     });
 
     // Get all TDS
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-        await getTeacherDealingSections(
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.studentProfile.schoolId,
         sectionId: widget.studentProfile.sectionId,
       ),
     );
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" &&
-        getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
-        _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections ?? [];
       });
     }
 
     // Get all teachers feedback
-    GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse =
-        await getStudentToTeacherFeedback(
+    GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse = await getStudentToTeacherFeedback(
       GetStudentToTeacherFeedbackRequest(
         schoolId: widget.studentProfile.schoolId,
         adminView: false,
@@ -72,14 +70,15 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
       ),
     );
     List<StudentToTeacherFeedback> allFeedbackBeans = [];
-    if (getStudentToTeacherFeedbackResponse.httpStatus == "OK" &&
-        getStudentToTeacherFeedbackResponse.responseStatus == "success") {
+    if (getStudentToTeacherFeedbackResponse.httpStatus == "OK" && getStudentToTeacherFeedbackResponse.responseStatus == "success") {
       setState(() {
-        allFeedbackBeans = getStudentToTeacherFeedbackResponse.feedbackBeans!
-            .map((e) => e!)
-            .where((e) => e.feedbackId != null)
-            .toList();
-        _tdsList.forEach((eachTds) {
+        allFeedbackBeans = getStudentToTeacherFeedbackResponse.feedbackBeans?.map((e) => e!).where((e) => e.feedbackId != null).toList() ?? [];
+      });
+
+      for (var eachTds in _tdsList) {
+        List<double> ratingsList = allFeedbackBeans.where((e) => e.tdsId == eachTds.tdsId).map((e) => e.rating ?? 0).toList()..add(0);
+        double averageRating = (ratingsList.reduce((a, b) => a + b) / ratingsList.length);
+        setState(() {
           _feedbackBeans.add(StudentToTeacherFeedback(
             studentId: widget.studentProfile.studentId,
             sectionId: widget.studentProfile.sectionId,
@@ -87,35 +86,19 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
             schoolId: widget.studentProfile.schoolId,
             tdsId: eachTds.tdsId,
             subjectId: eachTds.subjectId,
-            rating: (allFeedbackBeans
-                        .where((e) => e.tdsId == eachTds.tdsId)
-                        .map((e) => e.rating)
-                        .reduce((a, b) => ((a ?? 0) + (b ?? 0))) ??
-                    0) ~/
-                (allFeedbackBeans
-                    .where((e) => e.tdsId == eachTds.tdsId)
-                    .length),
-            lastUpdated: allFeedbackBeans
-                .where((e) => e.tdsId == eachTds.tdsId)
-                .map((e) => e.lastUpdated)
-                .first,
+            rating: averageRating,
+            lastUpdated: allFeedbackBeans.where((e) => e.tdsId == eachTds.tdsId).firstOrNull?.lastUpdated,
             subjectName: eachTds.subjectName,
             teacherName: eachTds.teacherName,
             sectionName: eachTds.sectionName,
             schoolName: widget.studentProfile.schoolName,
-            studentName: ((widget.studentProfile.studentFirstName == null
-                        ? ""
-                        : widget.studentProfile.studentFirstName! + " ") +
-                    (widget.studentProfile.studentMiddleName == null
-                        ? ""
-                        : widget.studentProfile.studentMiddleName! + " ") +
-                    (widget.studentProfile.studentLastName == null
-                        ? ""
-                        : widget.studentProfile.studentLastName! + " "))
+            studentName: ((widget.studentProfile.studentFirstName == null ? "" : (widget.studentProfile.studentFirstName ?? "") + " ") +
+                    (widget.studentProfile.studentMiddleName == null ? "" : (widget.studentProfile.studentMiddleName ?? "") + " ") +
+                    (widget.studentProfile.studentLastName == null ? "" : (widget.studentProfile.studentLastName ?? "") + " "))
                 .trim(),
           ));
         });
-      });
+      }
     }
 
     setState(() {
@@ -153,8 +136,7 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
                   _feedbackBeans
                           .map(
                             (eachFeedbackBean) => Container(
-                              margin: MediaQuery.of(context).orientation ==
-                                      Orientation.portrait
+                              margin: MediaQuery.of(context).orientation == Orientation.portrait
                                   ? EdgeInsets.fromLTRB(25, 15, 25, 15)
                                   : EdgeInsets.fromLTRB(150, 15, 150, 15),
                               child: ClayContainer(
@@ -165,19 +147,15 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
                                 child: Column(
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Expanded(
                                           child: Container(
                                             margin: const EdgeInsets.all(15),
                                             child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   "Teacher: ${(eachFeedbackBean.teacherName ?? "").capitalize()}",
@@ -192,26 +170,19 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
                                         Flexible(
                                           fit: FlexFit.loose,
                                           child: Center(
-                                            child: !_isEditMode
-                                                ? buildRatingIndicator(
-                                                    eachFeedbackBean)
-                                                : buildRatingBar(
-                                                    eachFeedbackBean),
+                                            child: !_isEditMode ? buildRatingIndicator(eachFeedbackBean) : buildRatingBar(eachFeedbackBean),
                                           ),
                                         ),
                                       ],
                                     ),
                                     if (!_isEditMode)
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Expanded(
                                             child: Container(
-                                              margin: const EdgeInsets.fromLTRB(
-                                                  15, 0, 15, 5),
+                                              margin: const EdgeInsets.fromLTRB(15, 0, 15, 5),
                                               child: Text(
                                                 "Last Updated: ${eachFeedbackBean.lastUpdated == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachFeedbackBean.lastUpdated!)}",
                                                 textAlign: TextAlign.end,
@@ -258,11 +229,9 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
         itemSize: 25,
         onRatingUpdate: (rating) {
           print("199: TDS Id: ${eachFeedbackBean.tdsId} - New rating: $rating");
-          if (StudentToTeacherFeedback.fromJson(eachFeedbackBean.origJson())
-                  .rating !=
-              rating.toInt()) {
+          if (StudentToTeacherFeedback.fromJson(eachFeedbackBean.origJson()).rating != rating.toInt()) {
             setState(() {
-              eachFeedbackBean.rating = rating.toInt();
+              eachFeedbackBean.rating = rating;
               eachFeedbackBean.isEdited = true;
             });
           }
@@ -296,19 +265,14 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
 
   Future<void> _saveChanges() async {
     if (_feedbackBeans.where((e) => e.isEdited).isEmpty) return;
-    CreateOrUpdateStudentToTeacherFeedbackRequest
-        createOrUpdateStudentToTeacherFeedbackRequest =
-        CreateOrUpdateStudentToTeacherFeedbackRequest(
+    CreateOrUpdateStudentToTeacherFeedbackRequest createOrUpdateStudentToTeacherFeedbackRequest = CreateOrUpdateStudentToTeacherFeedbackRequest(
       schoolId: widget.studentProfile.studentId,
       feedbackBeans: _feedbackBeans.where((e) => e.isEdited).toList(),
     );
-    CreateOrUpdateStudentToTeacherFeedbackResponse
-        createOrUpdateStudentToTeacherFeedbackResponse =
-        await createOrUpdateStudentToTeacherFeedback(
-            createOrUpdateStudentToTeacherFeedbackRequest);
+    CreateOrUpdateStudentToTeacherFeedbackResponse createOrUpdateStudentToTeacherFeedbackResponse =
+        await createOrUpdateStudentToTeacherFeedback(createOrUpdateStudentToTeacherFeedbackRequest);
     if (createOrUpdateStudentToTeacherFeedbackResponse.httpStatus == "OK" &&
-        createOrUpdateStudentToTeacherFeedbackResponse.responseStatus ==
-            "success") {
+        createOrUpdateStudentToTeacherFeedbackResponse.responseStatus == "success") {
       _loadData();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

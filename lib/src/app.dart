@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
+import 'package:schoolsgo_web/src/bus/admin/admin_bus_options_screen.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
@@ -217,6 +218,23 @@ class _MyAppState extends State<MyApp> {
                         return StudentProfileScreen(
                           studentProfile: argument,
                         );
+                      }
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case AdminBusOptionsScreen.routeName:
+                    try {
+                      if (routeSettings.arguments is TeacherProfile) {
+                        var teacherProfile = routeSettings.arguments as TeacherProfile;
+                        return const E404NotFoundScreen();
+                      } else if (routeSettings.arguments is AdminProfile) {
+                        var adminProfile = routeSettings.arguments as AdminProfile;
+                        return AdminBusOptionsScreen(
+                          adminProfile: adminProfile,
+                        );
+                      } else {
+                        var argument = (routeSettings.arguments as StudentProfile);
+                        return const E404NotFoundScreen();
                       }
                     } catch (e) {
                       return const E404NotFoundScreen();

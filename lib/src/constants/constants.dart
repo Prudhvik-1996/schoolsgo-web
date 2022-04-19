@@ -97,3 +97,9 @@ const String GET_STUDENT_WISE_TERM_FEES = "/fee/getStudentWiseTermFees";
 const String CREATE_OR_UPDATE_FEE_PAID = "/fee/createOrUpdateStudentFeePaid";
 // const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
 // const String GET_FEE_MAP = "/fee/getFeeMap";
+
+const String GET_BUSES_DRIVERS = "/buses/getDrivers";
+const String GET_BUSES_BASE_DETAILS = "/buses/getBusesBaseDetails";
+const String CREATE_OR_UPDATE_BUSES_BASE_DETAILS = "/buses/createOrUpdateBus";
+const String GET_ROUTE_INFO = "/buses/getBusRouteDetails";
+const String CREATE_OR_UPDATE_BUS_ROUTE_DETAILS = "/buses/createOrUpdateBusRouteDetails";

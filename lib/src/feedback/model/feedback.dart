@@ -92,7 +92,7 @@ class StudentToTeacherFeedback {
   int? createTime;
   int? feedbackId;
   int? lastUpdated;
-  int? rating;
+  double? rating;
   String? review;
   int? schoolId;
   String? schoolName;
@@ -136,7 +136,7 @@ class StudentToTeacherFeedback {
     createTime = int.tryParse(json['createTime']?.toString() ?? '');
     feedbackId = int.tryParse(json['feedbackId']?.toString() ?? '');
     lastUpdated = int.tryParse(json['lastUpdated']?.toString() ?? '');
-    rating = int.tryParse(json['rating']?.toString() ?? '');
+    rating = double.tryParse(json['rating']?.toString() ?? '');
     review = json['review']?.toString();
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
     schoolName = json['schoolName']?.toString();
@@ -258,11 +258,8 @@ class GetStudentToTeacherFeedbackResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetStudentToTeacherFeedbackResponse> getStudentToTeacherFeedback(
-    GetStudentToTeacherFeedbackRequest
-        getStudentToTeacherFeedbackRequest) async {
-  print(
-      "Raising request to getStudentToTeacherFeedback with request ${jsonEncode(getStudentToTeacherFeedbackRequest.toJson())}");
+Future<GetStudentToTeacherFeedbackResponse> getStudentToTeacherFeedback(GetStudentToTeacherFeedbackRequest getStudentToTeacherFeedbackRequest) async {
+  print("Raising request to getStudentToTeacherFeedback with request ${jsonEncode(getStudentToTeacherFeedbackRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_TO_TEACHER_FEEDBACK;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -272,10 +269,8 @@ Future<GetStudentToTeacherFeedbackResponse> getStudentToTeacherFeedback(
     body: jsonEncode(getStudentToTeacherFeedbackRequest.toJson()),
   );
 
-  GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse =
-      GetStudentToTeacherFeedbackResponse.fromJson(json.decode(response.body));
-  print(
-      "GetStudentToTeacherFeedbackResponse ${getStudentToTeacherFeedbackResponse.toJson()}");
+  GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse = GetStudentToTeacherFeedbackResponse.fromJson(json.decode(response.body));
+  print("GetStudentToTeacherFeedbackResponse ${getStudentToTeacherFeedbackResponse.toJson()}");
   return getStudentToTeacherFeedbackResponse;
 }
 
@@ -316,8 +311,7 @@ class CreateOrUpdateStudentToTeacherFeedbackRequest {
     this.feedbackBeans,
     this.schoolId,
   });
-  CreateOrUpdateStudentToTeacherFeedbackRequest.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateStudentToTeacherFeedbackRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['feedbackBeans'] != null && (json['feedbackBeans'] is List)) {
       final v = json['feedbackBeans'];
@@ -368,8 +362,7 @@ class CreateOrUpdateStudentToTeacherFeedbackResponse {
     this.httpStatus,
     this.responseStatus,
   });
-  CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
     errorMessage = json['errorMessage']?.toString();
@@ -388,14 +381,10 @@ class CreateOrUpdateStudentToTeacherFeedbackResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateStudentToTeacherFeedbackResponse>
-    createOrUpdateStudentToTeacherFeedback(
-        CreateOrUpdateStudentToTeacherFeedbackRequest
-            createStudentToTeacherFeedbackRequest) async {
-  print(
-      "Raising request to createStudentToTeacherFeedback with request ${jsonEncode(createStudentToTeacherFeedbackRequest.toJson())}");
-  String _url =
-      SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK;
+Future<CreateOrUpdateStudentToTeacherFeedbackResponse> createOrUpdateStudentToTeacherFeedback(
+    CreateOrUpdateStudentToTeacherFeedbackRequest createStudentToTeacherFeedbackRequest) async {
+  print("Raising request to createStudentToTeacherFeedback with request ${jsonEncode(createStudentToTeacherFeedbackRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
   Response response = await post(
@@ -404,11 +393,8 @@ Future<CreateOrUpdateStudentToTeacherFeedbackResponse>
     body: jsonEncode(createStudentToTeacherFeedbackRequest.toJson()),
   );
 
-  CreateOrUpdateStudentToTeacherFeedbackResponse
-      createStudentToTeacherFeedbackResponse =
-      CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "createStudentToTeacherFeedbackResponse ${createStudentToTeacherFeedbackResponse.toJson()}");
+  CreateOrUpdateStudentToTeacherFeedbackResponse createStudentToTeacherFeedbackResponse =
+      CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(json.decode(response.body));
+  print("createStudentToTeacherFeedbackResponse ${createStudentToTeacherFeedbackResponse.toJson()}");
   return createStudentToTeacherFeedbackResponse;
 }

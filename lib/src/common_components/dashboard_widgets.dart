@@ -381,6 +381,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         argument: adminProfile,
       ),
       DashboardWidget(
+        image: SvgPicture.asset("assets/images/bus.svg"),
+        title: "Bus",
+        routeName: "/bus",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",
         routeName: "/demo",
