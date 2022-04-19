@@ -1,7 +1,10 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/settings/settings_view.dart';
+import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
+import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 
 import 'dashboard_widgets.dart';
 
@@ -12,9 +15,7 @@ class DefaultAppDrawer extends Drawer {
   Widget build(BuildContext context) {
     return Container(
       color: Theme.of(context).backgroundColor,
-      width: MediaQuery.of(context).orientation == Orientation.landscape
-          ? MediaQuery.of(context).size.width / 3
-          : MediaQuery.of(context).size.width,
+      width: MediaQuery.of(context).orientation == Orientation.landscape ? 255 : 255,
       child: ListView(
         restorationId: 'DefaultAppDrawer',
         controller: ScrollController(),
@@ -49,6 +50,23 @@ class DefaultAppDrawer extends Drawer {
               ],
             ),
           ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+            child: ListTile(
+              title: const Text(
+                'Back',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              leading: const Icon(Icons.arrow_back),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          const Divider(),
           ListTile(
             title: const Text(
               'Settings',
@@ -69,20 +87,16 @@ class DefaultAppDrawer extends Drawer {
 }
 
 class StudentAppDrawer extends Drawer {
-  const StudentAppDrawer({Key? key, required this.studentProfile})
-      : super(key: key);
+  const StudentAppDrawer({Key? key, required this.studentProfile}) : super(key: key);
 
   final StudentProfile studentProfile;
 
   @override
   Widget build(BuildContext context) {
-    final List<DashboardWidget<StudentProfile>> dashBoardWidgets =
-        studentDashBoardWidgets(studentProfile);
+    final List<DashboardWidget<StudentProfile>> dashBoardWidgets = studentDashBoardWidgets(studentProfile);
     return Container(
       color: Theme.of(context).backgroundColor,
-      width: MediaQuery.of(context).orientation == Orientation.landscape
-          ? MediaQuery.of(context).size.width / 3
-          : MediaQuery.of(context).size.width,
+      width: MediaQuery.of(context).orientation == Orientation.landscape ? 255 : 255,
       child: ListView(
         restorationId: 'DefaultAppDrawer',
         children: <Widget>[
@@ -120,6 +134,44 @@ class StudentAppDrawer extends Drawer {
                 margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                 child: ListTile(
                   title: const Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.home),
+                  onTap: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      StudentDashBoard.routeName,
+                      (route) => route.isFirst,
+                      arguments: studentProfile,
+                    );
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Back',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.arrow_back),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
                     'Settings',
                     style: TextStyle(
                       color: Colors.white,
@@ -127,8 +179,7 @@ class StudentAppDrawer extends Drawer {
                   ),
                   leading: const Icon(Icons.settings),
                   onTap: () {
-                    Navigator.restorablePushNamed(
-                        context, SettingsView.routeName);
+                    Navigator.restorablePushNamed(context, SettingsView.routeName);
                   },
                 ),
               ),
@@ -189,14 +240,12 @@ class StudentAppDrawer extends Drawer {
                                   .map(
                                     (e1) => [
                                       Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            15, 0, 0, 0),
+                                        margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         child: ListTile(
                                           leading: const SizedBox(
                                             height: 25,
                                             width: 25,
-                                            child: Icon(
-                                                Icons.format_list_bulleted),
+                                            child: Icon(Icons.format_list_bulleted),
                                           ),
                                           title: Text(
                                             "${e1.title}",
@@ -225,20 +274,16 @@ class StudentAppDrawer extends Drawer {
 }
 
 class TeacherAppDrawer extends Drawer {
-  const TeacherAppDrawer({Key? key, required this.teacherProfile})
-      : super(key: key);
+  const TeacherAppDrawer({Key? key, required this.teacherProfile}) : super(key: key);
 
   final TeacherProfile teacherProfile;
 
   @override
   Widget build(BuildContext context) {
-    final List<DashboardWidget<TeacherProfile>> dashBoardWidgets =
-        teacherDashBoardWidgets(teacherProfile);
+    final List<DashboardWidget<TeacherProfile>> dashBoardWidgets = teacherDashBoardWidgets(teacherProfile);
     return Container(
       color: Theme.of(context).backgroundColor,
-      width: MediaQuery.of(context).orientation == Orientation.landscape
-          ? MediaQuery.of(context).size.width / 3
-          : MediaQuery.of(context).size.width,
+      width: MediaQuery.of(context).orientation == Orientation.landscape ? 255 : 255,
       child: ListView(
         restorationId: 'DefaultAppDrawer',
         children: <Widget>[
@@ -276,6 +321,44 @@ class TeacherAppDrawer extends Drawer {
                 margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                 child: ListTile(
                   title: const Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.home),
+                  onTap: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      TeacherDashboard.routeName,
+                      (route) => route.isFirst,
+                      arguments: teacherProfile,
+                    );
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Back',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.arrow_back),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
                     'Settings',
                     style: TextStyle(
                       color: Colors.white,
@@ -283,8 +366,7 @@ class TeacherAppDrawer extends Drawer {
                   ),
                   leading: const Icon(Icons.settings),
                   onTap: () {
-                    Navigator.restorablePushNamed(
-                        context, SettingsView.routeName);
+                    Navigator.restorablePushNamed(context, SettingsView.routeName);
                   },
                 ),
               ),
@@ -344,14 +426,12 @@ class TeacherAppDrawer extends Drawer {
                                   .map(
                                     (e1) => [
                                       Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            15, 0, 0, 0),
+                                        margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         child: ListTile(
                                           leading: const SizedBox(
                                             height: 25,
                                             width: 25,
-                                            child: Icon(
-                                                Icons.format_list_bulleted),
+                                            child: Icon(Icons.format_list_bulleted),
                                           ),
                                           title: Text(
                                             "${e1.title}",
@@ -380,20 +460,16 @@ class TeacherAppDrawer extends Drawer {
 }
 
 class AdminAppDrawer extends Drawer {
-  const AdminAppDrawer({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminAppDrawer({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
   @override
   Widget build(BuildContext context) {
-    final List<DashboardWidget<AdminProfile>> dashBoardWidgets =
-        adminDashBoardWidgets(adminProfile);
+    final List<DashboardWidget<AdminProfile>> dashBoardWidgets = adminDashBoardWidgets(adminProfile);
     return Container(
       color: Theme.of(context).backgroundColor,
-      width: MediaQuery.of(context).orientation == Orientation.landscape
-          ? MediaQuery.of(context).size.width / 3
-          : MediaQuery.of(context).size.width,
+      width: MediaQuery.of(context).orientation == Orientation.landscape ? 255 : 255,
       child: ListView(
         restorationId: 'DefaultAppDrawer',
         children: <Widget>[
@@ -431,6 +507,44 @@ class AdminAppDrawer extends Drawer {
                 margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                 child: ListTile(
                   title: const Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.home),
+                  onTap: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AdminDashboard.routeName,
+                      (route) => route.isFirst,
+                      arguments: adminProfile,
+                    );
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Back',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.arrow_back),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
                     'Settings',
                     style: TextStyle(
                       color: Colors.white,
@@ -438,8 +552,7 @@ class AdminAppDrawer extends Drawer {
                   ),
                   leading: const Icon(Icons.settings),
                   onTap: () {
-                    Navigator.restorablePushNamed(
-                        context, SettingsView.routeName);
+                    Navigator.restorablePushNamed(context, SettingsView.routeName);
                   },
                 ),
               ),
@@ -500,14 +613,12 @@ class AdminAppDrawer extends Drawer {
                                   .map(
                                     (e1) => [
                                       Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            15, 0, 0, 0),
+                                        margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                                         child: ListTile(
                                           leading: const SizedBox(
                                             height: 25,
                                             width: 25,
-                                            child: Icon(
-                                                Icons.format_list_bulleted),
+                                            child: Icon(Icons.format_list_bulleted),
                                           ),
                                           title: Text(
                                             "${e1.title}",
