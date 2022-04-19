@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/default_splash_screen.dart';
 import 'package:schoolsgo_web/src/login/login_screen.dart';
@@ -23,6 +25,10 @@ class _SplashScreenState extends State<SplashScreen> {
   late int loggedInUserId;
 
   int splashScreenDelay = 1;
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: "480997552358-t9ir5mnb6t91gcemhdmdivh3a1uo3208.apps.googleusercontent.com",
+  );
 
   @override
   void initState() {
@@ -52,6 +58,11 @@ class _SplashScreenState extends State<SplashScreen> {
       if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
         await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
       }
+    } else {
+      print("64");
+      await FirebaseAuth.instance.signOut();
+      await _googleSignIn.signOut();
+      await _googleSignIn.disconnect();
     }
 
     print("57:");

@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/model/auth.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TeacherDashboard extends StatefulWidget {
@@ -26,6 +27,7 @@ class TeacherDashboard extends StatefulWidget {
 
 class _TeacherDashboardState extends State<TeacherDashboard> {
   bool _isLoading = true;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -45,7 +47,39 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           buildRoleButtonForAppBar(context, widget.teacherProfile),
           InkWell(
             onTap: () {
-              //  TODO performLogout
+              showDialog(
+                context: _scaffoldKey.currentContext!,
+                builder: (dialogueContext) {
+                  return AlertDialog(
+                    title: const Text('Epsilon Diary'),
+                    content: const Text("Are you sure you want to logout?"),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text("Yes"),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          await prefs.remove('USER_FOUR_DIGIT_PIN');
+                          await prefs.remove('IS_USER_LOGGED_IN');
+                          await prefs.remove('LOGGED_IN_USER_ID');
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            SplashScreen.routeName,
+                            (route) => route.isFirst,
+                            arguments: true,
+                          );
+                        },
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("No"),
+                      ),
+                    ],
+                  );
+                },
+              );
             },
             child: Container(
               margin: const EdgeInsets.all(10),

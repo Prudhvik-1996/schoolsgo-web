@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -35,6 +36,8 @@ class _UserDashboardState extends State<UserDashboard> {
   List<MegaAdminProfile> _megaAdminProfiles = [];
 
   String? fourDigitPin;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -206,8 +209,55 @@ class _UserDashboardState extends State<UserDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       restorationId: 'UserDashboard',
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Epsilon Diary"),
+        actions: [
+          InkWell(
+            onTap: () {
+              showDialog(
+                context: _scaffoldKey.currentContext!,
+                builder: (dialogueContext) {
+                  return AlertDialog(
+                    title: const Text('Epsilon Diary'),
+                    content: const Text("Are you sure you want to logout?"),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text("Yes"),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          await prefs.remove('USER_FOUR_DIGIT_PIN');
+                          await prefs.remove('IS_USER_LOGGED_IN');
+                          await prefs.remove('LOGGED_IN_USER_ID');
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            SplashScreen.routeName,
+                            (route) => route.isFirst,
+                            arguments: true,
+                          );
+                        },
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("No"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              child: const Icon(
+                Icons.logout,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
       drawer: const DefaultAppDrawer(),
       body: SafeArea(
