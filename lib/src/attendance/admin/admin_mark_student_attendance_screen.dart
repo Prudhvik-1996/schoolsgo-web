@@ -5,30 +5,33 @@ import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class TeacherMarkStudentAttendanceScreen extends StatefulWidget {
-  final TeacherProfile teacherProfile;
-  final DateTime selectedDate;
-  final AttendanceTimeSlotBean attendanceTimeSlotBean;
-
-  const TeacherMarkStudentAttendanceScreen({
+class AdminMarkStudentAttendanceScreen extends StatefulWidget {
+  const AdminMarkStudentAttendanceScreen({
     Key? key,
-    required this.teacherProfile,
-    required this.selectedDate,
-    required this.attendanceTimeSlotBean,
+    required this.adminProfile,
   }) : super(key: key);
 
+  final AdminProfile adminProfile;
+
   @override
-  _TeacherMarkStudentAttendanceScreenState createState() => _TeacherMarkStudentAttendanceScreenState();
+  _AdminMarkStudentAttendanceScreenState createState() => _AdminMarkStudentAttendanceScreenState();
 }
 
-class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentAttendanceScreen> {
+class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAttendanceScreen> {
   bool _isLoading = true;
   bool _isEditMode = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  DateTime _selectedDate = DateTime.now();
+
+  List<Section> _sectionsList = [];
+  Section? _selectedSection;
+  bool _isSectionPickerOpen = false;
 
   List<AttendanceTimeSlotBean> attendanceTimeSlotBeans = [];
   List<_StudentWiseAttendanceTimeSlot> studentWiseAttendanceBeans = [];
@@ -58,31 +61,46 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
     _loadData();
   }
 
+  @override
+  void dispose() {
+    _studentsController.dispose();
+    _studentWiseAttendanceController.dispose();
+    _header.dispose();
+    _subHeader.dispose();
+
+    super.dispose();
+  }
+
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _isEditMode = false;
     });
+    GetSectionsRequest getSectionsRequest = GetSectionsRequest(
+      schoolId: widget.adminProfile.schoolId,
+    );
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
+      setState(() {
+        _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
+      });
+    }
     setState(() {
       _isLoading = false;
     });
-
-    _loadStudentAttendance();
   }
 
   Future<void> _loadStudentAttendance() async {
+    if (_selectedSection == null) return;
     List<StudentAttendanceBean> studentAttendanceBeans = [];
     List<StudentProfile> studentProfiles = [];
     setState(() {
       _isLoading = true;
     });
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
-      schoolId: widget.teacherProfile.schoolId,
-      date: convertDateTimeToYYYYMMDDFormat(widget.selectedDate),
-      sectionId: widget.attendanceTimeSlotBean.sectionId,
-      teacherId: widget.teacherProfile.teacherId,
-      attendanceTimeSlotId: widget.attendanceTimeSlotBean.attendanceTimeSlotId,
+      schoolId: widget.adminProfile.schoolId,
+      date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
+      sectionId: _selectedSection!.sectionId,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {
@@ -95,9 +113,9 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
             .toList()
             .map((int eachStudentId) => StudentProfile(
                   studentId: eachStudentId,
-                  schoolId: widget.teacherProfile.schoolId,
-                  sectionId: widget.attendanceTimeSlotBean.sectionId,
-                  sectionName: widget.attendanceTimeSlotBean.sectionName,
+                  schoolId: widget.adminProfile.schoolId,
+                  sectionId: _selectedSection?.sectionId,
+                  sectionName: _selectedSection?.sectionName,
                   studentFirstName: studentAttendanceBeans.where((e) => e.studentId == eachStudentId).firstOrNull?.studentName,
                   rollNumber: (studentAttendanceBeans.where((e) => e.studentId == eachStudentId).firstOrNull?.studentRollNumber)?.toString(),
                 ))
@@ -110,7 +128,6 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
             ),
           );
         }
-        print("112: ${studentWiseAttendanceBeans[0].studentAttendanceBeans.length}");
         studentWiseAttendanceBeans.sort(
           (a, b) => (int.tryParse(a.studentProfile.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.studentProfile.rollNumber ?? "0") ?? 0),
         );
@@ -151,14 +168,27 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 20,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: _sectionPicker(),
+                      ),
+                      if (!_isSectionPickerOpen)
+                        Expanded(
+                          flex: 2,
+                          child: _getDatePicker(),
+                        ),
+                      if (!_isSectionPickerOpen) widget.adminProfile.isMegaAdmin ? Container() : buildEditButton(context),
+                    ],
                   ),
                   if (attendanceTimeSlotBeans.isNotEmpty) _headerWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty && _isEditMode) _subHeaderWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty)
                     SizedBox(
-                      height: MediaQuery.of(context).size.height - (_isEditMode ? 2 : 1) * (_cellColumnHeight + _cellPadding + _cellPadding),
+                      height: MediaQuery.of(context).size.height - (_isEditMode ? 4 : 3) * (_cellColumnHeight + _cellPadding + _cellPadding),
                       width: MediaQuery.of(context).size.width,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
@@ -172,7 +202,6 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                 ],
               ),
             ),
-      floatingActionButton: buildEditButton(context),
     );
   }
 
@@ -199,8 +228,7 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                 width: _studentColumnWidth,
                 child: Center(
                   child: Text(
-                    "${widget.attendanceTimeSlotBean.sectionName ?? " - "}\n${convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(widget.attendanceTimeSlotBean.date))}",
-                    textAlign: TextAlign.center,
+                    _selectedSection?.sectionName ?? "-",
                     style: TextStyle(
                       color: _headerTextColor,
                     ),
@@ -308,8 +336,8 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                                 for (int k = 0; k < studentWiseAttendanceBeans.length; k++) {
                                   setState(() {
                                     studentWiseAttendanceBeans[k].studentAttendanceBeans[i].isPresent = 1;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.teacherProfile.teacherId;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.teacherProfile.teacherId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.adminProfile.userId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.adminProfile.userId;
                                   });
                                 }
                               },
@@ -326,8 +354,8 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                                 for (int k = 0; k < studentWiseAttendanceBeans.length; k++) {
                                   setState(() {
                                     studentWiseAttendanceBeans[k].studentAttendanceBeans[i].isPresent = -1;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.teacherProfile.teacherId;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.teacherProfile.teacherId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.adminProfile.userId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.adminProfile.userId;
                                   });
                                 }
                               },
@@ -344,8 +372,8 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                                 for (int k = 0; k < studentWiseAttendanceBeans.length; k++) {
                                   setState(() {
                                     studentWiseAttendanceBeans[k].studentAttendanceBeans[i].isPresent = 0;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.teacherProfile.teacherId;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.teacherProfile.teacherId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.adminProfile.userId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.adminProfile.userId;
                                   });
                                 }
                               },
@@ -568,11 +596,65 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
       onTap: () {
         setState(() {
           studentWiseAttendanceBeans[i].studentAttendanceBeans[j].isPresent = isPresent;
-          studentWiseAttendanceBeans[i].studentAttendanceBeans[j].agent = widget.teacherProfile.teacherId;
-          studentWiseAttendanceBeans[i].studentAttendanceBeans[j].markedById = widget.teacherProfile.teacherId;
+          studentWiseAttendanceBeans[i].studentAttendanceBeans[j].agent = widget.adminProfile.userId;
+          studentWiseAttendanceBeans[i].studentAttendanceBeans[j].markedById = widget.adminProfile.userId;
         });
       },
       child: checkImage,
+    );
+  }
+
+  Widget _getDatePicker() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      child: GestureDetector(
+        onTap: () async {
+          if (_isEditMode) return;
+          DateTime? _newDate = await showDatePicker(
+            context: context,
+            initialDate: _selectedDate,
+            firstDate: DateTime(2021),
+            lastDate: DateTime.now(),
+            helpText: "Pick  date to mark attendance",
+          );
+          setState(() {
+            _selectedDate = _newDate ?? _selectedDate;
+          });
+          _loadStudentAttendance();
+        },
+        child: ClayButton(
+          depth: 40,
+          color: clayContainerColor(context),
+          spread: 2,
+          borderRadius: 10,
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      convertDateTimeToDDMMYYYYFormat(_selectedDate),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    const Icon(
+                      Icons.calendar_today,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -592,8 +674,8 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                     _isLoading = true;
                   });
                   CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest = CreateOrUpdateStudentAttendanceRequest(
-                    schoolId: widget.teacherProfile.schoolId,
-                    agent: widget.teacherProfile.teacherId,
+                    schoolId: widget.adminProfile.schoolId,
+                    agent: widget.adminProfile.userId,
                     studentAttendanceBeans: studentWiseAttendanceBeans
                         .map((e) => e.studentAttendanceBeans)
                         .expand((i) => i)
@@ -676,6 +758,165 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                   Icons.edit,
                 ),
               ),
+      ),
+    );
+  }
+
+  Widget _sectionPicker() {
+    return AnimatedSize(
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: _isSectionPickerOpen
+            ? Container(
+                margin: const EdgeInsets.all(10),
+                child: ClayContainer(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 10,
+                  child: _selectSectionExpanded(),
+                ),
+              )
+            : _selectSectionCollapsed(),
+      ),
+    );
+  }
+
+  Widget _buildSectionCheckBox(Section section) {
+    return Container(
+      margin: const EdgeInsets.all(5),
+      child: ClayButton(
+        depth: 40,
+        spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? 0 : 2,
+        surfaceColor:
+            _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        borderRadius: 10,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          padding: const EdgeInsets.all(5),
+          margin: const EdgeInsets.all(5),
+          child: InkWell(
+            onTap: () {
+              if (_isLoading) return;
+              setState(() {
+                if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
+                  _selectedSection = null;
+                } else {
+                  _selectedSection = section;
+                  _loadStudentAttendance();
+                }
+                _isSectionPickerOpen = false;
+              });
+            },
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  section.sectionName!,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectSectionExpanded() {
+    return Container(
+      width: double.infinity,
+      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
+      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
+      child: ListView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          InkWell(
+            onTap: () {
+              if (_isLoading) return;
+              setState(() {
+                _isSectionPickerOpen = !_isSectionPickerOpen;
+              });
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                    child: Text(
+                      _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const Icon(Icons.expand_less),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          GridView.count(
+            childAspectRatio: 2.25,
+            crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
+            shrinkWrap: true,
+            children: _sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _selectSectionCollapsed() {
+    return ClayContainer(
+      depth: 20,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      child: InkWell(
+        onTap: () {
+          if (_isLoading) return;
+          setState(() {
+            _isSectionPickerOpen = !_isSectionPickerOpen;
+          });
+        },
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+          padding: const EdgeInsets.all(2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _selectedSection == null ? "Section" : "${_selectedSection!.sectionName}",
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: const Icon(Icons.expand_more),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

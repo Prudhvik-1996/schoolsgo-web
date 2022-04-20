@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
 import 'admin_attendance_management_screen.dart';
-import 'admin_mark_attendance_screen.dart';
 
 class AdminAttendanceOptionsScreen extends StatefulWidget {
   final AdminProfile adminProfile;
@@ -103,7 +103,7 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
               _getAttendanceOption(
                 "Mark Attendance",
                 null,
-                AdminMarkAttendanceScreen(
+                AdminMarkStudentAttendanceScreen(
                   adminProfile: widget.adminProfile,
                 ),
               ),

@@ -50,23 +50,6 @@ class DefaultAppDrawer extends Drawer {
               ],
             ),
           ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-            child: ListTile(
-              title: const Text(
-                'Back',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              leading: const Icon(Icons.arrow_back),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-            ),
-          ),
-          const Divider(),
           ListTile(
             title: const Text(
               'Settings',

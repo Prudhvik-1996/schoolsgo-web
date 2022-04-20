@@ -74,8 +74,7 @@ class GetStudentAttendanceTimeSlotsResponse {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (attendanceTimeSlotBeans != null) {
-      data['attendanceTimeSlotBeans'] =
-          attendanceTimeSlotBeans!.map((v) => v.toJson()).toList();
+      data['attendanceTimeSlotBeans'] = attendanceTimeSlotBeans!.map((v) => v.toJson()).toList();
     }
     data['errorCode'] = errorCode;
     data['errorMessage'] = errorMessage;
@@ -165,10 +164,8 @@ class AttendanceTimeSlotBean {
 }
 
 Future<GetStudentAttendanceTimeSlotsResponse> getStudentAttendanceTimeSlots(
-    GetStudentAttendanceTimeSlotsRequest
-        getStudentAttendanceTimeSlotsRequest) async {
-  print(
-      "Raising request to getStudentAttendanceTimeSlots with request ${jsonEncode(getStudentAttendanceTimeSlotsRequest.toJson())}");
+    GetStudentAttendanceTimeSlotsRequest getStudentAttendanceTimeSlotsRequest) async {
+  print("Raising request to getStudentAttendanceTimeSlots with request ${jsonEncode(getStudentAttendanceTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_ATTENDANCE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -179,10 +176,8 @@ Future<GetStudentAttendanceTimeSlotsResponse> getStudentAttendanceTimeSlots(
   );
 
   GetStudentAttendanceTimeSlotsResponse getStudentAttendanceTimeSlotsResponse =
-      GetStudentAttendanceTimeSlotsResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "GetStudentAttendanceTimeSlotsResponse ${getStudentAttendanceTimeSlotsResponse.toJson()}");
+      GetStudentAttendanceTimeSlotsResponse.fromJson(json.decode(response.body));
+  print("GetStudentAttendanceTimeSlotsResponse ${getStudentAttendanceTimeSlotsResponse.toJson()}");
   return getStudentAttendanceTimeSlotsResponse;
 }
 
@@ -197,8 +192,7 @@ class CreateOrUpdateAttendanceTimeSlotBeansRequest {
     this.schoolId,
   });
 
-  CreateOrUpdateAttendanceTimeSlotBeansRequest.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateAttendanceTimeSlotBeansRequest.fromJson(Map<String, dynamic> json) {
     agent = json['agent'];
     if (json['attendanceTimeSlotBeans'] != null) {
       attendanceTimeSlotBeans = <AttendanceTimeSlotBean>[];
@@ -213,8 +207,7 @@ class CreateOrUpdateAttendanceTimeSlotBeansRequest {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['agent'] = agent;
     if (attendanceTimeSlotBeans != null) {
-      data['attendanceTimeSlotBeans'] =
-          attendanceTimeSlotBeans!.map((v) => v.toJson()).toList();
+      data['attendanceTimeSlotBeans'] = attendanceTimeSlotBeans!.map((v) => v.toJson()).toList();
     }
     data['schoolId'] = schoolId;
     return data;
@@ -234,8 +227,7 @@ class CreateOrUpdateAttendanceTimeSlotBeansResponse {
     this.responseStatus,
   });
 
-  CreateOrUpdateAttendanceTimeSlotBeansResponse.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateAttendanceTimeSlotBeansResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];
     errorMessage = json['errorMessage'];
     httpStatus = json['httpStatus'];
@@ -252,14 +244,10 @@ class CreateOrUpdateAttendanceTimeSlotBeansResponse {
   }
 }
 
-Future<CreateOrUpdateAttendanceTimeSlotBeansResponse>
-    createOrUpdateAttendanceTimeSlotBeans(
-        CreateOrUpdateAttendanceTimeSlotBeansRequest
-            createOrUpdateAttendanceTimeSlotBeansRequest) async {
-  print(
-      "Raising request to createOrUpdateAttendanceTimeSlotBeans with request ${jsonEncode(createOrUpdateAttendanceTimeSlotBeansRequest.toJson())}");
-  String _url =
-      SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS;
+Future<CreateOrUpdateAttendanceTimeSlotBeansResponse> createOrUpdateAttendanceTimeSlotBeans(
+    CreateOrUpdateAttendanceTimeSlotBeansRequest createOrUpdateAttendanceTimeSlotBeansRequest) async {
+  print("Raising request to createOrUpdateAttendanceTimeSlotBeans with request ${jsonEncode(createOrUpdateAttendanceTimeSlotBeansRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
   Response response = await http.post(
@@ -268,12 +256,9 @@ Future<CreateOrUpdateAttendanceTimeSlotBeansResponse>
     body: jsonEncode(createOrUpdateAttendanceTimeSlotBeansRequest.toJson()),
   );
 
-  CreateOrUpdateAttendanceTimeSlotBeansResponse
-      createOrUpdateAttendanceTimeSlotBeansResponse =
-      CreateOrUpdateAttendanceTimeSlotBeansResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "createOrUpdateAttendanceTimeSlotBeansResponse ${createOrUpdateAttendanceTimeSlotBeansResponse.toJson()}");
+  CreateOrUpdateAttendanceTimeSlotBeansResponse createOrUpdateAttendanceTimeSlotBeansResponse =
+      CreateOrUpdateAttendanceTimeSlotBeansResponse.fromJson(json.decode(response.body));
+  print("createOrUpdateAttendanceTimeSlotBeansResponse ${createOrUpdateAttendanceTimeSlotBeansResponse.toJson()}");
   return createOrUpdateAttendanceTimeSlotBeansResponse;
 }
 
@@ -366,22 +351,48 @@ class GetStudentAttendanceBeansResponse {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (attendanceTimeSlotBeans != null) {
-      data['attendanceTimeSlotBeans'] =
-          attendanceTimeSlotBeans!.map((v) => v.toJson()).toList();
+      data['attendanceTimeSlotBeans'] = attendanceTimeSlotBeans!.map((v) => v.toJson()).toList();
     }
     data['errorCode'] = errorCode;
     data['errorMessage'] = errorMessage;
     data['httpStatus'] = httpStatus;
     data['responseStatus'] = responseStatus;
     if (studentAttendanceBeans != null) {
-      data['studentAttendanceBeans'] =
-          studentAttendanceBeans!.map((v) => v.toJson()).toList();
+      data['studentAttendanceBeans'] = studentAttendanceBeans!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 class StudentAttendanceBean {
+/*
+{
+  "agent": 0,
+  "atsAgent": 0,
+  "atsStatus": "active",
+  "attendanceId": 0,
+  "attendanceTimeSlotId": 0,
+  "date": "string",
+  "endTime": "",
+  "isPresent": 0,
+  "managerId": 0,
+  "managerName": "string",
+  "markedBy": "string",
+  "markedById": 0,
+  "sectionId": 0,
+  "sectionName": "string",
+  "startTime": "",
+  "status": "active",
+  "studentId": 0,
+  "studentName": "string",
+  "studentRollNumber": 0,
+  "validFrom": "string",
+  "validThrough": "string",
+  "week": "string",
+  "weekId": 0
+}
+*/
+
   int? agent;
   int? atsAgent;
   String? atsStatus;
@@ -405,8 +416,9 @@ class StudentAttendanceBean {
   String? validThrough;
   String? week;
   int? weekId;
+  Map<String, dynamic> __origJson = {};
 
-  bool? isEdited;
+  bool isEdited = false;
 
   StudentAttendanceBean({
     this.agent,
@@ -433,35 +445,34 @@ class StudentAttendanceBean {
     this.week,
     this.weekId,
   });
-
   StudentAttendanceBean.fromJson(Map<String, dynamic> json) {
-    agent = json['agent'];
-    atsAgent = json['atsAgent'];
-    atsStatus = json['atsStatus'];
-    attendanceId = json['attendanceId'];
-    attendanceTimeSlotId = json['attendanceTimeSlotId'];
-    date = json['date'];
-    endTime = json['endTime'];
-    isPresent = json['isPresent'];
-    managerId = json['managerId'];
-    managerName = json['managerName'];
-    markedBy = json['markedBy'];
-    markedById = json['markedById'];
-    sectionId = json['sectionId'];
-    sectionName = json['sectionName'];
-    startTime = json['startTime'];
-    status = json['status'];
-    studentId = json['studentId'];
-    studentName = json['studentName'];
-    studentRollNumber = json['studentRollNumber'];
-    validFrom = json['validFrom'];
-    validThrough = json['validThrough'];
-    week = json['week'];
-    weekId = json['weekId'];
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    atsAgent = json['atsAgent']?.toInt();
+    atsStatus = json['atsStatus']?.toString();
+    attendanceId = json['attendanceId']?.toInt();
+    attendanceTimeSlotId = json['attendanceTimeSlotId']?.toInt();
+    date = json['date']?.toString();
+    endTime = json['endTime']?.toString();
+    isPresent = json['isPresent']?.toInt();
+    managerId = json['managerId']?.toInt();
+    managerName = json['managerName']?.toString();
+    markedBy = json['markedBy']?.toString();
+    markedById = json['markedById']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    startTime = json['startTime']?.toString();
+    status = json['status']?.toString();
+    studentId = json['studentId']?.toInt();
+    studentName = json['studentName']?.toString();
+    studentRollNumber = json['studentRollNumber']?.toInt();
+    validFrom = json['validFrom']?.toString();
+    validThrough = json['validThrough']?.toString();
+    week = json['week']?.toString();
+    weekId = json['weekId']?.toInt();
   }
-
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final data = <String, dynamic>{};
     data['agent'] = agent;
     data['atsAgent'] = atsAgent;
     data['atsStatus'] = atsStatus;
@@ -487,12 +498,12 @@ class StudentAttendanceBean {
     data['weekId'] = weekId;
     return data;
   }
+
+  Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetStudentAttendanceBeansResponse> getStudentAttendanceBeans(
-    GetStudentAttendanceBeansRequest getStudentAttendanceBeansRequest) async {
-  print(
-      "Raising request to getStudentAttendanceBeans with request ${jsonEncode(getStudentAttendanceBeansRequest.toJson())}");
+Future<GetStudentAttendanceBeansResponse> getStudentAttendanceBeans(GetStudentAttendanceBeansRequest getStudentAttendanceBeansRequest) async {
+  print("Raising request to getStudentAttendanceBeans with request ${jsonEncode(getStudentAttendanceBeansRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_ATTENDANCE_BEANS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -502,10 +513,8 @@ Future<GetStudentAttendanceBeansResponse> getStudentAttendanceBeans(
     body: jsonEncode(getStudentAttendanceBeansRequest.toJson()),
   );
 
-  GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse =
-      GetStudentAttendanceBeansResponse.fromJson(json.decode(response.body));
-  print(
-      "GetStudentAttendanceBeansResponse ${getStudentAttendanceBeansResponse.toJson()}");
+  GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = GetStudentAttendanceBeansResponse.fromJson(json.decode(response.body));
+  print("GetStudentAttendanceBeansResponse ${getStudentAttendanceBeansResponse.toJson()}");
   return getStudentAttendanceBeansResponse;
 }
 
@@ -536,8 +545,7 @@ class CreateOrUpdateStudentAttendanceRequest {
     data['agent'] = agent;
     data['schoolId'] = schoolId;
     if (studentAttendanceBeans != null) {
-      data['studentAttendanceBeans'] =
-          studentAttendanceBeans!.map((v) => v.toJson()).toList();
+      data['studentAttendanceBeans'] = studentAttendanceBeans!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -574,10 +582,8 @@ class CreateOrUpdateStudentAttendanceResponse {
 }
 
 Future<CreateOrUpdateStudentAttendanceResponse> createOrUpdateStudentAttendance(
-    CreateOrUpdateStudentAttendanceRequest
-        createOrUpdateStudentAttendanceRequest) async {
-  print(
-      "Raising request to createOrUpdateStudentAttendance with request ${jsonEncode(createOrUpdateStudentAttendanceRequest.toJson())}");
+    CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest) async {
+  print("Raising request to createOrUpdateStudentAttendance with request ${jsonEncode(createOrUpdateStudentAttendanceRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -587,12 +593,9 @@ Future<CreateOrUpdateStudentAttendanceResponse> createOrUpdateStudentAttendance(
     body: jsonEncode(createOrUpdateStudentAttendanceRequest.toJson()),
   );
 
-  CreateOrUpdateStudentAttendanceResponse
-      createOrUpdateStudentAttendanceResponse =
-      CreateOrUpdateStudentAttendanceResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "createOrUpdateStudentAttendanceResponse ${createOrUpdateStudentAttendanceResponse.toJson()}");
+  CreateOrUpdateStudentAttendanceResponse createOrUpdateStudentAttendanceResponse =
+      CreateOrUpdateStudentAttendanceResponse.fromJson(json.decode(response.body));
+  print("createOrUpdateStudentAttendanceResponse ${createOrUpdateStudentAttendanceResponse.toJson()}");
   return createOrUpdateStudentAttendanceResponse;
 }
 
@@ -667,11 +670,8 @@ class BulkEditAttendanceTimeSlotsResponse {
   }
 }
 
-Future<BulkEditAttendanceTimeSlotsResponse> bulkEditAttendanceTimeSlots(
-    BulkEditAttendanceTimeSlotsRequest
-        bulkEditAttendanceTimeSlotsRequest) async {
-  print(
-      "Raising request to bulkEditAttendanceTimeSlots with request ${jsonEncode(bulkEditAttendanceTimeSlotsRequest.toJson())}");
+Future<BulkEditAttendanceTimeSlotsResponse> bulkEditAttendanceTimeSlots(BulkEditAttendanceTimeSlotsRequest bulkEditAttendanceTimeSlotsRequest) async {
+  print("Raising request to bulkEditAttendanceTimeSlots with request ${jsonEncode(bulkEditAttendanceTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + BULK_EDIT_ATTENDANCE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -681,9 +681,7 @@ Future<BulkEditAttendanceTimeSlotsResponse> bulkEditAttendanceTimeSlots(
     body: jsonEncode(bulkEditAttendanceTimeSlotsRequest.toJson()),
   );
 
-  BulkEditAttendanceTimeSlotsResponse bulkEditAttendanceTimeSlotsResponse =
-      BulkEditAttendanceTimeSlotsResponse.fromJson(json.decode(response.body));
-  print(
-      "bulkEditAttendanceTimeSlotsResponse ${bulkEditAttendanceTimeSlotsResponse.toJson()}");
+  BulkEditAttendanceTimeSlotsResponse bulkEditAttendanceTimeSlotsResponse = BulkEditAttendanceTimeSlotsResponse.fromJson(json.decode(response.body));
+  print("bulkEditAttendanceTimeSlotsResponse ${bulkEditAttendanceTimeSlotsResponse.toJson()}");
   return bulkEditAttendanceTimeSlotsResponse;
 }
