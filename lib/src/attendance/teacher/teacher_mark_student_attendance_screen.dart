@@ -76,6 +76,7 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
     List<StudentProfile> studentProfiles = [];
     setState(() {
       _isLoading = true;
+      studentWiseAttendanceBeans = [];
     });
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.teacherProfile.schoolId,
@@ -103,14 +104,17 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                 ))
             .toList();
         for (StudentProfile eachStudentProfile in studentProfiles) {
-          studentWiseAttendanceBeans.add(
-            _StudentWiseAttendanceTimeSlot(
-              studentProfile: eachStudentProfile,
-              studentAttendanceBeans: studentAttendanceBeans.where((eachATS) => eachATS.studentId == eachStudentProfile.studentId).toList(),
-            ),
-          );
+          if (studentWiseAttendanceBeans.where((e) => e.studentProfile.studentId == eachStudentProfile.studentId).isEmpty) {
+            studentWiseAttendanceBeans.add(
+              _StudentWiseAttendanceTimeSlot(
+                studentProfile: eachStudentProfile,
+                studentAttendanceBeans: studentAttendanceBeans.where((eachATS) => eachATS.studentId == eachStudentProfile.studentId).toList()
+                  ..sort((a, b) =>
+                      getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime, null).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime, null))),
+              ),
+            );
+          }
         }
-        print("112: ${studentWiseAttendanceBeans[0].studentAttendanceBeans.length}");
         studentWiseAttendanceBeans.sort(
           (a, b) => (int.tryParse(a.studentProfile.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.studentProfile.rollNumber ?? "0") ?? 0),
         );
@@ -121,6 +125,7 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
         _horizontalControllers = LinkedScrollControllerGroup();
         _header = _horizontalControllers.addAndGet();
         _subHeader = _horizontalControllers.addAndGet();
+        _scrollControllers.clear();
         for (int i = 0; i < studentProfiles.length; i++) {
           _scrollControllers.add(_horizontalControllers.addAndGet());
         }

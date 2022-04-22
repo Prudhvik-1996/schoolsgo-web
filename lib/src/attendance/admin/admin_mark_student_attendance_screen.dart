@@ -42,7 +42,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
   late ScrollController _header;
   late ScrollController _subHeader;
   late LinkedScrollControllerGroup _horizontalControllers;
-  final List<ScrollController> _scrollControllers = [];
+  late final List<ScrollController> _scrollControllers = [];
   ScrollController sliverScrollController = ScrollController();
 
   static const double _studentColumnWidth = 150;
@@ -96,11 +96,13 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
     List<StudentProfile> studentProfiles = [];
     setState(() {
       _isLoading = true;
+      studentWiseAttendanceBeans = [];
     });
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.adminProfile.schoolId,
       date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
       sectionId: _selectedSection!.sectionId,
+      // studentId: 71,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {
@@ -121,12 +123,16 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                 ))
             .toList();
         for (StudentProfile eachStudentProfile in studentProfiles) {
-          studentWiseAttendanceBeans.add(
-            _StudentWiseAttendanceTimeSlot(
-              studentProfile: eachStudentProfile,
-              studentAttendanceBeans: studentAttendanceBeans.where((eachATS) => eachATS.studentId == eachStudentProfile.studentId).toList(),
-            ),
-          );
+          if (studentWiseAttendanceBeans.where((e) => e.studentProfile.studentId == eachStudentProfile.studentId).isEmpty) {
+            studentWiseAttendanceBeans.add(
+              _StudentWiseAttendanceTimeSlot(
+                studentProfile: eachStudentProfile,
+                studentAttendanceBeans: studentAttendanceBeans.where((eachATS) => eachATS.studentId == eachStudentProfile.studentId).toList()
+                  ..sort((a, b) =>
+                      getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime, null).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime, null))),
+              ),
+            );
+          }
         }
         studentWiseAttendanceBeans.sort(
           (a, b) => (int.tryParse(a.studentProfile.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.studentProfile.rollNumber ?? "0") ?? 0),
@@ -138,6 +144,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
         _horizontalControllers = LinkedScrollControllerGroup();
         _header = _horizontalControllers.addAndGet();
         _subHeader = _horizontalControllers.addAndGet();
+        _scrollControllers.clear();
         for (int i = 0; i < studentProfiles.length; i++) {
           _scrollControllers.add(_horizontalControllers.addAndGet());
         }
@@ -621,7 +628,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
           setState(() {
             _selectedDate = _newDate ?? _selectedDate;
           });
-          _loadStudentAttendance();
+          await _loadStudentAttendance();
         },
         child: ClayButton(
           depth: 40,
