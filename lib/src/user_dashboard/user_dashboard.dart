@@ -114,40 +114,40 @@ class _UserDashboardState extends State<UserDashboard> {
   Widget buildRoleButton(BuildContext context, String role, String name, String schoolName, Object? profile) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: ClayButton(
-        depth: 40,
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        child: GestureDetector(
-          onTap: () {
-            if (role == "Student") {
-              Navigator.pushNamed(
-                context,
-                StudentDashBoard.routeName,
-                arguments: profile as StudentProfile,
-              );
-            } else if (role == "Admin") {
-              Navigator.pushNamed(
-                context,
-                AdminDashboard.routeName,
-                arguments: profile as AdminProfile,
-              );
-            } else if (role == "Teacher") {
-              Navigator.pushNamed(
-                context,
-                TeacherDashboard.routeName,
-                arguments: profile as TeacherProfile,
-              );
-            } else if (role == "Mega Admin") {
-              Navigator.pushNamed(
-                context,
-                MegaAdminHomePage.routeName,
-                arguments: [(profile as List<MegaAdminProfile>), schoolName],
-              );
-            }
-          },
+      child: GestureDetector(
+        onTap: () {
+          if (role == "Student") {
+            Navigator.pushNamed(
+              context,
+              StudentDashBoard.routeName,
+              arguments: profile as StudentProfile,
+            );
+          } else if (role == "Admin") {
+            Navigator.pushNamed(
+              context,
+              AdminDashboard.routeName,
+              arguments: profile as AdminProfile,
+            );
+          } else if (role == "Teacher") {
+            Navigator.pushNamed(
+              context,
+              TeacherDashboard.routeName,
+              arguments: profile as TeacherProfile,
+            );
+          } else if (role == "Mega Admin") {
+            Navigator.pushNamed(
+              context,
+              MegaAdminHomePage.routeName,
+              arguments: [(profile as List<MegaAdminProfile>), schoolName],
+            );
+          }
+        },
+        child: ClayButton(
+          depth: 40,
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 10,
           child: Container(
             padding: const EdgeInsets.all(20),
             // child: Text("Student: ${e.studentFirstName}"),

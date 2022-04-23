@@ -334,6 +334,12 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 15),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text("${widget.studentProfile.studentFirstName}"),
+        ),
+        const SizedBox(height: 15),
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text("No. of days present: $presentDays"),

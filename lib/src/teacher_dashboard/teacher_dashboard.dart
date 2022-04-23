@@ -91,9 +91,11 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
           ),
         ],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: canGoToDashBoard
+          ? TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile,
+            )
+          : const DefaultAppDrawer(),
       body: _isLoading
           ? Center(
               child: Image.asset('assets/images/eis_loader.gif'),

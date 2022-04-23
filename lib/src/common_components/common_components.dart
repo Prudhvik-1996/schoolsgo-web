@@ -138,23 +138,6 @@ class StudentAppDrawer extends Drawer {
                 margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                 child: ListTile(
                   title: const Text(
-                    'Back',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  leading: const Icon(Icons.arrow_back),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const Divider(),
-              Container(
-                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-                child: ListTile(
-                  title: const Text(
                     'Settings',
                     style: TextStyle(
                       color: Colors.white,
@@ -325,23 +308,6 @@ class TeacherAppDrawer extends Drawer {
                 margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                 child: ListTile(
                   title: const Text(
-                    'Back',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  leading: const Icon(Icons.arrow_back),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const Divider(),
-              Container(
-                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-                child: ListTile(
-                  title: const Text(
                     'Settings',
                     style: TextStyle(
                       color: Colors.white,
@@ -503,23 +469,6 @@ class AdminAppDrawer extends Drawer {
                       (route) => route.isFirst,
                       arguments: adminProfile,
                     );
-                  },
-                ),
-              ),
-              const Divider(),
-              Container(
-                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
-                child: ListTile(
-                  title: const Text(
-                    'Back',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  leading: const Icon(Icons.arrow_back),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
                   },
                 ),
               ),

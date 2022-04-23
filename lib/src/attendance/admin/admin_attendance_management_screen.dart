@@ -416,6 +416,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
                                 children: [
                                   Expanded(
                                     child: DropdownButton(
+                                      hint: const Text("Week"),
                                       value: newAttendanceTimeSlot!.week,
                                       items: WEEKS
                                           .map((e) => DropdownMenuItem(
@@ -586,11 +587,19 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
         parentColor: clayContainerColor(context),
         spread: 1,
         borderRadius: 10,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          child: Center(
-            child: Text(
-              atsBean.startTime == null ? "-" : convert24To12HourFormat(atsBean.startTime!),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'Start Time',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+            child: Center(
+              child: Text(
+                atsBean.startTime == null ? "-" : convert24To12HourFormat(atsBean.startTime!),
+              ),
             ),
           ),
         ),
@@ -657,11 +666,19 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
         parentColor: clayContainerColor(context),
         spread: 1,
         borderRadius: 10,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-          child: Center(
-            child: Text(
-              atsBean.endTime == null ? "-" : convert24To12HourFormat(atsBean.endTime!),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: 'End Time',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+            child: Center(
+              child: Text(
+                atsBean.endTime == null ? "-" : convert24To12HourFormat(atsBean.endTime!),
+              ),
             ),
           ),
         ),
@@ -768,7 +785,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
                 PopupMenuButton<String>(
                   onSelected: handleNextScreenOptions,
                   itemBuilder: (BuildContext context) {
-                    return {'Edit Attendance Time Slots'}.map((String choice) {
+                    return {'Bulk Edit Attendance Time Slots'}.map((String choice) {
                       return PopupMenuItem<String>(
                         value: choice,
                         child: Text(choice),

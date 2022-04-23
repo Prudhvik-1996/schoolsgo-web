@@ -189,7 +189,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                           flex: 2,
                           child: _getDatePicker(),
                         ),
-                      if (!_isSectionPickerOpen) widget.adminProfile.isMegaAdmin ? Container() : buildEditButton(context),
+                      _isSectionPickerOpen || _selectedSection == null || widget.adminProfile.isMegaAdmin ? Container() : buildEditButton(context),
                     ],
                   ),
                   if (attendanceTimeSlotBeans.isNotEmpty) _headerWidget(),
@@ -476,7 +476,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
               ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -654,6 +654,9 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
   Widget buildEditButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        setState(() {
+          _isSectionPickerOpen = false;
+        });
         if (_isEditMode) {
           _saveChanges();
         } else {
@@ -795,6 +798,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
             childAspectRatio: 2.25,
             crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
             shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             children: _sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
           ),
           const SizedBox(
@@ -815,6 +819,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
       child: InkWell(
         onTap: () {
           if (_isLoading) return;
+          if (_isEditMode) return;
           setState(() {
             _isSectionPickerOpen = !_isSectionPickerOpen;
           });

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 
@@ -120,7 +118,7 @@ class SectorClipper extends CustomClipper<Path> {
     Rect rect = Rect.fromCircle(center: center, radius: diameter / 2);
     Path path = Path()
       ..moveTo(center.dx, center.dy)
-      ..arcTo(rect, pi - (spreadAngle), angle + 2 * (spreadAngle), false)
+      ..arcTo(rect, 0 - (spreadAngle), angle + 2 * (spreadAngle), false)
       ..close();
     return path;
   }

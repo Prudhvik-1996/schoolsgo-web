@@ -91,9 +91,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
         ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: canGoToDashBoard
+          ? AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            )
+          : const DefaultAppDrawer(),
       body: _isLoading
           ? Center(
               child: Image.asset('assets/images/eis_loader.gif'),
