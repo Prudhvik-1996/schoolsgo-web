@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -340,10 +341,10 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                           ),
                           Expanded(
                             child: InkWell(
-                              child: Image.asset(
-                                'assets/images/empty_stroke.png',
-                                height: 30,
-                                width: 30,
+                              child: const Icon(
+                                Icons.delete,
+                                size: 24,
+                                color: Colors.black,
                               ),
                               onTap: () {
                                 for (int k = 0; k < studentWiseAttendanceBeans.length; k++) {
@@ -435,7 +436,7 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                               borderRadius: 10,
                               height: _cellColumnHeight,
                               width: _cellColumnWidth,
-                              child: _isEditMode ? _editModeCell(i, j) : _readModeCell(i, j),
+                              child: _isEditMode ? _editModeSwitchCell(i, j) : _readModeCell(i, j),
                             ),
                           ),
                       ],
@@ -473,111 +474,27 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
     );
   }
 
-  Widget _editModeCell(int i, int j) {
+  Widget _editModeSwitchCell(int i, int j) {
     int isPresent = studentWiseAttendanceBeans[i].studentAttendanceBeans[j].isPresent ?? 0;
-    List<Widget> images = [];
-    if (isPresent != 1) {
-      images.add(_checkCell(i, j, 1));
-    }
-    if (isPresent != -1) {
-      images.add(_checkCell(i, j, -1));
-    }
-    if (isPresent != 0) {
-      images.add(_checkCell(i, j, 0));
-    }
-    Widget actualImage = isPresent == -1
-        ? Image.asset(
-            'assets/images/cross_icon.png',
-            height: 30,
-            width: 30,
-          )
-        : isPresent == 1
-            ? Image.asset(
-                'assets/images/tick_icon.png',
-                height: 30,
-                width: 30,
-              )
-            : Image.asset(
-                'assets/images/empty_stroke.png',
-                height: 30,
-                width: 30,
-              );
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: Stack(
-            children: [
-              Center(
-                child: actualImage,
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Text(
-                  isPresent == 1
-                      ? "Present"
-                      : isPresent == -1
-                          ? "Absent"
-                          : "Not marked",
-                  style: TextStyle(
-                    fontSize: 8,
-                    color: isPresent == 1
-                        ? Colors.green
-                        : isPresent == -1
-                            ? Colors.red
-                            : null,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            images[0],
-            const SizedBox(
-              height: 15,
-            ),
-            images[1],
-          ],
-        ),
-        const SizedBox(
-          width: 15,
-        ),
-      ],
-    );
-  }
-
-  Widget _checkCell(int i, int j, int isPresent) {
-    Widget checkImage = isPresent == -1
-        ? Image.asset(
-            'assets/images/cross_icon.png',
-            height: 15,
-            width: 15,
-          )
-        : isPresent == 1
-            ? Image.asset(
-                'assets/images/tick_icon.png',
-                height: 15,
-                width: 15,
-              )
-            : Image.asset(
-                'assets/images/empty_stroke.png',
-                height: 15,
-                width: 15,
-              );
-    return InkWell(
-      onTap: () {
-        setState(() {
-          studentWiseAttendanceBeans[i].studentAttendanceBeans[j].isPresent = isPresent;
-          studentWiseAttendanceBeans[i].studentAttendanceBeans[j].agent = widget.teacherProfile.teacherId;
-          studentWiseAttendanceBeans[i].studentAttendanceBeans[j].markedById = widget.teacherProfile.teacherId;
-        });
-      },
-      child: checkImage,
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: FlutterSwitch(
+        activeText: isPresent == 0 ? "" : "Present",
+        inactiveText: isPresent == 0 ? "" : "Absent",
+        activeColor: isPresent == 0 ? Colors.grey : Colors.green.shade400,
+        inactiveColor: isPresent == 0 ? Colors.grey : Colors.red.shade400,
+        width: 75,
+        value: isPresent == 1,
+        disabled: isPresent == 0,
+        valueFontSize: 10.0,
+        borderRadius: 30.0,
+        showOnOff: true,
+        onToggle: (newValue) {
+          setState(() {
+            studentWiseAttendanceBeans[i].studentAttendanceBeans[j].isPresent = newValue ? 1 : -1;
+          });
+        },
+      ),
     );
   }
 
@@ -614,6 +531,9 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                         content: Text("Success!"),
                       ),
                     );
+                    setState(() {
+                      _isEditMode = false;
+                    });
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -629,7 +549,10 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
               child: const Text("No"),
               onPressed: () {
                 Navigator.of(context).pop();
-                initState();
+                _loadStudentAttendance();
+                setState(() {
+                  _isEditMode = false;
+                });
               },
             ),
             TextButton(
@@ -649,9 +572,6 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
       onTap: () {
         if (_isEditMode) {
           _saveChanges();
-          setState(() {
-            _isEditMode = !_isEditMode;
-          });
         } else {
           setState(() {
             _isEditMode = !_isEditMode;

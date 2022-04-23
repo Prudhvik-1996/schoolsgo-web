@@ -1,13 +1,16 @@
+import 'dart:math';
+
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/clay_pie_chart/clay_pie_chart.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
-import 'package:schoolsgo_web/src/common_components/custom_app_bar.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../model/attendance_beans.dart';
@@ -106,7 +109,9 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
         setState(() {
           _dateWiseAttendanceBeans.add(
             Container(
-              margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
+              margin: MediaQuery.of(context).orientation == Orientation.landscape
+                  ? const EdgeInsets.fromLTRB(100, 10, 100, 15)
+                  : const EdgeInsets.fromLTRB(15, 10, 15, 10),
               child: ClayContainer(
                 depth: 20,
                 color: clayContainerColor(context),
@@ -140,18 +145,15 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        height: 1,
-                      ),
-                      GridView.count(
-                        childAspectRatio: 2,
+                      StaggeredGrid.count(
                         crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(10),
+                        mainAxisSpacing: 4,
+                        crossAxisSpacing: 4,
                         children: iterableSlots.map(
                           (e) {
                             return Container(
+                              width: 100,
+                              height: 120,
                               margin: const EdgeInsets.all(1),
                               child: Center(
                                 child: InkWell(
@@ -208,31 +210,51 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
                                       },
                                     );
                                   },
-                                  child: ClayButton(
+                                  child: ClayContainer(
                                     depth: 20,
                                     spread: 1,
-                                    color: e.isPresent == null || e.isPresent == 0
-                                        ? clayContainerColor(context)
-                                        : e.isPresent == 1
-                                            ? const Color(0xFFBCF78A)
-                                            : const Color(0xFFF88C6C),
-                                    surfaceColor: e.isPresent == null || e.isPresent == 0
-                                        ? clayContainerColor(context)
-                                        : e.isPresent == 1
-                                            ? const Color(0xFFBCF78A)
-                                            : const Color(0xFFF88C6C),
+                                    emboss: true,
+                                    color: clayContainerColor(context),
                                     borderRadius: 10,
-                                    child: Container(
-                                      margin: const EdgeInsets.all(8),
-                                      padding: const EdgeInsets.all(8),
-                                      child: ClayText(
-                                        convert24To12HourFormat(e.startTime!),
-                                        textColor: clayContainerTextColor(context),
-                                        parentColor: clayContainerColor(context),
-                                        color: clayContainerColor(context),
-                                        emboss: true,
-                                        size: 15,
-                                      ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          margin: const EdgeInsets.all(8),
+                                          padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: ClayText(
+                                              convert24To12HourFormat(e.startTime!),
+                                              textColor: clayContainerTextColor(context),
+                                              parentColor: clayContainerColor(context),
+                                              color: clayContainerColor(context),
+                                              emboss: true,
+                                              size: 15,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                                          child: e.isPresent == null || e.isPresent == 0
+                                              ? Image.asset(
+                                                  'assets/images/empty_stroke.png',
+                                                  height: 30,
+                                                  width: 30,
+                                                )
+                                              : e.isPresent == -1
+                                                  ? Image.asset(
+                                                      'assets/images/cross_icon.png',
+                                                      height: 30,
+                                                      width: 30,
+                                                    )
+                                                  : Image.asset(
+                                                      'assets/images/tick_icon.png',
+                                                      height: 30,
+                                                      width: 30,
+                                                    ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -283,19 +305,20 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
             _itemScrollController.scrollTo(
               index: _availableDates.indexOf(convertDateTimeToYYYYMMDDFormat(_selectedDate!)),
               duration: const Duration(seconds: 1),
-              curve: Curves.easeInOutCubic,
+              curve: Curves.linear,
             );
           });
           _buildStudentAttendanceDateWise();
         },
-        child: const ClayButton(
+        child: ClayButton(
           depth: 40,
-          surfaceColor: Color(0xFFC9EDF8),
+          surfaceColor: const Color(0xFFC9EDF8),
+          parentColor: clayContainerColor(context),
           spread: 2,
           borderRadius: 50,
           height: 60,
           width: 60,
-          child: Center(
+          child: const Center(
             child: Icon(
               Icons.calendar_today_rounded,
               color: Colors.blueGrey,
@@ -309,166 +332,150 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
   Widget buildTileForAttendanceStats() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("No. of days present: $presentDays"),
-        const SizedBox(height: 15),
-        Text("No. of days absent: $absentDays"),
-        const SizedBox(height: 15),
-        Text(
-          "Total Working Days: $totalDays",
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text("No. of days present: $presentDays"),
         ),
+        const SizedBox(height: 15),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text("No. of days absent: $absentDays"),
+        ),
+        const SizedBox(height: 15),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            "Total Working Days: $totalDays",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(height: 15),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            "Attendance Percentage: ${doubleToStringAsFixed((totalDays == 0 ? 0 : presentDays / totalDays) * 100)}%",
+            style: const TextStyle(
+              color: Colors.blue,
+              fontSize: 12,
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    ScrollController controller = ScrollController();
-    if (_isLoading) {
-      return Scaffold(
-        // appBar: AppBar(),
-        body: Center(
-          child: Image.asset('assets/images/eis_loader.gif'),
-        ),
-      );
-    }
-    if (MediaQuery.of(context).orientation == Orientation.landscape) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text("Attendance"),
-          actions: [
-            buildRoleButtonForAppBar(context, widget.studentProfile),
-          ],
-        ),
-        drawer: StudentAppDrawer(
-          studentProfile: widget.studentProfile,
-        ),
-        body: SafeArea(
-          top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                flex: 2,
-                fit: FlexFit.tight,
-                child: Center(child: buildStatsWidget()),
-              ),
-              Flexible(
-                flex: 3,
-                fit: FlexFit.tight,
-                child: ScrollablePositionedList.builder(
-                  itemScrollController: _itemScrollController,
-                  itemCount: _dateWiseAttendanceBeans.length,
-                  itemBuilder: (context, index) => _dateWiseAttendanceBeans[index],
-                ),
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: _getDatePicker(),
-      );
-    } else {
-      return Scaffold(
-        body: SafeArea(
-          top: false,
-          child: CustomScrollView(
-            physics: const ClampingScrollPhysics(),
-            controller: controller,
-            slivers: [
-              CustomAppBar(
-                collapsedTitle: const Text(
-                  "Attendance",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24.0,
-                  ),
-                ),
-                backgroundColor: const Color(0xFF5FC9EC),
-                expandedHeight: 300,
-                backgroundWidget: buildStatsWidget(),
-              ),
-              SliverFillRemaining(
-                hasScrollBody: true,
-                fillOverscroll: true,
-                child: ScrollablePositionedList.builder(
-                  itemScrollController: _itemScrollController,
-                  itemCount: _dateWiseAttendanceBeans.length,
-                  itemBuilder: (context, index) => _dateWiseAttendanceBeans[index],
-                ),
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: _getDatePicker(),
-      );
-    }
+    _buildStudentAttendanceDateWise();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Attendance"),
+        actions: [
+          buildRoleButtonForAppBar(context, widget.studentProfile),
+        ],
+      ),
+      drawer: StudentAppDrawer(
+        studentProfile: widget.studentProfile,
+      ),
+      body: _isLoading
+          ? Center(
+              child: Image.asset('assets/images/eis_loader.gif'),
+            )
+          : SafeArea(
+              top: false,
+              child: MediaQuery.of(context).orientation == Orientation.landscape
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          flex: 2,
+                          fit: FlexFit.tight,
+                          child: Center(child: buildStatsWidget()),
+                        ),
+                        Flexible(
+                          flex: 3,
+                          fit: FlexFit.tight,
+                          child: ScrollablePositionedList.builder(
+                            itemScrollController: _itemScrollController,
+                            itemCount: _dateWiseAttendanceBeans.length,
+                            itemBuilder: (context, index) => _dateWiseAttendanceBeans[index],
+                          ),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        buildStatsWidget(),
+                        Expanded(
+                          child: ScrollablePositionedList.builder(
+                            itemScrollController: _itemScrollController,
+                            itemCount: _dateWiseAttendanceBeans.length,
+                            itemBuilder: (context, index) => _dateWiseAttendanceBeans[index],
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+      floatingActionButton: _isLoading ? null : _getDatePicker(),
+    );
   }
 
   Widget buildStatsWidget() {
     return Container(
-      margin: const EdgeInsets.all(10),
-      child: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+      margin: MediaQuery.of(context).orientation == Orientation.landscape ? const EdgeInsets.fromLTRB(50, 15, 15, 15) : const EdgeInsets.all(15),
+      child: ClayContainer(
+        depth: 20,
+        color: clayContainerColor(context),
+        spread: 5,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(15),
+          child: ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
-              ClayText(
-                "Attendance",
-                size: 32,
-                textColor: clayContainerTextColor(context),
-                parentColor: clayContainerColor(context),
-                emboss: true,
-                // depth: 2,
-                spread: 2,
-              )
-            ],
-          ),
-          const SizedBox(height: 35),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: buildTileForAttendanceStats(),
-              ),
-              Flexible(
-                flex: 1,
-                fit: FlexFit.tight,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Attendance Percentage",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    fit: FlexFit.tight,
+                    child: buildTileForAttendanceStats(),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    fit: FlexFit.tight,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: ClayPieChart(
+                            angle: 2 * pi * (totalDays == 0 ? 0 : presentDays / totalDays),
+                            diameter: 90,
+                            highlightColor: Colors.green,
+                            surfaceColor: Colors.red,
+                            parentColor: clayContainerColor(context),
+                            spread: 5,
+                            customBorderRadius: BorderRadius.circular(100),
+                            depth: 20,
+                            highlightedText: "${doubleToStringAsFixed((totalDays == 0 ? 0 : presentDays / totalDays) * 100)}%",
+                          ),
+                        )
+                      ],
                     ),
-                    const SizedBox(height: 15),
-                    CircularPercentIndicator(
-                      animation: true,
-                      animationDuration: 1000,
-                      radius: 100.0,
-                      lineWidth: 15.0,
-                      percent: totalDays == 0 ? 0 : presentDays / totalDays,
-                      center: Text(
-                        totalDays == 0 ? "N/A" : (presentDays * 100.0 / totalDays).toStringAsFixed(2) + " %",
-                      ),
-                      progressColor: Colors.blueAccent,
-                      circularStrokeCap: CircularStrokeCap.round,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

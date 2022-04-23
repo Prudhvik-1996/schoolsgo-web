@@ -1,5 +1,3 @@
-import 'package:clay_containers/clay_containers.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_mark_student_attendance_screen.dart';
@@ -89,7 +87,7 @@ class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots>
   Widget buildEachATSWidget(AttendanceTimeSlotBean eachATS) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 20, 20, 5),
-      child: InkWell(
+      child: GestureDetector(
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return TeacherMarkStudentAttendanceScreen(
@@ -99,9 +97,10 @@ class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots>
             );
           }));
         },
-        child: ClayContainer(
+        child: ClayButton(
           depth: 40,
           color: clayContainerColor(context),
+          spread: 2,
           borderRadius: 10,
           child: Container(
             margin: const EdgeInsets.all(5),

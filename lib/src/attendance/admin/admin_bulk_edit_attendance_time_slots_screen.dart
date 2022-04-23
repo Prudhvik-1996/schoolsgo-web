@@ -71,7 +71,8 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
       margin: const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 40,
-        color: const Color(0xFFFA795D),
+        surfaceColor: const Color(0xFFFA795D),
+        parentColor: clayContainerColor(context),
         spread: 1,
         borderRadius: 10,
         child: Container(
@@ -524,14 +525,15 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
   Widget _buildSubmitButton() {
     return Container(
       margin: const EdgeInsets.fromLTRB(75, 20, 75, 20),
-      child: InkWell(
+      child: GestureDetector(
         onTap: () {
           HapticFeedback.vibrate();
           _saveChanges();
         },
         child: ClayButton(
           depth: 40,
-          color: const Color(0xFFC0EE74),
+          surfaceColor: const Color(0xFFC0EE74),
+          parentColor: clayContainerColor(context),
           spread: 2,
           borderRadius: 10,
           child: Container(
@@ -543,6 +545,9 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
             child: const Center(
               child: Text(
                 "Submit",
+                style: TextStyle(
+                  color: Colors.black,
+                ),
               ),
             ),
           ),
