@@ -170,7 +170,11 @@ class _TeacherFeedbackScreenState extends State<TeacherFeedbackScreen> {
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : ListView(
               physics: const BouncingScrollPhysics(),

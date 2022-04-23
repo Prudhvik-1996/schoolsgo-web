@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 import 'admin_bulk_edit_attendance_time_slots_screen.dart';
@@ -33,6 +34,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
   bool _isSectionFilterSelected = false;
 
   List<Teacher> _teachers = [];
+  List<TeacherDealingSection> _tdsList = [];
 
   List<AttendanceTimeSlotBean> _attendanceTimeSlots = [];
   AttendanceTimeSlotBean? newAttendanceTimeSlot;
@@ -75,6 +77,15 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
       });
     }
 
+    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
+      setState(() {
+        _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections ?? [];
+      });
+    }
+
     GetTeachersResponse getTeachersResponse = await getTeachers(GetTeachersRequest(schoolId: widget.adminProfile.schoolId));
     if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
@@ -89,39 +100,36 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
   Widget buildSectionCheckBox(Section section) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayButton(
-        depth: 40,
-        color: _selectedSection == section ? Colors.blue[200] : clayContainerColor(context),
-        spread: _selectedSection == section ? 0 : 2,
-        borderRadius: 10,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: const EdgeInsets.all(5),
-          margin: const EdgeInsets.all(5),
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.vibrate();
-              setState(() {
-                if (_selectedSection == section) {
-                  _selectedSection = null;
-                } else {
-                  _selectedSection = section;
-                  newAttendanceTimeSlot = AttendanceTimeSlotBean(
-                    sectionName: section.sectionName,
-                    sectionId: section.sectionId,
-                    status: "active",
-                    agent: widget.adminProfile.userId,
-                  );
-                }
-                _isSectionFilterSelected = !_isSectionFilterSelected;
-              });
-            },
-            child: Center(
-              child: Text(
-                section.sectionName!,
-              ),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.vibrate();
+          setState(() {
+            if (_selectedSection == section) {
+              _selectedSection = null;
+            } else {
+              _selectedSection = section;
+              newAttendanceTimeSlot = AttendanceTimeSlotBean(
+                sectionName: section.sectionName,
+                sectionId: section.sectionId,
+                status: "active",
+                agent: widget.adminProfile.userId,
+              );
+              List<int?> teacherIdsOfTds = _tdsList.where((e) => e.sectionId == section.sectionId).map((e) => e.teacherId).toSet().toList();
+              _teachers = _teachers.where((e) => teacherIdsOfTds.contains(e.teacherId)).toList() +
+                  _teachers.where((e) => !teacherIdsOfTds.contains(e.teacherId)).toList();
+            }
+            _isSectionFilterSelected = !_isSectionFilterSelected;
+          });
+        },
+        child: ClayButton(
+          depth: 40,
+          color: _selectedSection == section ? Colors.blue[200] : clayContainerColor(context),
+          spread: _selectedSection == section ? 0 : 2,
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
             ),
           ),
         ),
@@ -152,8 +160,9 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
                 padding: const EdgeInsets.all(7),
                 margin: const EdgeInsets.all(7),
                 child: GridView.count(
+                  physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.25,
-                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
                   shrinkWrap: true,
                   children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
                 ),
@@ -797,7 +806,11 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : RefreshIndicator(
               onRefresh: () async {

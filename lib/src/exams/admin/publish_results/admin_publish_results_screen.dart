@@ -91,7 +91,11 @@ class _AdminPublishResultsScreenState extends State<AdminPublishResultsScreen> {
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : Container(
               margin: const EdgeInsets.all(10),
@@ -198,46 +202,37 @@ class _AdminPublishResultsScreenState extends State<AdminPublishResultsScreen> {
   Widget buildSectionCheckBox(Section section) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayButton(
-        depth: 40,
-        spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? 0 : 2,
-        surfaceColor:
-            _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        borderRadius: 10,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: const EdgeInsets.all(5),
-          margin: const EdgeInsets.all(5),
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.vibrate();
-              if (_isLoading) return;
-              setState(() {
-                if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
-                  _selectedSection = null;
-                } else {
-                  _selectedSection = section;
-                }
-                _filteredExams = _exams
-                    .where((eachExam) => (eachExam.examSectionMapBeanList ?? [])
-                        .map((ExamSectionMapBean? e) => e!)
-                        .where((ExamSectionMapBean eachSectionMapBean) =>
-                            _selectedSection != null && eachSectionMapBean.sectionId == _selectedSection!.sectionId)
-                        .isNotEmpty)
-                    .toList();
-                _isSectionPickerOpen = false;
-              });
-            },
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  section.sectionName!,
-                ),
-              ),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.vibrate();
+          if (_isLoading) return;
+          setState(() {
+            if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
+              _selectedSection = null;
+            } else {
+              _selectedSection = section;
+            }
+            _filteredExams = _exams
+                .where((eachExam) => (eachExam.examSectionMapBeanList ?? [])
+                    .map((ExamSectionMapBean? e) => e!)
+                    .where((ExamSectionMapBean eachSectionMapBean) =>
+                        _selectedSection != null && eachSectionMapBean.sectionId == _selectedSection!.sectionId)
+                    .isNotEmpty)
+                .toList();
+            _isSectionPickerOpen = false;
+          });
+        },
+        child: ClayButton(
+          depth: 40,
+          spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? 0 : 2,
+          surfaceColor:
+              _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
             ),
           ),
         ),
@@ -283,8 +278,9 @@ class _AdminPublishResultsScreenState extends State<AdminPublishResultsScreen> {
             height: 15,
           ),
           GridView.count(
+            physics: const NeverScrollableScrollPhysics(),
             childAspectRatio: 2.25,
-            crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
+            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
             shrinkWrap: true,
             children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
           ),

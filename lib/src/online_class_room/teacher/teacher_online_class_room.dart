@@ -20,12 +20,10 @@ class TeacherOnlineClassroomScreen extends StatefulWidget {
   static const routeName = "/onlineclassroom";
 
   @override
-  _TeacherOnlineClassroomScreenState createState() =>
-      _TeacherOnlineClassroomScreenState();
+  _TeacherOnlineClassroomScreenState createState() => _TeacherOnlineClassroomScreenState();
 }
 
-class _TeacherOnlineClassroomScreenState
-    extends State<TeacherOnlineClassroomScreen> {
+class _TeacherOnlineClassroomScreenState extends State<TeacherOnlineClassroomScreen> {
   bool _isLoading = true;
 
   List<OnlineClassRoom> _onlineClassRooms = [];
@@ -42,52 +40,33 @@ class _TeacherOnlineClassroomScreenState
     });
 
     // Get all online class rooms
-    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
-        await getOnlineClassRooms(GetOnlineClassRoomsRequest(
+    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse = await getOnlineClassRooms(GetOnlineClassRoomsRequest(
       schoolId: widget.teacherProfile.schoolId,
       teacherId: widget.teacherProfile.teacherId,
       weekId: DateTime.now().weekday,
     ));
-    if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
-        getOnlineClassRoomsResponse.responseStatus == "success") {
+    if (getOnlineClassRoomsResponse.httpStatus == "OK" && getOnlineClassRoomsResponse.responseStatus == "success") {
       setState(() {
-        _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!
-            .map((e) => e!)
-            .where((e) => e.weekId == DateTime.now().weekday)
-            .toList();
+        _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!.map((e) => e!).where((e) => e.weekId == DateTime.now().weekday).toList();
         DateTime x = DateTime.now();
         DateTime now = DateTime(x.year, x.month, x.day);
         var customOCRs = _onlineClassRooms
-            .where((eachOcr) =>
-                eachOcr.date != null &&
-                (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now))
-                        .inDays <
-                    7)
+            .where((eachOcr) => eachOcr.date != null && (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now)).inDays < 7)
             .toList();
-        var traditionalOCRs =
-            _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
+        var traditionalOCRs = _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
         var overLappedOCRs = [];
         for (var eachTraditionalOcr in traditionalOCRs) {
           for (var eachCustomOcr in customOCRs) {
             bool isOverlapped = false;
-            int startTimeEqOfTraditionalOcr =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
-            int startTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachCustomOcr.startTime, eachCustomOcr.weekId);
-            int endTimeEqOfTraditionalOcr =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
-            int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachCustomOcr.endTime, eachCustomOcr.weekId);
-            if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr &&
-                    startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
-                (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr &&
-                    endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
+            int startTimeEqOfTraditionalOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
+            int startTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachCustomOcr.startTime, eachCustomOcr.weekId);
+            int endTimeEqOfTraditionalOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
+            int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachCustomOcr.endTime, eachCustomOcr.weekId);
+            if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr && startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
+                (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr && endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
               isOverlapped = true;
             }
-            if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr &&
-                endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
+            if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr && endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
               isOverlapped = true;
             }
             if (isOverlapped) {
@@ -166,21 +145,15 @@ class _TeacherOnlineClassroomScreenState
                         fit: BoxFit.scaleDown,
                         child: Text.rich(
                           TextSpan(
-                            text: convertDateToDDMMMEEEE(eachOnGoingClass.date)
-                                    .split(", ")[0] +
-                                (MediaQuery.of(context).orientation ==
-                                        Orientation.landscape
-                                    ? "\n"
-                                    : " "),
+                            text: convertDateToDDMMMEEEE(eachOnGoingClass.date).split(", ")[0] +
+                                (MediaQuery.of(context).orientation == Orientation.landscape ? "\n" : " "),
                             style: const TextStyle(
                               color: Colors.blue,
                               fontSize: 11,
                             ),
                             children: <InlineSpan>[
                               TextSpan(
-                                text: convertDateToDDMMMEEEE(
-                                        eachOnGoingClass.date)
-                                    .split(", ")[1],
+                                text: convertDateToDDMMMEEEE(eachOnGoingClass.date).split(", ")[1],
                                 style: TextStyle(
                                   color: clayContainerTextColor(context),
                                   fontSize: 11,
@@ -257,8 +230,7 @@ class _TeacherOnlineClassroomScreenState
               ? [_noUpcomingClassesWidget()]
               : _upcomingClasses
                   .map(
-                    (eachUpcomingClass) =>
-                        buildUpcomingClassWidget(eachUpcomingClass),
+                    (eachUpcomingClass) => buildUpcomingClassWidget(eachUpcomingClass),
                   )
                   .toList()),
     );
@@ -287,21 +259,15 @@ class _TeacherOnlineClassroomScreenState
                       fit: BoxFit.scaleDown,
                       child: Text.rich(
                         TextSpan(
-                          text: convertDateToDDMMMEEEE(eachUpcomingClass.date)
-                                  .split(", ")[0] +
-                              (MediaQuery.of(context).orientation ==
-                                      Orientation.landscape
-                                  ? "\n"
-                                  : " "),
+                          text: convertDateToDDMMMEEEE(eachUpcomingClass.date).split(", ")[0] +
+                              (MediaQuery.of(context).orientation == Orientation.landscape ? "\n" : " "),
                           style: const TextStyle(
                             color: Colors.blue,
                             fontSize: 11,
                           ),
                           children: <InlineSpan>[
                             TextSpan(
-                              text:
-                                  convertDateToDDMMMEEEE(eachUpcomingClass.date)
-                                      .split(", ")[1],
+                              text: convertDateToDDMMMEEEE(eachUpcomingClass.date).split(", ")[1],
                               style: TextStyle(
                                 color: clayContainerTextColor(context),
                                 fontSize: 11,
@@ -394,19 +360,14 @@ class _TeacherOnlineClassroomScreenState
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
-    List<OnlineClassRoom> _onGoingClasses =
-        _onlineClassRooms.where((eachOnlineClassRoom) {
-      int startTime = getSecondsEquivalentOfTimeFromWHHMMSS(
-          eachOnlineClassRoom.startTime, eachOnlineClassRoom.weekId);
-      int endTime = getSecondsEquivalentOfTimeFromWHHMMSS(
-          eachOnlineClassRoom.endTime, eachOnlineClassRoom.weekId);
+    List<OnlineClassRoom> _onGoingClasses = _onlineClassRooms.where((eachOnlineClassRoom) {
+      int startTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachOnlineClassRoom.startTime, eachOnlineClassRoom.weekId);
+      int endTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachOnlineClassRoom.endTime, eachOnlineClassRoom.weekId);
       int currentTime = getSecondsEquivalentOfTimeFromDateTime(now);
       return startTime <= currentTime && currentTime < endTime;
     }).toList();
-    List<OnlineClassRoom> _upcomingClasses =
-        _onlineClassRooms.where((eachOnlineClassRoom) {
-      int startTime = getSecondsEquivalentOfTimeFromWHHMMSS(
-          eachOnlineClassRoom.startTime, eachOnlineClassRoom.weekId);
+    List<OnlineClassRoom> _upcomingClasses = _onlineClassRooms.where((eachOnlineClassRoom) {
+      int startTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachOnlineClassRoom.startTime, eachOnlineClassRoom.weekId);
       int currentTime = getSecondsEquivalentOfTimeFromDateTime(now);
       return startTime > currentTime;
     }).toList();
@@ -422,16 +383,18 @@ class _TeacherOnlineClassroomScreenState
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : MediaQuery.of(context).orientation == Orientation.landscape
               ? Row(
                   children: [
                     Expanded(
                       flex: 2,
-                      child: _onGoingClasses.isEmpty
-                          ? _noOngoingClassesWidget()
-                          : _onGoingClassesWidget(_onGoingClasses),
+                      child: _onGoingClasses.isEmpty ? _noOngoingClassesWidget() : _onGoingClassesWidget(_onGoingClasses),
                     ),
                     Expanded(
                       flex: 1,
@@ -470,9 +433,7 @@ class _TeacherOnlineClassroomScreenState
                           ),
                         ),
                       ] +
-                      _onGoingClasses
-                          .map((e) => buildOnGoingClassWidget(e))
-                          .toList() +
+                      _onGoingClasses.map((e) => buildOnGoingClassWidget(e)).toList() +
                       [
                         Container(
                           margin: const EdgeInsets.all(10),
@@ -490,8 +451,7 @@ class _TeacherOnlineClassroomScreenState
                                         child: ClayContainer(
                                           depth: 20,
                                           surfaceColor: Colors.blue[200],
-                                          parentColor:
-                                              clayContainerColor(context),
+                                          parentColor: clayContainerColor(context),
                                           borderRadius: 10,
                                           child: Container(
                                             padding: const EdgeInsets.all(15),
@@ -505,10 +465,7 @@ class _TeacherOnlineClassroomScreenState
                                     ] +
                                     (_upcomingClasses.isEmpty
                                         ? [_noUpcomingClassesWidget()]
-                                        : _upcomingClasses
-                                            .map((e) =>
-                                                buildUpcomingClassWidget(e))
-                                            .toList()),
+                                        : _upcomingClasses.map((e) => buildUpcomingClassWidget(e)).toList()),
                               ),
                             ),
                           ),

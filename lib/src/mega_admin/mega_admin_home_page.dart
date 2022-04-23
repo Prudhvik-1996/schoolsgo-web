@@ -96,7 +96,11 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
       drawer: const DefaultAppDrawer(),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : canGoToDashBoard
               ? ListView(

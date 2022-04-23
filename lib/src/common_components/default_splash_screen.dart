@@ -36,8 +36,8 @@ Widget defaultSplashScreen(BuildContext context) {
         Center(
           child: Image.asset(
             'assets/images/eis_loader.gif',
-            height: 300,
-            width: 300,
+            height: 500,
+            width: 500,
           ),
         ),
         const SizedBox(

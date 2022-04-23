@@ -89,32 +89,26 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
   Widget _buildSectionCheckBox(Section section) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayContainer(
-        depth: 40,
-        color: _selectedSectionsMap[section.sectionId]! ? Colors.blue[200] : clayContainerColor(context),
-        spread: _selectedSectionsMap[section.sectionId]! ? 0 : 2,
-        borderRadius: 10,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: const EdgeInsets.all(5),
-          margin: const EdgeInsets.all(5),
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.vibrate();
-              setState(() {
-                if (_selectedSectionsMap[section.sectionId]!) {
-                  _selectedSectionsMap[section.sectionId!] = false;
-                } else {
-                  _selectedSectionsMap[section.sectionId!] = true;
-                }
-              });
-            },
-            child: Center(
-              child: Text(
-                section.sectionName!,
-              ),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.vibrate();
+          setState(() {
+            if (_selectedSectionsMap[section.sectionId]!) {
+              _selectedSectionsMap[section.sectionId!] = false;
+            } else {
+              _selectedSectionsMap[section.sectionId!] = true;
+            }
+          });
+        },
+        child: ClayContainer(
+          depth: 40,
+          color: _selectedSectionsMap[section.sectionId]! ? Colors.blue[200] : clayContainerColor(context),
+          spread: _selectedSectionsMap[section.sectionId]! ? 0 : 2,
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
             ),
           ),
         ),
@@ -157,7 +151,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
                 child: GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.25,
-                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
                   shrinkWrap: true,
                   children: _sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
                 ),
@@ -244,7 +238,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
                 child: GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 1.75,
-                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
                   shrinkWrap: true,
                   children: WEEKS.map((e) => _buildWeekCheckBox(e)).toList(),
                 ),
@@ -573,7 +567,11 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : ListView(
               children: [

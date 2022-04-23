@@ -255,7 +255,11 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : bodyWidget(),
       floatingActionButton: _isLoading

@@ -293,7 +293,11 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : ListView(
               children: [

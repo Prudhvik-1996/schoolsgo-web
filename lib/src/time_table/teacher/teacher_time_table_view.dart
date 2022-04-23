@@ -13,8 +13,7 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class TeacherTimeTableView extends StatefulWidget {
-  const TeacherTimeTableView({Key? key, required this.teacherProfile})
-      : super(key: key);
+  const TeacherTimeTableView({Key? key, required this.teacherProfile}) : super(key: key);
 
   final TeacherProfile teacherProfile;
 
@@ -24,8 +23,7 @@ class TeacherTimeTableView extends StatefulWidget {
   _TeacherTimeTableViewState createState() => _TeacherTimeTableViewState();
 }
 
-class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
-    with SingleTickerProviderStateMixin {
+class _TeacherTimeTableViewState extends State<TeacherTimeTableView> with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   List<SectionWiseTimeSlotBean> _allSectionWiseTimeSlots = [];
   bool _showOnlyOcr = false;
@@ -52,22 +50,16 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
       _showOnlyOcr = false;
     });
 
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-        await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
+    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
       schoolId: widget.teacherProfile.schoolId,
       teacherId: widget.teacherProfile.teacherId,
       status: "active",
     ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" &&
-        getSectionWiseTimeSlotsResponse.responseStatus == "success") {
+    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _allSectionWiseTimeSlots =
-            getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
+        _allSectionWiseTimeSlots = getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
         heightOfEachCard = [1, 2, 3, 4, 5, 6, 7].map((eachWeekId) {
-                  return _allSectionWiseTimeSlots
-                      .where(
-                          (eachTimeSlot) => eachTimeSlot.weekId == eachWeekId)
-                      .length;
+                  return _allSectionWiseTimeSlots.where((eachTimeSlot) => eachTimeSlot.weekId == eachWeekId).length;
                 }).reduce(max) *
                 50 +
             275;
@@ -75,51 +67,33 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
     }
 
     // Get all online class rooms
-    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
-        await getOnlineClassRooms(GetOnlineClassRoomsRequest(
+    GetOnlineClassRoomsResponse getOnlineClassRoomsResponse = await getOnlineClassRooms(GetOnlineClassRoomsRequest(
       schoolId: widget.teacherProfile.schoolId,
       teacherId: widget.teacherProfile.teacherId,
     ));
-    if (getOnlineClassRoomsResponse.httpStatus == "OK" &&
-        getOnlineClassRoomsResponse.responseStatus == "success") {
+    if (getOnlineClassRoomsResponse.httpStatus == "OK" && getOnlineClassRoomsResponse.responseStatus == "success") {
       setState(() {
         List<OnlineClassRoom> _onlineClassRooms = [];
-        _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!
-            .map((e) => e!)
-            .toList();
+        _onlineClassRooms = getOnlineClassRoomsResponse.onlineClassRooms!.map((e) => e!).toList();
         DateTime x = DateTime.now();
         DateTime now = DateTime(x.year, x.month, x.day);
         var customOCRs = _onlineClassRooms
-            .where((eachOcr) =>
-                eachOcr.date != null &&
-                (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now))
-                        .inDays <
-                    7)
+            .where((eachOcr) => eachOcr.date != null && (convertYYYYMMDDFormatToDateTime(eachOcr.date!).difference(now)).inDays < 7)
             .toList();
-        var traditionalOCRs =
-            _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
+        var traditionalOCRs = _onlineClassRooms.where((eachOcr) => eachOcr.date == null);
         var overLappedOCRs = [];
         for (var eachTraditionalOcr in traditionalOCRs) {
           for (var eachCustomOcr in customOCRs) {
             bool isOverlapped = false;
-            int startTimeEqOfTraditionalOcr =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
-            int startTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachCustomOcr.startTime, eachCustomOcr.weekId);
-            int endTimeEqOfTraditionalOcr =
-                getSecondsEquivalentOfTimeFromWHHMMSS(
-                    eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
-            int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(
-                eachCustomOcr.endTime, eachCustomOcr.weekId);
-            if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr &&
-                    startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
-                (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr &&
-                    endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
+            int startTimeEqOfTraditionalOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachTraditionalOcr.startTime, eachTraditionalOcr.weekId);
+            int startTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachCustomOcr.startTime, eachCustomOcr.weekId);
+            int endTimeEqOfTraditionalOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachTraditionalOcr.endTime, eachTraditionalOcr.weekId);
+            int endTimeEqOfCustomOcr = getSecondsEquivalentOfTimeFromWHHMMSS(eachCustomOcr.endTime, eachCustomOcr.weekId);
+            if ((startTimeEqOfCustomOcr < startTimeEqOfTraditionalOcr && startTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr) ||
+                (startTimeEqOfCustomOcr < endTimeEqOfTraditionalOcr && endTimeEqOfTraditionalOcr < endTimeEqOfCustomOcr)) {
               isOverlapped = true;
             }
-            if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr &&
-                endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
+            if (startTimeEqOfCustomOcr == startTimeEqOfTraditionalOcr && endTimeEqOfCustomOcr == endTimeEqOfTraditionalOcr) {
               isOverlapped = true;
             }
             if (isOverlapped) {
@@ -175,9 +149,7 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
     setState(() {
       _sectionWiseTimeSlots = _showOnlyOcr
           ? _allSectionWiseTimeSlots.where((eachSts) => eachSts.isOcr).toList()
-          : _allSectionWiseTimeSlots
-              .where((eachSts) => !eachSts.isOcr)
-              .toList();
+          : _allSectionWiseTimeSlots.where((eachSts) => !eachSts.isOcr).toList();
     });
     setState(() {
       _isLoading = false;
@@ -210,10 +182,7 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
                             week,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: DateTime.now().weekday - 1 ==
-                                      WEEKS.indexOf(week)
-                                  ? Colors.blue[300]
-                                  : null,
+                              color: DateTime.now().weekday - 1 == WEEKS.indexOf(week) ? Colors.blue[300] : null,
                             ),
                           ),
                         ),
@@ -260,15 +229,13 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
                                 //   e.toString(),
                                 // ),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Expanded(
                                       flex: 1,
                                       child: Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            8, 0, 8, 0),
+                                        margin: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                                         child: FittedBox(
                                           fit: BoxFit.scaleDown,
                                           child: Text(
@@ -280,19 +247,15 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
                                     Expanded(
                                       flex: 1,
                                       child: Container(
-                                        margin: const EdgeInsets.fromLTRB(
-                                            5, 0, 5, 0),
+                                        margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                                         child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
                                             FittedBox(
                                               fit: BoxFit.scaleDown,
                                               child: Text(
-                                                (e.subjectName ?? "-")
-                                                    .capitalize(),
+                                                (e.subjectName ?? "-").capitalize(),
                                               ),
                                             ),
                                             const SizedBox(
@@ -304,8 +267,7 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
                                               FittedBox(
                                                 fit: BoxFit.scaleDown,
                                                 child: Text(
-                                                  (e.sectionName ?? "")
-                                                      .capitalize(),
+                                                  (e.sectionName ?? "").capitalize(),
                                                 ),
                                               ),
                                           ],
@@ -341,7 +303,11 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView>
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : _previewMode
               ? TeacherTimeTablePreviewScreen(

@@ -300,7 +300,11 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : ScrollablePositionedList.builder(
               reverse: _isReverse,

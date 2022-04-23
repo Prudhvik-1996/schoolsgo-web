@@ -639,7 +639,11 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
           : null,
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : Container(
               margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),

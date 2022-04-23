@@ -15,16 +15,13 @@ import 'admin_bulk_edit_attendance_time_slots_screen.dart';
 class AdminEditAttendanceTimeSlots extends StatefulWidget {
   final AdminProfile adminProfile;
 
-  const AdminEditAttendanceTimeSlots({Key? key, required this.adminProfile})
-      : super(key: key);
+  const AdminEditAttendanceTimeSlots({Key? key, required this.adminProfile}) : super(key: key);
 
   @override
-  _AdminEditAttendanceTimeSlotsState createState() =>
-      _AdminEditAttendanceTimeSlotsState();
+  _AdminEditAttendanceTimeSlotsState createState() => _AdminEditAttendanceTimeSlotsState();
 }
 
-class _AdminEditAttendanceTimeSlotsState
-    extends State<AdminEditAttendanceTimeSlots> {
+class _AdminEditAttendanceTimeSlotsState extends State<AdminEditAttendanceTimeSlots> {
   bool _isLoading = true;
 
   List<Section> _sectionsList = [];
@@ -53,28 +50,22 @@ class _AdminEditAttendanceTimeSlotsState
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
-    GetSectionsResponse getSectionsResponse =
-        await getSections(getSectionsRequest);
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
-    if (getSectionsResponse.httpStatus == "OK" &&
-        getSectionsResponse.responseStatus == "success") {
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
 
-    GetStudentAttendanceTimeSlotsResponse
-        getStudentAttendanceTimeSlotsResponse =
-        await getStudentAttendanceTimeSlots(
-            GetStudentAttendanceTimeSlotsRequest(
+    GetStudentAttendanceTimeSlotsResponse getStudentAttendanceTimeSlotsResponse =
+        await getStudentAttendanceTimeSlots(GetStudentAttendanceTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
     ));
-    if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" &&
-        getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {
+    if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" && getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {
       setState(() {
-        _attendanceTimeSlots =
-            getStudentAttendanceTimeSlotsResponse.attendanceTimeSlotBeans!;
+        _attendanceTimeSlots = getStudentAttendanceTimeSlotsResponse.attendanceTimeSlotBeans!;
       });
     }
 
@@ -86,39 +77,29 @@ class _AdminEditAttendanceTimeSlotsState
   Widget buildSectionCheckBox(Section section) {
     return Container(
       margin: const EdgeInsets.all(5),
-      child: ClayButton(
-        depth: 40,
-        color: _selectedSection == section
-            ? Colors.blue[200]
-            : clayContainerColor(context),
-        spread: _selectedSection == section ? 0 : 2,
-        borderRadius: 10,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          padding: const EdgeInsets.all(5),
-          margin: const EdgeInsets.all(5),
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.vibrate();
-              setState(() {
-                if (_selectedSection == section) {
-                  _selectedSection = null;
-                  attendanceTimeSlotsForSection = [];
-                } else {
-                  _selectedSection = section;
-                  attendanceTimeSlotsForSection = _attendanceTimeSlots
-                      .where((e) => e.sectionId == section.sectionId)
-                      .toList();
-                }
-                _isSectionFilterSelected = !_isSectionFilterSelected;
-              });
-            },
-            child: Center(
-              child: Text(
-                section.sectionName!,
-              ),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.vibrate();
+          setState(() {
+            if (_selectedSection == section) {
+              _selectedSection = null;
+              attendanceTimeSlotsForSection = [];
+            } else {
+              _selectedSection = section;
+              attendanceTimeSlotsForSection = _attendanceTimeSlots.where((e) => e.sectionId == section.sectionId).toList();
+            }
+            _isSectionFilterSelected = !_isSectionFilterSelected;
+          });
+        },
+        child: ClayButton(
+          depth: 40,
+          color: _selectedSection == section ? Colors.blue[200] : clayContainerColor(context),
+          spread: _selectedSection == section ? 0 : 2,
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
             ),
           ),
         ),
@@ -142,21 +123,18 @@ class _AdminEditAttendanceTimeSlotsState
             allowExpansion: !_isEditMode,
             key: expansionTile,
             title: Text(
-              _selectedSection == null
-                  ? "Select a section"
-                  : "Section: ${_selectedSection!.sectionName}",
+              _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
             ),
             children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(7),
                 margin: const EdgeInsets.all(7),
                 child: GridView.count(
+                  physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.25,
-                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
                   shrinkWrap: true,
-                  children: _sectionsList
-                      .map((e) => buildSectionCheckBox(e))
-                      .toList(),
+                  children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
                 ),
               ),
             ],
@@ -181,24 +159,16 @@ class _AdminEditAttendanceTimeSlotsState
                 child: const Text("Yes"),
                 onPressed: () async {
                   HapticFeedback.vibrate();
-                  CreateOrUpdateAttendanceTimeSlotBeansRequest
-                      createOrUpdateAttendanceTimeSlotBeansRequest =
+                  CreateOrUpdateAttendanceTimeSlotBeansRequest createOrUpdateAttendanceTimeSlotBeansRequest =
                       CreateOrUpdateAttendanceTimeSlotBeansRequest(
                     schoolId: widget.adminProfile.schoolId!,
                     agent: widget.adminProfile.userId!,
-                    attendanceTimeSlotBeans:
-                        _attendanceTimeSlots.where((e) => e.isEdited).toList(),
+                    attendanceTimeSlotBeans: _attendanceTimeSlots.where((e) => e.isEdited).toList(),
                   );
-                  CreateOrUpdateAttendanceTimeSlotBeansResponse
-                      createOrUpdateAttendanceTimeSlotBeansResponse =
-                      await createOrUpdateAttendanceTimeSlotBeans(
-                          createOrUpdateAttendanceTimeSlotBeansRequest);
-                  if (createOrUpdateAttendanceTimeSlotBeansResponse
-                              .httpStatus ==
-                          "OK" &&
-                      createOrUpdateAttendanceTimeSlotBeansResponse
-                              .responseStatus ==
-                          "success") {
+                  CreateOrUpdateAttendanceTimeSlotBeansResponse createOrUpdateAttendanceTimeSlotBeansResponse =
+                      await createOrUpdateAttendanceTimeSlotBeans(createOrUpdateAttendanceTimeSlotBeansRequest);
+                  if (createOrUpdateAttendanceTimeSlotBeansResponse.httpStatus == "OK" &&
+                      createOrUpdateAttendanceTimeSlotBeansResponse.responseStatus == "success") {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Success!"),
@@ -238,19 +208,14 @@ class _AdminEditAttendanceTimeSlotsState
   Future<void> _pickStartTime(BuildContext context, int index) async {
     TimeOfDay? _startTimePicker = await showTimePicker(
       context: context,
-      initialTime:
-          index < 0 || attendanceTimeSlotsForSection[index].startTime == null
-              ? const TimeOfDay(hour: 0, minute: 0)
-              : formatHHMMSSToTimeOfDay(
-                  attendanceTimeSlotsForSection[index].startTime!),
+      initialTime: index < 0 || attendanceTimeSlotsForSection[index].startTime == null
+          ? const TimeOfDay(hour: 0, minute: 0)
+          : formatHHMMSSToTimeOfDay(attendanceTimeSlotsForSection[index].startTime!),
     );
 
-    if (_startTimePicker == null ||
-        attendanceTimeSlotsForSection[index].startTime ==
-            timeOfDayToHHMMSS(_startTimePicker)) return;
+    if (_startTimePicker == null || attendanceTimeSlotsForSection[index].startTime == timeOfDayToHHMMSS(_startTimePicker)) return;
     setState(() {
-      attendanceTimeSlotsForSection[index].startTime =
-          timeOfDayToHHMMSS(_startTimePicker);
+      attendanceTimeSlotsForSection[index].startTime = timeOfDayToHHMMSS(_startTimePicker);
       attendanceTimeSlotsForSection[index].isEdited = true;
       attendanceTimeSlotsForSection[index].agent = widget.adminProfile.userId;
     });
@@ -279,11 +244,8 @@ class _AdminEditAttendanceTimeSlotsState
             },
             child: Center(
               child: Text(
-                attendanceTimeSlotsForSection.tryGet(index) != null &&
-                        attendanceTimeSlotsForSection.tryGet(index).startTime !=
-                            null
-                    ? formatHHMMSStoHHMMA(
-                        attendanceTimeSlotsForSection.tryGet(index).startTime)
+                attendanceTimeSlotsForSection.tryGet(index) != null && attendanceTimeSlotsForSection.tryGet(index).startTime != null
+                    ? formatHHMMSStoHHMMA(attendanceTimeSlotsForSection.tryGet(index).startTime)
                     : "-",
               ),
             ),
@@ -296,19 +258,14 @@ class _AdminEditAttendanceTimeSlotsState
   Future<void> _pickEndTime(BuildContext context, int index) async {
     TimeOfDay? _endTimePicker = await showTimePicker(
       context: context,
-      initialTime:
-          index < 0 || attendanceTimeSlotsForSection[index].endTime == null
-              ? const TimeOfDay(hour: 0, minute: 0)
-              : formatHHMMSSToTimeOfDay(
-                  attendanceTimeSlotsForSection[index].endTime!),
+      initialTime: index < 0 || attendanceTimeSlotsForSection[index].endTime == null
+          ? const TimeOfDay(hour: 0, minute: 0)
+          : formatHHMMSSToTimeOfDay(attendanceTimeSlotsForSection[index].endTime!),
     );
 
-    if (_endTimePicker == null ||
-        attendanceTimeSlotsForSection[index].endTime ==
-            timeOfDayToHHMMSS(_endTimePicker)) return;
+    if (_endTimePicker == null || attendanceTimeSlotsForSection[index].endTime == timeOfDayToHHMMSS(_endTimePicker)) return;
     setState(() {
-      attendanceTimeSlotsForSection[index].endTime =
-          timeOfDayToHHMMSS(_endTimePicker);
+      attendanceTimeSlotsForSection[index].endTime = timeOfDayToHHMMSS(_endTimePicker);
       attendanceTimeSlotsForSection[index].isEdited = true;
       attendanceTimeSlotsForSection[index].agent = widget.adminProfile.userId;
     });
@@ -337,11 +294,8 @@ class _AdminEditAttendanceTimeSlotsState
             },
             child: Center(
               child: Text(
-                attendanceTimeSlotsForSection.tryGet(index) != null &&
-                        attendanceTimeSlotsForSection.tryGet(index).endTime !=
-                            null
-                    ? formatHHMMSStoHHMMA(
-                        attendanceTimeSlotsForSection.tryGet(index).endTime)
+                attendanceTimeSlotsForSection.tryGet(index) != null && attendanceTimeSlotsForSection.tryGet(index).endTime != null
+                    ? formatHHMMSStoHHMMA(attendanceTimeSlotsForSection.tryGet(index).endTime)
                     : "-",
               ),
             ),
@@ -395,12 +349,7 @@ class _AdminEditAttendanceTimeSlotsState
                     height: 25,
                   ),
                 ] +
-                [
-                  for (var i = 0;
-                      i < attendanceTimeSlotsForSection.length;
-                      i += 1)
-                    i
-                ].map(
+                [for (var i = 0; i < attendanceTimeSlotsForSection.length; i += 1) i].map(
                   (index) {
                     var e = attendanceTimeSlotsForSection[index];
                     return Container(
@@ -410,8 +359,7 @@ class _AdminEditAttendanceTimeSlotsState
                           HapticFeedback.vibrate();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                  "Manager Name: ${e.managerName ?? "N/A"}"),
+                              content: Text("Manager Name: ${e.managerName ?? "N/A"}"),
                             ),
                           );
                         },
@@ -432,9 +380,7 @@ class _AdminEditAttendanceTimeSlotsState
                                     e.week!,
                                   ),
                                 ),
-                                Expanded(
-                                    flex: 2,
-                                    child: _buildStartTimePicker(index)),
+                                Expanded(flex: 2, child: _buildStartTimePicker(index)),
                                 Expanded(
                                   flex: 2,
                                   child: _buildEndTimePicker(index),
@@ -456,8 +402,7 @@ class _AdminEditAttendanceTimeSlotsState
   Widget buildAttendanceTimeSlotsForAllSelectedSections() {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: Column(
         children: [_selectedSection]
@@ -490,8 +435,7 @@ class _AdminEditAttendanceTimeSlotsState
           PopupMenuButton<String>(
             onSelected: handleNextScreenOptions,
             itemBuilder: (BuildContext context) {
-              return {'Bulk Edit All Attendance Time Slots'}
-                  .map((String choice) {
+              return {'Bulk Edit All Attendance Time Slots'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
@@ -503,7 +447,11 @@ class _AdminEditAttendanceTimeSlotsState
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : RefreshIndicator(
               onRefresh: () async {
@@ -513,9 +461,7 @@ class _AdminEditAttendanceTimeSlotsState
               child: ListView(
                 children: [
                   _buildSectionsFilter(),
-                  _selectedSection == null
-                      ? Container()
-                      : buildAttendanceTimeSlotsForAllSelectedSections(),
+                  _selectedSection == null ? Container() : buildAttendanceTimeSlotsForAllSelectedSections(),
                 ],
               ),
             ),

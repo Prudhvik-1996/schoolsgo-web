@@ -263,7 +263,11 @@ class _UserDashboardState extends State<UserDashboard> {
       body: SafeArea(
         child: _isLoading
             ? Center(
-                child: Image.asset('assets/images/eis_loader.gif'),
+                child: Image.asset(
+                  'assets/images/eis_loader.gif',
+                  height: 500,
+                  width: 500,
+                ),
               )
             : ListView(
                 children: [buildUserDetailsWidget(_userDetails)] +

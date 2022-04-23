@@ -44,14 +44,11 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
       _isLoading = true;
     });
 
-    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(
-        GetNoticeBoardRequest(schoolId: widget.teacherProfile.schoolId));
+    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(schoolId: widget.teacherProfile.schoolId));
 
-    if (getNoticeBoardResponse.httpStatus == 'OK' &&
-        getNoticeBoardResponse.responseStatus == 'success') {
+    if (getNoticeBoardResponse.httpStatus == 'OK' && getNoticeBoardResponse.responseStatus == 'success') {
       setState(() {
-        _noticeBoardNews =
-            getNoticeBoardResponse.noticeBoard!.news!.reversed.toList();
+        _noticeBoardNews = getNoticeBoardResponse.noticeBoard!.news!.reversed.toList();
       });
     }
 
@@ -63,8 +60,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
   Widget buildEachNewsWidget(News eachNews) {
     return Container(
       margin: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20,
-              MediaQuery.of(context).size.width / 4, 20)
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 20,
@@ -135,8 +131,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 5,
                         crossAxisSpacing: 5.0,
                         mainAxisSpacing: 5.0,
@@ -152,12 +147,9 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                             height: 100,
                             width: 100,
                             padding: const EdgeInsets.all(2),
-                            child: getFileTypeForExtension(eachNews
-                                        .newsMediaBeans![index]!.mediaType!) ==
-                                    MediaFileType.IMAGE_FILES
+                            child: getFileTypeForExtension(eachNews.newsMediaBeans![index]!.mediaType!) == MediaFileType.IMAGE_FILES
                                 ? FadeInImage(
-                                    image: NetworkImage(eachNews
-                                        .newsMediaBeans![index]!.mediaUrl!),
+                                    image: NetworkImage(eachNews.newsMediaBeans![index]!.mediaUrl!),
                                     placeholder: const AssetImage(
                                       'assets/images/loading_grey_white.gif',
                                     ),
@@ -165,8 +157,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                                 : Image.asset(
                                     getAssetImageForFileType(
                                       getFileTypeForExtension(
-                                        eachNews
-                                            .newsMediaBeans![index]!.mediaType!,
+                                        eachNews.newsMediaBeans![index]!.mediaType!,
                                       ),
                                     ),
                                     scale: 0.5,
@@ -184,8 +175,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                 children: [
                   Expanded(
                     child: Text(
-                      convertEpochToDDMMYYYYEEEEHHMMAA(
-                          int.parse(eachNews.createTime!)),
+                      convertEpochToDDMMYYYYEEEEHHMMAA(int.parse(eachNews.createTime!)),
                       textAlign: TextAlign.end,
                     ),
                   ),
@@ -227,9 +217,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                     onTap: () {
                       downloadFile(
                         eachNews.newsMediaBeans![index]!.mediaUrl!,
-                        filename: getCurrentTimeStringInDDMMYYYYHHMMSS() +
-                            "." +
-                            eachNews.newsMediaBeans![index]!.mediaType!,
+                        filename: getCurrentTimeStringInDDMMYYYYHHMMSS() + "." + eachNews.newsMediaBeans![index]!.mediaType!,
                       );
                     },
                   ),
@@ -265,15 +253,12 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
               SizedBox(
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height / 1,
-                child: getFileTypeForExtension(
-                            eachNews.newsMediaBeans![index]!.mediaType!) ==
-                        MediaFileType.IMAGE_FILES
+                child: getFileTypeForExtension(eachNews.newsMediaBeans![index]!.mediaType!) == MediaFileType.IMAGE_FILES
                     ? FadeInImage(
                         placeholder: const AssetImage(
                           'assets/images/loading_grey_white.gif',
                         ),
-                        image: NetworkImage(
-                            eachNews.newsMediaBeans![index]!.mediaUrl!),
+                        image: NetworkImage(eachNews.newsMediaBeans![index]!.mediaUrl!),
                         fit: BoxFit.contain,
                       )
                     : HtmlElementView(
@@ -290,9 +275,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
                   width: 25,
                   child: FittedBox(
                     fit: BoxFit.contain,
-                    child: index == eachNews.newsMediaBeans!.length - 1
-                        ? null
-                        : const Icon(Icons.arrow_right),
+                    child: index == eachNews.newsMediaBeans!.length - 1 ? null : const Icon(Icons.arrow_right),
                   ),
                 ),
               ),
@@ -317,14 +300,17 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : ScrollablePositionedList.builder(
               reverse: _isReverse,
               itemScrollController: _itemScrollController,
               itemCount: _noticeBoardNews.length,
-              itemBuilder: (context, index) =>
-                  buildEachNewsWidget(_noticeBoardNews[index]!),
+              itemBuilder: (context, index) => buildEachNewsWidget(_noticeBoardNews[index]!),
             ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -344,17 +330,13 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
           ),
           FloatingActionButton(
             onPressed: () async {
-              List<int> millisList = _noticeBoardNews
-                  .map((e) => int.parse(e!.createTime!))
-                  .toList();
+              List<int> millisList = _noticeBoardNews.map((e) => int.parse(e!.createTime!)).toList();
               millisList.sort((b, a) => a.compareTo(b));
-              List<String> _availableDates =
-                  millisList.map((e) => convertEpochToYYYYMMDD(e)).toList();
+              List<String> _availableDates = millisList.map((e) => convertEpochToYYYYMMDD(e)).toList();
               DateTime? _newDate = await showDatePicker(
                 context: context,
                 selectableDayPredicate: (DateTime val) {
-                  return _availableDates
-                      .contains(convertDateTimeToYYYYMMDDFormat(val));
+                  return _availableDates.contains(convertDateTimeToYYYYMMDDFormat(val));
                 },
                 initialDate: DateTime.parse(_availableDates.first),
                 firstDate: DateTime.parse(_availableDates.last),
@@ -364,8 +346,7 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
               if (_newDate == null) return;
               setState(() {
                 _itemScrollController.scrollTo(
-                  index: _availableDates.indexOf(
-                      convertEpochToYYYYMMDD(_newDate.millisecondsSinceEpoch)),
+                  index: _availableDates.indexOf(convertEpochToYYYYMMDD(_newDate.millisecondsSinceEpoch)),
                   duration: const Duration(seconds: 1),
                   curve: Curves.easeInOutCubic,
                 );

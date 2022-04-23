@@ -149,7 +149,11 @@ class _StudentStudyMaterialTdsScreenState extends State<StudentStudyMaterialTDSS
       drawer: StudentAppDrawer(studentProfile: widget.studentProfile),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : Container(
               padding: const EdgeInsets.fromLTRB(15, 30, 15, 30),

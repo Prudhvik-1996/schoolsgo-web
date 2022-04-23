@@ -215,16 +215,10 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
           color: _selectedSection == section ? Colors.blue[200] : clayContainerColor(context),
           spread: _selectedSection == section ? 0 : 2,
           borderRadius: 10,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.all(5),
-            margin: const EdgeInsets.all(5),
-            child: Center(
-              child: Text(
-                section.sectionName!,
-              ),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
             ),
           ),
         ),
@@ -255,8 +249,9 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                 padding: const EdgeInsets.all(7),
                 margin: const EdgeInsets.all(7),
                 child: GridView.count(
+                  physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 2.25,
-                  crossAxisCount: MediaQuery.of(context).size.width ~/ 125,
+                  crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
                   shrinkWrap: true,
                   children: _sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
                 ),
@@ -582,7 +577,11 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset('assets/images/eis_loader.gif'),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
             )
           : RefreshIndicator(
               onRefresh: () async {
