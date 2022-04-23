@@ -532,6 +532,7 @@ class AdminProfile {
   String? schoolName;
   String? schoolPhotoUrl;
   int? userId;
+  String? adminPhotoUrl;
 
   bool isMegaAdmin = false;
 
@@ -547,6 +548,7 @@ class AdminProfile {
     this.schoolName,
     this.schoolPhotoUrl,
     this.userId,
+    this.adminPhotoUrl,
     required this.isMegaAdmin,
   });
   AdminProfile.fromJson(Map<String, dynamic> json) {
@@ -560,6 +562,7 @@ class AdminProfile {
     schoolName = json['schoolName']?.toString();
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
     userId = json['userId']?.toInt();
+    adminPhotoUrl = json['adminPhotoUrl']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -572,6 +575,7 @@ class AdminProfile {
     data['schoolName'] = schoolName;
     data['schoolPhotoUrl'] = schoolPhotoUrl;
     data['userId'] = userId;
+    data['adminPhotoUrl'] = adminPhotoUrl;
     return data;
   }
 
@@ -950,4 +954,503 @@ Future<GetStudentProfileResponse> getStudentProfile(GetStudentProfileRequest get
   GetStudentProfileResponse getStudentProfileResponse = GetStudentProfileResponse.fromJson(json.decode(response.body));
   print("GetStudentProfileResponse ${getStudentProfileResponse.toJson()}");
   return getStudentProfileResponse;
+}
+
+class CreateOrUpdateStudentProfileRequest {
+/*
+{
+  "agent": 0,
+  "balanceAmount": 0,
+  "fatherName": "string",
+  "gaurdianFirstName": "string",
+  "gaurdianId": 0,
+  "gaurdianLastName": "string",
+  "gaurdianMailId": "string",
+  "gaurdianMiddleName": "string",
+  "gaurdianMobile": "string",
+  "motherName": "string",
+  "rollNumber": "string",
+  "schoolId": 0,
+  "schoolName": "string",
+  "schoolPhotoUrl": "string",
+  "sectionDescription": "string",
+  "sectionId": 0,
+  "sectionName": "string",
+  "studentDob": "string",
+  "studentFirstName": "string",
+  "studentId": 0,
+  "studentLastName": "string",
+  "studentMailId": "string",
+  "studentMiddleName": "string",
+  "studentMobile": "string",
+  "studentPhotoUrl": "string"
+}
+*/
+
+  int? agent;
+  int? balanceAmount;
+  String? fatherName;
+  String? gaurdianFirstName;
+  int? gaurdianId;
+  String? gaurdianLastName;
+  String? gaurdianMailId;
+  String? gaurdianMiddleName;
+  String? gaurdianMobile;
+  String? motherName;
+  String? rollNumber;
+  int? schoolId;
+  String? schoolName;
+  String? schoolPhotoUrl;
+  String? sectionDescription;
+  int? sectionId;
+  String? sectionName;
+  String? studentDob;
+  String? studentFirstName;
+  int? studentId;
+  String? studentLastName;
+  String? studentMailId;
+  String? studentMiddleName;
+  String? studentMobile;
+  String? studentPhotoUrl;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentProfileRequest({
+    this.agent,
+    this.balanceAmount,
+    this.fatherName,
+    this.gaurdianFirstName,
+    this.gaurdianId,
+    this.gaurdianLastName,
+    this.gaurdianMailId,
+    this.gaurdianMiddleName,
+    this.gaurdianMobile,
+    this.motherName,
+    this.rollNumber,
+    this.schoolId,
+    this.schoolName,
+    this.schoolPhotoUrl,
+    this.sectionDescription,
+    this.sectionId,
+    this.sectionName,
+    this.studentDob,
+    this.studentFirstName,
+    this.studentId,
+    this.studentLastName,
+    this.studentMailId,
+    this.studentMiddleName,
+    this.studentMobile,
+    this.studentPhotoUrl,
+  });
+  CreateOrUpdateStudentProfileRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    balanceAmount = json['balanceAmount']?.toInt();
+    fatherName = json['fatherName']?.toString();
+    gaurdianFirstName = json['gaurdianFirstName']?.toString();
+    gaurdianId = json['gaurdianId']?.toInt();
+    gaurdianLastName = json['gaurdianLastName']?.toString();
+    gaurdianMailId = json['gaurdianMailId']?.toString();
+    gaurdianMiddleName = json['gaurdianMiddleName']?.toString();
+    gaurdianMobile = json['gaurdianMobile']?.toString();
+    motherName = json['motherName']?.toString();
+    rollNumber = json['rollNumber']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
+    sectionDescription = json['sectionDescription']?.toString();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    studentDob = json['studentDob']?.toString();
+    studentFirstName = json['studentFirstName']?.toString();
+    studentId = json['studentId']?.toInt();
+    studentLastName = json['studentLastName']?.toString();
+    studentMailId = json['studentMailId']?.toString();
+    studentMiddleName = json['studentMiddleName']?.toString();
+    studentMobile = json['studentMobile']?.toString();
+    studentPhotoUrl = json['studentPhotoUrl']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['balanceAmount'] = balanceAmount;
+    data['fatherName'] = fatherName;
+    data['gaurdianFirstName'] = gaurdianFirstName;
+    data['gaurdianId'] = gaurdianId;
+    data['gaurdianLastName'] = gaurdianLastName;
+    data['gaurdianMailId'] = gaurdianMailId;
+    data['gaurdianMiddleName'] = gaurdianMiddleName;
+    data['gaurdianMobile'] = gaurdianMobile;
+    data['motherName'] = motherName;
+    data['rollNumber'] = rollNumber;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['schoolPhotoUrl'] = schoolPhotoUrl;
+    data['sectionDescription'] = sectionDescription;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['studentDob'] = studentDob;
+    data['studentFirstName'] = studentFirstName;
+    data['studentId'] = studentId;
+    data['studentLastName'] = studentLastName;
+    data['studentMailId'] = studentMailId;
+    data['studentMiddleName'] = studentMiddleName;
+    data['studentMobile'] = studentMobile;
+    data['studentPhotoUrl'] = studentPhotoUrl;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStudentProfileResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "studentId": 0
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  int? studentId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStudentProfileResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.studentId,
+  });
+  CreateOrUpdateStudentProfileResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    studentId = json['studentId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    data['studentId'] = studentId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateStudentProfileResponse> createOrUpdateStudentProfile(CreateOrUpdateStudentProfileRequest createStudentProfileRequest) async {
+  print("Raising request to createStudentProfile with request ${jsonEncode(createStudentProfileRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_PROFILE;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createStudentProfileRequest.toJson()),
+  );
+
+  CreateOrUpdateStudentProfileResponse createStudentProfileResponse = CreateOrUpdateStudentProfileResponse.fromJson(json.decode(response.body));
+  print("createStudentProfileResponse ${createStudentProfileResponse.toJson()}");
+  return createStudentProfileResponse;
+}
+
+class CreateOrUpdateTeacherProfileRequest {
+/*
+{
+  "agent": "string",
+  "description": "string",
+  "dob": 0,
+  "fatherName": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "mailId": "string",
+  "middleName": "string",
+  "motherName": "string",
+  "schoolId": 0,
+  "schoolName": "string",
+  "schoolPhotoUrl": "string",
+  "teacherId": 0,
+  "teacherName": "string",
+  "teacherPhotoUrl": "string"
+}
+*/
+
+  String? agent;
+  String? description;
+  int? dob;
+  String? fatherName;
+  String? firstName;
+  String? lastName;
+  String? mailId;
+  String? middleName;
+  String? motherName;
+  int? schoolId;
+  String? schoolName;
+  String? schoolPhotoUrl;
+  int? teacherId;
+  String? teacherName;
+  String? teacherPhotoUrl;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateTeacherProfileRequest({
+    this.agent,
+    this.description,
+    this.dob,
+    this.fatherName,
+    this.firstName,
+    this.lastName,
+    this.mailId,
+    this.middleName,
+    this.motherName,
+    this.schoolId,
+    this.schoolName,
+    this.schoolPhotoUrl,
+    this.teacherId,
+    this.teacherName,
+    this.teacherPhotoUrl,
+  });
+  CreateOrUpdateTeacherProfileRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toString();
+    description = json['description']?.toString();
+    dob = json['dob']?.toInt();
+    fatherName = json['fatherName']?.toString();
+    firstName = json['firstName']?.toString();
+    lastName = json['lastName']?.toString();
+    mailId = json['mailId']?.toString();
+    middleName = json['middleName']?.toString();
+    motherName = json['motherName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
+    teacherId = json['teacherId']?.toInt();
+    teacherName = json['teacherName']?.toString();
+    teacherPhotoUrl = json['teacherPhotoUrl']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['description'] = description;
+    data['dob'] = dob;
+    data['fatherName'] = fatherName;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['mailId'] = mailId;
+    data['middleName'] = middleName;
+    data['motherName'] = motherName;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['schoolPhotoUrl'] = schoolPhotoUrl;
+    data['teacherId'] = teacherId;
+    data['teacherName'] = teacherName;
+    data['teacherPhotoUrl'] = teacherPhotoUrl;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateTeacherProfileResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "teacherId": 0
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  int? teacherId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateTeacherProfileResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.teacherId,
+  });
+  CreateOrUpdateTeacherProfileResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    teacherId = json['teacherId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    data['teacherId'] = teacherId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateTeacherProfileResponse> createOrUpdateTeacherProfile(CreateOrUpdateTeacherProfileRequest createTeacherProfileRequest) async {
+  print("Raising request to createTeacherProfile with request ${jsonEncode(createTeacherProfileRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_TEACHER_PROFILE;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createTeacherProfileRequest.toJson()),
+  );
+
+  CreateOrUpdateTeacherProfileResponse createTeacherProfileResponse = CreateOrUpdateTeacherProfileResponse.fromJson(json.decode(response.body));
+  print("createTeacherProfileResponse ${createTeacherProfileResponse.toJson()}");
+  return createTeacherProfileResponse;
+}
+
+class CreateOrUpdateAdminProfileRequest {
+/*
+{
+  "adminPhotoUrl": "string",
+  "agent": 0,
+  "firstName": "string",
+  "lastName": "string",
+  "mailId": "string",
+  "middleName": "string",
+  "schoolId": 0,
+  "schoolName": "string",
+  "schoolPhotoUrl": "string",
+  "userId": 0
+}
+*/
+
+  String? adminPhotoUrl;
+  int? agent;
+  String? firstName;
+  String? lastName;
+  String? mailId;
+  String? middleName;
+  int? schoolId;
+  String? schoolName;
+  String? schoolPhotoUrl;
+  int? userId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateAdminProfileRequest({
+    this.adminPhotoUrl,
+    this.agent,
+    this.firstName,
+    this.lastName,
+    this.mailId,
+    this.middleName,
+    this.schoolId,
+    this.schoolName,
+    this.schoolPhotoUrl,
+    this.userId,
+  });
+  CreateOrUpdateAdminProfileRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    adminPhotoUrl = json['adminPhotoUrl']?.toString();
+    agent = json['agent']?.toInt();
+    firstName = json['firstName']?.toString();
+    lastName = json['lastName']?.toString();
+    mailId = json['mailId']?.toString();
+    middleName = json['middleName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
+    userId = json['userId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['adminPhotoUrl'] = adminPhotoUrl;
+    data['agent'] = agent;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['mailId'] = mailId;
+    data['middleName'] = middleName;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['schoolPhotoUrl'] = schoolPhotoUrl;
+    data['userId'] = userId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateAdminProfileResponse {
+/*
+{
+  "adminId": 0,
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  int? adminId;
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateAdminProfileResponse({
+    this.adminId,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateAdminProfileResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    adminId = json['adminId']?.toInt();
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['adminId'] = adminId;
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateAdminProfileResponse> createOrUpdateAdminProfile(CreateOrUpdateAdminProfileRequest createAdminProfileRequest) async {
+  print("Raising request to createAdminProfile with request ${jsonEncode(createAdminProfileRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_PROFILE;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createAdminProfileRequest.toJson()),
+  );
+
+  CreateOrUpdateAdminProfileResponse createAdminProfileResponse = CreateOrUpdateAdminProfileResponse.fromJson(json.decode(response.body));
+  print("createAdminProfileResponse ${createAdminProfileResponse.toJson()}");
+  return createAdminProfileResponse;
 }

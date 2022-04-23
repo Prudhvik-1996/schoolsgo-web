@@ -64,31 +64,43 @@ class _ClayPieChartState extends State<ClayPieChart> {
           Center(
             child: Tooltip(
               message: widget.highlightedText ?? "",
-              child: MouseRegion(
-                onEnter: (_) {
+              child: Listener(
+                onPointerDown: (_) {
                   setState(() {
                     extraDiameter = 10;
                   });
                 },
-                onExit: (_) {
+                onPointerUp: (_) {
                   setState(() {
                     extraDiameter = 0;
                   });
                 },
-                cursor: SystemMouseCursors.click,
-                child: ClipPath(
-                  clipper: SectorClipper(
-                    diameter: widget.diameter + extraDiameter,
-                    angle: widget.angle,
-                    spreadAngle: 0,
-                  ),
-                  child: Center(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: widget.highlightColor,
+                child: MouseRegion(
+                  onEnter: (_) {
+                    setState(() {
+                      extraDiameter = 10;
+                    });
+                  },
+                  onExit: (_) {
+                    setState(() {
+                      extraDiameter = 0;
+                    });
+                  },
+                  cursor: SystemMouseCursors.click,
+                  child: ClipPath(
+                    clipper: SectorClipper(
+                      diameter: widget.diameter + extraDiameter,
+                      angle: widget.angle,
+                      spreadAngle: 0,
+                    ),
+                    child: Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: widget.highlightColor,
+                        ),
+                        height: widget.diameter + 20,
+                        width: widget.diameter + 20,
                       ),
-                      height: widget.diameter + 20,
-                      width: widget.diameter + 20,
                     ),
                   ),
                 ),

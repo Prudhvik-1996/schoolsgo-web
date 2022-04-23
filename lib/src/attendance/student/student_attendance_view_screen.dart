@@ -303,7 +303,7 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
           setState(() {
             _selectedDate = _newDate;
             _itemScrollController.scrollTo(
-              index: _availableDates.indexOf(convertDateTimeToYYYYMMDDFormat(_selectedDate!)),
+              index: _availableDates.indexOf(convertDateTimeToYYYYMMDDFormat(_selectedDate!)) + 1,
               duration: const Duration(seconds: 1),
               curve: Curves.linear,
             );
@@ -337,7 +337,13 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
         const SizedBox(height: 15),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text("${widget.studentProfile.studentFirstName}"),
+          child: Text(
+            "${widget.studentProfile.studentFirstName}",
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         const SizedBox(height: 15),
         FittedBox(
@@ -419,12 +425,16 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
                     )
                   : Column(
                       children: [
-                        buildStatsWidget(),
                         Expanded(
                           child: ScrollablePositionedList.builder(
                             itemScrollController: _itemScrollController,
-                            itemCount: _dateWiseAttendanceBeans.length,
-                            itemBuilder: (context, index) => _dateWiseAttendanceBeans[index],
+                            itemCount: _dateWiseAttendanceBeans.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == 0) {
+                                return buildStatsWidget();
+                              }
+                              return _dateWiseAttendanceBeans[index - 1];
+                            },
                           ),
                         ),
                       ],
