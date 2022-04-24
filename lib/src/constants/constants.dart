@@ -50,7 +50,7 @@ const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS = "/timetable/createOrUpd
 const String GET_LOGBOOK = "/teachers/getTeacherLogBook";
 const String CREATE_OR_UPDATE_LOGBOOK = "/teachers/createOrUpdateTeacherLogBook";
 
-const String GET_DIARY = "/diary/getStudentDiaryForDate";
+const String GET_DIARY = "/diary/getStudentDiary";
 const String CREATE_OR_UPDATE_DIARY = "/diary/createOrUpdateDiary";
 
 const String GET_SUGGESTION_BOX = "/complaintBox/getComplaintBox";

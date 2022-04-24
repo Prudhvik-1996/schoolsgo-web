@@ -54,7 +54,12 @@ class SettingsView extends StatelessWidget {
                   .map(
                     (e) => DropdownMenuItem(
                       value: e,
-                      child: Text(e, style: textThemesMap[e]!.headline3),
+                      child: Text(
+                        e,
+                        style: textThemesMap[e]!.headline3?.copyWith(
+                              color: clayContainerTextColor(context),
+                            ),
+                      ),
                     ),
                   )
                   .toList(),

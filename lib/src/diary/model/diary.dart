@@ -15,7 +15,7 @@ class GetDiaryRequest {
 }
 */
 
-  int? date;
+  String? date;
   int? schoolId;
   int? sectionId;
   int? studentId;
@@ -33,7 +33,7 @@ class GetDiaryRequest {
   });
   GetDiaryRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    date = int.tryParse(json['date']?.toString() ?? '');
+    date = json['date']?.toString();
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
     sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
     studentId = int.tryParse(json['studentId']?.toString() ?? '');
@@ -54,7 +54,7 @@ class GetDiaryRequest {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-class Diary {
+class DiaryEntry {
 /*
 {
   "assignment": "string",
@@ -86,7 +86,7 @@ class Diary {
 
   bool isEditMode = false;
 
-  Diary({
+  DiaryEntry({
     this.assignment,
     this.date,
     this.diaryFolderId,
@@ -99,18 +99,18 @@ class Diary {
     this.teacherId,
     this.teacherRemarks,
   });
-  Diary.fromJson(Map<String, dynamic> json) {
+  DiaryEntry.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     assignment = json['assignment']?.toString();
     date = json['date']?.toString();
-    diaryFolderId = int.tryParse(json['diaryFolderId']?.toString() ?? '');
-    diaryId = int.tryParse(json['diaryId']?.toString() ?? '');
-    sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
+    diaryFolderId = json['diaryFolderId']?.toInt();
+    diaryId = json['diaryId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
     sectionName = json['sectionName']?.toString();
-    subjectId = int.tryParse(json['subjectId']?.toString() ?? '');
+    subjectId = json['subjectId']?.toInt();
     subjectName = json['subjectName']?.toString();
     teacherFirstName = json['teacherFirstName']?.toString();
-    teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
+    teacherId = json['teacherId']?.toInt();
     teacherRemarks = json['teacherRemarks']?.toString();
   }
   Map<String, dynamic> toJson() {
@@ -132,7 +132,7 @@ class Diary {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-class SectionWiseDiaryBean {
+class GetStudentDiaryResponse {
 /*
 {
   "diaryEntries": [
@@ -150,130 +150,64 @@ class SectionWiseDiaryBean {
       "teacherRemarks": "string"
     }
   ],
-  "sectionId": 0
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
 }
 */
 
-  List<Diary?>? diaryEntries;
-  int? sectionId;
+  List<DiaryEntry?>? diaryEntries;
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
   Map<String, dynamic> __origJson = {};
 
-  SectionWiseDiaryBean({
+  GetStudentDiaryResponse({
     this.diaryEntries,
-    this.sectionId,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
   });
-  SectionWiseDiaryBean.fromJson(Map<String, dynamic> json) {
+  GetStudentDiaryResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    if (json['diaryEntries'] != null && (json['diaryEntries'] is List)) {
+    if (json['diaryEntries'] != null) {
       final v = json['diaryEntries'];
-      final arr0 = <Diary>[];
+      final arr0 = <DiaryEntry>[];
       v.forEach((v) {
-        arr0.add(Diary.fromJson(v));
+        arr0.add(DiaryEntry.fromJson(v));
       });
       diaryEntries = arr0;
     }
-    sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (diaryEntries != null) {
       final v = diaryEntries;
       final arr0 = [];
-      for (var v in v!) {
+      v!.forEach((v) {
         arr0.add(v!.toJson());
-      }
+      });
       data['diaryEntries'] = arr0;
     }
-    data['sectionId'] = sectionId;
-    return data;
-  }
-
-  Map<String, dynamic> origJson() => __origJson;
-}
-
-class GetDiaryResponse {
-/*
-{
-  "errorCode": "INTERNAL_SERVER_ERROR",
-  "errorMessage": "string",
-  "httpStatus": "100",
-  "responseStatus": "success",
-  "sectionDiaryList": [
-    {
-      "diaryEntries": [
-        {
-          "assignment": "string",
-          "date": "string",
-          "diaryFolderId": 0,
-          "diaryId": 0,
-          "sectionId": 0,
-          "sectionName": "string",
-          "subjectId": 0,
-          "subjectName": "string",
-          "teacherFirstName": "string",
-          "teacherId": 0,
-          "teacherRemarks": "string"
-        }
-      ],
-      "sectionId": 0
-    }
-  ]
-}
-*/
-
-  String? errorCode;
-  String? errorMessage;
-  String? httpStatus;
-  String? responseStatus;
-  List<SectionWiseDiaryBean?>? sectionDiaryList;
-  Map<String, dynamic> __origJson = {};
-
-  GetDiaryResponse({
-    this.errorCode,
-    this.errorMessage,
-    this.httpStatus,
-    this.responseStatus,
-    this.sectionDiaryList,
-  });
-  GetDiaryResponse.fromJson(Map<String, dynamic> json) {
-    __origJson = json;
-    errorCode = json['errorCode']?.toString();
-    errorMessage = json['errorMessage']?.toString();
-    httpStatus = json['httpStatus']?.toString();
-    responseStatus = json['responseStatus']?.toString();
-    if (json['sectionDiaryList'] != null &&
-        (json['sectionDiaryList'] is List)) {
-      final v = json['sectionDiaryList'];
-      final arr0 = <SectionWiseDiaryBean>[];
-      v.forEach((v) {
-        arr0.add(SectionWiseDiaryBean.fromJson(v));
-      });
-      sectionDiaryList = arr0;
-    }
-  }
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
     data['errorMessage'] = errorMessage;
     data['httpStatus'] = httpStatus;
     data['responseStatus'] = responseStatus;
-    if (sectionDiaryList != null) {
-      final v = sectionDiaryList;
-      final arr0 = [];
-      for (var v in v!) {
-        arr0.add(v!.toJson());
-      }
-      data['sectionDiaryList'] = arr0;
-    }
     return data;
   }
 
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetDiaryResponse> getDiary(GetDiaryRequest getDiaryRequest) async {
-  print(
-      "Raising request to getDiary with request ${jsonEncode(getDiaryRequest.toJson())}");
+Future<GetStudentDiaryResponse> getDiary(GetDiaryRequest getDiaryRequest) async {
+  print("Raising request to getDiary with request ${jsonEncode(getDiaryRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_DIARY;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -283,8 +217,7 @@ Future<GetDiaryResponse> getDiary(GetDiaryRequest getDiaryRequest) async {
     body: jsonEncode(getDiaryRequest.toJson()),
   );
 
-  GetDiaryResponse getDiaryResponse =
-      GetDiaryResponse.fromJson(json.decode(response.body));
+  GetStudentDiaryResponse getDiaryResponse = GetStudentDiaryResponse.fromJson(json.decode(response.body));
   print("GetDiaryResponse ${getDiaryResponse.toJson()}");
   return getDiaryResponse;
 }
@@ -411,10 +344,8 @@ class CreateOrUpdateDiaryResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateDiaryResponse> createOrUpdateDiary(
-    CreateOrUpdateDiaryRequest createOrUpdateDiaryRequest) async {
-  print(
-      "Raising request to createOrUpdateDiary with request ${jsonEncode(createOrUpdateDiaryRequest.toJson())}");
+Future<CreateOrUpdateDiaryResponse> createOrUpdateDiary(CreateOrUpdateDiaryRequest createOrUpdateDiaryRequest) async {
+  print("Raising request to createOrUpdateDiary with request ${jsonEncode(createOrUpdateDiaryRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_DIARY;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -424,8 +355,7 @@ Future<CreateOrUpdateDiaryResponse> createOrUpdateDiary(
     body: jsonEncode(createOrUpdateDiaryRequest.toJson()),
   );
 
-  CreateOrUpdateDiaryResponse createOrUpdateDiaryResponse =
-      CreateOrUpdateDiaryResponse.fromJson(json.decode(response.body));
+  CreateOrUpdateDiaryResponse createOrUpdateDiaryResponse = CreateOrUpdateDiaryResponse.fromJson(json.decode(response.body));
   print("createOrUpdateDiaryResponse ${createOrUpdateDiaryResponse.toJson()}");
   return createOrUpdateDiaryResponse;
 }

@@ -1,4 +1,6 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -26,20 +28,22 @@ class DiaryEditScreen extends StatefulWidget {
 
 class _DiaryEditScreenState extends State<DiaryEditScreen> {
   bool _isLoading = true;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Teacher> _teachersList = [];
   Teacher? _selectedTeacher;
 
   List<Section> _sectionsList = [];
   Section? _selectedSection;
+  bool _isSectionPickerOpen = false;
 
   List<TeacherDealingSection> _tdsList = [];
   List<TeacherDealingSection> _filteredTdsList = [];
 
   DateTime _selectedDate = DateTime.now();
 
-  List<Diary> _diaryList = [];
-  List<Diary> _filteredDiaryList = [];
+  List<DiaryEntry> _diaryList = [];
+  List<DiaryEntry> _filteredDiaryList = [];
 
   @override
   void initState() {
@@ -103,18 +107,18 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
       _isLoading = true;
     });
 
-    GetDiaryResponse getDiaryResponse = await getDiary(
+    GetStudentDiaryResponse getDiaryResponse = await getDiary(
       GetDiaryRequest(
         schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
         teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
-        date: _selectedDate.millisecondsSinceEpoch,
+        date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
       ),
     );
     if (getDiaryResponse.httpStatus == "OK" && getDiaryResponse.responseStatus == "success") {
       setState(() {
-        _diaryList = getDiaryResponse.sectionDiaryList!.map((e) => e!.diaryEntries!.map((e) => e!)).expand((e) => e).toList();
+        _diaryList = (getDiaryResponse.diaryEntries ?? []).where((e) => e != null).map((e) => e!).toList();
         _diaryList.sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
-        _filteredDiaryList = getDiaryResponse.sectionDiaryList!.map((e) => e!.diaryEntries!.map((e) => e!)).expand((e) => e).toList();
+        _filteredDiaryList = (getDiaryResponse.diaryEntries ?? []).where((e) => e != null).map((e) => e!).toList();
         _filteredDiaryList.sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
       });
     }
@@ -151,158 +155,290 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     });
   }
 
-  Widget _selectTeacher() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
-      child: ClayContainer(
-        depth: 20,
-        color: clayContainerColor(context),
-        spread: 5,
-        borderRadius: 10,
-        child: _teachersList.length != 1 && _selectedTeacher != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(child: dropdownButtonForTeacher()),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedTeacher = null;
-                        });
-                        _applyFilters();
-                      },
-                      child: const Icon(Icons.close),
-                    ),
+  Widget _teacherPicker() {
+    return _filteredDiaryList.where((e) => e.isEditMode).isNotEmpty
+        ? GestureDetector(
+            onTap: () {
+              DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+              if (editingEntry != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Save changes for the following diary entry to proceed..\n"
+                        "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
                   ),
-                ],
-              )
-            : dropdownButtonForTeacher(),
+                );
+                return;
+              }
+            },
+            child: ClayButton(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 10,
+              height: 60,
+              width: 60,
+              child: Center(
+                child: _buildTeacherWidget(_selectedTeacher ?? Teacher()),
+              ),
+            ),
+          )
+        : _buildSearchableTeacherDropdown();
+  }
+
+  ClayButton _buildSearchableTeacherDropdown() {
+    return ClayButton(
+      depth: 40,
+      parentColor: clayContainerColor(context),
+      surfaceColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      height: 60,
+      width: 60,
+      child: DropdownSearch<Teacher>(
+        enabled: _filteredDiaryList.where((e) => e.isEditMode).isEmpty,
+        mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+        selectedItem: _selectedTeacher,
+        items: _teachersList,
+        itemAsString: (Teacher? teacher) {
+          return teacher == null ? "" : teacher.teacherName ?? "";
+        },
+        showSearchBox: true,
+        dropdownBuilder: (BuildContext context, Teacher? teacher) {
+          return _buildTeacherWidget(teacher ?? Teacher());
+        },
+        onChanged: (Teacher? teacher) {
+          DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+          if (editingEntry != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Save changes for the following diary entry to proceed..\n"
+                    "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+              ),
+            );
+            return;
+          } else {
+            setState(() {
+              _selectedTeacher = teacher;
+            });
+            _applyFilters();
+          }
+        },
+        showClearButton: true,
+        compareFn: (item, selectedItem) => item?.teacherId == selectedItem?.teacherId,
+        dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+        filterFn: (Teacher? teacher, String? key) {
+          return teacher!.teacherName!.toLowerCase().contains(key!.toLowerCase());
+        },
       ),
     );
   }
 
-  DropdownButton<Teacher> dropdownButtonForTeacher() {
-    return DropdownButton(
-      hint: const Center(child: Text("Select Teacher")),
-      underline: Container(),
-      isExpanded: true,
-      value: _selectedTeacher,
-      onChanged: (Teacher? teacher) {
-        setState(() {
-          _selectedTeacher = teacher!;
-        });
-        _applyFilters();
-      },
-      items: _teachersList
-          .where((teacher) => _filteredTdsList.map((tds) => tds.teacherId).contains(teacher.teacherId))
-          .map(
-            (e) => DropdownMenuItem<Teacher>(
-              value: e,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 40,
-                child: ListTile(
-                  leading: Container(
-                    width: 50,
-                    padding: const EdgeInsets.all(5),
-                    child: e.teacherPhotoUrl == null
-                        ? Image.asset(
-                            "assets/images/avatar.png",
-                            fit: BoxFit.contain,
-                          )
-                        : Image.network(
-                            e.teacherPhotoUrl!,
-                            fit: BoxFit.contain,
-                          ),
+  Widget _buildTeacherWidget(Teacher e) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 50,
+            padding: const EdgeInsets.all(5),
+            child: e.teacherPhotoUrl == null
+                ? Image.asset(
+                    "assets/images/avatar.png",
+                    fit: BoxFit.contain,
+                  )
+                : Image.network(
+                    e.teacherPhotoUrl!,
+                    fit: BoxFit.contain,
                   ),
-                  title: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      e.teacherName ?? "-",
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+          ),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                e.teacherName ?? "Select a Teacher",
+                style: const TextStyle(
+                  fontSize: 14,
                 ),
               ),
             ),
           )
-          .toList(),
-    );
-  }
-
-  Widget _selectSection() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
-      child: ClayContainer(
-        depth: 20,
-        color: clayContainerColor(context),
-        spread: 5,
-        borderRadius: 10,
-        child: _sectionsList.length != 1 && _selectedSection != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(child: dropdownButtonForSection()),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedSection = null;
-                        });
-                        _applyFilters();
-                      },
-                      child: const Icon(Icons.close),
-                    ),
-                  ),
-                ],
-              )
-            : dropdownButtonForSection(),
+        ],
       ),
     );
   }
 
-  DropdownButton<Section> dropdownButtonForSection() {
-    return DropdownButton(
-      hint: const Center(child: Text("Select Section")),
-      underline: Container(),
-      isExpanded: true,
-      value: _selectedSection,
-      onChanged: (Section? section) {
-        setState(() {
-          _selectedSection = section!;
-        });
-        _applyFilters();
-      },
-      items: _sectionsList
-          .where((section) => _filteredTdsList.map((tds) => tds.sectionId).contains(section.sectionId))
-          .map(
-            (e) => DropdownMenuItem<Section>(
-              value: e,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 40,
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
+  Widget _sectionPicker() {
+    return AnimatedSize(
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        child: _isSectionPickerOpen
+            ? ClayContainer(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 10,
+                child: _selectSectionExpanded(),
+              )
+            : _selectSectionCollapsed(),
+      ),
+    );
+  }
+
+  Widget _buildSectionCheckBox(Section section) {
+    return Container(
+      margin: const EdgeInsets.all(5),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.vibrate();
+          if (_isLoading) return;
+          DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+          if (editingEntry != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Save changes for the following diary entry to proceed..\n"
+                    "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+              ),
+            );
+            return;
+          } else {
+            setState(() {
+              if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
+                _selectedSection = null;
+              } else {
+                _selectedSection = section;
+              }
+              _isSectionPickerOpen = false;
+            });
+            _applyFilters();
+          }
+        },
+        child: ClayButton(
+          depth: 40,
+          spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? 0 : 2,
+          surfaceColor:
+              _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectSectionExpanded() {
+    return Container(
+      width: double.infinity,
+      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
+      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
+      child: ListView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.vibrate();
+              if (_isLoading) return;
+              setState(() {
+                _isSectionPickerOpen = !_isSectionPickerOpen;
+              });
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                     child: Text(
-                      e.sectionName ?? "-",
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
+                      _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
                     ),
                   ),
                 ),
-              ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const Icon(Icons.expand_less),
+                ),
+              ],
             ),
-          )
-          .toList(),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          GridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 2.25,
+            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
+            shrinkWrap: true,
+            children: _sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _selectSectionCollapsed() {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.vibrate();
+        if (_isLoading) return;
+        DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+        if (editingEntry != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Save changes for the following diary entry to proceed..\n"
+                  "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+            ),
+          );
+          return;
+        } else {
+          setState(() {
+            _isSectionPickerOpen = !_isSectionPickerOpen;
+          });
+        }
+      },
+      child: ClayButton(
+        depth: 40,
+        parentColor: clayContainerColor(context),
+        surfaceColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        height: 60,
+        width: 60,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(5, 15, 5, 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  child: Text(
+                    _selectedSection == null ? "Select a section" : "Sections: ${_selectedSection!.sectionName}",
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: const Icon(Icons.expand_more),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -310,8 +446,18 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: InkWell(
+      child: GestureDetector(
         onTap: () async {
+          DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+          if (editingEntry != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Save changes for the following diary entry to proceed..\n"
+                    "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+              ),
+            );
+            return;
+          }
           HapticFeedback.vibrate();
           DateTime? _newDate = await showDatePicker(
             context: context,
@@ -328,28 +474,39 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
         },
         child: ClayButton(
           depth: 40,
-          color: const Color(0xFFC9EDF8),
           parentColor: clayContainerColor(context),
+          surfaceColor: clayContainerColor(context),
           spread: 2,
-          borderRadius: 50,
+          borderRadius: 10,
           height: 60,
           width: 60,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
+            // mainAxisSize: MainAxisSize.min,
             children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  convertDateTimeToDDMMYYYYFormat(_selectedDate),
-                  style: const TextStyle(
-                    color: Colors.black,
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    convertDateTimeToDDMMYYYYFormat(_selectedDate),
                   ),
                 ),
               ),
-              const Icon(
-                Icons.calendar_today_rounded,
-                color: Colors.blueGrey,
+              const SizedBox(
+                width: 10,
+              ),
+              const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Icon(
+                  Icons.calendar_today_rounded,
+                ),
+              ),
+              const SizedBox(
+                width: 20,
               ),
             ],
           ),
@@ -363,7 +520,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
       margin: const EdgeInsets.all(10),
       child: Tooltip(
         message: "Previous Day",
-        child: InkWell(
+        child: GestureDetector(
           onTap: () {
             if (_selectedDate.millisecondsSinceEpoch == DateTime.now().subtract(const Duration(days: 364)).millisecondsSinceEpoch) return;
             setState(() {
@@ -389,7 +546,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
       margin: const EdgeInsets.all(10),
       child: Tooltip(
         message: "Next Day",
-        child: InkWell(
+        child: GestureDetector(
           onTap: () {
             if (_selectedDate.millisecondsSinceEpoch == DateTime.now().millisecondsSinceEpoch) return;
             setState(() {
@@ -410,7 +567,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     );
   }
 
-  Container _getDiaryWidget(Diary diary) {
+  Container _getDiaryWidget(DiaryEntry diary) {
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.landscape
           ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
@@ -463,7 +620,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     );
   }
 
-  Widget buildAssignmentWidget(Diary diary) {
+  Widget buildAssignmentWidget(DiaryEntry diary) {
     return Container(
       margin: const EdgeInsets.all(10),
       child: ClayContainer(
@@ -484,35 +641,35 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                   ),
-                  textAlign: TextAlign.justify,
+                  textAlign: TextAlign.start,
                   onChanged: (text) => setState(() {
                     diary.assignment = text;
                   }),
                 )
               : Text(
                   diary.assignment ?? "-",
-                  textAlign: diary.assignment == null ? TextAlign.center : TextAlign.justify,
+                  textAlign: diary.assignment == null ? TextAlign.center : TextAlign.start,
                 ),
         ),
       ),
     );
   }
 
-  Container buildSubjectNameWidget(Diary diary) {
+  Container buildSubjectNameWidget(DiaryEntry diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
       child: Text("Subject: ${diary.subjectName!.capitalize()}"),
     );
   }
 
-  Container buildTeacherNameWidget(Diary diary) {
+  Container buildTeacherNameWidget(DiaryEntry diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
       child: Text("Teacher: ${diary.teacherFirstName!.capitalize()}"),
     );
   }
 
-  Container buildSectionNameWidget(Diary diary) {
+  Container buildSectionNameWidget(DiaryEntry diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
       child: Text(
@@ -521,7 +678,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     );
   }
 
-  Future<void> _saveChanges(Diary diary) async {
+  Future<void> _saveChanges(DiaryEntry diary) async {
     setState(() {
       _isLoading = true;
     });
@@ -553,19 +710,62 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     });
   }
 
-  Container buildEditButton(Diary diary) {
+  Container buildEditButton(DiaryEntry diary) {
     return Container(
       margin: const EdgeInsets.all(10),
-      child: InkWell(
+      child: GestureDetector(
         onTap: () {
           if (diary.isEditMode) {
-            if (diary.assignment != diary.origJson()["assignment"]) {
-              _saveChanges(diary);
+            showDialog(
+              context: _scaffoldKey.currentContext!,
+              builder: (dialogContext) {
+                return AlertDialog(
+                  title: const Text("Are you sure you want to save changes?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        if (diary.assignment != diary.origJson()["assignment"]) {
+                          _saveChanges(diary);
+                        }
+                      },
+                      child: const Text("YES"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        setState(() {
+                          diary.assignment = diary.origJson()["assignment"];
+                          diary.isEditMode = false;
+                        });
+                      },
+                      child: const Text("No"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+            if (editingEntry != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Save changes for the following diary entry to proceed..\n"
+                      "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+                ),
+              );
+            } else {
+              setState(() {
+                diary.isEditMode = true;
+              });
             }
           }
-          setState(() {
-            diary.isEditMode = !diary.isEditMode;
-          });
         },
         child: ClayButton(
           color: clayContainerColor(context),
@@ -585,6 +785,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Diary"),
         actions: [
@@ -606,34 +807,109 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
             )
           : ListView(
               children: <Widget>[
-                    Container(
-                      child: MediaQuery.of(context).orientation == Orientation.landscape
-                          ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Expanded(child: _selectSection()),
-                                Expanded(child: _selectTeacher()),
-                                Expanded(child: _getDatePicker()),
-                                _getLeftArrow(),
-                                _getRightArrow(),
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                _selectSection(),
-                                _selectTeacher(),
-                                Row(
-                                  children: [
-                                    _getLeftArrow(),
-                                    Expanded(child: _getDatePicker()),
-                                    _getRightArrow(),
-                                  ],
-                                ),
-                              ],
+                widget.teacherProfile != null
+                    ? Container(
+                        padding: MediaQuery.of(context).orientation == Orientation.landscape
+                            ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
+                            : const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 10,
                             ),
+                            _getLeftArrow(),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(child: _getDatePicker()),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            _getRightArrow(),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(
+                        child: MediaQuery.of(context).orientation == Orientation.landscape
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Expanded(child: _sectionPicker()),
+                                  if (!_isSectionPickerOpen) Expanded(child: _teacherPicker()),
+                                  if (!_isSectionPickerOpen)
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                  if (!_isSectionPickerOpen) _getLeftArrow(),
+                                  if (!_isSectionPickerOpen)
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                  if (!_isSectionPickerOpen) Expanded(child: _getDatePicker()),
+                                  if (!_isSectionPickerOpen)
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                  if (!_isSectionPickerOpen) _getRightArrow(),
+                                  if (!_isSectionPickerOpen)
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                      Expanded(
+                                        child: _sectionPicker(),
+                                      ),
+                                      const SizedBox(
+                                        width: 5,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      const SizedBox(
+                                        width: 25,
+                                      ),
+                                      Expanded(
+                                        child: _teacherPicker(),
+                                      ),
+                                      const SizedBox(
+                                        width: 25,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      _getLeftArrow(),
+                                      Expanded(child: _getDatePicker()),
+                                      _getRightArrow(),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                      ),
+                if (_filteredDiaryList.isEmpty)
+                  Container(
+                    margin: const EdgeInsets.all(50),
+                    child: const Center(
+                      child: Text("There seems to be no teachers/subjects assigned at this point.."),
                     ),
-                  ] +
-                  _filteredDiaryList.map((e) => _getDiaryWidget(e)).toList(),
+                  ),
+                for (DiaryEntry eachDiary in _filteredDiaryList) _getDiaryWidget(eachDiary),
+              ],
             ),
     );
   }

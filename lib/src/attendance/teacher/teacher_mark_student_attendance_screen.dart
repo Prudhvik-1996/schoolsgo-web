@@ -230,22 +230,61 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                 for (int i = 0; i < attendanceTimeSlotBeans.length; i++)
                   Padding(
                     padding: const EdgeInsets.all(_cellPadding),
-                    child: ClayContainer(
-                      depth: 40,
-                      parentColor: clayContainerColor(context),
-                      surfaceColor: _headerColor,
-                      spread: 2,
-                      borderRadius: 10,
-                      height: _cellColumnHeight,
-                      width: _cellColumnWidth,
-                      child: Center(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            ("${attendanceTimeSlotBeans[i].startTime == null ? " - " : formatHHMMSStoHHMMA(attendanceTimeSlotBeans[i].startTime!)} - ${attendanceTimeSlotBeans[i].endTime == null ? " - " : formatHHMMSStoHHMMA(attendanceTimeSlotBeans[i].endTime!)}\n${attendanceTimeSlotBeans[i].managerName}"),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: _headerTextColor,
+                    child: GestureDetector(
+                      onTap: () {
+                        int noOfStudentsPresent = studentWiseAttendanceBeans
+                            .map((e) => e.studentAttendanceBeans)
+                            .expand((i) => i)
+                            .where((e) => e.attendanceTimeSlotId == attendanceTimeSlotBeans[i].attendanceTimeSlotId)
+                            .where((e) => e.isPresent == 1)
+                            .length;
+                        int noOfStudentsAbsent = studentWiseAttendanceBeans
+                            .map((e) => e.studentAttendanceBeans)
+                            .expand((i) => i)
+                            .where((e) => e.attendanceTimeSlotId == attendanceTimeSlotBeans[i].attendanceTimeSlotId)
+                            .where((e) => e.isPresent == -1)
+                            .length;
+                        String presentStats =
+                            "${attendanceTimeSlotBeans[i].startTime == null ? " - " : formatHHMMSStoHHMMA(attendanceTimeSlotBeans[i].startTime!)} - ${attendanceTimeSlotBeans[i].endTime == null ? " - " : formatHHMMSStoHHMMA(attendanceTimeSlotBeans[i].endTime!)}\n"
+                            "Attendance Manager: ${attendanceTimeSlotBeans[i].managerName}\n\n"
+                            "No. of students present: $noOfStudentsPresent\n"
+                            "No. of students absent: $noOfStudentsAbsent\n";
+                        showDialog(
+                          context: _scaffoldKey.currentContext!,
+                          builder: (currentContext) {
+                            return AlertDialog(
+                              elevation: 0,
+                              title: const Text("Attendance"),
+                              content: Text(presentStats),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text("Ok"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: ClayButton(
+                        depth: 40,
+                        parentColor: clayContainerColor(context),
+                        surfaceColor: _headerColor,
+                        spread: 2,
+                        borderRadius: 10,
+                        height: _cellColumnHeight,
+                        width: _cellColumnWidth,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              ("${attendanceTimeSlotBeans[i].startTime == null ? " - " : formatHHMMSStoHHMMA(attendanceTimeSlotBeans[i].startTime!)} - ${attendanceTimeSlotBeans[i].endTime == null ? " - " : formatHHMMSStoHHMMA(attendanceTimeSlotBeans[i].endTime!)}\n${attendanceTimeSlotBeans[i].managerName}"),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: _headerTextColor,
+                              ),
                             ),
                           ),
                         ),

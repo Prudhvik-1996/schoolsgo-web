@@ -105,7 +105,6 @@ class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots>
           child: Container(
             margin: const EdgeInsets.all(5),
             padding: const EdgeInsets.all(20),
-            // child: Text("${eachATS.managerName}"),
             child: Column(
               children: [
                 Row(
@@ -124,9 +123,6 @@ class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots>
                         "Section: ${eachATS.sectionName}",
                       ),
                     ),
-                    // Text(
-                    //     "${eachATS.week}, ${convert24To12HourFormat(eachATS.startTime)} - ${convert24To12HourFormat(eachATS.endTime)}"),
-                    // Text("Section: ${eachATS.sectionName}")
                   ],
                 ),
                 const SizedBox(
@@ -174,6 +170,13 @@ class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots>
               child: ListView(
                 children: [
                       _getDatePicker(),
+                      if (_attendanceTimeSlots.isEmpty)
+                        Container(
+                          margin: const EdgeInsets.all(50),
+                          child: const Center(
+                            child: Text("You are not assigned as an attendance manager to any session for the day.."),
+                          ),
+                        ),
                     ] +
                     _attendanceTimeSlots.map((e) => buildEachATSWidget(e)).toList(),
               ),
