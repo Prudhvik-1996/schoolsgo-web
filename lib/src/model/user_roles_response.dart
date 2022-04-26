@@ -832,21 +832,25 @@ class GetStudentProfileRequest {
 
   int? sectionId;
   int? studentId;
+  int? schoolId;
   Map<String, dynamic> __origJson = {};
 
   GetStudentProfileRequest({
     this.sectionId,
     this.studentId,
+    this.schoolId,
   });
   GetStudentProfileRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     sectionId = json['sectionId']?.toInt();
     studentId = json['studentId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['sectionId'] = sectionId;
     data['studentId'] = studentId;
+    data['schoolId'] = schoolId;
     return data;
   }
 

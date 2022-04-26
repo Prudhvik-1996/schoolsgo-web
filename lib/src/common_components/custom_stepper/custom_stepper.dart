@@ -115,7 +115,6 @@ class _CustomStepperState extends State<CustomStepper> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    print("116: ${widget.length}");
     _keys = List<GlobalKey>.generate(
       widget.length,
       (int i) => GlobalKey(),
@@ -129,7 +128,6 @@ class _CustomStepperState extends State<CustomStepper> with TickerProviderStateM
   @override
   void didUpdateWidget(CustomStepper oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // assert(widget.length == oldWidget.steps.length);
     if (widget.length != oldWidget.length) {
       _keys = List<GlobalKey>.generate(
         widget.length,
@@ -461,13 +459,8 @@ class _CustomStepperState extends State<CustomStepper> with TickerProviderStateM
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    widget.steps[index].content,
-                    // _buildVerticalControls(index),
-                  ],
+                Expanded(
+                  child: widget.steps[index].content,
                 ),
               ],
             ),
@@ -483,7 +476,6 @@ class _CustomStepperState extends State<CustomStepper> with TickerProviderStateM
   }
 
   Widget _buildVertical() {
-    print("465: ${widget.length}");
     return ListView(
       shrinkWrap: true,
       physics: widget.physics,

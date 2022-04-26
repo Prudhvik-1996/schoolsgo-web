@@ -239,6 +239,7 @@ class RouteStopWiseStudent {
   String? sectionName;
   String? status;
   int? studentId;
+  String? rollNumber;
   String? studentName;
   Map<String, dynamic> __origJson = {};
 
@@ -256,6 +257,7 @@ class RouteStopWiseStudent {
     this.sectionName,
     this.status,
     this.studentId,
+    this.rollNumber,
     this.studentName,
   });
   RouteStopWiseStudent.fromJson(Map<String, dynamic> json) {
@@ -273,6 +275,7 @@ class RouteStopWiseStudent {
     sectionName = json['sectionName']?.toString();
     status = json['status']?.toString();
     studentId = json['studentId']?.toInt();
+    rollNumber = json['rollNumber']?.toString();
     studentName = json['studentName']?.toString();
   }
   Map<String, dynamic> toJson() {
@@ -290,6 +293,7 @@ class RouteStopWiseStudent {
     data['sectionName'] = sectionName;
     data['status'] = status;
     data['studentId'] = studentId;
+    data['rollNumber'] = rollNumber;
     data['studentName'] = studentName;
     return data;
   }
@@ -1503,4 +1507,156 @@ Future<CreateOrUpdateBusRouteDetailsResponse> createOrUpdateBusRouteDetails(
       CreateOrUpdateBusRouteDetailsResponse.fromJson(json.decode(response.body));
   print("CreateOrUpdateBusRouteDetailsResponse ${createOrUpdateBusRouteDetailsResponse.toJson()}");
   return createOrUpdateBusRouteDetailsResponse;
+}
+
+class StopWiseStudentUpdateBean {
+/*
+{
+  "newStopId": 0,
+  "oldStopId": 0,
+  "studentId": 0
+}
+*/
+
+  int? newStopId;
+  int? oldStopId;
+  int? studentId;
+  Map<String, dynamic> __origJson = {};
+
+  StopWiseStudentUpdateBean({
+    this.newStopId,
+    this.oldStopId,
+    this.studentId,
+  });
+  StopWiseStudentUpdateBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    newStopId = json['newStopId']?.toInt();
+    oldStopId = json['oldStopId']?.toInt();
+    studentId = json['studentId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['newStopId'] = newStopId;
+    data['oldStopId'] = oldStopId;
+    data['studentId'] = studentId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStopWiseStudentsAssignmentRequest {
+/*
+{
+  "agent": 0,
+  "schoolId": 0,
+  "stopWiseStudentBeans": [
+    {
+      "newStopId": 0,
+      "oldStopId": 0,
+      "studentId": 0
+    }
+  ]
+}
+*/
+
+  int? agent;
+  int? schoolId;
+  List<StopWiseStudentUpdateBean?>? stopWiseStudentBeans;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStopWiseStudentsAssignmentRequest({
+    this.agent,
+    this.schoolId,
+    this.stopWiseStudentBeans,
+  });
+  CreateOrUpdateStopWiseStudentsAssignmentRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    if (json['stopWiseStudentBeans'] != null) {
+      final v = json['stopWiseStudentBeans'];
+      final arr0 = <StopWiseStudentUpdateBean>[];
+      v.forEach((v) {
+        arr0.add(StopWiseStudentUpdateBean.fromJson(v));
+      });
+      stopWiseStudentBeans = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['schoolId'] = schoolId;
+    if (stopWiseStudentBeans != null) {
+      final v = stopWiseStudentBeans;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['stopWiseStudentBeans'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateStopWiseStudentsAssignmentResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateStopWiseStudentsAssignmentResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateStopWiseStudentsAssignmentResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateStopWiseStudentsAssignmentResponse> createOrUpdateStopWiseStudentsAssignment(
+    CreateOrUpdateStopWiseStudentsAssignmentRequest createOrUpdateStopWiseStudentsAssignmentRequest) async {
+  print(
+      "Raising request to createOrUpdateStopWiseStudentsAssignment with request ${jsonEncode(createOrUpdateStopWiseStudentsAssignmentRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STOP_WISE_STUDENTS_ASSIGNMENT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateStopWiseStudentsAssignmentRequest.toJson()),
+  );
+
+  CreateOrUpdateStopWiseStudentsAssignmentResponse createOrUpdateStopWiseStudentsAssignmentResponse =
+      CreateOrUpdateStopWiseStudentsAssignmentResponse.fromJson(json.decode(response.body));
+  print("CreateOrUpdateStopWiseStudentsAssignmentResponse ${createOrUpdateStopWiseStudentsAssignmentResponse.toJson()}");
+  return createOrUpdateStopWiseStudentsAssignmentResponse;
 }

@@ -855,53 +855,57 @@ class _AdminRouteManagementScreenState extends State<AdminRouteManagementScreen>
                   busStops[stepIndex].terminalName ?? "-",
                 ),
           subtitle: Container(),
-          content: Container(
-            margin: const EdgeInsets.all(8),
-            child: ClayContainer(
-              surfaceColor: clayContainerColor(context),
-              parentColor: clayContainerColor(context),
-              spread: 1,
-              borderRadius: 10,
-              depth: 40,
-              emboss: true,
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                          child: const Text("Pick up time:    "),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Container(
-                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                          child: const Text("Drop time:    "),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        stopWisePickUpTimeWidget(busStops, stepIndex, busRouteInfo.isEditMode),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        stopWiseDropTimeWidget(busStops, stepIndex, busRouteInfo.isEditMode),
-                      ],
-                    ),
-                  ],
+          content: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              child: ClayContainer(
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 10,
+                depth: 40,
+                emboss: true,
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                            child: const Text("Pick up time:    "),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                            child: const Text("Drop time:    "),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          stopWisePickUpTimeWidget(busStops, stepIndex, busRouteInfo.isEditMode),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          stopWiseDropTimeWidget(busStops, stepIndex, busRouteInfo.isEditMode),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
