@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
+import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +26,23 @@ class _LoginScreenState extends State<LoginScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: "480997552358-t9ir5mnb6t91gcemhdmdivh3a1uo3208.apps.googleusercontent.com",
   );
+
+  String? token = DateTime.now().millisecondsSinceEpoch.toString();
+
+  @override
+  void initState() {
+    super.initState();
+    loadFcmToken();
+  }
+
+  Future<void> loadFcmToken() async {
+    try {
+      token = await FirebaseMessaging.instance.getToken();
+      print("40: $token");
+    } catch (e) {
+      debugPrint("Exception occurred while trying to retrieve FCM Token, $e");
+    }
+  }
 
   Future<String?> signInWithGoogle() async {
     try {
@@ -159,6 +178,17 @@ class _LoginScreenState extends State<LoginScreen> {
             if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
               await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
             }
+            DoLoginResponse doLoginResponse = await doLogin(DoLoginRequest(
+              createOrUpdateFcmTokenRequest: CreateOrUpdateFcmTokenRequest(
+                fcmBean: FcmBean(
+                  userId: getUserDetailsResponse.userDetails!.first.userId!,
+                  fcmToken: token,
+                  fcmTokenId: null,
+                  requestedDevice: "web",
+                  userName: getUserDetailsResponse.userDetails!.first.firstName,
+                ),
+              ),
+            ));
             setState(() {
               _isLoading = false;
             });

@@ -60,9 +60,13 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     } else {
       print("64");
-      await FirebaseAuth.instance.signOut();
-      await _googleSignIn.signOut();
-      await _googleSignIn.disconnect();
+      try {
+        await FirebaseAuth.instance.signOut();
+        await _googleSignIn.signOut();
+        await _googleSignIn.disconnect();
+      } catch (e) {
+        print(e);
+      }
     }
 
     print("57:");

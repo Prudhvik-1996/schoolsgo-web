@@ -38,7 +38,8 @@ dependencies:
   shared_preferences: ^2.0.8
   http: ^0.13.4
   google_sign_in: ^5.1.1
-  firebase_core: ^1.7.0
+  firebase_messaging: ^11.2.6
+  flutter_local_notifications: ^9.2.0
   firebase_auth: ^1.2.0
 
   clay_containers: ^0.3.2
@@ -112,6 +113,7 @@ flutter:
     - assets/images/bus.svg
     - assets/images/bus_driver.svg
     - assets/images/timetable.svg
+    - assets/images/tracking.svg
     - assets/images/tick_icon.png
     - assets/images/logbook.svg
     - assets/images/cross_icon.png

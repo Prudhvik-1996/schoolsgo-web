@@ -12,6 +12,7 @@ String INR_SYMBOL = "₹";
 const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
+const String DO_LOGIN = "/auth/doLogin";
 
 const String REQUEST_OTP = "/auth/requestOtp";
 const String SEND_EMAIL = "/mailing/sendMail";
