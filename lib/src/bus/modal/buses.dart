@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
+import 'package:schoolsgo_web/src/common_components/map_widgets/modal/bus_lat_long.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 
 class GetDriversRequest {
@@ -745,11 +746,14 @@ class BusBaseDetails {
   String? regNo;
   int? routeId;
   int? schoolId;
+  String? schoolName;
   String? status;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController busNameController = TextEditingController();
   TextEditingController regNoController = TextEditingController();
+
+  BusLatLong? busLatLong;
 
   BusBaseDetails({
     this.busDriverId,
@@ -762,6 +766,7 @@ class BusBaseDetails {
     this.regNo,
     this.routeId,
     this.schoolId,
+    this.schoolName,
     this.status,
   }) {
     busNameController.text = busName ?? "";
@@ -781,6 +786,7 @@ class BusBaseDetails {
     regNoController.text = regNo ?? "";
     routeId = json['routeId']?.toInt();
     schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
     status = json['status']?.toString();
   }
   Map<String, dynamic> toJson() {
@@ -797,6 +803,7 @@ class BusBaseDetails {
     data['regNo'] = regNo;
     data['routeId'] = routeId;
     data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
     data['status'] = status;
     return data;
   }

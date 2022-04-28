@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_management_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_route_management.dart';
+import 'package:schoolsgo_web/src/bus/admin/admin_bus_tracking_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_stop_wise_student_assignment_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -113,6 +114,13 @@ class _AdminBusOptionsScreenState extends State<AdminBusOptionsScreen> {
             "Student - Bus Assignment",
             null,
             AdminStopWiseStudentAssignmentScreen(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getBusOption(
+            "Bus Tracking",
+            null,
+            AdminBusTrackingScreen(
               adminProfile: widget.adminProfile,
             ),
           ),

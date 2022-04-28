@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget defaultSplashScreen(BuildContext context) {
   return Scaffold(
-    body: ListView(
-      physics: const BouncingScrollPhysics(),
+    body: Column(
       children: [
         const SizedBox(
           height: 50,
@@ -33,11 +32,14 @@ Widget defaultSplashScreen(BuildContext context) {
         const SizedBox(
           height: 50,
         ),
-        Center(
-          child: Image.asset(
-            'assets/images/eis_loader.gif',
-            height: 500,
-            width: 500,
+        Expanded(
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+              ),
+            ),
           ),
         ),
         const SizedBox(
