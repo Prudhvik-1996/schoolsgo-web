@@ -630,24 +630,24 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         ],
       ),
     );
-    feeStats.add(
-      Row(
-        children: [
-          const Expanded(
-            child: Text(
-              "Wallet Balance:",
-            ),
-          ),
-          Text(
-            "$INR_SYMBOL ${((studentWiseAnnualFeesBean.walletBalance ?? 0) / 100).toStringAsFixed(2)}",
-            textAlign: TextAlign.end,
-            style: const TextStyle(
-              color: Colors.blue,
-            ),
-          ),
-        ],
-      ),
-    );
+    // feeStats.add(
+    //   Row(
+    //     children: [
+    //       const Expanded(
+    //         child: Text(
+    //           "Wallet Balance:",
+    //         ),
+    //       ),
+    //       Text(
+    //         "$INR_SYMBOL ${((studentWiseAnnualFeesBean.walletBalance ?? 0) / 100).toStringAsFixed(2)}",
+    //         textAlign: TextAlign.end,
+    //         style: const TextStyle(
+    //           color: Colors.blue,
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
     feeStats.add(
       Row(
         children: [

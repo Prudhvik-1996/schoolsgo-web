@@ -268,9 +268,9 @@ class _AdminStudentWiseReceiptScreenState extends State<AdminStudentWiseReceiptS
             )
           : ListView(
               children: [
-                SelectableText(
-                  "$studentWiseAnnualTransactionHistory",
-                ),
+                // SelectableText(
+                //   "$studentWiseAnnualTransactionHistory",
+                // ),
                 ..._dateWiseTransactions(),
               ],
             ),

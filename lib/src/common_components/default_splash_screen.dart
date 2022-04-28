@@ -53,6 +53,9 @@ Widget defaultSplashScreen(BuildContext context) {
             ),
           ),
         ),
+        const SizedBox(
+          height: 20,
+        ),
       ],
     ),
   );
