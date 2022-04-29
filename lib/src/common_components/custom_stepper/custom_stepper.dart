@@ -57,14 +57,14 @@ class CustomStep {
   const CustomStep({
     required this.title,
     this.subtitle,
-    required this.content,
+    this.content,
     this.state = StepState.indexed,
     this.isActive = false,
   });
 
   final Widget title;
   final Widget? subtitle;
-  final Widget content;
+  final Widget? content;
   final StepState state;
   final bool isActive;
 }
@@ -460,7 +460,7 @@ class _CustomStepperState extends State<CustomStepper> with TickerProviderStateM
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: widget.steps[index].content,
+                  child: widget.steps[index].content!,
                 ),
               ],
             ),
@@ -522,7 +522,7 @@ class _CustomStepperState extends State<CustomStepper> with TickerProviderStateM
                   ],
                 ),
               ),
-              _buildVerticalBody(i),
+              if (widget.steps[i].content != null) _buildVerticalBody(i),
             ],
           ),
       ],
@@ -567,13 +567,15 @@ class _CustomStepperState extends State<CustomStepper> with TickerProviderStateM
 
     final List<Widget> stepPanels = <Widget>[];
     for (int i = 0; i < widget.length; i += 1) {
-      stepPanels.add(
-        Visibility(
-          maintainState: true,
-          visible: i == widget.currentStep,
-          child: widget.steps[i].content,
-        ),
-      );
+      if (widget.steps[i].content != null) {
+        stepPanels.add(
+          Visibility(
+            maintainState: true,
+            visible: i == widget.currentStep,
+            child: widget.steps[i].content!,
+          ),
+        );
+      }
     }
 
     return Column(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetFeeTypesRequest {
 /*
@@ -932,6 +933,187 @@ class StudentAnnualFeeMapBean {
   Map<String, dynamic> origJson() => __origJson;
 }
 
+class StudentBusFeeLogBean {
+/*
+{
+  "fare": 0,
+  "rollNumber": "string",
+  "routeId": 0,
+  "routeName": "string",
+  "schoolId": 0,
+  "schoolName": "string",
+  "stopId": 0,
+  "stopName": "string",
+  "studentId": 0,
+  "studentName": "string",
+  "validFrom": "string",
+  "validThrough": "string"
+}
+*/
+
+  int? fare;
+  String? rollNumber;
+  int? routeId;
+  String? routeName;
+  int? schoolId;
+  String? schoolName;
+  int? stopId;
+  String? stopName;
+  int? studentId;
+  String? studentName;
+  String? validFrom;
+  String? validThrough;
+  Map<String, dynamic> __origJson = {};
+
+  StudentBusFeeLogBean({
+    this.fare,
+    this.rollNumber,
+    this.routeId,
+    this.routeName,
+    this.schoolId,
+    this.schoolName,
+    this.stopId,
+    this.stopName,
+    this.studentId,
+    this.studentName,
+    this.validFrom,
+    this.validThrough,
+  });
+  StudentBusFeeLogBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    fare = json['fare']?.toInt();
+    rollNumber = json['rollNumber']?.toString();
+    routeId = json['routeId']?.toInt();
+    routeName = json['routeName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    stopId = json['stopId']?.toInt();
+    stopName = json['stopName']?.toString();
+    studentId = json['studentId']?.toInt();
+    studentName = json['studentName']?.toString();
+    validFrom = json['validFrom']?.toString();
+    validThrough = json['validThrough']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['fare'] = fare;
+    data['rollNumber'] = rollNumber;
+    data['routeId'] = routeId;
+    data['routeName'] = routeName;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['stopId'] = stopId;
+    data['stopName'] = stopName;
+    data['studentId'] = studentId;
+    data['studentName'] = studentName;
+    data['validFrom'] = validFrom;
+    data['validThrough'] = validThrough;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class StudentBusFeeBean {
+/*
+{
+  "fare": 0,
+  "routeId": 0,
+  "routeName": "string",
+  "schoolId": 0,
+  "schoolName": "string",
+  "stopId": 0,
+  "stopName": "string",
+  "studentBusFeeLogBeans": [
+    {
+      "fare": 0,
+      "rollNumber": "string",
+      "routeId": 0,
+      "routeName": "string",
+      "schoolId": 0,
+      "schoolName": "string",
+      "stopId": 0,
+      "stopName": "string",
+      "studentId": 0,
+      "studentName": "string",
+      "validFrom": "string",
+      "validThrough": "string"
+    }
+  ],
+  "studentId": 0,
+  "studentName": "string"
+}
+*/
+
+  int? fare;
+  int? routeId;
+  String? routeName;
+  int? schoolId;
+  String? schoolName;
+  int? stopId;
+  String? stopName;
+  List<StudentBusFeeLogBean?>? studentBusFeeLogBeans;
+  int? studentId;
+  String? studentName;
+  Map<String, dynamic> __origJson = {};
+
+  StudentBusFeeBean({
+    this.fare,
+    this.routeId,
+    this.routeName,
+    this.schoolId,
+    this.schoolName,
+    this.stopId,
+    this.stopName,
+    this.studentBusFeeLogBeans,
+    this.studentId,
+    this.studentName,
+  });
+  StudentBusFeeBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    fare = json['fare']?.toInt();
+    routeId = json['routeId']?.toInt();
+    routeName = json['routeName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    stopId = json['stopId']?.toInt();
+    stopName = json['stopName']?.toString();
+    if (json['studentBusFeeLogBeans'] != null) {
+      final v = json['studentBusFeeLogBeans'];
+      final arr0 = <StudentBusFeeLogBean>[];
+      v.forEach((v) {
+        arr0.add(StudentBusFeeLogBean.fromJson(v));
+      });
+      studentBusFeeLogBeans = arr0;
+    }
+    studentId = json['studentId']?.toInt();
+    studentName = json['studentName']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['fare'] = fare;
+    data['routeId'] = routeId;
+    data['routeName'] = routeName;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['stopId'] = stopId;
+    data['stopName'] = stopName;
+    if (studentBusFeeLogBeans != null) {
+      final v = studentBusFeeLogBeans;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentBusFeeLogBeans'] = arr0;
+    }
+    data['studentId'] = studentId;
+    data['studentName'] = studentName;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
 class StudentWiseAnnualFeesBean {
 /*
 {
@@ -975,6 +1157,7 @@ class StudentWiseAnnualFeesBean {
   String? studentName;
   int? studentWalletBalance;
   String? rollNumber;
+  StudentBusFeeBean? studentBusFeeBean;
   Map<String, dynamic> __origJson = {};
 
   StudentWiseAnnualFeesBean({
@@ -987,6 +1170,7 @@ class StudentWiseAnnualFeesBean {
     this.studentName,
     this.studentWalletBalance,
     this.rollNumber,
+    this.studentBusFeeBean,
   });
   StudentWiseAnnualFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -1002,6 +1186,7 @@ class StudentWiseAnnualFeesBean {
       });
       studentAnnualFeeMapBeanList = arr0;
     }
+    studentBusFeeBean = (json['studentBusFeeBean'] != null) ? StudentBusFeeBean.fromJson(json['studentBusFeeBean']) : null;
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
     studentWalletBalance = json['studentWalletBalance']?.toInt();
@@ -1020,6 +1205,9 @@ class StudentWiseAnnualFeesBean {
         arr0.add(v!.toJson());
       }
       data['studentAnnualFeeMapBeanList'] = arr0;
+    }
+    if (studentBusFeeBean != null) {
+      data['studentBusFeeBean'] = studentBusFeeBean!.toJson();
     }
     data['studentId'] = studentId;
     data['studentName'] = studentName;
@@ -2747,4 +2935,140 @@ Future<CreateOrUpdateStudentFeePaidResponse> createOrUpdateStudentFeePaid(
       CreateOrUpdateStudentFeePaidResponse.fromJson(json.decode(response.body));
   print("CreateOrUpdateStudentFeePaidResponse ${createOrUpdateStudentFeePaidResponse.toJson()}");
   return createOrUpdateStudentFeePaidResponse;
+}
+
+class TransportFeeAssignmentTypeBean {
+/*
+{
+  "agent": 0,
+  "amount": 0,
+  "assignmentType": "string",
+  "schoolId": 0,
+  "status": "active",
+  "validFrom": "string",
+  "validThrough": "string"
+}
+*/
+
+  int? agent;
+  int? amount;
+  String? assignmentType;
+  int? schoolId;
+  String? status;
+  String? validFrom;
+  String? validThrough;
+  Map<String, dynamic> __origJson = {};
+
+  TextEditingController amountController = TextEditingController();
+
+  TransportFeeAssignmentTypeBean({
+    this.agent,
+    this.amount,
+    this.assignmentType,
+    this.schoolId,
+    this.status,
+    this.validFrom,
+    this.validThrough,
+  }) {
+    amountController.text = amount == null ? "" : doubleToStringAsFixed(amount! / 100, decimalPlaces: 2);
+  }
+  TransportFeeAssignmentTypeBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    amount = json['amount']?.toInt();
+    amountController.text = amount == null ? "" : doubleToStringAsFixed(amount! / 100, decimalPlaces: 2);
+    assignmentType = json['assignmentType']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    validFrom = json['validFrom']?.toString();
+    validThrough = json['validThrough']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['amount'] = amount;
+    data['assignmentType'] = assignmentType;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    data['validFrom'] = validFrom;
+    data['validThrough'] = validThrough;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetTransportFeeAssignmentTypeResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "transportFeeAssignmentTypeBean": {
+    "agent": 0,
+    "amount": 0,
+    "assignmentType": "string",
+    "schoolId": 0,
+    "status": "active",
+    "validFrom": "string",
+    "validThrough": "string"
+  }
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  TransportFeeAssignmentTypeBean? transportFeeAssignmentTypeBean;
+  Map<String, dynamic> __origJson = {};
+
+  GetTransportFeeAssignmentTypeResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.transportFeeAssignmentTypeBean,
+  });
+  GetTransportFeeAssignmentTypeResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    transportFeeAssignmentTypeBean =
+        (json['transportFeeAssignmentTypeBean'] != null) ? TransportFeeAssignmentTypeBean.fromJson(json['transportFeeAssignmentTypeBean']) : null;
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    if (transportFeeAssignmentTypeBean != null) {
+      data['transportFeeAssignmentTypeBean'] = transportFeeAssignmentTypeBean!.toJson();
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetTransportFeeAssignmentTypeResponse> getTransportFeeAssignmentType(
+    TransportFeeAssignmentTypeBean getTransportFeeAssignmentTypeRequest) async {
+  print("Raising request to getTransportFeeAssignmentType with request ${jsonEncode(getTransportFeeAssignmentTypeRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_TRANSPORT_FEE_ASSIGNMENT_TYPE;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getTransportFeeAssignmentTypeRequest.toJson()),
+  );
+
+  GetTransportFeeAssignmentTypeResponse getTransportFeeAssignmentTypeResponse =
+      GetTransportFeeAssignmentTypeResponse.fromJson(json.decode(response.body));
+  print("GetTransportFeeAssignmentTypeResponse ${getTransportFeeAssignmentTypeResponse.toJson()}");
+  return getTransportFeeAssignmentTypeResponse;
 }

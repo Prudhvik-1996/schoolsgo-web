@@ -15,8 +15,8 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/number_to_words.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class PayStudentFeeScreen extends StatefulWidget {
-  const PayStudentFeeScreen({
+class AdminPayStudentFeeScreen extends StatefulWidget {
+  const AdminPayStudentFeeScreen({
     Key? key,
     required this.adminProfile,
     required this.studentWiseAnnualFeesBean,
@@ -26,10 +26,10 @@ class PayStudentFeeScreen extends StatefulWidget {
   final StudentAnnualFeeBean studentWiseAnnualFeesBean;
 
   @override
-  _PayStudentFeeScreenState createState() => _PayStudentFeeScreenState();
+  _AdminPayStudentFeeScreenState createState() => _AdminPayStudentFeeScreenState();
 }
 
-class _PayStudentFeeScreenState extends State<PayStudentFeeScreen> {
+class _AdminPayStudentFeeScreenState extends State<AdminPayStudentFeeScreen> {
   bool _isLoading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 

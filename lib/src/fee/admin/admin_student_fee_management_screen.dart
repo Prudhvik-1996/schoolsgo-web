@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -13,6 +14,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_receipt_screen.da
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class AdminStudentFeeManagementScreen extends StatefulWidget {
   const AdminStudentFeeManagementScreen({
@@ -163,6 +165,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
   void generateStudentMap() {
     setState(() {
       studentAnnualFeeBeans = [];
+      studentWiseAnnualFeesBeans.sorted((a, b) => ((int.tryParse(a.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))));
       for (StudentWiseAnnualFeesBean eachAnnualFeeBean in studentWiseAnnualFeesBeans) {
         studentAnnualFeeBeans.add(
           StudentAnnualFeeBean(
@@ -174,6 +177,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             walletBalance: eachAnnualFeeBean.studentWalletBalance,
             sectionId: eachAnnualFeeBean.sectionId,
             sectionName: eachAnnualFeeBean.sectionName,
+            studentBusFeeBean: eachAnnualFeeBean.studentBusFeeBean,
             studentAnnualFeeTypeBeans: feeTypesForSelectedSection
                 .map(
                   (eachFeeType) => StudentAnnualFeeTypeBean(
@@ -247,6 +251,9 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
           ),
         );
       }
+      studentAnnualFeeBeans.sort(
+        (a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0),
+      );
     });
   }
 
@@ -587,6 +594,108 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       }
     }
 
+    if (studentWiseAnnualFeesBean.studentBusFeeBean != null) {
+      feeStats.add(Row(
+        children: [
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text("Bus Fee"),
+                const SizedBox(
+                  width: 10,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    showDialog<void>(
+                      context: _scaffoldKey.currentContext!,
+                      builder: (BuildContext dialogContext) {
+                        return AlertDialog(
+                          title: Text('Bus Fee for ${studentWiseAnnualFeesBean.studentBusFeeBean?.studentName ?? "-"}'),
+                          content: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.height * 0.8,
+                            child: ListView(
+                              children: studentWiseAnnualFeesBean.studentBusFeeBean?.studentBusFeeLogBeans
+                                      ?.map(
+                                        (e) => Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                '${e?.routeName ?? "-"}\n${e?.stopName}',
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text("${e?.validFrom}"),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text("${e?.validThrough}"),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text("$INR_SYMBOL ${e?.fare == null ? "-" : doubleToStringAsFixed(e!.fare! / 100)}"),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList() ??
+                                  [],
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Ok'),
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop(); // Dismiss alert dialog
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Icon(
+                    Icons.warning,
+                    color: Colors.orange,
+                    size: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            studentWiseAnnualFeesBean.studentBusFeeBean?.fare == null
+                ? "-"
+                : INR_SYMBOL + " " + doubleToStringAsFixed(studentWiseAnnualFeesBean.studentBusFeeBean!.fare! / 100),
+          ),
+        ],
+      ));
+      feeStats.add(
+        const SizedBox(
+          height: 15,
+        ),
+      );
+    }
+
     feeStats.add(
       const Divider(
         thickness: 1,
@@ -761,7 +870,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) {
-                                          return PayStudentFeeScreen(
+                                          return AdminPayStudentFeeScreen(
                                             studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
                                             adminProfile: widget.adminProfile,
                                           );
@@ -951,6 +1060,7 @@ class StudentAnnualFeeBean {
   String? studentName;
   String? rollNumber;
   List<StudentAnnualFeeTypeBean>? studentAnnualFeeTypeBeans;
+  StudentBusFeeBean? studentBusFeeBean;
   int? totalFee;
   int? totalFeePaid;
   int? walletBalance;
@@ -962,6 +1072,7 @@ class StudentAnnualFeeBean {
     this.studentName,
     this.rollNumber,
     this.studentAnnualFeeTypeBeans,
+    this.studentBusFeeBean,
     this.totalFee,
     this.totalFeePaid,
     this.walletBalance,
@@ -971,7 +1082,7 @@ class StudentAnnualFeeBean {
 
   @override
   String toString() {
-    return "\n{\n\t'studentId': $studentId, \n\t'studentName': $studentName, \n\t'rollNumber': $rollNumber, \n\t'studentAnnualFeeTypeBeans': $studentAnnualFeeTypeBeans, \n\t'totalFee': $totalFee, \n\t'totalFeePaid': $totalFeePaid\n\t'walletBalance': $walletBalance}";
+    return "\n{\n\t'studentId': $studentId, \n\t'studentName': $studentName, \n\t'rollNumber': $rollNumber, \n\t'studentAnnualFeeTypeBeans': $studentAnnualFeeTypeBeans, \n\t'studentBusFeeBean': $studentBusFeeBean, \n\t'totalFee': $totalFee, \n\t'totalFeePaid': $totalFeePaid\n\t'walletBalance': $walletBalance}";
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class BasicFeeStatsReadWidget extends StatelessWidget {
   const BasicFeeStatsReadWidget({
@@ -102,6 +103,108 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
           ),
         );
       }
+    }
+
+    if (studentWiseAnnualFeesBean.studentBusFeeBean != null) {
+      feeStats.add(Row(
+        children: [
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text("Bus Fee"),
+                const SizedBox(
+                  width: 10,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (BuildContext dialogContext) {
+                        return AlertDialog(
+                          title: Text('Bus Fee for ${studentWiseAnnualFeesBean.studentBusFeeBean?.studentName ?? "-"}'),
+                          content: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: MediaQuery.of(context).size.height * 0.8,
+                            child: ListView(
+                              children: studentWiseAnnualFeesBean.studentBusFeeBean?.studentBusFeeLogBeans
+                                      ?.map(
+                                        (e) => Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                '${e?.routeName ?? "-"}\n${e?.stopName}',
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text("${e?.validFrom}"),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text("${e?.validThrough}"),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text("$INR_SYMBOL ${e?.fare == null ? "-" : doubleToStringAsFixed(e!.fare! / 100)}"),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList() ??
+                                  [],
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Ok'),
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop(); // Dismiss alert dialog
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Icon(
+                    Icons.warning,
+                    color: Colors.orange,
+                    size: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            studentWiseAnnualFeesBean.studentBusFeeBean?.fare == null
+                ? "-"
+                : INR_SYMBOL + " " + doubleToStringAsFixed(studentWiseAnnualFeesBean.studentBusFeeBean!.fare! / 100),
+          ),
+        ],
+      ));
+      feeStats.add(
+        const SizedBox(
+          height: 15,
+        ),
+      );
     }
 
     feeStats.add(

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/common_components/map_widgets/modal/bus_lat_long.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetDriversRequest {
 /*
@@ -372,6 +373,10 @@ class BusRouteStop {
   String? terminalName;
   TextEditingController terminalNameController = TextEditingController();
   int? terminalNumber;
+
+  int? fare;
+  TextEditingController fareEditingController = TextEditingController();
+
   Map<String, dynamic> __origJson = {};
 
   BusRouteStop({
@@ -388,8 +393,10 @@ class BusRouteStop {
     this.students,
     this.terminalName,
     this.terminalNumber,
+    this.fare,
   }) {
     terminalNameController.text = terminalName ?? "";
+    fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
   BusRouteStop.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -414,6 +421,8 @@ class BusRouteStop {
     terminalName = json['terminalName']?.toString();
     terminalNameController.text = terminalName ?? "";
     terminalNumber = json['terminalNumber']?.toInt();
+    fare = json['fare']?.toInt();
+    fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -437,6 +446,7 @@ class BusRouteStop {
     }
     data['terminalName'] = terminalName;
     data['terminalNumber'] = terminalNumber;
+    data['fare'] = fare;
     return data;
   }
 
@@ -540,6 +550,10 @@ class BusRouteInfo {
   String? routeInChargeName;
   int? schoolId;
   String? status;
+
+  int? fare;
+  TextEditingController fareEditingController = TextEditingController();
+
   Map<String, dynamic> __origJson = {};
 
   BusRouteInfo({
@@ -559,8 +573,10 @@ class BusRouteInfo {
     this.routeInChargeName,
     this.schoolId,
     this.status,
+    this.fare,
   }) {
     routeNameController.text = busRouteName ?? "";
+    fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
   BusRouteInfo.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -588,6 +604,8 @@ class BusRouteInfo {
     routeInChargeName = json['routeInChargeName']?.toString();
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
+    fare = json['fare']?.toInt();
+    fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
 
   BusRouteInfo.deepCloneFromOriginalJson(BusRouteInfo busRouteInfo) {
@@ -614,6 +632,8 @@ class BusRouteInfo {
     busRouteInfo.routeInChargeName = busRouteInfo.__origJson['routeInChargeName']?.toString();
     busRouteInfo.schoolId = busRouteInfo.__origJson['schoolId']?.toInt();
     busRouteInfo.status = busRouteInfo.__origJson['status']?.toString();
+    busRouteInfo.fare = busRouteInfo.__origJson['fare']?.toInt();
+    busRouteInfo.fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
 
   Map<String, dynamic> toJson() {
@@ -641,6 +661,7 @@ class BusRouteInfo {
     data['routeInChargeName'] = routeInChargeName;
     data['schoolId'] = schoolId;
     data['status'] = status;
+    data['fare'] = fare;
     return data;
   }
 
@@ -1666,4 +1687,221 @@ Future<CreateOrUpdateStopWiseStudentsAssignmentResponse> createOrUpdateStopWiseS
       CreateOrUpdateStopWiseStudentsAssignmentResponse.fromJson(json.decode(response.body));
   print("CreateOrUpdateStopWiseStudentsAssignmentResponse ${createOrUpdateStopWiseStudentsAssignmentResponse.toJson()}");
   return createOrUpdateStopWiseStudentsAssignmentResponse;
+}
+
+class UpdateBusFaresRequest {
+/*
+{
+  "agent": 0,
+  "amount": 0,
+  "assignmentType": "string",
+  "routes": [
+    {
+      "agent": 0,
+      "busDriverId": 0,
+      "busDriverName": "string",
+      "busDriverProfilePhotoUrl": "string",
+      "busId": 0,
+      "busName": "string",
+      "busRouteId": 0,
+      "busRouteName": "string",
+      "busRouteStopsList": [
+        {
+          "agent": 0,
+          "busRouteStopId": 0,
+          "dropTime": {
+            "date": 0,
+            "day": 0,
+            "hours": 0,
+            "minutes": 0,
+            "month": 0,
+            "seconds": 0,
+            "time": 0,
+            "timezoneOffset": 0,
+            "year": 0
+          },
+          "fare": 0,
+          "latitude": 0,
+          "longitude": 0,
+          "pickUpTime": {
+            "date": 0,
+            "day": 0,
+            "hours": 0,
+            "minutes": 0,
+            "month": 0,
+            "seconds": 0,
+            "time": 0,
+            "timezoneOffset": 0,
+            "year": 0
+          },
+          "routeId": 0,
+          "routeName": "string",
+          "schoolId": 0,
+          "status": "active",
+          "students": [
+            {
+              "agent": 0,
+              "busDiverId": 0,
+              "busDriverName": "string",
+              "busId": 0,
+              "busName": "string",
+              "busStopId": 0,
+              "busStopName": "string",
+              "rollNumber": "string",
+              "routeId": 0,
+              "routeName": "string",
+              "sectionId": 0,
+              "sectionName": "string",
+              "status": "active",
+              "studentId": 0,
+              "studentName": "string"
+            }
+          ],
+          "terminalName": "string",
+          "terminalNumber": 0
+        }
+      ],
+      "fare": 0,
+      "noOfSeats": 0,
+      "rc": "string",
+      "regNo": "string",
+      "routeInChargeId": 0,
+      "routeInChargeName": "string",
+      "schoolId": 0,
+      "status": "active"
+    }
+  ],
+  "schoolId": 0,
+  "stopWiseStudents": [
+    {
+      "newStopId": 0,
+      "oldStopId": 0,
+      "studentId": 0
+    }
+  ]
+}
+*/
+
+  int? agent;
+  int? amount;
+  String? assignmentType;
+  List<BusRouteInfo?>? routes;
+  int? schoolId;
+  List<StopWiseStudentUpdateBean?>? stopWiseStudents;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateBusFaresRequest({
+    this.agent,
+    this.amount,
+    this.assignmentType,
+    this.routes,
+    this.schoolId,
+    this.stopWiseStudents,
+  });
+  UpdateBusFaresRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    amount = json['amount']?.toInt();
+    assignmentType = json['assignmentType']?.toString();
+    if (json['routes'] != null) {
+      final v = json['routes'];
+      final arr0 = <BusRouteInfo>[];
+      v.forEach((v) {
+        arr0.add(BusRouteInfo.fromJson(v));
+      });
+      routes = arr0;
+    }
+    schoolId = json['schoolId']?.toInt();
+    if (json['stopWiseStudents'] != null) {
+      final v = json['stopWiseStudents'];
+      final arr0 = <StopWiseStudentUpdateBean>[];
+      v.forEach((v) {
+        arr0.add(StopWiseStudentUpdateBean.fromJson(v));
+      });
+      stopWiseStudents = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['amount'] = amount;
+    data['assignmentType'] = assignmentType;
+    if (routes != null) {
+      final v = routes;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['routes'] = arr0;
+    }
+    data['schoolId'] = schoolId;
+    if (stopWiseStudents != null) {
+      final v = stopWiseStudents;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['stopWiseStudents'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class UpdateBusFaresResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateBusFaresResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  UpdateBusFaresResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<UpdateBusFaresResponse> updateBusFares(UpdateBusFaresRequest updateBusFaresRequest) async {
+  print("Raising request to updateBusFares with request ${jsonEncode(updateBusFaresRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + UPDATE_BUS_FARES;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(updateBusFaresRequest.toJson()),
+  );
+
+  UpdateBusFaresResponse updateBusFaresResponse = UpdateBusFaresResponse.fromJson(json.decode(response.body));
+  print("UpdateBusFaresResponse ${updateBusFaresResponse.toJson()}");
+  return updateBusFaresResponse;
 }

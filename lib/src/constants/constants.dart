@@ -111,3 +111,5 @@ const String CREATE_OR_UPDATE_BUSES_BASE_DETAILS = "/buses/createOrUpdateBus";
 const String GET_ROUTE_INFO = "/buses/getBusRouteDetails";
 const String CREATE_OR_UPDATE_BUS_ROUTE_DETAILS = "/buses/createOrUpdateBusRouteDetails";
 const String CREATE_OR_UPDATE_STOP_WISE_STUDENTS_ASSIGNMENT = "/buses/createOrUpdateStopWiseStudentsAssignment";
+const String UPDATE_BUS_FARES = "/buses/updateBusFares";
+const String GET_TRANSPORT_FEE_ASSIGNMENT_TYPE = "/buses/getTransportFeeAssignmentType";

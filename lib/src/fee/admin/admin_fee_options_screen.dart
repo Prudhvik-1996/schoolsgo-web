@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_assign_bus_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_assign_fee_type_to_sections_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_fee_types_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
@@ -111,6 +112,13 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
             ),
           ),
           _getTimeTableOption(
+            "Terms Management",
+            null,
+            AdminManageTermsScreen(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getTimeTableOption(
             "Student Fee Management",
             null,
             AdminStudentFeeManagementScreen(
@@ -118,9 +126,9 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
             ),
           ),
           _getTimeTableOption(
-            "Terms Management",
+            "Bus Fee Management",
             null,
-            AdminManageTermsScreen(
+            AdminAssignBusFeeScreen(
               adminProfile: widget.adminProfile,
             ),
           ),
