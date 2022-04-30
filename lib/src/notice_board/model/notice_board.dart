@@ -4,6 +4,17 @@ import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 
 class GetNoticeBoardRequest {
+/*
+{
+  "franchiseId": 0,
+  "limit": 0,
+  "newsId": 0,
+  "offset": 0,
+  "schoolId": 0
+}
+*/
+
+  int? franchiseId;
   int? limit;
   int? newsId;
   int? offset;
@@ -11,84 +22,132 @@ class GetNoticeBoardRequest {
   Map<String, dynamic> __origJson = {};
 
   GetNoticeBoardRequest({
+    this.franchiseId,
     this.limit,
     this.newsId,
     this.offset,
     this.schoolId,
   });
+
   GetNoticeBoardRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    limit = int.tryParse(json["limit"]?.toString() ?? '');
-    newsId = int.tryParse(json["newsId"]?.toString() ?? '');
-    offset = int.tryParse(json["offset"]?.toString() ?? '');
-    schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
+    franchiseId = json['franchiseId']?.toInt();
+    limit = json['limit']?.toInt();
+    newsId = json['newsId']?.toInt();
+    offset = json['offset']?.toInt();
+    schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data["limit"] = limit;
-    data["newsId"] = newsId;
-    data["offset"] = offset;
-    data["schoolId"] = schoolId;
+    final data = <String, dynamic>{};
+    data['franchiseId'] = franchiseId;
+    data['limit'] = limit;
+    data['newsId'] = newsId;
+    data['offset'] = offset;
+    data['schoolId'] = schoolId;
     return data;
   }
 
   Map<String, dynamic> origJson() => __origJson;
 }
 
-class NewsMediaBeans {
-  String? agent;
-  String? createTime;
+class NewsMediaBean {
+/*
+{
+  "agent": 0,
+  "branchCode": "string",
+  "city": "string",
+  "createTime": 0,
+  "description": "string",
+  "franchiseId": 0,
+  "franchiseName": "string",
+  "lastUpdated": 0,
+  "mediaId": 0,
+  "mediaType": "string",
+  "mediaUrl": "string",
+  "newsId": 0,
+  "newsMediaId": 0,
+  "schoolDisplayName": "string",
+  "schoolId": 0,
+  "status": "active"
+}
+*/
+
+  int? agent;
+  String? branchCode;
+  String? city;
+  int? createTime;
   String? description;
-  String? lastUpdated;
+  int? franchiseId;
+  String? franchiseName;
+  int? lastUpdated;
   int? mediaId;
   String? mediaType;
   String? mediaUrl;
   int? newsId;
   int? newsMediaId;
+  String? schoolDisplayName;
   int? schoolId;
   String? status;
   Map<String, dynamic> __origJson = {};
 
-  NewsMediaBeans({
+  NewsMediaBean({
     this.agent,
+    this.branchCode,
+    this.city,
     this.createTime,
     this.description,
+    this.franchiseId,
+    this.franchiseName,
     this.lastUpdated,
     this.mediaId,
     this.mediaType,
     this.mediaUrl,
     this.newsId,
     this.newsMediaId,
+    this.schoolDisplayName,
     this.schoolId,
     this.status,
   });
-  NewsMediaBeans.fromJson(Map<String, dynamic> json) {
+
+  NewsMediaBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    agent = json["agent"]?.toString();
-    createTime = json["createTime"]?.toString();
-    description = json["description"]?.toString();
-    lastUpdated = json["lastUpdated"]?.toString();
-    mediaId = int.tryParse(json["mediaId"]?.toString() ?? '');
-    mediaType = json["mediaType"]?.toString();
-    mediaUrl = json["mediaUrl"]?.toString();
-    newsId = int.tryParse(json["newsId"]?.toString() ?? '');
-    newsMediaId = int.tryParse(json["newsMediaId"]?.toString() ?? '');
-    schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
-    status = json["status"]?.toString();
+    agent = json['agent']?.toInt();
+    branchCode = json['branchCode']?.toString();
+    city = json['city']?.toString();
+    createTime = json['createTime']?.toInt();
+    description = json['description']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
+    lastUpdated = json['lastUpdated']?.toInt();
+    mediaId = json['mediaId']?.toInt();
+    mediaType = json['mediaType']?.toString();
+    mediaUrl = json['mediaUrl']?.toString();
+    newsId = json['newsId']?.toInt();
+    newsMediaId = json['newsMediaId']?.toInt();
+    schoolDisplayName = json['schoolDisplayName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data["agent"] = agent;
-    data["createTime"] = createTime;
-    data["description"] = description;
-    data["lastUpdated"] = lastUpdated;
-    data["mediaId"] = mediaId;
-    data["mediaType"] = mediaType;
-    data["mediaUrl"] = mediaUrl;
-    data["newsId"] = newsId;
-    data["newsMediaId"] = newsMediaId;
-    data["schoolId"] = schoolId;
-    data["status"] = status;
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['branchCode'] = branchCode;
+    data['city'] = city;
+    data['createTime'] = createTime;
+    data['description'] = description;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
+    data['lastUpdated'] = lastUpdated;
+    data['mediaId'] = mediaId;
+    data['mediaType'] = mediaType;
+    data['mediaUrl'] = mediaUrl;
+    data['newsId'] = newsId;
+    data['newsMediaId'] = newsMediaId;
+    data['schoolDisplayName'] = schoolDisplayName;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
     return data;
   }
 
@@ -111,66 +170,127 @@ class NewsMediaBeans {
 }
 
 class News {
-  String? agent;
-  String? createTime;
+/*
+{
+  "agent": 0,
+  "branchCode": "string",
+  "city": "string",
+  "createTime": 0,
+  "description": "string",
+  "franchiseId": 0,
+  "franchiseName": "string",
+  "lastUpdated": 0,
+  "newsId": 0,
+  "newsMediaBeans": [
+    {
+      "agent": 0,
+      "branchCode": "string",
+      "city": "string",
+      "createTime": 0,
+      "description": "string",
+      "franchiseId": 0,
+      "franchiseName": "string",
+      "lastUpdated": 0,
+      "mediaId": 0,
+      "mediaType": "string",
+      "mediaUrl": "string",
+      "newsId": 0,
+      "newsMediaId": 0,
+      "schoolDisplayName": "string",
+      "schoolId": 0,
+      "status": "active"
+    }
+  ],
+  "schoolDisplayName": "string",
+  "schoolId": 0,
+  "status": "active",
+  "title": "string"
+}
+*/
+
+  int? agent;
+  String? branchCode;
+  String? city;
+  int? createTime;
   String? description;
-  String? lastUpdated;
+  int? franchiseId;
+  String? franchiseName;
+  int? lastUpdated;
   int? newsId;
-  List<NewsMediaBeans?>? newsMediaBeans;
+  List<NewsMediaBean?>? newsMediaBeans;
+  String? schoolDisplayName;
   int? schoolId;
   String? status;
   String? title;
   Map<String, dynamic> __origJson = {};
+
   bool isEditMode = false;
 
   News({
     this.agent,
+    this.branchCode,
+    this.city,
     this.createTime,
     this.description,
+    this.franchiseId,
+    this.franchiseName,
     this.lastUpdated,
     this.newsId,
     this.newsMediaBeans,
+    this.schoolDisplayName,
     this.schoolId,
     this.status,
     this.title,
   });
+
   News.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    agent = json["agent"]?.toString();
-    createTime = json["createTime"]?.toString();
-    description = json["description"]?.toString();
-    lastUpdated = json["lastUpdated"]?.toString();
-    newsId = int.tryParse(json["newsId"]?.toString() ?? '');
-    if (json["newsMediaBeans"] != null && (json["newsMediaBeans"] is List)) {
-      final v = json["newsMediaBeans"];
-      final arr0 = <NewsMediaBeans>[];
+    agent = json['agent']?.toInt();
+    branchCode = json['branchCode']?.toString();
+    city = json['city']?.toString();
+    createTime = json['createTime']?.toInt();
+    description = json['description']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
+    lastUpdated = json['lastUpdated']?.toInt();
+    newsId = json['newsId']?.toInt();
+    if (json['newsMediaBeans'] != null) {
+      final v = json['newsMediaBeans'];
+      final arr0 = <NewsMediaBean>[];
       v.forEach((v) {
-        arr0.add(NewsMediaBeans.fromJson(v));
+        arr0.add(NewsMediaBean.fromJson(v));
       });
       newsMediaBeans = arr0;
     }
-    schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
-    status = json["status"]?.toString();
-    title = json["title"]?.toString();
+    schoolDisplayName = json['schoolDisplayName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    title = json['title']?.toString();
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data["agent"] = agent;
-    data["createTime"] = createTime;
-    data["description"] = description;
-    data["lastUpdated"] = lastUpdated;
-    data["newsId"] = newsId;
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['branchCode'] = branchCode;
+    data['city'] = city;
+    data['createTime'] = createTime;
+    data['description'] = description;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
+    data['lastUpdated'] = lastUpdated;
+    data['newsId'] = newsId;
     if (newsMediaBeans != null) {
       final v = newsMediaBeans;
       final arr0 = [];
       for (var v in v!) {
         arr0.add(v!.toJson());
       }
-      data["newsMediaBeans"] = arr0;
+      data['newsMediaBeans'] = arr0;
     }
-    data["schoolId"] = schoolId;
-    data["status"] = status;
-    data["title"] = title;
+    data['schoolDisplayName'] = schoolDisplayName;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    data['title'] = title;
     return data;
   }
 
@@ -193,16 +313,59 @@ class News {
 }
 
 class NoticeBoard {
+/*
+{
+  "news": [
+    {
+      "agent": 0,
+      "branchCode": "string",
+      "city": "string",
+      "createTime": 0,
+      "description": "string",
+      "franchiseId": 0,
+      "franchiseName": "string",
+      "lastUpdated": 0,
+      "newsId": 0,
+      "newsMediaBeans": [
+        {
+          "agent": 0,
+          "branchCode": "string",
+          "city": "string",
+          "createTime": 0,
+          "description": "string",
+          "franchiseId": 0,
+          "franchiseName": "string",
+          "lastUpdated": 0,
+          "mediaId": 0,
+          "mediaType": "string",
+          "mediaUrl": "string",
+          "newsId": 0,
+          "newsMediaId": 0,
+          "schoolDisplayName": "string",
+          "schoolId": 0,
+          "status": "active"
+        }
+      ],
+      "schoolDisplayName": "string",
+      "schoolId": 0,
+      "status": "active",
+      "title": "string"
+    }
+  ]
+}
+*/
+
   List<News?>? news;
   Map<String, dynamic> __origJson = {};
 
   NoticeBoard({
     this.news,
   });
+
   NoticeBoard.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    if (json["news"] != null && (json["news"] is List)) {
-      final v = json["news"];
+    if (json['news'] != null) {
+      final v = json['news'];
       final arr0 = <News>[];
       v.forEach((v) {
         arr0.add(News.fromJson(v));
@@ -210,15 +373,16 @@ class NoticeBoard {
       news = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final data = <String, dynamic>{};
     if (news != null) {
       final v = news;
       final arr0 = [];
       for (var v in v!) {
         arr0.add(v!.toJson());
       }
-      data["news"] = arr0;
+      data['news'] = arr0;
     }
     return data;
   }
@@ -227,6 +391,54 @@ class NoticeBoard {
 }
 
 class GetNoticeBoardResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "noticeBoard": {
+    "news": [
+      {
+        "agent": 0,
+        "branchCode": "string",
+        "city": "string",
+        "createTime": 0,
+        "description": "string",
+        "franchiseId": 0,
+        "franchiseName": "string",
+        "lastUpdated": 0,
+        "newsId": 0,
+        "newsMediaBeans": [
+          {
+            "agent": 0,
+            "branchCode": "string",
+            "city": "string",
+            "createTime": 0,
+            "description": "string",
+            "franchiseId": 0,
+            "franchiseName": "string",
+            "lastUpdated": 0,
+            "mediaId": 0,
+            "mediaType": "string",
+            "mediaUrl": "string",
+            "newsId": 0,
+            "newsMediaId": 0,
+            "schoolDisplayName": "string",
+            "schoolId": 0,
+            "status": "active"
+          }
+        ],
+        "schoolDisplayName": "string",
+        "schoolId": 0,
+        "status": "active",
+        "title": "string"
+      }
+    ]
+  },
+  "responseStatus": "success"
+}
+*/
+
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -241,35 +453,33 @@ class GetNoticeBoardResponse {
     this.noticeBoard,
     this.responseStatus,
   });
+
   GetNoticeBoardResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    errorCode = json["errorCode"]?.toString();
-    errorMessage = json["errorMessage"]?.toString();
-    httpStatus = json["httpStatus"]?.toString();
-    noticeBoard = (json["noticeBoard"] != null && (json["noticeBoard"] is Map))
-        ? NoticeBoard.fromJson(json["noticeBoard"])
-        : null;
-    responseStatus = json["responseStatus"]?.toString();
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    noticeBoard = (json['noticeBoard'] != null) ? NoticeBoard.fromJson(json['noticeBoard']) : null;
+    responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data["errorCode"] = errorCode;
-    data["errorMessage"] = errorMessage;
-    data["httpStatus"] = httpStatus;
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
     if (noticeBoard != null) {
-      data["noticeBoard"] = noticeBoard!.toJson();
+      data['noticeBoard'] = noticeBoard!.toJson();
     }
-    data["responseStatus"] = responseStatus;
+    data['responseStatus'] = responseStatus;
     return data;
   }
 
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetNoticeBoardResponse> getNoticeBoard(
-    GetNoticeBoardRequest getNoticeBoardRequest) async {
-  print(
-      "Raising request to getNoticeBoard with request ${jsonEncode(getNoticeBoardRequest.toJson())}");
+Future<GetNoticeBoardResponse> getNoticeBoard(GetNoticeBoardRequest getNoticeBoardRequest) async {
+  print("Raising request to getNoticeBoard with request ${jsonEncode(getNoticeBoardRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_NOTICE_BOARD;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -279,8 +489,7 @@ Future<GetNoticeBoardResponse> getNoticeBoard(
     body: jsonEncode(getNoticeBoardRequest.toJson()),
   );
 
-  GetNoticeBoardResponse getNoticeBoardResponse =
-      GetNoticeBoardResponse.fromJson(json.decode(response.body));
+  GetNoticeBoardResponse getNoticeBoardResponse = GetNoticeBoardResponse.fromJson(json.decode(response.body));
   print("GetNoticeBoardResponse ${getNoticeBoardResponse.toJson()}");
   return getNoticeBoardResponse;
 }
@@ -288,25 +497,27 @@ Future<GetNoticeBoardResponse> getNoticeBoard(
 class CreateOrUpdateNoticeBoardMediaRequest {
   String? agent;
   int? schoolId;
-  List<NewsMediaBeans>? newsMediaBeans;
+  List<NewsMediaBean>? newsMediaBeans;
 
   CreateOrUpdateNoticeBoardMediaRequest({
     this.agent,
     this.schoolId,
     this.newsMediaBeans,
   });
+
   CreateOrUpdateNoticeBoardMediaRequest.fromJson(Map<String, dynamic> json) {
     agent = json["agent"]?.toString();
     schoolId = json["schoolId"]?.toInt();
     if (json["newsMediaBeans"] != null && (json["newsMediaBeans"] is List)) {
       final v = json["newsMediaBeans"];
-      final arr0 = <NewsMediaBeans>[];
+      final arr0 = <NewsMediaBean>[];
       v.forEach((v) {
-        arr0.add(NewsMediaBeans.fromJson(v));
+        arr0.add(NewsMediaBean.fromJson(v));
       });
       newsMediaBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
@@ -345,14 +556,16 @@ class CreateOrUpdateNoticeBoardMediaResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateNoticeBoardMediaResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json["errorCode"]?.toString();
     errorMessage = json["errorMessage"]?.toString();
     httpStatus = json["httpStatus"]?.toString();
     responseStatus = json["responseStatus"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
     data["errorMessage"] = errorMessage;
     data["httpStatus"] = httpStatus;
@@ -362,10 +575,8 @@ class CreateOrUpdateNoticeBoardMediaResponse {
 }
 
 Future<CreateOrUpdateNoticeBoardMediaResponse> createOrUpdateNoticeBoardMedia(
-    CreateOrUpdateNoticeBoardMediaRequest
-        createOrUpdateNoticeBoardMediaRequest) async {
-  print(
-      "Raising request to createOrUpdateNoticeBoardMedia with request ${jsonEncode(createOrUpdateNoticeBoardMediaRequest.toJson())}");
+    CreateOrUpdateNoticeBoardMediaRequest createOrUpdateNoticeBoardMediaRequest) async {
+  print("Raising request to createOrUpdateNoticeBoardMedia with request ${jsonEncode(createOrUpdateNoticeBoardMediaRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_NOTICE_BOARD_MEDIA_BEANS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -375,12 +586,9 @@ Future<CreateOrUpdateNoticeBoardMediaResponse> createOrUpdateNoticeBoardMedia(
     body: jsonEncode(createOrUpdateNoticeBoardMediaRequest.toJson()),
   );
 
-  CreateOrUpdateNoticeBoardMediaResponse
-      createOrUpdateNoticeBoardMediaResponse =
-      CreateOrUpdateNoticeBoardMediaResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "CreateOrUpdateNoticeBoardMediaResponse ${createOrUpdateNoticeBoardMediaResponse.toJson()}");
+  CreateOrUpdateNoticeBoardMediaResponse createOrUpdateNoticeBoardMediaResponse =
+      CreateOrUpdateNoticeBoardMediaResponse.fromJson(json.decode(response.body));
+  print("CreateOrUpdateNoticeBoardMediaResponse ${createOrUpdateNoticeBoardMediaResponse.toJson()}");
   return createOrUpdateNoticeBoardMediaResponse;
 }
 
@@ -411,6 +619,7 @@ class CreateOrUpdateNoticeBoardRequest {
     this.status,
     this.title,
   });
+
   CreateOrUpdateNoticeBoardRequest.fromJson(Map<String, dynamic> json) {
     agentId = int.tryParse(json["agentId"]?.toString() ?? '');
     description = json["description"]?.toString();
@@ -419,8 +628,9 @@ class CreateOrUpdateNoticeBoardRequest {
     status = json["status"]?.toString();
     title = json["title"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["agentId"] = agentId;
     data["description"] = description;
     data["newsId"] = newsId;
@@ -455,6 +665,7 @@ class CreateOrUpdateNoticeBoardResponse {
     this.newsId,
     this.responseStatus,
   });
+
   CreateOrUpdateNoticeBoardResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json["errorCode"]?.toString();
     errorMessage = json["errorMessage"]?.toString();
@@ -462,8 +673,9 @@ class CreateOrUpdateNoticeBoardResponse {
     newsId = int.tryParse(json["newsId"]?.toString() ?? '');
     responseStatus = json["responseStatus"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
     data["errorMessage"] = errorMessage;
     data["httpStatus"] = httpStatus;
@@ -473,10 +685,8 @@ class CreateOrUpdateNoticeBoardResponse {
   }
 }
 
-Future<CreateOrUpdateNoticeBoardResponse> createOrUpdateNoticeBoard(
-    CreateOrUpdateNoticeBoardRequest createOrUpdateNoticeBoardRequest) async {
-  print(
-      "Raising request to createOrUpdateNoticeBoard with request ${jsonEncode(createOrUpdateNoticeBoardRequest.toJson())}");
+Future<CreateOrUpdateNoticeBoardResponse> createOrUpdateNoticeBoard(CreateOrUpdateNoticeBoardRequest createOrUpdateNoticeBoardRequest) async {
+  print("Raising request to createOrUpdateNoticeBoard with request ${jsonEncode(createOrUpdateNoticeBoardRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_NOTICE_BOARD;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -486,9 +696,7 @@ Future<CreateOrUpdateNoticeBoardResponse> createOrUpdateNoticeBoard(
     body: jsonEncode(createOrUpdateNoticeBoardRequest.toJson()),
   );
 
-  CreateOrUpdateNoticeBoardResponse createOrUpdateNoticeBoardResponse =
-      CreateOrUpdateNoticeBoardResponse.fromJson(json.decode(response.body));
-  print(
-      "CreateOrUpdateNoticeBoardResponse ${createOrUpdateNoticeBoardResponse.toJson()}");
+  CreateOrUpdateNoticeBoardResponse createOrUpdateNoticeBoardResponse = CreateOrUpdateNoticeBoardResponse.fromJson(json.decode(response.body));
+  print("CreateOrUpdateNoticeBoardResponse ${createOrUpdateNoticeBoardResponse.toJson()}");
   return createOrUpdateNoticeBoardResponse;
 }

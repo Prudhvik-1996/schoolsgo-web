@@ -33,6 +33,8 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
   late News newNews;
   bool _createNewNews = false;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -49,9 +51,9 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
         newsMediaBeans: [],
         status: "active",
         schoolId: widget.adminProfile.schoolId,
-        agent: widget.adminProfile.userId.toString(),
-        createTime: DateTime.now().millisecondsSinceEpoch.toString(),
-        lastUpdated: DateTime.now().millisecondsSinceEpoch.toString(),
+        agent: widget.adminProfile.userId,
+        createTime: DateTime.now().millisecondsSinceEpoch,
+        lastUpdated: DateTime.now().millisecondsSinceEpoch,
       );
     });
 
@@ -70,8 +72,8 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
 
   Future<void> _saveChanges(News eachNews) async {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
         return AlertDialog(
           title: Text(eachNews.status == "inactive"
               ? "Are you sure you want to delete the following news?"
@@ -106,14 +108,14 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     _isLoading = true;
                   });
                   bool _errorOccurred = false;
-                  List<NewsMediaBeans> _newsMediaBeansToBeEdited = [];
-                  List<NewsMediaBeans?> _originalNewsMediaBeans = _noticeBoardNews
+                  List<NewsMediaBean> _newsMediaBeansToBeEdited = [];
+                  List<NewsMediaBean?> _originalNewsMediaBeans = _noticeBoardNews
                       .map((News? e) => News.fromJson(e!.origJson()))
                       .map((News e) => e.newsMediaBeans)
-                      .expand((List<NewsMediaBeans?>? i) => i!)
+                      .expand((List<NewsMediaBean?>? i) => i!)
                       .toList();
-                  List<NewsMediaBeans?> _currentNewsMediaBeans =
-                      _noticeBoardNews.map((News? e) => e!.newsMediaBeans).expand((List<NewsMediaBeans?>? i) => i!).toList();
+                  List<NewsMediaBean?> _currentNewsMediaBeans =
+                      _noticeBoardNews.map((News? e) => e!.newsMediaBeans).expand((List<NewsMediaBean?>? i) => i!).toList();
 
                   for (var eachNewMediaBean in _currentNewsMediaBeans) {
                     if (!_originalNewsMediaBeans.contains(eachNewMediaBean)) {
@@ -200,8 +202,8 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
 
   Future<void> _saveNewNews() async {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
         return AlertDialog(
           title: const Text("Are you sure you want to submit changes for the following news?"),
           content: Container(
@@ -452,7 +454,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    convertEpochToDDMMYYYYEEEEHHMMAA(int.parse(eachNews.createTime!)),
+                    convertEpochToDDMMYYYYEEEEHHMMAA(eachNews.createTime!),
                     textAlign: TextAlign.end,
                   ),
                 ),
@@ -634,7 +636,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                                 try {
                                   UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
 
-                                  NewsMediaBeans newsMediaBean = NewsMediaBeans();
+                                  NewsMediaBean newsMediaBean = NewsMediaBean();
                                   newsMediaBean.newsId = eachNews.newsId;
                                   newsMediaBean.status = "active";
                                   newsMediaBean.mediaType = uploadFileResponse.mediaBean!.mediaType;
@@ -756,7 +758,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    "Last Updated: " + convertEpochToDDMMYYYYEEEEHHMMAA(int.parse(eachNews.createTime!)),
+                    "Last Updated: " + convertEpochToDDMMYYYYEEEEHHMMAA(eachNews.createTime!),
                     textAlign: TextAlign.end,
                   ),
                 ),
@@ -780,18 +782,30 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
         ..width = '300',
     );
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
         return AlertDialog(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                "${eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.description ?? eachNews.title}",
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Text(
+                  "${eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.description ?? eachNews.title}",
+                ),
+              ),
+              const SizedBox(
+                width: 10,
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
                   InkWell(
                     child: const Icon(Icons.download_rounded),
                     onTap: () {
@@ -803,6 +817,9 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       );
                     },
                   ),
+                  const SizedBox(
+                    width: 10,
+                  ),
                   InkWell(
                     child: const Icon(Icons.open_in_new),
                     onTap: () {
@@ -811,6 +828,9 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                         '_blank',
                       );
                     },
+                  ),
+                  const SizedBox(
+                    width: 10,
                   ),
                 ],
               )
@@ -873,6 +893,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Notice Board"),
         actions: [
@@ -945,7 +966,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                         ),
                         FloatingActionButton(
                           onPressed: () async {
-                            List<int> millisList = _noticeBoardNews.map((e) => int.parse(e!.createTime!)).toList();
+                            List<int> millisList = _noticeBoardNews.map((e) => e!.createTime!).toList();
                             millisList.sort((b, a) => a.compareTo(b));
                             List<String> _availableDates = millisList.map((e) => convertEpochToYYYYMMDD(e)).toList();
                             DateTime? _newDate = await showDatePicker(

@@ -453,6 +453,8 @@ class MegaAdminProfile {
   String? userName;
   Map<String, dynamic> __origJson = {};
 
+  List<AdminProfile>? adminProfiles;
+
   MegaAdminProfile({
     this.detailedAddress,
     this.franchiseContactInfo,
@@ -468,6 +470,7 @@ class MegaAdminProfile {
     this.city,
     this.userId,
     this.userName,
+    this.adminProfiles,
   });
   MegaAdminProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -533,6 +536,7 @@ class AdminProfile {
   String? schoolPhotoUrl;
   int? userId;
   String? adminPhotoUrl;
+  String? city;
 
   bool isMegaAdmin = false;
 
@@ -549,6 +553,7 @@ class AdminProfile {
     this.schoolPhotoUrl,
     this.userId,
     this.adminPhotoUrl,
+    this.city,
     required this.isMegaAdmin,
   });
   AdminProfile.fromJson(Map<String, dynamic> json) {

@@ -1,10 +1,12 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/dashboard_widgets.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/auth.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
@@ -17,13 +19,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MegaAdminHomePage extends StatefulWidget {
   MegaAdminHomePage({
     Key? key,
-    required this.megaAdminProfiles,
-    required this.franchiseName,
+    required this.megaAdminProfile,
   }) : super(key: key);
 
-  static const String routeName = 'mega_admin';
-  List<MegaAdminProfile> megaAdminProfiles;
-  String? franchiseName;
+  static const String routeName = 'mega_admin_dashboard';
+  final MegaAdminProfile megaAdminProfile;
 
   @override
   _MegaAdminHomePageState createState() => _MegaAdminHomePageState();
@@ -42,6 +42,8 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -104,11 +106,89 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
             )
           : canGoToDashBoard
               ? ListView(
-                  children: widget.megaAdminProfiles
-                      .map(
-                        (MegaAdminProfile eachMegaAdminProfile) => buildMegaAdminButton(context, eachMegaAdminProfile),
-                      )
-                      .toList(),
+                  physics: const BouncingScrollPhysics(),
+                  controller: ScrollController(),
+                  children: [
+                    EisStandardHeader(
+                      title: ClayText(
+                        "Mega Admin Dashboard",
+                        size: 32,
+                        textColor: Colors.blueGrey,
+                        spread: 2,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
+                      child: GridView.count(
+                        primary: false,
+                        padding: const EdgeInsets.all(1.5),
+                        crossAxisCount: count,
+                        childAspectRatio: 1,
+                        mainAxisSpacing: 1.0,
+                        crossAxisSpacing: 1.0,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: megaAdminDashBoardWidgets(widget.megaAdminProfile)
+                            .map(
+                              (e) => GestureDetector(
+                                onTap: () {
+                                  print("Entering ${e.routeName}");
+                                  Navigator.pushNamed(
+                                    context,
+                                    e.routeName!,
+                                    arguments: e.argument as MegaAdminProfile,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  margin: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 7.0 : 0.0),
+                                  child: ClayButton(
+                                    depth: 40,
+                                    surfaceColor: clayContainerColor(context),
+                                    parentColor: clayContainerColor(context),
+                                    spread: 1,
+                                    borderRadius: 10,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Expanded(
+                                          flex: 3,
+                                          child: Container(
+                                            height: 50,
+                                            width: 50,
+                                            padding: const EdgeInsets.all(5),
+                                            child: FittedBox(
+                                              fit: BoxFit.contain,
+                                              child: Center(
+                                                child: e.image,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Container(
+                                            height: 20,
+                                            padding: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 2),
+                                            width: double.infinity,
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Center(
+                                                child: Text("${e.title}"),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ), //new Cards()
+                            )
+                            .toList(),
+                        shrinkWrap: true,
+                      ),
+                    ),
+                  ],
                 )
               : goToSignUpPage
                   ? signUpPin()
@@ -191,7 +271,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userDetails.GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(
       userDetails.UserDetails(
-        userId: widget.megaAdminProfiles.first.userId,
+        userId: widget.megaAdminProfile.userId,
       ),
     );
     if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
@@ -214,11 +294,11 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
       _isLoading = true;
     });
     GenerateOtpRequest generateOtpRequest = GenerateOtpRequest(
-      userId: widget.megaAdminProfiles.first.userId,
+      userId: widget.megaAdminProfile.userId,
       channel: "WEB",
       deviceName: "-",
       otpType: "SIGNUP",
-      requestedEmail: widget.megaAdminProfiles.first.mailId,
+      requestedEmail: widget.megaAdminProfile.mailId,
     );
     GenerateOtpResponse generateOtpResponse = await generateOtp(generateOtpRequest);
     if (generateOtpResponse.httpStatus != "OK" || generateOtpResponse.responseStatus != "success") {
@@ -238,7 +318,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           html: true,
         ),
         recieverEmailIds: [
-          widget.megaAdminProfiles.first.mailId,
+          widget.megaAdminProfile.mailId,
         ],
       );
       SendEmailResponse sendEmailResponse = await sendEmail(sendEmailRequest);
@@ -285,7 +365,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           children: [
             Expanded(
               child: Text(
-                (widget.megaAdminProfiles.first.userName ?? "-").trim(),
+                (widget.megaAdminProfile.userName ?? "-").trim(),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -316,7 +396,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Expanded(
-              child: Text(widget.megaAdminProfiles.first.franchiseName ?? "-"),
+              child: Text(widget.megaAdminProfile.franchiseName ?? "-"),
             ),
           ],
         ),
@@ -538,7 +618,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
                   margin: const EdgeInsets.all(8),
                   child: Center(
                     child: Text(
-                      "An OTP has been sent to your registered Email Id, ${widget.megaAdminProfiles.first.mailId}",
+                      "An OTP has been sent to your registered Email Id, ${widget.megaAdminProfile.mailId}",
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 12,
@@ -619,8 +699,8 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
         });
         if (e == newPin && e.length == 4) {
           UpdateUserFourDigitPinResponse updateUserFourDigitPinResponse = await updateUserFourDigitPin(UpdateUserFourDigitPinRequest(
-            agent: widget.megaAdminProfiles.first.userId,
-            userId: widget.megaAdminProfiles.first.userId,
+            agent: widget.megaAdminProfile.userId,
+            userId: widget.megaAdminProfile.userId,
             newFourDigitPin: e,
           ));
           if (updateUserFourDigitPinResponse.httpStatus != "OK" || updateUserFourDigitPinResponse.responseStatus != "success") {

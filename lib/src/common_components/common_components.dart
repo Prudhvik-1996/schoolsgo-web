@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
+import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/settings/settings_view.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
@@ -582,6 +583,180 @@ class AdminAppDrawer extends Drawer {
   }
 }
 
+class MegaAdminAppDrawer extends Drawer {
+  const MegaAdminAppDrawer({Key? key, required this.megaAdminProfile}) : super(key: key);
+
+  final MegaAdminProfile megaAdminProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<DashboardWidget<MegaAdminProfile>> dashBoardWidgets = megaAdminDashBoardWidgets(megaAdminProfile);
+    return Container(
+      color: Theme.of(context).backgroundColor,
+      width: MediaQuery.of(context).orientation == Orientation.landscape ? 255 : 255,
+      child: ListView(
+        restorationId: 'DefaultAppDrawer',
+        children: <Widget>[
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: InkWell(
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        '${megaAdminProfile.userName}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.home),
+                  onTap: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      MegaAdminHomePage.routeName,
+                      (route) => route.isFirst,
+                      arguments: megaAdminProfile,
+                    );
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.settings),
+                  onTap: () {
+                    Navigator.restorablePushNamed(context, SettingsView.routeName);
+                  },
+                ),
+              ),
+              const Divider(),
+            ] +
+            dashBoardWidgets
+                .map(
+                  (e) => e.subWidgets == null || e.subWidgets!.isEmpty
+                      ? [
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                            child: ListTile(
+                              leading: SizedBox(
+                                height: 25,
+                                width: 25,
+                                child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: e.image,
+                                ),
+                              ),
+                              title: Text(
+                                "${e.title}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              onTap: () {
+                                print("Entering ${e.routeName}");
+                                Navigator.pushNamed(
+                                  context,
+                                  e.routeName!,
+                                  arguments: e.argument as AdminProfile,
+                                );
+                              },
+                            ),
+                          ),
+                          const Divider(),
+                        ]
+                      : [
+                          ExpansionTile(
+                              title: ListTile(
+                                leading: SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: e.image,
+                                  ),
+                                ),
+                                title: Text(
+                                  "${e.title}",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              children: e.subWidgets!
+                                  .map(
+                                    (e1) => [
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                        child: ListTile(
+                                          leading: const SizedBox(
+                                            height: 25,
+                                            width: 25,
+                                            child: Icon(Icons.format_list_bulleted),
+                                          ),
+                                          title: Text(
+                                            "${e1.title}",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                              context,
+                                              e1.routeName!,
+                                              arguments: e1.argument,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const Divider()
+                                    ],
+                                  )
+                                  .expand((i) => i)
+                                  .toList()),
+                          const Divider(),
+                        ],
+                )
+                .expand((i) => i)
+                .toList(),
+      ),
+    );
+  }
+}
+
 class EisStandardHeader extends StatelessWidget {
   const EisStandardHeader({Key? key, required this.title}) : super(key: key);
 
@@ -677,10 +852,10 @@ StatelessWidget buildRoleButtonForAppBar(BuildContext context, Object profile) {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "${profile is TeacherProfile ? profile.firstName : profile is StudentProfile ? profile.studentFirstName : profile is AdminProfile ? profile.firstName : ""}",
+                        "${profile is TeacherProfile ? profile.firstName : profile is StudentProfile ? profile.studentFirstName : profile is AdminProfile ? profile.firstName : profile is MegaAdminProfile ? profile.userName : ""}",
                       ),
                       Text(
-                        "${profile is TeacherProfile ? profile.schoolName : profile is StudentProfile ? profile.schoolName : profile is AdminProfile ? profile.schoolName : ""}",
+                        "${profile is TeacherProfile ? profile.schoolName : profile is StudentProfile ? profile.schoolName : profile is AdminProfile ? profile.schoolName : profile is MegaAdminProfile ? profile.franchiseName : ""}",
                       ),
                     ],
                   ),

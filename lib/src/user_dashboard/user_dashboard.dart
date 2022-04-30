@@ -135,10 +135,33 @@ class _UserDashboardState extends State<UserDashboard> {
               arguments: profile as TeacherProfile,
             );
           } else if (role == "Mega Admin") {
+            MegaAdminProfile x = (profile as List<MegaAdminProfile>).first;
+            MegaAdminProfile megaAdminProfile = MegaAdminProfile(
+                franchiseId: x.franchiseId,
+                userName: x.userName,
+                userId: x.userId,
+                mailId: x.mailId,
+                franchiseContactInfo: x.franchiseContactInfo,
+                franchiseName: x.franchiseName,
+                roleDescription: "Mega Admin",
+                roleId: x.roleId,
+                roleName: x.roleName,
+                adminProfiles: profile
+                    .map((e) => AdminProfile(
+                          schoolId: e.schoolId,
+                          schoolName: e.schoolName,
+                          userId: e.userId,
+                          firstName: e.userName,
+                          mailId: e.mailId,
+                          schoolPhotoUrl: e.schoolPhotoUrl,
+                          city: e.city,
+                          isMegaAdmin: true,
+                        ))
+                    .toList());
             Navigator.pushNamed(
               context,
               MegaAdminHomePage.routeName,
-              arguments: [(profile as List<MegaAdminProfile>), schoolName],
+              arguments: megaAdminProfile,
             );
           }
         },

@@ -10,8 +10,11 @@ import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_resu
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
+import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
+import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
+import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_dashboard/admin_dashboard.dart';
@@ -194,12 +197,17 @@ class _MyAppState extends State<MyApp> {
                     if (routeSettings.arguments == null) {
                       return const SplashScreen();
                     }
-                    var arguments = (routeSettings.arguments! as List<Object>);
-                    var adminProfiles = arguments[0] as List<MegaAdminProfile>;
-                    var franchiseName = arguments[1] as String;
+                    var megaAdminProfile = routeSettings.arguments as MegaAdminProfile;
                     return MegaAdminHomePage(
-                      megaAdminProfiles: adminProfiles,
-                      franchiseName: franchiseName,
+                      megaAdminProfile: megaAdminProfile,
+                    );
+                  case MegaAdminAllSchoolsPage.routeName:
+                    if (routeSettings.arguments == null) {
+                      return const SplashScreen();
+                    }
+                    var megaAdminProfile = routeSettings.arguments as MegaAdminProfile;
+                    return MegaAdminAllSchoolsPage(
+                      megaAdminProfile: megaAdminProfile,
                     );
                   case StudentProfileScreen.routeName:
                     try {
@@ -213,6 +221,15 @@ class _MyAppState extends State<MyApp> {
                         return AdminProfileScreen(
                           adminProfile: adminProfile,
                         );
+                      } else if (routeSettings.arguments is MegaAdminProfile) {
+                        try {
+                          var argument = (routeSettings.arguments as MegaAdminProfile);
+                          return MegaAdminProfileScreen(
+                            megaAdminProfile: argument,
+                          );
+                        } catch (e) {
+                          return const E404NotFoundScreen();
+                        }
                       } else {
                         var argument = (routeSettings.arguments as StudentProfile);
                         return StudentProfileScreen(
@@ -398,6 +415,15 @@ class _MyAppState extends State<MyApp> {
                         var argument = (routeSettings.arguments as TeacherProfile);
                         return TeacherNoticeBoardView(
                           teacherProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else if (routeSettings.arguments is MegaAdminProfile) {
+                      try {
+                        var argument = (routeSettings.arguments as MegaAdminProfile);
+                        return MegaAdminNoticeBoardScreen(
+                          megaAdminProfile: argument,
                         );
                       } catch (e) {
                         return const E404NotFoundScreen();

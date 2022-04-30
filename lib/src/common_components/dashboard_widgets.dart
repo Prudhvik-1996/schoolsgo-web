@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
+import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
@@ -15,6 +16,7 @@ class DashboardWidget<T> {
     this.argument,
     this.subWidgets,
   });
+
   Widget? image;
   String? title;
   String? routeName;
@@ -26,6 +28,7 @@ class AdminRouteWithParams<T> {
   AdminProfile adminProfile;
   String? routeName;
   List<T>? params;
+
   AdminRouteWithParams({
     required this.adminProfile,
     this.routeName,
@@ -393,5 +396,25 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         argument: adminProfile,
       ),
     ];
-
 // Profile, Notice Board, Diary, Time table, Attendance, Exam, Study Material, Events, Online Class Room, Feedback, Suggestion Box, Fee, Demo
+
+List<DashboardWidget<MegaAdminProfile>> megaAdminDashBoardWidgets(MegaAdminProfile megaAdminProfile) => [
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/profile.svg"),
+        title: "Profile",
+        routeName: "/profile",
+        argument: megaAdminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        title: "Notice Board",
+        routeName: StudentNoticeBoardView.routeName,
+        argument: megaAdminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/school.svg"),
+        title: "All schools",
+        routeName: MegaAdminAllSchoolsPage.routeName,
+        argument: megaAdminProfile,
+      ),
+    ];

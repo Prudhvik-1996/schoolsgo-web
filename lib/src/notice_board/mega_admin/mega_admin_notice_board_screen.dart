@@ -1,32 +1,31 @@
 import 'dart:html';
 import 'dart:ui' as ui;
 
-import 'package:clay_containers/clay_containers.dart';
+import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/notice_board/model/notice_board.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../model/notice_board.dart';
-
-class TeacherNoticeBoardView extends StatefulWidget {
-  const TeacherNoticeBoardView({
+class MegaAdminNoticeBoardScreen extends StatefulWidget {
+  const MegaAdminNoticeBoardScreen({
     Key? key,
-    required this.teacherProfile,
+    required this.megaAdminProfile,
   }) : super(key: key);
 
-  final TeacherProfile teacherProfile;
+  static const String routeName = '/noticeboard';
 
-  static const routeName = "/noticeboard";
+  final MegaAdminProfile megaAdminProfile;
 
   @override
-  _TeacherNoticeBoardViewState createState() => _TeacherNoticeBoardViewState();
+  State<MegaAdminNoticeBoardScreen> createState() => _MegaAdminNoticeBoardScreenState();
 }
 
-class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
+class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen> {
   bool _isLoading = true;
 
   List<News?> _noticeBoardNews = [];
@@ -46,7 +45,11 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
       _isLoading = true;
     });
 
-    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(schoolId: widget.teacherProfile.schoolId));
+    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(
+      GetNoticeBoardRequest(
+        franchiseId: widget.megaAdminProfile.franchiseId,
+      ),
+    );
 
     if (getNoticeBoardResponse.httpStatus == 'OK' && getNoticeBoardResponse.responseStatus == 'success') {
       setState(() {
@@ -172,14 +175,15 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
             Container(
               padding: const EdgeInsets.all(20),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: Text(
-                      convertEpochToDDMMYYYYEEEEHHMMAA(eachNews.createTime!),
-                      textAlign: TextAlign.end,
-                    ),
+                    child: Text("${eachNews.schoolDisplayName}${eachNews.branchCode == null ? "" : "- " + eachNews.branchCode!}"),
+                  ),
+                  Text(
+                    convertEpochToDDMMYYYYEEEEHHMMAA(eachNews.createTime!),
+                    textAlign: TextAlign.end,
                   ),
                 ],
               ),
@@ -313,11 +317,11 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
       appBar: AppBar(
         title: const Text("Notice Board"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.teacherProfile),
+          buildRoleButtonForAppBar(context, widget.megaAdminProfile),
         ],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
+      drawer: MegaAdminAppDrawer(
+        megaAdminProfile: widget.megaAdminProfile,
       ),
       body: _isLoading
           ? Center(

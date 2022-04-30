@@ -33,6 +33,8 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
   final ItemScrollController _itemScrollController = ItemScrollController();
   bool _isReverse = false;
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -175,7 +177,7 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
                 children: [
                   Expanded(
                     child: Text(
-                      convertEpochToDDMMYYYYEEEEHHMMAA(int.parse(eachNews.createTime!)),
+                      convertEpochToDDMMYYYYEEEEHHMMAA(eachNews.createTime!),
                       textAlign: TextAlign.end,
                     ),
                   ),
@@ -200,18 +202,30 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
         ..width = '300',
     );
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
         return AlertDialog(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                "${eachNews.newsMediaBeans![index]!.description ?? eachNews.title}",
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Text(
+                  "${eachNews.newsMediaBeans![index]!.description ?? eachNews.title}",
+                ),
+              ),
+              const SizedBox(
+                width: 10,
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
                   InkWell(
                     child: const Icon(Icons.download_rounded),
                     onTap: () {
@@ -221,6 +235,9 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
                       );
                     },
                   ),
+                  const SizedBox(
+                    width: 10,
+                  ),
                   InkWell(
                     child: const Icon(Icons.open_in_new),
                     onTap: () {
@@ -229,6 +246,9 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
                         '_blank',
                       );
                     },
+                  ),
+                  const SizedBox(
+                    width: 10,
                   ),
                 ],
               )
@@ -289,6 +309,7 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Notice Board"),
         actions: [
@@ -330,7 +351,7 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
           ),
           FloatingActionButton(
             onPressed: () async {
-              List<int> millisList = _noticeBoardNews.map((e) => int.parse(e!.createTime!)).toList();
+              List<int> millisList = _noticeBoardNews.map((e) => e!.createTime!).toList();
               millisList.sort((b, a) => a.compareTo(b));
               List<String> _availableDates = millisList.map((e) => convertEpochToYYYYMMDD(e)).toList();
               DateTime? _newDate = await showDatePicker(
