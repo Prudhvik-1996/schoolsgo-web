@@ -51,13 +51,17 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
         newsMediaBeans: [],
         status: "active",
         schoolId: widget.adminProfile.schoolId,
+        franchiseId: widget.adminProfile.franchiseId,
         agent: widget.adminProfile.userId,
         createTime: DateTime.now().millisecondsSinceEpoch,
         lastUpdated: DateTime.now().millisecondsSinceEpoch,
       );
     });
 
-    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(schoolId: widget.adminProfile.schoolId));
+    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(
+      schoolId: widget.adminProfile.schoolId,
+      franchiseId: widget.adminProfile.franchiseId,
+    ));
 
     if (getNoticeBoardResponse.httpStatus == 'OK' && getNoticeBoardResponse.responseStatus == 'success') {
       setState(() {
@@ -241,6 +245,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       schoolId: newNews.schoolId,
                       description: newNews.description,
                       agentId: widget.adminProfile.userId,
+                      franchiseId: widget.adminProfile.franchiseId,
                       status: newNews.status,
                       title: newNews.title,
                       newsId: newNews.newsId,
@@ -956,15 +961,6 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       tooltip: "More Options",
                       expandedWidgets: [
                         FloatingActionButton(
-                          onPressed: () {
-                            setState(() {
-                              _isReverse = !_isReverse;
-                            });
-                          },
-                          tooltip: "Sort",
-                          child: const Icon(Icons.sort_by_alpha),
-                        ),
-                        FloatingActionButton(
                           onPressed: () async {
                             List<int> millisList = _noticeBoardNews.map((e) => e!.createTime!).toList();
                             millisList.sort((b, a) => a.compareTo(b));
@@ -989,7 +985,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                             });
                           },
                           tooltip: "Search",
-                          child: const Icon(Icons.search),
+                          child: const Icon(Icons.calendar_today),
                         ),
                         if (_noticeBoardNews.where((e) => e!.newsId == null).isEmpty)
                           FloatingActionButton(

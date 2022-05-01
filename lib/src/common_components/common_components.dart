@@ -595,7 +595,7 @@ class MegaAdminAppDrawer extends Drawer {
       color: Theme.of(context).backgroundColor,
       width: MediaQuery.of(context).orientation == Orientation.landscape ? 255 : 255,
       child: ListView(
-        restorationId: 'DefaultAppDrawer',
+        restorationId: 'MegaAdminAppDrawer',
         children: <Widget>[
               DrawerHeader(
                 decoration: const BoxDecoration(

@@ -153,6 +153,8 @@ class TeacherProfile {
   int? teacherId;
   String? teacherName;
   String? teacherPhotoUrl;
+  int? franchiseId;
+  String? franchiseName;
   Map<String, dynamic> __origJson = {};
 
   TeacherProfile({
@@ -171,6 +173,8 @@ class TeacherProfile {
     this.teacherId,
     this.teacherName,
     this.teacherPhotoUrl,
+    this.franchiseId,
+    this.franchiseName,
   });
   TeacherProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -189,6 +193,8 @@ class TeacherProfile {
     teacherId = json['teacherId']?.toInt();
     teacherName = json['teacherName']?.toString();
     teacherPhotoUrl = json['teacherPhotoUrl']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -207,6 +213,8 @@ class TeacherProfile {
     data['teacherId'] = teacherId;
     data['teacherName'] = teacherName;
     data['teacherPhotoUrl'] = teacherPhotoUrl;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
     return data;
   }
 
@@ -267,6 +275,8 @@ class StudentProfile {
   String? studentMiddleName;
   String? studentMobile;
   String? studentPhotoUrl;
+  int? franchiseId;
+  String? franchiseName;
   Map<String, dynamic> __origJson = {};
 
   StudentProfile({
@@ -294,6 +304,8 @@ class StudentProfile {
     this.studentMiddleName,
     this.studentMobile,
     this.studentPhotoUrl,
+    this.franchiseId,
+    this.franchiseName,
   });
   StudentProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -321,6 +333,8 @@ class StudentProfile {
     studentMiddleName = json['studentMiddleName']?.toString();
     studentMobile = json['studentMobile']?.toString();
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -348,6 +362,8 @@ class StudentProfile {
     data['studentMiddleName'] = studentMiddleName;
     data['studentMobile'] = studentMobile;
     data['studentPhotoUrl'] = studentPhotoUrl;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
     return data;
   }
 
@@ -449,6 +465,7 @@ class MegaAdminProfile {
   String? schoolName;
   String? schoolPhotoUrl;
   String? city;
+  String? branchCode;
   int? userId;
   String? userName;
   Map<String, dynamic> __origJson = {};
@@ -468,6 +485,7 @@ class MegaAdminProfile {
     this.schoolName,
     this.schoolPhotoUrl,
     this.city,
+    this.branchCode,
     this.userId,
     this.userName,
     this.adminProfiles,
@@ -486,6 +504,7 @@ class MegaAdminProfile {
     schoolName = json['schoolName']?.toString();
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
     city = json['city']?.toString();
+    branchCode = json['branchCode']?.toString();
     userId = json['userId']?.toInt();
     userName = json['userName']?.toString();
   }
@@ -503,6 +522,7 @@ class MegaAdminProfile {
     data['schoolName'] = schoolName;
     data['schoolPhotoUrl'] = schoolPhotoUrl;
     data['city'] = city;
+    data['branchCode'] = branchCode;
     data['userId'] = userId;
     data['userName'] = userName;
     return data;
@@ -533,10 +553,13 @@ class AdminProfile {
   String? middleName;
   int? schoolId;
   String? schoolName;
+  String? branchCode;
   String? schoolPhotoUrl;
   int? userId;
   String? adminPhotoUrl;
   String? city;
+  int? franchiseId;
+  String? franchiseName;
 
   bool isMegaAdmin = false;
 
@@ -550,10 +573,13 @@ class AdminProfile {
     this.middleName,
     this.schoolId,
     this.schoolName,
+    this.branchCode,
     this.schoolPhotoUrl,
     this.userId,
     this.adminPhotoUrl,
     this.city,
+    this.franchiseId,
+    this.franchiseName,
     required this.isMegaAdmin,
   });
   AdminProfile.fromJson(Map<String, dynamic> json) {
@@ -565,6 +591,8 @@ class AdminProfile {
     middleName = json['middleName']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
     userId = json['userId']?.toInt();
     adminPhotoUrl = json['adminPhotoUrl']?.toString();
@@ -578,6 +606,8 @@ class AdminProfile {
     data['middleName'] = middleName;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
     data['schoolPhotoUrl'] = schoolPhotoUrl;
     data['userId'] = userId;
     data['adminPhotoUrl'] = adminPhotoUrl;

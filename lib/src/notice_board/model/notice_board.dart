@@ -497,17 +497,20 @@ Future<GetNoticeBoardResponse> getNoticeBoard(GetNoticeBoardRequest getNoticeBoa
 class CreateOrUpdateNoticeBoardMediaRequest {
   String? agent;
   int? schoolId;
+  int? franchiseId;
   List<NewsMediaBean>? newsMediaBeans;
 
   CreateOrUpdateNoticeBoardMediaRequest({
     this.agent,
     this.schoolId,
+    this.franchiseId,
     this.newsMediaBeans,
   });
 
   CreateOrUpdateNoticeBoardMediaRequest.fromJson(Map<String, dynamic> json) {
     agent = json["agent"]?.toString();
     schoolId = json["schoolId"]?.toInt();
+    franchiseId = json["franchiseId"]?.toInt();
     if (json["newsMediaBeans"] != null && (json["newsMediaBeans"] is List)) {
       final v = json["newsMediaBeans"];
       final arr0 = <NewsMediaBean>[];
@@ -522,6 +525,7 @@ class CreateOrUpdateNoticeBoardMediaRequest {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
     data["schoolId"] = schoolId;
+    data["franchiseId"] = franchiseId;
     data["newsMediaBeans"] = newsMediaBeans;
     if (newsMediaBeans != null) {
       final v = newsMediaBeans;
@@ -610,6 +614,7 @@ class CreateOrUpdateNoticeBoardRequest {
   int? schoolId;
   String? status;
   String? title;
+  int? franchiseId;
 
   CreateOrUpdateNoticeBoardRequest({
     this.agentId,
@@ -618,6 +623,7 @@ class CreateOrUpdateNoticeBoardRequest {
     this.schoolId,
     this.status,
     this.title,
+    this.franchiseId,
   });
 
   CreateOrUpdateNoticeBoardRequest.fromJson(Map<String, dynamic> json) {
@@ -627,6 +633,7 @@ class CreateOrUpdateNoticeBoardRequest {
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     status = json["status"]?.toString();
     title = json["title"]?.toString();
+    franchiseId = json["franchiseId"]?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -637,6 +644,7 @@ class CreateOrUpdateNoticeBoardRequest {
     data["schoolId"] = schoolId;
     data["status"] = status;
     data["title"] = title;
+    data["franchiseId"] = franchiseId;
     return data;
   }
 }

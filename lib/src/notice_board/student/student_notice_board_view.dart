@@ -46,7 +46,10 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
       _isLoading = true;
     });
 
-    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(schoolId: widget.studentProfile.schoolId));
+    GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(
+      schoolId: widget.studentProfile.schoolId,
+      franchiseId: widget.studentProfile.franchiseId,
+    ));
 
     if (getNoticeBoardResponse.httpStatus == 'OK' && getNoticeBoardResponse.responseStatus == 'success') {
       setState(() {
@@ -333,49 +336,31 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
               itemCount: _noticeBoardNews.length,
               itemBuilder: (context, index) => buildEachNewsWidget(_noticeBoardNews[index]!),
             ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                _isReverse = !_isReverse;
-              });
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          List<int> millisList = _noticeBoardNews.map((e) => e!.createTime!).toList();
+          millisList.sort((b, a) => a.compareTo(b));
+          List<String> _availableDates = millisList.map((e) => convertEpochToYYYYMMDD(e)).toList();
+          DateTime? _newDate = await showDatePicker(
+            context: context,
+            selectableDayPredicate: (DateTime val) {
+              return _availableDates.contains(convertDateTimeToYYYYMMDDFormat(val));
             },
-            child: const Icon(Icons.sort_by_alpha),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          FloatingActionButton(
-            onPressed: () async {
-              List<int> millisList = _noticeBoardNews.map((e) => e!.createTime!).toList();
-              millisList.sort((b, a) => a.compareTo(b));
-              List<String> _availableDates = millisList.map((e) => convertEpochToYYYYMMDD(e)).toList();
-              DateTime? _newDate = await showDatePicker(
-                context: context,
-                selectableDayPredicate: (DateTime val) {
-                  return _availableDates.contains(convertDateTimeToYYYYMMDDFormat(val));
-                },
-                initialDate: DateTime.parse(_availableDates.first),
-                firstDate: DateTime.parse(_availableDates.last),
-                lastDate: DateTime.parse(_availableDates.first),
-                helpText: "Select a date",
-              );
-              if (_newDate == null) return;
-              setState(() {
-                _itemScrollController.scrollTo(
-                  index: _availableDates.indexOf(convertEpochToYYYYMMDD(_newDate.millisecondsSinceEpoch)),
-                  duration: const Duration(seconds: 1),
-                  curve: Curves.easeInOutCubic,
-                );
-              });
-            },
-            child: const Icon(Icons.search),
-          ),
-        ],
+            initialDate: DateTime.parse(_availableDates.first),
+            firstDate: DateTime.parse(_availableDates.last),
+            lastDate: DateTime.parse(_availableDates.first),
+            helpText: "Select a date",
+          );
+          if (_newDate == null) return;
+          setState(() {
+            _itemScrollController.scrollTo(
+              index: _availableDates.indexOf(convertEpochToYYYYMMDD(_newDate.millisecondsSinceEpoch)),
+              duration: const Duration(seconds: 1),
+              curve: Curves.easeInOutCubic,
+            );
+          });
+        },
+        child: const Icon(Icons.calendar_today),
       ),
     );
   }

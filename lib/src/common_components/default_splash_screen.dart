@@ -24,7 +24,6 @@ Widget defaultSplashScreen(BuildContext context) {
           child: Text(
             "An effortless School Management system",
             style: TextStyle(
-              color: Colors.black87,
               fontStyle: FontStyle.italic,
             ),
           ),
@@ -48,9 +47,6 @@ Widget defaultSplashScreen(BuildContext context) {
         const Center(
           child: Text(
             "© Powered by Epsilon Infinity Services Pvt. Ltd.",
-            style: TextStyle(
-              color: Colors.black87,
-            ),
           ),
         ),
         const SizedBox(

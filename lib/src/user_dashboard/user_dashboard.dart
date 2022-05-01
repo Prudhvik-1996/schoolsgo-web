@@ -155,6 +155,7 @@ class _UserDashboardState extends State<UserDashboard> {
                           mailId: e.mailId,
                           schoolPhotoUrl: e.schoolPhotoUrl,
                           city: e.city,
+                          branchCode: e.branchCode,
                           isMegaAdmin: true,
                         ))
                     .toList());

@@ -17,7 +17,7 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MegaAdminHomePage extends StatefulWidget {
-  MegaAdminHomePage({
+  const MegaAdminHomePage({
     Key? key,
     required this.megaAdminProfile,
   }) : super(key: key);
@@ -95,7 +95,11 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           ),
         ],
       ),
-      drawer: const DefaultAppDrawer(),
+      drawer: canGoToDashBoard
+          ? MegaAdminAppDrawer(
+              megaAdminProfile: widget.megaAdminProfile,
+            )
+          : const DefaultAppDrawer(),
       body: _isLoading
           ? Center(
               child: Image.asset(

@@ -27,7 +27,7 @@ enum MediaFileType {
   AVATAR
 }
 
-MediaFileType getFileTypeForExtension(String extension) {
+MediaFileType getFileTypeForExtension(String? extension) {
   print("Extension Request For: $extension");
   switch (extension) {
     // Audio file formats by file extensions
@@ -301,9 +301,7 @@ class UploadFileToDriveResponse {
     errorCode = json['errorCode'];
     errorMessage = json['errorMessage'];
     httpStatus = json['httpStatus'];
-    mediaBean = json['mediaBean'] != null
-        ? MediaBean.fromJson(json['mediaBean'])
-        : null;
+    mediaBean = json['mediaBean'] != null ? MediaBean.fromJson(json['mediaBean']) : null;
     responseStatus = json['responseStatus'];
   }
 
@@ -367,14 +365,12 @@ class MediaBean {
   }
 }
 
-Future<UploadFileToDriveResponse> uploadFileToDrive(
-    Object file, String fileName) async {
+Future<UploadFileToDriveResponse> uploadFileToDrive(Object file, String fileName) async {
   try {
     print("Raising request to uploadFileToDrive with request $fileName");
     String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL + UPLOAD_FILE_TO_DRIVE;
     var request = http.MultipartRequest('POST', Uri.parse(_url));
-    Uint8List _bytesData =
-        const Base64Decoder().convert(file.toString().split(",").last);
+    Uint8List _bytesData = const Base64Decoder().convert(file.toString().split(",").last);
     List<int> _selectedFile = _bytesData;
     request.files.add(
       http.MultipartFile.fromBytes(
@@ -388,10 +384,8 @@ Future<UploadFileToDriveResponse> uploadFileToDrive(
     var responseJson = await request.send();
 
     UploadFileToDriveResponse uploadUint8ListFileToDriveResponse =
-        UploadFileToDriveResponse.fromJson(
-            json.decode((await http.Response.fromStream(responseJson)).body));
-    print(
-        "UploadFileToDriveResponse ${uploadUint8ListFileToDriveResponse.toJson()}");
+        UploadFileToDriveResponse.fromJson(json.decode((await http.Response.fromStream(responseJson)).body));
+    print("UploadFileToDriveResponse ${uploadUint8ListFileToDriveResponse.toJson()}");
     return uploadUint8ListFileToDriveResponse;
   } catch (e) {
     rethrow;
