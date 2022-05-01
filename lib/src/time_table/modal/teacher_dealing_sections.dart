@@ -9,6 +9,7 @@ class GetTeacherDealingSectionsRequest {
   int? sectionId;
   int? subjectId;
   int? tdsId;
+  int? franchiseId;
 
   GetTeacherDealingSectionsRequest({
     this.schoolId,
@@ -16,6 +17,7 @@ class GetTeacherDealingSectionsRequest {
     this.sectionId,
     this.subjectId,
     this.tdsId,
+    this.franchiseId,
   });
 
   GetTeacherDealingSectionsRequest.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class GetTeacherDealingSectionsRequest {
     sectionId = json['sectionId'];
     subjectId = json['subjectId'];
     tdsId = json['tdsId'];
+    franchiseId = json['franchiseId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -33,6 +36,7 @@ class GetTeacherDealingSectionsRequest {
     data['sectionId'] = sectionId;
     data['subjectId'] = subjectId;
     data['tdsId'] = tdsId;
+    data['franchiseId'] = franchiseId;
     return data;
   }
 }
@@ -44,12 +48,7 @@ class GetTeacherDealingSectionsResponse {
   String? errorMessage;
   String? httpStatus;
 
-  GetTeacherDealingSectionsResponse(
-      {teacherDealingSections,
-      responseStatus,
-      errorCode,
-      errorMessage,
-      httpStatus});
+  GetTeacherDealingSectionsResponse({teacherDealingSections, responseStatus, errorCode, errorMessage, httpStatus});
 
   GetTeacherDealingSectionsResponse.fromJson(Map<String, dynamic> json) {
     if (json['teacherDealingSections'] != null) {
@@ -67,8 +66,7 @@ class GetTeacherDealingSectionsResponse {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (teacherDealingSections != null) {
-      data['teacherDealingSections'] =
-          teacherDealingSections!.map((v) => v.toJson()).toList();
+      data['teacherDealingSections'] = teacherDealingSections!.map((v) => v.toJson()).toList();
     }
     data['responseStatus'] = responseStatus;
     data['errorCode'] = errorCode;
@@ -78,10 +76,8 @@ class GetTeacherDealingSectionsResponse {
   }
 }
 
-Future<GetTeacherDealingSectionsResponse> getTeacherDealingSections(
-    GetTeacherDealingSectionsRequest getTeacherDealingSectionsRequest) async {
-  print(
-      "Raising request to getTeacherDealingSections with request ${jsonEncode(getTeacherDealingSectionsRequest.toJson())}");
+Future<GetTeacherDealingSectionsResponse> getTeacherDealingSections(GetTeacherDealingSectionsRequest getTeacherDealingSectionsRequest) async {
+  print("Raising request to getTeacherDealingSections with request ${jsonEncode(getTeacherDealingSectionsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_TDS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -91,10 +87,8 @@ Future<GetTeacherDealingSectionsResponse> getTeacherDealingSections(
     body: jsonEncode(getTeacherDealingSectionsRequest.toJson()),
   );
 
-  GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse =
-      GetTeacherDealingSectionsResponse.fromJson(json.decode(response.body));
-  print(
-      "GetTeacherDealingSectionsResponse ${getTeacherDealingSectionsResponse.toJson()}");
+  GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = GetTeacherDealingSectionsResponse.fromJson(json.decode(response.body));
+  print("GetTeacherDealingSectionsResponse ${getTeacherDealingSectionsResponse.toJson()}");
   return getTeacherDealingSectionsResponse;
 }
 
@@ -214,8 +208,7 @@ class CreateOrUpdateTeacherDealingSectionsRequest {
     this.schoolId,
     this.tdsList,
   });
-  CreateOrUpdateTeacherDealingSectionsRequest.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateTeacherDealingSectionsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
@@ -252,11 +245,9 @@ class CreateOrUpdateTeacherDealingSectionsResponse {
   String? httpStatus;
   String? responseStatus;
 
-  CreateOrUpdateTeacherDealingSectionsResponse(
-      {errorCode, errorMessage, httpStatus, responseStatus});
+  CreateOrUpdateTeacherDealingSectionsResponse({errorCode, errorMessage, httpStatus, responseStatus});
 
-  CreateOrUpdateTeacherDealingSectionsResponse.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateTeacherDealingSectionsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];
     errorMessage = json['errorMessage'];
     httpStatus = json['httpStatus'];
@@ -273,12 +264,9 @@ class CreateOrUpdateTeacherDealingSectionsResponse {
   }
 }
 
-Future<CreateOrUpdateTeacherDealingSectionsResponse>
-    createOrUpdateTeacherDealingSections(
-        CreateOrUpdateTeacherDealingSectionsRequest
-            createOrUpdateTeacherDealingSectionsRequest) async {
-  print(
-      "Raising request to createOrUpdateTeacherDealingSections with request ${jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson())}");
+Future<CreateOrUpdateTeacherDealingSectionsResponse> createOrUpdateTeacherDealingSections(
+    CreateOrUpdateTeacherDealingSectionsRequest createOrUpdateTeacherDealingSectionsRequest) async {
+  print("Raising request to createOrUpdateTeacherDealingSections with request ${jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -288,11 +276,8 @@ Future<CreateOrUpdateTeacherDealingSectionsResponse>
     body: jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson()),
   );
 
-  CreateOrUpdateTeacherDealingSectionsResponse
-      createOrUpdateTeacherDealingSectionsResponse =
-      CreateOrUpdateTeacherDealingSectionsResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "createOrUpdateTeacherDealingSectionsResponse ${createOrUpdateTeacherDealingSectionsResponse.toJson()}");
+  CreateOrUpdateTeacherDealingSectionsResponse createOrUpdateTeacherDealingSectionsResponse =
+      CreateOrUpdateTeacherDealingSectionsResponse.fromJson(json.decode(response.body));
+  print("createOrUpdateTeacherDealingSectionsResponse ${createOrUpdateTeacherDealingSectionsResponse.toJson()}");
   return createOrUpdateTeacherDealingSectionsResponse;
 }

@@ -15,6 +15,7 @@ import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
+import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_dashboard/admin_dashboard.dart';
@@ -371,6 +372,11 @@ class _MyAppState extends State<MyApp> {
                         var adminProfile = routeSettings.arguments as AdminProfile;
                         return AdminSuggestionBox(
                           adminProfile: adminProfile,
+                        );
+                      } else if (routeSettings.arguments is MegaAdminProfile) {
+                        var megaAdminProfile = routeSettings.arguments as MegaAdminProfile;
+                        return MegaAdminSuggestionBox(
+                          megaAdminProfile: megaAdminProfile,
                         );
                       } else {
                         return const E404NotFoundScreen();

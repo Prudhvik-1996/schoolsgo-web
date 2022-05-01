@@ -21,6 +21,7 @@ class GetSuggestionBoxRequest {
   int? postingUserId;
   int? schoolId;
   int? teacherId;
+  int? franchiseId;
   Map<String, dynamic> __origJson = {};
 
   GetSuggestionBoxRequest({
@@ -29,6 +30,7 @@ class GetSuggestionBoxRequest {
     this.postingStudentId,
     this.postingUserId,
     this.schoolId,
+    this.franchiseId,
     this.teacherId,
   });
   GetSuggestionBoxRequest.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class GetSuggestionBoxRequest {
     postingStudentId = int.tryParse(json['postingStudentId']?.toString() ?? '');
     postingUserId = int.tryParse(json['postingUserId']?.toString() ?? '');
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
+    franchiseId = int.tryParse(json['franchiseId']?.toString() ?? '');
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
@@ -47,6 +50,7 @@ class GetSuggestionBoxRequest {
     data['postingStudentId'] = postingStudentId;
     data['postingUserId'] = postingUserId;
     data['schoolId'] = schoolId;
+    data['franchiseId'] = franchiseId;
     data['teacherId'] = teacherId;
     return data;
   }
@@ -94,6 +98,11 @@ class Suggestion {
   int? teacherId;
   String? teacherName;
   String? title;
+  int? schoolId;
+  String? schoolName;
+  int? franchiseId;
+  String? franchiseName;
+  String? branchCode;
   Map<String, dynamic> __origJson = {};
 
   bool isEditMode = false;
@@ -116,6 +125,11 @@ class Suggestion {
     this.teacherId,
     this.teacherName,
     this.title,
+    this.schoolId,
+    this.schoolName,
+    this.franchiseId,
+    this.franchiseName,
+    this.branchCode,
   });
   Suggestion.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -136,6 +150,11 @@ class Suggestion {
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     teacherName = json['teacherName']?.toString();
     title = json['title']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
+    branchCode = json['branchCode']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -156,6 +175,11 @@ class Suggestion {
     data['teacherId'] = teacherId;
     data['teacherName'] = teacherName;
     data['title'] = title;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
+    data['branchCode'] = branchCode;
     return data;
   }
 
@@ -252,10 +276,8 @@ class GetSuggestionBoxResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetSuggestionBoxResponse> getSuggestionBox(
-    GetSuggestionBoxRequest getSuggestionBoxRequest) async {
-  print(
-      "Raising request to getSuggestionBox with request ${jsonEncode(getSuggestionBoxRequest.toJson())}");
+Future<GetSuggestionBoxResponse> getSuggestionBox(GetSuggestionBoxRequest getSuggestionBoxRequest) async {
+  print("Raising request to getSuggestionBox with request ${jsonEncode(getSuggestionBoxRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SUGGESTION_BOX;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -265,8 +287,7 @@ Future<GetSuggestionBoxResponse> getSuggestionBox(
     body: jsonEncode(getSuggestionBoxRequest.toJson()),
   );
 
-  GetSuggestionBoxResponse getSuggestionBoxResponse =
-      GetSuggestionBoxResponse.fromJson(json.decode(response.body));
+  GetSuggestionBoxResponse getSuggestionBoxResponse = GetSuggestionBoxResponse.fromJson(json.decode(response.body));
   print("GetSuggestionBoxResponse ${getSuggestionBoxResponse.toJson()}");
   return getSuggestionBoxResponse;
 }
@@ -373,10 +394,8 @@ class CreateSuggestionResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateSuggestionResponse> createSuggestion(
-    CreateSuggestionRequest createSuggestionRequest) async {
-  print(
-      "Raising request to createSuggestion with request ${jsonEncode(createSuggestionRequest.toJson())}");
+Future<CreateSuggestionResponse> createSuggestion(CreateSuggestionRequest createSuggestionRequest) async {
+  print("Raising request to createSuggestion with request ${jsonEncode(createSuggestionRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_SUGGESTION;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -386,8 +405,7 @@ Future<CreateSuggestionResponse> createSuggestion(
     body: jsonEncode(createSuggestionRequest.toJson()),
   );
 
-  CreateSuggestionResponse createSuggestionResponse =
-      CreateSuggestionResponse.fromJson(json.decode(response.body));
+  CreateSuggestionResponse createSuggestionResponse = CreateSuggestionResponse.fromJson(json.decode(response.body));
   print("createSuggestionResponse ${createSuggestionResponse.toJson()}");
   return createSuggestionResponse;
 }
@@ -478,10 +496,8 @@ class UpdateSuggestionResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<UpdateSuggestionResponse> updateSuggestion(
-    UpdateSuggestionRequest updateSuggestionRequest) async {
-  print(
-      "Raising request to updateSuggestion with request ${jsonEncode(updateSuggestionRequest.toJson())}");
+Future<UpdateSuggestionResponse> updateSuggestion(UpdateSuggestionRequest updateSuggestionRequest) async {
+  print("Raising request to updateSuggestion with request ${jsonEncode(updateSuggestionRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + UPDATE_SUGGESTION;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -491,8 +507,7 @@ Future<UpdateSuggestionResponse> updateSuggestion(
     body: jsonEncode(updateSuggestionRequest.toJson()),
   );
 
-  UpdateSuggestionResponse updateSuggestionResponse =
-      UpdateSuggestionResponse.fromJson(json.decode(response.body));
+  UpdateSuggestionResponse updateSuggestionResponse = UpdateSuggestionResponse.fromJson(json.decode(response.body));
   print("updateSuggestionResponse ${updateSuggestionResponse.toJson()}");
   return updateSuggestionResponse;
 }

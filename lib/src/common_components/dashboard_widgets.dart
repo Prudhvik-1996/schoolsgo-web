@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
+import 'package:schoolsgo_web/src/suggestion_box/admin/admin_suggestion_box.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
 
 class DashboardWidget<T> {
@@ -409,6 +410,12 @@ List<DashboardWidget<MegaAdminProfile>> megaAdminDashBoardWidgets(MegaAdminProfi
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
         routeName: StudentNoticeBoardView.routeName,
+        argument: megaAdminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/complainbox.svg"),
+        title: "Suggestion Box",
+        routeName: AdminSuggestionBox.routeName,
         argument: megaAdminProfile,
       ),
       DashboardWidget(

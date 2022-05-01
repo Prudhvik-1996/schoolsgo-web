@@ -16,21 +16,25 @@ class GetTeachersRequest {
 
   int? schoolId;
   int? teacherId;
+  int? franchiseId;
   Map<String, dynamic> __origJson = {};
 
   GetTeachersRequest({
     this.schoolId,
     this.teacherId,
+    this.franchiseId,
   });
   GetTeachersRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
+    franchiseId = int.tryParse(json["franchiseId"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["schoolId"] = schoolId;
     data["teacherId"] = teacherId;
+    data["franchiseId"] = franchiseId;
     return data;
   }
 
@@ -121,9 +125,7 @@ class Teacher {
   }
 
   int compareTo(other) {
-    return (teacherId == null || other.teacherId == null)
-        ? 0
-        : teacherId!.compareTo(other.teacherId!);
+    return (teacherId == null || other.teacherId == null) ? 0 : teacherId!.compareTo(other.teacherId!);
   }
 
   @override
@@ -135,10 +137,8 @@ class Teacher {
   }
 }
 
-Future<GetTeachersResponse> getTeachers(
-    GetTeachersRequest getTeachersRequest) async {
-  print(
-      "Raising request to getTeachers with request ${jsonEncode(getTeachersRequest.toJson())}");
+Future<GetTeachersResponse> getTeachers(GetTeachersRequest getTeachersRequest) async {
+  print("Raising request to getTeachers with request ${jsonEncode(getTeachersRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_TEACHERS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -148,8 +148,7 @@ Future<GetTeachersResponse> getTeachers(
     body: jsonEncode(getTeachersRequest.toJson()),
   );
 
-  GetTeachersResponse getTeachersResponse =
-      GetTeachersResponse.fromJson(json.decode(response.body));
+  GetTeachersResponse getTeachersResponse = GetTeachersResponse.fromJson(json.decode(response.body));
   print("GetTeachersResponse ${getTeachersResponse.toJson()}");
   return getTeachersResponse;
 }

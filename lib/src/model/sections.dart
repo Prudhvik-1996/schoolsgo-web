@@ -13,23 +13,27 @@ class GetSectionsRequest {
 
   int? schoolId;
   int? sectionId;
+  int? franchiseId;
   Map<String, dynamic> __origJson = {};
 
   GetSectionsRequest({
     this.schoolId,
     this.sectionId,
+    this.franchiseId,
   });
 
   GetSectionsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     sectionId = int.tryParse(json["sectionId"]?.toString() ?? '');
+    franchiseId = int.tryParse(json["franchiseId"]?.toString() ?? '');
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["schoolId"] = schoolId;
     data["sectionId"] = sectionId;
+    data["franchiseId"] = franchiseId;
     return data;
   }
 
@@ -182,10 +186,8 @@ class GetSectionsResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetSectionsResponse> getSections(
-    GetSectionsRequest getSectionsRequest) async {
-  print(
-      "Raising request to getSections with request ${jsonEncode(getSectionsRequest.toJson())}");
+Future<GetSectionsResponse> getSections(GetSectionsRequest getSectionsRequest) async {
+  print("Raising request to getSections with request ${jsonEncode(getSectionsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SECTIONS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -195,8 +197,7 @@ Future<GetSectionsResponse> getSections(
     body: jsonEncode(getSectionsRequest.toJson()),
   );
 
-  GetSectionsResponse getSectionsResponse =
-      GetSectionsResponse.fromJson(json.decode(response.body));
+  GetSectionsResponse getSectionsResponse = GetSectionsResponse.fromJson(json.decode(response.body));
   print("GetSectionsResponse ${getSectionsResponse.toJson()}");
   return getSectionsResponse;
 }
