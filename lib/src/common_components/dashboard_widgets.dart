@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
+import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -144,6 +145,12 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         argument: teacherProfile,
       ),
       DashboardWidget(
+        image: SvgPicture.asset("assets/images/circulars.svg"),
+        title: "Circulars",
+        routeName: AdminCircularsScreen.routeName,
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
         image: SvgPicture.asset("assets/images/diary.svg"),
         title: "Diary",
         routeName: "/diary",
@@ -240,6 +247,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
         routeName: StudentNoticeBoardView.routeName,
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/circulars.svg"),
+        title: "Circulars",
+        routeName: AdminCircularsScreen.routeName,
         argument: adminProfile,
       ),
       DashboardWidget(
@@ -410,6 +423,12 @@ List<DashboardWidget<MegaAdminProfile>> megaAdminDashBoardWidgets(MegaAdminProfi
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
         routeName: StudentNoticeBoardView.routeName,
+        argument: megaAdminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/circulars.svg"),
+        title: "Circulars",
+        routeName: AdminCircularsScreen.routeName,
         argument: megaAdminProfile,
       ),
       DashboardWidget(

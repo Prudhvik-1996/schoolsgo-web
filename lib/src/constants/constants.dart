@@ -113,3 +113,6 @@ const String CREATE_OR_UPDATE_BUS_ROUTE_DETAILS = "/buses/createOrUpdateBusRoute
 const String CREATE_OR_UPDATE_STOP_WISE_STUDENTS_ASSIGNMENT = "/buses/createOrUpdateStopWiseStudentsAssignment";
 const String UPDATE_BUS_FARES = "/buses/updateBusFares";
 const String GET_TRANSPORT_FEE_ASSIGNMENT_TYPE = "/buses/getTransportFeeAssignmentType";
+
+const String GET_CIRCULARS = "/circulars/getCirculars";
+const String CREATE_OR_UPDATE_CIRCULAR = "/circulars/createOrUpdateCircular";

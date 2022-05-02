@@ -59,6 +59,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
         status: "active",
         schoolId: widget.megaAdminProfile.schoolId,
         franchiseId: widget.megaAdminProfile.franchiseId,
+        franchiseName: widget.megaAdminProfile.franchiseName,
         agent: widget.megaAdminProfile.userId,
         createTime: DateTime.now().millisecondsSinceEpoch,
         lastUpdated: DateTime.now().millisecondsSinceEpoch,
@@ -162,6 +163,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                         status: eachNews.status,
                         title: eachNews.title,
                         newsId: eachNews.newsId,
+                        franchiseId: eachNews.franchiseId,
                       ),
                     );
 
@@ -379,7 +381,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
         title: FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(
-            (e == null ? "-" : (e.schoolName! + (e.branchCode != null ? " - ${e.branchCode}" : ""))),
+            (e == null ? "Select a school" : (e.schoolName! + (e.branchCode != null ? " - ${e.branchCode}" : ""))),
             style: const TextStyle(
               fontSize: 14,
             ),
@@ -408,7 +410,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
               ),
               color: Theme.of(context).primaryColor,
             ),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             child: Column(
               children: [
                 Row(
@@ -419,7 +421,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                       child: Text(
                         eachNews.title!,
                         style: const TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           color: Colors.white,
                         ),
                       ),
@@ -522,14 +524,22 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
           Container(
             padding: const EdgeInsets.all(20),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: Text(
-                    convertEpochToDDMMYYYYEEEEHHMMAA(eachNews.createTime!),
-                    textAlign: TextAlign.end,
+                    eachNews.schoolDisplayName == null
+                        ? eachNews.franchiseName!
+                        : (eachNews.schoolDisplayName! + (eachNews.branchCode != null ? " - ${eachNews.branchCode}" : "")),
+                    style: TextStyle(
+                      color: eachNews.schoolDisplayName == null ? Colors.blue : null,
+                    ),
                   ),
+                ),
+                Text(
+                  convertEpochToDDMMYYYYEEEEHHMMAA(eachNews.createTime!),
+                  textAlign: TextAlign.end,
                 ),
               ],
             ),

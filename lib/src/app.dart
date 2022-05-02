@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_options_screen.dart';
+import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
+import 'package:schoolsgo_web/src/circulars/mega_admin/mega_admin_circulars_screen.dart';
+import 'package:schoolsgo_web/src/circulars/teachers/teacher_circular_screen.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
@@ -438,6 +441,35 @@ class _MyAppState extends State<MyApp> {
                       try {
                         var argument = (routeSettings.arguments as AdminProfile);
                         return AdminNoticeBoardScreen(
+                          adminProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    }
+                  case AdminCircularsScreen.routeName:
+                    if (routeSettings.arguments is TeacherProfile) {
+                      try {
+                        var argument = (routeSettings.arguments as TeacherProfile);
+                        return TeacherCircularsScreen(
+                          teacherProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else if (routeSettings.arguments is MegaAdminProfile) {
+                      try {
+                        var argument = (routeSettings.arguments as MegaAdminProfile);
+                        return MegaAdminCircularsScreen(
+                          megaAdminProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else {
+                      try {
+                        var argument = (routeSettings.arguments as AdminProfile);
+                        return AdminCircularsScreen(
                           adminProfile: argument,
                         );
                       } catch (e) {
