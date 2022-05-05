@@ -1,4 +1,5 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -145,85 +146,74 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
 
   Widget _selectTeacher() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
+      margin: const EdgeInsets.all(25),
       child: ClayContainer(
         depth: 20,
         color: clayContainerColor(context),
         spread: 5,
         borderRadius: 10,
-        child: _teachersList.length != 1 && _selectedTeacher != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(child: dropdownButtonForTeacher()),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedTeacher = null;
-                        });
-                        _applyFilters();
-                      },
-                      child: const Icon(Icons.close),
-                    ),
-                  ),
-                ],
-              )
-            : dropdownButtonForTeacher(),
+        child: searchableDropdownButtonForTeacher(),
       ),
     );
   }
 
-  DropdownButton<Teacher> dropdownButtonForTeacher() {
-    return DropdownButton(
-      hint: const Center(child: Text("Select Teacher")),
-      underline: Container(),
-      isExpanded: true,
-      value: _selectedTeacher,
+  DropdownSearch<Teacher> searchableDropdownButtonForTeacher() {
+    return DropdownSearch<Teacher>(
+      mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+      selectedItem: _selectedTeacher,
+      items: _teachersList,
+      itemAsString: (Teacher? teacher) {
+        return teacher == null ? "" : teacher.teacherName ?? "";
+      },
+      showSearchBox: true,
+      dropdownBuilder: (BuildContext context, Teacher? teacher) {
+        return buildTeacherWidget(teacher ?? Teacher());
+      },
       onChanged: (Teacher? teacher) {
         setState(() {
-          _selectedTeacher = teacher!;
+          _selectedTeacher = teacher;
+          if (teacher != null) {
+            _selectedTeacher = teacher;
+          }
         });
-        _applyFilters();
       },
-      items: _teachersList
-          .where((teacher) => _filteredTdsList.map((tds) => tds.teacherId).contains(teacher.teacherId))
-          .map(
-            (e) => DropdownMenuItem<Teacher>(
-              value: e,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 40,
-                child: ListTile(
-                  leading: Container(
-                    width: 50,
-                    padding: const EdgeInsets.all(5),
-                    child: e.teacherPhotoUrl == null
-                        ? Image.asset(
-                            "assets/images/avatar.png",
-                            fit: BoxFit.contain,
-                          )
-                        : Image.network(
-                            e.teacherPhotoUrl!,
-                            fit: BoxFit.contain,
-                          ),
-                  ),
-                  title: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      e.teacherName ?? "-",
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+      showClearButton: true,
+      compareFn: (item, selectedItem) => item?.teacherId == selectedItem?.teacherId,
+      dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+      filterFn: (Teacher? teacher, String? key) {
+        return teacher!.teacherName!.toLowerCase().contains(key!.toLowerCase());
+      },
+    );
+  }
+
+  Widget buildTeacherWidget(Teacher e) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: ListTile(
+        leading: Container(
+          width: 50,
+          padding: const EdgeInsets.all(5),
+          child: e.teacherPhotoUrl == null
+              ? Image.asset(
+                  "assets/images/avatar.png",
+                  fit: BoxFit.contain,
+                )
+              : Image.network(
+                  e.teacherPhotoUrl!,
+                  fit: BoxFit.contain,
                 ),
-              ),
+        ),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            e.teacherName ?? "Select a Teacher",
+            style: const TextStyle(
+              fontSize: 14,
             ),
-          )
-          .toList(),
+          ),
+        ),
+      ),
     );
   }
 

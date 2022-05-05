@@ -155,6 +155,10 @@ String convertEpochToDDMMYYYYHHMMAA(int millis) {
   return DateFormat("dd MMM, yyyy, h:mm a").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }
 
+String convertEpochToDDMMYYYYNHHMMAA(int millis) {
+  return DateFormat("dd MMM, yyyy\nh:mm a").format(DateTime.fromMillisecondsSinceEpoch(millis));
+}
+
 String convertEpochToYYYYMMDD(int millis) {
   return DateFormat("yyyy-MM-dd").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }

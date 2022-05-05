@@ -116,3 +116,6 @@ const String GET_TRANSPORT_FEE_ASSIGNMENT_TYPE = "/buses/getTransportFeeAssignme
 
 const String GET_CIRCULARS = "/circulars/getCirculars";
 const String CREATE_OR_UPDATE_CIRCULAR = "/circulars/createOrUpdateCircular";
+
+const String GET_TRANSACTIONS = "/ledger/getTransactions";
+const String GET_ADMIN_EXPENSES = "/ledger/getAdminExpenses";

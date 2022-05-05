@@ -404,6 +404,18 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         argument: adminProfile,
       ),
       DashboardWidget(
+        image: SvgPicture.asset("assets/images/ledger.svg"),
+        title: "Ledger",
+        routeName: "/ledger",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/admin_expenses.svg"),
+        title: "Admin Expenses",
+        routeName: "/admin_expenses",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",
         routeName: "/demo",

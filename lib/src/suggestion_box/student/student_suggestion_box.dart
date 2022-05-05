@@ -443,7 +443,6 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
 
   Widget _selectStatus() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
       child: ClayContainer(
         depth: 20,
         color: clayContainerColor(context),
@@ -855,40 +854,31 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
             )
           : _isAddNew
               ? _buildNewSuggestionWidget()
-              : CustomScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  // controller: controller,
-                  slivers: [
-                    SliverList(
-                      delegate: SliverChildListDelegate(
-                        [
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxHeight: 100.0,
-                              minHeight: 50.0,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SizedBox(
-                                  width: 250,
-                                  child: _selectStatus(),
-                                ),
-                                Row(
-                                  children: [
-                                    _getDatePicker(),
-                                    buildEditButton(),
-                                  ],
-                                ),
-                              ],
-                            ),
+              : Column(
+                  children: [
+                    Container(
+                      padding: MediaQuery.of(context).orientation == Orientation.landscape
+                          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 5, MediaQuery.of(context).size.width / 4, 5)
+                          : const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: _selectStatus(),
+                          ),
+                          Row(
+                            children: [
+                              _getDatePicker(),
+                              buildEditButton(),
+                            ],
+                          ),
+                          const SizedBox(
+                            width: 10,
                           ),
                         ],
                       ),
                     ),
-                    SliverFillRemaining(
-                      hasScrollBody: true,
-                      fillOverscroll: true,
+                    Expanded(
                       child: ScrollablePositionedList.builder(
                         itemScrollController: _itemScrollController,
                         itemCount: _filteredSuggestions.length,

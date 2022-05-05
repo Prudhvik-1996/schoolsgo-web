@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_options_screen.dart';
@@ -13,6 +14,7 @@ import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_resu
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
+import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
@@ -476,6 +478,47 @@ class _MyAppState extends State<MyApp> {
                         return const E404NotFoundScreen();
                       }
                     }
+                  case AdminLedgerScreen.routeName:
+                    // if (routeSettings.arguments is MegaAdminProfile) {
+                    //   try {
+                    //     var argument = (routeSettings.arguments as MegaAdminProfile);
+                    //     return MegaAdminCircularsScreen(
+                    //       megaAdminProfile: argument,
+                    //     );
+                    //   } catch (e) {
+                    //     return const E404NotFoundScreen();
+                    //   }
+                    // } else {
+                    try {
+                      var argument = (routeSettings.arguments as AdminProfile);
+                      return AdminLedgerScreen(
+                        adminProfile: argument,
+                      );
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  // }
+
+                  case AdminExpenseScreenAdminView.routeName:
+                    // if (routeSettings.arguments is MegaAdminProfile) {
+                    //   try {
+                    //     var argument = (routeSettings.arguments as MegaAdminProfile);
+                    //     return MegaAdminCircularsScreen(
+                    //       megaAdminProfile: argument,
+                    //     );
+                    //   } catch (e) {
+                    //     return const E404NotFoundScreen();
+                    //   }
+                    // } else {
+                    try {
+                      var argument = (routeSettings.arguments as AdminProfile);
+                      return AdminExpenseScreenAdminView(
+                        adminProfile: argument,
+                      );
+                    } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  // }
                   case StudentStudyMaterialTDSScreen.routeName:
                     try {
                       if (routeSettings.arguments is StudentProfile) {

@@ -111,6 +111,8 @@ flutter:
     - assets/images/feedback.svg
     - assets/images/notice_board.svg
     - assets/images/circulars.svg
+    - assets/images/ledger.svg
+    - assets/images/admin_expenses.svg
     - assets/images/onlineclassroom.svg
     - assets/images/study_material.svg
     - assets/images/profile.svg
