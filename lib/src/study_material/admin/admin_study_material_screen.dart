@@ -1,10 +1,8 @@
-import 'dart:html';
 import 'dart:html' as html;
 import 'dart:ui' as ui;
 
 import 'package:clay_containers/widgets/clay_container.dart';
-import 'package:collection/equality.dart';
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -186,7 +184,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(
       studyMaterial.mediaList![index]!.mediaUrl!,
-      (int viewId) => IFrameElement()
+      (int viewId) => html.IFrameElement()
         ..src = studyMaterial.mediaList![index]!.mediaUrl!
         ..allowFullscreen = false
         ..style.border = 'none'
@@ -215,7 +213,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                   InkWell(
                     child: const Icon(Icons.open_in_new),
                     onTap: () {
-                      window.open(
+                      html.window.open(
                         studyMaterial.mediaList![index]!.mediaUrl!,
                         '_blank',
                       );
@@ -350,7 +348,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                   schoolId: widget.adminProfile.schoolId,
                   agentId: widget.adminProfile.userId,
                   mediaList:
-                      studyMaterial.mediaList!.map((e) => e!).where((e) => !DeepCollectionEquality().equals(e.toJson(), e.origJson())).toList(),
+                      studyMaterial.mediaList!.map((e) => e!).where((e) => !const DeepCollectionEquality().equals(e.toJson(), e.origJson())).toList(),
                 ));
 
                 if (createOrUpdateStudyMaterialMediaMapResponse.httpStatus != "OK" ||
@@ -449,7 +447,7 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                     child: InkWell(
                       onTap: () async {
                         HapticFeedback.vibrate();
-                        if (!DeepCollectionEquality().equals(studyMaterial.toJson(), studyMaterial.origJson())) {
+                        if (!const DeepCollectionEquality().equals(studyMaterial.toJson(), studyMaterial.origJson())) {
                           if ((studyMaterial.description ?? "").trim() != "") {
                             _saveChanges(studyMaterial);
                           }
@@ -867,7 +865,6 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
   }
 
   _performMoreActions(String choice) {
-    print("Choice: $choice");
     if (choice == "add_new") {
       setState(() {
         _isAddNew = true;
@@ -976,17 +973,24 @@ class _AdminStudyMaterialScreenState extends State<AdminStudyMaterialScreen> {
                         ],
                       ),
                     ),
-                    SliverFillRemaining(
-                      hasScrollBody: true,
-                      fillOverscroll: true,
-                      child: ScrollablePositionedList.builder(
-                        itemScrollController: _itemScrollController,
-                        itemCount: _studyMaterial.length,
-                        itemBuilder: (context, index) => _studyMaterial[index].isEditMode && !widget.adminProfile.isMegaAdmin
-                            ? _getStudyMaterialEditWidget(_studyMaterial[index])
-                            : _getStudyMaterialWidget(_studyMaterial[index]),
-                      ),
-                    ),
+                    _studyMaterial.isEmpty
+                        ? const SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Center(
+                              child: Text("Seems like there are entries yet.."),
+                            ),
+                          )
+                        : SliverFillRemaining(
+                            hasScrollBody: true,
+                            fillOverscroll: true,
+                            child: ScrollablePositionedList.builder(
+                              itemScrollController: _itemScrollController,
+                              itemCount: _studyMaterial.length,
+                              itemBuilder: (context, index) => _studyMaterial[index].isEditMode && !widget.adminProfile.isMegaAdmin
+                                  ? _getStudyMaterialEditWidget(_studyMaterial[index])
+                                  : _getStudyMaterialWidget(_studyMaterial[index]),
+                            ),
+                          ),
                   ],
                 ),
       // floatingActionButton: _isLoading

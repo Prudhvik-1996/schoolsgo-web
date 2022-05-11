@@ -1798,6 +1798,21 @@ class StudentExamMarksDetailsBean {
   String toString() {
     return json.encode(toJson());
   }
+
+  @override
+  int get hashCode {
+    return studentId ?? -1;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    try {
+      StudentExamMarksDetailsBean x = other as StudentExamMarksDetailsBean;
+      return studentId == x.studentId;
+    } catch (e) {
+      return super == other;
+    }
+  }
 }
 
 class GetStudentExamMarksDetailsResponse {

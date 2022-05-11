@@ -7,12 +7,15 @@ import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/circulars/mega_admin/mega_admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/circulars/teachers/teacher_circular_screen.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_create_or_manage_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_results_screen.dart';
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
+import 'package:schoolsgo_web/src/exams/teacher/teacher_exam_tds_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
+import 'package:schoolsgo_web/src/fee/student/student_fee_screen.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
@@ -173,7 +176,7 @@ class _MyAppState extends State<MyApp> {
                         loggedInUserId: loggedInUserId ?? (routeSettings.arguments as int),
                       );
                     } catch (e) {
-                      return const E404NotFoundScreen();
+                      return const SplashScreen();
                     }
                   case StudentDashBoard.routeName:
                     if (routeSettings.arguments == null) {
@@ -665,10 +668,21 @@ class _MyAppState extends State<MyApp> {
                     }
                   case AdminFeeOptionsScreen.routeName:
                     try {
-                      var adminProfile = routeSettings.arguments! as AdminProfile;
-                      return AdminFeeOptionsScreen(
-                        adminProfile: adminProfile,
-                      );
+                      if (routeSettings.arguments is StudentProfile) {
+                        try {
+                          var argument = (routeSettings.arguments as StudentProfile);
+                          return StudentFeeScreen(
+                            studentProfile: argument,
+                          );
+                        } catch (e) {
+                          return const E404NotFoundScreen();
+                        }
+                      } else {
+                        var adminProfile = routeSettings.arguments! as AdminProfile;
+                        return AdminFeeOptionsScreen(
+                          adminProfile: adminProfile,
+                        );
+                      }
                     } catch (e) {
                       return const E404NotFoundScreen();
                     }
@@ -682,6 +696,11 @@ class _MyAppState extends State<MyApp> {
                       } catch (e) {
                         return const E404NotFoundScreen();
                       }
+                    } else if (routeSettings.arguments is TeacherProfile) {
+                      var argument = routeSettings.arguments as TeacherProfile;
+                      return TeacherExamTdsScreen(
+                        teacherProfile: argument,
+                      );
                     } else {
                       try {
                         var adminProfile = routeSettings.arguments! as AdminProfile;
@@ -717,6 +736,19 @@ class _MyAppState extends State<MyApp> {
                         adminProfile: adminProfile,
                       );
                     } catch (e) {
+                      return const E404NotFoundScreen();
+                    }
+                  case StudentDemoScreen.routeName:
+                    if (routeSettings.arguments is StudentProfile) {
+                      try {
+                        var argument = (routeSettings.arguments as StudentProfile);
+                        return StudentDemoScreen(
+                          studentProfile: argument,
+                        );
+                      } catch (e) {
+                        return const E404NotFoundScreen();
+                      }
+                    } else {
                       return const E404NotFoundScreen();
                     }
                   default:

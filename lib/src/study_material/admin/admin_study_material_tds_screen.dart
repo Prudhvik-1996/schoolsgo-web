@@ -1,5 +1,4 @@
 import 'package:clay_containers/widgets/clay_container.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -533,7 +532,7 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
 
   Widget _sectionWiseTdsWidget(int sectionId) {
     return Container(
-      margin: EdgeInsets.all(25),
+      margin: const EdgeInsets.all(25),
       child: ClayContainer(
         depth: 40,
         surfaceColor: clayContainerColor(context),

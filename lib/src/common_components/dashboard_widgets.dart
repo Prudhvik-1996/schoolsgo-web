@@ -17,6 +17,7 @@ class DashboardWidget<T> {
     this.routeName,
     this.argument,
     this.subWidgets,
+    this.description,
   });
 
   Widget? image;
@@ -24,6 +25,7 @@ class DashboardWidget<T> {
   String? routeName;
   T? argument;
   List<DashboardWidget<dynamic>>? subWidgets;
+  String? description;
 }
 
 class AdminRouteWithParams<T> {
@@ -64,11 +66,11 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         argument: studentProfile,
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/attendance.svg"),
-        title: "Attendance",
-        routeName: StudentAttendanceViewScreen.routeName,
-        argument: studentProfile,
-      ),
+          image: SvgPicture.asset("assets/images/attendance.svg"),
+          title: "Attendance",
+          routeName: StudentAttendanceViewScreen.routeName,
+          argument: studentProfile,
+          description: "Student Attendance"),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/exams.svg"),
         title: "Exam",
@@ -214,18 +216,6 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         image: SvgPicture.asset("assets/images/feedback.svg"),
         title: "Feedback",
         routeName: "/feedback",
-        argument: teacherProfile,
-      ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/complainbox.svg"),
-        title: "Suggestion Box",
-        routeName: "/suggestion_box",
-        argument: teacherProfile,
-      ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/fee.svg"),
-        title: "Fee",
-        routeName: "/fee",
         argument: teacherProfile,
       ),
       DashboardWidget(

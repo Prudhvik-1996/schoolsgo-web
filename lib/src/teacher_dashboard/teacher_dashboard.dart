@@ -229,7 +229,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       userId: widget.teacherProfile.teacherId,
       channel: "WEB",
       deviceName: "-",
-      otpType: "SIGNUP",
+      otpType: "TEACHER_ACCESS",
       requestedEmail: widget.teacherProfile.mailId,
     );
     GenerateOtpResponse generateOtpResponse = await generateOtp(generateOtpRequest);

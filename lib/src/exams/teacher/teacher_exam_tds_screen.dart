@@ -3,23 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/teacher/teacher_tds_wise_exams_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/study_material/teacher/teacher_study_material_screen.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class TeacherStudyMaterialTDSScreen extends StatefulWidget {
-  const TeacherStudyMaterialTDSScreen({Key? key, required this.teacherProfile}) : super(key: key);
+class TeacherExamTdsScreen extends StatefulWidget {
+  const TeacherExamTdsScreen({
+    Key? key,
+    required this.teacherProfile,
+  }) : super(key: key);
 
   final TeacherProfile teacherProfile;
 
-  static const routeName = "/study_material";
-
   @override
-  _TeacherStudyMaterialTdsScreenState createState() => _TeacherStudyMaterialTdsScreenState();
+  State<TeacherExamTdsScreen> createState() => _TeacherExamTdsScreenState();
 }
 
-class _TeacherStudyMaterialTdsScreenState extends State<TeacherStudyMaterialTDSScreen> {
+class _TeacherExamTdsScreenState extends State<TeacherExamTdsScreen> {
   bool _isLoading = true;
 
   List<TeacherDealingSection> _tdsList = [];
@@ -119,7 +120,7 @@ class _TeacherStudyMaterialTdsScreenState extends State<TeacherStudyMaterialTDSS
         ),
         onTap: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return TeacherStudyMaterialScreen(
+            return TeacherTdsWiseExamsScreen(
               teacherProfile: widget.teacherProfile,
               tds: tds,
             );
@@ -166,15 +167,14 @@ class _TeacherStudyMaterialTdsScreenState extends State<TeacherStudyMaterialTDSS
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Study Material"),
+        title: const Text("Exams"),
         actions: [
-          buildRoleButtonForAppBar(
-            context,
-            widget.teacherProfile,
-          ),
+          buildRoleButtonForAppBar(context, widget.teacherProfile),
         ],
       ),
-      drawer: TeacherAppDrawer(teacherProfile: widget.teacherProfile),
+      drawer: TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile,
+      ),
       body: _isLoading
           ? Center(
               child: Image.asset(

@@ -14,6 +14,7 @@ import 'package:schoolsgo_web/src/exams/model/constants.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminExamMarksScreen extends StatefulWidget {
@@ -22,11 +23,16 @@ class AdminExamMarksScreen extends StatefulWidget {
     required this.adminProfile,
     required this.examBean,
     required this.section,
+    required this.teacherId,
+    required this.subjectId,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
   final AdminExamBean examBean;
   final Section section;
+
+  final int? teacherId;
+  final int? subjectId;
 
   @override
   _AdminExamMarksScreenState createState() => _AdminExamMarksScreenState();
@@ -70,7 +76,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   static const double _studentColumnHeight = 60;
   static const double _cellColumnWidth = 88;
   static const double _cellColumnHeight = 60;
-  static final Color _headerColor = Colors.blue.shade300;
+  Color get _headerColor => clayContainerColor(context);
   static const double _cellPadding = 4.0;
   final int _lhsFlex = 1;
   int _rhsFlex = 3;
@@ -168,7 +174,8 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
         _students = _studentExamMarksDetailsList
             .map((e) => StudentProfile(studentId: e.studentId, rollNumber: e.rollNumber, studentFirstName: e.studentName))
             .toSet()
-            .toList();
+            .toList()
+          ..sort((a, b) => (int.tryParse(a.rollNumber!) ?? 0).compareTo((int.tryParse(b.rollNumber!) ?? 0)));
         // for (StudentProfile eachStudent in _students) {
         for (int i = 0; i < _students.length; i++) {
           List<StudentExamMarksDetailsBean> x = [];
@@ -693,7 +700,12 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                 borderRadius: 10,
                 height: _studentColumnHeight,
                 width: _studentColumnWidth,
-                child: Center(child: Text(widget.section.sectionName ?? "-")),
+                child: Center(
+                  child: Text(
+                    widget.section.sectionName ?? "-",
+                    style: const TextStyle(color: Colors.blue),
+                  ),
+                ),
               ),
             ),
           ),
@@ -727,6 +739,10 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                             child: Text(
                               ((_subjects[i].subjectName ?? "-").capitalize()),
                               textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.blue,
+                              ),
                             ),
                           ),
                           (!_isEditMode && _showInternals ||
@@ -755,21 +771,22 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                       ),
                     ),
                   ),
-                Padding(
-                  padding: const EdgeInsets.all(_cellPadding),
-                  child: ClayContainer(
-                    depth: 40,
-                    parentColor: clayContainerColor(context),
-                    surfaceColor: _headerColor,
-                    spread: 2,
-                    borderRadius: 10,
-                    height: _cellColumnHeight,
-                    width: ((_cellColumnWidth) * ((_isMarksForBean ? 1 : 0) + (_isGradeForBean ? 1 : 0) + (_isGpaForBean ? 1 : 0))),
-                    child: const Center(
-                      child: Text("Total"),
+                if (widget.teacherId == null)
+                  Padding(
+                    padding: const EdgeInsets.all(_cellPadding),
+                    child: ClayContainer(
+                      depth: 40,
+                      parentColor: clayContainerColor(context),
+                      surfaceColor: _headerColor,
+                      spread: 2,
+                      borderRadius: 10,
+                      height: _cellColumnHeight,
+                      width: ((_cellColumnWidth) * ((_isMarksForBean ? 1 : 0) + (_isGradeForBean ? 1 : 0) + (_isGpaForBean ? 1 : 0))),
+                      child: const Center(
+                        child: Text("Total"),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -804,6 +821,9 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                     Center(
                       child: Text(
                         (eachInternalExamBean.internalNumber == null ? "-" : "Internal ${eachInternalExamBean.internalNumber}").capitalize(),
+                        style: const TextStyle(
+                          color: Colors.blue,
+                        ),
                       ),
                     ),
                     Align(
@@ -885,7 +905,14 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
               borderRadius: 10,
               height: _studentColumnHeight,
               width: _studentColumnWidth,
-              child: const Center(child: Text("Student Name")),
+              child: const Center(
+                child: Text(
+                  "Student Name",
+                  style: TextStyle(
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -897,56 +924,73 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: _subHeaders +
-                  [
-                    if (_isMarksForBean)
-                      Padding(
-                        padding: const EdgeInsets.all(_cellPadding),
-                        child: ClayContainer(
-                          depth: 40,
-                          parentColor: clayContainerColor(context),
-                          surfaceColor: _headerColor,
-                          spread: 2,
-                          borderRadius: 10,
-                          height: _cellColumnHeight,
-                          width: (_cellColumnWidth - _cellPadding),
-                          child: const Center(
-                            child: Text("Marks"),
-                          ),
-                        ),
-                      ),
-                    if (_isGradeForBean)
-                      Padding(
-                        padding: const EdgeInsets.all(_cellPadding),
-                        child: ClayContainer(
-                          depth: 40,
-                          parentColor: clayContainerColor(context),
-                          surfaceColor: _headerColor,
-                          spread: 2,
-                          borderRadius: 10,
-                          height: _cellColumnHeight,
-                          width: (_cellColumnWidth - _cellPadding),
-                          child: const Center(
-                            child: Text("Grade"),
-                          ),
-                        ),
-                      ),
-                    if (_isGpaForBean)
-                      Padding(
-                        padding: const EdgeInsets.all(_cellPadding),
-                        child: ClayContainer(
-                          depth: 40,
-                          parentColor: clayContainerColor(context),
-                          surfaceColor: _headerColor,
-                          spread: 2,
-                          borderRadius: 10,
-                          height: _cellColumnHeight,
-                          width: (_cellColumnWidth - _cellPadding),
-                          child: const Center(
-                            child: Text("GPA"),
-                          ),
-                        ),
-                      ),
-                  ],
+                  ((widget.teacherId != null)
+                      ? []
+                      : [
+                          if (_isMarksForBean)
+                            Padding(
+                              padding: const EdgeInsets.all(_cellPadding),
+                              child: ClayContainer(
+                                depth: 40,
+                                parentColor: clayContainerColor(context),
+                                surfaceColor: _headerColor,
+                                spread: 2,
+                                borderRadius: 10,
+                                height: _cellColumnHeight,
+                                width: (_cellColumnWidth - _cellPadding),
+                                child: const Center(
+                                  child: Text(
+                                    "Marks",
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (_isGradeForBean)
+                            Padding(
+                              padding: const EdgeInsets.all(_cellPadding),
+                              child: ClayContainer(
+                                depth: 40,
+                                parentColor: clayContainerColor(context),
+                                surfaceColor: _headerColor,
+                                spread: 2,
+                                borderRadius: 10,
+                                height: _cellColumnHeight,
+                                width: (_cellColumnWidth - _cellPadding),
+                                child: const Center(
+                                  child: Text(
+                                    "Grade",
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (_isGpaForBean)
+                            Padding(
+                              padding: const EdgeInsets.all(_cellPadding),
+                              child: ClayContainer(
+                                depth: 40,
+                                parentColor: clayContainerColor(context),
+                                surfaceColor: _headerColor,
+                                spread: 2,
+                                borderRadius: 10,
+                                height: _cellColumnHeight,
+                                width: (_cellColumnWidth - _cellPadding),
+                                child: const Center(
+                                  child: Text(
+                                    "GPA",
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ]),
             ),
           ),
         ),
@@ -1011,28 +1055,38 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                                 child: Text(
                                   e.subjectName ?? "-",
                                   textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                  ),
                                 ),
                               ),
                             ),
                           ))
                       .toList() +
-                  [
-                    Padding(
-                      padding: const EdgeInsets.all(_cellPadding),
-                      child: ClayContainer(
-                        depth: 40,
-                        parentColor: clayContainerColor(context),
-                        surfaceColor: _headerColor,
-                        spread: 2,
-                        borderRadius: 10,
-                        height: _cellColumnHeight,
-                        width: ((_cellColumnWidth) * ((_isMarksForBean ? 1 : 0) + (_isGradeForBean ? 1 : 0) + (_isGpaForBean ? 1 : 0))),
-                        child: const Center(
-                          child: Text("Total"),
-                        ),
-                      ),
-                    ),
-                  ],
+                  (widget.teacherId != null
+                      ? []
+                      : [
+                          Padding(
+                            padding: const EdgeInsets.all(_cellPadding),
+                            child: ClayContainer(
+                              depth: 40,
+                              parentColor: clayContainerColor(context),
+                              surfaceColor: _headerColor,
+                              spread: 2,
+                              borderRadius: 10,
+                              height: _cellColumnHeight,
+                              width: ((_cellColumnWidth) * ((_isMarksForBean ? 1 : 0) + (_isGradeForBean ? 1 : 0) + (_isGpaForBean ? 1 : 0))),
+                              child: const Center(
+                                child: Text(
+                                  "Total",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ]),
             ),
           ),
         ),
@@ -1170,56 +1224,58 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: _subHeaders +
-                  [
-                    if (_isMarksForBean)
-                      Padding(
-                        padding: const EdgeInsets.all(_cellPadding),
-                        child: ClayContainer(
-                          depth: 40,
-                          parentColor: clayContainerColor(context),
-                          surfaceColor: _headerColor,
-                          spread: 2,
-                          borderRadius: 10,
-                          height: _cellColumnHeight,
-                          width: (_cellColumnWidth - _cellPadding),
-                          child: const Center(
-                            child: Text("Marks"),
-                          ),
-                        ),
-                      ),
-                    if (_isGradeForBean)
-                      Padding(
-                        padding: const EdgeInsets.all(_cellPadding),
-                        child: ClayContainer(
-                          depth: 40,
-                          parentColor: clayContainerColor(context),
-                          surfaceColor: _headerColor,
-                          spread: 2,
-                          borderRadius: 10,
-                          height: _cellColumnHeight,
-                          width: (_cellColumnWidth - _cellPadding),
-                          child: const Center(
-                            child: Text("Grade"),
-                          ),
-                        ),
-                      ),
-                    if (_isGpaForBean)
-                      Padding(
-                        padding: const EdgeInsets.all(_cellPadding),
-                        child: ClayContainer(
-                          depth: 40,
-                          parentColor: clayContainerColor(context),
-                          surfaceColor: _headerColor,
-                          spread: 2,
-                          borderRadius: 10,
-                          height: _cellColumnHeight,
-                          width: (_cellColumnWidth - _cellPadding),
-                          child: const Center(
-                            child: Text("CGPA"),
-                          ),
-                        ),
-                      ),
-                  ],
+                  (widget.teacherId != null
+                      ? []
+                      : [
+                          if (_isMarksForBean)
+                            Padding(
+                              padding: const EdgeInsets.all(_cellPadding),
+                              child: ClayContainer(
+                                depth: 40,
+                                parentColor: clayContainerColor(context),
+                                surfaceColor: _headerColor,
+                                spread: 2,
+                                borderRadius: 10,
+                                height: _cellColumnHeight,
+                                width: (_cellColumnWidth - _cellPadding),
+                                child: const Center(
+                                  child: Text("Marks"),
+                                ),
+                              ),
+                            ),
+                          if (_isGradeForBean)
+                            Padding(
+                              padding: const EdgeInsets.all(_cellPadding),
+                              child: ClayContainer(
+                                depth: 40,
+                                parentColor: clayContainerColor(context),
+                                surfaceColor: _headerColor,
+                                spread: 2,
+                                borderRadius: 10,
+                                height: _cellColumnHeight,
+                                width: (_cellColumnWidth - _cellPadding),
+                                child: const Center(
+                                  child: Text("Grade"),
+                                ),
+                              ),
+                            ),
+                          if (_isGpaForBean)
+                            Padding(
+                              padding: const EdgeInsets.all(_cellPadding),
+                              child: ClayContainer(
+                                depth: 40,
+                                parentColor: clayContainerColor(context),
+                                surfaceColor: _headerColor,
+                                spread: 2,
+                                borderRadius: 10,
+                                height: _cellColumnHeight,
+                                width: (_cellColumnWidth - _cellPadding),
+                                child: const Center(
+                                  child: Text("CGPA"),
+                                ),
+                              ),
+                            ),
+                        ]),
             ),
           ),
         ),
@@ -1369,7 +1425,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
 
                   // Over all Gpa computation
                   if (gpaPerSubject.isNotEmpty && _isGpaForBean) {
-                    overAllGpa = (gpaPerSubject.reduce((a, b) => a + b) / gpaPerSubject.length).toString();
+                    overAllGpa = doubleToStringAsFixed(gpaPerSubject.reduce((a, b) => a + b) / gpaPerSubject.length, decimalPlaces: 1);
                   }
 
                   return SingleChildScrollView(
@@ -1545,12 +1601,14 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                                       ),
                                   ];
                                 }).expand((i) => i).toList() +
-                                _totalWidgets(
-                                  totalMarksObtained,
-                                  totalMaxMarks,
-                                  overAllGrade,
-                                  overAllGpa,
-                                ),
+                                (widget.teacherId != null
+                                    ? []
+                                    : _totalWidgets(
+                                        totalMarksObtained,
+                                        totalMaxMarks,
+                                        overAllGrade,
+                                        overAllGpa,
+                                      )),
                           )
                         : Row(
                             children: <Widget>[
@@ -1571,12 +1629,14 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                                       ),
                                     ),
                                 ] +
-                                _totalWidgets(
-                                  totalMarksObtained,
-                                  totalMaxMarks,
-                                  overAllGrade,
-                                  overAllGpa,
-                                ),
+                                (widget.teacherId != null
+                                    ? []
+                                    : _totalWidgets(
+                                        totalMarksObtained,
+                                        totalMaxMarks,
+                                        overAllGrade,
+                                        overAllGpa,
+                                      )),
                           ),
                   );
                 }).toList(),

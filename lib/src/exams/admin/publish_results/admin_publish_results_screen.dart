@@ -121,6 +121,8 @@ class _AdminPublishResultsScreenState extends State<AdminPublishResultsScreen> {
               adminProfile: widget.adminProfile,
               examBean: examBean,
               section: _selectedSection!,
+              subjectId: null,
+              teacherId: null,
             );
           }));
         },

@@ -368,6 +368,21 @@ class StudentProfile {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  int get hashCode {
+    return studentId ?? -1;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    try {
+      StudentProfile x = other as StudentProfile;
+      return studentId == x.studentId;
+    } catch (e) {
+      return super == other;
+    }
+  }
 }
 
 class OtherUserRoleProfile {

@@ -229,7 +229,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       userId: widget.adminProfile.userId,
       channel: "WEB",
       deviceName: "-",
-      otpType: "SIGNUP",
+      otpType: "ADMIN_ACCESS",
       requestedEmail: widget.adminProfile.mailId,
     );
     GenerateOtpResponse generateOtpResponse = await generateOtp(generateOtpRequest);
