@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetAdminExpensesRequest {
 /*
@@ -39,10 +41,88 @@ class GetAdminExpensesRequest {
   Map<String, dynamic> origJson() => __origJson;
 }
 
+class AdminExpenseReceiptBean {
+/*
+{
+  "adminId": 0,
+  "expenseId": 0,
+  "franchiseId": 0,
+  "mediaId": 0,
+  "mediaType": "string",
+  "mediaUrl": "string",
+  "receiptId": 0,
+  "schoolId": 0
+}
+*/
+
+  int? adminId;
+  int? expenseId;
+  int? franchiseId;
+  int? mediaId;
+  String? mediaType;
+  String? mediaUrl;
+  int? receiptId;
+  int? schoolId;
+  String? status;
+
+  Map<String, dynamic> __origJson = {};
+
+  AdminExpenseReceiptBean({
+    this.adminId,
+    this.expenseId,
+    this.franchiseId,
+    this.mediaId,
+    this.mediaType,
+    this.mediaUrl,
+    this.receiptId,
+    this.schoolId,
+    this.status,
+  });
+  AdminExpenseReceiptBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    adminId = json['adminId']?.toInt();
+    expenseId = json['expenseId']?.toInt();
+    franchiseId = json['franchiseId']?.toInt();
+    mediaId = json['mediaId']?.toInt();
+    mediaType = json['mediaType']?.toString();
+    mediaUrl = json['mediaUrl']?.toString();
+    receiptId = json['receiptId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['adminId'] = adminId;
+    data['expenseId'] = expenseId;
+    data['franchiseId'] = franchiseId;
+    data['mediaId'] = mediaId;
+    data['mediaType'] = mediaType;
+    data['mediaUrl'] = mediaUrl;
+    data['receiptId'] = receiptId;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
 class AdminExpenseBean {
 /*
 {
   "adminExpenseId": 0,
+  "adminExpenseReceiptsList": [
+    {
+      "adminId": 0,
+      "expenseId": 0,
+      "franchiseId": 0,
+      "mediaId": 0,
+      "mediaType": "string",
+      "mediaUrl": "string",
+      "receiptId": 0,
+      "schoolId": 0
+    }
+  ],
   "adminId": 0,
   "adminName": "string",
   "adminPhotoUrl": "string",
@@ -60,7 +140,13 @@ class AdminExpenseBean {
 }
 */
 
+  bool isEditMode = false;
+  TextEditingController expenseTypeController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController amountController = TextEditingController();
+
   int? adminExpenseId;
+  List<AdminExpenseReceiptBean?>? adminExpenseReceiptsList;
   int? adminId;
   String? adminName;
   String? adminPhotoUrl;
@@ -75,12 +161,12 @@ class AdminExpenseBean {
   String? status;
   String? transactionId;
   int? transactionTime;
+  int? agent;
   Map<String, dynamic> __origJson = {};
-
-  bool isEditMode = false;
 
   AdminExpenseBean({
     this.adminExpenseId,
+    this.adminExpenseReceiptsList,
     this.adminId,
     this.adminName,
     this.adminPhotoUrl,
@@ -95,17 +181,48 @@ class AdminExpenseBean {
     this.status,
     this.transactionId,
     this.transactionTime,
-  });
+    this.agent,
+  }) {
+    expenseTypeController.text = expenseType ?? "";
+    descriptionController.text = description ?? "";
+    amountController.text = amount == null ? "" : doubleToStringAsFixed(amount! / 100.0, decimalPlaces: 2);
+  }
+
+  String? get errorTextForExpenseType {
+    if ((expenseType ?? "").trim().isEmpty) {
+      return "Expense Type cannot be empty";
+    }
+    return null;
+  }
+
+  String? get errorTextForAmount {
+    if ((amountController.text).toString().trim().isEmpty) {
+      return "Amount must be greater than 0";
+    }
+    return null;
+  }
+
   AdminExpenseBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     adminExpenseId = json['adminExpenseId']?.toInt();
+    if (json['adminExpenseReceiptsList'] != null) {
+      final v = json['adminExpenseReceiptsList'];
+      final arr0 = <AdminExpenseReceiptBean>[];
+      v.forEach((v) {
+        arr0.add(AdminExpenseReceiptBean.fromJson(v));
+      });
+      adminExpenseReceiptsList = arr0;
+    }
     adminId = json['adminId']?.toInt();
     adminName = json['adminName']?.toString();
     adminPhotoUrl = json['adminPhotoUrl']?.toString();
     amount = json['amount']?.toInt();
+    amountController.text = amount == null ? "" : doubleToStringAsFixed(amount! / 100.0, decimalPlaces: 2);
     branchCode = json['branchCode']?.toString();
     description = json['description']?.toString();
+    descriptionController.text = description ?? "";
     expenseType = json['expenseType']?.toString();
+    expenseTypeController.text = expenseType ?? "";
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
     schoolId = json['schoolId']?.toInt();
@@ -113,10 +230,19 @@ class AdminExpenseBean {
     status = json['status']?.toString();
     transactionId = json['transactionId']?.toString();
     transactionTime = json['transactionTime']?.toInt();
+    agent = json['agent']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['adminExpenseId'] = adminExpenseId;
+    if (adminExpenseReceiptsList != null) {
+      final v = adminExpenseReceiptsList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['adminExpenseReceiptsList'] = arr0;
+    }
     data['adminId'] = adminId;
     data['adminName'] = adminName;
     data['adminPhotoUrl'] = adminPhotoUrl;
@@ -131,6 +257,7 @@ class AdminExpenseBean {
     data['status'] = status;
     data['transactionId'] = transactionId;
     data['transactionTime'] = transactionTime;
+    data['agent'] = agent;
     return data;
   }
 
@@ -143,6 +270,18 @@ class GetAdminExpensesResponse {
   "adminExpenseBeanList": [
     {
       "adminExpenseId": 0,
+      "adminExpenseReceiptsList": [
+        {
+          "adminId": 0,
+          "expenseId": 0,
+          "franchiseId": 0,
+          "mediaId": 0,
+          "mediaType": "string",
+          "mediaUrl": "string",
+          "receiptId": 0,
+          "schoolId": 0
+        }
+      ],
       "adminId": 0,
       "adminName": "string",
       "adminPhotoUrl": "string",
@@ -229,4 +368,63 @@ Future<GetAdminExpensesResponse> getAdminExpenses(GetAdminExpensesRequest getAdm
   GetAdminExpensesResponse getAdminExpensesResponse = GetAdminExpensesResponse.fromJson(json.decode(response.body));
   print("GetAdminExpensesResponse ${getAdminExpensesResponse.toJson()}");
   return getAdminExpensesResponse;
+}
+
+class CreateOrUpdateAdminExpenseRequest extends AdminExpenseBean {}
+
+class CreateOrUpdateAdminExpenseResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateAdminExpenseResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateAdminExpenseResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateAdminExpenseResponse> createOrUpdateAdminExpense(CreateOrUpdateAdminExpenseRequest createOrUpdateAdminExpenseRequest) async {
+  print("Raising request to createOrUpdateAdminExpense with request ${jsonEncode(createOrUpdateAdminExpenseRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_EXPENSES;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(createOrUpdateAdminExpenseRequest.toJson()),
+  );
+
+  CreateOrUpdateAdminExpenseResponse createOrUpdateAdminExpenseResponse = CreateOrUpdateAdminExpenseResponse.fromJson(json.decode(response.body));
+  print("createOrUpdateAdminExpenseResponse ${createOrUpdateAdminExpenseResponse.toJson()}");
+  return createOrUpdateAdminExpenseResponse;
 }

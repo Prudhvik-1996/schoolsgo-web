@@ -119,3 +119,4 @@ const String CREATE_OR_UPDATE_CIRCULAR = "/circulars/createOrUpdateCircular";
 
 const String GET_TRANSACTIONS = "/ledger/getTransactions";
 const String GET_ADMIN_EXPENSES = "/ledger/getAdminExpenses";
+const String CREATE_OR_UPDATE_ADMIN_EXPENSES = "/ledger/createOrUpdateAdminExpense";

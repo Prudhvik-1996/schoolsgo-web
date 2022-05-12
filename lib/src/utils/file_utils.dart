@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:typed_data';
 
 import 'package:download/download.dart';
@@ -280,6 +281,12 @@ downloadFile(String url, {String? filename}) async {
 
   final stream = Stream.fromIterable(response.bodyBytes);
   download(stream, filename!);
+}
+
+void downloadFileFromDownloadableLink(String url, String fileName) {
+  html.AnchorElement anchorElement = html.AnchorElement(href: url);
+  anchorElement.download = fileName;
+  anchorElement.click();
 }
 
 class UploadFileToDriveResponse {

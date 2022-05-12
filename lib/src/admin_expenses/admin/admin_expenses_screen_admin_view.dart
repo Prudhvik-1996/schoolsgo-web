@@ -1,10 +1,25 @@
-import 'package:auto_size_text/auto_size_text.dart';
+import 'dart:html' as html;
+import 'dart:ui' as ui;
+
+import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
+import 'package:easy_autocomplete/easy_autocomplete.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/file_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/utils/sheets_utils.dart';
+import 'package:substring_highlight/substring_highlight.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdminExpenseScreenAdminView extends StatefulWidget {
   const AdminExpenseScreenAdminView({
@@ -25,6 +40,17 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   bool _isLoading = true;
 
   List<AdminExpenseBean> adminExpenses = [];
+  bool isEditMode = false;
+  bool isAddNew = false;
+  late AdminExpenseBean newAdminExpenseBean;
+
+  bool _isReportDownloading = false;
+  final ScrollController _scrollViewController = ScrollController();
+  double headerHeight = 200;
+  List<String> uniqueExpenseTypes = [];
+
+  String? _uploadingFile;
+  double? _fileUploadProgress;
 
   @override
   void initState() {
@@ -32,10 +58,29 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     _loadData();
   }
 
+  @override
+  void dispose() {
+    _scrollViewController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
+      isAddNew = false;
+      newAdminExpenseBean = AdminExpenseBean(
+        franchiseId: widget.adminProfile.franchiseId,
+        schoolId: widget.adminProfile.schoolId,
+        agent: widget.adminProfile.userId,
+        adminId: widget.adminProfile.userId,
+        adminName: widget.adminProfile.firstName,
+        adminPhotoUrl: widget.adminProfile.adminPhotoUrl,
+        transactionTime: DateTime.now().millisecondsSinceEpoch,
+        adminExpenseReceiptsList: [],
+        status: "active",
+      )..isEditMode = true;
     });
+    // await myGoogleSheet();
     GetAdminExpensesResponse getAdminExpensesResponse = await getAdminExpenses(GetAdminExpensesRequest(
       schoolId: widget.adminProfile.schoolId,
       franchiseId: widget.adminProfile.franchiseId,
@@ -50,9 +95,16 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       setState(() {
         adminExpenses = getAdminExpensesResponse.adminExpenseBeanList!.map((e) => e!).toList();
       });
+      _loadExpenseTypes();
     }
     setState(() {
       _isLoading = false;
+    });
+  }
+
+  _loadExpenseTypes() {
+    setState(() {
+      uniqueExpenseTypes = adminExpenses.map((e) => e.expenseType ?? "-").where((e) => e != "-").toList();
     });
   }
 
@@ -64,6 +116,17 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
         title: const Text("Admin Expenses"),
         actions: [
           buildRoleButtonForAppBar(context, widget.adminProfile),
+          PopupMenuButton<String>(
+            onSelected: handleMoreOptions,
+            itemBuilder: (BuildContext context) {
+              return {'Download Report'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
         ],
       ),
       drawer: AdminAppDrawer(
@@ -77,275 +140,1026 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                 width: 500,
               ),
             )
-          : ListView(
-              children: [
-                    const SizedBox(
-                      height: 10,
+          // : ListView(
+          //     children: [
+          //           const SizedBox(
+          //             height: 10,
+          //           ),
+          //           _adminExpenseReadModeHeaderWidget(),
+          //         ] +
+          //         adminExpenses.map((e) => e.isEditMode ? _adminExpenseEditModeWidget(e) : _adminExpenseReadModeWidget(e)).toList(),
+          //   ),
+          : _uploadingFile != null
+              ? Column(
+                  children: [
+                    const Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Text("Uploading files"),
+                      ),
                     ),
-                    _adminExpenseReadModeHeaderWidget(),
-                  ] +
-                  adminExpenses.map((e) => e.isEditMode ? _adminExpenseEditModeWidget(e) : _adminExpenseReadModeWidget(e)).toList(),
+                    Expanded(
+                      flex: 3,
+                      child: Image.asset(
+                        'assets/images/eis_loader.gif',
+                        fit: BoxFit.scaleDown,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Text("Uploading file $_uploadingFile"),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: LinearPercentIndicator(
+                          padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                          alignment: MainAxisAlignment.center,
+                          width: 140.0,
+                          lineHeight: 14.0,
+                          percent: (_fileUploadProgress ?? 0) / 100,
+                          center: Text(
+                            "${(_fileUploadProgress ?? 0).toStringAsFixed(2)} %",
+                            style: const TextStyle(fontSize: 12.0),
+                          ),
+                          leading: const Icon(Icons.file_upload),
+                          linearStrokeCap: LinearStrokeCap.roundAll,
+                          backgroundColor: Colors.grey,
+                          progressColor: Colors.blue,
+                        ),
+                      ),
+                    )
+                  ],
+                )
+              : body(),
+      floatingActionButton: isEditMode && !isAddNew && !(adminExpenses.map((e) => e.isEditMode).contains(true))
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                buildAddNewButton(),
+                const SizedBox(
+                  height: 10,
+                ),
+                buildEditButton(),
+              ],
+            )
+          : buildEditButton(),
+    );
+  }
+
+  GestureDetector buildAddNewButton() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isAddNew = !isAddNew;
+        });
+      },
+      child: ClayButton(
+        color: clayContainerColor(context),
+        height: 40,
+        width: 40,
+        borderRadius: 50,
+        spread: 2,
+        child: const Icon(
+          Icons.add,
+        ),
+      ),
+    );
+  }
+
+  GestureDetector buildEditButton() {
+    return GestureDetector(
+      onTap: () {
+        if (adminExpenses.map((e) => e.isEditMode).contains(true) || isAddNew) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Save changes to continue.."),
             ),
+          );
+          return;
+        }
+        setState(() {
+          isEditMode = !isEditMode;
+        });
+      },
+      child: ClayButton(
+        color: clayContainerColor(context),
+        height: 40,
+        width: 40,
+        borderRadius: 50,
+        spread: 2,
+        child: Icon(
+          isEditMode ? Icons.check : Icons.edit,
+        ),
+      ),
     );
   }
 
-  Widget _adminExpenseReadModeHeaderWidget() {
+  Widget body() {
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      children: isAddNew
+          ? [buildEachAdminExpenseBeanEditMode(newAdminExpenseBean)]
+          : [
+              ...adminExpenses
+                  .map((e) => e.isEditMode
+                      ? buildEachAdminExpenseBeanEditMode(e)
+                      : buildEachAdminExpenseBeanReadMode(e, canEdit: isEditMode && adminExpenses.where((e) => e.isEditMode).isEmpty))
+                  .toList(),
+            ],
+    );
+  }
+
+  Widget buildEachAdminExpenseBeanReadMode(
+    AdminExpenseBean eachExpense, {
+    bool canEdit = true,
+  }) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+      margin: MediaQuery.of(context).orientation == Orientation.landscape
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
+          : const EdgeInsets.all(20),
+      child: ClayContainer(
+        depth: 20,
+        color: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              SizedBox(
-                width: 10,
+            children: [
+              const SizedBox(
+                height: 10,
               ),
-              Expanded(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Date",
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: Text(
+                      eachExpense.expenseType ?? "-",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.blue,
+                      ),
+                    ),
                   ),
-                ),
+                  if (canEdit)
+                    const SizedBox(
+                      width: 10,
+                    ),
+                  if (canEdit) buildEditButtonForExpense(eachExpense),
+                  if (canEdit)
+                    const SizedBox(
+                      width: 10,
+                    ),
+                ],
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
-              Expanded(
-                flex: 2,
-                child: AutoSizeText(
-                  "Expense Type",
-                  maxLines: 2,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                eachExpense.description ?? "-",
+                                style: const TextStyle(fontSize: 14),
+                                textAlign: (eachExpense.description ?? "").length > 120 ? TextAlign.justify : TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          // height: 150,
+                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 5,
+                              crossAxisSpacing: 5.0,
+                              mainAxisSpacing: 5.0,
+                            ),
+                            itemCount: eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList().length,
+                            itemBuilder: (context, index) {
+                              return buildMediaForReadMode(eachExpense, index);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  Text(
+                    INR_SYMBOL + " " + (eachExpense.amount == null ? "-" : doubleToStringAsFixed(eachExpense.amount! / 100, decimalPlaces: 2)),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  const Icon(
+                    Icons.arrow_drop_down_outlined,
+                    color: Colors.red,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
               ),
-              SizedBox(
-                width: 10,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Expanded(
+                    child: Text(""),
+                  ),
+                  Text(
+                    eachExpense.transactionTime == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachExpense.transactionTime!),
+                  ),
+                ],
               ),
-              Expanded(
-                flex: 3,
-                child: Text("Description"),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
-                child: Text("Amount"),
-              ),
-              SizedBox(
-                width: 60,
+              const SizedBox(
+                height: 10,
               ),
             ],
           ),
-          const SizedBox(
-            height: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget buildEachAdminExpenseBeanEditMode(AdminExpenseBean eachExpense) {
+    return Container(
+      margin: MediaQuery.of(context).orientation == Orientation.landscape
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
+          : const EdgeInsets.all(20),
+      child: ClayContainer(
+        depth: 20,
+        color: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    // child: buildExpenseTypeTextField(eachExpense),
+                    // child: buildAutoCompleteExpenseTypeTextField(eachExpense),
+                    child: buildSimpleAutoCompleteTextFieldForExpenseType(eachExpense),
+                  ),
+                  if (eachExpense.adminExpenseId != null)
+                    const SizedBox(
+                      width: 10,
+                    ),
+                  if (eachExpense.adminExpenseId != null) buildDeleteButtonForExpense(eachExpense),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  buildEditButtonForExpense(eachExpense),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: buildDescriptionTextField(eachExpense),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          // height: 150,
+                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 5,
+                              crossAxisSpacing: 5.0,
+                              mainAxisSpacing: 5.0,
+                            ),
+                            itemCount: eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList().length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList().length) {
+                                return buildAddNewReceiptsToExpense(eachExpense);
+                              }
+                              return buildMediaForEditMode(eachExpense, index);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 15,
+                  ),
+                  SizedBox(
+                    width: 100,
+                    child: buildExpenseAmountTextField(eachExpense),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  const Icon(
+                    Icons.arrow_drop_down_outlined,
+                    color: Colors.red,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Expanded(
+                    child: Text(""),
+                  ),
+                  Text(
+                    eachExpense.transactionTime == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachExpense.transactionTime!),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
           ),
-          const Divider(
-            thickness: 1,
-            height: 1,
+        ),
+      ),
+    );
+  }
+
+  InkWell buildAddNewReceiptsToExpense(AdminExpenseBean eachExpense) {
+    return InkWell(
+      onTap: () {
+        html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+        uploadInput.multiple = true;
+        uploadInput.draggable = true;
+        uploadInput.accept =
+            '.png,.jpg,.jpeg,.pdf,.zip,.doc,.7z,.arj,.deb,.pkg,.rar,.rpm,.tar.gz,.z,.zip,.csv,.dat,.db,.dbf,.log,.mdb,.sav,.sql,.tar,.xml';
+        uploadInput.click();
+        uploadInput.onChange.listen(
+          (changeEvent) {
+            final files = uploadInput.files!;
+            for (html.File file in files) {
+              final reader = html.FileReader();
+              reader.readAsDataUrl(file);
+              reader.onLoadEnd.listen(
+                (loadEndEvent) async {
+                  // _file = file;
+                  print("File uploaded: " + file.name);
+                  setState(() {
+                    _uploadingFile = file.name;
+                    _fileUploadProgress = ((files.indexOf(file) / files.length) + (1 / (2 * files.length))) * 100.0;
+                  });
+
+                  try {
+                    UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
+
+                    AdminExpenseReceiptBean newAdminExpenseReceiptBean = AdminExpenseReceiptBean();
+                    newAdminExpenseReceiptBean.expenseId = eachExpense.adminExpenseId;
+                    newAdminExpenseReceiptBean.status = "active";
+                    newAdminExpenseReceiptBean.mediaType = uploadFileResponse.mediaBean!.mediaType;
+                    newAdminExpenseReceiptBean.mediaUrl = uploadFileResponse.mediaBean!.mediaUrl;
+                    newAdminExpenseReceiptBean.mediaId = uploadFileResponse.mediaBean!.mediaId;
+
+                    if (eachExpense.adminExpenseReceiptsList == null && eachExpense.adminExpenseReceiptsList!.isEmpty) {
+                      setState(() {
+                        eachExpense.adminExpenseReceiptsList = [];
+                      });
+                    }
+                    setState(() {
+                      eachExpense.adminExpenseReceiptsList!.add(newAdminExpenseReceiptBean);
+                    });
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                      ),
+                    );
+                  }
+
+                  setState(() {
+                    _uploadingFile = null;
+                  });
+                },
+              );
+            }
+          },
+        );
+      },
+      child: Stack(
+        children: const [
+          Align(
+            alignment: Alignment.center,
+            child: Icon(Icons.add_to_photos),
           ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text("Add attachments"),
+            ),
+          )
         ],
       ),
     );
   }
 
-  Widget _adminExpenseReadModeWidget(AdminExpenseBean adminExpense, {bool canEdit = true}) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
+  InkWell buildMediaForReadMode(AdminExpenseBean eachExpense, int index) {
+    return InkWell(
+      onTap: () {
+        openMediaBeans(eachExpense, index);
+      },
+      child: Container(
+        color: Colors.transparent,
+        height: 100,
+        width: 100,
+        padding: const EdgeInsets.all(2),
+        child: getFileTypeForExtension(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
+                MediaFileType.IMAGE_FILES
+            ? FadeInImage(
+                image: NetworkImage(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
+                placeholder: const AssetImage(
+                  'assets/images/loading_grey_white.gif',
+                ),
+              )
+            : Image.asset(
+                getAssetImageForFileType(
+                  getFileTypeForExtension(
+                    eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!,
+                  ),
+                ),
+                scale: 0.5,
+              ),
+      ),
+    );
+  }
+
+  InkWell buildMediaForEditMode(AdminExpenseBean eachExpense, int index) {
+    return InkWell(
+      onTap: () {
+        openMediaBeans(eachExpense, index);
+      },
+      child: Container(
+        color: Colors.transparent,
+        height: 100,
+        width: 100,
+        padding: const EdgeInsets.all(2),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.center,
+              child:
+                  getFileTypeForExtension(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
+                          MediaFileType.IMAGE_FILES
+                      ? FadeInImage(
+                          image: NetworkImage(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
+                          placeholder: const AssetImage(
+                            'assets/images/loading_grey_white.gif',
+                          ),
+                        )
+                      : Image.asset(
+                          getAssetImageForFileType(
+                            getFileTypeForExtension(
+                              eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!,
+                            ),
+                          ),
+                          scale: 0.5,
+                        ),
+            ),
+            Align(
+              alignment: Alignment.topRight,
+              child: InkWell(
+                onTap: () {
+                  if (eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.status == 'active') {
+                    setState(() {
+                      eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.status = 'inactive';
+                    });
+                  } else {
+                    setState(() {
+                      eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.status = 'active';
+                    });
+                  }
+                },
+                child: eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.status == 'active'
+                    ? const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                        size: 18,
+                      )
+                    : const Icon(
+                        Icons.add_circle,
+                        color: Colors.green,
+                        size: 18,
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  openMediaBeans(AdminExpenseBean expense, int index) {
+    // ignore: undefined_prefixed_name
+    ui.platformViewRegistry.registerViewFactory(
+      expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
+      (int viewId) => html.IFrameElement()
+        ..src = expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!
+        ..allowFullscreen = false
+        ..style.border = 'none'
+        ..height = '500'
+        ..width = '300',
+    );
+    showDialog(
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
                 width: 10,
               ),
               Expanded(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    adminExpense.transactionTime == null
-                        ? "-"
-                        : MediaQuery.of(context).orientation == Orientation.landscape
-                            ? convertEpochToDDMMYYYYEEEEHHMMAA(adminExpense.transactionTime!)
-                            : convertEpochToDDMMYYYYNHHMMAA(adminExpense.transactionTime!),
-                    textAlign: MediaQuery.of(context).orientation == Orientation.landscape ? TextAlign.start : TextAlign.center,
-                  ),
+                child: Text(
+                  expense.description ?? "-",
                 ),
               ),
               const SizedBox(
                 width: 10,
               ),
-              Expanded(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    adminExpense.expenseType == null ? "-" : adminExpense.expenseType!,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  InkWell(
+                    child: const Icon(Icons.download_rounded),
+                    onTap: () {
+                      downloadFile(
+                        expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
+                        filename: getCurrentTimeStringInDDMMYYYYHHMMSS() +
+                            "." +
+                            expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!,
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  InkWell(
+                    child: const Icon(Icons.open_in_new),
+                    onTap: () {
+                      html.window.open(
+                        expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
+                        '_blank',
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              )
+            ],
+          ),
+          content: Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  openMediaBeans(expense, index - 1);
+                },
+                child: SizedBox(
+                  height: 25,
+                  width: 25,
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: index == 0 ? null : const Icon(Icons.arrow_left),
                   ),
                 ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(adminExpense.description == null ? "-" : adminExpense.description!),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
-                child: Text(adminExpense.amount == null ? "$INR_SYMBOL -" : "$INR_SYMBOL ${(adminExpense.amount! / 100).toStringAsFixed(2)}"),
-              ),
-              const SizedBox(
-                width: 20,
               ),
               SizedBox(
-                width: 30,
-                child: InkWell(
-                  onTap: () {
-                    if (adminExpense.isEditMode) {
-                      // TODO
-                      // _saveChanges(adminExpense);
-                    }
-                    setState(() {
-                      adminExpense.isEditMode = !adminExpense.isEditMode;
-                    });
-                  },
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.height / 1,
+                child: getFileTypeForExtension(expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
+                        MediaFileType.IMAGE_FILES
+                    ? FadeInImage(
+                        image: NetworkImage(expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
+                        placeholder: const AssetImage(
+                          'assets/images/loading_grey_white.gif',
+                        ),
+                      )
+                    : HtmlElementView(
+                        viewType: expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
+                      ),
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                  openMediaBeans(expense, index + 1);
+                },
+                child: SizedBox(
+                  height: 25,
+                  width: 25,
                   child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: adminExpense.isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
+                    fit: BoxFit.contain,
+                    child: index == expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList().length - 1
+                        ? null
+                        : const Icon(Icons.arrow_right),
                   ),
                 ),
-              ),
-              const SizedBox(
-                width: 10,
               ),
             ],
           ),
-          const SizedBox(
-            height: 20,
+        );
+      },
+    );
+  }
+
+  void handleMoreOptions(String value) {
+    switch (value) {
+      case "Download Report":
+        if (!_isReportDownloading) {
+          downloadReport();
+        }
+        return;
+      default:
+        return;
+    }
+  }
+
+  Future<void> downloadReport() async {
+    setState(() {
+      _isReportDownloading = true;
+    });
+    SheetsUtils expenseReport = SheetsUtils(sheetName: "Admin Expenses - ${convertEpochToDDMMYYYYHHMMSSAA(DateTime.now().millisecondsSinceEpoch)}");
+    await expenseReport.init();
+    await expenseReport.writeIntoSheet("Admin Expense", rows: [
+      [
+        "Date",
+        "School Name",
+        "Admin Name",
+        "Expense Type",
+        "Description",
+        "Amount",
+      ],
+      ...adminExpenses
+          .map((eachAdminExpense) => [
+                (convertEpochToDDMMYYYYHHMMAA(eachAdminExpense.transactionTime!)),
+                "${eachAdminExpense.schoolName}",
+                "${eachAdminExpense.adminName}",
+                "${eachAdminExpense.expenseType}",
+                "${eachAdminExpense.description}",
+                (doubleToStringAsFixed(((eachAdminExpense.amount ?? 0) / 100.0), decimalPlaces: 2)),
+              ])
+          .toList(),
+    ]);
+    final String reportDownloadLink = "https://docs.google.com/feeds/download/spreadsheets/Export?key=${expenseReport.sheetId}&exportFormat=xlsx";
+    await launchUrl(Uri.parse(reportDownloadLink));
+    setState(() {
+      _isReportDownloading = false;
+    });
+  }
+
+  Future<void> _saveChanges(AdminExpenseBean eachExpense) async {
+    await showDialog(
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: Text(eachExpense.status == "active" ? 'Are you sure you want to save changes?' : 'Are you sure you want to delete expense?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                if (mapEquals(eachExpense.toJson(), eachExpense.origJson())) {
+                  return;
+                }
+                CreateOrUpdateAdminExpenseRequest createOrUpdateAdminExpenseRequest = CreateOrUpdateAdminExpenseRequest()
+                  ..agent = widget.adminProfile.userId
+                  ..adminExpenseId = eachExpense.adminExpenseId
+                  ..adminId = eachExpense.adminId
+                  ..adminName = eachExpense.adminName
+                  ..adminPhotoUrl = eachExpense.adminPhotoUrl
+                  ..amount = eachExpense.amount
+                  ..branchCode = eachExpense.branchCode
+                  ..description = eachExpense.description
+                  ..expenseType = eachExpense.expenseType
+                  ..franchiseId = eachExpense.franchiseId
+                  ..franchiseName = eachExpense.franchiseName
+                  ..schoolId = eachExpense.schoolId
+                  ..schoolName = eachExpense.schoolName
+                  ..status = eachExpense.status
+                  ..transactionId = eachExpense.transactionId
+                  ..transactionTime = eachExpense.transactionTime
+                  ..adminExpenseReceiptsList = eachExpense.adminExpenseReceiptsList
+                      ?.where(
+                          (eachReceipt) => eachReceipt != null && !const DeepCollectionEquality().equals(eachReceipt.toJson(), eachReceipt.origJson))
+                      .toList();
+                CreateOrUpdateAdminExpenseResponse createOrUpdateAdminExpenseResponse =
+                    await createOrUpdateAdminExpense(createOrUpdateAdminExpenseRequest);
+                if (createOrUpdateAdminExpenseResponse.httpStatus != "OK" || createOrUpdateAdminExpenseResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                } else {
+                  _loadData();
+                }
+              },
+            ),
+            TextButton(
+              onPressed: () {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                if (eachExpense.adminExpenseId == null) {
+                  setState(() {
+                    isAddNew = false;
+                    newAdminExpenseBean = AdminExpenseBean(
+                      franchiseId: widget.adminProfile.franchiseId,
+                      schoolId: widget.adminProfile.schoolId,
+                      agent: widget.adminProfile.userId,
+                      adminId: widget.adminProfile.userId,
+                      adminName: widget.adminProfile.firstName,
+                      adminPhotoUrl: widget.adminProfile.adminPhotoUrl,
+                      transactionTime: DateTime.now().millisecondsSinceEpoch,
+                      adminExpenseReceiptsList: [],
+                      status: "active",
+                    )..isEditMode = true;
+                  });
+                } else {
+                  setState(() {
+                    eachExpense
+                      ..agent = AdminExpenseBean.fromJson(eachExpense.origJson()).agent
+                      ..adminExpenseId = AdminExpenseBean.fromJson(eachExpense.origJson()).adminExpenseId
+                      ..adminId = AdminExpenseBean.fromJson(eachExpense.origJson()).adminId
+                      ..adminName = AdminExpenseBean.fromJson(eachExpense.origJson()).adminName
+                      ..adminPhotoUrl = AdminExpenseBean.fromJson(eachExpense.origJson()).adminPhotoUrl
+                      ..amount = AdminExpenseBean.fromJson(eachExpense.origJson()).amount
+                      ..branchCode = AdminExpenseBean.fromJson(eachExpense.origJson()).branchCode
+                      ..description = AdminExpenseBean.fromJson(eachExpense.origJson()).description
+                      ..expenseType = AdminExpenseBean.fromJson(eachExpense.origJson()).expenseType
+                      ..franchiseId = AdminExpenseBean.fromJson(eachExpense.origJson()).franchiseId
+                      ..franchiseName = AdminExpenseBean.fromJson(eachExpense.origJson()).franchiseName
+                      ..schoolId = AdminExpenseBean.fromJson(eachExpense.origJson()).schoolId
+                      ..schoolName = AdminExpenseBean.fromJson(eachExpense.origJson()).schoolName
+                      ..status = AdminExpenseBean.fromJson(eachExpense.origJson()).status
+                      ..transactionId = AdminExpenseBean.fromJson(eachExpense.origJson()).transactionId
+                      ..transactionTime = AdminExpenseBean.fromJson(eachExpense.origJson()).transactionTime
+                      ..adminExpenseReceiptsList = AdminExpenseBean.fromJson(eachExpense.origJson()).adminExpenseReceiptsList;
+                    eachExpense.isEditMode = false;
+                  });
+                }
+              },
+              child: const Text("NO"),
+            ),
+            TextButton(
+              onPressed: () {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildEditButtonForExpense(AdminExpenseBean eachExpense) {
+    return GestureDetector(
+      onTap: () {
+        if (eachExpense.isEditMode) {
+          _saveChanges(eachExpense);
+        } else {
+          setState(() {
+            eachExpense.isEditMode = !eachExpense.isEditMode;
+          });
+        }
+      },
+      child: ClayButton(
+        color: clayContainerColor(context),
+        height: 30,
+        width: 30,
+        borderRadius: 50,
+        spread: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Icon(
+              eachExpense.isEditMode ? Icons.check : Icons.edit,
+            ),
           ),
-          const Divider(
-            thickness: 1,
-            height: 1,
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _adminExpenseEditModeWidget(AdminExpenseBean adminExpense) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                flex: 2,
-                child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: MediaQuery.of(context).orientation == Orientation.landscape
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                          )
-                        : Column()),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    adminExpense.expenseType == null ? "-" : adminExpense.expenseType!,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(adminExpense.description == null ? "-" : adminExpense.description!),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
-                child: Text(adminExpense.amount == null ? "$INR_SYMBOL -" : "$INR_SYMBOL ${(adminExpense.amount! / 100).toStringAsFixed(2)}"),
-              ),
-              const SizedBox(
-                width: 20,
-              ),
-              SizedBox(
-                width: 30,
-                child: InkWell(
-                  onTap: () {
-                    if (adminExpense.isEditMode) {
-                      // TODO
-                      // _saveChanges(adminExpense);
-                    }
-                    setState(() {
-                      adminExpense.isEditMode = !adminExpense.isEditMode;
-                    });
-                  },
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: adminExpense.isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-            ],
+  Widget buildDeleteButtonForExpense(AdminExpenseBean eachExpense) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          eachExpense.status = "inactive";
+        });
+        _saveChanges(eachExpense);
+      },
+      child: ClayButton(
+        color: clayContainerColor(context),
+        height: 30,
+        width: 30,
+        borderRadius: 50,
+        spread: 2,
+        child: const Padding(
+          padding: EdgeInsets.all(8),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
           ),
-          const SizedBox(
-            height: 20,
-          ),
-          const Divider(
-            thickness: 1,
-            height: 1,
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget buildSimpleAutoCompleteTextFieldForExpenseType(AdminExpenseBean eachExpense) {
+    return EasyAutocomplete(
+      autofocus: true,
+      controller: eachExpense.expenseTypeController,
+      suggestions: uniqueExpenseTypes,
+      decoration: InputDecoration(
+        border: const UnderlineInputBorder(),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        errorText: eachExpense.errorTextForExpenseType,
+        labelText: 'Expense Type',
+        hintText: 'Expense Type',
+        contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      ),
+      suggestionBuilder: (data) {
+        return Container(
+          margin: const EdgeInsets.all(1),
+          padding: const EdgeInsets.all(5),
+          child: SubstringHighlight(
+            text: data,
+            term: eachExpense.expenseTypeController.text,
+            textStyleHighlight: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: clayContainerTextColor(context),
+            ),
+            textStyle: TextStyle(
+              color: clayContainerTextColor(context),
+            ),
+          ),
+        );
+      },
+      onChanged: (value) {
+        setState(() {
+          eachExpense.expenseType = value;
+        });
+      },
+    );
+  }
+
+  TextField buildDescriptionTextField(AdminExpenseBean eachExpense) {
+    return TextField(
+      controller: eachExpense.descriptionController,
+      keyboardType: TextInputType.multiline,
+      maxLines: null,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+        border: UnderlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        labelText: 'Description',
+        hintText: 'Description',
+      ),
+      style: const TextStyle(
+        fontSize: 12,
+      ),
+      textAlign: (eachExpense.description ?? "").length > 120 ? TextAlign.justify : TextAlign.left,
+      autofocus: true,
+      onChanged: (String e) {
+        setState(() {
+          eachExpense.description = e;
+        });
+      },
+    );
+  }
+
+  Widget buildExpenseAmountTextField(AdminExpenseBean eachExpense) {
+    return TextField(
+      controller: eachExpense.amountController,
+      keyboardType: TextInputType.number,
+      maxLines: 1,
+      decoration: InputDecoration(
+        errorText: eachExpense.errorTextForAmount,
+        errorMaxLines: 3,
+        contentPadding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
+        border: const UnderlineInputBorder(),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        labelText: 'Amount',
+        hintText: 'Amount',
+        prefix: Text(
+          INR_SYMBOL,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+      ),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          try {
+            final text = newValue.text;
+            if (text.isNotEmpty) double.parse(text);
+            if (double.parse(text) > 0) {
+              return newValue;
+            } else {
+              return oldValue;
+            }
+          } catch (e) {
+            return oldValue;
+          }
+        }),
+      ],
+      autofocus: true,
+      onChanged: (String e) {
+        setState(() {
+          eachExpense.amount = ((double.tryParse(e) ?? 0) * 100).round();
+        });
+      },
     );
   }
 }
