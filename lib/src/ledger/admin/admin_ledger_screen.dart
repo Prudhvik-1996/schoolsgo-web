@@ -75,52 +75,49 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return RotatedBox(
-      quarterTurns: MediaQuery.of(context).orientation == Orientation.portrait ? 1 : 0,
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text("Ledger"),
-          actions: [
-            buildRoleButtonForAppBar(context, widget.adminProfile),
-          ],
-        ),
-        drawer: AdminAppDrawer(
-          adminProfile: widget.adminProfile,
-        ),
-        body: _isLoading
-            ? Center(
-                child: Image.asset(
-                  'assets/images/eis_loader.gif',
-                  height: 500,
-                  width: 500,
-                ),
-              )
-            : ListView(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-                          child: _getStartDatePicker(),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-                          child: _getEndDatePicker(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  _buildOverAllStats(),
-                  // for (TransactionBean transaction in filteredTransactions) _buildTransactionWidget(transaction),
-                  for (TransactionBean transaction in filteredTransactions) buildEachMasterTransaction(transaction),
-                  // _buildTransactionsTable(),
-                ],
-              ),
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: const Text("Ledger"),
+        actions: [
+          buildRoleButtonForAppBar(context, widget.adminProfile),
+        ],
       ),
+      drawer: AdminAppDrawer(
+        adminProfile: widget.adminProfile,
+      ),
+      body: _isLoading
+          ? Center(
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
+            )
+          : ListView(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                        child: _getStartDatePicker(),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                        child: _getEndDatePicker(),
+                      ),
+                    ),
+                  ],
+                ),
+                _buildOverAllStats(),
+                // for (TransactionBean transaction in filteredTransactions) _buildTransactionWidget(transaction),
+                for (TransactionBean transaction in filteredTransactions) buildEachMasterTransaction(transaction),
+                // _buildTransactionsTable(),
+              ],
+            ),
     );
   }
 

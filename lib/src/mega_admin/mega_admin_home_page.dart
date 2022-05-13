@@ -498,7 +498,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
     return TextField(
       obscureText: !showPin,
       controller: pinController,
-      keyboardType: TextInputType.text,
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -664,7 +664,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
     return TextField(
       obscureText: !showConfirmPin,
       controller: newConfirmPinController,
-      keyboardType: TextInputType.text,
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -744,7 +744,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
     return TextField(
       obscureText: !showNewPin,
       controller: newPinController,
-      keyboardType: TextInputType.text,
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
