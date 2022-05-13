@@ -1,6 +1,8 @@
-import 'package:googleapis/drive/v3.dart' as drive;
+import 'dart:convert';
+
 import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
 
 class SheetsUtils {
   late String sheetId;
@@ -8,12 +10,6 @@ class SheetsUtils {
   SheetsUtils({required this.sheetName});
 
   final String sheetName;
-
-  final _authenticateClient = _GoogleAuthClient({
-    "Authorization":
-        "Bearer ya29.A0ARrdaM9lTHTHRxn4qs1XHPPf_FPMaJrZEbpyj8qDBDtmcbUMZuErw1AsaIF9pAbOYspQL5EGTqAkitcyCWA2t-eYWwVTYK0l4SpQEaKMU7s-8OOgzybcu59qyPatDQcc_XtjfJCS4U6k4f0Y10If79sgJsH4sw",
-    "X-Goog-AuthUser": "0",
-  });
 
   static const _credentials = r'''
 {
@@ -30,28 +26,34 @@ class SheetsUtils {
 }
 ''';
 
-  static final _gsheets = GSheets(_credentials);
+  static final _gSheets = GSheets(_credentials);
 
   Future<void> init() async {
-    sheetId = await _createSpreadSheet();
+    CreateSpreadSheetResponse createSpreadSheetResponse = await createSpreadSheet(sheetName);
+    if (createSpreadSheetResponse.id == null) {
+      throw Exception();
+    }
+    sheetId = createSpreadSheetResponse.id!;
   }
 
-  Future _createSpreadSheet() async {
-    try {
-      final driveApi = drive.DriveApi(_authenticateClient);
-      var driveFile = drive.File();
-      driveFile.name = sheetName;
-      driveFile.mimeType = 'application/vnd.google-apps.spreadsheet';
-      driveFile.parents = ["1I9iupad7LRucZDi9xnKZnOfPqpcsY6di"];
-      final result = await driveApi.files.create(driveFile);
-      return result.id;
-    } catch (e) {
-      print(e);
-    }
+  Future<CreateSpreadSheetResponse> createSpreadSheet(String fileName) async {
+    print("Raising request to createSpreadSheet with request $fileName");
+    String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL + CREATE_EXCEL_FILE_AND_GET_ID + "?fileName=$fileName";
+    Map<String, String> _headers = {"Content-type": "application/json"};
+
+    Response response = await post(
+      Uri.parse(_url),
+      headers: _headers,
+      body: null,
+    );
+
+    CreateSpreadSheetResponse createSpreadSheetResponse = CreateSpreadSheetResponse.fromJson(json.decode(response.body));
+    print("createSpreadSheetResponse ${createSpreadSheetResponse.toJson()}");
+    return createSpreadSheetResponse;
   }
 
   Future<void> writeIntoSheet(String sheetName, {List<List<String>> rows = const []}) async {
-    final Spreadsheet spreadsheet = await _gsheets.spreadsheet(sheetId);
+    final Spreadsheet spreadsheet = await _gSheets.spreadsheet(sheetId);
     Worksheet sheet = await getWorkSheet(spreadsheet);
     for (int i = 0; i < rows.length; i++) {
       sheet.values.insertRow(i + 1, rows[i]);
@@ -77,4 +79,55 @@ class _GoogleAuthClient extends BaseClient {
   Future<StreamedResponse> send(BaseRequest request) {
     return _client.send(request..headers.addAll(_headers));
   }
+}
+
+class CreateSpreadSheetResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "id": "string",
+  "mediaUrl": "string",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? id;
+  String? mediaUrl;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateSpreadSheetResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.id,
+    this.mediaUrl,
+    this.responseStatus,
+  });
+  CreateSpreadSheetResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    id = json['id']?.toString();
+    mediaUrl = json['mediaUrl']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['id'] = id;
+    data['mediaUrl'] = mediaUrl;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
 }

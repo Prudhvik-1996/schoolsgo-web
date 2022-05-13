@@ -44,13 +44,14 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   bool isAddNew = false;
   late AdminExpenseBean newAdminExpenseBean;
 
-  bool _isReportDownloading = false;
+  String? _reportDownloadStatus;
   final ScrollController _scrollViewController = ScrollController();
   double headerHeight = 200;
   List<String> uniqueExpenseTypes = [];
 
   String? _uploadingFile;
   double? _fileUploadProgress;
+  String? sheetName;
 
   @override
   void initState() {
@@ -149,13 +150,13 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           //         ] +
           //         adminExpenses.map((e) => e.isEditMode ? _adminExpenseEditModeWidget(e) : _adminExpenseReadModeWidget(e)).toList(),
           //   ),
-          : _uploadingFile != null
+          : _reportDownloadStatus != null
               ? Column(
                   children: [
                     const Expanded(
                       flex: 1,
                       child: Center(
-                        child: Text("Uploading files"),
+                        child: Text("Report download in progress"),
                       ),
                     ),
                     Expanded(
@@ -168,31 +169,60 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                     Expanded(
                       flex: 2,
                       child: Center(
-                        child: Text("Uploading file $_uploadingFile"),
+                        child: Text("$sheetName.xslx"),
                       ),
                     ),
                     Expanded(
                       child: Center(
-                        child: LinearPercentIndicator(
-                          padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
-                          alignment: MainAxisAlignment.center,
-                          width: 140.0,
-                          lineHeight: 14.0,
-                          percent: (_fileUploadProgress ?? 0) / 100,
-                          center: Text(
-                            "${(_fileUploadProgress ?? 0).toStringAsFixed(2)} %",
-                            style: const TextStyle(fontSize: 12.0),
-                          ),
-                          leading: const Icon(Icons.file_upload),
-                          linearStrokeCap: LinearStrokeCap.roundAll,
-                          backgroundColor: Colors.grey,
-                          progressColor: Colors.blue,
-                        ),
+                        child: Text(_reportDownloadStatus!),
                       ),
                     )
                   ],
                 )
-              : body(),
+              : _uploadingFile != null
+                  ? Column(
+                      children: [
+                        const Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Text("Uploading files"),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Image.asset(
+                            'assets/images/eis_loader.gif',
+                            fit: BoxFit.scaleDown,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Center(
+                            child: Text("Uploading file $_uploadingFile"),
+                          ),
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: LinearPercentIndicator(
+                              padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                              alignment: MainAxisAlignment.center,
+                              width: 140.0,
+                              lineHeight: 14.0,
+                              percent: (_fileUploadProgress ?? 0) / 100,
+                              center: Text(
+                                "${(_fileUploadProgress ?? 0).toStringAsFixed(2)} %",
+                                style: const TextStyle(fontSize: 12.0),
+                              ),
+                              leading: const Icon(Icons.file_upload),
+                              linearStrokeCap: LinearStrokeCap.roundAll,
+                              backgroundColor: Colors.grey,
+                              progressColor: Colors.blue,
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  : body(),
       floatingActionButton: isEditMode && !isAddNew && !(adminExpenses.map((e) => e.isEditMode).contains(true))
           ? Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -834,7 +864,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   void handleMoreOptions(String value) {
     switch (value) {
       case "Download Report":
-        if (!_isReportDownloading) {
+        if (_reportDownloadStatus == null) {
           downloadReport();
         }
         return;
@@ -845,10 +875,14 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
 
   Future<void> downloadReport() async {
     setState(() {
-      _isReportDownloading = true;
+      sheetName = "Admin Expenses - ${convertEpochToDDMMYYYYHHMMSSAA(DateTime.now().millisecondsSinceEpoch)}";
+      _reportDownloadStatus = "Creating file";
     });
-    SheetsUtils expenseReport = SheetsUtils(sheetName: "Admin Expenses - ${convertEpochToDDMMYYYYHHMMSSAA(DateTime.now().millisecondsSinceEpoch)}");
+    SheetsUtils expenseReport = SheetsUtils(sheetName: sheetName!);
     await expenseReport.init();
+    setState(() {
+      _reportDownloadStatus = "Writing your data into the file";
+    });
     await expenseReport.writeIntoSheet("Admin Expense", rows: [
       [
         "Date",
@@ -869,10 +903,13 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
               ])
           .toList(),
     ]);
+    setState(() {
+      _reportDownloadStatus = "Your file should be downloading shortly";
+    });
     final String reportDownloadLink = "https://docs.google.com/feeds/download/spreadsheets/Export?key=${expenseReport.sheetId}&exportFormat=xlsx";
     await launchUrl(Uri.parse(reportDownloadLink));
     setState(() {
-      _isReportDownloading = false;
+      _reportDownloadStatus = null;
     });
   }
 
@@ -891,6 +928,9 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                 if (mapEquals(eachExpense.toJson(), eachExpense.origJson())) {
                   return;
                 }
+                setState(() {
+                  _isLoading = true;
+                });
                 CreateOrUpdateAdminExpenseRequest createOrUpdateAdminExpenseRequest = CreateOrUpdateAdminExpenseRequest()
                   ..agent = widget.adminProfile.userId
                   ..adminExpenseId = eachExpense.adminExpenseId
@@ -920,8 +960,12 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                       content: Text("Something went wrong! Try again later.."),
                     ),
                   );
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  return;
                 } else {
-                  _loadData();
+                  await _loadData();
                 }
               },
             ),

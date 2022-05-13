@@ -1,13 +1,20 @@
+import 'dart:math' as math;
+import 'dart:math';
+
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/pie_chart/data/pie_data.dart';
+import 'package:schoolsgo_web/src/common_components/pie_chart/widget/pie_chart_sections.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/ledger/modal/ledger.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class AdminLedgerScreen extends StatefulWidget {
   const AdminLedgerScreen({
@@ -33,6 +40,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
   int? startTime;
   int? endTime;
 
+  int touchedIndex = -1;
+
   @override
   void initState() {
     super.initState();
@@ -56,7 +65,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
     } else {
       setState(() {
         transactions = getTransactionsResponse.transactionList!.map((e) => e!).toList();
-        filteredTransactions = getTransactionsResponse.transactionList!.map((e) => e!).toList();
+        filterTransactionData();
       });
     }
     setState(() {
@@ -106,7 +115,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                     ],
                   ),
                   _buildOverAllStats(),
-                  for (TransactionBean transaction in filteredTransactions) _buildTransactionWidget(transaction),
+                  // for (TransactionBean transaction in filteredTransactions) _buildTransactionWidget(transaction),
+                  for (TransactionBean transaction in filteredTransactions) buildEachMasterTransaction(transaction),
                   // _buildTransactionsTable(),
                 ],
               ),
@@ -470,86 +480,126 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
 
   Widget _buildOverAllStats() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 5, 20, 10),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.fromLTRB(40, 10, 40, 10),
       child: ClayContainer(
         depth: 20,
         color: clayContainerColor(context),
-        spread: 5,
+        spread: 2,
         borderRadius: 10,
         child: Container(
-          margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          padding: const EdgeInsets.all(20),
-          child: Column(
+          padding: const EdgeInsets.all(10),
+          child: Row(
             children: [
               const SizedBox(
-                height: 10,
+                width: 20,
               ),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text("Total Number of credit transactions:"),
+              Expanded(
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text("Total Number of credit transactions:"),
+                        ),
+                        Text("${filteredTransactions.where((e) => e.transactionKind == "CR").length}"),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text("Total credit amount:"),
+                        ),
+                        Text(
+                            "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "CR").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text("Total Number of debit transactions:"),
+                        ),
+                        Text("${filteredTransactions.where((e) => e.transactionKind == "DB").length}"),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text("Total debit amount:"),
+                        ),
+                        Text(
+                            "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "DB").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text("Total Number of transactions:"),
+                        ),
+                        Text("${filteredTransactions.length}"),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text("Net amount:"),
+                        ),
+                        Text(
+                            "$INR_SYMBOL ${((filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100).toStringAsFixed(2)}"),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(20, 5, 20, 10),
+                padding: const EdgeInsets.all(20),
+                height: 250,
+                width: 250,
+                child: ClayContainer(
+                  depth: 20,
+                  color: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 10,
+                  emboss: true,
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: PieChart(
+                      PieChartData(
+                        centerSpaceRadius: 0,
+                        pieTouchData: PieTouchData(touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          setState(() {
+                            if (!event.isInterestedForInteractions || pieTouchResponse == null || pieTouchResponse.touchedSection == null) {
+                              touchedIndex = -1;
+                              return;
+                            }
+                            touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                          });
+                        }),
+                        borderData: FlBorderData(show: false),
+                        sectionsSpace: 0,
+                        sections: getSections(touchedIndex),
+                      ),
+                    ),
                   ),
-                  Text("${filteredTransactions.where((e) => e.transactionKind == "CR").length}"),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text("Total credit amount:"),
-                  ),
-                  Text(
-                      "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "CR").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text("Total Number of debit transactions:"),
-                  ),
-                  Text("${filteredTransactions.where((e) => e.transactionKind == "DB").length}"),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text("Total debit amount:"),
-                  ),
-                  Text(
-                      "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "DB").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text("Total Number of transactions:"),
-                  ),
-                  Text("${filteredTransactions.length}"),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text("Net amount:"),
-                  ),
-                  Text(
-                      "$INR_SYMBOL ${((filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100).toStringAsFixed(2)}"),
-                ],
+                ),
               ),
             ],
           ),
@@ -567,17 +617,15 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           DateTime? _newDate = await showDatePicker(
             context: context,
             initialDate: startTime == null ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(startTime!),
-            firstDate: DateTime(2021),
+            firstDate: DateTime.fromMillisecondsSinceEpoch(transactions.map((e) => e.transactionTime ?? 0).reduce(min)),
             lastDate: DateTime.now(),
             helpText: "Pick start date",
           );
           if (_newDate == null || _newDate.millisecondsSinceEpoch == startTime) return;
           setState(() {
             startTime = _newDate.millisecondsSinceEpoch;
-            filteredTransactions = transactions
-                .where((e) => (startTime == null || startTime! < e.transactionTime!) && (endTime == null || endTime! > e.transactionTime!))
-                .toList();
           });
+          filterTransactionData();
         },
         child: ClayButton(
           depth: 40,
@@ -629,10 +677,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           }
           setState(() {
             endTime = _newDate.millisecondsSinceEpoch;
-            filteredTransactions = transactions
-                .where((e) => (startTime == null || startTime! < e.transactionTime!) && (endTime == null || endTime! > e.transactionTime!))
-                .toList();
           });
+          filterTransactionData();
         },
         child: ClayButton(
           depth: 40,
@@ -649,6 +695,308 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  void filterTransactionData() {
+    setState(() {
+      filteredTransactions = transactions
+          .where((e) => (startTime == null || startTime! < e.transactionTime!) && (endTime == null || endTime! > e.transactionTime!))
+          .toList()
+        ..sort(
+          (b, a) => (a.transactionTime ?? 0).compareTo(b.transactionTime ?? 0),
+        );
+      PieData.data = filteredTransactions
+          .map((e) => e.transactionType ?? "-")
+          .toSet()
+          .map((eachType) => Data(
+                type: eachType,
+                color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0),
+                amount:
+                    "$INR_SYMBOL ${doubleToStringAsFixed(filteredTransactions.where((e) => e.transactionType == eachType).map((e) => e.amount ?? 0).sum / 100, decimalPlaces: 2)}",
+                percentage: (filteredTransactions.where((e) => e.transactionType == eachType).length / filteredTransactions.length) * 100,
+              ))
+          .toList();
+    });
+  }
+
+  Widget buildEachMasterTransaction(TransactionBean eachTxn) {
+    return Container(
+      margin: MediaQuery.of(context).orientation == Orientation.landscape
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
+          : const EdgeInsets.all(20),
+      child: ClayContainer(
+        depth: 20,
+        color: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    child: Text(
+                      (eachTxn.transactionType ?? "-").replaceAll("_", " "),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                eachTxn.description ?? "-",
+                                style: const TextStyle(fontSize: 14),
+                                textAlign: (eachTxn.description ?? "").length > 120 ? TextAlign.justify : TextAlign.left,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 25,
+                  ),
+                  Text(
+                    INR_SYMBOL + " " + (eachTxn.amount == null ? "-" : doubleToStringAsFixed(eachTxn.amount! / 100, decimalPlaces: 2)),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  eachTxn.transactionKind == "CR"
+                      ? const Icon(
+                          Icons.arrow_drop_up_outlined,
+                          color: Colors.green,
+                        )
+                      : const Icon(
+                          Icons.arrow_drop_down_outlined,
+                          color: Colors.red,
+                        ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+              getMoreDetailsWidget(eachTxn),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Expanded(
+                    child: Text(""),
+                  ),
+                  Text(
+                    eachTxn.transactionTime == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachTxn.transactionTime!),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget getMoreDetailsWidget(TransactionBean eachTxn) {
+    if ((eachTxn.childTransactions ?? []).isNotEmpty && !eachTxn.showMoreDetails) {
+      return showLessDetailsWidget(eachTxn);
+    } else if ((eachTxn.childTransactions ?? []).isNotEmpty && eachTxn.showMoreDetails) {
+      return showMoreDetailsWidget(eachTxn);
+    }
+    return Container(
+      child: ((eachTxn.childTransactions ?? []).isNotEmpty && !eachTxn.showMoreDetails)
+          ? showLessDetailsWidget(eachTxn)
+          : ((eachTxn.childTransactions ?? []).isNotEmpty && eachTxn.showMoreDetails)
+              ? showMoreDetailsWidget(eachTxn)
+              : null,
+    );
+  }
+
+  Column showMoreDetailsWidget(TransactionBean eachTxn) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Expanded(
+              child: Text(""),
+            ),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  eachTxn.showMoreDetails = !eachTxn.showMoreDetails;
+                });
+              },
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        "Hide details",
+                        style: TextStyle(
+                          color: Colors.lightBlue,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_up,
+                        color: Colors.lightBlue,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Colors.blue,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        for (TransactionBean childTxn in (eachTxn.childTransactions ?? []).map((e) => e!))
+          Container(
+            margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 25,
+                ),
+                Expanded(
+                  child: Text(
+                    childTxn.description ?? "-",
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 25,
+                ),
+                Text(
+                  INR_SYMBOL + " " + (childTxn.amount == null ? "-" : doubleToStringAsFixed(childTxn.amount! / 100, decimalPlaces: 2)),
+                  style: const TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                childTxn.transactionKind == "CR"
+                    ? const Icon(
+                        Icons.arrow_drop_up_outlined,
+                        color: Colors.green,
+                      )
+                    : const Icon(
+                        Icons.arrow_drop_down_outlined,
+                        color: Colors.red,
+                      ),
+                const SizedBox(
+                  width: 10,
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Column showLessDetailsWidget(TransactionBean eachTxn) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Expanded(
+              child: Text(""),
+            ),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  eachTxn.showMoreDetails = !eachTxn.showMoreDetails;
+                });
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        "Show more details",
+                        style: TextStyle(
+                          color: Colors.lightBlue,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.lightBlue,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Colors.blue,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+      ],
     );
   }
 }

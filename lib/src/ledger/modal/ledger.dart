@@ -74,6 +74,8 @@ class TransactionBean {
 }
 */
 
+  bool showMoreDetails = false;
+
   int? agent;
   int? amount;
   String? branchCode;
