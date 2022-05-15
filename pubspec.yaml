@@ -78,6 +78,8 @@ dependencies:
   substring_highlight: ^1.0.33
   easy_autocomplete: ^1.5.0
 
+  connectivity_plus: ^2.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -143,6 +145,7 @@ flutter:
     - assets/html/student_attendance_demo_v2.html
     - assets/images/login_screen_student_animation_light.gif
     - assets/images/login_screen_student_animation_dark.gif
+    - assets/images/no-internet.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -485,123 +485,144 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
         borderRadius: 10,
         child: Container(
           padding: const EdgeInsets.all(10),
-          child: Row(
-            children: [
-              const SizedBox(
-                width: 20,
-              ),
-              Expanded(
-                child: Column(
+          child: MediaQuery.of(context).orientation == Orientation.landscape
+              ? Row(
                   children: [
                     const SizedBox(
-                      height: 10,
+                      width: 20,
                     ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text("Total Number of credit transactions:"),
-                        ),
-                        Text("${filteredTransactions.where((e) => e.transactionKind == "CR").length}"),
-                      ],
+                    Expanded(
+                      child: buildStatsWidget(),
                     ),
+                    buildPieChart(),
+                  ],
+                )
+              : Column(
+                  children: [
                     const SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text("Total credit amount:"),
-                        ),
-                        Text(
-                            "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "CR").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
-                      ],
-                    ),
+                    buildStatsWidget(),
+                    buildPieChart(),
                     const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text("Total Number of debit transactions:"),
-                        ),
-                        Text("${filteredTransactions.where((e) => e.transactionKind == "DB").length}"),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text("Total debit amount:"),
-                        ),
-                        Text(
-                            "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "DB").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text("Total Number of transactions:"),
-                        ),
-                        Text("${filteredTransactions.length}"),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Text("Net amount:"),
-                        ),
-                        Text(
-                            "$INR_SYMBOL ${((filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100).toStringAsFixed(2)}"),
-                      ],
+                      height: 20,
                     ),
                   ],
                 ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(20, 5, 20, 10),
-                padding: const EdgeInsets.all(20),
-                height: 250,
-                width: 250,
-                child: ClayContainer(
-                  depth: 20,
-                  color: clayContainerColor(context),
-                  spread: 2,
-                  borderRadius: 10,
-                  emboss: true,
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: PieChart(
-                      PieChartData(
-                        centerSpaceRadius: 0,
-                        pieTouchData: PieTouchData(touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                          setState(() {
-                            if (!event.isInterestedForInteractions || pieTouchResponse == null || pieTouchResponse.touchedSection == null) {
-                              touchedIndex = -1;
-                              return;
-                            }
-                            touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
-                          });
-                        }),
-                        borderData: FlBorderData(show: false),
-                        sectionsSpace: 0,
-                        sections: getSections(touchedIndex),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+        ),
+      ),
+    );
+  }
+
+  Container buildPieChart() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 5, 20, 10),
+      padding: const EdgeInsets.all(20),
+      height: 250,
+      width: 250,
+      child: ClayContainer(
+        depth: 20,
+        color: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        emboss: true,
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: PieChart(
+            PieChartData(
+              centerSpaceRadius: 0,
+              pieTouchData: PieTouchData(touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                setState(() {
+                  if (!event.isInterestedForInteractions || pieTouchResponse == null || pieTouchResponse.touchedSection == null) {
+                    touchedIndex = -1;
+                    return;
+                  }
+                  touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                });
+              }),
+              borderData: FlBorderData(show: false),
+              sectionsSpace: 0,
+              sections: getSections(touchedIndex),
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Column buildStatsWidget() {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Total Number of credit transactions:"),
+            ),
+            Text("${filteredTransactions.where((e) => e.transactionKind == "CR").length}"),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Total credit amount:"),
+            ),
+            Text(
+                "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "CR").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Total Number of debit transactions:"),
+            ),
+            Text("${filteredTransactions.where((e) => e.transactionKind == "DB").length}"),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Total debit amount:"),
+            ),
+            Text(
+                "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "DB").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Total Number of transactions:"),
+            ),
+            Text("${filteredTransactions.length}"),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Net amount:"),
+            ),
+            Text(
+                "$INR_SYMBOL ${((filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100).toStringAsFixed(2)}"),
+          ],
+        ),
+      ],
     );
   }
 
