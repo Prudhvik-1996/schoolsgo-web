@@ -72,19 +72,19 @@ String convertHHMMSSSecondsEquivalentToHHMMA(int eq) {
 
 String timeOfDayToString(TimeOfDay tod) {
   final format = DateFormat.jm(); //"6:00 AM"
-  final now = new DateTime.now();
+  final now = DateTime.now();
   return format.format(DateTime(now.year, now.month, now.day, tod.hour, tod.minute));
 }
 
 String timeOfDayToHHMMSS(TimeOfDay tod) {
   final format = DateFormat("HH:mm:ss");
-  final now = new DateTime.now();
+  final now = DateTime.now();
   return format.format(DateTime(now.year, now.month, now.day, tod.hour, tod.minute));
 }
 
 TimeOfDay formatHHMMSSToTimeOfDay(String tod) {
   final format = DateFormat("HH:mm:ss");
-  final now = new DateTime.now();
+  final now = DateTime.now();
   return TimeOfDay.fromDateTime(format.parse(tod));
 }
 
@@ -165,4 +165,16 @@ String convertEpochToDDMMYYYYNHHMMAA(int millis) {
 
 String convertEpochToYYYYMMDD(int millis) {
   return DateFormat("yyyy-MM-dd").format(DateTime.fromMillisecondsSinceEpoch(millis));
+}
+
+String getChatDateText(DateTime date) {
+  final DateFormat _formatter = DateFormat('yyyy-MM-dd');
+  final now = DateTime.now();
+  if (_formatter.format(now) == _formatter.format(date)) {
+    return 'Today';
+  } else if (_formatter.format(DateTime(now.year, now.month, now.day - 1)) == _formatter.format(date)) {
+    return 'Yesterday';
+  } else {
+    return '${DateFormat('d').format(date)} ${DateFormat('MMMM').format(date)} ${DateFormat('y').format(date)}';
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
+import 'package:schoolsgo_web/src/chat_room/student/student_chat_room.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
@@ -45,6 +46,12 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         image: SvgPicture.asset("assets/images/profile.svg"),
         title: "Profile",
         routeName: "/profile",
+        argument: studentProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/chat_room.svg"),
+        title: "Chat Room",
+        routeName: StudentChatRoom.routeName,
         argument: studentProfile,
       ),
       DashboardWidget(
@@ -138,6 +145,12 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         image: SvgPicture.asset("assets/images/profile.svg"),
         title: "Profile",
         routeName: "/profile",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/chat_room.svg"),
+        title: "Chat Room",
+        routeName: StudentChatRoom.routeName,
         argument: teacherProfile,
       ),
       DashboardWidget(

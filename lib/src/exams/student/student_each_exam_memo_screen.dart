@@ -1,11 +1,11 @@
 import 'dart:math';
-import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/src/iterable_extensions.dart';
-import 'package:download/download.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/model/admin_exams.dart';
@@ -47,6 +47,7 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
   late bool _isGpaForBean;
 
   List<List<Widget>> marksTable = [];
+  List<List<Widget>> fittedMarksTable = [];
 
   static const double _studentColumnWidth = 200;
   static const double _studentColumnHeight = 60;
@@ -57,12 +58,22 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
 
   ScreenshotController screenshotController = ScreenshotController();
 
+  late LinkedScrollControllerGroup _controllers;
+  final List<ScrollController> _scrollControllers = [];
+
+  final key = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
       _loadData();
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -96,8 +107,8 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
     marksTable.add(
       [
         _subjectContainer("Subject"),
-        if (_hasInternals) _cellHeader("Internals (computation)"),
-        if (_hasInternals) _cellHeader("Internals (weightage)"),
+        if (_hasInternals) _cellHeader("Internals (Marks)"),
+        if (_hasInternals) _cellHeader("Internals (Weightage)"),
         if (_hasInternals && _isGradeForBean) _cellHeader("Internals Grade"),
         _cellHeader("Externals Marks Obtained"),
         _cellHeader("Externals Max Marks"),
@@ -183,6 +194,107 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
         ],
       );
     }
+    _controllers = LinkedScrollControllerGroup();
+    for (var i in List<int>.generate(subjects.length + 1, (i) => i + 1)) {
+      _scrollControllers.add(_controllers.addAndGet());
+    }
+  }
+
+  Future<void> _loadFittedMarksTable() async {
+    marksTable.add(
+      [
+        _subjectContainer("Subject"),
+        if (_hasInternals) _cellHeader("Internals (Marks)"),
+        if (_hasInternals) _cellHeader("Internals (Weightage)"),
+        if (_hasInternals && _isGradeForBean) _cellHeader("Internals Grade"),
+        _cellHeader("Externals Marks Obtained"),
+        _cellHeader("Externals Max Marks"),
+        if (_isGradeForBean) _cellHeader("Externals Grade"),
+        if (_isGpaForBean) _cellHeader("Externals GPA"),
+      ],
+    );
+
+    for (Subject eachSubject in subjects) {
+      StudentExamMarksDetailsBean eachSubjectWiseMarksBean =
+          widget.studentExamMarksDetailsList.where((e) => e.subjectId == eachSubject.subjectId).first;
+
+      String internalsMarksComputedString = "";
+      String internalsMaxMarksString = "";
+      String internalsGradeString = "";
+      String externalsMarksObtainedString = eachSubjectWiseMarksBean.marksObtained == null || eachSubjectWiseMarksBean.marksObtained == -1
+          ? "-"
+          : eachSubjectWiseMarksBean.marksObtained == -2
+              ? "A"
+              : eachSubjectWiseMarksBean.marksObtained!.toString();
+      String externalsMaxMarksString = "${eachSubjectWiseMarksBean.maxMarks == null ? "-" : eachSubjectWiseMarksBean.maxMarks!}";
+      String externalsGradeString = "";
+      String subjectWiseGpaString = "";
+
+      if (double.tryParse(externalsMarksObtainedString) != null && double.tryParse(externalsMaxMarksString) != null) {
+        double externalsPercentage = double.tryParse(externalsMarksObtainedString)! * 100 / double.tryParse(externalsMaxMarksString)!;
+        if (widget.markingAlgorithmBean != null) {
+          (widget.markingAlgorithmBean!.markingAlgorithmRangeBeanList ?? []).map((e) => e!).forEach((MarkingAlgorithmRangeBean eachRangeBean) {
+            if (eachRangeBean.startRange! <= externalsPercentage.ceil() && externalsPercentage.ceil() <= eachRangeBean.endRange!) {
+              if (_isGradeForBean) {
+                externalsGradeString = eachRangeBean.grade!;
+              }
+              if (_isGpaForBean) {
+                subjectWiseGpaString = doubleToStringAsFixed(eachRangeBean.gpa);
+              }
+            }
+          });
+        }
+      }
+
+      if (_hasInternals) {
+        double internalsComputedMarks = 0;
+        double internalsWeightage = eachSubjectWiseMarksBean.internalsWeightage ?? 100;
+        String internalsComputationCode = eachSubjectWiseMarksBean.internalsComputationCode ?? "A";
+        List<StudentInternalExamMarksDetailsBean> internals =
+            (eachSubjectWiseMarksBean.studentInternalExamMarksDetailsBeanList ?? []).map((e) => e!).toList();
+        if (internalsComputationCode == "A") {
+          internalsComputedMarks = internals
+              .where((e) => e.internalsMarksObtained != null && e.internalsMarksObtained != -1)
+              .map((e) => (e.internalsMarksObtained == -2 ? 0 : e.internalsMarksObtained!) * internalsWeightage / (e.internalsMaxMarks ?? 0))
+              .average;
+        } else {
+          internalsComputedMarks = internals
+              .where((e) => e.internalsMarksObtained != null && e.internalsMarksObtained != -1)
+              .map((e) => (e.internalsMarksObtained == -2 ? 0 : e.internalsMarksObtained!) * internalsWeightage / (e.internalsMaxMarks ?? 0))
+              .reduce(max)
+              .toDouble();
+        }
+        double internalsPercentage = internalsComputedMarks * 100 / internalsWeightage;
+        if (widget.markingAlgorithmBean != null) {
+          (widget.markingAlgorithmBean!.markingAlgorithmRangeBeanList ?? []).map((e) => e!).forEach((MarkingAlgorithmRangeBean eachRangeBean) {
+            if (eachRangeBean.startRange! <= internalsPercentage.ceil() && internalsPercentage.ceil() <= eachRangeBean.endRange!) {
+              if (_isGradeForBean) {
+                internalsGradeString = eachRangeBean.grade!;
+              }
+            }
+          });
+        }
+        internalsMarksComputedString = doubleToStringAsFixed(internalsPercentage * (eachSubjectWiseMarksBean.internalsWeightage ?? 100) / 100);
+        internalsMaxMarksString = doubleToStringAsFixed(internalsWeightage);
+      }
+
+      marksTable.add(
+        [
+          _subjectContainer(eachSubject.subjectName ?? "-"),
+          if (_hasInternals) _cellContainer(internalsMarksComputedString),
+          if (_hasInternals) _cellContainer(internalsMaxMarksString),
+          if (_hasInternals && _isGradeForBean) _cellContainer(internalsGradeString),
+          _cellContainer(externalsMarksObtainedString),
+          _cellContainer(externalsMaxMarksString),
+          if (_isGradeForBean) _cellContainer(externalsGradeString),
+          if (_isGpaForBean) _cellContainer(subjectWiseGpaString),
+        ],
+      );
+    }
+    _controllers = LinkedScrollControllerGroup();
+    for (var i in List<int>.generate(subjects.length + 1, (i) => i + 1)) {
+      _scrollControllers.add(_controllers.addAndGet());
+    }
   }
 
   Widget _cellHeader(String text) {
@@ -191,7 +303,7 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
       child: ClayContainer(
         depth: 40,
         parentColor: clayContainerColor(context),
-        surfaceColor: _headerColor,
+        surfaceColor: clayContainerColor(context),
         spread: 2,
         borderRadius: 10,
         height: _cellColumnHeight,
@@ -200,6 +312,9 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
           child: Text(
             text,
             textAlign: TextAlign.center,
+            style: TextStyle(
+              color: _headerColor,
+            ),
           ),
         ),
       ),
@@ -233,7 +348,7 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
       child: ClayContainer(
         depth: 40,
         parentColor: clayContainerColor(context),
-        surfaceColor: _headerColor,
+        surfaceColor: clayContainerColor(context),
         spread: 2,
         borderRadius: 10,
         height: _studentColumnHeight,
@@ -241,6 +356,9 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
         child: Center(
           child: Text(
             text,
+            style: TextStyle(
+              color: _headerColor,
+            ),
           ),
         ),
       ),
@@ -261,7 +379,10 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
                 width: 500,
               ),
             )
-          : bodyWidget(),
+          // : tableWithFixedDimensions(),
+          : _isPrinting
+              ? tableWithFixedDimensions()
+              : bodyWidget(),
       floatingActionButton: _isLoading
           ? Container()
           : GestureDetector(
@@ -280,11 +401,23 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
                 setState(() {
                   _isPrinting = true;
                 });
-                await screenshotController.capture(delay: const Duration(milliseconds: 10)).then((Uint8List? image) async {
-                  if (image != null) {
-                    download(Stream.fromIterable(image), "image.png");
-                  }
-                });
+
+                // screenshotController.capture().then((capturedImage) async {
+                //   // await FileSaver.instance.saveFile("String name", capturedImage!, "png");
+                //   print("408: ${capturedImage}");
+                // });
+
+                // screenshotController.capture().then((Uint8List? value) {
+                //   final _base64 = base64Encode(value!);
+                //   final anchor = AnchorElement(href: 'data:application/octet-stream;base64,$_base64')
+                //     ..download = "image.png"
+                //     ..target = 'blank';
+                //
+                //   document.body!.append(anchor);
+                //   anchor.click();
+                //   anchor.remove();
+                // });
+
                 setState(() {
                   _isPrinting = false;
                 });
@@ -294,54 +427,39 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
   }
 
   Widget bodyWidget() {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      color: clayContainerColor(context),
-      child: SingleChildScrollView(
-        child: Screenshot(
-          controller: screenshotController,
-          child: Container(
-            decoration: BoxDecoration(
-              color: clayContainerColor(context),
-            ),
-            child: ListView(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              children: <Widget>[
-                const SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  margin: MediaQuery.of(context).orientation == Orientation.landscape
-                      ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 5, 0, MediaQuery.of(context).size.width / 5, 0)
-                      : const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: examDetailsWidget(),
-                ),
-                marksTable.isEmpty ? Container() : marksTableWidget(),
-                const SizedBox(
-                  height: 20,
-                ),
-                if (_isPrinting)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.all(10),
-                        child: const Text("© Powered by Epsilon Infinity Services Pvt. Ltd."),
-                      ),
-                    ],
-                  ),
-                if (_isPrinting)
-                  const SizedBox(
-                    height: 20,
-                  ),
-              ],
-            ),
-          ),
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      shrinkWrap: true,
+      children: <Widget>[
+        const SizedBox(
+          height: 20,
         ),
-      ),
+        Container(
+          margin: MediaQuery.of(context).orientation == Orientation.landscape
+              ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 5, 0, MediaQuery.of(context).size.width / 5, 0)
+              : const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: examDetailsWidget(),
+        ),
+        marksTable.isEmpty ? Container() : marksTableWidget(),
+        const SizedBox(
+          height: 20,
+        ),
+        if (_isPrinting)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                margin: const EdgeInsets.all(10),
+                child: const Text("© Powered by Epsilon Infinity Services Pvt. Ltd."),
+              ),
+            ],
+          ),
+        if (_isPrinting)
+          const SizedBox(
+            height: 20,
+          ),
+      ],
     );
   }
 
@@ -626,7 +744,7 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
                     child: Container(
                       margin: const EdgeInsets.all(5),
                       child: Center(
-                        child: Text("${totalMarksObtained * 100 / totalMaxMarks} %"),
+                        child: Text("${doubleToStringAsFixed(totalMarksObtained * 100 / totalMaxMarks)} %"),
                       ),
                     ),
                   ),
@@ -715,13 +833,144 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: marksTable
             .map(
-              (eachRow) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: eachRow,
+              (eachRow) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _scrollControllers[marksTable.indexOf(eachRow)],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: eachRow,
+                ),
               ),
             )
             .toList(),
+      ),
+    );
+  }
+
+  Widget tableWithFixedDimensions() {
+    return Screenshot(
+      controller: screenshotController,
+      child: SizedBox(
+        key: key,
+        height: 1000,
+        width: 1800,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          (widget.exam.examName ?? "-").capitalize(),
+                          textAlign: TextAlign.left,
+                          style: const TextStyle(
+                            fontSize: 32,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Name:      ${widget.studentProfile.studentFirstName ?? "-"}",
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Roll No.:   ${widget.studentProfile.rollNumber ?? "-"}",
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Section:    ${widget.studentProfile.sectionName ?? "-"}",
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "School:     ${widget.studentProfile.schoolName ?? "-"}",
+                          textAlign: TextAlign.left,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  overAllScoreWidget(),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                ] +
+                marksTable
+                    .map(
+                      (eachRow) => FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: eachRow,
+                        ),
+                      ),
+                    )
+                    .toList(),
+          ),
+        ),
       ),
     );
   }

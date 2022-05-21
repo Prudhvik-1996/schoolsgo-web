@@ -4,6 +4,8 @@ import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_adm
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_options_screen.dart';
+import 'package:schoolsgo_web/src/chat_room/student/student_chat_room.dart';
+import 'package:schoolsgo_web/src/chat_room/teacher/teacher_chat_room.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/circulars/mega_admin/mega_admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/circulars/teachers/teacher_circular_screen.dart';
@@ -772,6 +774,28 @@ class _MyAppState extends State<MyApp> {
                 var argument = (routeSettings.arguments as StudentProfile);
                 return StudentDemoScreen(
                   studentProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else {
+              return const E404NotFoundScreen();
+            }
+          case StudentChatRoom.routeName:
+            if (routeSettings.arguments is StudentProfile) {
+              try {
+                var argument = (routeSettings.arguments as StudentProfile);
+                return StudentChatRoom(
+                  studentProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if (routeSettings.arguments is TeacherProfile) {
+              try {
+                var argument = (routeSettings.arguments as TeacherProfile);
+                return TeacherChatRoom(
+                  teacherProfile: argument,
                 );
               } catch (e) {
                 return const E404NotFoundScreen();

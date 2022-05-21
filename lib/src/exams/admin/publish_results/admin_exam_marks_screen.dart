@@ -51,12 +51,6 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   int currentCellIndexX = 0;
   int currentCellIndexY = 0;
 
-  ScrollController horizontalBodyController = ScrollController();
-  ScrollController verticalBodyController = ScrollController();
-
-  ScrollController horizontalTitleController = ScrollController();
-  ScrollController verticalTitleController = ScrollController();
-
   late LinkedScrollControllerGroup _controllers;
   late ScrollController _studentsController;
   late ScrollController _detailsController;
@@ -94,11 +88,6 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
 
   @override
   void dispose() {
-    horizontalTitleController.dispose();
-    horizontalBodyController.dispose();
-    verticalTitleController.dispose();
-    verticalBodyController.dispose();
-
     _studentsController.dispose();
     _detailsController.dispose();
     _marksController.dispose();

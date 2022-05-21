@@ -606,6 +606,7 @@ class AdminProfile {
     middleName = json['middleName']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
+    branchCode = json['branchCode']?.toString();
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
@@ -621,6 +622,7 @@ class AdminProfile {
     data['middleName'] = middleName;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
+    data['branchCode'] = branchCode;
     data['franchiseId'] = franchiseId;
     data['franchiseName'] = franchiseName;
     data['schoolPhotoUrl'] = schoolPhotoUrl;

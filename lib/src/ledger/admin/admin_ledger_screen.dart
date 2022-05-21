@@ -5,6 +5,7 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/pie_chart/data/pie_data.dart';
@@ -73,6 +74,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
     });
   }
 
+  bool showDateFilter = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,6 +84,18 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
         title: const Text("Ledger"),
         actions: [
           buildRoleButtonForAppBar(context, widget.adminProfile),
+          InkWell(
+            onTap: () {
+              //  TODO download report
+            },
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
+              child: const Tooltip(
+                message: "Download",
+                child: Icon(Icons.download),
+              ),
+            ),
+          ),
         ],
       ),
       drawer: AdminAppDrawer(
@@ -96,28 +111,40 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
             )
           : ListView(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                if (showDateFilter)
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 20,
+                      ),
+                      Expanded(
                         child: _getStartDatePicker(),
                       ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                      Expanded(
                         child: _getEndDatePicker(),
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(
+                        width: 20,
+                      ),
+                    ],
+                  ),
                 _buildOverAllStats(),
                 // for (TransactionBean transaction in filteredTransactions) _buildTransactionWidget(transaction),
                 for (TransactionBean transaction in filteredTransactions) buildEachMasterTransaction(transaction),
+                const SizedBox(
+                  height: 100,
+                ),
                 // _buildTransactionsTable(),
               ],
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            showDateFilter = !showDateFilter;
+          });
+        },
+        child: showDateFilter ? const Icon(Icons.clear) : const Icon(Icons.calendar_today),
+      ),
     );
   }
 
@@ -477,7 +504,9 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
 
   Widget _buildOverAllStats() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(40, 10, 40, 10),
+      margin: MediaQuery.of(context).orientation == Orientation.landscape
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
+          : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 20,
         color: clayContainerColor(context),
@@ -485,30 +514,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
         borderRadius: 10,
         child: Container(
           padding: const EdgeInsets.all(10),
-          child: MediaQuery.of(context).orientation == Orientation.landscape
-              ? Row(
-                  children: [
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    Expanded(
-                      child: buildStatsWidget(),
-                    ),
-                    buildPieChart(),
-                  ],
-                )
-              : Column(
-                  children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    buildStatsWidget(),
-                    buildPieChart(),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                  ],
-                ),
+          child: buildStatsWidget(),
         ),
       ),
     );
@@ -550,6 +556,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
     );
   }
 
+  bool showMoreStats = false;
+
   Column buildStatsWidget() {
     return Column(
       children: [
@@ -557,11 +565,35 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           height: 10,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Expanded(
-              child: Text("Total Number of credit transactions:"),
+            Expanded(
+              child: Text(
+                widget.adminProfile.schoolName ?? "-",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.archivoBlack(
+                  textStyle: const TextStyle(
+                    fontSize: 24,
+                  ),
+                ),
+              ),
             ),
-            Text("${filteredTransactions.where((e) => e.transactionKind == "CR").length}"),
+          ],
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                widget.adminProfile.branchCode ?? "-",
+                textAlign: TextAlign.center,
+              ),
+            ),
           ],
         ),
         const SizedBox(
@@ -569,57 +601,115 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
         ),
         Row(
           children: [
-            const Expanded(
-              child: Text("Total credit amount:"),
+            const SizedBox(
+              width: 10,
             ),
-            Text(
-                "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "CR").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            const Expanded(
-              child: Text("Total Number of debit transactions:"),
-            ),
-            Text("${filteredTransactions.where((e) => e.transactionKind == "DB").length}"),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            const Expanded(
-              child: Text("Total debit amount:"),
-            ),
-            Text(
-                "$INR_SYMBOL ${((filteredTransactions.where((e) => e.transactionKind == "DB").map((e) => e.amount ?? 0).toList().sum) / 100).toStringAsFixed(2)}"),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            const Expanded(
-              child: Text("Total Number of transactions:"),
-            ),
-            Text("${filteredTransactions.length}"),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
             const Expanded(
               child: Text("Net amount:"),
             ),
             Text(
-                "$INR_SYMBOL ${((filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100).toStringAsFixed(2)}"),
+              "$INR_SYMBOL ${(doubleToStringAsFixedForINR((filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100)).replaceAll("-", "")}",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum >= 0
+                    ? Colors.green
+                    : Colors.red,
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        if (showMoreStats)
+          Row(
+            children: [
+              const SizedBox(
+                width: 10,
+              ),
+              const Expanded(
+                child: Text("Total credit amount:"),
+              ),
+              Text(
+                "$INR_SYMBOL ${doubleToStringAsFixedForINR((filteredTransactions.where((e) => e.transactionKind == "CR").map((e) => e.amount ?? 0).toList().sum) / 100)}",
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+            ],
+          ),
+        if (showMoreStats)
+          const SizedBox(
+            height: 10,
+          ),
+        if (showMoreStats)
+          Row(
+            children: [
+              const SizedBox(
+                width: 10,
+              ),
+              const Expanded(
+                child: Text("Total debit amount:"),
+              ),
+              Text(
+                "$INR_SYMBOL ${doubleToStringAsFixedForINR((filteredTransactions.where((e) => e.transactionKind == "DB").map((e) => e.amount ?? 0).toList().sum) / 100)}",
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+            ],
+          ),
+        if (showMoreStats)
+          const SizedBox(
+            height: 10,
+          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Expanded(
+              child: Text(""),
+            ),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  showMoreStats = !showMoreStats;
+                });
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        showMoreStats ? "Show less details" : "Show more details",
+                        style: const TextStyle(
+                          color: Colors.lightBlue,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Icon(
+                        showMoreStats ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: Colors.lightBlue,
+                      ),
+                    ],
+                  ),
+                  const Divider(
+                    color: Colors.blue,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ],
@@ -628,8 +718,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
 
   Widget _getStartDatePicker() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+      padding: const EdgeInsets.all(8),
       child: GestureDetector(
         onTap: () async {
           DateTime? _newDate = await showDatePicker(
@@ -652,9 +742,12 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           borderRadius: 10,
           child: Container(
             padding: const EdgeInsets.all(15),
-            child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
               child: Text(
-                startTime == null ? "Start Date" : "Date: ${convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(startTime!))}",
+                startTime == null
+                    ? "Start Date: ${convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(transactions.map((e) => e.transactionTime ?? 0).reduce(min)))}"
+                    : "Start Date: ${convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(startTime!))}",
               ),
             ),
           ),
@@ -665,8 +758,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
 
   Widget _getEndDatePicker() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+      padding: const EdgeInsets.all(8),
       child: GestureDetector(
         onTap: () async {
           if (startTime == null) {
@@ -705,9 +798,12 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           borderRadius: 10,
           child: Container(
             padding: const EdgeInsets.all(15),
-            child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
               child: Text(
-                endTime == null ? "End Date" : "Date: ${convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(endTime!))}",
+                endTime == null
+                    ? "End Date: ${convertDateTimeToDDMMYYYYFormat(DateTime.now())}"
+                    : "End Date: ${convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(endTime!))}",
               ),
             ),
           ),
@@ -731,7 +827,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                 type: eachType,
                 color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0),
                 amount:
-                    "$INR_SYMBOL ${doubleToStringAsFixed(filteredTransactions.where((e) => e.transactionType == eachType).map((e) => e.amount ?? 0).sum / 100, decimalPlaces: 2)}",
+                    "$INR_SYMBOL ${doubleToStringAsFixedForINR(filteredTransactions.where((e) => e.transactionType == eachType).map((e) => e.amount ?? 0).sum / 100, decimalPlaces: 2)}",
                 percentage: (filteredTransactions.where((e) => e.transactionType == eachType).length / filteredTransactions.length) * 100,
               ))
           .toList();
@@ -787,6 +883,9 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            const SizedBox(
+                              width: 5,
+                            ),
                             Expanded(
                               child: Text(
                                 eachTxn.description ?? "-",
@@ -806,7 +905,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                     width: 25,
                   ),
                   Text(
-                    INR_SYMBOL + " " + (eachTxn.amount == null ? "-" : doubleToStringAsFixed(eachTxn.amount! / 100, decimalPlaces: 2)),
+                    INR_SYMBOL + " " + (eachTxn.amount == null ? "-" : doubleToStringAsFixedForINR(eachTxn.amount! / 100, decimalPlaces: 2)),
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -830,6 +929,10 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                 ],
               ),
               getMoreDetailsWidget(eachTxn),
+              if ((eachTxn.childTransactions ?? []).isEmpty)
+                const SizedBox(
+                  height: 15,
+                ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -913,9 +1016,6 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 15,
-        ),
         for (TransactionBean childTxn in (eachTxn.childTransactions ?? []).map((e) => e!))
           Container(
             margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
@@ -936,7 +1036,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                   width: 25,
                 ),
                 Text(
-                  INR_SYMBOL + " " + (childTxn.amount == null ? "-" : doubleToStringAsFixed(childTxn.amount! / 100, decimalPlaces: 2)),
+                  INR_SYMBOL + " " + (childTxn.amount == null ? "-" : doubleToStringAsFixedForINR(childTxn.amount! / 100, decimalPlaces: 2)),
                   style: const TextStyle(
                     fontSize: 12,
                   ),
@@ -1010,9 +1110,6 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
               ),
             ),
           ],
-        ),
-        const SizedBox(
-          height: 15,
         ),
       ],
     );
