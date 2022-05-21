@@ -54,13 +54,14 @@ class SheetsUtils {
 
   Future<void> writeIntoSheet(String sheetName, {List<List<String>> rows = const []}) async {
     final Spreadsheet spreadsheet = await _gSheets.spreadsheet(sheetId);
-    Worksheet sheet = await getWorkSheet(spreadsheet);
+    Worksheet sheet = await getWorkSheet(spreadsheet: spreadsheet);
     for (int i = 0; i < rows.length; i++) {
       sheet.values.insertRow(i + 1, rows[i]);
     }
   }
 
-  Future<Worksheet> getWorkSheet(Spreadsheet spreadsheet, {String sheetName = "Sheet1"}) async {
+  Future<Worksheet> getWorkSheet({Spreadsheet? spreadsheet, String sheetName = "Sheet1"}) async {
+    spreadsheet ??= await _gSheets.spreadsheet(sheetId);
     try {
       return await spreadsheet.addWorksheet(sheetName);
     } catch (e) {

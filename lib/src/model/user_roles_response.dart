@@ -263,6 +263,7 @@ class StudentProfile {
   String? rollNumber;
   int? schoolId;
   String? schoolName;
+  String? branchCode;
   String? schoolPhotoUrl;
   String? sectionDescription;
   int? sectionId;
@@ -292,6 +293,7 @@ class StudentProfile {
     this.rollNumber,
     this.schoolId,
     this.schoolName,
+    this.branchCode,
     this.schoolPhotoUrl,
     this.sectionDescription,
     this.sectionId,
@@ -321,6 +323,7 @@ class StudentProfile {
     rollNumber = json['rollNumber']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
+    branchCode = json['branchCode']?.toString();
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
     sectionDescription = json['sectionDescription']?.toString();
     sectionId = json['sectionId']?.toInt();
@@ -350,6 +353,7 @@ class StudentProfile {
     data['rollNumber'] = rollNumber;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
+    data['branchCode'] = branchCode;
     data['schoolPhotoUrl'] = schoolPhotoUrl;
     data['sectionDescription'] = sectionDescription;
     data['sectionId'] = sectionId;

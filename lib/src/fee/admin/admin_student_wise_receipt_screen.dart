@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/basic_fee_stats_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -232,8 +233,16 @@ class _AdminStudentWiseReceiptScreenState extends State<AdminStudentWiseReceiptS
               });
             }
           });
-          eachStudentTermWiseTransactionHistory.totalFeePaid =
-              eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistory?.map((e) => e.totalFeePaid ?? 0).sum;
+          eachStudentTermWiseTransactionHistory.totalFeePaid = (eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistory
+                      ?.map((e) => (e.studentTermWiseCustomFeeTypeTransactionHistory ?? []).isEmpty ? (e.totalFeePaid ?? 0) : 0)
+                      .sum ??
+                  0) +
+              (eachStudentTermWiseTransactionHistory.studentTermWiseFeeTypeTransactionHistory
+                      ?.map((e) => (e.studentTermWiseCustomFeeTypeTransactionHistory ?? []).isNotEmpty
+                          ? (e.studentTermWiseCustomFeeTypeTransactionHistory?.map((e) => e.totalFeePaid ?? 0).sum) ?? 0
+                          : 0)
+                      .sum ??
+                  0);
         });
         eachMasterTransactionIdWiseStudentTermWiseTransactionHistory.totalFeePaid =
             eachMasterTransactionIdWiseStudentTermWiseTransactionHistory.studentTermWiseTransactionHistory?.map((e) => e.totalFeePaid ?? 0).sum;
@@ -271,6 +280,11 @@ class _AdminStudentWiseReceiptScreenState extends State<AdminStudentWiseReceiptS
                 // SelectableText(
                 //   "$studentWiseAnnualTransactionHistory",
                 // ),
+                BasicFeeStatsReadWidget(
+                  studentWiseAnnualFeesBean: widget.studentWiseAnnualFeesBean,
+                  context: context,
+                  alignMargin: true,
+                ),
                 ..._dateWiseTransactions(),
               ],
             ),

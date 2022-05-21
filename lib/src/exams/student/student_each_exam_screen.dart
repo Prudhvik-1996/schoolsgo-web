@@ -136,32 +136,38 @@ class _StudentEachExamScreenState extends State<StudentEachExamScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(
+                  height: 100,
+                ),
               ],
             ),
       floatingActionButton: _isLoading
           ? Container()
           : Container(
-              margin: const EdgeInsets.all(20),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return StudentEachExamMemoScreen(
-                      studentProfile: widget.studentProfile,
-                      exam: widget.exam,
-                      studentExamMarksDetailsList: _studentExamMarksDetailsList,
-                      markingAlgorithmBean: markingAlgorithmBean,
-                    );
-                  }));
-                },
-                child: ClayButton(
-                  depth: 40,
-                  parentColor: clayContainerColor(context),
-                  surfaceColor: Colors.blue.shade300,
-                  spread: 1,
-                  borderRadius: 10,
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                    child: const Text("MEMO"),
+              margin: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+              child: Tooltip(
+                message: "Memo",
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return StudentEachExamMemoScreen(
+                        studentProfile: widget.studentProfile,
+                        exam: widget.exam,
+                        studentExamMarksDetailsList: _studentExamMarksDetailsList,
+                        markingAlgorithmBean: markingAlgorithmBean,
+                      );
+                    }));
+                  },
+                  child: ClayButton(
+                    depth: 40,
+                    parentColor: clayContainerColor(context),
+                    surfaceColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 100,
+                    child: Container(
+                      margin: const EdgeInsets.all(15),
+                      child: const Icon(Icons.description),
+                    ),
                   ),
                 ),
               ),
@@ -210,40 +216,76 @@ class _StudentEachExamScreenState extends State<StudentEachExamScreen> {
         borderRadius: 10,
         child: Container(
           margin: const EdgeInsets.all(15),
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(convertDateToDDMMMYYYEEEE(e.date)),
-                    ),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text("${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}"),
-                    ),
-                  ],
-                ),
+              const SizedBox(
+                height: 10,
               ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(e.subjectName ?? "-"),
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Text(
+                      convertDateToDDMMMYYYEEEE(e.date),
                     ),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(e.teacherName ?? "-"),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Text(
+                      "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Text(
+                      e.teacherName ?? "-",
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: Text(
+                      e.subjectName ?? "-",
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 10,
               ),
             ],
           ),

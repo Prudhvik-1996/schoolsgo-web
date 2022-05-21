@@ -1,9 +1,11 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
+import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class BasicFeeStatsReadWidget extends StatelessWidget {
@@ -129,47 +131,101 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
                             width: MediaQuery.of(context).size.width * 0.8,
                             height: MediaQuery.of(context).size.height * 0.8,
                             child: ListView(
-                              children: studentWiseAnnualFeesBean.studentBusFeeBean?.studentBusFeeLogBeans
-                                      ?.map(
-                                        (e) => Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                '${e?.routeName ?? "-"}\n${e?.stopName}',
+                              children: <Widget>[
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                      child: Row(
+                                        children: const [
+                                          Expanded(
+                                            child: AutoSizeText(
+                                              "Route",
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              "Stop",
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Expanded(
+                                            child: Text("Valid From"),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Expanded(
+                                            child: Text("Valid Through"),
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Expanded(
+                                            child: Text(
+                                              "Fare",
+                                              textAlign: TextAlign.end,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ] +
+                                  (studentWiseAnnualFeesBean.studentBusFeeBean?.studentBusFeeLogBeans ?? [])
+                                      .map(
+                                        (e) => Container(
+                                          margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  e?.routeName ?? "-",
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(
-                                              width: 10,
-                                            ),
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Expanded(
-                                                    child: Text("${e?.validFrom}"),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text("${e?.validThrough}"),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text("$INR_SYMBOL ${e?.fare == null ? "-" : doubleToStringAsFixed(e!.fare! / 100)}"),
-                                                  ),
-                                                ],
+                                              const SizedBox(
+                                                width: 20,
                                               ),
-                                            ),
-                                          ],
+                                              Expanded(
+                                                child: Text(
+                                                  e?.stopName ?? "-",
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              Expanded(
+                                                child: AutoSizeText(
+                                                  convertDateToDDMMMYYYEEEE(e?.validFrom),
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              Expanded(
+                                                child: AutoSizeText(
+                                                  convertDateToDDMMMYYYEEEE(e?.validThrough),
+                                                  maxLines: 1,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  "$INR_SYMBOL ${e?.fare == null ? "-" : doubleToStringAsFixed(e!.fare! / 100)}",
+                                                  textAlign: TextAlign.end,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       )
-                                      .toList() ??
-                                  [],
+                                      .toList(),
                             ),
                           ),
                           actions: <Widget>[
