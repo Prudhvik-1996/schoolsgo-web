@@ -196,20 +196,28 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
           child: Column(
             children: [
                   Row(
-                    children: [
+                    children: <Widget>[
                           Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(width: 0.5),
-                              color: Colors.blue[200],
-                            ),
+                            // decoration: BoxDecoration(
+                            //   border: Border.all(width: 0.5),
+                            //   color: clayContainerColor(context),
+                            // ),
                             height: height,
                             width: width,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                "${widget.studentProfile.sectionName}",
-                                style: const TextStyle(
-                                  color: Colors.black,
+                            padding: const EdgeInsets.all(3),
+                            child: ClayContainer(
+                              depth: 40,
+                              surfaceColor: clayContainerColor(context),
+                              parentColor: clayContainerColor(context),
+                              spread: 1,
+                              borderRadius: 2,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  "${widget.studentProfile.sectionName}",
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                  ),
                                 ),
                               ),
                             ),
@@ -220,22 +228,30 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
                               (e) => Container(
                                 height: height,
                                 width: width,
-                                decoration: BoxDecoration(
-                                  border: Border.all(width: 0.5),
-                                  color: Colors.blue[200],
-                                ),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(3.0),
-                                    child: Text(
-                                      "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontFamily: 'monospace',
-                                        color: Colors.black,
+                                // decoration: BoxDecoration(
+                                //   border: Border.all(width: 0.5),
+                                //   color: clayContainerColor(context),
+                                // ),
+                                padding: const EdgeInsets.all(3),
+                                child: ClayContainer(
+                                  depth: 40,
+                                  surfaceColor: clayContainerColor(context),
+                                  parentColor: clayContainerColor(context),
+                                  spread: 1,
+                                  borderRadius: 2,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(20, 3, 20, 3),
+                                      child: Text(
+                                        "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontFamily: 'monospace',
+                                        ),
+                                        // maxLines: 1,
                                       ),
-                                      // maxLines: 1,
                                     ),
                                   ),
                                 ),
@@ -247,29 +263,37 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
                 WEEKS
                     .map(
                       (eachWeek) => Row(
-                        children: [
+                        children: <Widget>[
                               Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(width: 0.5),
-                                  color: Colors.blue[200],
-                                ),
+                                // decoration: BoxDecoration(
+                                //   border: Border.all(width: 0.5),
+                                //   color: clayContainerColor(context),
+                                // ),
                                 height: height,
                                 width: width,
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    " " * ((allStrings.last.length - 6) ~/ 2) + " " + eachWeek + " " * ((allStrings.last.length - 6) ~/ 2),
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      color: Colors.black,
+                                padding: const EdgeInsets.all(3),
+                                child: ClayContainer(
+                                  depth: 40,
+                                  surfaceColor: clayContainerColor(context),
+                                  parentColor: clayContainerColor(context),
+                                  spread: 1,
+                                  borderRadius: 2,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      eachWeek + " " * (allStrings.last.length - 5),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontFamily: 'monospace',
+                                      ),
                                     ),
                                   ),
                                 ),
                               )
                             ] +
                             timeSlots.map((eachTimeSlot) {
-                              String res = " " * ((allStrings.last.length - 5) ~/ 2) + "N/A" + " " * ((allStrings.last.length - 5) ~/ 2);
+                              String res = "N/A" + " " * (allStrings.last.length - 5);
                               var x = _sectionWiseTimeSlots.where((e) =>
                                   e.week == eachWeek &&
                                   e.startTime == eachTimeSlot.startTime &&
@@ -279,31 +303,38 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
                                 if (x.first.tdsId == null) {
                                   res = "-";
                                 } else {
-                                  res = " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length ~/ 2) +
-                                      (x.first.subjectName ?? "-").capitalize() +
-                                      " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length ~/ 2) +
+                                  res = (x.first.subjectName ?? "-").capitalize() +
+                                      " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length) +
                                       "\n" +
-                                      " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length ~/ 2) +
                                       (x.first.teacherName ?? "-").capitalize() +
-                                      " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length ~/ 2);
+                                      " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length);
                                 }
                               }
                               return Container(
                                 height: height,
                                 width: width,
-                                decoration: BoxDecoration(
-                                  border: Border.all(width: 0.5),
-                                  color: Colors.blue[100],
-                                ),
+                                // decoration: BoxDecoration(
+                                //   border: Border.all(width: 0.5),
+                                //   color: clayContainerColor(context),
+                                // ),
                                 padding: const EdgeInsets.all(3),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(
-                                    res,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      color: Colors.black,
+                                child: ClayContainer(
+                                  depth: 40,
+                                  surfaceColor: clayContainerColor(context),
+                                  parentColor: clayContainerColor(context),
+                                  spread: 1,
+                                  borderRadius: 2,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        res,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontFamily: 'monospace',
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -474,7 +505,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
         title: Text(_previewMode
             ? _showOnlyOcr
                 ? "Online Class Room Time Table"
-                : "Offline Class Room Time Table"
+                : "Time Table"
             : "Time Table"),
         actions: [
           buildRoleButtonForAppBar(context, widget.studentProfile),
