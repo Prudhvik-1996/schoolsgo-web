@@ -132,6 +132,13 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         routeName: "/fee",
         argument: studentProfile,
       ),
+      if (studentProfile.isAssignedToBusStop ?? false)
+        DashboardWidget(
+          image: SvgPicture.asset("assets/images/bus.svg"),
+          title: "Bus",
+          routeName: "/bus",
+          argument: studentProfile,
+        ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",

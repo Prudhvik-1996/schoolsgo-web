@@ -685,7 +685,11 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
 
     CreateOrUpdateDiaryResponse createOrUpdateDiaryResponse = await createOrUpdateDiary(CreateOrUpdateDiaryRequest(
       sectionId: diary.sectionId,
-      date: _selectedDate.millisecondsSinceEpoch,
+      date: convertDateTimeToYYYYMMDDFormat(DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+      )),
       teacherId: diary.teacherId,
       subjectId: diary.subjectId,
       agentId: widget.adminProfile == null ? widget.teacherProfile!.teacherId : widget.adminProfile!.userId,
@@ -727,6 +731,10 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
                         Navigator.pop(context);
                         if (diary.assignment != diary.origJson()["assignment"]) {
                           _saveChanges(diary);
+                        } else {
+                          setState(() {
+                            diary.isEditMode = false;
+                          });
                         }
                       },
                       child: const Text("YES"),

@@ -278,37 +278,38 @@ class StudentProfile {
   String? studentPhotoUrl;
   int? franchiseId;
   String? franchiseName;
+  bool? isAssignedToBusStop;
   Map<String, dynamic> __origJson = {};
 
-  StudentProfile({
-    this.balanceAmount,
-    this.fatherName,
-    this.gaurdianFirstName,
-    this.gaurdianId,
-    this.gaurdianLastName,
-    this.gaurdianMailId,
-    this.gaurdianMiddleName,
-    this.gaurdianMobile,
-    this.motherName,
-    this.rollNumber,
-    this.schoolId,
-    this.schoolName,
-    this.branchCode,
-    this.schoolPhotoUrl,
-    this.sectionDescription,
-    this.sectionId,
-    this.sectionName,
-    this.studentDob,
-    this.studentFirstName,
-    this.studentId,
-    this.studentLastName,
-    this.studentMailId,
-    this.studentMiddleName,
-    this.studentMobile,
-    this.studentPhotoUrl,
-    this.franchiseId,
-    this.franchiseName,
-  });
+  StudentProfile(
+      {this.balanceAmount,
+      this.fatherName,
+      this.gaurdianFirstName,
+      this.gaurdianId,
+      this.gaurdianLastName,
+      this.gaurdianMailId,
+      this.gaurdianMiddleName,
+      this.gaurdianMobile,
+      this.motherName,
+      this.rollNumber,
+      this.schoolId,
+      this.schoolName,
+      this.branchCode,
+      this.schoolPhotoUrl,
+      this.sectionDescription,
+      this.sectionId,
+      this.sectionName,
+      this.studentDob,
+      this.studentFirstName,
+      this.studentId,
+      this.studentLastName,
+      this.studentMailId,
+      this.studentMiddleName,
+      this.studentMobile,
+      this.studentPhotoUrl,
+      this.franchiseId,
+      this.franchiseName,
+      this.isAssignedToBusStop});
   StudentProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     balanceAmount = json['balanceAmount']?.toInt();
@@ -338,6 +339,7 @@ class StudentProfile {
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
+    isAssignedToBusStop = json['assignedToBusStop']?.toString() == "true";
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -368,6 +370,7 @@ class StudentProfile {
     data['studentPhotoUrl'] = studentPhotoUrl;
     data['franchiseId'] = franchiseId;
     data['franchiseName'] = franchiseName;
+    data['isAssignedToBusStop'] = isAssignedToBusStop;
     return data;
   }
 

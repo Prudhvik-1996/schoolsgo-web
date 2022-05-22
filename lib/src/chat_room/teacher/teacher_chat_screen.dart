@@ -221,7 +221,7 @@ class _TeacherChatScreenState extends State<TeacherChatScreen> {
           maxWidth: MediaQuery.of(context).size.width * 0.6,
         ),
         child: Card(
-          color: !isSender ? clayContainerColor(context) : Colors.blue[300],
+          color: clayContainerColor(context),
           child: Wrap(
             alignment: WrapAlignment.end,
             children: <Widget>[
@@ -231,8 +231,9 @@ class _TeacherChatScreenState extends State<TeacherChatScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     eachChatBean.senderName ?? "-",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
+                      color: !isSender ? clayContainerColor(context) : Colors.blue[300],
                     ),
                   ),
                 ),

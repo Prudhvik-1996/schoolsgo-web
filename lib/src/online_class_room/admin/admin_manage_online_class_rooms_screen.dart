@@ -396,7 +396,7 @@ class _AdminManageOnlineClassRoomsScreenState extends State<AdminManageOnlineCla
       depth: 20,
       // height: 100,
       parentColor: clayContainerColor(context),
-      surfaceColor: _thisOcrOverlappedWith.isNotEmpty ? Colors.red : clayContainerColor(context),
+      surfaceColor: clayContainerColor(context),
       borderRadius: 10,
       child: SizedBox(
         height: 50,

@@ -86,7 +86,8 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
             schoolId: widget.studentProfile.schoolId,
             tdsId: eachTds.tdsId,
             subjectId: eachTds.subjectId,
-            rating: averageRating,
+            averageRating: averageRating,
+            rating: allFeedbackBeans.where((e) => e.tdsId == eachTds.tdsId).firstOrNull?.rating,
             lastUpdated: allFeedbackBeans.where((e) => e.tdsId == eachTds.tdsId).firstOrNull?.lastUpdated,
             subjectName: eachTds.subjectName,
             teacherName: eachTds.teacherName,
@@ -141,8 +142,8 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
                           .map(
                             (eachFeedbackBean) => Container(
                               margin: MediaQuery.of(context).orientation == Orientation.portrait
-                                  ? EdgeInsets.fromLTRB(25, 15, 25, 15)
-                                  : EdgeInsets.fromLTRB(150, 15, 150, 15),
+                                  ? const EdgeInsets.fromLTRB(25, 15, 25, 15)
+                                  : const EdgeInsets.fromLTRB(150, 15, 150, 15),
                               child: ClayContainer(
                                 depth: 40,
                                 color: clayContainerColor(context),
@@ -190,7 +191,7 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
                                               child: Text(
                                                 "Last Updated: ${eachFeedbackBean.lastUpdated == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachFeedbackBean.lastUpdated!)}",
                                                 textAlign: TextAlign.end,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 12,
                                                 ),
                                               ),
@@ -248,7 +249,7 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: Tooltip(
-        message: "Rating: ${eachFeedbackBean.rating}",
+        message: "Rating: ${eachFeedbackBean.rating ?? 0}",
         child: RatingBarIndicator(
           rating: (eachFeedbackBean.rating ?? 0).toDouble(),
           direction: Axis.horizontal,

@@ -399,7 +399,7 @@ class _MegaAdminCircularsScreenState extends State<MegaAdminCircularsScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                         ),
-                        textAlign: TextAlign.justify,
+                        textAlign: TextAlign.start,
                       ),
                     ),
                   ],

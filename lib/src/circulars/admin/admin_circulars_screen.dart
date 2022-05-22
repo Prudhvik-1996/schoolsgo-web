@@ -311,7 +311,7 @@ class _AdminCircularsScreenState extends State<AdminCircularsScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                         ),
-                        textAlign: TextAlign.justify,
+                        textAlign: TextAlign.start,
                       ),
                     ),
                   ],

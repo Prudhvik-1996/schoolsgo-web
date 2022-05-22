@@ -106,6 +106,7 @@ class StudentToTeacherFeedback {
   int? tdsId;
   int? teacherId;
   String? teacherName;
+  double? averageRating;
   Map<String, dynamic> __origJson = {};
 
   bool isEdited = false;
@@ -129,6 +130,7 @@ class StudentToTeacherFeedback {
     this.tdsId,
     this.teacherId,
     this.teacherName,
+    this.averageRating,
   });
   StudentToTeacherFeedback.fromJson(Map<String, dynamic> json) {
     __origJson = json;

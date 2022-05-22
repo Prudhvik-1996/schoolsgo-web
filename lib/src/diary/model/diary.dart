@@ -241,7 +241,7 @@ class CreateOrUpdateDiaryRequest {
 
   int? agentId;
   String? assignment;
-  int? date;
+  String? date;
   int? diaryId;
   int? schoolId;
   int? sectionId;
@@ -269,7 +269,7 @@ class CreateOrUpdateDiaryRequest {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
     assignment = json['assignment']?.toString();
-    date = int.tryParse(json['date']?.toString() ?? '');
+    date = json['date']?.toString();
     diaryId = int.tryParse(json['diaryId']?.toString() ?? '');
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
     sectionId = int.tryParse(json['sectionId']?.toString() ?? '');

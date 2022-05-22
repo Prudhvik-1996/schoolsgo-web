@@ -229,8 +229,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
                                   child: Padding(
                                     padding: const EdgeInsets.all(3.0),
                                     child: Text(
-                                      "${convert24To12HourFormat(e.startTime!)}\n${convert24To12HourFormat(e.endTime!)}" +
-                                          " " * (allStrings.last.length - 12),
+                                      "${convert24To12HourFormat(e.startTime!)} - ${convert24To12HourFormat(e.endTime!)}",
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         fontFamily: 'monospace',
@@ -259,7 +258,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
                                 child: FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: Text(
-                                    eachWeek + " " * (allStrings.last.length - 5),
+                                    " " * ((allStrings.last.length - 6) ~/ 2) + " " + eachWeek + " " * ((allStrings.last.length - 6) ~/ 2),
                                     textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       fontFamily: 'monospace',
@@ -270,7 +269,7 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
                               )
                             ] +
                             timeSlots.map((eachTimeSlot) {
-                              String res = "N/A" + " " * (allStrings.last.length - 5);
+                              String res = " " * ((allStrings.last.length - 5) ~/ 2) + "N/A" + " " * ((allStrings.last.length - 5) ~/ 2);
                               var x = _sectionWiseTimeSlots.where((e) =>
                                   e.week == eachWeek &&
                                   e.startTime == eachTimeSlot.startTime &&
@@ -280,11 +279,13 @@ class _StudentTimeTableViewState extends State<StudentTimeTableView> with Single
                                 if (x.first.tdsId == null) {
                                   res = "-";
                                 } else {
-                                  res = (x.first.subjectName ?? "-").capitalize() +
-                                      " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length) +
+                                  res = " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length ~/ 2) +
+                                      (x.first.subjectName ?? "-").capitalize() +
+                                      " " * (allStrings.last.length - (x.first.subjectName ?? "-").capitalize().length ~/ 2) +
                                       "\n" +
+                                      " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length ~/ 2) +
                                       (x.first.teacherName ?? "-").capitalize() +
-                                      " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length);
+                                      " " * (allStrings.last.length - (x.first.teacherName ?? "-").capitalize().length ~/ 2);
                                 }
                               }
                               return Container(

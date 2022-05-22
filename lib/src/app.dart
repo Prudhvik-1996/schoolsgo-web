@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_adm
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_options_screen.dart';
+import 'package:schoolsgo_web/src/bus/student/student_bus_screen.dart';
 import 'package:schoolsgo_web/src/chat_room/student/student_chat_room.dart';
 import 'package:schoolsgo_web/src/chat_room/teacher/teacher_chat_room.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
@@ -287,6 +288,11 @@ class _MyAppState extends State<MyApp> {
                 var adminProfile = routeSettings.arguments as AdminProfile;
                 return AdminBusOptionsScreen(
                   adminProfile: adminProfile,
+                );
+              } else if (routeSettings.arguments is StudentProfile) {
+                var studentProfile = routeSettings.arguments as StudentProfile;
+                return StudentBusScreen(
+                  studentProfile: studentProfile,
                 );
               } else {
                 var argument = (routeSettings.arguments as StudentProfile);

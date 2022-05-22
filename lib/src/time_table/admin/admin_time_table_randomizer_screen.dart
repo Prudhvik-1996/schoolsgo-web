@@ -413,7 +413,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
           )
           .toList(),
       onChanged: (TeacherDealingSection? selectedTds) {
-        if (selectedTds == TeacherDealingSection()) {
+        if (selectedTds?.tdsId == null) {
           setState(() {
             timeSlotToBeEdited.teacherId = null;
             timeSlotToBeEdited.subjectId = null;
@@ -429,6 +429,9 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
               .where((e) => e.sectionId != section.sectionId)
               .where((e) => e.teacherId == selectedTds!.teacherId)
               .forEach((eachTimeSlot) {
+            if (eachTimeSlot.tdsId == null) {
+              return;
+            }
             int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.startTime!, eachTimeSlot.weekId!);
             int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.endTime!, eachTimeSlot.weekId!);
             int startTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
