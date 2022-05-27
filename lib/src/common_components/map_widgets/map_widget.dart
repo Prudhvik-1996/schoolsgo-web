@@ -28,9 +28,10 @@ class _MapWidgetState extends State<MapWidget> {
   void initState() {
     super.initState();
     controller = MapController(
-      location: widget.markers.firstOrNull != null && widget.markers.firstOrNull?.latitude != null && widget.markers.firstOrNull?.longitude != null
-          ? LatLng(widget.markers.firstOrNull!.latitude!, widget.markers.firstOrNull!.longitude!)
-          : LatLng(17.3021373, 78.5266092),
+      location: LatLng(
+        widget.markers.firstOrNull!.latitude!,
+        widget.markers.firstOrNull!.longitude!,
+      ),
     );
   }
 
@@ -70,8 +71,8 @@ class _MapWidgetState extends State<MapWidget> {
     return Positioned(
       left: pos.dx + 25,
       top: pos.dy + 25,
-      width: 30,
-      height: 30,
+      width: 50,
+      height: 50,
       child: Tooltip(
         message: "Bus: ${busLatLong.busName}\n"
             "Driver: ${busLatLong.driverName}"
@@ -79,8 +80,8 @@ class _MapWidgetState extends State<MapWidget> {
         padding: const EdgeInsets.all(10),
         child: Image.asset(
           "assets/images/bus.png",
-          height: 30,
-          width: 30,
+          height: 50,
+          width: 50,
           fit: BoxFit.scaleDown,
         ),
       ),

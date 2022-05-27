@@ -128,8 +128,8 @@ class _StudentEachExamMemoScreenState extends State<StudentEachExamMemoScreen> {
     marksTable.add(
       [
         _subjectContainer("Subject"),
-        if (_hasInternals) _cellHeader("Internals (Marks)"),
-        if (_hasInternals) _cellHeader("Internals (Weightage)"),
+        if (_hasInternals) _cellHeader("Internals Marks Obtained"),
+        if (_hasInternals) _cellHeader("Internals Max Marks"),
         if (_hasInternals && _isGradeForBean) _cellHeader("Internals Grade"),
         _cellHeader(_hasInternals ? "Externals Marks Obtained" : "Marks Obtained"),
         _cellHeader(_hasInternals ? "Externals Max Marks" : "Max Marks"),

@@ -135,7 +135,9 @@ String weekOfGivenDateInYYYYMMDDFormat(String date) {
 }
 
 String convertDateToDDMMMYYYEEEE(String? date) {
-  return date == null ? "-" : DateFormat('dd MMM, yyyy EEEE').format(DateFormat("yyyy-MM-dd").parse(date));
+  return date == null
+      ? DateFormat('dd MMM, yyyy EEEE').format(DateTime.now())
+      : DateFormat('dd MMM, yyyy EEEE').format(DateFormat("yyyy-MM-dd").parse(date));
 }
 
 String convertDateToDDMMMYYY(String? date) {

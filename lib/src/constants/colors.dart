@@ -33,4 +33,8 @@ Map<String, TextTheme> textThemesMap = {
   'Roboto': GoogleFonts.robotoTextTheme(),
   'Open Sans': GoogleFonts.openSansTextTheme(),
   'PT Serif': GoogleFonts.ptSerifTextTheme(),
+  'Chewy': GoogleFonts.chewyTextTheme(),
+  'Satisy': GoogleFonts.satisfyTextTheme(),
+  'Trade Winds': GoogleFonts.tradeWindsTextTheme(),
+  'Dancing Scripts': GoogleFonts.dancingScriptTextTheme(),
 };

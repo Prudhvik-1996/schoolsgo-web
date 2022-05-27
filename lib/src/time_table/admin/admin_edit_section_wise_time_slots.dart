@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -105,9 +106,9 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
             _isSectionFilterSelected = !_isSectionFilterSelected;
           });
         },
-        child: ClayContainer(
+        child: ClayButton(
           depth: 40,
-          color: _selectedSection == section ? Theme.of(context).primaryColor.withOpacity(0.4) : clayContainerColor(context),
+          color: _selectedSection == section ? Colors.blue[300] : clayContainerColor(context),
           spread: _selectedSection == section ? 0 : 2,
           borderRadius: 10,
           child: FittedBox(
@@ -136,12 +137,8 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
           child: AppExpansionTile(
             allowExpansion: !_isEditMode,
             key: expansionTile,
-            title: ClayText(
+            title: Text(
               _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
-              textColor: Colors.black54,
-              spread: 2,
-              size: 24,
-              emboss: true,
             ),
             backgroundColor: Theme.of(context).primaryColor.withOpacity(0.025),
             children: <Widget>[
@@ -167,18 +164,12 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
   }
 
   Future<void> _saveChanges() async {
-    setState(() {
-      _isLoading = true;
-    });
-
     if (_sectionWiseTimeSlots.where((e) => e.isEdited ?? false).isEmpty) {
       setState(() {
-        _isLoading = false;
         _isEditMode = false;
       });
       return;
     }
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -190,6 +181,9 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
               child: const Text("YES"),
               onPressed: () async {
                 Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = true;
+                });
                 CreateOrUpdateSectionWiseTimeSlotsResponse createOrUpdateSectionWiseTimeSlotsResponse = await createOrUpdateSectionWiseTimeSlots(
                   CreateOrUpdateSectionWiseTimeSlotsRequest(
                     schoolId: widget.adminProfile.schoolId,
@@ -210,7 +204,7 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
                   });
                   return;
                 }
-
+                _loadData();
                 setState(() {
                   _isEditMode = false;
                   _isLoading = false;
@@ -224,14 +218,22 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
                 setState(() {
                   _isLoading = false;
                 });
+                _loadData();
+              },
+            ),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = false;
+                });
               },
             ),
           ],
         );
       },
     );
-
-    _loadData();
   }
 
   Future<void> _pickStartTime(BuildContext context, SectionWiseTimeSlotBean e) async {
@@ -326,7 +328,9 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
     List<SectionWiseTimeSlotBean> _timeslotsForThisSection =
         _sectionWiseTimeSlots.where((e) => e.sectionId == section.sectionId).toList() + (_isEditMode ? [_newSectionWiseTimeSlotBean] : []);
     return Container(
-      margin: const EdgeInsets.all(10),
+      margin: MediaQuery.of(context).orientation == Orientation.landscape
+          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
+          : const EdgeInsets.all(20),
       padding: const EdgeInsets.all(10),
       child: ClayContainer(
         depth: 40,
@@ -335,44 +339,38 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
         child: Container(
           padding: const EdgeInsets.all(25),
           child: Column(
-            children: [
-                  Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ClayText(
-                          section.sectionName!,
-                          emboss: true,
-                          size: 36,
-                          textColor: Colors.lightBlue[200],
-                          parentColor: Colors.blue,
-                          depth: 40,
-                          color: Colors.black,
-                          spread: 2,
+            children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        section.sectionName!,
+                        style: const TextStyle(
+                          color: Colors.blue,
                         ),
-                        InkWell(
-                          onTap: () {
-                            if (_isEditMode) {
-                              _saveChanges();
-                            } else {
-                              setState(() {
-                                _isEditMode = true;
-                              });
-                            }
-                          },
-                          child: ClayButton(
-                            color: clayContainerColor(context),
-                            height: 50,
-                            width: 50,
-                            borderRadius: 50,
-                            child: Icon(
-                              _isEditMode ? Icons.check : Icons.edit,
-                              color: _isEditMode ? Colors.green[200] : Colors.black38,
-                            ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          if (_isEditMode) {
+                            _saveChanges();
+                          } else {
+                            setState(() {
+                              _isEditMode = true;
+                            });
+                          }
+                        },
+                        child: ClayButton(
+                          color: clayContainerColor(context),
+                          height: 50,
+                          width: 50,
+                          borderRadius: 50,
+                          child: Icon(
+                            _isEditMode ? Icons.check : Icons.edit,
+                            color: _isEditMode ? Colors.green[200] : Colors.black38,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(
                     height: 25,
@@ -407,6 +405,9 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
+                                    const SizedBox(
+                                      width: 15,
+                                    ),
                                     Expanded(
                                       flex: 1,
                                       child: _isEditMode && e.sectionWiseTimeSlotId == null
@@ -426,7 +427,10 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
                                                   .map(
                                                     (eachWeek) => DropdownMenuItem(
                                                       value: eachWeek,
-                                                      child: Text(eachWeek),
+                                                      child: AutoSizeText(
+                                                        eachWeek,
+                                                        maxLines: 1,
+                                                      ),
                                                     ),
                                                   )
                                                   .toList(),
@@ -435,10 +439,19 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
                                               e.week ?? "-",
                                             ),
                                     ),
+                                    const SizedBox(
+                                      width: 15,
+                                    ),
                                     Expanded(flex: 2, child: _buildStartTimePicker(e)),
+                                    const SizedBox(
+                                      width: 15,
+                                    ),
                                     Expanded(
                                       flex: 2,
                                       child: _buildEndTimePicker(e),
+                                    ),
+                                    const SizedBox(
+                                      width: 15,
                                     ),
                                   ] +
                                   (_isEditMode
@@ -495,6 +508,9 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
                                                     },
                                                   ),
                                                 ),
+                                          const SizedBox(
+                                            width: 15,
+                                          ),
                                         ]
                                       : []),
                             ),

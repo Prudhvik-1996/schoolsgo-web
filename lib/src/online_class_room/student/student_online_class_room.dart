@@ -1,5 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -97,8 +99,8 @@ class _StudentOnlineClassroomScreenState extends State<StudentOnlineClassroomScr
             (eachOnGoingClass) => Center(
               child: Container(
                 margin: const EdgeInsets.all(30),
-                height: 150,
-                width: 200,
+                height: 300,
+                width: 500,
                 child: buildOnGoingClassWidget(eachOnGoingClass),
               ),
             ),
@@ -125,79 +127,184 @@ class _StudentOnlineClassroomScreenState extends State<StudentOnlineClassroomScr
         },
         child: ClayButton(
           depth: 20,
-          surfaceColor: Colors.green[300],
+          surfaceColor: clayContainerColor(context),
           parentColor: clayContainerColor(context),
           borderRadius: 10,
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+          child: MediaQuery.of(context).orientation == Orientation.landscape
+              ? buildLandscapeJoinWidget(eachOnGoingClass)
+              : buildPortraitJoinWidget(eachOnGoingClass),
+        ),
+      ),
+    );
+  }
+
+  Container buildLandscapeJoinWidget(OnlineClassRoom eachOnGoingClass) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          const SizedBox(
+            height: 15,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                convertDateToDDMMMYYYEEEE(eachOnGoingClass.date),
+                // style: const TextStyle(
+                //   fontSize: 16,
+                // ),
+                style: GoogleFonts.chewy(
+                  textStyle: const TextStyle(
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Text(
+            "${convert24To12HourFormat(eachOnGoingClass.startTime!)} - ${convert24To12HourFormat(eachOnGoingClass.endTime!)}",
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text.rich(
-                          TextSpan(
-                            text: convertDateToDDMMMEEEE(eachOnGoingClass.date).split(", ")[0] +
-                                (MediaQuery.of(context).orientation == Orientation.landscape ? "\n" : " "),
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              fontSize: 11,
-                            ),
-                            children: <InlineSpan>[
-                              TextSpan(
-                                text: convertDateToDDMMMEEEE(eachOnGoingClass.date).split(", ")[1],
-                                style: TextStyle(
-                                  color: clayContainerTextColor(context),
-                                  fontSize: 11,
-                                ),
-                              )
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          "${convert24To12HourFormat(eachOnGoingClass.startTime!)} - ${convert24To12HourFormat(eachOnGoingClass.endTime!)}",
-                        ),
-                      ),
-                    ],
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  (eachOnGoingClass.teacherName ?? "-").capitalize(),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  (eachOnGoingClass.subjectName ?? "-").capitalize(),
+                  style: const TextStyle(
+                    color: Colors.blue,
                   ),
                 ),
                 const SizedBox(
-                  width: 20,
+                  height: 10,
                 ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          (eachOnGoingClass.subjectName ?? "-").capitalize(),
-                        ),
-                      ),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          (eachOnGoingClass.teacherName ?? "-").capitalize(),
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(
+                  width: 15,
                 ),
               ],
             ),
           ),
-        ),
+          const SizedBox(
+            height: 15,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: clayContainerColor(context),
+                ),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(
+                  "JOIN",
+                  style: TextStyle(color: Colors.green),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Container buildPortraitJoinWidget(OnlineClassRoom eachOnGoingClass) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          const SizedBox(
+            width: 15,
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  convertDateToDDMMMYYYEEEE(eachOnGoingClass.date),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "${convert24To12HourFormat(eachOnGoingClass.startTime!)} - ${convert24To12HourFormat(eachOnGoingClass.endTime!)}",
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  (eachOnGoingClass.teacherName ?? "-").capitalize(),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  (eachOnGoingClass.subjectName ?? "-").capitalize(),
+                  style: const TextStyle(
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: clayContainerColor(context),
+                ),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(
+                  "JOIN",
+                  style: TextStyle(color: Colors.green),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 15,
+          ),
+        ],
       ),
     );
   }
