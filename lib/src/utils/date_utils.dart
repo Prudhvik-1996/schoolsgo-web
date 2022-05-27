@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+var MONTHS = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+
 String getCurrentDateString() {
   return DateFormat("dd/MM/yyyy").format(DateTime.now());
 }
@@ -179,4 +181,10 @@ String getChatDateText(DateTime date) {
   } else {
     return '${DateFormat('d').format(date)} ${DateFormat('MMMM').format(date)} ${DateFormat('y').format(date)}';
   }
+}
+
+int daysInMonth(DateTime date) {
+  var firstDayThisMonth = DateTime(date.year, date.month, date.day);
+  var firstDayNextMonth = DateTime(firstDayThisMonth.year, firstDayThisMonth.month + 1, firstDayThisMonth.day);
+  return firstDayNextMonth.difference(firstDayThisMonth).inDays;
 }

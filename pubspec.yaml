@@ -130,6 +130,7 @@ flutter:
     - assets/images/timetable.svg
     - assets/images/tracking.svg
     - assets/images/school.svg
+    - assets/images/payslips.svg
     - assets/images/tick_icon.png
     - assets/images/logbook.svg
     - assets/images/cross_icon.png

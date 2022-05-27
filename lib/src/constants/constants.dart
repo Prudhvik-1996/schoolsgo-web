@@ -126,3 +126,6 @@ const String CREATE_OR_UPDATE_ADMIN_EXPENSES = "/ledger/createOrUpdateAdminExpen
 const String GET_CHATS = "/chats/getChats";
 const String CREATE_OR_UPDATE_CHAT = "/chats/createOrUpdateChat";
 const String GET_CHAT_ROOMS = "/chats/getChatRooms";
+
+const String GET_MONTHS_AND_YEARS_FOR_SCHOOL = "/payslips/getMonthsAndYearsForSchools";
+const String CREATE_OR_UPDATE_MONTHS_AND_YEARS_FOR_SCHOOL = "/payslips/createMonthsAndYearsForSchools";

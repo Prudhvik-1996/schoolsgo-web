@@ -29,6 +29,7 @@ import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
+import 'package:schoolsgo_web/src/payslips/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -296,6 +297,25 @@ class _MyAppState extends State<MyApp> {
                 );
               } else {
                 var argument = (routeSettings.arguments as StudentProfile);
+                return const E404NotFoundScreen();
+              }
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case PayslipsOptionsScreen.routeName:
+            try {
+              if (routeSettings.arguments is TeacherProfile) {
+                var teacherProfile = routeSettings.arguments as TeacherProfile;
+                return const E404NotFoundScreen();
+              } else if (routeSettings.arguments is AdminProfile) {
+                var adminProfile = routeSettings.arguments as AdminProfile;
+                return PayslipsOptionsScreen(
+                  adminProfile: adminProfile,
+                );
+              } else if (routeSettings.arguments is StudentProfile) {
+                var argument = (routeSettings.arguments as StudentProfile);
+                return const E404NotFoundScreen();
+              } else {
                 return const E404NotFoundScreen();
               }
             } catch (e) {
