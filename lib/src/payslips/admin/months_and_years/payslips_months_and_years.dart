@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/payslips/payslips.dart';
+import 'package:schoolsgo_web/src/payslips/modal/payslips.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
@@ -71,7 +71,7 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Months and years"),
+        title: const Text("Month wise payslips"),
       ),
       body: _isLoading
           ? Center(
@@ -91,23 +91,23 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
                   children: monthsAndYears.map((e) => _isEditMode ? buildMonthAndYearEditableWidget(e) : buildMonthAndYearWidget(e)).toList(),
                 ),
       floatingActionButton: !_isEditMode
-          ? buildEditButton()
+          ? _buildEditButton()
           : Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
-                buildAddNewButton(),
+                _buildAddNewButton(),
                 const SizedBox(
                   height: 25,
                 ),
-                buildEditButton(),
+                _buildEditButton(),
               ],
             ),
     );
   }
 
-  GestureDetector buildEditButton() {
+  GestureDetector _buildEditButton() {
     return GestureDetector(
       onTap: () {
         MonthAndYearForSchoolBean? editing = monthsAndYears.where((e) => e.isEditMode).firstOrNull;
@@ -136,7 +136,7 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
     );
   }
 
-  GestureDetector buildAddNewButton() {
+  GestureDetector _buildAddNewButton() {
     return GestureDetector(
       onTap: () {
         showDialog<void>(
@@ -232,7 +232,6 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
                                     .toList(),
                                 onChanged: (int? e) {
                                   if (e == null) return;
-                                  print("195: $e");
                                   setState(() {
                                     refreshNewBean(newMonthAndYearForSchool, selectedMonthIndex, selectedYear, e);
                                   });
@@ -250,7 +249,6 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
                 TextButton(
                   child: const Text('Proceed'),
                   onPressed: () {
-                    print("190 : ${monthsAndYears.map((e) => e.toJson())}");
                     if (monthsAndYears
                         .where((e) => e.month == newMonthAndYearForSchool.month && e.year == newMonthAndYearForSchool.year)
                         .isNotEmpty) {
@@ -262,10 +260,7 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
                       return;
                     }
                     Navigator.of(dialogContext).pop();
-                    saveChanges();
-                    // setState(() {
-                    //   _isLoading = true;
-                    // });
+                    _saveChanges();
                   },
                 ),
               ],
@@ -286,7 +281,7 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
     );
   }
 
-  Future<void> saveChanges() async {
+  Future<void> _saveChanges() async {
     setState(() {
       _isLoading = true;
     });

@@ -14,6 +14,7 @@ String allowCORSEndPoint = "https://api.allorigins.win/raw?url=";
 String INR_SYMBOL = "₹";
 
 const String GET_USER_DETAILS = "/users/getUserDetails";
+const String GET_SCHOOL_WISE_EMPLOYEES = "/users/getSchoolWiseEmployees";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
 const String DO_LOGIN = "/auth/doLogin";
@@ -129,3 +130,6 @@ const String GET_CHAT_ROOMS = "/chats/getChatRooms";
 
 const String GET_MONTHS_AND_YEARS_FOR_SCHOOL = "/payslips/getMonthsAndYearsForSchools";
 const String CREATE_OR_UPDATE_MONTHS_AND_YEARS_FOR_SCHOOL = "/payslips/createMonthsAndYearsForSchools";
+const String GET_PAYSLIP_COMPONENTS = "/payslips/getPayslipComponents";
+const String CREATE_OR_UPDATE_PAYSLIP_COMPONENTS = "/payslips/createOrUpdatePayslipComponents";
+const String GET_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/getPayslipTemplateForEmployee";

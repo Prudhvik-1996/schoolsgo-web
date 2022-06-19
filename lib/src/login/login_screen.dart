@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    loadFcmToken();
+    // loadFcmToken();
   }
 
   Future<void> loadFcmToken() async {

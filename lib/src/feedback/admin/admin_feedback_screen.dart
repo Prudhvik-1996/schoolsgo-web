@@ -134,19 +134,19 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         if (eachFeedbackBean.teacherId == eachTeacher.teacherId) {
           String dateString = dateFormat.format(DateTime.fromMillisecondsSinceEpoch(eachFeedbackBean.createTime!));
           if (_teacherWiseFeedbackMap[eachFeedbackBean.teacherId]!.containsKey(dateString)) {
-            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString]!.add(eachFeedbackBean);
+            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString]?.add(eachFeedbackBean);
           } else {
-            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString] = [eachFeedbackBean];
+            _teacherWiseFeedbackMap[eachFeedbackBean.teacherId]![dateString] ??= [eachFeedbackBean];
           }
         }
       }
 
+      _teacherWiseAverageRatingMap[eachTeacher.teacherId!] = "N/A";
+
       _teacherWiseRatingKMap[eachTeacher.teacherId!] = _teacherWiseFeedbackMap[eachTeacher.teacherId]!.map((dateString, feedbackBeans) {
-        double avgRating = feedbackBeans.map((e) => e.rating!.toDouble()).reduce((a, b) => (a + b));
+        double avgRating = feedbackBeans.map((e) => (e.rating ?? 0).toDouble()).reduce((a, b) => (a + b));
         return MapEntry(dateString, avgRating / feedbackBeans.length);
       });
-
-      _teacherWiseAverageRatingMap[eachTeacher.teacherId!] = "N/A";
 
       List<DateTime> _dates = _teacherWiseRatingKMap[eachTeacher.teacherId!]!.keys.map((eachDateString) => dateFormat.parse(eachDateString)).toList();
       _dates.sort();
@@ -172,42 +172,48 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
     Map<int, Map<String, List<StudentToTeacherFeedback>>> _tdsWiseFeedbackMap = {};
 
     for (var eachTds in _tdsList) {
-      _tdsWiseFeedbackMap[eachTds.tdsId!] = {};
-      for (var eachFeedbackBean in _feedbackBeans) {
-        if (eachFeedbackBean.tdsId == eachTds.tdsId) {
-          String dateString = dateFormat.format(DateTime.fromMillisecondsSinceEpoch(eachFeedbackBean.createTime!));
-          if (_tdsWiseFeedbackMap[eachFeedbackBean.tdsId]!.containsKey(dateString)) {
-            _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString]!.add(eachFeedbackBean);
-          } else {
-            _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString] = [eachFeedbackBean];
+      try {
+        _tdsWiseFeedbackMap[eachTds.tdsId!] = {};
+        for (var eachFeedbackBean in _feedbackBeans) {
+          if (eachFeedbackBean.tdsId == eachTds.tdsId) {
+            String dateString = dateFormat.format(DateTime.fromMillisecondsSinceEpoch(eachFeedbackBean.createTime!));
+            if (_tdsWiseFeedbackMap[eachFeedbackBean.tdsId]!.containsKey(dateString)) {
+              _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString]!.add(eachFeedbackBean);
+            } else {
+              _tdsWiseFeedbackMap[eachFeedbackBean.tdsId]![dateString] = [eachFeedbackBean];
+            }
           }
         }
-      }
 
-      _tdsWiseRatingKMap[eachTds.tdsId!] = _tdsWiseFeedbackMap[eachTds.tdsId]!.map((dateString, feedbackBeans) {
-        double avgRating = feedbackBeans.map((e) => e.rating!.toDouble()).reduce((a, b) => (a + b));
-        return MapEntry(dateString, avgRating / feedbackBeans.length);
-      });
+        _tdsWiseRatingKMap[eachTds.tdsId!] = _tdsWiseFeedbackMap[eachTds.tdsId]!.map((dateString, feedbackBeans) {
+          double avgRating = feedbackBeans.map((e) => e.rating!.toDouble()).reduce((a, b) => (a + b));
+          return MapEntry(dateString, avgRating / feedbackBeans.length);
+        });
 
-      _tdsWiseAverageRatingMap[eachTds.tdsId!] = "N/A";
+        _tdsWiseAverageRatingMap[eachTds.tdsId!] = "N/A";
 
-      List<DateTime> _dates = _tdsWiseRatingKMap[eachTds.tdsId!]!.keys.map((eachDateString) => dateFormat.parse(eachDateString)).toList();
-      _dates.sort();
+        List<DateTime> _dates = _tdsWiseRatingKMap[eachTds.tdsId!]!.keys.map((eachDateString) => dateFormat.parse(eachDateString)).toList();
+        _dates.sort();
 
-      if (_dates.isEmpty) continue;
+        if (_dates.isEmpty) continue;
 
-      DateTime _index = _dates.first.add(const Duration(days: 1));
-      while (_index.millisecondsSinceEpoch <= DateTime.now().millisecondsSinceEpoch) {
-        if (!_tdsWiseRatingKMap[eachTds.tdsId]!.keys.contains(dateFormat.format(_index))) {
-          _tdsWiseRatingKMap[eachTds.tdsId]![dateFormat.format(_index)] =
-              _tdsWiseRatingKMap[eachTds.tdsId]![dateFormat.format(_index.add(const Duration(days: -1)))] ?? 0.0;
+        DateTime _index = _dates.first.add(const Duration(days: 1));
+        while (_index.millisecondsSinceEpoch <= DateTime.now().millisecondsSinceEpoch) {
+          if (!_tdsWiseRatingKMap[eachTds.tdsId]!.keys.contains(dateFormat.format(_index))) {
+            _tdsWiseRatingKMap[eachTds.tdsId]![dateFormat.format(_index)] =
+                _tdsWiseRatingKMap[eachTds.tdsId]![dateFormat.format(_index.add(const Duration(days: -1)))] ?? 0.0;
+          }
+          _index = _index.add(const Duration(days: 1));
         }
-        _index = _index.add(const Duration(days: 1));
-      }
-      print("217: ${eachTds.tdsId}: ${_tdsWiseRatingKMap[eachTds.tdsId!]}");
+        print("207: ${eachTds.tdsId}: ${_tdsWiseRatingKMap[eachTds.tdsId!]}");
 
-      _tdsWiseAverageRatingMap[eachTds.tdsId!] =
-          (_tdsWiseRatingKMap[eachTds.tdsId]!.values.reduce((a, b) => a + b) / _tdsWiseRatingKMap[eachTds.tdsId]!.values.length).toStringAsFixed(2);
+        _tdsWiseAverageRatingMap[eachTds.tdsId!] =
+            (_tdsWiseRatingKMap[eachTds.tdsId]!.values.reduce((a, b) => a + b) / _tdsWiseRatingKMap[eachTds.tdsId]!.values.length).toStringAsFixed(2);
+
+        print("212: ${eachTds.tdsId}: ${_tdsWiseAverageRatingMap[eachTds.tdsId!]}");
+      } catch (e) {
+        print("217: $e");
+      }
     }
 
     print("TDS wise avg feedback: $_tdsWiseAverageRatingMap");
@@ -475,8 +481,8 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
       margin: const EdgeInsets.fromLTRB(5, 15, 5, 15),
       child: Stack(
         children: [
-          ((teacher != null && teacher.teacherId != null && _teacherWiseRatingKMap[teacher.teacherId]!.keys.isEmpty) ||
-                  (tds != null && tds.tdsId != null && _tdsWiseRatingKMap[tds.tdsId]!.keys.isEmpty))
+          ((teacher != null && teacher.teacherId != null && _teacherWiseRatingKMap[teacher.teacherId]!.keys.isNotEmpty) ||
+                  (tds != null && tds.tdsId != null && _tdsWiseRatingKMap[tds.tdsId]!.keys.isNotEmpty))
               ? const Center(
                   child: Text(
                     "N/A",
