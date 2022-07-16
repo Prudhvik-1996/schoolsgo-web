@@ -87,6 +87,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
       teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
+      status: "active",
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {

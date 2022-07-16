@@ -79,6 +79,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
 
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
+      status: "active",
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {

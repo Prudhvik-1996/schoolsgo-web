@@ -76,6 +76,7 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
+        status: "active",
       ),
     );
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {

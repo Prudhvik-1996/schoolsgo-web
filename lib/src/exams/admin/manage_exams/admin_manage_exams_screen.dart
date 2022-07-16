@@ -140,6 +140,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
 
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
+      status: "active",
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {

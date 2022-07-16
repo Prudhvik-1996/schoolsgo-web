@@ -100,6 +100,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
+        status: "active",
       ),
     );
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {

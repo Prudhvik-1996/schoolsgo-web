@@ -83,6 +83,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
 
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.studentProfile.schoolId,
+      status: "active",
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {

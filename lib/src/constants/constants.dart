@@ -69,6 +69,7 @@ const String CREATE_OR_UPDATE_STUDY_MATERIAL_MEDIA_MAP = "/assignmentsAndStudyMa
 
 const String GET_STUDENT_TO_TEACHER_FEEDBACK = "/feedback/getStudentToTeacherFeedback";
 const String CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK = "/feedback/createOrUpdateStudentToTeacherFeedback";
+const String GET_STUDENT_TO_TEACHER_FEEDBACK_ADMIN_VIEW = "/feedback/getStudentToTeacherFeedbackAdminView";
 
 const String GET_ONLINE_CLASS_ROOMS = "/online_class_room/getOnlineClassRooms";
 const String CREATE_OR_UPDATE_ONLINE_CLASS_ROOMS = "/online_class_room/createOrUpdateCustomOcr";

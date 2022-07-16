@@ -39,6 +39,7 @@ class _TeacherExamTdsScreenState extends State<TeacherExamTdsScreen> {
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.teacherProfile.schoolId,
       teacherId: widget.teacherProfile.teacherId,
+      status: "active",
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {

@@ -52,6 +52,7 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
       GetTeacherDealingSectionsRequest(
         schoolId: widget.studentProfile.schoolId,
         sectionId: widget.studentProfile.sectionId,
+        status: "active",
       ),
     );
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {

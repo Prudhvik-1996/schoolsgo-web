@@ -23,7 +23,7 @@ import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/teacher/teacher_exam_tds_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen.dart';
-import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_screen.dart';
+import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
@@ -380,7 +380,7 @@ class _MyAppState extends State<MyApp> {
                 );
               } else if (routeSettings.arguments is AdminProfile) {
                 var adminProfile = routeSettings.arguments as AdminProfile;
-                return AdminFeedbackScreen(
+                return AdminFeedbackViewScreen(
                   adminProfile: adminProfile,
                 );
               } else {

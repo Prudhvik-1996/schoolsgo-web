@@ -3,6 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 const Color lightThemeColor = Color(0xFFF2F2F2);
 const Color darkThemeColor = Color(0xFF3A3A3A);
+
+bool isDarkTheme(BuildContext context) {
+  return Theme.of(context).primaryColor != Colors.blue;
+}
+
 Color clayContainerColor(BuildContext context) {
   if (Theme.of(context).primaryColor == Colors.blue) {
     return lightThemeColor;

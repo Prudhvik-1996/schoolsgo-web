@@ -10,6 +10,7 @@ class GetTeacherDealingSectionsRequest {
   int? subjectId;
   int? tdsId;
   int? franchiseId;
+  String? status;
 
   GetTeacherDealingSectionsRequest({
     this.schoolId,
@@ -18,6 +19,7 @@ class GetTeacherDealingSectionsRequest {
     this.subjectId,
     this.tdsId,
     this.franchiseId,
+    this.status,
   });
 
   GetTeacherDealingSectionsRequest.fromJson(Map<String, dynamic> json) {
@@ -27,6 +29,7 @@ class GetTeacherDealingSectionsRequest {
     subjectId = json['subjectId'];
     tdsId = json['tdsId'];
     franchiseId = json['franchiseId'];
+    status = json['status'];
   }
 
   Map<String, dynamic> toJson() {
@@ -37,6 +40,7 @@ class GetTeacherDealingSectionsRequest {
     data['subjectId'] = subjectId;
     data['tdsId'] = tdsId;
     data['franchiseId'] = franchiseId;
+    data['status'] = status;
     return data;
   }
 }
