@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetStudentToTeacherFeedbackAdminViewRequest {
 /*
@@ -349,15 +349,13 @@ Future<GetStudentToTeacherFeedbackAdminViewResponse> getStudentToTeacherFeedback
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_TO_TEACHER_FEEDBACK_ADMIN_VIEW;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudentToTeacherFeedbackAdminViewRequest.toJson()),
-    encoding: Encoding.getByName("utf-8"),
+  GetStudentToTeacherFeedbackAdminViewResponse getStudentToTeacherFeedbackAdminViewResponse = await HttpUtils.post(
+    _url,
+    getStudentToTeacherFeedbackAdminViewRequest.toJson(),
+    GetStudentToTeacherFeedbackAdminViewResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudentToTeacherFeedbackAdminViewResponse getStudentToTeacherFeedbackAdminViewResponse =
-      GetStudentToTeacherFeedbackAdminViewResponse.fromJson(json.decode(response.body));
   print("GetStudentToTeacherFeedbackAdminViewResponse ${getStudentToTeacherFeedbackAdminViewResponse.toJson()}");
   return getStudentToTeacherFeedbackAdminViewResponse;
 }
