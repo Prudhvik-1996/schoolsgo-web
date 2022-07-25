@@ -196,6 +196,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                       _isSectionPickerOpen || _selectedSection == null || widget.adminProfile.isMegaAdmin ? Container() : buildEditButton(context),
                     ],
                   ),
+                  if (attendanceTimeSlotBeans.isEmpty) _selectedDate.weekday == 7 ? _noTimeSlotsForSundayWidget() : _noTimeSlotsWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty) _headerWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty && _isEditMode) _subHeaderWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty)
@@ -214,6 +215,31 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _noTimeSlotsWidget() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 50, 10, 50),
+      child: const Center(
+        child: Text(
+          "No time slots are assigned for the day..",
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  Widget _noTimeSlotsForSundayWidget() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 50, 10, 50),
+      child: const Center(
+        child: Text(
+          "Its Sunday..\n"
+          "No time slots are assigned for the day..",
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 
