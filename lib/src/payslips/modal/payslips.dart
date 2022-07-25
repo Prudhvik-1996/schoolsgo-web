@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetMonthsAndYearsForSchoolsRequest {
 /*
@@ -165,18 +165,17 @@ class GetMonthsAndYearsForSchoolsResponse {
 }
 
 Future<GetMonthsAndYearsForSchoolsResponse> getMonthsAndYearsForSchools(GetMonthsAndYearsForSchoolsRequest getMonthsAndYearsForSchoolsRequest) async {
-  print("Raising request to getMonthsAndYearsForSchools with request ${jsonEncode(getMonthsAndYearsForSchoolsRequest.toJson())}");
+  debugPrint("Raising request to getMonthsAndYearsForSchools with request ${jsonEncode(getMonthsAndYearsForSchoolsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_MONTHS_AND_YEARS_FOR_SCHOOL;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getMonthsAndYearsForSchoolsRequest.toJson()),
+  GetMonthsAndYearsForSchoolsResponse getMonthsAndYearsForSchoolsResponse = await HttpUtils.post(
+    _url,
+    getMonthsAndYearsForSchoolsRequest.toJson(),
+    GetMonthsAndYearsForSchoolsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetMonthsAndYearsForSchoolsResponse getMonthsAndYearsForSchoolsResponse = GetMonthsAndYearsForSchoolsResponse.fromJson(json.decode(response.body));
-  print("GetMonthsAndYearsForSchoolsResponse ${getMonthsAndYearsForSchoolsResponse.toJson()}");
+  debugPrint("GetMonthsAndYearsForSchoolsResponse ${getMonthsAndYearsForSchoolsResponse.toJson()}");
   return getMonthsAndYearsForSchoolsResponse;
 }
 
@@ -228,20 +227,18 @@ class CreateMonthsAndYearsForSchoolsResponse {
 
 Future<CreateMonthsAndYearsForSchoolsResponse> createOrUpdateMonthAndYearForSchool(
     MonthAndYearForSchoolBean createOrUpdateMonthAndYearForSchoolRequest) async {
-  print(
+  debugPrint(
       "Raising request to createOrUpdateMonthAndYearForSchoolRequest with request ${jsonEncode(createOrUpdateMonthAndYearForSchoolRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_MONTHS_AND_YEARS_FOR_SCHOOL;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateMonthAndYearForSchoolRequest.toJson()),
+  CreateMonthsAndYearsForSchoolsResponse createMonthsAndYearsForSchoolsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateMonthAndYearForSchoolRequest.toJson(),
+    CreateMonthsAndYearsForSchoolsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateMonthsAndYearsForSchoolsResponse createMonthsAndYearsForSchoolsResponse =
-      CreateMonthsAndYearsForSchoolsResponse.fromJson(json.decode(response.body));
-  print("CreateMonthsAndYearsForSchoolsResponse ${createMonthsAndYearsForSchoolsResponse.toJson()}");
+  debugPrint("CreateMonthsAndYearsForSchoolsResponse ${createMonthsAndYearsForSchoolsResponse.toJson()}");
   return createMonthsAndYearsForSchoolsResponse;
 }
 
@@ -409,18 +406,17 @@ class GetPayslipComponentsResponse {
 }
 
 Future<GetPayslipComponentsResponse> getPayslipComponents(GetPayslipComponentsRequest getPayslipComponentsRequest) async {
-  print("Raising request to getPayslipComponents with request ${jsonEncode(getPayslipComponentsRequest.toJson())}");
+  debugPrint("Raising request to getPayslipComponents with request ${jsonEncode(getPayslipComponentsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_PAYSLIP_COMPONENTS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getPayslipComponentsRequest.toJson()),
+  GetPayslipComponentsResponse getPayslipComponentsResponse = await HttpUtils.post(
+    _url,
+    getPayslipComponentsRequest.toJson(),
+    GetPayslipComponentsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetPayslipComponentsResponse getPayslipComponentsResponse = GetPayslipComponentsResponse.fromJson(json.decode(response.body));
-  print("GetPayslipComponentsResponse ${getPayslipComponentsResponse.toJson()}");
+  debugPrint("GetPayslipComponentsResponse ${getPayslipComponentsResponse.toJson()}");
   return getPayslipComponentsResponse;
 }
 
@@ -527,19 +523,17 @@ class CreateOrUpdatePayslipComponentsResponse {
 
 Future<CreateOrUpdatePayslipComponentsResponse> createOrUpdatePayslipComponents(
     CreateOrUpdatePayslipComponentsRequest createOrUpdatePayslipComponentsRequest) async {
-  print("Raising request to createOrUpdatePayslipComponents with request ${jsonEncode(createOrUpdatePayslipComponentsRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdatePayslipComponents with request ${jsonEncode(createOrUpdatePayslipComponentsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_PAYSLIP_COMPONENTS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdatePayslipComponentsRequest.toJson()),
+  CreateOrUpdatePayslipComponentsResponse createOrUpdatePayslipComponentsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdatePayslipComponentsRequest.toJson(),
+    CreateOrUpdatePayslipComponentsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdatePayslipComponentsResponse createOrUpdatePayslipComponentsResponse =
-      CreateOrUpdatePayslipComponentsResponse.fromJson(json.decode(response.body));
-  print("createOrUpdatePayslipComponentsResponse ${createOrUpdatePayslipComponentsResponse.toJson()}");
+  debugPrint("createOrUpdatePayslipComponentsResponse ${createOrUpdatePayslipComponentsResponse.toJson()}");
   return createOrUpdatePayslipComponentsResponse;
 }
 
@@ -832,18 +826,16 @@ class GetPayslipTemplateForEmployeeResponse {
 
 Future<GetPayslipTemplateForEmployeeResponse> getPayslipTemplateForEmployee(
     GetPayslipTemplateForEmployeeRequest getPayslipTemplateForEmployeeRequest) async {
-  print("Raising request to getPayslipTemplateForEmployee with request ${jsonEncode(getPayslipTemplateForEmployeeRequest.toJson())}");
+  debugPrint("Raising request to getPayslipTemplateForEmployee with request ${jsonEncode(getPayslipTemplateForEmployeeRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_PAYSLIP_TEMPLATE_FOR_EMPLOYEE;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getPayslipTemplateForEmployeeRequest.toJson()),
+  GetPayslipTemplateForEmployeeResponse getPayslipTemplateForEmployeeResponse = await HttpUtils.post(
+    _url,
+    getPayslipTemplateForEmployeeRequest.toJson(),
+    GetPayslipTemplateForEmployeeResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetPayslipTemplateForEmployeeResponse getPayslipTemplateForEmployeeResponse =
-      GetPayslipTemplateForEmployeeResponse.fromJson(json.decode(response.body));
-  print("GetPayslipTemplateForEmployeeResponse ${getPayslipTemplateForEmployeeResponse.toJson()}");
+  debugPrint("GetPayslipTemplateForEmployeeResponse ${getPayslipTemplateForEmployeeResponse.toJson()}");
   return getPayslipTemplateForEmployeeResponse;
 }

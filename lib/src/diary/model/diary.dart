@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetDiaryRequest {
 /*
@@ -191,9 +192,9 @@ class GetStudentDiaryResponse {
     if (diaryEntries != null) {
       final v = diaryEntries;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['diaryEntries'] = arr0;
     }
     data['errorCode'] = errorCode;
@@ -207,18 +208,17 @@ class GetStudentDiaryResponse {
 }
 
 Future<GetStudentDiaryResponse> getDiary(GetDiaryRequest getDiaryRequest) async {
-  print("Raising request to getDiary with request ${jsonEncode(getDiaryRequest.toJson())}");
+  debugPrint("Raising request to getDiary with request ${jsonEncode(getDiaryRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_DIARY;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getDiaryRequest.toJson()),
+  GetStudentDiaryResponse getDiaryResponse = await HttpUtils.post(
+    _url,
+    getDiaryRequest.toJson(),
+    GetStudentDiaryResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudentDiaryResponse getDiaryResponse = GetStudentDiaryResponse.fromJson(json.decode(response.body));
-  print("GetDiaryResponse ${getDiaryResponse.toJson()}");
+  debugPrint("GetDiaryResponse ${getDiaryResponse.toJson()}");
   return getDiaryResponse;
 }
 
@@ -345,17 +345,16 @@ class CreateOrUpdateDiaryResponse {
 }
 
 Future<CreateOrUpdateDiaryResponse> createOrUpdateDiary(CreateOrUpdateDiaryRequest createOrUpdateDiaryRequest) async {
-  print("Raising request to createOrUpdateDiary with request ${jsonEncode(createOrUpdateDiaryRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateDiary with request ${jsonEncode(createOrUpdateDiaryRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_DIARY;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateDiaryRequest.toJson()),
+  CreateOrUpdateDiaryResponse createOrUpdateDiaryResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateDiaryRequest.toJson(),
+    CreateOrUpdateDiaryResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateDiaryResponse createOrUpdateDiaryResponse = CreateOrUpdateDiaryResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateDiaryResponse ${createOrUpdateDiaryResponse.toJson()}");
+  debugPrint("createOrUpdateDiaryResponse ${createOrUpdateDiaryResponse.toJson()}");
   return createOrUpdateDiaryResponse;
 }

@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetSubjectsRequest {
 /*
@@ -166,17 +167,16 @@ class GetSubjectsResponse {
 }
 
 Future<GetSubjectsResponse> getSubjects(GetSubjectsRequest getSubjectsRequest) async {
-  print("Raising request to getSubjects with request ${jsonEncode(getSubjectsRequest.toJson())}");
+  debugPrint("Raising request to getSubjects with request ${jsonEncode(getSubjectsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SUBJECTS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getSubjectsRequest.toJson()),
+  GetSubjectsResponse getSubjectsResponse = await HttpUtils.post(
+    _url,
+    getSubjectsRequest.toJson(),
+    GetSubjectsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetSubjectsResponse getSubjectsResponse = GetSubjectsResponse.fromJson(json.decode(response.body));
-  print("GetSubjectsResponse ${getSubjectsResponse.toJson()}");
+  debugPrint("GetSubjectsResponse ${getSubjectsResponse.toJson()}");
   return getSubjectsResponse;
 }

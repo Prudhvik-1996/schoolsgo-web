@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetStudyMaterialRequest {
 /*
@@ -42,8 +43,7 @@ class GetStudyMaterialRequest {
   });
   GetStudyMaterialRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    assignmentAndStudyMaterialId =
-        int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
+    assignmentAndStudyMaterialId = int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
     limit = int.tryParse(json['limit']?.toString() ?? '');
     offset = int.tryParse(json['offset']?.toString() ?? '');
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
@@ -116,12 +116,9 @@ class StudyMaterialMedia {
   StudyMaterialMedia.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toString();
-    assignmentAndStudyMaterialId =
-        int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
-    assignmentAndStudyMaterialMediaId = int.tryParse(
-        json['assignmentAndStudyMaterialMediaId']?.toString() ?? '');
-    assignmentAndStudyMaterialMediaStatus =
-        json['assignmentAndStudyMaterialMediaStatus']?.toString();
+    assignmentAndStudyMaterialId = int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
+    assignmentAndStudyMaterialMediaId = int.tryParse(json['assignmentAndStudyMaterialMediaId']?.toString() ?? '');
+    assignmentAndStudyMaterialMediaStatus = json['assignmentAndStudyMaterialMediaStatus']?.toString();
     createdTime = int.tryParse(json['createdTime']?.toString() ?? '');
     description = json['description']?.toString();
     lastUpdatedTime = int.tryParse(json['lastUpdatedTime']?.toString() ?? '');
@@ -134,10 +131,8 @@ class StudyMaterialMedia {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
     data['assignmentAndStudyMaterialId'] = assignmentAndStudyMaterialId;
-    data['assignmentAndStudyMaterialMediaId'] =
-        assignmentAndStudyMaterialMediaId;
-    data['assignmentAndStudyMaterialMediaStatus'] =
-        assignmentAndStudyMaterialMediaStatus;
+    data['assignmentAndStudyMaterialMediaId'] = assignmentAndStudyMaterialMediaId;
+    data['assignmentAndStudyMaterialMediaStatus'] = assignmentAndStudyMaterialMediaStatus;
     data['createdTime'] = createdTime;
     data['description'] = description;
     data['lastUpdatedTime'] = lastUpdatedTime;
@@ -229,12 +224,9 @@ class StudyMaterial {
   StudyMaterial.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toString();
-    assignmentAndStudyMaterialId =
-        int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
+    assignmentAndStudyMaterialId = int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
     createdTime = int.tryParse(json['createdTime']?.toString() ?? '');
-    DateTime x = createdTime == null
-        ? DateTime.now()
-        : DateTime.fromMillisecondsSinceEpoch(createdTime!);
+    DateTime x = createdTime == null ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(createdTime!);
     createTime = DateTime(
       x.year,
       x.month,
@@ -272,9 +264,9 @@ class StudyMaterial {
     if (mediaList != null) {
       final v = mediaList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['mediaList'] = arr0;
     }
     data['sectionId'] = sectionId;
@@ -355,8 +347,7 @@ class GetStudyMaterialResponse {
   });
   GetStudyMaterialResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    if (json['assignmentsAndStudyMaterialBeans'] != null &&
-        (json['assignmentsAndStudyMaterialBeans'] is List)) {
+    if (json['assignmentsAndStudyMaterialBeans'] != null && (json['assignmentsAndStudyMaterialBeans'] is List)) {
       final v = json['assignmentsAndStudyMaterialBeans'];
       final arr0 = <StudyMaterial>[];
       v.forEach((v) {
@@ -368,47 +359,41 @@ class GetStudyMaterialResponse {
     errorMessage = json['errorMessage']?.toString();
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
-    totalAssignmentsAndStudyMaterialBeans = int.tryParse(
-        json['totalAssignmentsAndStudyMaterialBeans']?.toString() ?? '');
+    totalAssignmentsAndStudyMaterialBeans = int.tryParse(json['totalAssignmentsAndStudyMaterialBeans']?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (assignmentsAndStudyMaterialBeans != null) {
       final v = assignmentsAndStudyMaterialBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['assignmentsAndStudyMaterialBeans'] = arr0;
     }
     data['errorCode'] = errorCode;
     data['errorMessage'] = errorMessage;
     data['httpStatus'] = httpStatus;
     data['responseStatus'] = responseStatus;
-    data['totalAssignmentsAndStudyMaterialBeans'] =
-        totalAssignmentsAndStudyMaterialBeans;
+    data['totalAssignmentsAndStudyMaterialBeans'] = totalAssignmentsAndStudyMaterialBeans;
     return data;
   }
 
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetStudyMaterialResponse> getStudyMaterial(
-    GetStudyMaterialRequest getStudyMaterialRequest) async {
-  print(
-      "Raising request to getStudyMaterial with request ${jsonEncode(getStudyMaterialRequest.toJson())}");
+Future<GetStudyMaterialResponse> getStudyMaterial(GetStudyMaterialRequest getStudyMaterialRequest) async {
+  debugPrint("Raising request to getStudyMaterial with request ${jsonEncode(getStudyMaterialRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDY_MATERIAL;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudyMaterialRequest.toJson()),
+  GetStudyMaterialResponse getStudyMaterialResponse = await HttpUtils.post(
+    _url,
+    getStudyMaterialRequest.toJson(),
+    GetStudyMaterialResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudyMaterialResponse getStudyMaterialResponse =
-      GetStudyMaterialResponse.fromJson(json.decode(response.body));
-  print("GetStudyMaterialResponse ${getStudyMaterialResponse.toJson()}");
+  debugPrint("GetStudyMaterialResponse ${getStudyMaterialResponse.toJson()}");
   return getStudyMaterialResponse;
 }
 
@@ -449,8 +434,7 @@ class CreateOrUpdateStudyMaterialRequest {
   CreateOrUpdateStudyMaterialRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
-    assignmentsAndStudyMaterialId =
-        int.tryParse(json['assignmentsAndStudyMaterialId']?.toString() ?? '');
+    assignmentsAndStudyMaterialId = int.tryParse(json['assignmentsAndStudyMaterialId']?.toString() ?? '');
     description = json['description']?.toString();
     dueDate = int.tryParse(json['dueDate']?.toString() ?? '');
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
@@ -501,8 +485,7 @@ class CreateOrUpdateStudyMaterialResponse {
   });
   CreateOrUpdateStudyMaterialResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    assignmentAndStudyMaterialId =
-        int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
+    assignmentAndStudyMaterialId = int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
     errorCode = json['errorCode']?.toString();
     errorMessage = json['errorMessage']?.toString();
     httpStatus = json['httpStatus']?.toString();
@@ -521,24 +504,18 @@ class CreateOrUpdateStudyMaterialResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateStudyMaterialResponse> createOrUpdateStudyMaterial(
-    CreateOrUpdateStudyMaterialRequest
-        createOrUpdateStudyMaterialRequest) async {
-  print(
-      "Raising request to createOrUpdateStudyMaterial with request ${jsonEncode(createOrUpdateStudyMaterialRequest.toJson())}");
+Future<CreateOrUpdateStudyMaterialResponse> createOrUpdateStudyMaterial(CreateOrUpdateStudyMaterialRequest createOrUpdateStudyMaterialRequest) async {
+  debugPrint("Raising request to createOrUpdateStudyMaterial with request ${jsonEncode(createOrUpdateStudyMaterialRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDY_MATERIAL;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateStudyMaterialRequest.toJson()),
+  CreateOrUpdateStudyMaterialResponse createOrUpdateStudyMaterialResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateStudyMaterialRequest.toJson(),
+    CreateOrUpdateStudyMaterialResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStudyMaterialResponse createOrUpdateStudyMaterialResponse =
-      CreateOrUpdateStudyMaterialResponse.fromJson(json.decode(response.body));
-  print(
-      "createOrUpdateStudyMaterialResponse ${createOrUpdateStudyMaterialResponse.toJson()}");
+  debugPrint("createOrUpdateStudyMaterialResponse ${createOrUpdateStudyMaterialResponse.toJson()}");
   return createOrUpdateStudyMaterialResponse;
 }
 
@@ -575,8 +552,7 @@ class CreateOrUpdateStudyMaterialMediaMapRequest {
     this.mediaList,
     this.schoolId,
   });
-  CreateOrUpdateStudyMaterialMediaMapRequest.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateStudyMaterialMediaMapRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
     if (json['mediaList'] != null && (json['mediaList'] is List)) {
@@ -595,9 +571,9 @@ class CreateOrUpdateStudyMaterialMediaMapRequest {
     if (mediaList != null) {
       final v = mediaList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['mediaList'] = arr0;
     }
     data['schoolId'] = schoolId;
@@ -629,8 +605,7 @@ class CreateOrUpdateStudyMaterialMediaMapResponse {
     this.httpStatus,
     this.responseStatus,
   });
-  CreateOrUpdateStudyMaterialMediaMapResponse.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateStudyMaterialMediaMapResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
     errorMessage = json['errorMessage']?.toString();
@@ -649,27 +624,20 @@ class CreateOrUpdateStudyMaterialMediaMapResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateStudyMaterialMediaMapResponse>
-    createOrUpdateStudyMaterialMediaMap(
-        CreateOrUpdateStudyMaterialMediaMapRequest
-            createOrUpdateStudyMaterialMediaMapRequest) async {
-  print(
+Future<CreateOrUpdateStudyMaterialMediaMapResponse> createOrUpdateStudyMaterialMediaMap(
+    CreateOrUpdateStudyMaterialMediaMapRequest createOrUpdateStudyMaterialMediaMapRequest) async {
+  debugPrint(
       "Raising request to createOrUpdateStudyMaterialMediaMap with request ${jsonEncode(createOrUpdateStudyMaterialMediaMapRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDY_MATERIAL_MEDIA_MAP;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateStudyMaterialMediaMapRequest.toJson()),
+  CreateOrUpdateStudyMaterialMediaMapResponse createOrUpdateStudyMaterialMediaMapResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateStudyMaterialMediaMapRequest.toJson(),
+    CreateOrUpdateStudyMaterialMediaMapResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStudyMaterialMediaMapResponse
-      createOrUpdateStudyMaterialMediaMapResponse =
-      CreateOrUpdateStudyMaterialMediaMapResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "createOrUpdateStudyMaterialMediaMapResponse ${createOrUpdateStudyMaterialMediaMapResponse.toJson()}");
+  debugPrint("createOrUpdateStudyMaterialMediaMapResponse ${createOrUpdateStudyMaterialMediaMapResponse.toJson()}");
   return createOrUpdateStudyMaterialMediaMapResponse;
 }
 

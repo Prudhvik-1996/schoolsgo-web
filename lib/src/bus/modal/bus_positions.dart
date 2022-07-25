@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 
@@ -179,9 +180,9 @@ class GetBusPositionResponse {
     if (busLocationList != null) {
       final v = busLocationList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['busLocationList'] = arr0;
     }
     data['errorCode'] = errorCode;
@@ -195,7 +196,7 @@ class GetBusPositionResponse {
 }
 
 Future<GetBusPositionResponse> getBusPosition(GetBusPositionRequest getBusPositionRequest) async {
-  print("Raising request to getBusPosition with request ${jsonEncode(getBusPositionRequest.toJson())}");
+  debugPrint("Raising request to getBusPosition with request ${jsonEncode(getBusPositionRequest.toJson())}");
   String _url = BUS_TRACKING_API_URL + GET_LOCATION;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -204,8 +205,8 @@ Future<GetBusPositionResponse> getBusPosition(GetBusPositionRequest getBusPositi
     headers: _headers,
     body: jsonEncode(getBusPositionRequest.toJson()),
   );
-
   GetBusPositionResponse getBusPositionResponse = GetBusPositionResponse.fromJson(json.decode(response.body));
-  print("GetBusPositionResponse ${getBusPositionResponse.toJson()}");
+
+  debugPrint("GetBusPositionResponse ${getBusPositionResponse.toJson()}");
   return getBusPositionResponse;
 }

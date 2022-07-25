@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:schoolsgo_web/src/constants/constants.dart';
@@ -165,7 +166,7 @@ class AttendanceTimeSlotBean {
 
 Future<GetStudentAttendanceTimeSlotsResponse> getStudentAttendanceTimeSlots(
     GetStudentAttendanceTimeSlotsRequest getStudentAttendanceTimeSlotsRequest) async {
-  print("Raising request to getStudentAttendanceTimeSlots with request ${jsonEncode(getStudentAttendanceTimeSlotsRequest.toJson())}");
+  debugPrint("Raising request to getStudentAttendanceTimeSlots with request ${jsonEncode(getStudentAttendanceTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_ATTENDANCE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -177,7 +178,7 @@ Future<GetStudentAttendanceTimeSlotsResponse> getStudentAttendanceTimeSlots(
 
   GetStudentAttendanceTimeSlotsResponse getStudentAttendanceTimeSlotsResponse =
       GetStudentAttendanceTimeSlotsResponse.fromJson(json.decode(response.body));
-  print("GetStudentAttendanceTimeSlotsResponse ${getStudentAttendanceTimeSlotsResponse.toJson()}");
+  debugPrint("GetStudentAttendanceTimeSlotsResponse ${getStudentAttendanceTimeSlotsResponse.toJson()}");
   return getStudentAttendanceTimeSlotsResponse;
 }
 
@@ -246,7 +247,8 @@ class CreateOrUpdateAttendanceTimeSlotBeansResponse {
 
 Future<CreateOrUpdateAttendanceTimeSlotBeansResponse> createOrUpdateAttendanceTimeSlotBeans(
     CreateOrUpdateAttendanceTimeSlotBeansRequest createOrUpdateAttendanceTimeSlotBeansRequest) async {
-  print("Raising request to createOrUpdateAttendanceTimeSlotBeans with request ${jsonEncode(createOrUpdateAttendanceTimeSlotBeansRequest.toJson())}");
+  debugPrint(
+      "Raising request to createOrUpdateAttendanceTimeSlotBeans with request ${jsonEncode(createOrUpdateAttendanceTimeSlotBeansRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -258,7 +260,7 @@ Future<CreateOrUpdateAttendanceTimeSlotBeansResponse> createOrUpdateAttendanceTi
 
   CreateOrUpdateAttendanceTimeSlotBeansResponse createOrUpdateAttendanceTimeSlotBeansResponse =
       CreateOrUpdateAttendanceTimeSlotBeansResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateAttendanceTimeSlotBeansResponse ${createOrUpdateAttendanceTimeSlotBeansResponse.toJson()}");
+  debugPrint("createOrUpdateAttendanceTimeSlotBeansResponse ${createOrUpdateAttendanceTimeSlotBeansResponse.toJson()}");
   return createOrUpdateAttendanceTimeSlotBeansResponse;
 }
 
@@ -503,7 +505,7 @@ class StudentAttendanceBean {
 }
 
 Future<GetStudentAttendanceBeansResponse> getStudentAttendanceBeans(GetStudentAttendanceBeansRequest getStudentAttendanceBeansRequest) async {
-  print("Raising request to getStudentAttendanceBeans with request ${jsonEncode(getStudentAttendanceBeansRequest.toJson())}");
+  debugPrint("Raising request to getStudentAttendanceBeans with request ${jsonEncode(getStudentAttendanceBeansRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_ATTENDANCE_BEANS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -514,7 +516,7 @@ Future<GetStudentAttendanceBeansResponse> getStudentAttendanceBeans(GetStudentAt
   );
 
   GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = GetStudentAttendanceBeansResponse.fromJson(json.decode(response.body));
-  print("GetStudentAttendanceBeansResponse ${getStudentAttendanceBeansResponse.toJson()}");
+  debugPrint("GetStudentAttendanceBeansResponse ${getStudentAttendanceBeansResponse.toJson()}");
   return getStudentAttendanceBeansResponse;
 }
 
@@ -541,7 +543,7 @@ class CreateOrUpdateStudentAttendanceRequest {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['agent'] = agent;
     data['schoolId'] = schoolId;
     if (studentAttendanceBeans != null) {
@@ -583,7 +585,7 @@ class CreateOrUpdateStudentAttendanceResponse {
 
 Future<CreateOrUpdateStudentAttendanceResponse> createOrUpdateStudentAttendance(
     CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest) async {
-  print("Raising request to createOrUpdateStudentAttendance with request ${jsonEncode(createOrUpdateStudentAttendanceRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateStudentAttendance with request ${jsonEncode(createOrUpdateStudentAttendanceRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -595,7 +597,7 @@ Future<CreateOrUpdateStudentAttendanceResponse> createOrUpdateStudentAttendance(
 
   CreateOrUpdateStudentAttendanceResponse createOrUpdateStudentAttendanceResponse =
       CreateOrUpdateStudentAttendanceResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateStudentAttendanceResponse ${createOrUpdateStudentAttendanceResponse.toJson()}");
+  debugPrint("createOrUpdateStudentAttendanceResponse ${createOrUpdateStudentAttendanceResponse.toJson()}");
   return createOrUpdateStudentAttendanceResponse;
 }
 
@@ -671,7 +673,7 @@ class BulkEditAttendanceTimeSlotsResponse {
 }
 
 Future<BulkEditAttendanceTimeSlotsResponse> bulkEditAttendanceTimeSlots(BulkEditAttendanceTimeSlotsRequest bulkEditAttendanceTimeSlotsRequest) async {
-  print("Raising request to bulkEditAttendanceTimeSlots with request ${jsonEncode(bulkEditAttendanceTimeSlotsRequest.toJson())}");
+  debugPrint("Raising request to bulkEditAttendanceTimeSlots with request ${jsonEncode(bulkEditAttendanceTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + BULK_EDIT_ATTENDANCE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -682,6 +684,6 @@ Future<BulkEditAttendanceTimeSlotsResponse> bulkEditAttendanceTimeSlots(BulkEdit
   );
 
   BulkEditAttendanceTimeSlotsResponse bulkEditAttendanceTimeSlotsResponse = BulkEditAttendanceTimeSlotsResponse.fromJson(json.decode(response.body));
-  print("bulkEditAttendanceTimeSlotsResponse ${bulkEditAttendanceTimeSlotsResponse.toJson()}");
+  debugPrint("bulkEditAttendanceTimeSlotsResponse ${bulkEditAttendanceTimeSlotsResponse.toJson()}");
   return bulkEditAttendanceTimeSlotsResponse;
 }

@@ -124,7 +124,7 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
                   ),
                 ),
           _getTimeTableOption(
-            "Section Wise Time Slots Management",
+            "Time Table",
             null,
             AdminEditTimeTable(
               adminProfile: widget.adminProfile,

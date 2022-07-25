@@ -587,7 +587,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
               reader.onLoadEnd.listen(
                 (loadEndEvent) async {
                   // _file = file;
-                  print("File uploaded: " + file.name);
+                  debugPrint("File uploaded: " + file.name);
                   setState(() {
                     _uploadingFile = file.name;
                     _fileUploadProgress = ((files.indexOf(file) / files.length) + (1 / (2 * files.length))) * 100.0;

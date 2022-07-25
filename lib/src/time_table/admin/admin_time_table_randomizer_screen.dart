@@ -45,7 +45,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
   bool _isRandomising = false;
   bool _previewMode = false;
 
-  Map<Section, GlobalKey<State<StatefulWidget>>> _printKeys = {};
+  Map<Section, GlobalKey<State<StatefulWidget>>> _debugPrintKeys = {};
   late PageController pageController;
 
   @override
@@ -67,7 +67,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
       _isSectionPickerOpen = false;
       _isRandomising = false;
       _previewMode = false;
-      _printKeys = {};
+      _debugPrintKeys = {};
     });
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -82,7 +82,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
         setState(() {
           _selectedSectionMap[eachSection] = false;
           _isMoreOptionsSelectedMap[eachSection] = false;
-          _printKeys[eachSection] = GlobalKey();
+          _debugPrintKeys[eachSection] = GlobalKey();
           pageController = PageController(
             initialPage: _sectionIndex!,
             keepPage: true,
@@ -1012,7 +1012,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
     double height = 25;
     double width = (MediaQuery.of(context).size.width - 21) / (timeSlots.length + 1);
     return RepaintBoundary(
-      key: _printKeys[section],
+      key: _debugPrintKeys[section],
       child: Container(
         margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         child: Container(

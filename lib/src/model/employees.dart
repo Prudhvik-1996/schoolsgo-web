@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetSchoolWiseEmployeesRequest {
 /*
@@ -93,9 +94,9 @@ class SchoolWiseEmployeeBean {
     if (roles != null) {
       final v = roles;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v);
-      });
+      }
       data['roles'] = arr0;
     }
     data['schoolDisplayName'] = schoolDisplayName;
@@ -163,9 +164,9 @@ class GetSchoolWiseEmployeesResponse {
     if (employees != null) {
       final v = employees;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['employees'] = arr0;
     }
     data['errorCode'] = errorCode;
@@ -179,17 +180,16 @@ class GetSchoolWiseEmployeesResponse {
 }
 
 Future<GetSchoolWiseEmployeesResponse> getSchoolWiseEmployees(GetSchoolWiseEmployeesRequest getSchoolWiseEmployeesRequest) async {
-  print("Raising request to getSchoolWiseEmployees with request ${jsonEncode(getSchoolWiseEmployeesRequest.toJson())}");
+  debugPrint("Raising request to getSchoolWiseEmployees with request ${jsonEncode(getSchoolWiseEmployeesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SCHOOL_WISE_EMPLOYEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getSchoolWiseEmployeesRequest.toJson()),
+  GetSchoolWiseEmployeesResponse getSchoolWiseEmployeesResponse = await HttpUtils.post(
+    _url,
+    getSchoolWiseEmployeesRequest.toJson(),
+    GetSchoolWiseEmployeesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetSchoolWiseEmployeesResponse getSchoolWiseEmployeesResponse = GetSchoolWiseEmployeesResponse.fromJson(json.decode(response.body));
-  print("GetSchoolWiseEmployeesResponse ${getSchoolWiseEmployeesResponse.toJson()}");
+  debugPrint("GetSchoolWiseEmployeesResponse ${getSchoolWiseEmployeesResponse.toJson()}");
   return getSchoolWiseEmployeesResponse;
 }

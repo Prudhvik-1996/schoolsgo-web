@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GenerateOtpRequest {
 /*
@@ -191,18 +193,17 @@ class GenerateOtpResponse {
 }
 
 Future<GenerateOtpResponse> generateOtp(GenerateOtpRequest generateOtpRequest) async {
-  print("Raising request to generateOtp with request ${jsonEncode(generateOtpRequest.toJson())}");
+  debugPrint("Raising request to generateOtp with request ${jsonEncode(generateOtpRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + REQUEST_OTP;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(generateOtpRequest.toJson()),
+  GenerateOtpResponse generateOtpResponse = await HttpUtils.post(
+    _url,
+    generateOtpRequest.toJson(),
+    GenerateOtpResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GenerateOtpResponse generateOtpResponse = GenerateOtpResponse.fromJson(json.decode(response.body));
-  print("GenerateOtpResponse ${generateOtpResponse.toJson()}");
+  debugPrint("GenerateOtpResponse ${generateOtpResponse.toJson()}");
   return generateOtpResponse;
 }
 
@@ -284,9 +285,9 @@ class SendEmailRequest {
     if (recieverEmailIds != null) {
       final v = recieverEmailIds;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v);
-      });
+      }
       data['recieverEmailIds'] = arr0;
     }
     return data;
@@ -337,7 +338,7 @@ class SendEmailResponse {
 }
 
 Future<SendEmailResponse> sendEmail(SendEmailRequest sendEmailRequest) async {
-  print("Raising request to sendEmail with request ${jsonEncode(sendEmailRequest.toJson())}");
+  debugPrint("Raising request to sendEmail with request ${jsonEncode(sendEmailRequest.toJson())}");
   String _url = SCHOOLS_GO_MESSAGING_SERVICE_BASE_URL + SEND_EMAIL;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -346,8 +347,8 @@ Future<SendEmailResponse> sendEmail(SendEmailRequest sendEmailRequest) async {
     headers: _headers,
     body: jsonEncode(sendEmailRequest.toJson()),
   );
-
   SendEmailResponse sendEmailResponse = SendEmailResponse.fromJson(json.decode(response.body));
-  print("SendEmailResponse ${sendEmailResponse.toJson()}");
+
+  debugPrint("SendEmailResponse ${sendEmailResponse.toJson()}");
   return sendEmailResponse;
 }

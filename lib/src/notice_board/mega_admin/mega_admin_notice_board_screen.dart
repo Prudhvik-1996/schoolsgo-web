@@ -590,7 +590,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                         onChanged: (text) => setState(() {
                           eachNews.title = text;
                         }),
-                        // onEditingComplete: () => print("text"),
+                        // onEditingComplete: () => debugPrint("text"),
                       ),
                     ),
                     if (eachNews.newsId != null)
@@ -673,7 +673,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                     onChanged: (text) => setState(() {
                       eachNews.description = text;
                     }),
-                    // onEditingComplete: () => print("text"),
+                    // onEditingComplete: () => debugPrint("text"),
                   ),
                 ),
               ],
@@ -711,7 +711,7 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                             reader.onLoadEnd.listen(
                               (loadEndEvent) async {
                                 // _file = file;
-                                print("File uploaded: " + file.name);
+                                debugPrint("File uploaded: " + file.name);
                                 setState(() {
                                   _isLoading = true;
                                 });

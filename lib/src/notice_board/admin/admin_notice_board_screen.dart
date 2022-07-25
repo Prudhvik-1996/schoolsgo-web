@@ -512,7 +512,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                         onChanged: (text) => setState(() {
                           eachNews.title = text;
                         }),
-                        // onEditingComplete: () => print("text"),
+                        // onEditingComplete: () => debugPrint("text"),
                       ),
                     ),
                     if (eachNews.newsId != null)
@@ -595,7 +595,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                     onChanged: (text) => setState(() {
                       eachNews.description = text;
                     }),
-                    // onEditingComplete: () => print("text"),
+                    // onEditingComplete: () => debugPrint("text"),
                   ),
                 ),
               ],
@@ -633,7 +633,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                             reader.onLoadEnd.listen(
                               (loadEndEvent) async {
                                 // _file = file;
-                                print("File uploaded: " + file.name);
+                                debugPrint("File uploaded: " + file.name);
                                 setState(() {
                                   _isLoading = true;
                                 });

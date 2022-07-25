@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetTeacherDealingSectionsRequest {
   int? schoolId;
@@ -81,18 +82,17 @@ class GetTeacherDealingSectionsResponse {
 }
 
 Future<GetTeacherDealingSectionsResponse> getTeacherDealingSections(GetTeacherDealingSectionsRequest getTeacherDealingSectionsRequest) async {
-  print("Raising request to getTeacherDealingSections with request ${jsonEncode(getTeacherDealingSectionsRequest.toJson())}");
+  debugPrint("Raising request to getTeacherDealingSections with request ${jsonEncode(getTeacherDealingSectionsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_TDS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getTeacherDealingSectionsRequest.toJson()),
+  GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await HttpUtils.post(
+    _url,
+    getTeacherDealingSectionsRequest.toJson(),
+    GetTeacherDealingSectionsResponse.fromJson,
+    doEncrypt: false,
   );
 
-  GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = GetTeacherDealingSectionsResponse.fromJson(json.decode(response.body));
-  print("GetTeacherDealingSectionsResponse ${getTeacherDealingSectionsResponse.toJson()}");
+  debugPrint("GetTeacherDealingSectionsResponse ${getTeacherDealingSectionsResponse.toJson()}");
   return getTeacherDealingSectionsResponse;
 }
 
@@ -232,9 +232,9 @@ class CreateOrUpdateTeacherDealingSectionsRequest {
     if (tdsList != null) {
       final v = tdsList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['tdsList'] = arr0;
     }
     return data;
@@ -270,18 +270,17 @@ class CreateOrUpdateTeacherDealingSectionsResponse {
 
 Future<CreateOrUpdateTeacherDealingSectionsResponse> createOrUpdateTeacherDealingSections(
     CreateOrUpdateTeacherDealingSectionsRequest createOrUpdateTeacherDealingSectionsRequest) async {
-  print("Raising request to createOrUpdateTeacherDealingSections with request ${jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson())}");
+  debugPrint(
+      "Raising request to createOrUpdateTeacherDealingSections with request ${jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateTeacherDealingSectionsRequest.toJson()),
+  CreateOrUpdateTeacherDealingSectionsResponse createOrUpdateTeacherDealingSectionsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateTeacherDealingSectionsRequest.toJson(),
+    CreateOrUpdateTeacherDealingSectionsResponse.fromJson,
+    doEncrypt: false,
   );
 
-  CreateOrUpdateTeacherDealingSectionsResponse createOrUpdateTeacherDealingSectionsResponse =
-      CreateOrUpdateTeacherDealingSectionsResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateTeacherDealingSectionsResponse ${createOrUpdateTeacherDealingSectionsResponse.toJson()}");
+  debugPrint("createOrUpdateTeacherDealingSectionsResponse ${createOrUpdateTeacherDealingSectionsResponse.toJson()}");
   return createOrUpdateTeacherDealingSectionsResponse;
 }

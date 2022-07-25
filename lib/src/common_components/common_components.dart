@@ -174,7 +174,7 @@ class StudentAppDrawer extends Drawer {
                                 ),
                               ),
                               onTap: () {
-                                print("Entering ${e.routeName}");
+                                debugPrint("Entering ${e.routeName}");
                                 Navigator.pushNamed(
                                   context,
                                   e.routeName!,
@@ -221,7 +221,7 @@ class StudentAppDrawer extends Drawer {
                                             ),
                                           ),
                                           onTap: () {
-                                            print("Entering ${e1.routeName}");
+                                            debugPrint("Entering ${e1.routeName}");
                                           },
                                         ),
                                       ),
@@ -390,7 +390,7 @@ class TeacherAppDrawer extends Drawer {
                                             ),
                                           ),
                                           onTap: () {
-                                            print("Entering ${e1.routeName}");
+                                            debugPrint("Entering ${e1.routeName}");
                                           },
                                         ),
                                       ),
@@ -513,7 +513,7 @@ class AdminAppDrawer extends Drawer {
                                 ),
                               ),
                               onTap: () {
-                                print("Entering ${e.routeName}");
+                                debugPrint("Entering ${e.routeName}");
                                 Navigator.pushNamed(
                                   context,
                                   e.routeName!,
@@ -687,7 +687,7 @@ class MegaAdminAppDrawer extends Drawer {
                                 ),
                               ),
                               onTap: () {
-                                print("Entering ${e.routeName}");
+                                debugPrint("Entering ${e.routeName}");
                                 Navigator.pushNamed(
                                   context,
                                   e.routeName!,

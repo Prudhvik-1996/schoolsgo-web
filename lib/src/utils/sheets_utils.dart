@@ -1,8 +1,8 @@
-import 'dart:convert';
-
+import 'package:flutter/material.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class SheetsUtils {
   late String sheetId;
@@ -37,18 +37,17 @@ class SheetsUtils {
   }
 
   Future<CreateSpreadSheetResponse> createSpreadSheet(String fileName) async {
-    print("Raising request to createSpreadSheet with request $fileName");
+    debugPrint("Raising request to createSpreadSheet with request $fileName");
     String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL + CREATE_EXCEL_FILE_AND_GET_ID + "?fileName=$fileName";
-    Map<String, String> _headers = {"Content-type": "application/json"};
 
-    Response response = await post(
-      Uri.parse(_url),
-      headers: _headers,
-      body: null,
+    CreateSpreadSheetResponse createSpreadSheetResponse = await HttpUtils.post(
+      _url,
+      {},
+      CreateSpreadSheetResponse.fromJson,
+      doEncrypt: true,
     );
 
-    CreateSpreadSheetResponse createSpreadSheetResponse = CreateSpreadSheetResponse.fromJson(json.decode(response.body));
-    print("createSpreadSheetResponse ${createSpreadSheetResponse.toJson()}");
+    debugPrint("createSpreadSheetResponse ${createSpreadSheetResponse.toJson()}");
     return createSpreadSheetResponse;
   }
 

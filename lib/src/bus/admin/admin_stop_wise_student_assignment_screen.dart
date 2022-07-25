@@ -168,7 +168,7 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
     for (StudentProfile eachStudent in students) {
       int? oldStopId = oldStudentsList.where((e) => e.studentId == eachStudent.studentId).firstOrNull?.busStopId;
       int? newStopId = newStudentsList.where((e) => e.studentId == eachStudent.studentId).firstOrNull?.busStopId;
-      print("170: ${eachStudent.studentId} - $oldStopId - $newStopId");
+      debugPrint("170: ${eachStudent.studentId} - $oldStopId - $newStopId");
       if ((oldStopId == null && newStopId != null) ||
           (oldStopId != null && newStopId == null) ||
           (oldStopId != null && newStopId != null && oldStopId != newStopId)) {
@@ -179,7 +179,7 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
         ));
       }
     }
-    print("178: ${updateBeans.map((e) => e.toJson()).join("\n")}");
+    debugPrint("178: ${updateBeans.map((e) => e.toJson()).join("\n")}");
     if (updateBeans.isNotEmpty) {
       CreateOrUpdateStopWiseStudentsAssignmentResponse createOrUpdateStopWiseStudentsAssignmentResponse =
           await createOrUpdateStopWiseStudentsAssignment(CreateOrUpdateStopWiseStudentsAssignmentRequest(

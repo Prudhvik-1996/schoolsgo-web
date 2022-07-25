@@ -414,7 +414,7 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("409: ${_dateWiseTransactions().length}");
+    debugPrint("409: ${_dateWiseTransactions().length}");
     return Scaffold(
       appBar: AppBar(
         title: const Text("Fee"),
@@ -448,7 +448,7 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
 
   List<Widget> _dateWiseTransactions() {
     List<Widget> widgets = [];
-    print("443: ${allMasterTransactionIds.length}");
+    debugPrint("443: ${allMasterTransactionIds.length}");
     for (String eachMasterTransactionId in allMasterTransactionIds) {
       List<Widget> subList = [];
       for (_MasterTransactionIdWiseStudentTermWiseTransactionHistory eachMasterTransactionIdWiseStudentTermWiseTransactionHistory

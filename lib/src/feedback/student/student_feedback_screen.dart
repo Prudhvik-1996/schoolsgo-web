@@ -234,7 +234,7 @@ class _StudentFeedbackScreenState extends State<StudentFeedbackScreen> {
         glowColor: Colors.yellow,
         itemSize: 25,
         onRatingUpdate: (rating) {
-          print("199: TDS Id: ${eachFeedbackBean.tdsId} - New rating: $rating");
+          debugPrint("199: TDS Id: ${eachFeedbackBean.tdsId} - New rating: $rating");
           if (StudentToTeacherFeedback.fromJson(eachFeedbackBean.origJson()).rating != rating.toInt()) {
             setState(() {
               eachFeedbackBean.rating = rating;

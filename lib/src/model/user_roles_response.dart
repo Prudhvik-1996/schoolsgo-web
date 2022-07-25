@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 /// adminProfiles : [{"agent":0,"firstName":"string","lastName":"string","mailId":"string","middleName":"string","schoolId":0,"schoolName":"string","schoolPhotoUrl":"string","userId":0}]
 /// errorCode : "INTERNAL_SERVER_ERROR"
@@ -831,9 +832,9 @@ class GetUserRolesDetailsResponse {
     if (adminProfiles != null) {
       final v = adminProfiles;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['adminProfiles'] = arr0;
     }
     data['errorCode'] = errorCode;
@@ -842,34 +843,34 @@ class GetUserRolesDetailsResponse {
     if (megaAdminProfiles != null) {
       final v = megaAdminProfiles;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['megaAdminProfiles'] = arr0;
     }
     if (otherUserRoleProfiles != null) {
       final v = otherUserRoleProfiles;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['otherUserRoleProfiles'] = arr0;
     }
     data['responseStatus'] = responseStatus;
     if (studentProfiles != null) {
       final v = studentProfiles;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['studentProfiles'] = arr0;
     }
     if (teacherProfiles != null) {
       final v = teacherProfiles;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['teacherProfiles'] = arr0;
     }
     if (userDetails != null) {
@@ -992,9 +993,9 @@ class GetStudentProfileResponse {
     if (studentProfiles != null) {
       final v = studentProfiles;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['studentProfiles'] = arr0;
     }
     return data;
@@ -1004,18 +1005,17 @@ class GetStudentProfileResponse {
 }
 
 Future<GetStudentProfileResponse> getStudentProfile(GetStudentProfileRequest getStudentProfileRequest) async {
-  print("Raising request to getStudentProfile with request ${jsonEncode(getStudentProfileRequest.toJson())}");
+  debugPrint("Raising request to getStudentProfile with request ${jsonEncode(getStudentProfileRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_PROFILE;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudentProfileRequest.toJson()),
+  GetStudentProfileResponse getStudentProfileResponse = await HttpUtils.post(
+    _url,
+    getStudentProfileRequest.toJson(),
+    GetStudentProfileResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudentProfileResponse getStudentProfileResponse = GetStudentProfileResponse.fromJson(json.decode(response.body));
-  print("GetStudentProfileResponse ${getStudentProfileResponse.toJson()}");
+  debugPrint("GetStudentProfileResponse ${getStudentProfileResponse.toJson()}");
   return getStudentProfileResponse;
 }
 
@@ -1212,18 +1212,17 @@ class CreateOrUpdateStudentProfileResponse {
 }
 
 Future<CreateOrUpdateStudentProfileResponse> createOrUpdateStudentProfile(CreateOrUpdateStudentProfileRequest createStudentProfileRequest) async {
-  print("Raising request to createStudentProfile with request ${jsonEncode(createStudentProfileRequest.toJson())}");
+  debugPrint("Raising request to createStudentProfile with request ${jsonEncode(createStudentProfileRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_PROFILE;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createStudentProfileRequest.toJson()),
+  CreateOrUpdateStudentProfileResponse createStudentProfileResponse = await HttpUtils.post(
+    _url,
+    createStudentProfileRequest.toJson(),
+    CreateOrUpdateStudentProfileResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStudentProfileResponse createStudentProfileResponse = CreateOrUpdateStudentProfileResponse.fromJson(json.decode(response.body));
-  print("createStudentProfileResponse ${createStudentProfileResponse.toJson()}");
+  debugPrint("createStudentProfileResponse ${createStudentProfileResponse.toJson()}");
   return createStudentProfileResponse;
 }
 
@@ -1370,18 +1369,17 @@ class CreateOrUpdateTeacherProfileResponse {
 }
 
 Future<CreateOrUpdateTeacherProfileResponse> createOrUpdateTeacherProfile(CreateOrUpdateTeacherProfileRequest createTeacherProfileRequest) async {
-  print("Raising request to createTeacherProfile with request ${jsonEncode(createTeacherProfileRequest.toJson())}");
+  debugPrint("Raising request to createTeacherProfile with request ${jsonEncode(createTeacherProfileRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_TEACHER_PROFILE;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createTeacherProfileRequest.toJson()),
+  CreateOrUpdateTeacherProfileResponse createTeacherProfileResponse = await HttpUtils.post(
+    _url,
+    createTeacherProfileRequest.toJson(),
+    CreateOrUpdateTeacherProfileResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateTeacherProfileResponse createTeacherProfileResponse = CreateOrUpdateTeacherProfileResponse.fromJson(json.decode(response.body));
-  print("createTeacherProfileResponse ${createTeacherProfileResponse.toJson()}");
+  debugPrint("createTeacherProfileResponse ${createTeacherProfileResponse.toJson()}");
   return createTeacherProfileResponse;
 }
 
@@ -1503,17 +1501,16 @@ class CreateOrUpdateAdminProfileResponse {
 }
 
 Future<CreateOrUpdateAdminProfileResponse> createOrUpdateAdminProfile(CreateOrUpdateAdminProfileRequest createAdminProfileRequest) async {
-  print("Raising request to createAdminProfile with request ${jsonEncode(createAdminProfileRequest.toJson())}");
+  debugPrint("Raising request to createAdminProfile with request ${jsonEncode(createAdminProfileRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_PROFILE;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createAdminProfileRequest.toJson()),
+  CreateOrUpdateAdminProfileResponse createAdminProfileResponse = await HttpUtils.post(
+    _url,
+    createAdminProfileRequest.toJson(),
+    CreateOrUpdateAdminProfileResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateAdminProfileResponse createAdminProfileResponse = CreateOrUpdateAdminProfileResponse.fromJson(json.decode(response.body));
-  print("createAdminProfileResponse ${createAdminProfileResponse.toJson()}");
+  debugPrint("createAdminProfileResponse ${createAdminProfileResponse.toJson()}");
   return createAdminProfileResponse;
 }

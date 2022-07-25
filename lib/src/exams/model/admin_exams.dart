@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetAdminExamsRequest {
 /*
@@ -798,18 +798,17 @@ class GetAdminExamsResponse {
 }
 
 Future<GetAdminExamsResponse> getAdminExams(GetAdminExamsRequest getAdminExamsRequest) async {
-  print("Raising request to getAdminExams with request ${jsonEncode(getAdminExamsRequest.toJson())}");
+  debugPrint("Raising request to getAdminExams with request ${jsonEncode(getAdminExamsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_ADMIN_EXAMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getAdminExamsRequest.toJson()),
+  GetAdminExamsResponse getAdminExamsResponse = await HttpUtils.post(
+    _url,
+    getAdminExamsRequest.toJson(),
+    GetAdminExamsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetAdminExamsResponse getAdminExamsResponse = GetAdminExamsResponse.fromJson(json.decode(response.body));
-  print("GetAdminExamsResponse ${getAdminExamsResponse.toJson()}");
+  debugPrint("GetAdminExamsResponse ${getAdminExamsResponse.toJson()}");
   return getAdminExamsResponse;
 }
 
@@ -1116,18 +1115,17 @@ class GetMarkingAlgorithmsResponse {
 }
 
 Future<GetMarkingAlgorithmsResponse> getMarkingAlgorithms(GetMarkingAlgorithmsRequest getMarkingAlgorithmsRequest) async {
-  print("Raising request to getMarkingAlgorithms with request ${jsonEncode(getMarkingAlgorithmsRequest.toJson())}");
+  debugPrint("Raising request to getMarkingAlgorithms with request ${jsonEncode(getMarkingAlgorithmsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_MARKING_ALGORITHMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getMarkingAlgorithmsRequest.toJson()),
+  GetMarkingAlgorithmsResponse getMarkingAlgorithmsResponse = await HttpUtils.post(
+    _url,
+    getMarkingAlgorithmsRequest.toJson(),
+    GetMarkingAlgorithmsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetMarkingAlgorithmsResponse getMarkingAlgorithmsResponse = GetMarkingAlgorithmsResponse.fromJson(json.decode(response.body));
-  print("GetMarkingAlgorithmsResponse ${getMarkingAlgorithmsResponse.toJson()}");
+  debugPrint("GetMarkingAlgorithmsResponse ${getMarkingAlgorithmsResponse.toJson()}");
   return getMarkingAlgorithmsResponse;
 }
 
@@ -1262,19 +1260,17 @@ class CreateOrUpdateMarkingAlgorithmResponse {
 
 Future<CreateOrUpdateMarkingAlgorithmResponse> createOrUpdateMarkingAlgorithm(
     CreateOrUpdateMarkingAlgorithmRequest createOrUpdateMarkingAlgorithmRequest) async {
-  print("Raising request to createOrUpdateMarkingAlgorithm with request ${jsonEncode(createOrUpdateMarkingAlgorithmRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateMarkingAlgorithm with request ${jsonEncode(createOrUpdateMarkingAlgorithmRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_MARKING_ALGORITHM;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateMarkingAlgorithmRequest.toJson()),
+  CreateOrUpdateMarkingAlgorithmResponse createOrUpdateMarkingAlgorithmResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateMarkingAlgorithmRequest.toJson(),
+    CreateOrUpdateMarkingAlgorithmResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateMarkingAlgorithmResponse createOrUpdateMarkingAlgorithmResponse =
-      CreateOrUpdateMarkingAlgorithmResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateMarkingAlgorithmResponse ${createOrUpdateMarkingAlgorithmResponse.toJson()}");
+  debugPrint("createOrUpdateMarkingAlgorithmResponse ${createOrUpdateMarkingAlgorithmResponse.toJson()}");
   return createOrUpdateMarkingAlgorithmResponse;
 }
 
@@ -1322,18 +1318,17 @@ class CreateOrUpdateExamResponse {
 }
 
 Future<CreateOrUpdateExamResponse> createOrUpdateExam(AdminExamBean createOrUpdateExamRequest) async {
-  print("Raising request to createOrUpdateExam with request ${jsonEncode(createOrUpdateExamRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateExam with request ${jsonEncode(createOrUpdateExamRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_EXAMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateExamRequest.toJson()),
+  CreateOrUpdateExamResponse createOrUpdateExamResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateExamRequest.toJson(),
+    CreateOrUpdateExamResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateExamResponse createOrUpdateExamResponse = CreateOrUpdateExamResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateExamResponse ${createOrUpdateExamResponse.toJson()}");
+  debugPrint("createOrUpdateExamResponse ${createOrUpdateExamResponse.toJson()}");
   return createOrUpdateExamResponse;
 }
 
@@ -1931,18 +1926,17 @@ class GetStudentExamMarksDetailsResponse {
 }
 
 Future<GetStudentExamMarksDetailsResponse> getStudentExamMarksDetails(GetStudentExamMarksDetailsRequest getStudentExamMarksDetailsRequest) async {
-  print("Raising request to getStudentExamMarksDetails with request ${jsonEncode(getStudentExamMarksDetailsRequest.toJson())}");
+  debugPrint("Raising request to getStudentExamMarksDetails with request ${jsonEncode(getStudentExamMarksDetailsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_EXAM_MARKS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudentExamMarksDetailsRequest.toJson()),
+  GetStudentExamMarksDetailsResponse getStudentExamMarksDetailsResponse = await HttpUtils.post(
+    _url,
+    getStudentExamMarksDetailsRequest.toJson(),
+    GetStudentExamMarksDetailsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudentExamMarksDetailsResponse getStudentExamMarksDetailsResponse = GetStudentExamMarksDetailsResponse.fromJson(json.decode(response.body));
-  print("GetStudentExamMarksDetailsResponse ${getStudentExamMarksDetailsResponse.toJson()}");
+  debugPrint("GetStudentExamMarksDetailsResponse ${getStudentExamMarksDetailsResponse.toJson()}");
   return getStudentExamMarksDetailsResponse;
 }
 
@@ -2093,18 +2087,16 @@ class CreateOrUpdateStudentExamMarksResponse {
 
 Future<CreateOrUpdateStudentExamMarksResponse> createOrUpdateStudentExamMarks(
     CreateOrUpdateStudentExamMarksRequest createOrUpdateStudentExamMarksRequest) async {
-  print("Raising request to createOrUpdateStudentExamMarks with request ${jsonEncode(createOrUpdateStudentExamMarksRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateStudentExamMarks with request ${jsonEncode(createOrUpdateStudentExamMarksRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EXAM_MARKS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateStudentExamMarksRequest.toJson()),
+  CreateOrUpdateStudentExamMarksResponse createOrUpdateStudentExamMarksResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateStudentExamMarksRequest.toJson(),
+    CreateOrUpdateStudentExamMarksResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStudentExamMarksResponse createOrUpdateStudentExamMarksResponse =
-      CreateOrUpdateStudentExamMarksResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateStudentExamMarksResponse ${createOrUpdateStudentExamMarksResponse.toJson()}");
+  debugPrint("createOrUpdateStudentExamMarksResponse ${createOrUpdateStudentExamMarksResponse.toJson()}");
   return createOrUpdateStudentExamMarksResponse;
 }

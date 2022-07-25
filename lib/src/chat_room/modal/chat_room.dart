@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetChatsRequest {
 /*
@@ -228,18 +228,17 @@ class GetChatsResponse {
 }
 
 Future<GetChatsResponse> getChats(GetChatsRequest getChatsRequest) async {
-  print("Raising request to getChats with request ${jsonEncode(getChatsRequest.toJson())}");
+  debugPrint("Raising request to getChats with request ${jsonEncode(getChatsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_CHATS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getChatsRequest.toJson()),
+  GetChatsResponse getChatsResponse = await HttpUtils.post(
+    _url,
+    getChatsRequest.toJson(),
+    GetChatsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetChatsResponse getChatsResponse = GetChatsResponse.fromJson(json.decode(response.body));
-  print("GetChatsResponse ${getChatsResponse.toJson()}");
+  debugPrint("GetChatsResponse ${getChatsResponse.toJson()}");
   return getChatsResponse;
 }
 
@@ -290,18 +289,17 @@ class CreateOrUpdateChatResponse {
 }
 
 Future<CreateOrUpdateChatResponse> createOrUpdateChat(ChatBean createChatRequest) async {
-  print("Raising request to createChat with request ${jsonEncode(createChatRequest.toJson())}");
+  debugPrint("Raising request to createChat with request ${jsonEncode(createChatRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_CHAT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createChatRequest.toJson()),
+  CreateOrUpdateChatResponse createChatResponse = await HttpUtils.post(
+    _url,
+    createChatRequest.toJson(),
+    CreateOrUpdateChatResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateChatResponse createChatResponse = CreateOrUpdateChatResponse.fromJson(json.decode(response.body));
-  print("createChatResponse ${createChatResponse.toJson()}");
+  debugPrint("createChatResponse ${createChatResponse.toJson()}");
   return createChatResponse;
 }
 
@@ -581,17 +579,16 @@ class GetChatRoomsResponse {
 }
 
 Future<GetChatRoomsResponse> getChatRooms(GetChatRoomsRequest getChatRoomsRequest) async {
-  print("Raising request to getChatRooms with request ${jsonEncode(getChatRoomsRequest.toJson())}");
+  debugPrint("Raising request to getChatRooms with request ${jsonEncode(getChatRoomsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_CHAT_ROOMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getChatRoomsRequest.toJson()),
+  GetChatRoomsResponse getChatRoomsResponse = await HttpUtils.post(
+    _url,
+    getChatRoomsRequest.toJson(),
+    GetChatRoomsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetChatRoomsResponse getChatRoomsResponse = GetChatRoomsResponse.fromJson(json.decode(response.body));
-  print("GetChatRoomsResponse ${getChatRoomsResponse.toJson()}");
+  debugPrint("GetChatRoomsResponse ${getChatRoomsResponse.toJson()}");
   return getChatRoomsResponse;
 }

@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetCircularsRequest {
 /*
@@ -196,9 +197,9 @@ class CircularBean {
     if (circularMediaBeans != null) {
       final v = circularMediaBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['circularMediaBeans'] = arr0;
     }
     data['circularType'] = circularType;
@@ -286,9 +287,9 @@ class GetCircularsResponse {
     if (circulars != null) {
       final v = circulars;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['circulars'] = arr0;
     }
     data['errorCode'] = errorCode;
@@ -302,18 +303,17 @@ class GetCircularsResponse {
 }
 
 Future<GetCircularsResponse> getCirculars(GetCircularsRequest getCircularsRequest) async {
-  print("Raising request to getCirculars with request ${jsonEncode(getCircularsRequest.toJson())}");
+  debugPrint("Raising request to getCirculars with request ${jsonEncode(getCircularsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_CIRCULARS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getCircularsRequest.toJson()),
+  GetCircularsResponse getCircularsResponse = await HttpUtils.post(
+    _url,
+    getCircularsRequest.toJson(),
+    GetCircularsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetCircularsResponse getCircularsResponse = GetCircularsResponse.fromJson(json.decode(response.body));
-  print("GetCircularsResponse ${getCircularsResponse.toJson()}");
+  debugPrint("GetCircularsResponse ${getCircularsResponse.toJson()}");
   return getCircularsResponse;
 }
 
@@ -366,17 +366,16 @@ class CreateOrUpdateCircularResponse {
 }
 
 Future<CreateOrUpdateCircularResponse> createOrUpdateCircular(CreateOrUpdateCircularRequest createOrUpdateCircularRequest) async {
-  print("Raising request to createOrUpdateCircular with request ${jsonEncode(createOrUpdateCircularRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateCircular with request ${jsonEncode(createOrUpdateCircularRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_CIRCULAR;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateCircularRequest.toJson()),
+  CreateOrUpdateCircularResponse createOrUpdateCircularResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateCircularRequest.toJson(),
+    CreateOrUpdateCircularResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateCircularResponse createOrUpdateCircularResponse = CreateOrUpdateCircularResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateCircularResponse ${createOrUpdateCircularResponse.toJson()}");
+  debugPrint("CreateOrUpdateCircularResponse ${createOrUpdateCircularResponse.toJson()}");
   return createOrUpdateCircularResponse;
 }

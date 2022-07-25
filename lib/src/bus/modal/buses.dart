@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/common_components/map_widgets/modal/bus_lat_long.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetDriversRequest {
@@ -152,18 +152,18 @@ class GetDriversResponse {
 }
 
 Future<GetDriversResponse> getDrivers(GetDriversRequest getDriversRequest) async {
-  print("Raising request to getDrivers with request ${jsonEncode(getDriversRequest.toJson())}");
+  debugPrint("Raising request to getDrivers with request ${jsonEncode(getDriversRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_BUSES_DRIVERS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getDriversRequest.toJson()),
+  GetDriversResponse getDriversResponse = await HttpUtils.post(
+    _url,
+    getDriversRequest.toJson(),
+    GetDriversResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetDriversResponse getDriversResponse = GetDriversResponse.fromJson(json.decode(response.body));
-  print("GetDriversResponse ${getDriversResponse.toJson()}");
+  debugPrint("GetDriversResponse ${getDriversResponse.toJson()}");
   return getDriversResponse;
 }
 
@@ -978,18 +978,18 @@ class GetBusesBaseDetailsResponse {
 }
 
 Future<GetBusesBaseDetailsResponse> getBusesBaseDetails(GetBusesBaseDetailsRequest getBusesBaseDetailsRequest) async {
-  print("Raising request to getBusesBaseDetails with request ${jsonEncode(getBusesBaseDetailsRequest.toJson())}");
+  debugPrint("Raising request to getBusesBaseDetails with request ${jsonEncode(getBusesBaseDetailsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_BUSES_BASE_DETAILS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getBusesBaseDetailsRequest.toJson()),
+  GetBusesBaseDetailsResponse getBusesBaseDetailsResponse = await HttpUtils.post(
+    _url,
+    getBusesBaseDetailsRequest.toJson(),
+    GetBusesBaseDetailsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetBusesBaseDetailsResponse getBusesBaseDetailsResponse = GetBusesBaseDetailsResponse.fromJson(json.decode(response.body));
-  print("GetBusesBaseDetailsResponse ${getBusesBaseDetailsResponse.toJson()}");
+  debugPrint("GetBusesBaseDetailsResponse ${getBusesBaseDetailsResponse.toJson()}");
   return getBusesBaseDetailsResponse;
 }
 
@@ -1106,18 +1106,18 @@ class CreateOrUpdateBusResponse {
 }
 
 Future<CreateOrUpdateBusResponse> createOrUpdateBus(CreateOrUpdateBusRequest createOrUpdateBusRequest) async {
-  print("Raising request to createOrUpdateBus with request ${jsonEncode(createOrUpdateBusRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateBus with request ${jsonEncode(createOrUpdateBusRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_BUSES_BASE_DETAILS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateBusRequest.toJson()),
+  CreateOrUpdateBusResponse createOrUpdateBusResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateBusRequest.toJson(),
+    CreateOrUpdateBusResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateBusResponse createOrUpdateBusResponse = CreateOrUpdateBusResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateBusResponse ${createOrUpdateBusResponse.toJson()}");
+  debugPrint("CreateOrUpdateBusResponse ${createOrUpdateBusResponse.toJson()}");
   return createOrUpdateBusResponse;
 }
 
@@ -1310,18 +1310,17 @@ class GetBusRouteDetailsResponse {
 }
 
 Future<GetBusRouteDetailsResponse> getBusRouteDetails(GetBusRouteDetailsRequest getBusRouteDetailsRequest) async {
-  print("Raising request to getBusRouteDetails with request ${jsonEncode(getBusRouteDetailsRequest.toJson())}");
+  debugPrint("Raising request to getBusRouteDetails with request ${jsonEncode(getBusRouteDetailsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_ROUTE_INFO;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getBusRouteDetailsRequest.toJson()),
+  GetBusRouteDetailsResponse getBusRouteDetailsResponse = await HttpUtils.post(
+    _url,
+    getBusRouteDetailsRequest.toJson(),
+    GetBusRouteDetailsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetBusRouteDetailsResponse getBusRouteDetailsResponse = GetBusRouteDetailsResponse.fromJson(json.decode(response.body));
-  print("GetBusRouteDetailsResponse ${getBusRouteDetailsResponse.toJson()}");
+  debugPrint("GetBusRouteDetailsResponse ${getBusRouteDetailsResponse.toJson()}");
   return getBusRouteDetailsResponse;
 }
 
@@ -1521,19 +1520,17 @@ class CreateOrUpdateBusRouteDetailsResponse {
 
 Future<CreateOrUpdateBusRouteDetailsResponse> createOrUpdateBusRouteDetails(
     CreateOrUpdateBusRouteDetailsRequest createOrUpdateBusRouteDetailsRequest) async {
-  print("Raising request to createOrUpdateBusRouteDetails with request ${jsonEncode(createOrUpdateBusRouteDetailsRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateBusRouteDetails with request ${jsonEncode(createOrUpdateBusRouteDetailsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_BUS_ROUTE_DETAILS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateBusRouteDetailsRequest.toJson()),
+  CreateOrUpdateBusRouteDetailsResponse createOrUpdateBusRouteDetailsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateBusRouteDetailsRequest.toJson(),
+    CreateOrUpdateBusRouteDetailsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateBusRouteDetailsResponse createOrUpdateBusRouteDetailsResponse =
-      CreateOrUpdateBusRouteDetailsResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateBusRouteDetailsResponse ${createOrUpdateBusRouteDetailsResponse.toJson()}");
+  debugPrint("CreateOrUpdateBusRouteDetailsResponse ${createOrUpdateBusRouteDetailsResponse.toJson()}");
   return createOrUpdateBusRouteDetailsResponse;
 }
 
@@ -1672,20 +1669,18 @@ class CreateOrUpdateStopWiseStudentsAssignmentResponse {
 
 Future<CreateOrUpdateStopWiseStudentsAssignmentResponse> createOrUpdateStopWiseStudentsAssignment(
     CreateOrUpdateStopWiseStudentsAssignmentRequest createOrUpdateStopWiseStudentsAssignmentRequest) async {
-  print(
+  debugPrint(
       "Raising request to createOrUpdateStopWiseStudentsAssignment with request ${jsonEncode(createOrUpdateStopWiseStudentsAssignmentRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STOP_WISE_STUDENTS_ASSIGNMENT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateStopWiseStudentsAssignmentRequest.toJson()),
+  CreateOrUpdateStopWiseStudentsAssignmentResponse createOrUpdateStopWiseStudentsAssignmentResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateStopWiseStudentsAssignmentRequest.toJson(),
+    CreateOrUpdateStopWiseStudentsAssignmentResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStopWiseStudentsAssignmentResponse createOrUpdateStopWiseStudentsAssignmentResponse =
-      CreateOrUpdateStopWiseStudentsAssignmentResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateStopWiseStudentsAssignmentResponse ${createOrUpdateStopWiseStudentsAssignmentResponse.toJson()}");
+  debugPrint("CreateOrUpdateStopWiseStudentsAssignmentResponse ${createOrUpdateStopWiseStudentsAssignmentResponse.toJson()}");
   return createOrUpdateStopWiseStudentsAssignmentResponse;
 }
 
@@ -1891,17 +1886,16 @@ class UpdateBusFaresResponse {
 }
 
 Future<UpdateBusFaresResponse> updateBusFares(UpdateBusFaresRequest updateBusFaresRequest) async {
-  print("Raising request to updateBusFares with request ${jsonEncode(updateBusFaresRequest.toJson())}");
+  debugPrint("Raising request to updateBusFares with request ${jsonEncode(updateBusFaresRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + UPDATE_BUS_FARES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(updateBusFaresRequest.toJson()),
+  UpdateBusFaresResponse updateBusFaresResponse = await HttpUtils.post(
+    _url,
+    updateBusFaresRequest.toJson(),
+    UpdateBusFaresResponse.fromJson,
+    doEncrypt: true,
   );
 
-  UpdateBusFaresResponse updateBusFaresResponse = UpdateBusFaresResponse.fromJson(json.decode(response.body));
-  print("UpdateBusFaresResponse ${updateBusFaresResponse.toJson()}");
+  debugPrint("UpdateBusFaresResponse ${updateBusFaresResponse.toJson()}");
   return updateBusFaresResponse;
 }

@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetSuggestionBoxRequest {
 /*
@@ -134,7 +135,7 @@ class Suggestion {
   Suggestion.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = int.tryParse(json['agent']?.toString() ?? '');
-    anonymous = json['anonymous'];
+    anonymous = json['anonymous'] ?? false;
     complainStatus = json['complainStatus']?.toString();
     complaintId = int.tryParse(json['complaintId']?.toString() ?? '');
     createTime = int.tryParse(json['createTime']?.toString() ?? '');
@@ -277,18 +278,17 @@ class GetSuggestionBoxResponse {
 }
 
 Future<GetSuggestionBoxResponse> getSuggestionBox(GetSuggestionBoxRequest getSuggestionBoxRequest) async {
-  print("Raising request to getSuggestionBox with request ${jsonEncode(getSuggestionBoxRequest.toJson())}");
+  debugPrint("Raising request to getSuggestionBox with request ${jsonEncode(getSuggestionBoxRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SUGGESTION_BOX;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getSuggestionBoxRequest.toJson()),
+  GetSuggestionBoxResponse getSuggestionBoxResponse = await HttpUtils.post(
+    _url,
+    getSuggestionBoxRequest.toJson(),
+    GetSuggestionBoxResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetSuggestionBoxResponse getSuggestionBoxResponse = GetSuggestionBoxResponse.fromJson(json.decode(response.body));
-  print("GetSuggestionBoxResponse ${getSuggestionBoxResponse.toJson()}");
+  debugPrint("GetSuggestionBoxResponse ${getSuggestionBoxResponse.toJson()}");
   return getSuggestionBoxResponse;
 }
 
@@ -395,18 +395,17 @@ class CreateSuggestionResponse {
 }
 
 Future<CreateSuggestionResponse> createSuggestion(CreateSuggestionRequest createSuggestionRequest) async {
-  print("Raising request to createSuggestion with request ${jsonEncode(createSuggestionRequest.toJson())}");
+  debugPrint("Raising request to createSuggestion with request ${jsonEncode(createSuggestionRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_SUGGESTION;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createSuggestionRequest.toJson()),
+  CreateSuggestionResponse createSuggestionResponse = await HttpUtils.post(
+    _url,
+    createSuggestionRequest.toJson(),
+    CreateSuggestionResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateSuggestionResponse createSuggestionResponse = CreateSuggestionResponse.fromJson(json.decode(response.body));
-  print("createSuggestionResponse ${createSuggestionResponse.toJson()}");
+  debugPrint("createSuggestionResponse ${createSuggestionResponse.toJson()}");
   return createSuggestionResponse;
 }
 
@@ -497,17 +496,16 @@ class UpdateSuggestionResponse {
 }
 
 Future<UpdateSuggestionResponse> updateSuggestion(UpdateSuggestionRequest updateSuggestionRequest) async {
-  print("Raising request to updateSuggestion with request ${jsonEncode(updateSuggestionRequest.toJson())}");
+  debugPrint("Raising request to updateSuggestion with request ${jsonEncode(updateSuggestionRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + UPDATE_SUGGESTION;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(updateSuggestionRequest.toJson()),
+  UpdateSuggestionResponse updateSuggestionResponse = await HttpUtils.post(
+    _url,
+    updateSuggestionRequest.toJson(),
+    UpdateSuggestionResponse.fromJson,
+    doEncrypt: true,
   );
 
-  UpdateSuggestionResponse updateSuggestionResponse = UpdateSuggestionResponse.fromJson(json.decode(response.body));
-  print("updateSuggestionResponse ${updateSuggestionResponse.toJson()}");
+  debugPrint("updateSuggestionResponse ${updateSuggestionResponse.toJson()}");
   return updateSuggestionResponse;
 }

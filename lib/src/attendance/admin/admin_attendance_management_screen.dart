@@ -182,7 +182,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
     showDialog(
       context: _scaffoldKey.currentContext!,
       builder: (dialogueContext) {
-        print("175: ${_attendanceTimeSlots.where((e) => e.isEdited).map((e) => e.toJson().toString()).join("\n")}");
+        debugPrint("175: ${_attendanceTimeSlots.where((e) => e.isEdited).map((e) => e.toJson().toString()).join("\n")}");
         return AlertDialog(
           title: const Text('Attendance Management'),
           content: const Text("Are you sure to save changes?"),

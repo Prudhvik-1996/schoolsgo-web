@@ -59,17 +59,17 @@ class _SplashScreenState extends State<SplashScreen> {
         await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
       }
     } else {
-      print("64");
+      debugPrint("64");
       try {
         await FirebaseAuth.instance.signOut();
         await _googleSignIn.signOut();
         await _googleSignIn.disconnect();
       } catch (e) {
-        print(e);
+        debugPrint(e.toString());
       }
     }
 
-    print("57:");
+    debugPrint("57:");
     if (isUserLoggedIn) {
       Navigator.restorablePushNamed(
         context,

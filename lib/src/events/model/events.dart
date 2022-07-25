@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetEventsRequest {
   int? eventDate;
@@ -95,7 +96,7 @@ class Event {
     status = json["status"]?.toString();
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
     data["coverPhotoUrl"] = coverPhotoUrl;
     data["coverPhotoUrlId"] = coverPhotoUrlId;
@@ -177,20 +178,17 @@ class GetEventsResponse {
 }
 
 Future<GetEventsResponse> getEvents(GetEventsRequest getEventsRequest) async {
-  print(
-      "Raising request to getEvents with request ${jsonEncode(getEventsRequest.toJson())}");
+  debugPrint("Raising request to getEvents with request ${jsonEncode(getEventsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_EVENTS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getEventsRequest.toJson()),
+  GetEventsResponse getEventsResponse = await HttpUtils.post(
+    _url,
+    getEventsRequest.toJson(),
+    GetEventsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetEventsResponse getEventsResponse =
-      GetEventsResponse.fromJson(json.decode(response.body));
-  print("GetEventsResponse ${getEventsResponse.toJson()}");
+  debugPrint("GetEventsResponse ${getEventsResponse.toJson()}");
   return getEventsResponse;
 }
 
@@ -210,7 +208,7 @@ class GetEventMediaRequest {
     offset = int.tryParse(json["offset"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["eventId"] = eventId;
     data["limit"] = limit;
     data["offset"] = offset;
@@ -249,7 +247,7 @@ class EventMedia {
     status = json["status"]?.toString();
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
     data["description"] = description;
     data["eventId"] = eventId;
@@ -291,19 +289,18 @@ class GetEventMediaResponse {
     }
     httpStatus = json["httpStatus"]?.toString();
     responseStatus = json["responseStatus"]?.toString();
-    totalNoOfEventMedia =
-        int.tryParse(json["totalNoOfEventMedia"]?.toString() ?? '');
+    totalNoOfEventMedia = int.tryParse(json["totalNoOfEventMedia"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
     data["errorMessage"] = errorMessage;
     if (eventMedia != null) {
       final v = eventMedia;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data["eventMedia"] = arr0;
     }
     data["httpStatus"] = httpStatus;
@@ -313,22 +310,18 @@ class GetEventMediaResponse {
   }
 }
 
-Future<GetEventMediaResponse> getEventMedia(
-    GetEventMediaRequest getEventMediaRequest) async {
-  print(
-      "Raising request to getEventMedia with request ${jsonEncode(getEventMediaRequest.toJson())}");
+Future<GetEventMediaResponse> getEventMedia(GetEventMediaRequest getEventMediaRequest) async {
+  debugPrint("Raising request to getEventMedia with request ${jsonEncode(getEventMediaRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_EVENT_MEDIA;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getEventMediaRequest.toJson()),
+  GetEventMediaResponse getEventMediaResponse = await HttpUtils.post(
+    _url,
+    getEventMediaRequest.toJson(),
+    GetEventMediaResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetEventMediaResponse getEventMediaResponse =
-      GetEventMediaResponse.fromJson(json.decode(response.body));
-  print("GetEventMediaResponse ${getEventMediaResponse.toJson()}");
+  debugPrint("GetEventMediaResponse ${getEventMediaResponse.toJson()}");
   return getEventMediaResponse;
 }
 
@@ -376,14 +369,14 @@ class CreateOrUpdateEventsRequest {
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
     if (eventBeans != null) {
       final v = eventBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data["eventBeans"] = arr0;
     }
     data["schoolId"] = schoolId;
@@ -419,7 +412,7 @@ class CreateOrUpdateEventsResponse {
     responseStatus = json["responseStatus"]?.toString();
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
     data["errorMessage"] = errorMessage;
     data["httpStatus"] = httpStatus;
@@ -428,23 +421,18 @@ class CreateOrUpdateEventsResponse {
   }
 }
 
-Future<CreateOrUpdateEventsResponse> createOrUpdateEvents(
-    CreateOrUpdateEventsRequest createOrUpdateEventsRequest) async {
-  print(
-      "Raising request to createOrUpdateEvents with request ${jsonEncode(createOrUpdateEventsRequest.toJson())}");
+Future<CreateOrUpdateEventsResponse> createOrUpdateEvents(CreateOrUpdateEventsRequest createOrUpdateEventsRequest) async {
+  debugPrint("Raising request to createOrUpdateEvents with request ${jsonEncode(createOrUpdateEventsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EVENTS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateEventsRequest.toJson()),
+  CreateOrUpdateEventsResponse createOrUpdateEventsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateEventsRequest.toJson(),
+    CreateOrUpdateEventsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateEventsResponse createOrUpdateEventsResponse =
-      CreateOrUpdateEventsResponse.fromJson(json.decode(response.body));
-  print(
-      "CreateOrUpdateEventsResponse ${createOrUpdateEventsResponse.toJson()}");
+  debugPrint("CreateOrUpdateEventsResponse ${createOrUpdateEventsResponse.toJson()}");
   return createOrUpdateEventsResponse;
 }
 
@@ -492,14 +480,14 @@ class CreateOrUpdateEventMediaRequest {
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
     if (eventMediaBeans != null) {
       final v = eventMediaBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data["eventMediaBeans"] = arr0;
     }
     data["schoolId"] = schoolId;
@@ -537,7 +525,7 @@ class CreateOrUpdateEventMediaResponse {
     responseStatus = json["responseStatus"]?.toString();
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
     data["errorMessage"] = errorMessage;
     data["httpStatus"] = httpStatus;
@@ -546,22 +534,17 @@ class CreateOrUpdateEventMediaResponse {
   }
 }
 
-Future<CreateOrUpdateEventMediaResponse> createOrUpdateEventMedia(
-    CreateOrUpdateEventMediaRequest createOrUpdateEventMediaRequest) async {
-  print(
-      "Raising request to createOrUpdateEventMedia with request ${jsonEncode(createOrUpdateEventMediaRequest.toJson())}");
+Future<CreateOrUpdateEventMediaResponse> createOrUpdateEventMedia(CreateOrUpdateEventMediaRequest createOrUpdateEventMediaRequest) async {
+  debugPrint("Raising request to createOrUpdateEventMedia with request ${jsonEncode(createOrUpdateEventMediaRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EVENT_MEDIA;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateEventMediaRequest.toJson()),
+  CreateOrUpdateEventMediaResponse createOrUpdateEventMediaResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateEventMediaRequest.toJson(),
+    CreateOrUpdateEventMediaResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateEventMediaResponse createOrUpdateEventMediaResponse =
-      CreateOrUpdateEventMediaResponse.fromJson(json.decode(response.body));
-  print(
-      "CreateOrUpdateEventMediaResponse ${createOrUpdateEventMediaResponse.toJson()}");
+  debugPrint("CreateOrUpdateEventMediaResponse ${createOrUpdateEventMediaResponse.toJson()}");
   return createOrUpdateEventMediaResponse;
 }

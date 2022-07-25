@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetUserDetailsResponse {
   GetUserDetailsResponse({
@@ -151,17 +152,16 @@ class UpdateUserFourDigitPinResponse {
 }
 
 Future<UpdateUserFourDigitPinResponse> updateUserFourDigitPin(UpdateUserFourDigitPinRequest updateUserFourDigitPinRequest) async {
-  print("Raising request to updateUserFourDigitPin with request ${jsonEncode(updateUserFourDigitPinRequest.toJson())}");
+  debugPrint("Raising request to updateUserFourDigitPin with request ${jsonEncode(updateUserFourDigitPinRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + UPDATE_USER_PIN;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(updateUserFourDigitPinRequest.toJson()),
+  UpdateUserFourDigitPinResponse updateUserFourDigitPinResponse = await HttpUtils.post(
+    _url,
+    updateUserFourDigitPinRequest.toJson(),
+    UpdateUserFourDigitPinResponse.fromJson,
+    doEncrypt: true,
   );
 
-  UpdateUserFourDigitPinResponse updateUserFourDigitPinResponse = UpdateUserFourDigitPinResponse.fromJson(json.decode(response.body));
-  print("UpdateUserFourDigitPinResponse ${updateUserFourDigitPinResponse.toJson()}");
+  debugPrint("UpdateUserFourDigitPinResponse ${updateUserFourDigitPinResponse.toJson()}");
   return updateUserFourDigitPinResponse;
 }

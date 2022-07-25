@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetStudentToTeacherFeedbackRequest {
 /*
@@ -261,18 +262,17 @@ class GetStudentToTeacherFeedbackResponse {
 }
 
 Future<GetStudentToTeacherFeedbackResponse> getStudentToTeacherFeedback(GetStudentToTeacherFeedbackRequest getStudentToTeacherFeedbackRequest) async {
-  print("Raising request to getStudentToTeacherFeedback with request ${jsonEncode(getStudentToTeacherFeedbackRequest.toJson())}");
+  debugPrint("Raising request to getStudentToTeacherFeedback with request ${jsonEncode(getStudentToTeacherFeedbackRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_TO_TEACHER_FEEDBACK;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudentToTeacherFeedbackRequest.toJson()),
+  GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse = await HttpUtils.post(
+    _url,
+    getStudentToTeacherFeedbackRequest.toJson(),
+    GetStudentToTeacherFeedbackResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudentToTeacherFeedbackResponse getStudentToTeacherFeedbackResponse = GetStudentToTeacherFeedbackResponse.fromJson(json.decode(response.body));
-  print("GetStudentToTeacherFeedbackResponse ${getStudentToTeacherFeedbackResponse.toJson()}");
+  debugPrint("GetStudentToTeacherFeedbackResponse ${getStudentToTeacherFeedbackResponse.toJson()}");
   return getStudentToTeacherFeedbackResponse;
 }
 
@@ -330,9 +330,9 @@ class CreateOrUpdateStudentToTeacherFeedbackRequest {
     if (feedbackBeans != null) {
       final v = feedbackBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['feedbackBeans'] = arr0;
     }
     data['schoolId'] = schoolId;
@@ -385,18 +385,16 @@ class CreateOrUpdateStudentToTeacherFeedbackResponse {
 
 Future<CreateOrUpdateStudentToTeacherFeedbackResponse> createOrUpdateStudentToTeacherFeedback(
     CreateOrUpdateStudentToTeacherFeedbackRequest createStudentToTeacherFeedbackRequest) async {
-  print("Raising request to createStudentToTeacherFeedback with request ${jsonEncode(createStudentToTeacherFeedbackRequest.toJson())}");
+  debugPrint("Raising request to createStudentToTeacherFeedback with request ${jsonEncode(createStudentToTeacherFeedbackRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_TO_TEACHER_FEEDBACK;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createStudentToTeacherFeedbackRequest.toJson()),
+  CreateOrUpdateStudentToTeacherFeedbackResponse createStudentToTeacherFeedbackResponse = await HttpUtils.post(
+    _url,
+    createStudentToTeacherFeedbackRequest.toJson(),
+    CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStudentToTeacherFeedbackResponse createStudentToTeacherFeedbackResponse =
-      CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(json.decode(response.body));
-  print("createStudentToTeacherFeedbackResponse ${createStudentToTeacherFeedbackResponse.toJson()}");
+  debugPrint("createStudentToTeacherFeedbackResponse ${createStudentToTeacherFeedbackResponse.toJson()}");
   return createStudentToTeacherFeedbackResponse;
 }

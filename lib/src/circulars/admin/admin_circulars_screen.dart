@@ -483,8 +483,8 @@ class _AdminCircularsScreenState extends State<AdminCircularsScreen> {
             TextButton(
               child: const Text("No"),
               onPressed: () async {
-                print("481: ${circular.toJson()}");
-                print("482: ${CircularBean.fromJson(circular.origJson).toJson()}");
+                debugPrint("481: ${circular.toJson()}");
+                debugPrint("482: ${CircularBean.fromJson(circular.origJson).toJson()}");
                 setState(() {
                   circular
                     ..agentId = CircularBean.fromJson(circular.origJson).agentId
@@ -680,7 +680,7 @@ class _AdminCircularsScreenState extends State<AdminCircularsScreen> {
                                 reader.onLoadEnd.listen(
                                   (loadEndEvent) async {
                                     // _file = file;
-                                    print("File uploaded: " + file.name);
+                                    debugPrint("File uploaded: " + file.name);
                                     setState(() {
                                       _uploadingFile = file.name;
                                       _fileUploadProgress = ((files.indexOf(file) / files.length) + (1 / (2 * files.length))) * 100.0;

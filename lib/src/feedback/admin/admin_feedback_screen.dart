@@ -162,7 +162,7 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
         }
         _index = _index.add(const Duration(days: 1));
       }
-      print("152: ${eachTeacher.teacherId}: ${_teacherWiseRatingKMap[eachTeacher.teacherId!]}");
+      debugPrint("152: ${eachTeacher.teacherId}: ${_teacherWiseRatingKMap[eachTeacher.teacherId!]}");
 
       _teacherWiseAverageRatingMap[eachTeacher.teacherId!] = (_teacherWiseRatingKMap[eachTeacher.teacherId]!.values.reduce((a, b) => a + b) /
               _teacherWiseRatingKMap[eachTeacher.teacherId]!.values.length)
@@ -206,18 +206,18 @@ class _AdminFeedbackScreenState extends State<AdminFeedbackScreen> {
           }
           _index = _index.add(const Duration(days: 1));
         }
-        print("207: ${eachTds.tdsId}: ${_tdsWiseRatingKMap[eachTds.tdsId!]}");
+        debugPrint("207: ${eachTds.tdsId}: ${_tdsWiseRatingKMap[eachTds.tdsId!]}");
 
         _tdsWiseAverageRatingMap[eachTds.tdsId!] =
             (_tdsWiseRatingKMap[eachTds.tdsId]!.values.reduce((a, b) => a + b) / _tdsWiseRatingKMap[eachTds.tdsId]!.values.length).toStringAsFixed(2);
 
-        print("212: ${eachTds.tdsId}: ${_tdsWiseAverageRatingMap[eachTds.tdsId!]}");
+        debugPrint("212: ${eachTds.tdsId}: ${_tdsWiseAverageRatingMap[eachTds.tdsId!]}");
       } catch (e) {
-        print("217: $e");
+        debugPrint("217: $e");
       }
     }
 
-    print("TDS wise avg feedback: $_tdsWiseAverageRatingMap");
+    debugPrint("TDS wise avg feedback: $_tdsWiseAverageRatingMap");
 
     setState(() {
       _isLoading = false;

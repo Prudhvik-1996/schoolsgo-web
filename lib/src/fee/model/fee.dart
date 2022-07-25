@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetFeeTypesRequest {
@@ -308,18 +308,17 @@ class GetFeeTypesResponse {
 }
 
 Future<GetFeeTypesResponse> getFeeTypes(GetFeeTypesRequest getFeeTypesRequest) async {
-  print("Raising request to getFeeTypes with request ${jsonEncode(getFeeTypesRequest.toJson())}");
+  debugPrint("Raising request to getFeeTypes with request ${jsonEncode(getFeeTypesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_FEE_TYPES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getFeeTypesRequest.toJson()),
+  GetFeeTypesResponse getFeeTypesResponse = await HttpUtils.post(
+    _url,
+    getFeeTypesRequest.toJson(),
+    GetFeeTypesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetFeeTypesResponse getFeeTypesResponse = GetFeeTypesResponse.fromJson(json.decode(response.body));
-  print("GetFeeTypesResponse ${getFeeTypesResponse.toJson()}");
+  debugPrint("GetFeeTypesResponse ${getFeeTypesResponse.toJson()}");
   return getFeeTypesResponse;
 }
 
@@ -438,18 +437,17 @@ class CreateOrUpdateFeeTypesResponse {
 }
 
 Future<CreateOrUpdateFeeTypesResponse> createOrUpdateFeeTypes(CreateOrUpdateFeeTypesRequest createOrUpdateFeeTypesRequest) async {
-  print("Raising request to createOrUpdateFeeTypes with request ${jsonEncode(createOrUpdateFeeTypesRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateFeeTypes with request ${jsonEncode(createOrUpdateFeeTypesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_FEE_TYPES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateFeeTypesRequest.toJson()),
+  CreateOrUpdateFeeTypesResponse createOrUpdateFeeTypesResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateFeeTypesRequest.toJson(),
+    CreateOrUpdateFeeTypesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateFeeTypesResponse createOrUpdateFeeTypesResponse = CreateOrUpdateFeeTypesResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateFeeTypesResponse ${createOrUpdateFeeTypesResponse.toJson()}");
+  debugPrint("CreateOrUpdateFeeTypesResponse ${createOrUpdateFeeTypesResponse.toJson()}");
   return createOrUpdateFeeTypesResponse;
 }
 
@@ -645,18 +643,17 @@ class GetSectionWiseAnnualFeesResponse {
 }
 
 Future<GetSectionWiseAnnualFeesResponse> getSectionWiseAnnualFees(GetSectionWiseAnnualFeesRequest getSectionWiseAnnualFeesRequest) async {
-  print("Raising request to getSectionWiseAnnualFees with request ${jsonEncode(getSectionWiseAnnualFeesRequest.toJson())}");
+  debugPrint("Raising request to getSectionWiseAnnualFees with request ${jsonEncode(getSectionWiseAnnualFeesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SECTION_WISE_ANNUAL_FEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getSectionWiseAnnualFeesRequest.toJson()),
+  GetSectionWiseAnnualFeesResponse getSectionWiseAnnualFeesResponse = await HttpUtils.post(
+    _url,
+    getSectionWiseAnnualFeesRequest.toJson(),
+    GetSectionWiseAnnualFeesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetSectionWiseAnnualFeesResponse getSectionWiseAnnualFeesResponse = GetSectionWiseAnnualFeesResponse.fromJson(json.decode(response.body));
-  print("GetSectionWiseAnnualFeesResponse ${getSectionWiseAnnualFeesResponse.toJson()}");
+  debugPrint("GetSectionWiseAnnualFeesResponse ${getSectionWiseAnnualFeesResponse.toJson()}");
   return getSectionWiseAnnualFeesResponse;
 }
 
@@ -766,18 +763,17 @@ class CreateOrUpdateSectionFeeMapResponse {
 }
 
 Future<CreateOrUpdateSectionFeeMapResponse> createOrUpdateSectionFeeMap(CreateOrUpdateSectionFeeMapRequest createOrUpdateSectionFeeMapRequest) async {
-  print("Raising request to createOrUpdateSectionFeeMap with request ${jsonEncode(createOrUpdateSectionFeeMapRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateSectionFeeMap with request ${jsonEncode(createOrUpdateSectionFeeMapRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SECTION_WISE_ANNUAL_FEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateSectionFeeMapRequest.toJson()),
+  CreateOrUpdateSectionFeeMapResponse createOrUpdateSectionFeeMapResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateSectionFeeMapRequest.toJson(),
+    CreateOrUpdateSectionFeeMapResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateSectionFeeMapResponse createOrUpdateSectionFeeMapResponse = CreateOrUpdateSectionFeeMapResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateSectionFeeMapResponse ${createOrUpdateSectionFeeMapResponse.toJson()}");
+  debugPrint("CreateOrUpdateSectionFeeMapResponse ${createOrUpdateSectionFeeMapResponse.toJson()}");
   return createOrUpdateSectionFeeMapResponse;
 }
 
@@ -1311,18 +1307,17 @@ class GetStudentWiseAnnualFeesResponse {
 }
 
 Future<GetStudentWiseAnnualFeesResponse> getStudentWiseAnnualFees(GetStudentWiseAnnualFeesRequest getStudentWiseAnnualFeesRequest) async {
-  print("Raising request to getStudentWiseAnnualFees with request ${jsonEncode(getStudentWiseAnnualFeesRequest.toJson())}");
+  debugPrint("Raising request to getStudentWiseAnnualFees with request ${jsonEncode(getStudentWiseAnnualFeesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_WISE_ANNUAL_FEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudentWiseAnnualFeesRequest.toJson()),
+  GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = await HttpUtils.post(
+    _url,
+    getStudentWiseAnnualFeesRequest.toJson(),
+    GetStudentWiseAnnualFeesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = GetStudentWiseAnnualFeesResponse.fromJson(json.decode(response.body));
-  print("GetStudentWiseAnnualFeesResponse ${getStudentWiseAnnualFeesResponse.toJson()}");
+  debugPrint("GetStudentWiseAnnualFeesResponse ${getStudentWiseAnnualFeesResponse.toJson()}");
   return getStudentWiseAnnualFeesResponse;
 }
 
@@ -1473,19 +1468,17 @@ class CreateOrUpdateStudentAnnualFeeMapResponse {
 
 Future<CreateOrUpdateStudentAnnualFeeMapResponse> createOrUpdateStudentAnnualFeeMap(
     CreateOrUpdateStudentAnnualFeeMapRequest createOrUpdateStudentAnnualFeeMapRequest) async {
-  print("Raising request to createOrUpdateStudentAnnualFeeMap with request ${jsonEncode(createOrUpdateStudentAnnualFeeMapRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateStudentAnnualFeeMap with request ${jsonEncode(createOrUpdateStudentAnnualFeeMapRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_WISE_ANNUAL_FEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateStudentAnnualFeeMapRequest.toJson()),
+  CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateStudentAnnualFeeMapRequest.toJson(),
+    CreateOrUpdateStudentAnnualFeeMapResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse =
-      CreateOrUpdateStudentAnnualFeeMapResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateStudentAnnualFeeMapResponse ${createOrUpdateStudentAnnualFeeMapResponse.toJson()}");
+  debugPrint("CreateOrUpdateStudentAnnualFeeMapResponse ${createOrUpdateStudentAnnualFeeMapResponse.toJson()}");
   return createOrUpdateStudentAnnualFeeMapResponse;
 }
 
@@ -1660,18 +1653,17 @@ class GetTermsResponse {
 }
 
 Future<GetTermsResponse> getTerms(GetTermsRequest getTermsRequest) async {
-  print("Raising request to getTerms with request ${jsonEncode(getTermsRequest.toJson())}");
+  debugPrint("Raising request to getTerms with request ${jsonEncode(getTermsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_TERMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getTermsRequest.toJson()),
+  GetTermsResponse getTermsResponse = await HttpUtils.post(
+    _url,
+    getTermsRequest.toJson(),
+    GetTermsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetTermsResponse getTermsResponse = GetTermsResponse.fromJson(json.decode(response.body));
-  print("GetTermsResponse ${getTermsResponse.toJson()}");
+  debugPrint("GetTermsResponse ${getTermsResponse.toJson()}");
   return getTermsResponse;
 }
 
@@ -1783,18 +1775,17 @@ class CreateOrUpdateTermResponse {
 }
 
 Future<CreateOrUpdateTermResponse> createOrUpdateTerm(CreateOrUpdateTermRequest createOrUpdateTermRequest) async {
-  print("Raising request to createOrUpdateTerm with request ${jsonEncode(createOrUpdateTermRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateTerm with request ${jsonEncode(createOrUpdateTermRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_TERM;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateTermRequest.toJson()),
+  CreateOrUpdateTermResponse createOrUpdateTermResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateTermRequest.toJson(),
+    CreateOrUpdateTermResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateTermResponse createOrUpdateTermResponse = CreateOrUpdateTermResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateTermResponse ${createOrUpdateTermResponse.toJson()}");
+  debugPrint("CreateOrUpdateTermResponse ${createOrUpdateTermResponse.toJson()}");
   return createOrUpdateTermResponse;
 }
 
@@ -2011,18 +2002,17 @@ class GetSectionWiseTermFeesResponse {
 }
 
 Future<GetSectionWiseTermFeesResponse> getSectionWiseTermFees(GetSectionWiseTermFeesRequest getSectionWiseTermFeesRequest) async {
-  print("Raising request to getSectionWiseTermFees with request ${jsonEncode(getSectionWiseTermFeesRequest.toJson())}");
+  debugPrint("Raising request to getSectionWiseTermFees with request ${jsonEncode(getSectionWiseTermFeesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SECTION_WISE_TERM_FEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getSectionWiseTermFeesRequest.toJson()),
+  GetSectionWiseTermFeesResponse getSectionWiseTermFeesResponse = await HttpUtils.post(
+    _url,
+    getSectionWiseTermFeesRequest.toJson(),
+    GetSectionWiseTermFeesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetSectionWiseTermFeesResponse getSectionWiseTermFeesResponse = GetSectionWiseTermFeesResponse.fromJson(json.decode(response.body));
-  print("GetSectionWiseTermFeesResponse ${getSectionWiseTermFeesResponse.toJson()}");
+  debugPrint("GetSectionWiseTermFeesResponse ${getSectionWiseTermFeesResponse.toJson()}");
   return getSectionWiseTermFeesResponse;
 }
 
@@ -2209,19 +2199,18 @@ class CreateOrUpdateSectionWiseTermFeeMapResponse {
 
 Future<CreateOrUpdateSectionWiseTermFeeMapResponse> createOrUpdateSectionWiseTermFeeMap(
     CreateOrUpdateSectionWiseTermFeeMapRequest createOrUpdateSectionWiseTermFeeMapRequest) async {
-  print("Raising request to createOrUpdateSectionWiseTermFeeMap with request ${jsonEncode(createOrUpdateSectionWiseTermFeeMapRequest.toJson())}");
+  debugPrint(
+      "Raising request to createOrUpdateSectionWiseTermFeeMap with request ${jsonEncode(createOrUpdateSectionWiseTermFeeMapRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_SECTION_WISE_TERM_FEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateSectionWiseTermFeeMapRequest.toJson()),
+  CreateOrUpdateSectionWiseTermFeeMapResponse createOrUpdateSectionWiseTermFeeMapResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateSectionWiseTermFeeMapRequest.toJson(),
+    CreateOrUpdateSectionWiseTermFeeMapResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateSectionWiseTermFeeMapResponse createOrUpdateSectionWiseTermFeeMapResponse =
-      CreateOrUpdateSectionWiseTermFeeMapResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateSectionWiseTermFeeMapResponse ${createOrUpdateSectionWiseTermFeeMapResponse.toJson()}");
+  debugPrint("CreateOrUpdateSectionWiseTermFeeMapResponse ${createOrUpdateSectionWiseTermFeeMapResponse.toJson()}");
   return createOrUpdateSectionWiseTermFeeMapResponse;
 }
 
@@ -2764,18 +2753,17 @@ class GetStudentWiseTermFeesResponse {
 }
 
 Future<GetStudentWiseTermFeesResponse> getStudentWiseTermFees(GetStudentWiseTermFeesRequest getStudentWiseTermFeesRequest) async {
-  print("Raising request to getStudentWiseTermFees with request ${jsonEncode(getStudentWiseTermFeesRequest.toJson())}");
+  debugPrint("Raising request to getStudentWiseTermFees with request ${jsonEncode(getStudentWiseTermFeesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_WISE_TERM_FEES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudentWiseTermFeesRequest.toJson()),
+  GetStudentWiseTermFeesResponse getStudentWiseTermFeesResponse = await HttpUtils.post(
+    _url,
+    getStudentWiseTermFeesRequest.toJson(),
+    GetStudentWiseTermFeesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetStudentWiseTermFeesResponse getStudentWiseTermFeesResponse = GetStudentWiseTermFeesResponse.fromJson(json.decode(response.body));
-  print("GetStudentWiseTermFeesResponse ${getStudentWiseTermFeesResponse.toJson()}");
+  debugPrint("GetStudentWiseTermFeesResponse ${getStudentWiseTermFeesResponse.toJson()}");
   return getStudentWiseTermFeesResponse;
 }
 
@@ -2921,19 +2909,17 @@ class CreateOrUpdateStudentFeePaidResponse {
 
 Future<CreateOrUpdateStudentFeePaidResponse> createOrUpdateStudentFeePaid(
     CreateOrUpdateStudentFeePaidRequest createOrUpdateStudentFeePaidRequest) async {
-  print("Raising request to createOrUpdateStudentFeePaid with request ${jsonEncode(createOrUpdateStudentFeePaidRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateStudentFeePaid with request ${jsonEncode(createOrUpdateStudentFeePaidRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_FEE_PAID;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateStudentFeePaidRequest.toJson()),
+  CreateOrUpdateStudentFeePaidResponse createOrUpdateStudentFeePaidResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateStudentFeePaidRequest.toJson(),
+    CreateOrUpdateStudentFeePaidResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateStudentFeePaidResponse createOrUpdateStudentFeePaidResponse =
-      CreateOrUpdateStudentFeePaidResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateStudentFeePaidResponse ${createOrUpdateStudentFeePaidResponse.toJson()}");
+  debugPrint("CreateOrUpdateStudentFeePaidResponse ${createOrUpdateStudentFeePaidResponse.toJson()}");
   return createOrUpdateStudentFeePaidResponse;
 }
 
@@ -3057,18 +3043,16 @@ class GetTransportFeeAssignmentTypeResponse {
 
 Future<GetTransportFeeAssignmentTypeResponse> getTransportFeeAssignmentType(
     TransportFeeAssignmentTypeBean getTransportFeeAssignmentTypeRequest) async {
-  print("Raising request to getTransportFeeAssignmentType with request ${jsonEncode(getTransportFeeAssignmentTypeRequest.toJson())}");
+  debugPrint("Raising request to getTransportFeeAssignmentType with request ${jsonEncode(getTransportFeeAssignmentTypeRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_TRANSPORT_FEE_ASSIGNMENT_TYPE;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getTransportFeeAssignmentTypeRequest.toJson()),
+  GetTransportFeeAssignmentTypeResponse getTransportFeeAssignmentTypeResponse = await HttpUtils.post(
+    _url,
+    getTransportFeeAssignmentTypeRequest.toJson(),
+    GetTransportFeeAssignmentTypeResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetTransportFeeAssignmentTypeResponse getTransportFeeAssignmentTypeResponse =
-      GetTransportFeeAssignmentTypeResponse.fromJson(json.decode(response.body));
-  print("GetTransportFeeAssignmentTypeResponse ${getTransportFeeAssignmentTypeResponse.toJson()}");
+  debugPrint("GetTransportFeeAssignmentTypeResponse ${getTransportFeeAssignmentTypeResponse.toJson()}");
   return getTransportFeeAssignmentTypeResponse;
 }

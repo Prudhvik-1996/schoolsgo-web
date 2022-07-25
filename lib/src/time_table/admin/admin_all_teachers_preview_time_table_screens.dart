@@ -37,7 +37,7 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
   void initState() {
     super.initState();
     if (widget.teacherProfile != null) {
-      print("36: ${widget.teacherProfile!.teacherName}");
+      debugPrint("36: ${widget.teacherProfile!.teacherName}");
       _selectedTeacher = Teacher(
         teacherName: widget.teacherProfile!.teacherName,
         schoolId: widget.teacherProfile!.schoolId,
@@ -439,8 +439,8 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
     double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) / (MediaQuery.of(context).size.width - 50);
 
     int nextMinHourEquivalent = minimumTimeValue + minimumTimeValue % 3600;
-    // print(minimumTimeValue);
-    // print(nextMinHourEquivalent);
+    // debugPrint(minimumTimeValue);
+    // debugPrint(nextMinHourEquivalent);
 
     List<int> timeSlotValues = [minimumTimeValue];
     if (minimumTimeValue != nextMinHourEquivalent) {
@@ -533,8 +533,8 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
     double widthEquivalentInSeconds = (maximumTimeValue - minimumTimeValue) / (MediaQuery.of(context).size.width - 50);
 
     int nextMinHourEquivalent = minimumTimeValue + minimumTimeValue % 3600;
-    // print(minimumTimeValue);
-    // print(nextMinHourEquivalent);
+    // debugPrint(minimumTimeValue);
+    // debugPrint(nextMinHourEquivalent);
 
     List<int> timeSlotValues = [minimumTimeValue];
     if (minimumTimeValue != nextMinHourEquivalent) {

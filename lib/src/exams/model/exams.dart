@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 import 'admin_exams.dart';
 
@@ -213,18 +215,17 @@ class GetExamsResponse {
 }
 
 Future<GetExamsResponse> getExams(GetExamsRequest getExamsRequest) async {
-  print("Raising request to getExams with request ${jsonEncode(getExamsRequest.toJson())}");
+  debugPrint("Raising request to getExams with request ${jsonEncode(getExamsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_EXAMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getExamsRequest.toJson()),
+  GetExamsResponse getExamsResponse = await HttpUtils.post(
+    _url,
+    getExamsRequest.toJson(),
+    GetExamsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetExamsResponse getExamsResponse = GetExamsResponse.fromJson(json.decode(response.body));
-  print("GetExamsResponse ${getExamsResponse.toJson()}");
+  debugPrint("GetExamsResponse ${getExamsResponse.toJson()}");
   return getExamsResponse;
 }
 
@@ -1030,9 +1031,9 @@ class GetStudentExamBytesRequestStudentExamMarksDetailsList {
     if (studentInternalExamMarksDetailsBeanList != null) {
       final v = studentInternalExamMarksDetailsBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['studentInternalExamMarksDetailsBeanList'] = arr0;
     }
     data['studentName'] = studentName;
@@ -1193,9 +1194,9 @@ class GetStudentExamBytesRequestMarkingAlgorithmBean {
     if (markingAlgorithmRangeBeanList != null) {
       final v = markingAlgorithmRangeBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['markingAlgorithmRangeBeanList'] = arr0;
     }
     data['schoolId'] = schoolId;
@@ -1486,9 +1487,9 @@ class GetStudentExamBytesRequest {
     if (studentExamMarksDetailsList != null) {
       final v = studentExamMarksDetailsList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['studentExamMarksDetailsList'] = arr0;
     }
     if (studentProfile != null) {
@@ -1501,7 +1502,7 @@ class GetStudentExamBytesRequest {
 }
 
 Future<List<int>> getStudentExamBytes(GetStudentExamBytesRequest getStudentExamBytesRequest) async {
-  print("Raising request to getStudentExamBytes with request ${jsonEncode(getStudentExamBytesRequest.toJson())}");
+  debugPrint("Raising request to getStudentExamBytes with request ${jsonEncode(getStudentExamBytesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_EXAM_BYTES;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -1512,6 +1513,6 @@ Future<List<int>> getStudentExamBytes(GetStudentExamBytesRequest getStudentExamB
   );
 
   List<int> getStudentExamBytesResponse = response.bodyBytes;
-  // print("GetStudentExamMarksDetailsResponse ${getStudentExamBytesResponse.toJson()}");
+  // debugPrint("GetStudentExamMarksDetailsResponse ${getStudentExamBytesResponse.toJson()}");
   return getStudentExamBytesResponse;
 }

@@ -544,7 +544,7 @@ class _TeacherStudyMaterialScreenState extends State<TeacherStudyMaterialScreen>
                                 reader.onLoadEnd.listen(
                                   (loadEndEvent) async {
                                     // _file = file;
-                                    print("File uploaded: " + file.name);
+                                    debugPrint("File uploaded: " + file.name);
                                     setState(() {
                                       _isLoading = true;
                                     });

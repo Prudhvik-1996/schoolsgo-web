@@ -370,7 +370,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
   }
 
   _performMoreActions(String choice) {
-    print("Choice: $choice");
+    debugPrint("Choice: $choice");
     if (choice == "enable_edit_mode") {
       setState(() {
         isPreviewMode = false;
@@ -566,7 +566,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                         reader.onLoadEnd.listen(
                                           (loadEndEvent) async {
                                             // _file = file;
-                                            print("File uploaded: " + file.name);
+                                            debugPrint("File uploaded: " + file.name);
                                             setState(() {
                                               _isLoading = true;
                                             });
@@ -795,7 +795,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                           reader.onLoadEnd.listen(
                                             (loadEndEvent) async {
                                               // _file = file;
-                                              print("File uploaded: " + file.name);
+                                              debugPrint("File uploaded: " + file.name);
                                               setState(() {
                                                 _isLoading = true;
                                               });

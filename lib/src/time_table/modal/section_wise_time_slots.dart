@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:schoolsgo_web/src/constants/constants.dart';
@@ -17,14 +18,7 @@ class GetSectionWiseTimeSlotsRequest {
   int? teacherId;
 
   GetSectionWiseTimeSlotsRequest(
-      {this.date,
-      this.schoolId,
-      this.sectionId,
-      this.sectionWiseTimeSlotsId,
-      this.status,
-      this.subjectId,
-      this.tdsId,
-      this.teacherId});
+      {this.date, this.schoolId, this.sectionId, this.sectionWiseTimeSlotsId, this.status, this.subjectId, this.tdsId, this.teacherId});
 
   GetSectionWiseTimeSlotsRequest.fromJson(Map<String, dynamic> json) {
     date = json['date'];
@@ -58,12 +52,7 @@ class GetSectionWiseTimeSlotsResponse {
   String? responseStatus;
   List<SectionWiseTimeSlotBean>? sectionWiseTimeSlotBeanList;
 
-  GetSectionWiseTimeSlotsResponse(
-      {this.errorCode,
-      this.errorMessage,
-      this.httpStatus,
-      this.responseStatus,
-      this.sectionWiseTimeSlotBeanList});
+  GetSectionWiseTimeSlotsResponse({this.errorCode, this.errorMessage, this.httpStatus, this.responseStatus, this.sectionWiseTimeSlotBeanList});
 
   GetSectionWiseTimeSlotsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];
@@ -85,8 +74,7 @@ class GetSectionWiseTimeSlotsResponse {
     data['httpStatus'] = httpStatus;
     data['responseStatus'] = responseStatus;
     if (sectionWiseTimeSlotBeanList != null) {
-      data['sectionWiseTimeSlotBeanList'] =
-          sectionWiseTimeSlotBeanList!.map((v) => v.toJson()).toList();
+      data['sectionWiseTimeSlotBeanList'] = sectionWiseTimeSlotBeanList!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -195,10 +183,8 @@ class SectionWiseTimeSlotBean {
   }
 }
 
-Future<GetSectionWiseTimeSlotsResponse> getSectionWiseTimeSlots(
-    GetSectionWiseTimeSlotsRequest getSectionWiseTimeSlotsRequest) async {
-  print(
-      "Raising request to getSectionWiseTimeSlots with request ${jsonEncode(getSectionWiseTimeSlotsRequest.toJson())}");
+Future<GetSectionWiseTimeSlotsResponse> getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest getSectionWiseTimeSlotsRequest) async {
+  debugPrint("Raising request to getSectionWiseTimeSlots with request ${jsonEncode(getSectionWiseTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SECTION_WISE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -208,10 +194,8 @@ Future<GetSectionWiseTimeSlotsResponse> getSectionWiseTimeSlots(
     body: jsonEncode(getSectionWiseTimeSlotsRequest.toJson()),
   );
 
-  GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse =
-      GetSectionWiseTimeSlotsResponse.fromJson(json.decode(response.body));
-  print(
-      "GetSectionWiseTimeSlotsResponse ${getSectionWiseTimeSlotsResponse.toJson()}");
+  GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = GetSectionWiseTimeSlotsResponse.fromJson(json.decode(response.body));
+  debugPrint("GetSectionWiseTimeSlotsResponse ${getSectionWiseTimeSlotsResponse.toJson()}");
   return getSectionWiseTimeSlotsResponse;
 }
 
@@ -220,11 +204,9 @@ class CreateOrUpdateSectionWiseTimeSlotsRequest {
   int? schoolId;
   List<SectionWiseTimeSlotBean>? sectionWiseTimeSlotBeans;
 
-  CreateOrUpdateSectionWiseTimeSlotsRequest(
-      {this.agent, this.schoolId, this.sectionWiseTimeSlotBeans});
+  CreateOrUpdateSectionWiseTimeSlotsRequest({this.agent, this.schoolId, this.sectionWiseTimeSlotBeans});
 
-  CreateOrUpdateSectionWiseTimeSlotsRequest.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateSectionWiseTimeSlotsRequest.fromJson(Map<String, dynamic> json) {
     agent = json['agent'];
     schoolId = json['schoolId'];
     if (json['sectionWiseTimeSlotBeans'] != null) {
@@ -240,8 +222,7 @@ class CreateOrUpdateSectionWiseTimeSlotsRequest {
     data['agent'] = agent;
     data['schoolId'] = schoolId;
     if (sectionWiseTimeSlotBeans != null) {
-      data['sectionWiseTimeSlotBeans'] =
-          sectionWiseTimeSlotBeans!.map((v) => v.toJson()).toList();
+      data['sectionWiseTimeSlotBeans'] = sectionWiseTimeSlotBeans!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -253,14 +234,9 @@ class CreateOrUpdateSectionWiseTimeSlotsResponse {
   String? httpStatus;
   String? responseStatus;
 
-  CreateOrUpdateSectionWiseTimeSlotsResponse(
-      {this.errorCode,
-      this.errorMessage,
-      this.httpStatus,
-      this.responseStatus});
+  CreateOrUpdateSectionWiseTimeSlotsResponse({this.errorCode, this.errorMessage, this.httpStatus, this.responseStatus});
 
-  CreateOrUpdateSectionWiseTimeSlotsResponse.fromJson(
-      Map<String, dynamic> json) {
+  CreateOrUpdateSectionWiseTimeSlotsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];
     errorMessage = json['errorMessage'];
     httpStatus = json['httpStatus'];
@@ -277,12 +253,9 @@ class CreateOrUpdateSectionWiseTimeSlotsResponse {
   }
 }
 
-Future<CreateOrUpdateSectionWiseTimeSlotsResponse>
-    createOrUpdateSectionWiseTimeSlots(
-        CreateOrUpdateSectionWiseTimeSlotsRequest
-            createOrUpdateSectionWiseTimeSlotsRequest) async {
-  print(
-      "Raising request to createOrUpdateSectionWiseTimeSlots with request ${jsonEncode(createOrUpdateSectionWiseTimeSlotsRequest.toJson())}");
+Future<CreateOrUpdateSectionWiseTimeSlotsResponse> createOrUpdateSectionWiseTimeSlots(
+    CreateOrUpdateSectionWiseTimeSlotsRequest createOrUpdateSectionWiseTimeSlotsRequest) async {
+  debugPrint("Raising request to createOrUpdateSectionWiseTimeSlots with request ${jsonEncode(createOrUpdateSectionWiseTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SECTION_WISE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -292,12 +265,9 @@ Future<CreateOrUpdateSectionWiseTimeSlotsResponse>
     body: jsonEncode(createOrUpdateSectionWiseTimeSlotsRequest.toJson()),
   );
 
-  CreateOrUpdateSectionWiseTimeSlotsResponse
-      createOrUpdateSectionWiseTimeSlotsResponse =
-      CreateOrUpdateSectionWiseTimeSlotsResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "CreateOrUpdateSectionWiseTimeSlotsResponse ${createOrUpdateSectionWiseTimeSlotsResponse.toJson()}");
+  CreateOrUpdateSectionWiseTimeSlotsResponse createOrUpdateSectionWiseTimeSlotsResponse =
+      CreateOrUpdateSectionWiseTimeSlotsResponse.fromJson(json.decode(response.body));
+  debugPrint("CreateOrUpdateSectionWiseTimeSlotsResponse ${createOrUpdateSectionWiseTimeSlotsResponse.toJson()}");
   return createOrUpdateSectionWiseTimeSlotsResponse;
 }
 
@@ -308,12 +278,7 @@ class BulkEditSectionWiseTimeSlotsRequest {
   List<TimeSlot>? timeSlots;
   List<int>? weekIds;
 
-  BulkEditSectionWiseTimeSlotsRequest(
-      {this.agent,
-      this.schoolId,
-      this.sectionIds,
-      this.timeSlots,
-      this.weekIds});
+  BulkEditSectionWiseTimeSlotsRequest({this.agent, this.schoolId, this.sectionIds, this.timeSlots, this.weekIds});
 
   BulkEditSectionWiseTimeSlotsRequest.fromJson(Map<String, dynamic> json) {
     agent = json['agent'];
@@ -347,11 +312,7 @@ class BulkEditSectionWiseTimeSlotsResponse {
   String? httpStatus;
   String? responseStatus;
 
-  BulkEditSectionWiseTimeSlotsResponse(
-      {this.errorCode,
-      this.errorMessage,
-      this.httpStatus,
-      this.responseStatus});
+  BulkEditSectionWiseTimeSlotsResponse({this.errorCode, this.errorMessage, this.httpStatus, this.responseStatus});
 
   BulkEditSectionWiseTimeSlotsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];
@@ -371,10 +332,8 @@ class BulkEditSectionWiseTimeSlotsResponse {
 }
 
 Future<BulkEditSectionWiseTimeSlotsResponse> bulkEditSectionWiseTimeSlots(
-    BulkEditSectionWiseTimeSlotsRequest
-        bulkEditSectionWiseTimeSlotsRequest) async {
-  print(
-      "Raising request to bulkEditSectionWiseTimeSlots with request ${jsonEncode(bulkEditSectionWiseTimeSlotsRequest.toJson())}");
+    BulkEditSectionWiseTimeSlotsRequest bulkEditSectionWiseTimeSlotsRequest) async {
+  debugPrint("Raising request to bulkEditSectionWiseTimeSlots with request ${jsonEncode(bulkEditSectionWiseTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + BULK_EDIT_SECTION_WISE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -386,8 +345,7 @@ Future<BulkEditSectionWiseTimeSlotsResponse> bulkEditSectionWiseTimeSlots(
 
   BulkEditSectionWiseTimeSlotsResponse bulkEditSectionWiseTimeSlotsResponse =
       BulkEditSectionWiseTimeSlotsResponse.fromJson(json.decode(response.body));
-  print(
-      "bulkEditSectionWiseTimeSlotsResponse ${bulkEditSectionWiseTimeSlotsResponse.toJson()}");
+  debugPrint("bulkEditSectionWiseTimeSlotsResponse ${bulkEditSectionWiseTimeSlotsResponse.toJson()}");
   return bulkEditSectionWiseTimeSlotsResponse;
 }
 
@@ -413,13 +371,13 @@ class RandomizeSectionWiseTimeSlotsRequest {
     if (json['randomisingTimeSlotList'] != null) {
       randomisingTimeSlotList = <RandomisingTimeSlot>[];
       json['randomisingTimeSlotList'].forEach((v) {
-        randomisingTimeSlotList!.add(new RandomisingTimeSlot.fromJson(v));
+        randomisingTimeSlotList!.add(RandomisingTimeSlot.fromJson(v));
       });
     }
     if (json['tdsDailyLimitBeans'] != null) {
       tdsDailyLimitBeans = <TdsDailyLimitBeans>[];
       json['tdsDailyLimitBeans'].forEach((v) {
-        tdsDailyLimitBeans!.add(new TdsDailyLimitBeans.fromJson(v));
+        tdsDailyLimitBeans!.add(TdsDailyLimitBeans.fromJson(v));
       });
     }
     if (json['tdsList'] != null) {
@@ -446,23 +404,19 @@ class RandomizeSectionWiseTimeSlotsRequest {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['agent'] = agent;
     if (randomisingTimeSlotList != null) {
-      data['randomisingTimeSlotList'] =
-          randomisingTimeSlotList!.map((v) => v.toJson()).toList();
+      data['randomisingTimeSlotList'] = randomisingTimeSlotList!.map((v) => v.toJson()).toList();
     }
     if (tdsDailyLimitBeans != null) {
-      data['tdsDailyLimitBeans'] =
-          tdsDailyLimitBeans!.map((v) => v.toJson()).toList();
+      data['tdsDailyLimitBeans'] = tdsDailyLimitBeans!.map((v) => v.toJson()).toList();
     }
     if (tdsList != null) {
       data['tdsList'] = tdsList!.map((v) => v.toJson()).toList();
     }
     if (tdsWeeklyLimitBeans != null) {
-      data['tdsWeeklyLimitBeans'] =
-          tdsWeeklyLimitBeans!.map((v) => v.toJson()).toList();
+      data['tdsWeeklyLimitBeans'] = tdsWeeklyLimitBeans!.map((v) => v.toJson()).toList();
     }
     if (sectionWiseTimeSlotBeanList != null) {
-      data['sectionWiseTimeSlotBeanList'] =
-          sectionWiseTimeSlotBeanList!.map((v) => v.toJson()).toList();
+      data['sectionWiseTimeSlotBeanList'] = sectionWiseTimeSlotBeanList!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -490,9 +444,7 @@ class RandomisingTimeSlot {
   RandomisingTimeSlot.fromJson(Map<String, dynamic> json) {
     endTime = json['endTime'];
     startTime = json['startTime'];
-    tds = json['tds'] != null
-        ? TeacherDealingSection.fromJson(json['tds'])
-        : null;
+    tds = json['tds'] != null ? TeacherDealingSection.fromJson(json['tds']) : null;
     timeSlotId = json['timeSlotId'];
     week = json['week'];
     weekId = json['weekId'];
@@ -523,9 +475,7 @@ class TdsDailyLimitBeans {
 
   TdsDailyLimitBeans.fromJson(Map<String, dynamic> json) {
     dailyLimit = json['dailyLimit'];
-    tds = json['tds'] != null
-        ? TeacherDealingSection.fromJson(json['tds'])
-        : null;
+    tds = json['tds'] != null ? TeacherDealingSection.fromJson(json['tds']) : null;
     weekId = json['weekId'];
   }
 
@@ -552,9 +502,7 @@ class TdsWeeklyLimitBeans {
   TdsWeeklyLimitBeans({this.tds, this.weeklyLimit});
 
   TdsWeeklyLimitBeans.fromJson(Map<String, dynamic> json) {
-    tds = json['tds'] != null
-        ? TeacherDealingSection.fromJson(json['tds'])
-        : null;
+    tds = json['tds'] != null ? TeacherDealingSection.fromJson(json['tds']) : null;
     weeklyLimit = json['weeklyLimit'];
   }
 
@@ -575,12 +523,7 @@ class RandomizeSectionWiseTimeSlotsResponse {
   String? responseStatus;
   List<SectionWiseTimeSlotBean>? sectionWiseTimeSlotBeanList;
 
-  RandomizeSectionWiseTimeSlotsResponse(
-      {this.errorCode,
-      this.errorMessage,
-      this.httpStatus,
-      this.responseStatus,
-      this.sectionWiseTimeSlotBeanList});
+  RandomizeSectionWiseTimeSlotsResponse({this.errorCode, this.errorMessage, this.httpStatus, this.responseStatus, this.sectionWiseTimeSlotBeanList});
 
   RandomizeSectionWiseTimeSlotsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode'];
@@ -602,18 +545,15 @@ class RandomizeSectionWiseTimeSlotsResponse {
     data['httpStatus'] = httpStatus;
     data['responseStatus'] = responseStatus;
     if (sectionWiseTimeSlotBeanList != null) {
-      data['sectionWiseTimeSlotBeanList'] =
-          sectionWiseTimeSlotBeanList!.map((v) => v.toJson()).toList();
+      data['sectionWiseTimeSlotBeanList'] = sectionWiseTimeSlotBeanList!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
 Future<RandomizeSectionWiseTimeSlotsResponse> randomizeSectionWiseTimeSlots(
-    RandomizeSectionWiseTimeSlotsRequest
-        randomizeSectionWiseTimeSlotsRequest) async {
-  print(
-      "Raising request to randomizeSectionWiseTimeSlots with request ${jsonEncode(randomizeSectionWiseTimeSlotsRequest.toJson())}");
+    RandomizeSectionWiseTimeSlotsRequest randomizeSectionWiseTimeSlotsRequest) async {
+  debugPrint("Raising request to randomizeSectionWiseTimeSlots with request ${jsonEncode(randomizeSectionWiseTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + RANDOMISE_SECTION_WISE_TIME_SLOTS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -624,9 +564,7 @@ Future<RandomizeSectionWiseTimeSlotsResponse> randomizeSectionWiseTimeSlots(
   );
 
   RandomizeSectionWiseTimeSlotsResponse randomizeSectionWiseTimeSlotsResponse =
-      RandomizeSectionWiseTimeSlotsResponse.fromJson(
-          json.decode(response.body));
-  print(
-      "randomizeSectionWiseTimeSlotsResponse ${randomizeSectionWiseTimeSlotsResponse.toJson()}");
+      RandomizeSectionWiseTimeSlotsResponse.fromJson(json.decode(response.body));
+  debugPrint("randomizeSectionWiseTimeSlotsResponse ${randomizeSectionWiseTimeSlotsResponse.toJson()}");
   return randomizeSectionWiseTimeSlotsResponse;
 }

@@ -81,7 +81,7 @@ class AppExpansionTileState extends State<AppExpansionTile> with SingleTickerPro
       return;
     }
     if (_isExpanded != isExpanded) {
-      print("hi");
+      debugPrint("hi");
       setState(() {
         _isExpanded = isExpanded;
         if (_isExpanded) {
@@ -92,7 +92,7 @@ class AppExpansionTileState extends State<AppExpansionTile> with SingleTickerPro
         PageStorage.of(context)?.writeState(context, _isExpanded);
       });
       if (widget.onExpansionChanged != null) {
-        print("Hello");
+        debugPrint("Hello");
         widget.onExpansionChanged!(_isExpanded);
       }
     }

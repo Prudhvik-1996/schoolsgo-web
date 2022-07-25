@@ -1,9 +1,10 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetOnlineClassRoomsRequest {
 /*
@@ -202,8 +203,7 @@ class OnlineClassRoom {
     ocrId = int.tryParse(json['ocrId']?.toString() ?? '');
     sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
     sectionName = json['sectionName']?.toString();
-    sectionWiseTimeSlotId =
-        int.tryParse(json['sectionWiseTimeSlotId']?.toString() ?? '');
+    sectionWiseTimeSlotId = int.tryParse(json['sectionWiseTimeSlotId']?.toString() ?? '');
     startTime = json['startTime']?.toString();
     status = json['status']?.toString();
     subjectId = int.tryParse(json['subjectId']?.toString() ?? '');
@@ -252,15 +252,16 @@ class OnlineClassRoom {
 
   int compareTo(OnlineClassRoom other) {
     if (date != null && other.date != null) {
-      int dateComp = convertYYYYMMDDFormatToDateTime(date)
-          .compareTo(convertYYYYMMDDFormatToDateTime(other.date));
+      int dateComp = convertYYYYMMDDFormatToDateTime(date).compareTo(convertYYYYMMDDFormatToDateTime(other.date));
       if (dateComp != 0) return dateComp;
     }
-    int timeComp = getSecondsEquivalentOfTimeFromWHHMMSS(startTime!, weekId)
-        .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(
-            other.startTime!, other.weekId));
+    int timeComp =
+        getSecondsEquivalentOfTimeFromWHHMMSS(startTime!, weekId).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(other.startTime!, other.weekId));
     return timeComp;
   }
+
+  @override
+  int get hashCode => toString().hashCode;
 }
 
 class GetOnlineClassRoomsResponse {
@@ -315,8 +316,7 @@ class GetOnlineClassRoomsResponse {
     errorCode = json['errorCode']?.toString();
     errorMessage = json['errorMessage']?.toString();
     httpStatus = json['httpStatus']?.toString();
-    if (json['onlineClassRooms'] != null &&
-        (json['onlineClassRooms'] is List)) {
+    if (json['onlineClassRooms'] != null && (json['onlineClassRooms'] is List)) {
       final v = json['onlineClassRooms'];
       final arr0 = <OnlineClassRoom>[];
       v.forEach((v) {
@@ -335,9 +335,9 @@ class GetOnlineClassRoomsResponse {
     if (onlineClassRooms != null) {
       final v = onlineClassRooms;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['onlineClassRooms'] = arr0;
     }
     data['responseStatus'] = responseStatus;
@@ -347,22 +347,18 @@ class GetOnlineClassRoomsResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetOnlineClassRoomsResponse> getOnlineClassRooms(
-    GetOnlineClassRoomsRequest getOnlineClassRoomsRequest) async {
-  print(
-      "Raising request to getOnlineClassRooms with request ${jsonEncode(getOnlineClassRoomsRequest.toJson())}");
+Future<GetOnlineClassRoomsResponse> getOnlineClassRooms(GetOnlineClassRoomsRequest getOnlineClassRoomsRequest) async {
+  debugPrint("Raising request to getOnlineClassRooms with request ${jsonEncode(getOnlineClassRoomsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_ONLINE_CLASS_ROOMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getOnlineClassRoomsRequest.toJson()),
+  GetOnlineClassRoomsResponse getOnlineClassRoomsResponse = await HttpUtils.post(
+    _url,
+    getOnlineClassRoomsRequest.toJson(),
+    GetOnlineClassRoomsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetOnlineClassRoomsResponse getOnlineClassRoomsResponse =
-      GetOnlineClassRoomsResponse.fromJson(json.decode(response.body));
-  print("GetOnlineClassRoomsResponse ${getOnlineClassRoomsResponse.toJson()}");
+  debugPrint("GetOnlineClassRoomsResponse ${getOnlineClassRoomsResponse.toJson()}");
   return getOnlineClassRoomsResponse;
 }
 
@@ -452,22 +448,18 @@ class UpdateOcrAsPerTtResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<UpdateOcrAsPerTtResponse> updateOcrAsPerTtRooms(
-    UpdateOcrAsPerTtRequest updateOcrAsPerTtRoomsRequest) async {
-  print(
-      "Raising request to updateOcrAsPerTtRooms with request ${jsonEncode(updateOcrAsPerTtRoomsRequest.toJson())}");
+Future<UpdateOcrAsPerTtResponse> updateOcrAsPerTtRooms(UpdateOcrAsPerTtRequest updateOcrAsPerTtRoomsRequest) async {
+  debugPrint("Raising request to updateOcrAsPerTtRooms with request ${jsonEncode(updateOcrAsPerTtRoomsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + UPDATE_OCR_AS_PER_TT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(updateOcrAsPerTtRoomsRequest.toJson()),
+  UpdateOcrAsPerTtResponse updateOcrAsPerTtRoomsResponse = await HttpUtils.post(
+    _url,
+    updateOcrAsPerTtRoomsRequest.toJson(),
+    UpdateOcrAsPerTtResponse.fromJson,
+    doEncrypt: true,
   );
 
-  UpdateOcrAsPerTtResponse updateOcrAsPerTtRoomsResponse =
-      UpdateOcrAsPerTtResponse.fromJson(json.decode(response.body));
-  print("UpdateOcrAsPerTtResponse ${updateOcrAsPerTtRoomsResponse.toJson()}");
+  debugPrint("UpdateOcrAsPerTtResponse ${updateOcrAsPerTtRoomsResponse.toJson()}");
   return updateOcrAsPerTtRoomsResponse;
 }
 
@@ -582,22 +574,17 @@ class CreateOrUpdateCustomOcrResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateCustomOcrResponse> createOrUpdateCustomOcrRooms(
-    CreateOrUpdateCustomOcrRequest createOrUpdateCustomOcrRoomsRequest) async {
-  print(
-      "Raising request to createOrUpdateCustomOcrRooms with request ${jsonEncode(createOrUpdateCustomOcrRoomsRequest.toJson())}");
+Future<CreateOrUpdateCustomOcrResponse> createOrUpdateCustomOcrRooms(CreateOrUpdateCustomOcrRequest createOrUpdateCustomOcrRoomsRequest) async {
+  debugPrint("Raising request to createOrUpdateCustomOcrRooms with request ${jsonEncode(createOrUpdateCustomOcrRoomsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ONLINE_CLASS_ROOMS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateCustomOcrRoomsRequest.toJson()),
+  CreateOrUpdateCustomOcrResponse createOrUpdateCustomOcrRoomsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateCustomOcrRoomsRequest.toJson(),
+    CreateOrUpdateCustomOcrResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateCustomOcrResponse createOrUpdateCustomOcrRoomsResponse =
-      CreateOrUpdateCustomOcrResponse.fromJson(json.decode(response.body));
-  print(
-      "CreateOrUpdateCustomOcrResponse ${createOrUpdateCustomOcrRoomsResponse.toJson()}");
+  debugPrint("CreateOrUpdateCustomOcrResponse ${createOrUpdateCustomOcrRoomsResponse.toJson()}");
   return createOrUpdateCustomOcrRoomsResponse;
 }

@@ -281,7 +281,7 @@
 //   Widget _getCustomFeeTypeWidget(CustomFee customFee, FeeType feeType, Section section) {
 //     List<FeeMap> _feeMaps = feeMaps.where((eachFeeMap) => eachFeeMap.sectionId == section.sectionId && eachFeeMap.customFeeId != null).toList();
 //     if (_feeMaps.isEmpty) return Container();
-//     print("${section.sectionName} ${feeType.feeType} ${customFee.customFeeDescription} ${_feeMaps.length}");
+//     debugPrint("${section.sectionName} ${feeType.feeType} ${customFee.customFeeDescription} ${_feeMaps.length}");
 //     FeeMap feeMap = _feeMaps.first;
 //     return Container(
 //       margin: const EdgeInsets.fromLTRB(50, 10, 0, 10),
@@ -303,7 +303,7 @@
 //   Widget _getFeeTypeWidget(FeeType feeType, Section section) {
 //     List<FeeMap> _feeMaps = feeMaps.where((eachFeeMap) => eachFeeMap.sectionId == section.sectionId).toList();
 //     if (_feeMaps.isEmpty) return Container();
-//     print("${section.sectionName} ${feeType.feeType} ${_feeMaps.length}");
+//     debugPrint("${section.sectionName} ${feeType.feeType} ${_feeMaps.length}");
 //     FeeMap feeMap = _feeMaps.first;
 //     return Container(
 //       margin: const EdgeInsets.fromLTRB(40, 10, 0, 10),

@@ -132,7 +132,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
   }
 
   _performMoreActions(String choice) {
-    print("Choice: $choice");
+    debugPrint("Choice: $choice");
     if (choice == "select") {
       setState(() {
         selectMode = true;
@@ -461,7 +461,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                         reader.onLoadEnd.listen(
                           (loadEndEvent) async {
                             // _file = file;
-                            print("File uploaded: " + file.name);
+                            debugPrint("File uploaded: " + file.name);
                             setState(() {
                               _isLoading = true;
                             });

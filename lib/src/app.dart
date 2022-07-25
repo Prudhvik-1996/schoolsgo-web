@@ -176,7 +176,7 @@ class _MyAppState extends State<MyApp> {
                   });
             },
             onGenerateRoute: (RouteSettings routeSettings) {
-              print(routeSettings.name);
+              debugPrint(routeSettings.name);
               return buildCustomMaterialPageRoute(routeSettings);
             },
           ),
@@ -196,6 +196,8 @@ class _MyAppState extends State<MyApp> {
           return const NoInternetScreen();
         }
         switch (routeSettings.name) {
+          // case "manifest.json":
+          //   return
           case SettingsView.routeName:
             return SettingsView(controller: widget.settingsController);
           case SplashScreen.routeName:
@@ -627,7 +629,7 @@ class _MyAppState extends State<MyApp> {
                   return AdminTeacherDealingSectionsScreen(
                     adminProfile: routeArgument.adminProfile,
                   );
-                case "Section Wise Time Slots Management":
+                case "Time Table":
                   return AdminEditTimeTable(
                     adminProfile: routeArgument.adminProfile,
                   );

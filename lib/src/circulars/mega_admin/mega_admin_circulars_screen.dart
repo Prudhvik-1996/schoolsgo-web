@@ -581,8 +581,8 @@ class _MegaAdminCircularsScreenState extends State<MegaAdminCircularsScreen> {
             TextButton(
               child: const Text("No"),
               onPressed: () async {
-                print("481: ${circular.toJson()}");
-                print("482: ${CircularBean.fromJson(circular.origJson).toJson()}");
+                debugPrint("481: ${circular.toJson()}");
+                debugPrint("482: ${CircularBean.fromJson(circular.origJson).toJson()}");
                 setState(() {
                   circular
                     ..agentId = CircularBean.fromJson(circular.origJson).agentId
@@ -778,7 +778,7 @@ class _MegaAdminCircularsScreenState extends State<MegaAdminCircularsScreen> {
                                 reader.onLoadEnd.listen(
                                   (loadEndEvent) async {
                                     // _file = file;
-                                    print("File uploaded: " + file.name);
+                                    debugPrint("File uploaded: " + file.name);
                                     setState(() {
                                       _uploadingFile = file.name;
                                       _fileUploadProgress = ((files.indexOf(file) / files.length) + (1 / (2 * files.length))) * 100.0;

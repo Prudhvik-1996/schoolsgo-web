@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> loadFcmToken() async {
     try {
       token = await FirebaseMessaging.instance.getToken();
-      print("40: $token");
+      debugPrint("40: $token");
     } catch (e) {
       debugPrint("Exception occurred while trying to retrieve FCM Token, $e");
     }
@@ -73,8 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       await _auth.signInWithCredential(credential);
     } on FirebaseAuthException catch (e) {
-      print("43");
-      print(e.message);
+      debugPrint("43");
+      debugPrint(e.message);
       throw e;
     }
   }
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // await _googleSignIn.signIn();
       await signInWithGoogle();
     } catch (error) {
-      print("$error");
+      debugPrint("$error");
     }
   }
 

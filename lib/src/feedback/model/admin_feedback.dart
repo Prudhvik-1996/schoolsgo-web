@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -345,9 +346,9 @@ class GetStudentToTeacherFeedbackAdminViewResponse {
 
 Future<GetStudentToTeacherFeedbackAdminViewResponse> getStudentToTeacherFeedbackAdminView(
     GetStudentToTeacherFeedbackAdminViewRequest getStudentToTeacherFeedbackAdminViewRequest) async {
-  print("Raising request to getStudentToTeacherFeedbackAdminView with request ${jsonEncode(getStudentToTeacherFeedbackAdminViewRequest.toJson())}");
+  debugPrint(
+      "Raising request to getStudentToTeacherFeedbackAdminView with request ${jsonEncode(getStudentToTeacherFeedbackAdminViewRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_TO_TEACHER_FEEDBACK_ADMIN_VIEW;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
   GetStudentToTeacherFeedbackAdminViewResponse getStudentToTeacherFeedbackAdminViewResponse = await HttpUtils.post(
     _url,
@@ -356,6 +357,6 @@ Future<GetStudentToTeacherFeedbackAdminViewResponse> getStudentToTeacherFeedback
     doEncrypt: true,
   );
 
-  print("GetStudentToTeacherFeedbackAdminViewResponse ${getStudentToTeacherFeedbackAdminViewResponse.toJson()}");
+  debugPrint("GetStudentToTeacherFeedbackAdminViewResponse ${getStudentToTeacherFeedbackAdminViewResponse.toJson()}");
   return getStudentToTeacherFeedbackAdminViewResponse;
 }

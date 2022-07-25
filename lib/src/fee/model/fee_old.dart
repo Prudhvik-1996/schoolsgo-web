@@ -355,7 +355,7 @@
 //
 // Future<GetFeeTypesResponse> getFeeTypes(
 //     GetFeeTypesRequest getFeeTypesRequest) async {
-//   print(
+//   debugPrint(
 //       "Raising request to getFeeTypes with request ${jsonEncode(getFeeTypesRequest.toJson())}");
 //   String _url = SCHOOLS_GO_BASE_URL + GET_FEE_TYPES;
 //   Map<String, String> _headers = {"Content-type": "application/json"};
@@ -368,7 +368,7 @@
 //
 //   GetFeeTypesResponse getFeeTypesResponse =
 //       GetFeeTypesResponse.fromJson(json.decode(response.body));
-//   print("GetFeeTypesResponse ${getFeeTypesResponse.toJson()}");
+//   debugPrint("GetFeeTypesResponse ${getFeeTypesResponse.toJson()}");
 //   return getFeeTypesResponse;
 // }
 //
@@ -493,7 +493,7 @@
 //
 // Future<GetCustomFeesResponse> getCustomFees(
 //     GetCustomFeesRequest getCustomFeesRequest) async {
-//   print(
+//   debugPrint(
 //       "Raising request to getCustomFees with request ${jsonEncode(getCustomFeesRequest.toJson())}");
 //   String _url = SCHOOLS_GO_BASE_URL + GET_CUSTOM_FEE_TYPES;
 //   Map<String, String> _headers = {"Content-type": "application/json"};
@@ -506,7 +506,7 @@
 //
 //   GetCustomFeesResponse getCustomFeesResponse =
 //       GetCustomFeesResponse.fromJson(json.decode(response.body));
-//   print("GetCustomFeesResponse ${getCustomFeesResponse.toJson()}");
+//   debugPrint("GetCustomFeesResponse ${getCustomFeesResponse.toJson()}");
 //   return getCustomFeesResponse;
 // }
 //
@@ -767,7 +767,7 @@
 // }
 //
 // Future<GetFeeMapResponse> getFeeMap(GetFeeMapRequest getFeeMapRequest) async {
-//   print(
+//   debugPrint(
 //       "Raising request to getFeeMap with request ${jsonEncode(getFeeMapRequest.toJson())}");
 //   String _url = SCHOOLS_GO_BASE_URL + GET_FEE_MAP;
 //   Map<String, String> _headers = {"Content-type": "application/json"};
@@ -780,6 +780,6 @@
 //
 //   GetFeeMapResponse getFeeMapResponse =
 //       GetFeeMapResponse.fromJson(json.decode(response.body));
-//   print("GetFeeMapResponse ${getFeeMapResponse.toJson()}");
+//   debugPrint("GetFeeMapResponse ${getFeeMapResponse.toJson()}");
 //   return getFeeMapResponse;
 // }

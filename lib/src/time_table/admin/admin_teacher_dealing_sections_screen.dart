@@ -103,7 +103,7 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
     });
 
     List<TeacherDealingSection> _editedTds = _tdsList.where((e) => e.isEdited).toList();
-    print("120: $_editedTds");
+    debugPrint("120: $_editedTds");
 
     if (_editedTds.isEmpty) {
       setState(() {
@@ -144,7 +144,7 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
         HapticFeedback.vibrate();
         if (_isEditMode) {
           _saveChanges();
-          // print("Saving changes");
+          // debugPrint("Saving changes");
           setState(() {
             _isEditMode = false;
           });
@@ -315,7 +315,7 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
                 child: InkWell(
                   onTap: () {
                     HapticFeedback.vibrate();
-                    // print("clicked");
+                    // debugPrint("clicked");
                     setState(() {
                       tds.status = 'inactive';
                       tds.isEdited = true;
@@ -373,7 +373,7 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
                         )
                         .toList(),
                     onChanged: (Subject? e1) {
-                      // print("${e1!} clicked");
+                      // debugPrint("${e1!} clicked");
                       setState(() {
                         _newTds.subjectId = e1!.subjectId;
                         _newTds.subjectName = e1.subjectName;
@@ -431,7 +431,7 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
                 child: InkWell(
                   onTap: () {
                     HapticFeedback.vibrate();
-                    // print("clicked");
+                    // debugPrint("clicked");
                     if (_newTds.subjectId == null) {
                       HapticFeedback.vibrate();
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -450,7 +450,7 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
                       );
                       return;
                     }
-                    // print("508: $_newTds");
+                    // debugPrint("508: $_newTds");
                     setState(() {
                       _newTds.status = 'active';
                       _newTds.isEdited = true;
@@ -504,7 +504,7 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
 
   @override
   Widget build(BuildContext context) {
-    // print(
+    // debugPrint(
     //     "${_tdsList.where((e) => _selectedSection != null && e.sectionId == _selectedSection!.sectionId).length}");
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(

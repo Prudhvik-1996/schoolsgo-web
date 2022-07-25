@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class DoLoginRequestOtpBean {
 /*
@@ -264,17 +265,16 @@ class DoLoginResponse {
 }
 
 Future<DoLoginResponse> doLogin(DoLoginRequest doLoginRequest) async {
-  print("Raising request to doLogin with request ${jsonEncode(doLoginRequest.toJson())}");
+  debugPrint("Raising request to doLogin with request ${jsonEncode(doLoginRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + DO_LOGIN;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(doLoginRequest.toJson()),
+  DoLoginResponse doLoginResponse = await HttpUtils.post(
+    _url,
+    doLoginRequest.toJson(),
+    DoLoginResponse.fromJson,
+    doEncrypt: true,
   );
 
-  DoLoginResponse doLoginResponse = DoLoginResponse.fromJson(json.decode(response.body));
-  print("DoLoginResponse ${doLoginResponse.toJson()}");
+  debugPrint("DoLoginResponse ${doLoginResponse.toJson()}");
   return doLoginResponse;
 }

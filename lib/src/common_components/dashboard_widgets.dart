@@ -293,12 +293,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
             ),
           ),
           DashboardWidget<AdminRouteWithParams<String>>(
-            title: "Section Wise Time Slots Management",
+            title: "Time Table",
             routeName: StudentTimeTableView.routeName,
             argument: AdminRouteWithParams<String>(
               adminProfile: adminProfile,
               routeName: StudentTimeTableView.routeName,
-              params: ["Section Wise Time Slots Management"],
+              params: ["Time Table"],
             ),
           ),
           if (!adminProfile.isMegaAdmin)

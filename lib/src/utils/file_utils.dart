@@ -3,6 +3,7 @@ import 'dart:html' as html;
 import 'dart:typed_data';
 
 import 'package:download/download.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
@@ -29,7 +30,7 @@ enum MediaFileType {
 }
 
 MediaFileType getFileTypeForExtension(String? extension) {
-  print("Extension Request For: $extension");
+  debugPrint("Extension Request For: $extension");
   switch (extension) {
     // Audio file formats by file extensions
     case "aif":
@@ -273,7 +274,7 @@ String getAssetImageForFileType(MediaFileType fileType) {
 }
 
 downloadFile(String url, {String? filename}) async {
-  print(url);
+  debugPrint(url);
 
   http.Response response = await http.get(
     Uri.parse(allowCORSEndPoint + url),
@@ -374,7 +375,7 @@ class MediaBean {
 
 Future<UploadFileToDriveResponse> uploadFileToDrive(Object file, String fileName) async {
   try {
-    print("Raising request to uploadFileToDrive with request $fileName");
+    debugPrint("Raising request to uploadFileToDrive with request $fileName");
     String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL + UPLOAD_FILE_TO_DRIVE;
     var request = http.MultipartRequest('POST', Uri.parse(_url));
     Uint8List _bytesData = const Base64Decoder().convert(file.toString().split(",").last);
@@ -387,12 +388,12 @@ Future<UploadFileToDriveResponse> uploadFileToDrive(Object file, String fileName
         filename: fileName,
       ),
     );
-    print("Request: $request");
+    debugPrint("Request: $request");
     var responseJson = await request.send();
 
     UploadFileToDriveResponse uploadUint8ListFileToDriveResponse =
         UploadFileToDriveResponse.fromJson(json.decode((await http.Response.fromStream(responseJson)).body));
-    print("UploadFileToDriveResponse ${uploadUint8ListFileToDriveResponse.toJson()}");
+    debugPrint("UploadFileToDriveResponse ${uploadUint8ListFileToDriveResponse.toJson()}");
     return uploadUint8ListFileToDriveResponse;
   } catch (e) {
     rethrow;

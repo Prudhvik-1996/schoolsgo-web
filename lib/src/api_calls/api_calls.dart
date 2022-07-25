@@ -1,31 +1,28 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
+import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
-Future<userDetails.GetUserDetailsResponse> getUserDetails(userDetails.UserDetails getUserDetailsRequest) async {
-  print("Raising request to getUserDetails with request ${jsonEncode(getUserDetailsRequest.toJson())}");
-  Map<String, String> _headers = {"Content-type": "application/json", "Access-Control-Allow-Origin": "*"};
+Future<user_details.GetUserDetailsResponse> getUserDetails(user_details.UserDetails getUserDetailsRequest) async {
+  debugPrint("Raising request to getUserDetails with request ${jsonEncode(getUserDetailsRequest.toJson())}");
 
-  http.Response response = await http.post(
-    Uri.parse(SCHOOLS_GO_BASE_URL + GET_USER_DETAILS),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(getUserDetailsRequest.toJson()),
+  user_details.GetUserDetailsResponse getUserDetailsResponse = await HttpUtils.post(
+    SCHOOLS_GO_BASE_URL + GET_USER_DETAILS,
+    getUserDetailsRequest.toJson(),
+    user_details.GetUserDetailsResponse.fromJson,
+    doEncrypt: true,
   );
 
-  print("Response: ${json.decode(response.body)}");
-
-  userDetails.GetUserDetailsResponse getUserDetailsResponse = userDetails.GetUserDetailsResponse.fromJson(json.decode(response.body));
-  print("GetUserDetailsResponse ${getUserDetailsResponse.toJson()}");
+  debugPrint("GetUserDetailsResponse ${getUserDetailsResponse.toJson()}");
   return getUserDetailsResponse;
 }
 
 Future<GetUserRolesDetailsResponse> getUserRoles(GetUserRolesRequest getUserRolesRequest) async {
-  print("Raising request to getUserRoles with request ${jsonEncode(getUserRolesRequest.toJson())}");
+  debugPrint("Raising request to getUserRoles with request ${jsonEncode(getUserRolesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_USER_ROLES_DETAILS;
   Map<String, String> _headers = {"Content-type": "application/json"};
 
@@ -35,7 +32,7 @@ Future<GetUserRolesDetailsResponse> getUserRoles(GetUserRolesRequest getUserRole
     body: jsonEncode(getUserRolesRequest.toJson()),
   );
 
-  GetUserRolesDetailsResponse getUserRolesRespone = GetUserRolesDetailsResponse.fromJson(json.decode(response.body));
-  print("GetUserRolesResponse ${getUserRolesRespone.toJson()}");
-  return getUserRolesRespone;
+  GetUserRolesDetailsResponse getUserRolesResponse = GetUserRolesDetailsResponse.fromJson(json.decode(response.body));
+  debugPrint("GetUserRolesResponse ${getUserRolesResponse.toJson()}");
+  return getUserRolesResponse;
 }

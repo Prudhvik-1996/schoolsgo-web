@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetNoticeBoardRequest {
 /*
@@ -479,18 +480,17 @@ class GetNoticeBoardResponse {
 }
 
 Future<GetNoticeBoardResponse> getNoticeBoard(GetNoticeBoardRequest getNoticeBoardRequest) async {
-  print("Raising request to getNoticeBoard with request ${jsonEncode(getNoticeBoardRequest.toJson())}");
+  debugPrint("Raising request to getNoticeBoard with request ${jsonEncode(getNoticeBoardRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_NOTICE_BOARD;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getNoticeBoardRequest.toJson()),
+  GetNoticeBoardResponse getNoticeBoardResponse = await HttpUtils.post(
+    _url,
+    getNoticeBoardRequest.toJson(),
+    GetNoticeBoardResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetNoticeBoardResponse getNoticeBoardResponse = GetNoticeBoardResponse.fromJson(json.decode(response.body));
-  print("GetNoticeBoardResponse ${getNoticeBoardResponse.toJson()}");
+  debugPrint("GetNoticeBoardResponse ${getNoticeBoardResponse.toJson()}");
   return getNoticeBoardResponse;
 }
 
@@ -580,19 +580,17 @@ class CreateOrUpdateNoticeBoardMediaResponse {
 
 Future<CreateOrUpdateNoticeBoardMediaResponse> createOrUpdateNoticeBoardMedia(
     CreateOrUpdateNoticeBoardMediaRequest createOrUpdateNoticeBoardMediaRequest) async {
-  print("Raising request to createOrUpdateNoticeBoardMedia with request ${jsonEncode(createOrUpdateNoticeBoardMediaRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateNoticeBoardMedia with request ${jsonEncode(createOrUpdateNoticeBoardMediaRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_NOTICE_BOARD_MEDIA_BEANS;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateNoticeBoardMediaRequest.toJson()),
+  CreateOrUpdateNoticeBoardMediaResponse createOrUpdateNoticeBoardMediaResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateNoticeBoardMediaRequest.toJson(),
+    CreateOrUpdateNoticeBoardMediaResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateNoticeBoardMediaResponse createOrUpdateNoticeBoardMediaResponse =
-      CreateOrUpdateNoticeBoardMediaResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateNoticeBoardMediaResponse ${createOrUpdateNoticeBoardMediaResponse.toJson()}");
+  debugPrint("CreateOrUpdateNoticeBoardMediaResponse ${createOrUpdateNoticeBoardMediaResponse.toJson()}");
   return createOrUpdateNoticeBoardMediaResponse;
 }
 
@@ -694,17 +692,16 @@ class CreateOrUpdateNoticeBoardResponse {
 }
 
 Future<CreateOrUpdateNoticeBoardResponse> createOrUpdateNoticeBoard(CreateOrUpdateNoticeBoardRequest createOrUpdateNoticeBoardRequest) async {
-  print("Raising request to createOrUpdateNoticeBoard with request ${jsonEncode(createOrUpdateNoticeBoardRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateNoticeBoard with request ${jsonEncode(createOrUpdateNoticeBoardRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_NOTICE_BOARD;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateNoticeBoardRequest.toJson()),
+  CreateOrUpdateNoticeBoardResponse createOrUpdateNoticeBoardResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateNoticeBoardRequest.toJson(),
+    CreateOrUpdateNoticeBoardResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateNoticeBoardResponse createOrUpdateNoticeBoardResponse = CreateOrUpdateNoticeBoardResponse.fromJson(json.decode(response.body));
-  print("CreateOrUpdateNoticeBoardResponse ${createOrUpdateNoticeBoardResponse.toJson()}");
+  debugPrint("CreateOrUpdateNoticeBoardResponse ${createOrUpdateNoticeBoardResponse.toJson()}");
   return createOrUpdateNoticeBoardResponse;
 }

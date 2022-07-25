@@ -108,7 +108,7 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                   .map(
                     (e) => GestureDetector(
                       onTap: () {
-                        print("Entering ${e.routeName}");
+                        debugPrint("Entering ${e.routeName}");
                         Navigator.pushNamed(
                           context,
                           e.routeName!,

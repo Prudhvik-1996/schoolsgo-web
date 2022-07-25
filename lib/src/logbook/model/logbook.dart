@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetLogBookRequest {
 /*
@@ -39,14 +40,13 @@ class GetLogBookRequest {
     date = int.tryParse(json["date"]?.toString() ?? '');
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     sectionId = int.tryParse(json["sectionId"]?.toString() ?? '');
-    sectionTimeSlotId =
-        int.tryParse(json["sectionTimeSlotId"]?.toString() ?? '');
+    sectionTimeSlotId = int.tryParse(json["sectionTimeSlotId"]?.toString() ?? '');
     subjectId = int.tryParse(json["subjectId"]?.toString() ?? '');
     tdsId = int.tryParse(json["tdsId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["date"] = date;
     data["schoolId"] = schoolId;
     data["sectionId"] = sectionId;
@@ -126,8 +126,7 @@ class LogBook {
     notes = json["notes"]?.toString();
     sectionId = int.tryParse(json["sectionId"]?.toString() ?? '');
     sectionName = json["sectionName"]?.toString();
-    sectionTimeSlotId =
-        int.tryParse(json["sectionTimeSlotId"]?.toString() ?? '');
+    sectionTimeSlotId = int.tryParse(json["sectionTimeSlotId"]?.toString() ?? '');
     startTime = json["startTime"]?.toString();
     subjectId = int.tryParse(json["subjectId"]?.toString() ?? '');
     subjectName = json["subjectName"]?.toString();
@@ -136,7 +135,7 @@ class LogBook {
     teacherName = json["teacherName"]?.toString();
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
     data["date"] = date;
     data["endTime"] = endTime;
@@ -217,16 +216,16 @@ class GetLogBookResponse {
     responseStatus = json["responseStatus"]?.toString();
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
     data["errorMessage"] = errorMessage;
     data["httpStatus"] = httpStatus;
     if (logs != null) {
       final v = logs;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data["logs"] = arr0;
     }
     data["responseStatus"] = responseStatus;
@@ -236,22 +235,18 @@ class GetLogBookResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetLogBookResponse> getLogBook(
-    GetLogBookRequest getLogBookRequest) async {
-  print(
-      "Raising request to getLogBook with request ${jsonEncode(getLogBookRequest.toJson())}");
+Future<GetLogBookResponse> getLogBook(GetLogBookRequest getLogBookRequest) async {
+  debugPrint("Raising request to getLogBook with request ${jsonEncode(getLogBookRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_LOGBOOK;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getLogBookRequest.toJson()),
+  GetLogBookResponse getLogBookResponse = await HttpUtils.post(
+    _url,
+    getLogBookRequest.toJson(),
+    GetLogBookResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetLogBookResponse getLogBookResponse =
-      GetLogBookResponse.fromJson(json.decode(response.body));
-  print("GetLogBookResponse ${getLogBookResponse.toJson()}");
+  debugPrint("GetLogBookResponse ${getLogBookResponse.toJson()}");
   return getLogBookResponse;
 }
 
@@ -306,15 +301,14 @@ class CreateOrUpdateLogBookRequest {
     notes = json["notes"]?.toString();
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     sectionId = int.tryParse(json["sectionId"]?.toString() ?? '');
-    sectionTimeSlotId =
-        int.tryParse(json["sectionTimeSlotId"]?.toString() ?? '');
+    sectionTimeSlotId = int.tryParse(json["sectionTimeSlotId"]?.toString() ?? '');
     status = json["status"]?.toString();
     subjectId = int.tryParse(json["subjectId"]?.toString() ?? '');
     tdsId = int.tryParse(json["tdsId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["agentId"] = agentId;
     data["date"] = date;
     data["logbookId"] = logbookId;
@@ -362,7 +356,7 @@ class CreateOrUpdateLogBookResponse {
     responseStatus = json["responseStatus"]?.toString();
   }
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
     data["errorMessage"] = errorMessage;
     data["httpStatus"] = httpStatus;
@@ -373,22 +367,17 @@ class CreateOrUpdateLogBookResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateLogBookResponse> createOrUpdateLogBook(
-    CreateOrUpdateLogBookRequest createOrUpdateLogBookRequest) async {
-  print(
-      "Raising request to createOrUpdateLogBook with request ${jsonEncode(createOrUpdateLogBookRequest.toJson())}");
+Future<CreateOrUpdateLogBookResponse> createOrUpdateLogBook(CreateOrUpdateLogBookRequest createOrUpdateLogBookRequest) async {
+  debugPrint("Raising request to createOrUpdateLogBook with request ${jsonEncode(createOrUpdateLogBookRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_LOGBOOK;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateLogBookRequest.toJson()),
+  CreateOrUpdateLogBookResponse createOrUpdateLogBookResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateLogBookRequest.toJson(),
+    CreateOrUpdateLogBookResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateLogBookResponse createOrUpdateLogBookResponse =
-      CreateOrUpdateLogBookResponse.fromJson(json.decode(response.body));
-  print(
-      "createOrUpdateLogBookResponse ${createOrUpdateLogBookResponse.toJson()}");
+  debugPrint("createOrUpdateLogBookResponse ${createOrUpdateLogBookResponse.toJson()}");
   return createOrUpdateLogBookResponse;
 }

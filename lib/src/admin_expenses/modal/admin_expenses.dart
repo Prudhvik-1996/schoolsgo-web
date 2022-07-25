@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetAdminExpensesRequest {
@@ -355,18 +355,17 @@ class GetAdminExpensesResponse {
 }
 
 Future<GetAdminExpensesResponse> getAdminExpenses(GetAdminExpensesRequest getAdminExpensesRequest) async {
-  print("Raising request to getAdminExpenses with request ${jsonEncode(getAdminExpensesRequest.toJson())}");
+  debugPrint("Raising request to getAdminExpenses with request ${jsonEncode(getAdminExpensesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_ADMIN_EXPENSES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getAdminExpensesRequest.toJson()),
+  GetAdminExpensesResponse getAdminExpensesResponse = await HttpUtils.post(
+    _url,
+    getAdminExpensesRequest.toJson(),
+    GetAdminExpensesResponse.fromJson,
+    doEncrypt: true,
   );
 
-  GetAdminExpensesResponse getAdminExpensesResponse = GetAdminExpensesResponse.fromJson(json.decode(response.body));
-  print("GetAdminExpensesResponse ${getAdminExpensesResponse.toJson()}");
+  debugPrint("GetAdminExpensesResponse ${getAdminExpensesResponse.toJson()}");
   return getAdminExpensesResponse;
 }
 
@@ -414,17 +413,16 @@ class CreateOrUpdateAdminExpenseResponse {
 }
 
 Future<CreateOrUpdateAdminExpenseResponse> createOrUpdateAdminExpense(CreateOrUpdateAdminExpenseRequest createOrUpdateAdminExpenseRequest) async {
-  print("Raising request to createOrUpdateAdminExpense with request ${jsonEncode(createOrUpdateAdminExpenseRequest.toJson())}");
+  debugPrint("Raising request to createOrUpdateAdminExpense with request ${jsonEncode(createOrUpdateAdminExpenseRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_EXPENSES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
 
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(createOrUpdateAdminExpenseRequest.toJson()),
+  CreateOrUpdateAdminExpenseResponse createOrUpdateAdminExpenseResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateAdminExpenseRequest.toJson(),
+    CreateOrUpdateAdminExpenseResponse.fromJson,
+    doEncrypt: true,
   );
 
-  CreateOrUpdateAdminExpenseResponse createOrUpdateAdminExpenseResponse = CreateOrUpdateAdminExpenseResponse.fromJson(json.decode(response.body));
-  print("createOrUpdateAdminExpenseResponse ${createOrUpdateAdminExpenseResponse.toJson()}");
+  debugPrint("createOrUpdateAdminExpenseResponse ${createOrUpdateAdminExpenseResponse.toJson()}");
   return createOrUpdateAdminExpenseResponse;
 }

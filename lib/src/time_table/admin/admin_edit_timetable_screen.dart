@@ -42,7 +42,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
 
   bool _previewMode = false;
 
-  late Map<Section, GlobalKey<State<StatefulWidget>>> _printKeys;
+  late Map<Section, GlobalKey<State<StatefulWidget>>> _debugPrintKeys;
 
   late PageController pageController;
 
@@ -63,7 +63,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
       _sectionToBeEdited = null;
       _isSectionPickerOpen = false;
       _previewMode = false;
-      _printKeys = {};
+      _debugPrintKeys = {};
     });
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -77,7 +77,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
       for (Section eachSection in _sectionsList) {
         setState(() {
           _selectedSectionMap[eachSection] = true;
-          _printKeys[eachSection] = GlobalKey();
+          _debugPrintKeys[eachSection] = GlobalKey();
           pageController = PageController(
             initialPage: _sectionIndex!,
             keepPage: true,
@@ -335,6 +335,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
   }
 
   DropdownButton<TeacherDealingSection> buildDropdownButtonToPickTDS(Section section, SectionWiseTimeSlotBean timeSlotToBeEdited) {
+    print("338: $section");
+    print("339: $timeSlotToBeEdited");
     return DropdownButton(
       underline: Container(),
       isExpanded: true,
@@ -850,7 +852,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
     double height = 25;
     double width = (MediaQuery.of(context).size.width - 21) / (timeSlots.length + 1);
     return RepaintBoundary(
-      key: _printKeys[section],
+      key: _debugPrintKeys[section],
       child: Container(
         margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         child: Container(
