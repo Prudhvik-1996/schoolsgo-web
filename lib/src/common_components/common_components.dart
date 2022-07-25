@@ -29,14 +29,30 @@ class DefaultAppDrawer extends Drawer {
               children: [
                 Align(
                   alignment: Alignment.topLeft,
-                  child: InkWell(
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                  child: Row(
+                    children: [
+                      InkWell(
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                      InkWell(
+                        child: const Icon(
+                          Icons.clear,
+                          color: Colors.white,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 const Align(
@@ -92,14 +108,34 @@ class StudentAppDrawer extends Drawer {
                   children: [
                     Align(
                       alignment: Alignment.topLeft,
-                      child: InkWell(
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                          const Expanded(
+                            child: Text(""),
+                          ),
+                          InkWell(
+                            child: const Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     Align(
@@ -262,14 +298,34 @@ class TeacherAppDrawer extends Drawer {
                   children: [
                     Align(
                       alignment: Alignment.topLeft,
-                      child: InkWell(
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                          const Expanded(
+                            child: Text(""),
+                          ),
+                          InkWell(
+                            child: const Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     Align(
@@ -431,14 +487,34 @@ class AdminAppDrawer extends Drawer {
                   children: [
                     Align(
                       alignment: Alignment.topLeft,
-                      child: InkWell(
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                          const Expanded(
+                            child: Text(""),
+                          ),
+                          InkWell(
+                            child: const Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     Align(
@@ -605,14 +681,34 @@ class MegaAdminAppDrawer extends Drawer {
                   children: [
                     Align(
                       alignment: Alignment.topLeft,
-                      child: InkWell(
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                          const Expanded(
+                            child: Text(""),
+                          ),
+                          InkWell(
+                            child: const Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     Align(
