@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/exams/model/admin_exams.dart';
 
 class MarksInputFormatter extends TextInputFormatter {
+  final StudentExamMarksDetailsBean marksBean;
+
+  MarksInputFormatter(this.marksBean);
+
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue oldValue,
@@ -18,6 +23,10 @@ class MarksInputFormatter extends TextInputFormatter {
     // } else {
     //   return const TextEditingValue().copyWith(text: oldValue.text);
     // }
+    double? newEntry = double.tryParse(newValue.text);
+    if (marksBean.maxMarks != null && newEntry != null && newEntry > marksBean.maxMarks!) {
+      return oldValue;
+    }
     return newValue;
   }
 }

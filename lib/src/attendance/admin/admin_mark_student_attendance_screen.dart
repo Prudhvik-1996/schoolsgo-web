@@ -34,6 +34,8 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
   Section? _selectedSection;
   bool _isSectionPickerOpen = false;
 
+  bool _showOnlyAbsentees = false;
+
   List<AttendanceTimeSlotBean> attendanceTimeSlotBeans = [];
   List<_StudentWiseAttendanceTimeSlot> studentWiseAttendanceBeans = [];
 
@@ -193,10 +195,30 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                           flex: 2,
                           child: _getDatePicker(),
                         ),
+                      if (!_isSectionPickerOpen && attendanceTimeSlotBeans.isNotEmpty && MediaQuery.of(context).orientation == Orientation.landscape)
+                        Expanded(
+                          flex: 1,
+                          child: _showOnlyAbsenteesButton(),
+                        ),
                       _isSectionPickerOpen || _selectedSection == null || widget.adminProfile.isMegaAdmin ? Container() : buildEditButton(context),
                     ],
                   ),
-                  if (attendanceTimeSlotBeans.isEmpty) _selectedDate.weekday == 7 ? _noTimeSlotsForSundayWidget() : _noTimeSlotsWidget(),
+                  if (!_isSectionPickerOpen && attendanceTimeSlotBeans.isNotEmpty && MediaQuery.of(context).orientation == Orientation.portrait)
+                    _showOnlyAbsenteesButton(),
+                  if (attendanceTimeSlotBeans.isEmpty)
+                    _selectedSection == null
+                        ? Container(
+                            margin: const EdgeInsets.fromLTRB(10, 50, 10, 50),
+                            child: const Center(
+                              child: Text(
+                                "Select a section to mark attendance..",
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        : _selectedDate.weekday == 7
+                            ? _noTimeSlotsForSundayWidget()
+                            : _noTimeSlotsWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty) _headerWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty && _isEditMode) _subHeaderWidget(),
                   if (attendanceTimeSlotBeans.isNotEmpty)
@@ -240,6 +262,40 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
           textAlign: TextAlign.center,
         ),
       ),
+    );
+  }
+
+  Widget _showOnlyAbsenteesButton() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      padding: MediaQuery.of(context).orientation == Orientation.landscape
+          ? const EdgeInsets.fromLTRB(10, 10, 10, 10)
+          : const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      child: InkWell(
+          onTap: () {
+            setState(() {
+              _showOnlyAbsentees = !_showOnlyAbsentees;
+            });
+          },
+          child: ClayContainer(
+            depth: 40,
+            surfaceColor: Colors.red.shade400,
+            parentColor: clayContainerColor(context),
+            spread: 2,
+            borderRadius: 10,
+            emboss: _showOnlyAbsentees,
+            child: Container(
+              padding: const EdgeInsets.all(15),
+              child: const Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    "Show only\nabsentees",
+                  ),
+                ),
+              ),
+            ),
+          )),
     );
   }
 
@@ -469,6 +525,14 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
   }
 
   Widget _studentAttendanceWidgets() {
+    List<_StudentWiseAttendanceTimeSlot> studentWiseAttendanceBeansToBeDisplayed = studentWiseAttendanceBeans
+        .where((eachWiseStudentAttendanceBean) =>
+            (!_showOnlyAbsentees) ||
+            (_showOnlyAbsentees &&
+                eachWiseStudentAttendanceBean.studentAttendanceBeans
+                    .where((eachStudentAttendanceBean) => eachStudentAttendanceBean.isPresent != 1)
+                    .isNotEmpty))
+        .toList();
     return Row(
       children: [
         if (MediaQuery.of(context).orientation == Orientation.landscape)
@@ -482,7 +546,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
             shrinkWrap: true,
             controller: _studentsController,
             children: <Widget>[
-              for (int j = 0; j < studentWiseAttendanceBeans.length; j++)
+              for (int j = 0; j < studentWiseAttendanceBeansToBeDisplayed.length; j++)
                 Padding(
                   padding: const EdgeInsets.all(_cellPadding),
                   child: ClayContainer(
@@ -498,9 +562,9 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                       child: Container(
                         margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
                         child: Text(
-                          (studentWiseAttendanceBeans[j].studentProfile.rollNumber ?? "-") +
+                          (studentWiseAttendanceBeansToBeDisplayed[j].studentProfile.rollNumber ?? "-") +
                               (". ") +
-                              (studentWiseAttendanceBeans[j].studentProfile.studentFirstName ?? "-").capitalize(),
+                              (studentWiseAttendanceBeansToBeDisplayed[j].studentProfile.studentFirstName ?? "-").capitalize(),
                         ),
                       ),
                     ),
@@ -518,7 +582,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: [for (int i = 0; i < studentWiseAttendanceBeans.length; i++) i].map((i) {
+                children: [for (int i = 0; i < studentWiseAttendanceBeansToBeDisplayed.length; i++) i].map((i) {
                   return SingleChildScrollView(
                     controller: _scrollControllers[i],
                     scrollDirection: Axis.horizontal,

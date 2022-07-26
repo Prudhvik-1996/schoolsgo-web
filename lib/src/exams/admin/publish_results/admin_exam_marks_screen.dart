@@ -1822,7 +1822,7 @@ class _EachMarksCellState extends State<EachMarksCell> {
                             }
                           });
                         },
-                        inputFormatters: <TextInputFormatter>[MarksInputFormatter()],
+                        inputFormatters: <TextInputFormatter>[MarksInputFormatter(widget.marksBean)],
                         textAlign: TextAlign.center,
                       ),
                     )

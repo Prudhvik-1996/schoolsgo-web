@@ -87,7 +87,7 @@ class _PayslipsOptionsScreenState extends State<PayslipsOptionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bus"),
+        title: const Text("Payslips"),
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,

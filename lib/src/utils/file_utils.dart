@@ -373,20 +373,30 @@ class MediaBean {
   }
 }
 
-Future<UploadFileToDriveResponse> uploadFileToDrive(Object file, String fileName) async {
+Future<UploadFileToDriveResponse> uploadFileToDrive(
+  Object file,
+  String fileName, {
+  String? filePath,
+}) async {
   try {
-    debugPrint("Raising request to uploadFileToDrive with request $fileName");
+    debugPrint("Raising request to uploadFileToDrive with request $fileName $filePath + $fileName");
     String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL + UPLOAD_FILE_TO_DRIVE;
     var request = http.MultipartRequest('POST', Uri.parse(_url));
     Uint8List _bytesData = const Base64Decoder().convert(file.toString().split(",").last);
     List<int> _selectedFile = _bytesData;
     request.files.add(
-      http.MultipartFile.fromBytes(
-        'file',
-        _selectedFile,
-        contentType: MediaType('application', 'octet-stream'),
-        filename: fileName,
-      ),
+      filePath == null
+          ? http.MultipartFile.fromBytes(
+              'file',
+              _selectedFile,
+              contentType: MediaType('application', 'octet-stream'),
+              filename: fileName,
+            )
+          : (await http.MultipartFile.fromPath(
+              'file',
+              filePath + fileName,
+              filename: fileName,
+            )),
     );
     debugPrint("Request: $request");
     var responseJson = await request.send();

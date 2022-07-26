@@ -49,12 +49,6 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         argument: studentProfile,
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/chat_room.svg"),
-        title: "Chat Room",
-        routeName: StudentChatRoom.routeName,
-        argument: studentProfile,
-      ),
-      DashboardWidget(
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
         routeName: StudentNoticeBoardView.routeName,
@@ -127,6 +121,12 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         argument: studentProfile,
       ),
       DashboardWidget(
+        image: SvgPicture.asset("assets/images/chat_room.svg"),
+        title: "Chat Room",
+        routeName: StudentChatRoom.routeName,
+        argument: studentProfile,
+      ),
+      DashboardWidget(
         image: SvgPicture.asset("assets/images/fee.svg"),
         title: "Fee",
         routeName: "/fee",
@@ -152,12 +152,6 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         image: SvgPicture.asset("assets/images/profile.svg"),
         title: "Profile",
         routeName: "/profile",
-        argument: teacherProfile,
-      ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/chat_room.svg"),
-        title: "Chat Room",
-        routeName: StudentChatRoom.routeName,
         argument: teacherProfile,
       ),
       DashboardWidget(
@@ -233,11 +227,18 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         argument: teacherProfile,
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/feedback.svg"),
-        title: "Feedback",
-        routeName: "/feedback",
+        image: SvgPicture.asset("assets/images/chat_room.svg"),
+        title: "Chat Room",
+        routeName: StudentChatRoom.routeName,
         argument: teacherProfile,
       ),
+      // We shall implement based on suggestions
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/feedback.svg"),
+      //   title: "Feedback",
+      //   routeName: "/feedback",
+      //   argument: teacherProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",
