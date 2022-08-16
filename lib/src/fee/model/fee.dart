@@ -315,7 +315,6 @@ Future<GetFeeTypesResponse> getFeeTypes(GetFeeTypesRequest getFeeTypesRequest) a
     _url,
     getFeeTypesRequest.toJson(),
     GetFeeTypesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetFeeTypesResponse ${getFeeTypesResponse.toJson()}");
@@ -444,7 +443,6 @@ Future<CreateOrUpdateFeeTypesResponse> createOrUpdateFeeTypes(CreateOrUpdateFeeT
     _url,
     createOrUpdateFeeTypesRequest.toJson(),
     CreateOrUpdateFeeTypesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateFeeTypesResponse ${createOrUpdateFeeTypesResponse.toJson()}");
@@ -650,7 +648,6 @@ Future<GetSectionWiseAnnualFeesResponse> getSectionWiseAnnualFees(GetSectionWise
     _url,
     getSectionWiseAnnualFeesRequest.toJson(),
     GetSectionWiseAnnualFeesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetSectionWiseAnnualFeesResponse ${getSectionWiseAnnualFeesResponse.toJson()}");
@@ -770,7 +767,6 @@ Future<CreateOrUpdateSectionFeeMapResponse> createOrUpdateSectionFeeMap(CreateOr
     _url,
     createOrUpdateSectionFeeMapRequest.toJson(),
     CreateOrUpdateSectionFeeMapResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateSectionFeeMapResponse ${createOrUpdateSectionFeeMapResponse.toJson()}");
@@ -1314,7 +1310,6 @@ Future<GetStudentWiseAnnualFeesResponse> getStudentWiseAnnualFees(GetStudentWise
     _url,
     getStudentWiseAnnualFeesRequest.toJson(),
     GetStudentWiseAnnualFeesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetStudentWiseAnnualFeesResponse ${getStudentWiseAnnualFeesResponse.toJson()}");
@@ -1475,7 +1470,6 @@ Future<CreateOrUpdateStudentAnnualFeeMapResponse> createOrUpdateStudentAnnualFee
     _url,
     createOrUpdateStudentAnnualFeeMapRequest.toJson(),
     CreateOrUpdateStudentAnnualFeeMapResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateStudentAnnualFeeMapResponse ${createOrUpdateStudentAnnualFeeMapResponse.toJson()}");
@@ -1660,7 +1654,6 @@ Future<GetTermsResponse> getTerms(GetTermsRequest getTermsRequest) async {
     _url,
     getTermsRequest.toJson(),
     GetTermsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetTermsResponse ${getTermsResponse.toJson()}");
@@ -1782,7 +1775,6 @@ Future<CreateOrUpdateTermResponse> createOrUpdateTerm(CreateOrUpdateTermRequest 
     _url,
     createOrUpdateTermRequest.toJson(),
     CreateOrUpdateTermResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateTermResponse ${createOrUpdateTermResponse.toJson()}");
@@ -2009,7 +2001,6 @@ Future<GetSectionWiseTermFeesResponse> getSectionWiseTermFees(GetSectionWiseTerm
     _url,
     getSectionWiseTermFeesRequest.toJson(),
     GetSectionWiseTermFeesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetSectionWiseTermFeesResponse ${getSectionWiseTermFeesResponse.toJson()}");
@@ -2207,7 +2198,6 @@ Future<CreateOrUpdateSectionWiseTermFeeMapResponse> createOrUpdateSectionWiseTer
     _url,
     createOrUpdateSectionWiseTermFeeMapRequest.toJson(),
     CreateOrUpdateSectionWiseTermFeeMapResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateSectionWiseTermFeeMapResponse ${createOrUpdateSectionWiseTermFeeMapResponse.toJson()}");
@@ -2760,7 +2750,6 @@ Future<GetStudentWiseTermFeesResponse> getStudentWiseTermFees(GetStudentWiseTerm
     _url,
     getStudentWiseTermFeesRequest.toJson(),
     GetStudentWiseTermFeesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetStudentWiseTermFeesResponse ${getStudentWiseTermFeesResponse.toJson()}");
@@ -2916,7 +2905,6 @@ Future<CreateOrUpdateStudentFeePaidResponse> createOrUpdateStudentFeePaid(
     _url,
     createOrUpdateStudentFeePaidRequest.toJson(),
     CreateOrUpdateStudentFeePaidResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateStudentFeePaidResponse ${createOrUpdateStudentFeePaidResponse.toJson()}");
@@ -3050,7 +3038,6 @@ Future<GetTransportFeeAssignmentTypeResponse> getTransportFeeAssignmentType(
     _url,
     getTransportFeeAssignmentTypeRequest.toJson(),
     GetTransportFeeAssignmentTypeResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetTransportFeeAssignmentTypeResponse ${getTransportFeeAssignmentTypeResponse.toJson()}");

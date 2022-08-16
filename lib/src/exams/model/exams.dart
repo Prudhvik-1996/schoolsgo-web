@@ -222,7 +222,6 @@ Future<GetExamsResponse> getExams(GetExamsRequest getExamsRequest) async {
     _url,
     getExamsRequest.toJson(),
     GetExamsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetExamsResponse ${getExamsResponse.toJson()}");

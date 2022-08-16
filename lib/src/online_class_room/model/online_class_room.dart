@@ -355,7 +355,6 @@ Future<GetOnlineClassRoomsResponse> getOnlineClassRooms(GetOnlineClassRoomsReque
     _url,
     getOnlineClassRoomsRequest.toJson(),
     GetOnlineClassRoomsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetOnlineClassRoomsResponse ${getOnlineClassRoomsResponse.toJson()}");
@@ -456,7 +455,6 @@ Future<UpdateOcrAsPerTtResponse> updateOcrAsPerTtRooms(UpdateOcrAsPerTtRequest u
     _url,
     updateOcrAsPerTtRoomsRequest.toJson(),
     UpdateOcrAsPerTtResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("UpdateOcrAsPerTtResponse ${updateOcrAsPerTtRoomsResponse.toJson()}");
@@ -582,7 +580,6 @@ Future<CreateOrUpdateCustomOcrResponse> createOrUpdateCustomOcrRooms(CreateOrUpd
     _url,
     createOrUpdateCustomOcrRoomsRequest.toJson(),
     CreateOrUpdateCustomOcrResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateCustomOcrResponse ${createOrUpdateCustomOcrRoomsResponse.toJson()}");

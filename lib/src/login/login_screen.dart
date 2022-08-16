@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -45,16 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // loadFcmToken();
-  }
-
-  Future<void> loadFcmToken() async {
-    try {
-      token = await FirebaseMessaging.instance.getToken();
-      debugPrint("40: $token");
-    } catch (e) {
-      debugPrint("Exception occurred while trying to retrieve FCM Token, $e");
-    }
   }
 
   Future<void> signInWithGoogle() async {
@@ -75,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       debugPrint("43");
       debugPrint(e.message);
-      throw e;
+      rethrow;
     }
   }
 
@@ -408,7 +397,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
         await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
       }
-      DoLoginResponse doLoginResponse = await doLogin(
+      await doLogin(
         DoLoginRequest(
           createOrUpdateFcmTokenRequest: CreateOrUpdateFcmTokenRequest(
             fcmBean: FcmBean(
@@ -727,17 +716,12 @@ class _LoginScreenState extends State<LoginScreen> {
         otp = generateOtpResponse.otpBean?.otpValue ?? "";
       });
       SendEmailRequest sendEmailRequest = SendEmailRequest(
-        content: EmailContent(
-          subject: "Epsilon Diary: OTP for Logging in",
-          body: "OTP to authenticate your request to login is $otp",
-          html: true,
-        ),
-        recieverEmailIds: [
-          userDetails.mailId,
-        ],
+        recipient: userDetails.mailId,
+        subject: "Epsilon Diary: OTP for Logging in",
+        msgBody: "OTP to authenticate your request to login is $otp",
       );
-      SendEmailResponse sendEmailResponse = await sendEmail(sendEmailRequest);
-      if (sendEmailResponse.httpStatus != "OK" || sendEmailResponse.responseStatus != "success") {
+      String sendEmailResponse = await sendEmail(sendEmailRequest);
+      if (sendEmailResponse.contains("Error")) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Something went wrong! Try again later.."),

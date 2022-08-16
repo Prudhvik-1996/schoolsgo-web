@@ -243,7 +243,6 @@ Future<GetLogBookResponse> getLogBook(GetLogBookRequest getLogBookRequest) async
     _url,
     getLogBookRequest.toJson(),
     GetLogBookResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetLogBookResponse ${getLogBookResponse.toJson()}");
@@ -375,7 +374,6 @@ Future<CreateOrUpdateLogBookResponse> createOrUpdateLogBook(CreateOrUpdateLogBoo
     _url,
     createOrUpdateLogBookRequest.toJson(),
     CreateOrUpdateLogBookResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateLogBookResponse ${createOrUpdateLogBookResponse.toJson()}");

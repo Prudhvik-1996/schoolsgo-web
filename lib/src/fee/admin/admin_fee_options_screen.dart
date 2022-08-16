@@ -4,7 +4,6 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_assign_bus_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_assign_fee_type_to_sections_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_manage_fee_types_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -97,15 +96,15 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
         padding: EdgeInsets.zero,
         primary: false,
         children: <Widget>[
+          // _getTimeTableOption(
+          //   "Manage Fee Types",
+          //   null,
+          //   AdminManageFeeTypesScreen(
+          //     adminProfile: widget.adminProfile,
+          //   ),
+          // ),
           _getTimeTableOption(
-            "Manage Fee Types",
-            null,
-            AdminManageFeeTypesScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getTimeTableOption(
-            "Assign Fee Types To Sections",
+            "Manage Fee Assignment",
             null,
             AdminAssignFeeTypesToSectionsScreen(
               adminProfile: widget.adminProfile,

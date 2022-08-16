@@ -68,6 +68,7 @@ class SettingsView extends StatelessWidget {
           const Divider(),
         ],
       ),
+      bottomSheet: SelectableText("${controller.fcmToken}"),
     );
   }
 }

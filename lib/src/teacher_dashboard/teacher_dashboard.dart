@@ -244,23 +244,16 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
         otp = generateOtpResponse.otpBean?.otpValue;
       });
       SendEmailRequest sendEmailRequest = SendEmailRequest(
-        content: EmailContent(
-          subject: "OTP for authenticating Set/Reset pin request",
-          body: "OTP to authenticate your request for set/reset pin is $otp",
-          html: true,
-        ),
-        recieverEmailIds: [
-          widget.teacherProfile.mailId,
-        ],
+        recipient: widget.teacherProfile.mailId,
+        subject: "OTP for authenticating Set/Reset pin request",
+        msgBody: "OTP to authenticate your request for set/reset pin is $otp",
       );
-      SendEmailResponse sendEmailResponse = await sendEmail(sendEmailRequest);
-      if (sendEmailResponse.httpStatus != "OK" || sendEmailResponse.responseStatus != "success") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Something went wrong! Try again later.."),
-          ),
-        );
-      }
+      String sendEmailResponse = await sendEmail(sendEmailRequest);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(sendEmailResponse),
+        ),
+      );
     }
     setState(() {
       _isLoading = false;

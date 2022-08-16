@@ -277,7 +277,6 @@ Future<GetTransactionsResponse> getTransactions(GetTransactionsRequest getTransa
     _url,
     getTransactionsRequest.toJson(),
     GetTransactionsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetTransactionsResponse ${getTransactionsResponse.toJson()}");

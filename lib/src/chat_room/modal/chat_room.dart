@@ -235,7 +235,6 @@ Future<GetChatsResponse> getChats(GetChatsRequest getChatsRequest) async {
     _url,
     getChatsRequest.toJson(),
     GetChatsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetChatsResponse ${getChatsResponse.toJson()}");
@@ -296,7 +295,6 @@ Future<CreateOrUpdateChatResponse> createOrUpdateChat(ChatBean createChatRequest
     _url,
     createChatRequest.toJson(),
     CreateOrUpdateChatResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createChatResponse ${createChatResponse.toJson()}");
@@ -586,7 +584,6 @@ Future<GetChatRoomsResponse> getChatRooms(GetChatRoomsRequest getChatRoomsReques
     _url,
     getChatRoomsRequest.toJson(),
     GetChatRoomsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetChatRoomsResponse ${getChatRoomsResponse.toJson()}");

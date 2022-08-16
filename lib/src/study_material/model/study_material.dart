@@ -390,7 +390,6 @@ Future<GetStudyMaterialResponse> getStudyMaterial(GetStudyMaterialRequest getStu
     _url,
     getStudyMaterialRequest.toJson(),
     GetStudyMaterialResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetStudyMaterialResponse ${getStudyMaterialResponse.toJson()}");
@@ -512,7 +511,6 @@ Future<CreateOrUpdateStudyMaterialResponse> createOrUpdateStudyMaterial(CreateOr
     _url,
     createOrUpdateStudyMaterialRequest.toJson(),
     CreateOrUpdateStudyMaterialResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateStudyMaterialResponse ${createOrUpdateStudyMaterialResponse.toJson()}");
@@ -634,7 +632,6 @@ Future<CreateOrUpdateStudyMaterialMediaMapResponse> createOrUpdateStudyMaterialM
     _url,
     createOrUpdateStudyMaterialMediaMapRequest.toJson(),
     CreateOrUpdateStudyMaterialMediaMapResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateStudyMaterialMediaMapResponse ${createOrUpdateStudyMaterialMediaMapResponse.toJson()}");

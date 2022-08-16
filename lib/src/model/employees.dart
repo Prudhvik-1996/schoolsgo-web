@@ -187,7 +187,6 @@ Future<GetSchoolWiseEmployeesResponse> getSchoolWiseEmployees(GetSchoolWiseEmplo
     _url,
     getSchoolWiseEmployeesRequest.toJson(),
     GetSchoolWiseEmployeesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetSchoolWiseEmployeesResponse ${getSchoolWiseEmployeesResponse.toJson()}");

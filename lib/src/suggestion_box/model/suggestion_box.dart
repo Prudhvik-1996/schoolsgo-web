@@ -285,7 +285,6 @@ Future<GetSuggestionBoxResponse> getSuggestionBox(GetSuggestionBoxRequest getSug
     _url,
     getSuggestionBoxRequest.toJson(),
     GetSuggestionBoxResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetSuggestionBoxResponse ${getSuggestionBoxResponse.toJson()}");
@@ -402,7 +401,6 @@ Future<CreateSuggestionResponse> createSuggestion(CreateSuggestionRequest create
     _url,
     createSuggestionRequest.toJson(),
     CreateSuggestionResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createSuggestionResponse ${createSuggestionResponse.toJson()}");
@@ -503,7 +501,6 @@ Future<UpdateSuggestionResponse> updateSuggestion(UpdateSuggestionRequest update
     _url,
     updateSuggestionRequest.toJson(),
     UpdateSuggestionResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("updateSuggestionResponse ${updateSuggestionResponse.toJson()}");

@@ -362,7 +362,6 @@ Future<GetAdminExpensesResponse> getAdminExpenses(GetAdminExpensesRequest getAdm
     _url,
     getAdminExpensesRequest.toJson(),
     GetAdminExpensesResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetAdminExpensesResponse ${getAdminExpensesResponse.toJson()}");
@@ -420,7 +419,6 @@ Future<CreateOrUpdateAdminExpenseResponse> createOrUpdateAdminExpense(CreateOrUp
     _url,
     createOrUpdateAdminExpenseRequest.toJson(),
     CreateOrUpdateAdminExpenseResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateAdminExpenseResponse ${createOrUpdateAdminExpenseResponse.toJson()}");

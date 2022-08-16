@@ -159,7 +159,6 @@ Future<UpdateUserFourDigitPinResponse> updateUserFourDigitPin(UpdateUserFourDigi
     _url,
     updateUserFourDigitPinRequest.toJson(),
     UpdateUserFourDigitPinResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("UpdateUserFourDigitPinResponse ${updateUserFourDigitPinResponse.toJson()}");

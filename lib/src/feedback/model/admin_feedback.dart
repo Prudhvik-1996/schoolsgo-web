@@ -354,7 +354,6 @@ Future<GetStudentToTeacherFeedbackAdminViewResponse> getStudentToTeacherFeedback
     _url,
     getStudentToTeacherFeedbackAdminViewRequest.toJson(),
     GetStudentToTeacherFeedbackAdminViewResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetStudentToTeacherFeedbackAdminViewResponse ${getStudentToTeacherFeedbackAdminViewResponse.toJson()}");

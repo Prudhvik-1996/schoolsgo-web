@@ -200,42 +200,46 @@ Future<GenerateOtpResponse> generateOtp(GenerateOtpRequest generateOtpRequest) a
     _url,
     generateOtpRequest.toJson(),
     GenerateOtpResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GenerateOtpResponse ${generateOtpResponse.toJson()}");
   return generateOtpResponse;
 }
 
-class EmailContent {
+class SendEmailRequest {
 /*
 {
-  "body": "string",
-  "html": true,
+  "attachment": "string",
+  "msgBody": "string",
+  "recipient": "string",
   "subject": "string"
 }
 */
 
-  String? body;
-  bool? html;
+  String? attachment;
+  String? msgBody;
+  String? recipient;
   String? subject;
   Map<String, dynamic> __origJson = {};
 
-  EmailContent({
-    this.body,
-    this.html,
+  SendEmailRequest({
+    this.attachment,
+    this.msgBody,
+    this.recipient,
     this.subject,
   });
-  EmailContent.fromJson(Map<String, dynamic> json) {
+  SendEmailRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    body = json['body']?.toString();
-    html = json['html'];
+    attachment = json['attachment']?.toString();
+    msgBody = json['msgBody']?.toString();
+    recipient = json['recipient']?.toString();
     subject = json['subject']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['body'] = body;
-    data['html'] = html;
+    data['attachment'] = attachment;
+    data['msgBody'] = msgBody;
+    data['recipient'] = recipient;
     data['subject'] = subject;
     return data;
   }
@@ -243,101 +247,7 @@ class EmailContent {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-class SendEmailRequest {
-/*
-{
-  "content": {
-    "body": "string",
-    "html": true,
-    "subject": "string"
-  },
-  "recieverEmailIds": [
-    "prudhvik.1996@gmail.com"
-  ]
-}
-*/
-
-  EmailContent? content;
-  List<String?>? recieverEmailIds;
-  Map<String, dynamic> __origJson = {};
-
-  SendEmailRequest({
-    this.content,
-    this.recieverEmailIds,
-  });
-  SendEmailRequest.fromJson(Map<String, dynamic> json) {
-    __origJson = json;
-    content = (json['content'] != null) ? EmailContent.fromJson(json['content']) : null;
-    if (json['recieverEmailIds'] != null) {
-      final v = json['recieverEmailIds'];
-      final arr0 = <String>[];
-      v.forEach((v) {
-        arr0.add(v.toString());
-      });
-      recieverEmailIds = arr0;
-    }
-  }
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    if (content != null) {
-      data['content'] = content!.toJson();
-    }
-    if (recieverEmailIds != null) {
-      final v = recieverEmailIds;
-      final arr0 = [];
-      for (var v in v!) {
-        arr0.add(v);
-      }
-      data['recieverEmailIds'] = arr0;
-    }
-    return data;
-  }
-
-  Map<String, dynamic> origJson() => __origJson;
-}
-
-class SendEmailResponse {
-/*
-{
-  "responseStatus": "success",
-  "errorCode": "null",
-  "errorMessage": "null",
-  "httpStatus": "OK"
-}
-*/
-
-  String? responseStatus;
-  String? errorCode;
-  String? errorMessage;
-  String? httpStatus;
-  Map<String, dynamic> __origJson = {};
-
-  SendEmailResponse({
-    this.responseStatus,
-    this.errorCode,
-    this.errorMessage,
-    this.httpStatus,
-  });
-  SendEmailResponse.fromJson(Map<String, dynamic> json) {
-    __origJson = json;
-    responseStatus = json['responseStatus']?.toString();
-    errorCode = json['errorCode']?.toString();
-    errorMessage = json['errorMessage']?.toString();
-    httpStatus = json['httpStatus']?.toString();
-  }
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['responseStatus'] = responseStatus;
-    data['errorCode'] = errorCode;
-    data['errorMessage'] = errorMessage;
-    data['httpStatus'] = httpStatus;
-    return data;
-  }
-
-  Map<String, dynamic> origJson() => __origJson;
-}
-
-Future<SendEmailResponse> sendEmail(SendEmailRequest sendEmailRequest) async {
+Future<String> sendEmail(SendEmailRequest sendEmailRequest) async {
   debugPrint("Raising request to sendEmail with request ${jsonEncode(sendEmailRequest.toJson())}");
   String _url = SCHOOLS_GO_MESSAGING_SERVICE_BASE_URL + SEND_EMAIL;
   Map<String, String> _headers = {"Content-type": "application/json"};
@@ -347,8 +257,8 @@ Future<SendEmailResponse> sendEmail(SendEmailRequest sendEmailRequest) async {
     headers: _headers,
     body: jsonEncode(sendEmailRequest.toJson()),
   );
-  SendEmailResponse sendEmailResponse = SendEmailResponse.fromJson(json.decode(response.body));
+  String sendEmailResponse = response.body;
 
-  debugPrint("SendEmailResponse ${sendEmailResponse.toJson()}");
+  debugPrint("SendEmailResponse $sendEmailResponse");
   return sendEmailResponse;
 }

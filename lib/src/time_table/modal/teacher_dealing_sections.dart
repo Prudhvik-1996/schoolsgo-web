@@ -89,7 +89,6 @@ Future<GetTeacherDealingSectionsResponse> getTeacherDealingSections(GetTeacherDe
     _url,
     getTeacherDealingSectionsRequest.toJson(),
     GetTeacherDealingSectionsResponse.fromJson,
-    doEncrypt: false,
   );
 
   debugPrint("GetTeacherDealingSectionsResponse ${getTeacherDealingSectionsResponse.toJson()}");
@@ -278,7 +277,6 @@ Future<CreateOrUpdateTeacherDealingSectionsResponse> createOrUpdateTeacherDealin
     _url,
     createOrUpdateTeacherDealingSectionsRequest.toJson(),
     CreateOrUpdateTeacherDealingSectionsResponse.fromJson,
-    doEncrypt: false,
   );
 
   debugPrint("createOrUpdateTeacherDealingSectionsResponse ${createOrUpdateTeacherDealingSectionsResponse.toJson()}");

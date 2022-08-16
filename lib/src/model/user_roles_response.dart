@@ -1012,7 +1012,6 @@ Future<GetStudentProfileResponse> getStudentProfile(GetStudentProfileRequest get
     _url,
     getStudentProfileRequest.toJson(),
     GetStudentProfileResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetStudentProfileResponse ${getStudentProfileResponse.toJson()}");
@@ -1219,7 +1218,6 @@ Future<CreateOrUpdateStudentProfileResponse> createOrUpdateStudentProfile(Create
     _url,
     createStudentProfileRequest.toJson(),
     CreateOrUpdateStudentProfileResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createStudentProfileResponse ${createStudentProfileResponse.toJson()}");
@@ -1376,7 +1374,6 @@ Future<CreateOrUpdateTeacherProfileResponse> createOrUpdateTeacherProfile(Create
     _url,
     createTeacherProfileRequest.toJson(),
     CreateOrUpdateTeacherProfileResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createTeacherProfileResponse ${createTeacherProfileResponse.toJson()}");
@@ -1508,7 +1505,6 @@ Future<CreateOrUpdateAdminProfileResponse> createOrUpdateAdminProfile(CreateOrUp
     _url,
     createAdminProfileRequest.toJson(),
     CreateOrUpdateAdminProfileResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createAdminProfileResponse ${createAdminProfileResponse.toJson()}");

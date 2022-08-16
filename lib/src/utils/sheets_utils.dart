@@ -44,7 +44,6 @@ class SheetsUtils {
       _url,
       {},
       CreateSpreadSheetResponse.fromJson,
-      doEncrypt: true,
     );
 
     debugPrint("createSpreadSheetResponse ${createSpreadSheetResponse.toJson()}");

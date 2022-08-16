@@ -215,7 +215,6 @@ Future<GetStudentDiaryResponse> getDiary(GetDiaryRequest getDiaryRequest) async 
     _url,
     getDiaryRequest.toJson(),
     GetStudentDiaryResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetDiaryResponse ${getDiaryResponse.toJson()}");
@@ -352,7 +351,6 @@ Future<CreateOrUpdateDiaryResponse> createOrUpdateDiary(CreateOrUpdateDiaryReque
     _url,
     createOrUpdateDiaryRequest.toJson(),
     CreateOrUpdateDiaryResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateDiaryResponse ${createOrUpdateDiaryResponse.toJson()}");

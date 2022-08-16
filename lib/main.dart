@@ -1,24 +1,24 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
+import 'firebase_options.dart';
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final settingsController = SettingsController(SettingsService());
-  await settingsController.loadSettings();
   await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyByAwOkUBofOmpKygDwCfEQtRT2I5ml5Lw",
-      authDomain: "web-epsilon-diary.firebaseapp.com",
-      projectId: "web-epsilon-diary",
-      storageBucket: "web-epsilon-diary.appspot.com",
-      messagingSenderId: "37324427087",
-      appId: "1:37324427087:web:57870e64256b8c6a29ff3a",
-      measurementId: "G-23LRNKNQ0B",
-    ),
+    options: DefaultFirebaseOptions.currentPlatform,
   );
+  await FirebaseMessaging.instance.requestPermission();
+  String? key = await FirebaseMessaging.instance.getToken();
+  // print("114: $key");
+  final settingsController = SettingsController(SettingsService());
+  settingsController.fcmToken = key;
+  await settingsController.loadSettings();
   runApp(MyApp(settingsController: settingsController));
 }
+
+//el8YjQ79TysyU8yadf3I0s:APA91bH6_cWbLvJSf8L-IxGcJsIwhx1y5PtTzlutz475pHJs-hggdYJ9933fJVhOWclFBeBt7JSr9WB1QEYAy8TPScVvhfzm7u90z0KYioWf26UrhXdd9axpJQZeeWY4onv124g7RlCs

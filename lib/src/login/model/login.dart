@@ -272,7 +272,6 @@ Future<DoLoginResponse> doLogin(DoLoginRequest doLoginRequest) async {
     _url,
     doLoginRequest.toJson(),
     DoLoginResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("DoLoginResponse ${doLoginResponse.toJson()}");

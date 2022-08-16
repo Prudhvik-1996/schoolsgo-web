@@ -14,7 +14,6 @@ Future<user_details.GetUserDetailsResponse> getUserDetails(user_details.UserDeta
     SCHOOLS_GO_BASE_URL + GET_USER_DETAILS,
     getUserDetailsRequest.toJson(),
     user_details.GetUserDetailsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetUserDetailsResponse ${getUserDetailsResponse.toJson()}");

@@ -269,7 +269,6 @@ Future<GetStudentToTeacherFeedbackResponse> getStudentToTeacherFeedback(GetStude
     _url,
     getStudentToTeacherFeedbackRequest.toJson(),
     GetStudentToTeacherFeedbackResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetStudentToTeacherFeedbackResponse ${getStudentToTeacherFeedbackResponse.toJson()}");
@@ -392,7 +391,6 @@ Future<CreateOrUpdateStudentToTeacherFeedbackResponse> createOrUpdateStudentToTe
     _url,
     createStudentToTeacherFeedbackRequest.toJson(),
     CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createStudentToTeacherFeedbackResponse ${createStudentToTeacherFeedbackResponse.toJson()}");

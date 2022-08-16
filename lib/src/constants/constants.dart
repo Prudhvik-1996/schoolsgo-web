@@ -20,7 +20,7 @@ const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
 const String DO_LOGIN = "/auth/doLogin";
 
 const String REQUEST_OTP = "/auth/requestOtp";
-const String SEND_EMAIL = "/mailing/sendMail";
+const String SEND_EMAIL = "/email/sendMail";
 
 const String GET_SECTION_WISE_TIME_SLOTS = "/timetable/getSectionWiseTimeSlots";
 const String CREATE_OR_UPDATE_SECTION_WISE_TIME_SLOTS = "/timetable/createOrUpdateSectionWiseTimeSlots";
@@ -134,3 +134,5 @@ const String CREATE_OR_UPDATE_MONTHS_AND_YEARS_FOR_SCHOOL = "/payslips/createMon
 const String GET_PAYSLIP_COMPONENTS = "/payslips/getPayslipComponents";
 const String CREATE_OR_UPDATE_PAYSLIP_COMPONENTS = "/payslips/createOrUpdatePayslipComponents";
 const String GET_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/getPayslipTemplateForEmployee";
+
+const List<String> shouldEncryptDataForUrl = [GET_USER_DETAILS, UPDATE_USER_PIN, DO_LOGIN];

@@ -146,7 +146,6 @@ Future<GetTeachersResponse> getTeachers(GetTeachersRequest getTeachersRequest) a
     _url,
     getTeachersRequest.toJson(),
     GetTeachersResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetTeachersResponse ${getTeachersResponse.toJson()}");

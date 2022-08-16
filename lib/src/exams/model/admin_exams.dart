@@ -805,7 +805,6 @@ Future<GetAdminExamsResponse> getAdminExams(GetAdminExamsRequest getAdminExamsRe
     _url,
     getAdminExamsRequest.toJson(),
     GetAdminExamsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetAdminExamsResponse ${getAdminExamsResponse.toJson()}");
@@ -1122,7 +1121,6 @@ Future<GetMarkingAlgorithmsResponse> getMarkingAlgorithms(GetMarkingAlgorithmsRe
     _url,
     getMarkingAlgorithmsRequest.toJson(),
     GetMarkingAlgorithmsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetMarkingAlgorithmsResponse ${getMarkingAlgorithmsResponse.toJson()}");
@@ -1267,7 +1265,6 @@ Future<CreateOrUpdateMarkingAlgorithmResponse> createOrUpdateMarkingAlgorithm(
     _url,
     createOrUpdateMarkingAlgorithmRequest.toJson(),
     CreateOrUpdateMarkingAlgorithmResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateMarkingAlgorithmResponse ${createOrUpdateMarkingAlgorithmResponse.toJson()}");
@@ -1325,7 +1322,6 @@ Future<CreateOrUpdateExamResponse> createOrUpdateExam(AdminExamBean createOrUpda
     _url,
     createOrUpdateExamRequest.toJson(),
     CreateOrUpdateExamResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateExamResponse ${createOrUpdateExamResponse.toJson()}");
@@ -1933,7 +1929,6 @@ Future<GetStudentExamMarksDetailsResponse> getStudentExamMarksDetails(GetStudent
     _url,
     getStudentExamMarksDetailsRequest.toJson(),
     GetStudentExamMarksDetailsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetStudentExamMarksDetailsResponse ${getStudentExamMarksDetailsResponse.toJson()}");
@@ -2094,7 +2089,6 @@ Future<CreateOrUpdateStudentExamMarksResponse> createOrUpdateStudentExamMarks(
     _url,
     createOrUpdateStudentExamMarksRequest.toJson(),
     CreateOrUpdateStudentExamMarksResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdateStudentExamMarksResponse ${createOrUpdateStudentExamMarksResponse.toJson()}");

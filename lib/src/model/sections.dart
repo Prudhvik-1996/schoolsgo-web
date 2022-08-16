@@ -195,7 +195,6 @@ Future<GetSectionsResponse> getSections(GetSectionsRequest getSectionsRequest) a
     _url,
     getSectionsRequest.toJson(),
     GetSectionsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetSectionsResponse ${getSectionsResponse.toJson()}");

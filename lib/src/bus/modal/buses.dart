@@ -160,7 +160,6 @@ Future<GetDriversResponse> getDrivers(GetDriversRequest getDriversRequest) async
     _url,
     getDriversRequest.toJson(),
     GetDriversResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetDriversResponse ${getDriversResponse.toJson()}");
@@ -986,7 +985,6 @@ Future<GetBusesBaseDetailsResponse> getBusesBaseDetails(GetBusesBaseDetailsReque
     _url,
     getBusesBaseDetailsRequest.toJson(),
     GetBusesBaseDetailsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetBusesBaseDetailsResponse ${getBusesBaseDetailsResponse.toJson()}");
@@ -1114,7 +1112,6 @@ Future<CreateOrUpdateBusResponse> createOrUpdateBus(CreateOrUpdateBusRequest cre
     _url,
     createOrUpdateBusRequest.toJson(),
     CreateOrUpdateBusResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateBusResponse ${createOrUpdateBusResponse.toJson()}");
@@ -1317,7 +1314,6 @@ Future<GetBusRouteDetailsResponse> getBusRouteDetails(GetBusRouteDetailsRequest 
     _url,
     getBusRouteDetailsRequest.toJson(),
     GetBusRouteDetailsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetBusRouteDetailsResponse ${getBusRouteDetailsResponse.toJson()}");
@@ -1527,7 +1523,6 @@ Future<CreateOrUpdateBusRouteDetailsResponse> createOrUpdateBusRouteDetails(
     _url,
     createOrUpdateBusRouteDetailsRequest.toJson(),
     CreateOrUpdateBusRouteDetailsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateBusRouteDetailsResponse ${createOrUpdateBusRouteDetailsResponse.toJson()}");
@@ -1677,7 +1672,6 @@ Future<CreateOrUpdateStopWiseStudentsAssignmentResponse> createOrUpdateStopWiseS
     _url,
     createOrUpdateStopWiseStudentsAssignmentRequest.toJson(),
     CreateOrUpdateStopWiseStudentsAssignmentResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateStopWiseStudentsAssignmentResponse ${createOrUpdateStopWiseStudentsAssignmentResponse.toJson()}");
@@ -1893,7 +1887,6 @@ Future<UpdateBusFaresResponse> updateBusFares(UpdateBusFaresRequest updateBusFar
     _url,
     updateBusFaresRequest.toJson(),
     UpdateBusFaresResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("UpdateBusFaresResponse ${updateBusFaresResponse.toJson()}");

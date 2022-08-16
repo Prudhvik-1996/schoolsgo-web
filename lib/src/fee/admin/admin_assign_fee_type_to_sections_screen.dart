@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_manage_fee_types_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -289,8 +290,8 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: const [
-                                      Expanded(
+                                    children: [
+                                      const Expanded(
                                         child: Text(
                                           "Fee Types",
                                           textAlign: TextAlign.center,
@@ -298,6 +299,32 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                                             fontSize: 18,
                                           ),
                                         ),
+                                      ),
+                                      const SizedBox(
+                                        width: 15,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                            return AdminManageFeeTypesScreen(
+                                              adminProfile: widget.adminProfile,
+                                            );
+                                          })).then((value) => _loadData());
+                                        },
+                                        child: ClayButton(
+                                          depth: 40,
+                                          surfaceColor: clayContainerColor(context),
+                                          parentColor: clayContainerColor(context),
+                                          spread: 1,
+                                          borderRadius: 100,
+                                          child: Container(
+                                            margin: const EdgeInsets.all(10),
+                                            child: const Icon(Icons.edit),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 15,
                                       ),
                                     ],
                                   ),
@@ -518,7 +545,9 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                           final text = newValue.text;
                           if (text.isNotEmpty) double.parse(text);
                           return newValue;
-                        } catch (e) {}
+                        } on Exception catch (_, e) {
+                          debugPrintStack(stackTrace: e, label: "Assign Fee Types To Sections");
+                        }
                         return oldValue;
                       }),
                     ],
@@ -596,7 +625,9 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                           final text = newValue.text;
                           if (text.isNotEmpty) double.parse(text);
                           return newValue;
-                        } catch (e) {}
+                        } on Exception catch (_, e) {
+                          debugPrintStack(stackTrace: e, label: "Assign Fee Types To Sections");
+                        }
                         return oldValue;
                       }),
                     ],

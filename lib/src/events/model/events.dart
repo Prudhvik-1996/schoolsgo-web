@@ -185,7 +185,6 @@ Future<GetEventsResponse> getEvents(GetEventsRequest getEventsRequest) async {
     _url,
     getEventsRequest.toJson(),
     GetEventsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetEventsResponse ${getEventsResponse.toJson()}");
@@ -318,7 +317,6 @@ Future<GetEventMediaResponse> getEventMedia(GetEventMediaRequest getEventMediaRe
     _url,
     getEventMediaRequest.toJson(),
     GetEventMediaResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetEventMediaResponse ${getEventMediaResponse.toJson()}");
@@ -429,7 +427,6 @@ Future<CreateOrUpdateEventsResponse> createOrUpdateEvents(CreateOrUpdateEventsRe
     _url,
     createOrUpdateEventsRequest.toJson(),
     CreateOrUpdateEventsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateEventsResponse ${createOrUpdateEventsResponse.toJson()}");
@@ -542,7 +539,6 @@ Future<CreateOrUpdateEventMediaResponse> createOrUpdateEventMedia(CreateOrUpdate
     _url,
     createOrUpdateEventMediaRequest.toJson(),
     CreateOrUpdateEventMediaResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateEventMediaResponse ${createOrUpdateEventMediaResponse.toJson()}");

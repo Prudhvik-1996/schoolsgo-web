@@ -172,7 +172,6 @@ Future<GetMonthsAndYearsForSchoolsResponse> getMonthsAndYearsForSchools(GetMonth
     _url,
     getMonthsAndYearsForSchoolsRequest.toJson(),
     GetMonthsAndYearsForSchoolsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetMonthsAndYearsForSchoolsResponse ${getMonthsAndYearsForSchoolsResponse.toJson()}");
@@ -235,7 +234,6 @@ Future<CreateMonthsAndYearsForSchoolsResponse> createOrUpdateMonthAndYearForScho
     _url,
     createOrUpdateMonthAndYearForSchoolRequest.toJson(),
     CreateMonthsAndYearsForSchoolsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateMonthsAndYearsForSchoolsResponse ${createMonthsAndYearsForSchoolsResponse.toJson()}");
@@ -413,7 +411,6 @@ Future<GetPayslipComponentsResponse> getPayslipComponents(GetPayslipComponentsRe
     _url,
     getPayslipComponentsRequest.toJson(),
     GetPayslipComponentsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetPayslipComponentsResponse ${getPayslipComponentsResponse.toJson()}");
@@ -530,7 +527,6 @@ Future<CreateOrUpdatePayslipComponentsResponse> createOrUpdatePayslipComponents(
     _url,
     createOrUpdatePayslipComponentsRequest.toJson(),
     CreateOrUpdatePayslipComponentsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("createOrUpdatePayslipComponentsResponse ${createOrUpdatePayslipComponentsResponse.toJson()}");
@@ -833,7 +829,6 @@ Future<GetPayslipTemplateForEmployeeResponse> getPayslipTemplateForEmployee(
     _url,
     getPayslipTemplateForEmployeeRequest.toJson(),
     GetPayslipTemplateForEmployeeResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetPayslipTemplateForEmployeeResponse ${getPayslipTemplateForEmployeeResponse.toJson()}");

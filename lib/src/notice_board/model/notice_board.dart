@@ -487,7 +487,6 @@ Future<GetNoticeBoardResponse> getNoticeBoard(GetNoticeBoardRequest getNoticeBoa
     _url,
     getNoticeBoardRequest.toJson(),
     GetNoticeBoardResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetNoticeBoardResponse ${getNoticeBoardResponse.toJson()}");
@@ -587,7 +586,6 @@ Future<CreateOrUpdateNoticeBoardMediaResponse> createOrUpdateNoticeBoardMedia(
     _url,
     createOrUpdateNoticeBoardMediaRequest.toJson(),
     CreateOrUpdateNoticeBoardMediaResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateNoticeBoardMediaResponse ${createOrUpdateNoticeBoardMediaResponse.toJson()}");
@@ -699,7 +697,6 @@ Future<CreateOrUpdateNoticeBoardResponse> createOrUpdateNoticeBoard(CreateOrUpda
     _url,
     createOrUpdateNoticeBoardRequest.toJson(),
     CreateOrUpdateNoticeBoardResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateNoticeBoardResponse ${createOrUpdateNoticeBoardResponse.toJson()}");

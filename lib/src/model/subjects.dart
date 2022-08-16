@@ -174,7 +174,6 @@ Future<GetSubjectsResponse> getSubjects(GetSubjectsRequest getSubjectsRequest) a
     _url,
     getSubjectsRequest.toJson(),
     GetSubjectsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetSubjectsResponse ${getSubjectsResponse.toJson()}");

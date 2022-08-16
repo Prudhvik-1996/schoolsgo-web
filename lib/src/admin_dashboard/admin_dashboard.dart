@@ -244,23 +244,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
         otp = generateOtpResponse.otpBean?.otpValue;
       });
       SendEmailRequest sendEmailRequest = SendEmailRequest(
-        content: EmailContent(
-          subject: "OTP for authenticating Set/Reset pin request",
-          body: "OTP to authenticate your request for set/reset pin is $otp",
-          html: true,
-        ),
-        recieverEmailIds: [
-          widget.adminProfile.mailId,
-        ],
+        recipient: widget.adminProfile.mailId,
+        subject: "OTP for authenticating Set/Reset pin request",
+        msgBody: "OTP to authenticate your request for set/reset pin is $otp",
       );
-      SendEmailResponse sendEmailResponse = await sendEmail(sendEmailRequest);
-      if (sendEmailResponse.httpStatus != "OK" || sendEmailResponse.responseStatus != "success") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Something went wrong! Try again later.."),
-          ),
-        );
-      }
+      String sendEmailResponse = await sendEmail(sendEmailRequest);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(sendEmailResponse),
+        ),
+      );
     }
     setState(() {
       _isLoading = false;
@@ -463,8 +456,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             if (text.length > 4) return oldValue;
             if (text.isNotEmpty) int.parse(text);
             return newValue;
-          } catch (e) {}
-          return oldValue;
+          } catch (e) {
+            return oldValue;
+          }
         }),
       ],
       onChanged: (String e) {
@@ -626,8 +620,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             if (text.length > 4) return oldValue;
             if (text.isNotEmpty) int.parse(text);
             return newValue;
-          } catch (e) {}
-          return oldValue;
+          } catch (e) {
+            return oldValue;
+          }
         }),
       ],
       onChanged: (String e) async {
@@ -705,8 +700,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             if (text.length > 4) return oldValue;
             if (text.isNotEmpty) int.parse(text);
             return newValue;
-          } catch (e) {}
-          return oldValue;
+          } catch (e) {
+            return oldValue;
+          }
         }),
       ],
       onChanged: (String e) {
@@ -762,8 +758,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             if (text.length > 4) return oldValue;
             if (text.isNotEmpty) int.parse(text);
             return newValue;
-          } catch (e) {}
-          return oldValue;
+          } catch (e) {
+            return oldValue;
+          }
         }),
       ],
       onChanged: (String e) {

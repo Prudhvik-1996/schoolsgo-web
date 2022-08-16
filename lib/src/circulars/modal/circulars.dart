@@ -310,7 +310,6 @@ Future<GetCircularsResponse> getCirculars(GetCircularsRequest getCircularsReques
     _url,
     getCircularsRequest.toJson(),
     GetCircularsResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("GetCircularsResponse ${getCircularsResponse.toJson()}");
@@ -373,7 +372,6 @@ Future<CreateOrUpdateCircularResponse> createOrUpdateCircular(CreateOrUpdateCirc
     _url,
     createOrUpdateCircularRequest.toJson(),
     CreateOrUpdateCircularResponse.fromJson,
-    doEncrypt: true,
   );
 
   debugPrint("CreateOrUpdateCircularResponse ${createOrUpdateCircularResponse.toJson()}");
