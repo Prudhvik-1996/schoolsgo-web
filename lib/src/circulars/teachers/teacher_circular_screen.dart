@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/circulars/modal/circular_type.dart';
 import 'package:schoolsgo_web/src/circulars/modal/circulars.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -242,12 +243,8 @@ class _TeacherCircularsScreenState extends State<TeacherCircularsScreen> {
                               child: getFileTypeForExtension(
                                           circular.circularMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
                                       MediaFileType.IMAGE_FILES
-                                  ? FadeInImage(
-                                      image:
-                                          NetworkImage(circular.circularMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
-                                      placeholder: const AssetImage(
-                                        'assets/images/loading_grey_white.gif',
-                                      ),
+                                  ? MediaLoadingWidget(
+                                      mediaUrl: circular.circularMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                                     )
                                   : Image.asset(
                                       getAssetImageForFileType(
@@ -398,12 +395,9 @@ class _TeacherCircularsScreenState extends State<TeacherCircularsScreen> {
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height / 1,
                 child: getFileTypeForExtension(circular.circularMediaBeans![index]!.mediaType!) == MediaFileType.IMAGE_FILES
-                    ? FadeInImage(
-                        placeholder: const AssetImage(
-                          'assets/images/loading_grey_white.gif',
-                        ),
-                        image: NetworkImage(circular.circularMediaBeans![index]!.mediaUrl!),
-                        fit: BoxFit.contain,
+                    ? MediaLoadingWidget(
+                        mediaUrl: circular.circularMediaBeans![index]!.mediaUrl!,
+                        mediaFit: BoxFit.contain,
                       )
                     : HtmlElementView(
                         viewType: circular.circularMediaBeans![index]!.mediaUrl!,

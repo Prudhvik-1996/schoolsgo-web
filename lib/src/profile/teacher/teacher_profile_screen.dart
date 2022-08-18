@@ -4,6 +4,7 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/profile/student/profile_picture_screen.dart';
@@ -74,15 +75,9 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                               ? MediaQuery.of(context).size.height * 0.6
                               : MediaQuery.of(context).size.height * 0.4,
                           width: double.infinity,
-                          child: FadeInImage(
-                            placeholder: const AssetImage(
-                              'assets/images/loading_grey_white.gif',
-                            ),
-                            image: NetworkImage(
-                              widget.teacherProfile.schoolPhotoUrl!,
-                              // "https://i.pinimg.com/originals/68/23/cc/6823ccc28eec17d215f029cc46102406.jpg",
-                            ),
-                            fit: BoxFit.cover,
+                          child: MediaLoadingWidget(
+                            mediaUrl: widget.teacherProfile.schoolPhotoUrl!,
+                            mediaFit: BoxFit.cover,
                           ),
                         ),
                       ),
@@ -123,15 +118,10 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                                             bottomRight: Radius.circular(150.0),
                                             bottomLeft: Radius.circular(150.0),
                                           ),
-                                          child: FadeInImage(
-                                            placeholder: const AssetImage(
-                                              'assets/images/loading_grey_white.gif',
-                                            ),
-                                            image: NetworkImage(
-                                              widget.teacherProfile.teacherPhotoUrl ??
-                                                  "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2",
-                                            ),
-                                            fit: BoxFit.cover,
+                                          child: MediaLoadingWidget(
+                                            mediaUrl: widget.teacherProfile.teacherPhotoUrl ??
+                                                "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2",
+                                            mediaFit: BoxFit.cover,
                                           ),
                                         ),
                                       ),

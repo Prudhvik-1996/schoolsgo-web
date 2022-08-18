@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -153,11 +154,8 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
                             width: 100,
                             padding: const EdgeInsets.all(2),
                             child: getFileTypeForExtension(eachNews.newsMediaBeans![index]!.mediaType!) == MediaFileType.IMAGE_FILES
-                                ? FadeInImage(
-                                    image: NetworkImage(eachNews.newsMediaBeans![index]!.mediaUrl!),
-                                    placeholder: const AssetImage(
-                                      'assets/images/loading_grey_white.gif',
-                                    ),
+                                ? MediaLoadingWidget(
+                                    mediaUrl: eachNews.newsMediaBeans![index]!.mediaUrl!,
                                   )
                                 : Image.asset(
                                     getAssetImageForFileType(
@@ -277,12 +275,9 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height / 1,
                 child: getFileTypeForExtension(eachNews.newsMediaBeans![index]!.mediaType!) == MediaFileType.IMAGE_FILES
-                    ? FadeInImage(
-                        placeholder: const AssetImage(
-                          'assets/images/loading_grey_white.gif',
-                        ),
-                        image: NetworkImage(eachNews.newsMediaBeans![index]!.mediaUrl!),
-                        fit: BoxFit.contain,
+                    ? MediaLoadingWidget(
+                        mediaUrl: eachNews.newsMediaBeans![index]!.mediaUrl!,
+                        mediaFit: BoxFit.contain,
                       )
                     : HtmlElementView(
                         viewType: eachNews.newsMediaBeans![index]!.mediaUrl!,

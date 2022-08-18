@@ -11,6 +11,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -656,13 +657,11 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
         height: 100,
         width: 100,
         padding: const EdgeInsets.all(2),
-        child: getFileTypeForExtension(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
-                MediaFileType.IMAGE_FILES
-            ? FadeInImage(
-                image: NetworkImage(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
-                placeholder: const AssetImage(
-                  'assets/images/loading_grey_white.gif',
-                ),
+        child: eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl != null &&
+                getFileTypeForExtension(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
+                    MediaFileType.IMAGE_FILES
+            ? MediaLoadingWidget(
+                mediaUrl: eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
               )
             : Image.asset(
                 getAssetImageForFileType(
@@ -693,11 +692,8 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
               child:
                   getFileTypeForExtension(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
                           MediaFileType.IMAGE_FILES
-                      ? FadeInImage(
-                          image: NetworkImage(eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
-                          placeholder: const AssetImage(
-                            'assets/images/loading_grey_white.gif',
-                          ),
+                      ? MediaLoadingWidget(
+                          mediaUrl: eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                         )
                       : Image.asset(
                           getAssetImageForFileType(
@@ -828,11 +824,8 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                 height: MediaQuery.of(context).size.height / 1,
                 child: getFileTypeForExtension(expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
                         MediaFileType.IMAGE_FILES
-                    ? FadeInImage(
-                        image: NetworkImage(expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
-                        placeholder: const AssetImage(
-                          'assets/images/loading_grey_white.gif',
-                        ),
+                    ? MediaLoadingWidget(
+                        mediaUrl: expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                       )
                     : HtmlElementView(
                         viewType: expense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,

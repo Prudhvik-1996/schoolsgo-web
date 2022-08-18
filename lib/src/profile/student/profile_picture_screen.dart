@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 
 class ProfilePictureScreen extends StatefulWidget {
   ProfilePictureScreen({
@@ -22,14 +23,9 @@ class _ProfilePictureScreenState extends State<ProfilePictureScreen> {
         title: Text(widget.name),
       ),
       body: Center(
-        child: FadeInImage(
-          placeholder: const AssetImage(
-            'assets/images/loading_grey_white.gif',
-          ),
-          image: NetworkImage(
-            widget.pictureUrl,
-          ),
-          fit: BoxFit.cover,
+        child: MediaLoadingWidget(
+          mediaUrl: widget.pictureUrl,
+          mediaFit: BoxFit.cover,
         ),
       ),
     );

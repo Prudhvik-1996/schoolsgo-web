@@ -4,6 +4,7 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -85,7 +86,7 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: Container(
+          content: SizedBox(
             width: MediaQuery.of(context).orientation == Orientation.portrait
                 ? MediaQuery.of(context).size.width
                 : MediaQuery.of(context).size.width / 2,
@@ -246,12 +247,8 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
           content: SizedBox(
             height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
             width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
-            child: FadeInImage(
-              placeholder: const AssetImage(
-                'assets/images/loading_grey_white.gif',
-              ),
-              image: NetworkImage(event.coverPhotoUrl!),
-              fit: BoxFit.scaleDown,
+            child: MediaLoadingWidget(
+              mediaUrl: event.coverPhotoUrl!,
             ),
           ),
         );
@@ -274,15 +271,11 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
           onTap: () {
             openMediaFromUrl(event);
           },
-          child: Container(
+          child: SizedBox(
             height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
             width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
-            child: FadeInImage(
-              placeholder: const AssetImage(
-                'assets/images/loading_grey_white.gif',
-              ),
-              image: NetworkImage(event.coverPhotoUrl!),
-              fit: BoxFit.scaleDown,
+            child: MediaLoadingWidget(
+              mediaUrl: event.coverPhotoUrl!,
             ),
           ),
         ),
@@ -316,16 +309,16 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                   margin: const EdgeInsets.all(1),
                   width: double.infinity,
                   height: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),
                     ),
-                    image: DecorationImage(
-                      image: NetworkImage(coverPhotoUrl),
-                      fit: BoxFit.contain,
-                    ),
                     color: Colors.transparent,
+                  ),
+                  child: MediaLoadingWidget(
+                    mediaUrl: event.coverPhotoUrl!,
+                    mediaFit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -594,16 +587,12 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                     },
                                   );
                                 },
-                                child: Container(
+                                child: SizedBox(
                                   height:
                                       MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
                                   width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
-                                  child: FadeInImage(
-                                    placeholder: const AssetImage(
-                                      'assets/images/loading_grey_white.gif',
-                                    ),
-                                    image: NetworkImage(event.coverPhotoUrl!),
-                                    fit: BoxFit.scaleDown,
+                                  child: MediaLoadingWidget(
+                                    mediaUrl: event.coverPhotoUrl!,
                                   ),
                                 ),
                               ),
@@ -612,12 +601,9 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                               height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
                               width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
                               margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                              child: FadeInImage(
-                                placeholder: const AssetImage(
-                                  'assets/images/loading_grey_white.gif',
-                                ),
-                                image: NetworkImage(event.coverPhotoUrl!),
-                                fit: BoxFit.scaleDown,
+                              child: MediaLoadingWidget(
+                                mediaUrl: event.coverPhotoUrl!,
+                                mediaFit: BoxFit.scaleDown,
                               ),
                             ),
                     ),
@@ -823,17 +809,14 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                       },
                                     );
                                   },
-                                  child: Container(
+                                  child: SizedBox(
                                     height:
                                         MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
                                     width:
                                         MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
-                                    child: FadeInImage(
-                                      placeholder: const AssetImage(
-                                        'assets/images/loading_grey_white.gif',
-                                      ),
-                                      image: NetworkImage(event.coverPhotoUrl!),
-                                      fit: BoxFit.scaleDown,
+                                    child: MediaLoadingWidget(
+                                      mediaUrl: event.coverPhotoUrl!,
+                                      mediaFit: BoxFit.scaleDown,
                                     ),
                                   ),
                                 ),
@@ -842,12 +825,9 @@ class _AdminEventsScreenState extends State<AdminEventsScreen> {
                                 height: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 10 : 2.5),
                                 width: MediaQuery.of(context).size.height / (MediaQuery.of(context).orientation == Orientation.portrait ? 2.5 : 10),
                                 margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-                                child: FadeInImage(
-                                  placeholder: const AssetImage(
-                                    'assets/images/loading_grey_white.gif',
-                                  ),
-                                  image: NetworkImage(event.coverPhotoUrl!),
-                                  fit: BoxFit.scaleDown,
+                                child: MediaLoadingWidget(
+                                  mediaUrl: event.coverPhotoUrl!,
+                                  mediaFit: BoxFit.scaleDown,
                                 ),
                               ),
                       ] +

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/events/model/events.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -206,12 +207,9 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
           content: SizedBox(
             width: MediaQuery.of(context).size.width / 2,
             height: MediaQuery.of(context).size.height / 1,
-            child: FadeInImage(
-              placeholder: const AssetImage(
-                'assets/images/loading_grey_white.gif',
-              ),
-              image: NetworkImage(event.coverPhotoUrl!),
-              fit: BoxFit.contain,
+            child: MediaLoadingWidget(
+              mediaUrl: event.coverPhotoUrl!,
+              mediaFit: BoxFit.contain,
             ),
           ),
         );
@@ -234,12 +232,9 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
           onTap: () {
             openMediaFromUrl(event);
           },
-          child: FadeInImage(
-            placeholder: const AssetImage(
-              'assets/images/loading_grey_white.gif',
-            ),
-            image: NetworkImage(event.coverPhotoUrl!),
-            fit: BoxFit.contain,
+          child: MediaLoadingWidget(
+            mediaUrl: event.coverPhotoUrl!,
+            mediaFit: BoxFit.contain,
           ),
         ),
       ),
@@ -272,16 +267,16 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
                   margin: const EdgeInsets.all(1),
                   width: double.infinity,
                   height: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(10),
                       topRight: Radius.circular(10),
                     ),
-                    image: DecorationImage(
-                      image: NetworkImage(coverPhotoUrl),
-                      fit: BoxFit.fill,
-                    ),
                     color: Colors.transparent,
+                  ),
+                  child: MediaLoadingWidget(
+                    mediaUrl: event.coverPhotoUrl!,
+                    mediaFit: BoxFit.contain,
                   ),
                 ),
               ),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/study_material/model/study_material.dart';
@@ -194,12 +195,9 @@ class _StudentStudyMaterialScreenState extends State<StudentStudyMaterialScreen>
                 width: MediaQuery.of(context).size.width / 2,
                 height: MediaQuery.of(context).size.height / 1,
                 child: getFileTypeForExtension(studyMaterial.mediaList![index]!.mediaType!) == MediaFileType.IMAGE_FILES
-                    ? FadeInImage(
-                        placeholder: const AssetImage(
-                          'assets/images/loading_grey_white.gif',
-                        ),
-                        image: NetworkImage(studyMaterial.mediaList![index]!.mediaUrl!),
-                        fit: BoxFit.contain,
+                    ? MediaLoadingWidget(
+                        mediaUrl: studyMaterial.mediaList![index]!.mediaUrl!,
+                        mediaFit: BoxFit.contain,
                       )
                     : HtmlElementView(
                         viewType: studyMaterial.mediaList![index]!.mediaUrl!,
@@ -327,11 +325,8 @@ class _StudentStudyMaterialScreenState extends State<StudentStudyMaterialScreen>
                           width: 100,
                           padding: const EdgeInsets.all(2),
                           child: getFileTypeForExtension(studyMaterial.mediaList![index]!.mediaType!) == MediaFileType.IMAGE_FILES
-                              ? FadeInImage(
-                                  image: NetworkImage(studyMaterial.mediaList![index]!.mediaUrl!),
-                                  placeholder: const AssetImage(
-                                    'assets/images/loading_grey_white.gif',
-                                  ),
+                              ? MediaLoadingWidget(
+                                  mediaUrl: studyMaterial.mediaList![index]!.mediaUrl!,
                                 )
                               : Image.asset(
                                   getAssetImageForFileType(

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/profile/student/profile_picture_screen.dart';
@@ -89,14 +90,9 @@ class _MegaAdminProfileScreenState extends State<MegaAdminProfileScreen> {
                                 bottomRight: Radius.circular(150.0),
                                 bottomLeft: Radius.circular(150.0),
                               ),
-                              child: FadeInImage(
-                                placeholder: AssetImage(
-                                  'assets/images/loading_grey_white.gif',
-                                ),
-                                image: NetworkImage(
-                                  "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2",
-                                ),
-                                fit: BoxFit.cover,
+                              child: MediaLoadingWidget(
+                                mediaUrl: "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2",
+                                mediaFit: BoxFit.cover,
                               ),
                             ),
                           ),

@@ -52,7 +52,8 @@ dependencies:
   fab_circular_menu: ^1.0.2
   numberpicker: ^2.1.1
 
-  flutter_svg: ^0.22.0
+#  flutter_svg: ^0.22.0
+  flutter_svg_provider: ^1.0.3
   transparent_image: ^2.0.0
 
   download: ^0.0.1+1
@@ -154,6 +155,8 @@ flutter:
     - assets/images/login_screen_student_animation_light.gif
     - assets/images/login_screen_student_animation_dark.gif
     - assets/images/no-internet.gif
+    - assets/images/gear-loader.svg
+    - assets/images/gear-loader.gif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

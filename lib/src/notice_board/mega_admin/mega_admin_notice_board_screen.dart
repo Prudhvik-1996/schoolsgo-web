@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/fancy_fab.dart';
+import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/model/notice_board.dart';
@@ -502,11 +503,8 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                           child:
                               getFileTypeForExtension(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
                                       MediaFileType.IMAGE_FILES
-                                  ? FadeInImage(
-                                      image: NetworkImage(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
-                                      placeholder: const AssetImage(
-                                        'assets/images/loading_grey_white.gif',
-                                      ),
+                                  ? MediaLoadingWidget(
+                                      mediaUrl: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                                     )
                                   : Image.asset(
                                       getAssetImageForFileType(
@@ -784,11 +782,8 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                           child:
                               getFileTypeForExtension(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
                                       MediaFileType.IMAGE_FILES
-                                  ? FadeInImage(
-                                      image: NetworkImage(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
-                                      placeholder: const AssetImage(
-                                        'assets/images/loading_grey_white.gif',
-                                      ),
+                                  ? MediaLoadingWidget(
+                                      mediaUrl: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                                     )
                                   : Image.asset(
                                       getAssetImageForFileType(
@@ -940,11 +935,8 @@ class _MegaAdminNoticeBoardScreenState extends State<MegaAdminNoticeBoardScreen>
                 height: MediaQuery.of(context).size.height / 1,
                 child: getFileTypeForExtension(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaType!) ==
                         MediaFileType.IMAGE_FILES
-                    ? FadeInImage(
-                        image: NetworkImage(eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!),
-                        placeholder: const AssetImage(
-                          'assets/images/loading_grey_white.gif',
-                        ),
+                    ? MediaLoadingWidget(
+                        mediaUrl: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
                       )
                     : HtmlElementView(
                         viewType: eachNews.newsMediaBeans!.where((i) => i!.status != 'inactive').toList()[index]!.mediaUrl!,
