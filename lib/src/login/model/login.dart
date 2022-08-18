@@ -166,6 +166,61 @@ class CreateOrUpdateFcmTokenRequest {
   Map<String, dynamic> origJson() => __origJson;
 }
 
+class CreateOrUpdateFcmTokenResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateFcmTokenResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateFcmTokenResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateFcmTokenResponse> createOrUpdateFcmToken(CreateOrUpdateFcmTokenRequest createOrUpdateFcmTokenRequest) async {
+  debugPrint("Raising request to createOrUpdateFcmToken with request ${jsonEncode(createOrUpdateFcmTokenRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_USER_FCM_TOKEN;
+
+  CreateOrUpdateFcmTokenResponse createOrUpdateFcmTokenResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateFcmTokenRequest.toJson(),
+    CreateOrUpdateFcmTokenResponse.fromJson,
+  );
+
+  debugPrint("CreateOrUpdateFcmTokenResponse ${createOrUpdateFcmTokenResponse.toJson()}");
+  return createOrUpdateFcmTokenResponse;
+}
+
 class DoLoginRequest {
 /*
 {

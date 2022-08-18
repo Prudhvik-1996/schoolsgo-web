@@ -10,8 +10,6 @@ class SettingsController with ChangeNotifier {
   late ThemeMode _themeMode;
   late String _textTheme;
 
-  String? fcmToken;
-
   ThemeMode get themeMode => _themeMode;
   String get textTheme => _textTheme;
 
