@@ -83,6 +83,8 @@ class DiaryEntry {
   String? teacherFirstName;
   int? teacherId;
   String? teacherRemarks;
+  int? sectionSeqOrder;
+  int? subjectSeqOrder;
   Map<String, dynamic> __origJson = {};
 
   bool isEditMode = false;
@@ -99,6 +101,8 @@ class DiaryEntry {
     this.teacherFirstName,
     this.teacherId,
     this.teacherRemarks,
+    this.sectionSeqOrder,
+    this.subjectSeqOrder,
   });
   DiaryEntry.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -113,6 +117,8 @@ class DiaryEntry {
     teacherFirstName = json['teacherFirstName']?.toString();
     teacherId = json['teacherId']?.toInt();
     teacherRemarks = json['teacherRemarks']?.toString();
+    sectionSeqOrder = json['sectionSeqOrder']?.toInt();
+    subjectSeqOrder = json['subjectSeqOrder']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -127,6 +133,8 @@ class DiaryEntry {
     data['teacherFirstName'] = teacherFirstName;
     data['teacherId'] = teacherId;
     data['teacherRemarks'] = teacherRemarks;
+    data['sectionSeqOrder'] = sectionSeqOrder;
+    data['subjectSeqOrder'] = subjectSeqOrder;
     return data;
   }
 

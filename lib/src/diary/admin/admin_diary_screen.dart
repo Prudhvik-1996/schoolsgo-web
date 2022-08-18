@@ -118,9 +118,13 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     if (getDiaryResponse.httpStatus == "OK" && getDiaryResponse.responseStatus == "success") {
       setState(() {
         _diaryList = (getDiaryResponse.diaryEntries ?? []).where((e) => e != null).map((e) => e!).toList();
-        _diaryList.sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
+        _diaryList.sort((b, a) => (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0) == 0
+            ? (b.subjectSeqOrder ?? 0).compareTo(a.subjectSeqOrder ?? 0)
+            : (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0));
         _filteredDiaryList = (getDiaryResponse.diaryEntries ?? []).where((e) => e != null).map((e) => e!).toList();
-        _filteredDiaryList.sort((b, a) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0));
+        _filteredDiaryList.sort((b, a) => (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0) == 0
+            ? (b.subjectSeqOrder ?? 0).compareTo(a.subjectSeqOrder ?? 0)
+            : (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0));
       });
     }
 
@@ -831,11 +835,11 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
                             ),
                             _getLeftArrow(),
                             const SizedBox(
-                              width: 10,
+                              width: 1,
                             ),
                             Expanded(child: _getDatePicker()),
                             const SizedBox(
-                              width: 10,
+                              width: 1,
                             ),
                             _getRightArrow(),
                             const SizedBox(
@@ -858,12 +862,12 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
                                   if (!_isSectionPickerOpen) _getLeftArrow(),
                                   if (!_isSectionPickerOpen)
                                     const SizedBox(
-                                      width: 10,
+                                      width: 1,
                                     ),
                                   if (!_isSectionPickerOpen) Expanded(child: _getDatePicker()),
                                   if (!_isSectionPickerOpen)
                                     const SizedBox(
-                                      width: 10,
+                                      width: 1,
                                     ),
                                   if (!_isSectionPickerOpen) _getRightArrow(),
                                   if (!_isSectionPickerOpen)
