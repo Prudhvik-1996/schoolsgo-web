@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/model/auth.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -26,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   GoogleSignInAccount? _currentUser;
 
   bool _isLoading = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -40,6 +42,17 @@ class _LoginScreenState extends State<LoginScreen> {
   String otp = "2107";
   String emailErrorText = "";
   bool _isSendingOtp = false;
+
+  final YoutubePlayerController _controller = YoutubePlayerController(
+    initialVideoId: 'ySchrZKZO1w',
+    params: const YoutubePlayerParams(
+      startAt: Duration(seconds: 30),
+      showControls: true,
+      showFullscreenButton: true,
+      autoPlay: false,
+      mute: true,
+    ),
+  );
 
   @override
   void initState() {
@@ -91,10 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Align(
         alignment: alignment,
         child: Theme.of(context).primaryColor == Colors.blue
-            // ? Lottie.asset('assets/lottie/login_screen_student_animation_light.json')
-            // ? Lottie.network("https://assets9.lottiefiles.com/packages/lf20_opmrx1hj.json")
-            // : Lottie.network("https://assets2.lottiefiles.com/packages/lf20_tvrsi6y6.json"),
-            // : Lottie.asset('assets/lottie/login_screen_student_animation_dark.json'),
             ? Image.asset("assets/images/login_screen_student_animation_light.gif")
             : Image.asset("assets/images/login_screen_student_animation_dark.gif"),
       ),
@@ -176,6 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Theme.of(context).primaryColor != Colors.blue ? const Color(0xFF2c2c2c) : const Color(0xFFFFFFFF),
       restorationId: "LoginScreen",
       appBar: AppBar(
@@ -227,7 +237,23 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+        buildYoutubeVideoContainer(),
+        // Text(
+        //   '<iframe width="811" height="456" src="https://www.youtube.com/embed/ySchrZKZO1w" title="Epsilon Diary" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
+        // ),
       ],
+    );
+  }
+
+  Container buildYoutubeVideoContainer() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(30, 15, 30, 15),
+      child: YoutubePlayerControllerProvider(
+        controller: _controller,
+        child: const YoutubePlayerIFrame(
+          aspectRatio: 16 / 9,
+        ),
+      ),
     );
   }
 
@@ -237,6 +263,15 @@ class _LoginScreenState extends State<LoginScreen> {
         margin: const EdgeInsets.fromLTRB(20, 5, 20, 5),
         child: Column(
           children: [
+            SizedBox(
+              height: 250,
+              width: 300,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.bottomRight,
+                child: buildAnimatedWidget(),
+              ),
+            ),
             Container(
               margin: const EdgeInsets.fromLTRB(20, 5, 20, 5),
               padding: const EdgeInsets.all(20),
@@ -248,15 +283,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: loginWithOtp || _currentUser == null ? buildLoginWithOtpColumn() : buildLoginWithGoogleColumn(),
             ),
-            SizedBox(
-              height: 250,
-              width: 300,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.bottomRight,
-                child: buildAnimatedWidget(),
-              ),
+            const SizedBox(
+              height: 20,
             ),
+            buildYoutubeVideoContainer(),
           ],
         ),
       ),
