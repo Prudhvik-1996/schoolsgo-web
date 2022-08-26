@@ -135,5 +135,6 @@ const String CREATE_OR_UPDATE_MONTHS_AND_YEARS_FOR_SCHOOL = "/payslips/createMon
 const String GET_PAYSLIP_COMPONENTS = "/payslips/getPayslipComponents";
 const String CREATE_OR_UPDATE_PAYSLIP_COMPONENTS = "/payslips/createOrUpdatePayslipComponents";
 const String GET_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/getPayslipTemplateForEmployee";
+const String CREATE_OR_UPDATE_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/createOrUpdatePayslipTemplateForEmployeeBean";
 
 const List<String> shouldEncryptDataForUrl = [GET_USER_DETAILS, UPDATE_USER_PIN, DO_LOGIN];

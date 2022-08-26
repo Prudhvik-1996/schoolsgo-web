@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetMonthsAndYearsForSchoolsRequest {
 /*
@@ -603,6 +604,8 @@ class PayslipTemplateComponentBean {
   int? templateComponentId;
   Map<String, dynamic> __origJson = {};
 
+  TextEditingController amountController = TextEditingController();
+
   PayslipTemplateComponentBean({
     this.amount,
     this.componentName,
@@ -617,10 +620,13 @@ class PayslipTemplateComponentBean {
     this.schoolId,
     this.status,
     this.templateComponentId,
-  });
+  }) {
+    amountController.text = amount == null ? "-" : doubleToStringAsFixed(amount! / 100.0, decimalPlaces: 2);
+  }
   PayslipTemplateComponentBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
+    amountController.text = amount == null ? "-" : doubleToStringAsFixed(amount! / 100.0, decimalPlaces: 2);
     componentName = json['componentName']?.toString();
     employeeId = json['employeeId']?.toInt();
     employeeName = json['employeeName']?.toString();
@@ -833,4 +839,125 @@ Future<GetPayslipTemplateForEmployeeResponse> getPayslipTemplateForEmployee(
 
   debugPrint("GetPayslipTemplateForEmployeeResponse ${getPayslipTemplateForEmployeeResponse.toJson()}");
   return getPayslipTemplateForEmployeeResponse;
+}
+
+class CreateOrUpdatePayslipTemplateForEmployeeBeanRequest {
+/*
+{
+  "agent": 0,
+  "payslipTemplateForEmployeeBean": {
+    "employeeId": 0,
+    "employeeName": "string",
+    "franchiseId": 0,
+    "franchiseName": "string",
+    "payslipTemplateComponentBeans": [
+      {
+        "amount": 0,
+        "componentName": "string",
+        "employeeId": 0,
+        "employeeName": "string",
+        "franchiseId": 0,
+        "franchiseName": "string",
+        "payslipComponentId": 0,
+        "payslipComponentType": "EARNINGS",
+        "roles": "string",
+        "schoolDisplayName": "string",
+        "schoolId": 0,
+        "status": "active",
+        "templateComponentId": 0
+      }
+    ],
+    "roles": "string",
+    "schoolDisplayName": "string",
+    "schoolId": 0
+  },
+  "schoolId": 0
+}
+*/
+
+  int? agent;
+  PayslipTemplateForEmployeeBean? payslipTemplateForEmployeeBean;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdatePayslipTemplateForEmployeeBeanRequest({
+    this.agent,
+    this.payslipTemplateForEmployeeBean,
+    this.schoolId,
+  });
+  CreateOrUpdatePayslipTemplateForEmployeeBeanRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    payslipTemplateForEmployeeBean =
+        (json['payslipTemplateForEmployeeBean'] != null) ? PayslipTemplateForEmployeeBean.fromJson(json['payslipTemplateForEmployeeBean']) : null;
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    if (payslipTemplateForEmployeeBean != null) {
+      data['payslipTemplateForEmployeeBean'] = payslipTemplateForEmployeeBean!.toJson();
+    }
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdatePayslipTemplateForEmployeeBeanResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdatePayslipTemplateForEmployeeBeanResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdatePayslipTemplateForEmployeeBeanResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdatePayslipTemplateForEmployeeBeanResponse> createOrUpdatePayslipTemplateForEmployeeBean(
+    CreateOrUpdatePayslipTemplateForEmployeeBeanRequest createOrUpdatePayslipTemplateForEmployeeBeanRequest) async {
+  debugPrint(
+      "Raising request to createOrUpdatePayslipTemplateForEmployeeBean with request ${jsonEncode(createOrUpdatePayslipTemplateForEmployeeBeanRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_PAYSLIP_TEMPLATE_FOR_EMPLOYEE;
+
+  CreateOrUpdatePayslipTemplateForEmployeeBeanResponse createOrUpdatePayslipTemplateForEmployeeBeanResponse = await HttpUtils.post(
+    _url,
+    createOrUpdatePayslipTemplateForEmployeeBeanRequest.toJson(),
+    CreateOrUpdatePayslipTemplateForEmployeeBeanResponse.fromJson,
+  );
+
+  debugPrint("createOrUpdatePayslipTemplateForEmployeeBeanResponse ${createOrUpdatePayslipTemplateForEmployeeBeanResponse.toJson()}");
+  return createOrUpdatePayslipTemplateForEmployeeBeanResponse;
 }

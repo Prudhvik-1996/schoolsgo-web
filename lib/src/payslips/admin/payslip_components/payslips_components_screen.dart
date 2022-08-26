@@ -163,7 +163,6 @@ class _PayslipComponentsScreenState extends State<PayslipComponentsScreen> {
                   return payslipComponentWidget(
                     newPayslipComponentBean..isEditMode = true,
                     isEditable: true,
-                    setNewState: setState,
                   );
                 },
               ),
@@ -282,7 +281,7 @@ class _PayslipComponentsScreenState extends State<PayslipComponentsScreen> {
     );
   }
 
-  Widget payslipComponentWidget(PayslipComponentBean payslipComponent, {bool isEditable = false, StateSetter? setNewState}) {
+  Widget payslipComponentWidget(PayslipComponentBean payslipComponent, {bool isEditable = false}) {
     return Container(
       margin: MediaQuery.of(context).orientation == Orientation.portrait
           ? const EdgeInsets.fromLTRB(25, 10, 25, 10)
@@ -299,99 +298,96 @@ class _PayslipComponentsScreenState extends State<PayslipComponentsScreen> {
             children: [
               Expanded(
                 child: _isEditMode && isEditable && payslipComponent.isEditMode
-                    ? TextField(
-                        controller: payslipComponent.componentNameController,
-                        keyboardType: TextInputType.text,
-                        decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          labelText: 'Component Name',
-                          hintText: 'Component Name',
-                          contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                        ),
-                        onChanged: (String e) {
-                          if (setNewState != null) {
-                            setNewState(() => payslipComponent.componentName = e);
-                          } else {
-                            setState(() {
-                              payslipComponent.componentName = e;
-                            });
-                          }
-                        },
-                        style: const TextStyle(
-                          fontSize: 12,
-                        ),
-                        autofocus: true,
-                      )
+                    ? getEditablePayslipComponentNameWidget(payslipComponent)
                     : Text(payslipComponent.componentName ?? "-"),
               ),
               const SizedBox(
                 width: 15,
               ),
               _isEditMode && isEditable && payslipComponent.isEditMode
-                  ? SizedBox(
-                      height: 75,
-                      width: 150,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: DropdownButton(
-                            hint: const Center(child: Text("Select Type")),
-                            underline: Container(),
-                            isExpanded: false,
-                            value: payslipComponent.componentType,
-                            items: ["EARNINGS", "DEDUCTIONS"]
-                                .map((e) => DropdownMenuItem(
-                                      child: Text(
-                                        e.toLowerCase().capitalize(),
-                                      ),
-                                      value: e,
-                                    ))
-                                .toList(),
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                if (setNewState != null) {
-                                  setNewState(() => payslipComponent.componentType = newValue);
-                                } else {
-                                  setState(() {
-                                    payslipComponent.componentType = newValue;
-                                  });
-                                }
-                              }
-                            }),
-                      ),
-                    )
+                  ? getEditablePayslipComponentTypeWidget(payslipComponent)
                   : Text(payslipComponent.componentType ?? "-"),
               if (_isEditMode && isEditable)
                 const SizedBox(
                   width: 15,
                 ),
-              if (_isEditMode && isEditable && payslipComponent.payslipComponentId != null)
-                GestureDetector(
-                  onTap: () {
-                    if (payslipComponent.isEditMode) {
-                      _saveChangesDialogue(payslipComponent);
-                    } else {
-                      setState(() {
-                        payslipComponent.isEditMode = !payslipComponent.isEditMode;
-                      });
-                    }
-                  },
-                  child: ClayButton(
-                    surfaceColor: clayContainerColor(context),
-                    parentColor: clayContainerColor(context),
-                    height: 50,
-                    width: 50,
-                    borderRadius: 50,
-                    spread: 1,
-                    child: !payslipComponent.isEditMode ? const Icon(Icons.edit) : const Icon(Icons.done),
-                  ),
-                ),
+              if (_isEditMode && isEditable && payslipComponent.payslipComponentId != null) getCheckButtonWidgetForPayslipComponent(payslipComponent),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget getEditablePayslipComponentNameWidget(PayslipComponentBean payslipComponent) {
+    return TextField(
+      controller: payslipComponent.componentNameController,
+      keyboardType: TextInputType.text,
+      decoration: const InputDecoration(
+        border: UnderlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        labelText: 'Component Name',
+        hintText: 'Component Name',
+        contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+      ),
+      onChanged: (String e) => setState(() => payslipComponent.componentName = e),
+      style: const TextStyle(
+        fontSize: 12,
+      ),
+      autofocus: true,
+    );
+  }
+
+  Widget getEditablePayslipComponentTypeWidget(PayslipComponentBean payslipComponent) {
+    return SizedBox(
+      height: 75,
+      width: 150,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: DropdownButton(
+            hint: const Center(child: Text("Select Type")),
+            underline: Container(),
+            isExpanded: false,
+            value: payslipComponent.componentType,
+            items: ["EARNINGS", "DEDUCTIONS"]
+                .map((e) => DropdownMenuItem(
+                      child: Text(
+                        e.toLowerCase().capitalize(),
+                      ),
+                      value: e,
+                    ))
+                .toList(),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                setState(() => payslipComponent.componentType = newValue);
+              }
+            }),
+      ),
+    );
+  }
+
+  GestureDetector getCheckButtonWidgetForPayslipComponent(PayslipComponentBean payslipComponent) {
+    return GestureDetector(
+      onTap: () {
+        if (payslipComponent.isEditMode) {
+          _saveChangesDialogue(payslipComponent);
+        } else {
+          setState(() {
+            payslipComponent.isEditMode = !payslipComponent.isEditMode;
+          });
+        }
+      },
+      child: ClayButton(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        height: 50,
+        width: 50,
+        borderRadius: 50,
+        spread: 1,
+        child: !payslipComponent.isEditMode ? const Icon(Icons.edit) : const Icon(Icons.done),
       ),
     );
   }

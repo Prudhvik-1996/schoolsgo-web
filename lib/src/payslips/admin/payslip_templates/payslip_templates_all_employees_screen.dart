@@ -56,7 +56,7 @@ class _PayslipTemplatesAllEmployeeScreenState extends State<PayslipTemplatesAllE
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Payslip templates"),
+        title: const Text("Payslips"),
       ),
       body: _isLoading
           ? Center(

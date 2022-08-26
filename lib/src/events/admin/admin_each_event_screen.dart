@@ -483,7 +483,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                                   ),
                                 );
                               }
-                              _loadData();
+                              await _loadData();
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

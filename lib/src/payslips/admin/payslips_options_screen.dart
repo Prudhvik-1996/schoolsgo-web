@@ -111,7 +111,7 @@ class _PayslipsOptionsScreenState extends State<PayslipsOptionsScreen> {
             ),
           ),
           _getPayslipsOption(
-            "Employee wise payslip templates",
+            "Manage Payslips",
             null,
             PayslipTemplatesAllEmployeeScreen(
               adminProfile: widget.adminProfile,

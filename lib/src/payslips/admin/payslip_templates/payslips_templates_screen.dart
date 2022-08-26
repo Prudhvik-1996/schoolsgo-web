@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
@@ -23,7 +24,10 @@ class PayslipTemplatesScreen extends StatefulWidget {
 }
 
 class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
+
+  bool _isEditMode = false;
 
   PayslipTemplateForEmployeeBean? template;
 
@@ -65,6 +69,7 @@ class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
       appBar: AppBar(
         title: Text((widget.employeeBean.employeeName ?? "-").capitalize()),
       ),
+      key: _scaffoldKey,
       body: _isLoading
           ? Center(
               child: Image.asset(
@@ -99,7 +104,83 @@ class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
                 ),
               ],
             ),
+      floatingActionButton: template == null
+          ? null
+          : FloatingActionButton(
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                if (!_isEditMode) {
+                  setState(() => _isEditMode = true);
+                } else {
+                  if (template == null) return;
+                  showDialog(
+                    context: _scaffoldKey.currentContext!,
+                    builder: (dialogContext) {
+                      return AlertDialog(
+                        title: Text('Payslip Template for ${widget.employeeBean.employeeName}'),
+                        content: const Text("Are you sure to save changes?"),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text("YES"),
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              await _saveChanges(context);
+                            },
+                          ),
+                          TextButton(
+                            child: const Text("No"),
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              await _loadData();
+                            },
+                          ),
+                          TextButton(
+                            child: const Text("Cancel"),
+                            onPressed: () async {
+                              Navigator.pop(context);
+                              if (template == null) return;
+                              setState(() => _isLoading = true);
+                              setState(() => template = PayslipTemplateForEmployeeBean.fromJson(template!.origJson()));
+                              setState(() => _isLoading = false);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+                setState(() => _isLoading = false);
+              },
+              child: _isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
+            ),
     );
+  }
+
+  Future<void> _saveChanges(BuildContext context) async {
+    PayslipTemplateForEmployeeBean editingTemplate = PayslipTemplateForEmployeeBean.fromJson(template!.origJson())
+      ..payslipTemplateComponentBeans = (template!.payslipTemplateComponentBeans ?? [])
+          .where((eachComponent) =>
+              eachComponent != null && ((eachComponent.amount ?? 0) != (PayslipTemplateComponentBean.fromJson(eachComponent.origJson()).amount ?? 0)))
+          .map((e) => e!)
+          .toList();
+    if (editingTemplate.payslipTemplateComponentBeans?.isNotEmpty ?? false) {
+      CreateOrUpdatePayslipTemplateForEmployeeBeanRequest request = CreateOrUpdatePayslipTemplateForEmployeeBeanRequest(
+        agent: widget.adminProfile.userId,
+        schoolId: widget.adminProfile.schoolId,
+        payslipTemplateForEmployeeBean: editingTemplate,
+      );
+      CreateOrUpdatePayslipTemplateForEmployeeBeanResponse response = await createOrUpdatePayslipTemplateForEmployeeBean(request);
+      if (response.httpStatus != 'OK' || response.responseStatus != 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong while trying to process your request..\nPlease try again later"),
+          ),
+        );
+      } else {
+        await _loadData();
+        setState(() => _isEditMode = false);
+      }
+    }
   }
 
   Widget buildEmployeeBasicDetails() {
@@ -144,25 +225,7 @@ class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
                     children: (template?.payslipTemplateComponentBeans ?? [])
                         .where((e) => e?.payslipComponentType == "EARNINGS")
                         .map(
-                          (e) => Container(
-                            margin: const EdgeInsets.all(15),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    (e?.componentName ?? "-").toLowerCase().capitalize(),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Text(e?.amount == null ? "-" : "$INR_SYMBOL ${doubleToStringAsFixedForINR(e!.amount! / 100)} /-"),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                              ],
-                            ),
-                          ),
+                          (e) => _isEditMode ? buildPayslipComponentEditModeWidget(e) : buildPayslipComponentReadModeWidget(e),
                         )
                         .toList(),
                   ),
@@ -172,6 +235,8 @@ class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
             VerticalDivider(
               thickness: 1,
               color: clayContainerColor(context),
+              endIndent: 0,
+              indent: 0,
             ),
             Expanded(
               child: Column(
@@ -191,25 +256,7 @@ class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
                     children: (template?.payslipTemplateComponentBeans ?? [])
                         .where((e) => e?.payslipComponentType == "DEDUCTIONS")
                         .map(
-                          (e) => Container(
-                            margin: const EdgeInsets.all(15),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    (e?.componentName ?? "-").toLowerCase().capitalize(),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Text(e?.amount == null ? "-" : "$INR_SYMBOL ${doubleToStringAsFixedForINR(e!.amount! / 100)} /-"),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                              ],
-                            ),
-                          ),
+                          (e) => _isEditMode ? buildPayslipComponentEditModeWidget(e) : buildPayslipComponentReadModeWidget(e),
                         )
                         .toList(),
                   ),
@@ -218,6 +265,89 @@ class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Container buildPayslipComponentReadModeWidget(PayslipTemplateComponentBean? e) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              (e?.componentName ?? "-").toLowerCase().capitalize(),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Text(e?.amount == null ? "-" : "$INR_SYMBOL ${doubleToStringAsFixedForINR(e!.amount! / 100)} /-"),
+          const SizedBox(
+            width: 10,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Container buildPayslipComponentEditModeWidget(PayslipTemplateComponentBean? payslipComponent) {
+    if (payslipComponent == null) return Container();
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              (payslipComponent.componentName ?? "-").toLowerCase().capitalize(),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).orientation == Orientation.landscape ? 150 : 40,
+            child: TextField(
+              controller: payslipComponent.amountController,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                border: const UnderlineInputBorder(),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                labelText: MediaQuery.of(context).orientation == Orientation.landscape ? 'Amount ($INR_SYMBOL)' : INR_SYMBOL,
+                hintText: MediaQuery.of(context).orientation == Orientation.landscape ? 'Amount' : INR_SYMBOL,
+                contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                errorText: payslipComponent.amountController.text == "" ? "Amount is a mandatory field" : null,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  try {
+                    if (newValue.text.split(".").length > 2) return oldValue;
+                    if (newValue.text.contains(".") && newValue.text.split(".")[1].length > 2) return oldValue;
+                    return newValue;
+                  } catch (e) {
+                    return oldValue;
+                  }
+                }),
+              ],
+              onChanged: (String e) {
+                double? triedAmount = double.tryParse(e);
+                if (triedAmount == null) return;
+                setState(() => payslipComponent.amount = (triedAmount * 100).toInt());
+              },
+              style: const TextStyle(
+                fontSize: 12,
+              ),
+              autofocus: true,
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+        ],
       ),
     );
   }
