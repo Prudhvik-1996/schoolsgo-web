@@ -105,7 +105,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
     });
     GetLogBookResponse getLogBookResponse = await getLogBook(GetLogBookRequest(
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
-      date: _selectedDate.millisecondsSinceEpoch,
+      date: _selectedDate.millisecondsSinceEpoch + 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
     ));
 
     if (getLogBookResponse.httpStatus == "OK" && getLogBookResponse.responseStatus == "success") {
