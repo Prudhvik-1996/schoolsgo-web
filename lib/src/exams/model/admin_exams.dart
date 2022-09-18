@@ -1949,6 +1949,11 @@ class StudentMarksUpdateBean {
   int? examId;
   int? examTdsMapId;
   int? marksObtained;
+  int? maxMarks;
+  String? subjectName;
+  String? sectionName;
+  String? studentName;
+  String? examName;
   Map<String, dynamic> __origJson = {};
 
   StudentMarksUpdateBean({
@@ -1956,6 +1961,11 @@ class StudentMarksUpdateBean {
     this.examId,
     this.examTdsMapId,
     this.marksObtained,
+    this.maxMarks,
+    this.subjectName,
+    this.sectionName,
+    this.studentName,
+    this.examName,
   });
 
   StudentMarksUpdateBean.fromJson(Map<String, dynamic> json) {
@@ -1964,6 +1974,11 @@ class StudentMarksUpdateBean {
     examId = json['examId']?.toInt();
     examTdsMapId = json['examTdsMapId']?.toInt();
     marksObtained = json['marksObtained']?.toInt();
+    maxMarks = json['maxMarks']?.toInt();
+    subjectName = json['subjectName']?.toString();
+    sectionName = json['sectionName']?.toString();
+    studentName = json['studentName']?.toString();
+    examName = json['examName']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -1972,6 +1987,11 @@ class StudentMarksUpdateBean {
     data['examId'] = examId;
     data['examTdsMapId'] = examTdsMapId;
     data['marksObtained'] = marksObtained;
+    data['maxMarks'] = maxMarks;
+    data['subjectName'] = subjectName;
+    data['sectionName'] = sectionName;
+    data['studentName'] = studentName;
+    data['examName'] = examName;
     return data;
   }
 

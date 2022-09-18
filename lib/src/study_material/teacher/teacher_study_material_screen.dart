@@ -724,8 +724,8 @@ class _TeacherStudyMaterialScreenState extends State<TeacherStudyMaterialScreen>
                                   fit: BoxFit.scaleDown,
                                   child: Text(
                                     studyMaterial.studyMaterialType!.toUpperCase().replaceAll("_", " "),
-                                    style: TextStyle(
-                                      color: Theme.of(context).primaryColor,
+                                    style: const TextStyle(
+                                      color: Colors.blue,
                                     ),
                                   ),
                                 ),

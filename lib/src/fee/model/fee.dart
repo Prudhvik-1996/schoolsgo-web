@@ -2808,6 +2808,8 @@ class CreateOrUpdateStudentFeePaidRequest {
   int? schoolId;
   int? studentId;
   List<StudentWiseTermFeeMapBean?>? studentTermFeeMapList;
+  String? studentName;
+  String? sectionName;
   Map<String, dynamic> __origJson = {};
 
   CreateOrUpdateStudentFeePaidRequest({
@@ -2817,6 +2819,8 @@ class CreateOrUpdateStudentFeePaidRequest {
     this.schoolId,
     this.studentId,
     this.studentTermFeeMapList,
+    this.studentName,
+    this.sectionName,
   });
   CreateOrUpdateStudentFeePaidRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -2833,6 +2837,8 @@ class CreateOrUpdateStudentFeePaidRequest {
       });
       studentTermFeeMapList = arr0;
     }
+    studentName = json['studentName']?.toString();
+    sectionName = json['sectionName']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -2849,6 +2855,8 @@ class CreateOrUpdateStudentFeePaidRequest {
       });
       data['studentTermFeeMapList'] = arr0;
     }
+    data['studentName'] = studentName;
+    data['sectionName'] = sectionName;
     return data;
   }
 

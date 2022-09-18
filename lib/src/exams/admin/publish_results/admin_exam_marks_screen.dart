@@ -317,7 +317,17 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
     });
     List<StudentMarksUpdateBean> x = _studentExamMarksDetailsList
         .where((e) => e.marksObtained != StudentExamMarksDetailsBean.fromJson(e.origJson()).marksObtained)
-        .map((e) => StudentMarksUpdateBean(studentId: e.studentId, examId: e.examId, examTdsMapId: e.examTdsMapId, marksObtained: e.marksObtained))
+        .map((e) => StudentMarksUpdateBean(
+              studentId: e.studentId,
+              examId: e.examId,
+              examTdsMapId: e.examTdsMapId,
+              marksObtained: e.marksObtained,
+              maxMarks: e.maxMarks,
+              subjectName: e.subjectName,
+              sectionName: e.sectionName,
+              studentName: e.studentName,
+              examName: e.examName,
+            ))
         .toList();
 
     CreateOrUpdateStudentExamMarksRequest createOrUpdateStudentExamMarksRequest = CreateOrUpdateStudentExamMarksRequest(

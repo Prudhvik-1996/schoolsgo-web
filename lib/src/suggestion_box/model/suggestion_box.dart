@@ -306,6 +306,7 @@ class CreateSuggestionRequest {
 */
 
   int? againstTeacherId;
+  String? againstTeacherName;
   int? agent;
   bool? anonymous;
   String? description;
@@ -317,6 +318,7 @@ class CreateSuggestionRequest {
 
   CreateSuggestionRequest({
     this.againstTeacherId,
+    this.againstTeacherName,
     this.agent,
     this.anonymous,
     this.description,
@@ -328,6 +330,7 @@ class CreateSuggestionRequest {
   CreateSuggestionRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     againstTeacherId = int.tryParse(json['againstTeacherId']?.toString() ?? '');
+    againstTeacherName = json['againstTeacherId']?.toString() ?? '';
     agent = int.tryParse(json['agent']?.toString() ?? '');
     anonymous = json['anonymous'];
     description = json['description']?.toString();
@@ -339,6 +342,7 @@ class CreateSuggestionRequest {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['againstTeacherId'] = againstTeacherId;
+    data['againstTeacherName'] = againstTeacherName;
     data['agent'] = agent;
     data['anonymous'] = anonymous;
     data['description'] = description;

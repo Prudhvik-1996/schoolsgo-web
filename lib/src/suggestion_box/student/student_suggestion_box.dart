@@ -515,6 +515,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                     setState(() {
                       _selectedTeacher = null;
                       newSuggestion.teacherId = null;
+                      newSuggestion.teacherName = null;
                     });
                     _applyFilters();
                   },
@@ -536,6 +537,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
         setState(() {
           _selectedTeacher = teacher!;
           newSuggestion.teacherId = teacher.teacherId;
+          newSuggestion.teacherName = teacher.teacherName;
         });
         _applyFilters();
       },
@@ -787,6 +789,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
                                       description: newSuggestion.description,
                                       title: newSuggestion.title,
                                       againstTeacherId: newSuggestion.teacherId,
+                                      againstTeacherName: newSuggestion.teacherName,
                                       anonymous: newSuggestion.anonymous,
                                       postingUserId: widget.studentProfile.gaurdianId,
                                     ));

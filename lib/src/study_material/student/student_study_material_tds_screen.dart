@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/study_material/model/study_material.dart';
 import 'package:schoolsgo_web/src/study_material/student/student_study_material_screen.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -34,13 +35,14 @@ class _StudentStudyMaterialTdsScreenState extends State<StudentStudyMaterialTDSS
       _isLoading = true;
     });
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+    GetAssignmentsAndStudyMaterialTilesResponse getAssignmentsAndStudyMaterialTilesResponse =
+        await getAssignmentsAndStudyMaterialTiles(GetAssignmentsAndStudyMaterialTilesRequest(
       schoolId: widget.studentProfile.schoolId,
       sectionId: widget.studentProfile.sectionId,
     ));
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getAssignmentsAndStudyMaterialTilesResponse.httpStatus == "OK" && getAssignmentsAndStudyMaterialTilesResponse.responseStatus == "success") {
       setState(() {
-        _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _tdsList = (getAssignmentsAndStudyMaterialTilesResponse.teacherDealingSections ?? []).where((e) => e != null).map((e) => e!).toList();
       });
     }
 
@@ -73,8 +75,8 @@ class _StudentStudyMaterialTdsScreenState extends State<StudentStudyMaterialTDSS
                       fit: BoxFit.scaleDown,
                       child: Text(
                         tds.subjectName!.capitalize(),
-                        style: const TextStyle(
-                          color: Colors.blue,
+                        style: TextStyle(
+                          color: tds.status == "active" ? Colors.blue : Colors.redAccent,
                         ),
                       ),
                     ),

@@ -2,7 +2,162 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
+
+class GetAssignmentsAndStudyMaterialTilesRequest {
+/*
+{
+  "franchiseId": 0,
+  "schoolId": 0,
+  "sectionId": 0,
+  "status": "active",
+  "studentId": 0,
+  "subjectId": 0,
+  "tdsId": 0,
+  "teacherId": 0
+}
+*/
+
+  int? franchiseId;
+  int? schoolId;
+  int? sectionId;
+  String? status;
+  int? studentId;
+  int? subjectId;
+  int? tdsId;
+  int? teacherId;
+  Map<String, dynamic> __origJson = {};
+
+  GetAssignmentsAndStudyMaterialTilesRequest({
+    this.franchiseId,
+    this.schoolId,
+    this.sectionId,
+    this.status,
+    this.studentId,
+    this.subjectId,
+    this.tdsId,
+    this.teacherId,
+  });
+  GetAssignmentsAndStudyMaterialTilesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    franchiseId = json['franchiseId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    status = json['status']?.toString();
+    studentId = json['studentId']?.toInt();
+    subjectId = json['subjectId']?.toInt();
+    tdsId = json['tdsId']?.toInt();
+    teacherId = json['teacherId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['franchiseId'] = franchiseId;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['status'] = status;
+    data['studentId'] = studentId;
+    data['subjectId'] = subjectId;
+    data['tdsId'] = tdsId;
+    data['teacherId'] = teacherId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetAssignmentsAndStudyMaterialTilesResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "teacherDealingSections": [
+    {
+      "agentId": 0,
+      "description": "string",
+      "franchiseId": 0,
+      "franchiseName": "string",
+      "schoolId": 0,
+      "schoolName": "string",
+      "sectionId": 0,
+      "sectionName": "string",
+      "status": "string",
+      "subjectId": 0,
+      "subjectName": "string",
+      "tdsId": 0,
+      "teacherId": 0,
+      "teacherName": "string"
+    }
+  ]
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  List<TeacherDealingSection?>? teacherDealingSections;
+  Map<String, dynamic> __origJson = {};
+
+  GetAssignmentsAndStudyMaterialTilesResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.teacherDealingSections,
+  });
+  GetAssignmentsAndStudyMaterialTilesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    if (json['teacherDealingSections'] != null) {
+      final v = json['teacherDealingSections'];
+      final arr0 = <TeacherDealingSection>[];
+      v.forEach((v) {
+        arr0.add(TeacherDealingSection.fromJson(v));
+      });
+      teacherDealingSections = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    if (teacherDealingSections != null) {
+      final v = teacherDealingSections;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['teacherDealingSections'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetAssignmentsAndStudyMaterialTilesResponse> getAssignmentsAndStudyMaterialTiles(
+    GetAssignmentsAndStudyMaterialTilesRequest getAssignmentsAndStudyMaterialTilesRequest) async {
+  debugPrint(
+      "Raising request to getAssignmentsAndStudyMaterialTiles with request ${jsonEncode(getAssignmentsAndStudyMaterialTilesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDY_MATERIAL_TILES;
+
+  GetAssignmentsAndStudyMaterialTilesResponse getAssignmentsAndStudyMaterialTilesResponse = await HttpUtils.post(
+    _url,
+    getAssignmentsAndStudyMaterialTilesRequest.toJson(),
+    GetAssignmentsAndStudyMaterialTilesResponse.fromJson,
+  );
+
+  debugPrint("GetAssignmentsAndStudyMaterialTilesResponse ${getAssignmentsAndStudyMaterialTilesResponse.toJson()}");
+  return getAssignmentsAndStudyMaterialTilesResponse;
+}
 
 class GetStudyMaterialRequest {
 /*

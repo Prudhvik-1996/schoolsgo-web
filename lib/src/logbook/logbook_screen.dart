@@ -130,6 +130,9 @@ class _LogbookScreenState extends State<LogbookScreen> {
     if (_selectedSection != null) {
       _filteredLogBookList = _filteredLogBookList.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
     }
+    _filteredLogBookList.sort(
+      (a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, 1).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime!, 1)),
+    );
     setState(() {
       _isLoading = false;
     });

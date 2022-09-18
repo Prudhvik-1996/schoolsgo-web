@@ -1023,6 +1023,8 @@ class _AdminPayStudentFeeScreenState extends State<AdminPayStudentFeeScreen> {
                   agent: widget.adminProfile.userId,
                   loadWalletAmount: 0,
                   studentTermFeeMapList: feePayingBeans,
+                  studentName: widget.studentWiseAnnualFeesBean.studentName,
+                  sectionName: widget.studentWiseAnnualFeesBean.sectionName,
                 );
                 CreateOrUpdateStudentFeePaidResponse createOrUpdateStudentFeePaidResponse =
                     await createOrUpdateStudentFeePaid(createOrUpdateStudentFeePaidRequest);

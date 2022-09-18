@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/study_material/model/study_material.dart';
 import 'package:schoolsgo_web/src/study_material/teacher/teacher_study_material_screen.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -35,13 +36,14 @@ class _TeacherStudyMaterialTdsScreenState extends State<TeacherStudyMaterialTDSS
       _isLoading = true;
     });
 
-    GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
+    GetAssignmentsAndStudyMaterialTilesResponse getAssignmentsAndStudyMaterialTilesResponse =
+        await getAssignmentsAndStudyMaterialTiles(GetAssignmentsAndStudyMaterialTilesRequest(
       schoolId: widget.teacherProfile.schoolId,
       teacherId: widget.teacherProfile.teacherId,
     ));
-    if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
+    if (getAssignmentsAndStudyMaterialTilesResponse.httpStatus == "OK" && getAssignmentsAndStudyMaterialTilesResponse.responseStatus == "success") {
       setState(() {
-        _tdsList = getTeacherDealingSectionsResponse.teacherDealingSections!;
+        _tdsList = (getAssignmentsAndStudyMaterialTilesResponse.teacherDealingSections ?? []).where((e) => e != null).map((e) => e!).toList();
       });
     }
 

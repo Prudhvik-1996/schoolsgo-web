@@ -64,6 +64,7 @@ const String GET_SUGGESTION_BOX = "/complaintBox/getComplaintBox";
 const String CREATE_SUGGESTION = "/complaintBox/createComplaintBox";
 const String UPDATE_SUGGESTION = "/complaintBox/updateComplaintBox";
 
+const String GET_STUDY_MATERIAL_TILES = "/assignmentsAndStudyMaterial/getAssignmentsAndStudyMaterialTiles";
 const String GET_STUDY_MATERIAL = "/assignmentsAndStudyMaterial/getAssignmentsAndStudyMaterial";
 const String CREATE_OR_UPDATE_STUDY_MATERIAL = "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterial";
 const String CREATE_OR_UPDATE_STUDY_MATERIAL_MEDIA_MAP = "/assignmentsAndStudyMaterial/createOrUpdateAssignmentsAndStudyMaterialMediaMap";
