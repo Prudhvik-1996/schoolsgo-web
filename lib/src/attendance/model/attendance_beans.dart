@@ -687,3 +687,18 @@ Future<BulkEditAttendanceTimeSlotsResponse> bulkEditAttendanceTimeSlots(BulkEdit
   debugPrint("bulkEditAttendanceTimeSlotsResponse ${bulkEditAttendanceTimeSlotsResponse.toJson()}");
   return bulkEditAttendanceTimeSlotsResponse;
 }
+
+Future<List<int>> getStudentAttendanceReport(GetStudentAttendanceBeansRequest getStudentAttendanceBeansRequest) async {
+  debugPrint("Raising request to getStudentAttendanceReport with request ${jsonEncode(getStudentAttendanceBeansRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_ATTENDANCE_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getStudentAttendanceBeansRequest.toJson()),
+  );
+
+  List<int> getStudentExamBytesResponse = response.bodyBytes;
+  return getStudentExamBytesResponse;
+}

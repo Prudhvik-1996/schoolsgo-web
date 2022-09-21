@@ -237,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-        buildYoutubeVideoContainer(),
+        // buildYoutubeVideoContainer(),
         // Text(
         //   '<iframe width="811" height="456" src="https://www.youtube.com/embed/ySchrZKZO1w" title="Epsilon Diary" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>',
         // ),
@@ -286,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(
               height: 20,
             ),
-            buildYoutubeVideoContainer(),
+            // buildYoutubeVideoContainer(),
           ],
         ),
       ),

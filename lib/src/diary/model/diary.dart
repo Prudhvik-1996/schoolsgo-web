@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -17,38 +18,59 @@ class GetDiaryRequest {
 */
 
   String? date;
+  String? startDate;
+  String? endDate;
   int? schoolId;
   int? sectionId;
   int? studentId;
   int? subjectId;
   int? teacherId;
+  List<int>? sectionIds;
   Map<String, dynamic> __origJson = {};
 
   GetDiaryRequest({
     this.date,
+    this.startDate,
+    this.endDate,
     this.schoolId,
     this.sectionId,
     this.studentId,
     this.subjectId,
     this.teacherId,
+    this.sectionIds,
   });
+
   GetDiaryRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     date = json['date']?.toString();
+    startDate = json['startDate']?.toString();
+    endDate = json['endDate']?.toString();
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
     sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
     studentId = int.tryParse(json['studentId']?.toString() ?? '');
     subjectId = int.tryParse(json['subjectId']?.toString() ?? '');
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
+    if (json['sectionIds'] != null) {
+      final v = json['sectionIds'];
+      final arr0 = <int?>[];
+      v.forEach((v) {
+        arr0.add(int.tryParse(v));
+      });
+      sectionIds = arr0.where((e) => e != null).map((e) => e!).toList();
+    }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['date'] = date;
+    data['startDate'] = startDate;
+    data['endDate'] = endDate;
     data['schoolId'] = schoolId;
     data['sectionId'] = sectionId;
     data['studentId'] = studentId;
     data['subjectId'] = subjectId;
     data['teacherId'] = teacherId;
+    data['sectionIds'] = sectionIds;
     return data;
   }
 
@@ -104,6 +126,7 @@ class DiaryEntry {
     this.sectionSeqOrder,
     this.subjectSeqOrder,
   });
+
   DiaryEntry.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     assignment = json['assignment']?.toString();
@@ -120,6 +143,7 @@ class DiaryEntry {
     sectionSeqOrder = json['sectionSeqOrder']?.toInt();
     subjectSeqOrder = json['subjectSeqOrder']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['assignment'] = assignment;
@@ -180,6 +204,7 @@ class GetStudentDiaryResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetStudentDiaryResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['diaryEntries'] != null) {
@@ -195,6 +220,7 @@ class GetStudentDiaryResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (diaryEntries != null) {
@@ -272,6 +298,7 @@ class CreateOrUpdateDiaryRequest {
     this.teacherId,
     this.teacherRemarks,
   });
+
   CreateOrUpdateDiaryRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
@@ -286,6 +313,7 @@ class CreateOrUpdateDiaryRequest {
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     teacherRemarks = json['teacherRemarks']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -330,6 +358,7 @@ class CreateOrUpdateDiaryResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateDiaryResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     diaryId = int.tryParse(json['diaryId']?.toString() ?? '');
@@ -338,6 +367,7 @@ class CreateOrUpdateDiaryResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['diaryId'] = diaryId;
@@ -363,4 +393,19 @@ Future<CreateOrUpdateDiaryResponse> createOrUpdateDiary(CreateOrUpdateDiaryReque
 
   debugPrint("createOrUpdateDiaryResponse ${createOrUpdateDiaryResponse.toJson()}");
   return createOrUpdateDiaryResponse;
+}
+
+Future<List<int>> getDiaryReport(GetDiaryRequest getDiaryRequest) async {
+  debugPrint("Raising request to getDiary with request ${jsonEncode(getDiaryRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_DIARY_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getDiaryRequest.toJson()),
+  );
+
+  List<int> getStudentExamBytesResponse = response.bodyBytes;
+  return getStudentExamBytesResponse;
 }

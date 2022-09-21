@@ -1,11 +1,15 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
-      "package_name": "org.epsilon.schoolsgo",
-      "sha256_cert_fingerprints":
-      ["79:E8:20:21:B9:9D:49:C8:D2:A1:66:57:14:6A:61:FF:E6:C5:63:81:21:79:B1:8D:E6:15:81:C2:23:35:3D:28", "99:72:E8:AD:4A:DF:D1:50:14:34:3A:47:05:23:E9:EA:75:4D:B7:72:06:78:68:CF:C1:28:91:A6:0F:54:08:52"]
+      "package_name": "org.epsilon.schoolsgo.twa",
+      "sha256_cert_fingerprints": [
+        "D6:0C:5F:AF:D8:FE:35:95:C7:45:2D:BF:2A:9C:1D:E3:BB:01:FD:3A:51:F1:8D:52:FC:03:4E:08:A3:3C:FC:74",
+        "C7:92:04:2A:65:7D:85:9A:56:F6:D4:3E:D6:4C:77:69:85:7E:3B:63:AB:D8:1D:F4:CF:60:6D:18:4A:6D:3C:B0"
+      ]
     }
   }
 ]

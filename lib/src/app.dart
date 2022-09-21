@@ -32,6 +32,7 @@ import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_boar
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
+import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -824,6 +825,19 @@ class _MyAppState extends State<MyApp> {
                 var argument = (routeSettings.arguments as TeacherProfile);
                 return TeacherChatRoom(
                   teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else {
+              return const E404NotFoundScreen();
+            }
+          case StatsHome.routeName:
+            if (routeSettings.arguments is AdminProfile) {
+              try {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return StatsHome(
+                  adminProfile: argument,
                 );
               } catch (e) {
                 return const E404NotFoundScreen();

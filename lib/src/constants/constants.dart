@@ -31,6 +31,7 @@ const String RANDOMISE_SECTION_WISE_TIME_SLOTS = "/timetable/randomizeTimeTable"
 const String GET_STUDENT_ATTENDANCE_TIME_SLOTS = "/attendance/getStudentAttendanceTimeSlots";
 const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS = "/attendance/createOrUpdateAttendanceTimeSlotBeans";
 const String GET_STUDENT_ATTENDANCE_BEANS = "/attendance/getStudentAttendanceBeans";
+const String GET_STUDENT_ATTENDANCE_REPORT = "/reports/getStudentAttendanceFile";
 const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS = "/attendance/createOrUpdateStudentAttendance";
 const String BULK_EDIT_ATTENDANCE_TIME_SLOTS = "/attendance/bulkEditAttendanceTimeSlots";
 
@@ -58,6 +59,7 @@ const String GET_LOGBOOK = "/teachers/getTeacherLogBook";
 const String CREATE_OR_UPDATE_LOGBOOK = "/teachers/createOrUpdateTeacherLogBook";
 
 const String GET_DIARY = "/diary/getStudentDiary";
+const String GET_DIARY_REPORT = "/reports/getStudentDiaryReport";
 const String CREATE_OR_UPDATE_DIARY = "/diary/createOrUpdateDiary";
 
 const String GET_SUGGESTION_BOX = "/complaintBox/getComplaintBox";
