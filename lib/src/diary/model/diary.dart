@@ -406,6 +406,6 @@ Future<List<int>> getDiaryReport(GetDiaryRequest getDiaryRequest) async {
     body: jsonEncode(getDiaryRequest.toJson()),
   );
 
-  List<int> getStudentExamBytesResponse = response.bodyBytes;
-  return getStudentExamBytesResponse;
+  List<int> getResponse = response.bodyBytes;
+  return getResponse;
 }

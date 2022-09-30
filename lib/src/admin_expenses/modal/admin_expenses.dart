@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -17,24 +18,32 @@ class GetAdminExpensesRequest {
   int? agent;
   int? franchiseId;
   int? schoolId;
+  int? startDate;
+  int? endDate;
   Map<String, dynamic> __origJson = {};
 
   GetAdminExpensesRequest({
     this.agent,
     this.franchiseId,
     this.schoolId,
+    this.startDate,
+    this.endDate,
   });
   GetAdminExpensesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
+    startDate = json['startDate']?.toInt();
+    endDate = json['endDate']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
     data['franchiseId'] = franchiseId;
     data['schoolId'] = schoolId;
+    data['startDate'] = startDate;
+    data['endDate'] = endDate;
     return data;
   }
 
@@ -423,4 +432,19 @@ Future<CreateOrUpdateAdminExpenseResponse> createOrUpdateAdminExpense(CreateOrUp
 
   debugPrint("createOrUpdateAdminExpenseResponse ${createOrUpdateAdminExpenseResponse.toJson()}");
   return createOrUpdateAdminExpenseResponse;
+}
+
+Future<List<int>> getAdminExpensesReport(GetAdminExpensesRequest getAdminExpensesRequest) async {
+  debugPrint("Raising request to getAdminExpenses with request ${jsonEncode(getAdminExpensesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_ADMIN_EXPENSES_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getAdminExpensesRequest.toJson()),
+  );
+
+  List<int> getResponse = response.bodyBytes;
+  return getResponse;
 }

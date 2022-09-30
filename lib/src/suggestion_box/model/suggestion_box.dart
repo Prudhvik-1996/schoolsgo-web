@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -23,6 +24,11 @@ class GetSuggestionBoxRequest {
   int? schoolId;
   int? teacherId;
   int? franchiseId;
+
+  int? startDate;
+  int? endDate;
+  List<int?>? teacherIds;
+  List<int?>? postingSectionIds;
   Map<String, dynamic> __origJson = {};
 
   GetSuggestionBoxRequest({
@@ -33,6 +39,10 @@ class GetSuggestionBoxRequest {
     this.schoolId,
     this.franchiseId,
     this.teacherId,
+    this.startDate,
+    this.endDate,
+    this.teacherIds,
+    this.postingSectionIds,
   });
   GetSuggestionBoxRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -43,6 +53,24 @@ class GetSuggestionBoxRequest {
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
     franchiseId = int.tryParse(json['franchiseId']?.toString() ?? '');
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
+    startDate = int.tryParse(json['startDate']?.toString() ?? '');
+    endDate = int.tryParse(json['endDate']?.toString() ?? '');
+    if (json['teacherIds'] != null && (json['teacherIds'] is List)) {
+      final v = json['teacherIds'];
+      final arr0 = <int?>[];
+      v.forEach((v) {
+        arr0.add(int.tryParse(v));
+      });
+      teacherIds = arr0;
+    }
+    if (json['postingSectionIds'] != null && (json['postingSectionIds'] is List)) {
+      final v = json['postingSectionIds'];
+      final arr0 = <int?>[];
+      v.forEach((v) {
+        arr0.add(int.tryParse(v));
+      });
+      postingSectionIds = arr0;
+    }
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -53,6 +81,10 @@ class GetSuggestionBoxRequest {
     data['schoolId'] = schoolId;
     data['franchiseId'] = franchiseId;
     data['teacherId'] = teacherId;
+    data['startDate'] = startDate;
+    data['endDate'] = endDate;
+    data['teacherIds'] = teacherIds;
+    data['postingSectionIds'] = postingSectionIds;
     return data;
   }
 
@@ -509,4 +541,19 @@ Future<UpdateSuggestionResponse> updateSuggestion(UpdateSuggestionRequest update
 
   debugPrint("updateSuggestionResponse ${updateSuggestionResponse.toJson()}");
   return updateSuggestionResponse;
+}
+
+Future<List<int>> getSuggestionBoxReport(GetSuggestionBoxRequest getSuggestionBoxRequest) async {
+  debugPrint("Raising request to getSuggestionBox with request ${jsonEncode(getSuggestionBoxRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_SUGGESTION_BOX_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getSuggestionBoxRequest.toJson()),
+  );
+
+  List<int> getResponse = response.bodyBytes;
+  return getResponse;
 }

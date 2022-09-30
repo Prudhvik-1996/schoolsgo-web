@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -24,6 +25,10 @@ class GetLogBookRequest {
   int? subjectId;
   int? tdsId;
   int? teacherId;
+
+  List<int?>? teacherIds;
+  int? startDate;
+  int? endDate;
   Map<String, dynamic> __origJson = {};
 
   GetLogBookRequest({
@@ -34,6 +39,9 @@ class GetLogBookRequest {
     this.subjectId,
     this.tdsId,
     this.teacherId,
+    this.teacherIds,
+    this.startDate,
+    this.endDate,
   });
   GetLogBookRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -44,6 +52,16 @@ class GetLogBookRequest {
     subjectId = int.tryParse(json["subjectId"]?.toString() ?? '');
     tdsId = int.tryParse(json["tdsId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
+    if (json['teacherIds'] != null) {
+      final v = json['teacherIds'];
+      final arr0 = <int?>[];
+      v.forEach((v) {
+        arr0.add(int.tryParse(v));
+      });
+      teacherIds = arr0.toList();
+    }
+    startDate = int.tryParse(json["startDate"]?.toString() ?? '');
+    endDate = int.tryParse(json["endDate"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -54,6 +72,9 @@ class GetLogBookRequest {
     data["subjectId"] = subjectId;
     data["tdsId"] = tdsId;
     data["teacherId"] = teacherId;
+    data['teacherIds'] = teacherIds;
+    data["startDate"] = startDate;
+    data["endDate"] = endDate;
     return data;
   }
 
@@ -378,4 +399,19 @@ Future<CreateOrUpdateLogBookResponse> createOrUpdateLogBook(CreateOrUpdateLogBoo
 
   debugPrint("createOrUpdateLogBookResponse ${createOrUpdateLogBookResponse.toJson()}");
   return createOrUpdateLogBookResponse;
+}
+
+Future<List<int>> getLogBookReport(GetLogBookRequest getLogBookRequest) async {
+  debugPrint("Raising request to getLogBook with request ${jsonEncode(getLogBookRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_LOGBOOK_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getLogBookRequest.toJson()),
+  );
+
+  List<int> getResponse = response.bodyBytes;
+  return getResponse;
 }

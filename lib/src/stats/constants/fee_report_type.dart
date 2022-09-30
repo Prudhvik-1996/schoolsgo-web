@@ -1,0 +1,1 @@
+enum FeeReportType { detailed, summary }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -14,21 +15,31 @@ class GetTransactionsRequest {
 
   int? franchiseId;
   int? schoolId;
+
+  int? startDate;
+  int? endDate;
+
   Map<String, dynamic> __origJson = {};
 
   GetTransactionsRequest({
     this.franchiseId,
     this.schoolId,
+    this.startDate,
+    this.endDate,
   });
   GetTransactionsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
+    startDate = json['startDate']?.toInt();
+    endDate = json['endDate']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['franchiseId'] = franchiseId;
     data['schoolId'] = schoolId;
+    data['startDate'] = startDate;
+    data['endDate'] = endDate;
     return data;
   }
 
@@ -281,4 +292,19 @@ Future<GetTransactionsResponse> getTransactions(GetTransactionsRequest getTransa
 
   debugPrint("GetTransactionsResponse ${getTransactionsResponse.toJson()}");
   return getTransactionsResponse;
+}
+
+Future<List<int>> getTransactionsReport(GetTransactionsRequest getTransactionsRequest) async {
+  debugPrint("Raising request to getTransactions with request ${jsonEncode(getTransactionsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_LEDGER_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getTransactionsRequest.toJson()),
+  );
+
+  List<int> getTransactionBytesResponse = response.bodyBytes;
+  return getTransactionBytesResponse;
 }

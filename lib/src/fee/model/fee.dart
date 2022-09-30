@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
@@ -363,6 +365,7 @@ class CreateOrUpdateFeeTypesRequest {
     this.feeTypesList,
     this.schoolId,
   });
+
   CreateOrUpdateFeeTypesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -376,6 +379,7 @@ class CreateOrUpdateFeeTypesRequest {
     }
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -416,6 +420,7 @@ class CreateOrUpdateFeeTypesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateFeeTypesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -423,6 +428,7 @@ class CreateOrUpdateFeeTypesResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -471,6 +477,7 @@ class GetSectionWiseAnnualFeesRequest {
     this.schoolId,
     this.sectionId,
   });
+
   GetSectionWiseAnnualFeesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
@@ -478,6 +485,7 @@ class GetSectionWiseAnnualFeesRequest {
     schoolId = json['schoolId']?.toInt();
     sectionId = json['sectionId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
@@ -533,6 +541,7 @@ class SectionWiseAnnualFeesBean {
     this.sectionName,
     this.sectionWiseFeesStatus,
   });
+
   SectionWiseAnnualFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['annualFeeAmount']?.toInt();
@@ -547,6 +556,7 @@ class SectionWiseAnnualFeesBean {
     sectionName = json['sectionName']?.toString();
     sectionWiseFeesStatus = json['sectionWiseFeesStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['annualFeeAmount'] = amount;
@@ -605,6 +615,7 @@ class GetSectionWiseAnnualFeesResponse {
     this.responseStatus,
     this.sectionWiseAnnualFeesBeanList,
   });
+
   GetSectionWiseAnnualFeesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -620,6 +631,7 @@ class GetSectionWiseAnnualFeesResponse {
       sectionWiseAnnualFeesBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -687,6 +699,7 @@ class CreateOrUpdateSectionFeeMapRequest {
     this.schoolId,
     this.sectionWiseFeesBeanList,
   });
+
   CreateOrUpdateSectionFeeMapRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -700,6 +713,7 @@ class CreateOrUpdateSectionFeeMapRequest {
       sectionWiseFeesBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -740,6 +754,7 @@ class CreateOrUpdateSectionFeeMapResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateSectionFeeMapResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -747,6 +762,7 @@ class CreateOrUpdateSectionFeeMapResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -788,6 +804,7 @@ class GetStudentWiseAnnualFeesRequest {
   int? feeTypeId;
   int? schoolId;
   int? sectionId;
+  List<int?>? sectionIds;
   int? studentId;
   Map<String, dynamic> __origJson = {};
 
@@ -796,22 +813,32 @@ class GetStudentWiseAnnualFeesRequest {
     this.feeTypeId,
     this.schoolId,
     this.sectionId,
+    this.sectionIds,
     this.studentId,
   });
+
   GetStudentWiseAnnualFeesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
     feeTypeId = json['feeTypeId']?.toInt();
     schoolId = json['schoolId']?.toInt();
     sectionId = json['sectionId']?.toInt();
+    var v = json['sectionIds']?.toInt();
+    final arr0 = <int?>[];
+    v.forEach((v) {
+      arr0.add(int.tryParse(v));
+    });
+    sectionIds = arr0;
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
     data['feeTypeId'] = feeTypeId;
     data['schoolId'] = schoolId;
     data['sectionId'] = sectionId;
+    data['sectionIds'] = sectionIds;
     data['studentId'] = studentId;
     return data;
   }
@@ -880,6 +907,7 @@ class StudentAnnualFeeMapBean {
     this.studentName,
     this.studentWalletBalance,
   });
+
   StudentAnnualFeeMapBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -900,6 +928,7 @@ class StudentAnnualFeeMapBean {
     studentName = json['studentName']?.toString();
     studentWalletBalance = json['studentWalletBalance']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -971,6 +1000,7 @@ class StudentBusFeeLogBean {
     this.validFrom,
     this.validThrough,
   });
+
   StudentBusFeeLogBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fare = json['fare']?.toInt();
@@ -986,6 +1016,7 @@ class StudentBusFeeLogBean {
     validFrom = json['validFrom']?.toString();
     validThrough = json['validThrough']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['fare'] = fare;
@@ -1061,6 +1092,7 @@ class StudentBusFeeBean {
     this.studentId,
     this.studentName,
   });
+
   StudentBusFeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fare = json['fare']?.toInt();
@@ -1081,6 +1113,7 @@ class StudentBusFeeBean {
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['fare'] = fare;
@@ -1164,6 +1197,7 @@ class StudentWiseAnnualFeesBean {
     this.rollNumber,
     this.studentBusFeeBean,
   });
+
   StudentWiseAnnualFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     actualFee = json['actualFee']?.toInt();
@@ -1184,6 +1218,7 @@ class StudentWiseAnnualFeesBean {
     studentWalletBalance = json['studentWalletBalance']?.toInt();
     rollNumber = json['rollNumber']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['actualFee'] = actualFee;
@@ -1267,6 +1302,7 @@ class GetStudentWiseAnnualFeesResponse {
     this.responseStatus,
     this.studentWiseAnnualFeesBeanList,
   });
+
   GetStudentWiseAnnualFeesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1282,6 +1318,7 @@ class GetStudentWiseAnnualFeesResponse {
       studentWiseAnnualFeesBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1341,6 +1378,7 @@ class StudentAnnualFeeMapUpdateBean {
     this.studentFeeMapId,
     this.studentId,
   });
+
   StudentAnnualFeeMapUpdateBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -1349,6 +1387,7 @@ class StudentAnnualFeeMapUpdateBean {
     studentFeeMapId = json['studentFeeMapId']?.toInt();
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -1389,6 +1428,7 @@ class CreateOrUpdateStudentAnnualFeeMapRequest {
     this.schoolId,
     this.studentAnnualFeeMapBeanList,
   });
+
   CreateOrUpdateStudentAnnualFeeMapRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1402,6 +1442,7 @@ class CreateOrUpdateStudentAnnualFeeMapRequest {
       studentAnnualFeeMapBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1442,6 +1483,7 @@ class CreateOrUpdateStudentAnnualFeeMapResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudentAnnualFeeMapResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1449,6 +1491,7 @@ class CreateOrUpdateStudentAnnualFeeMapResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1492,11 +1535,13 @@ class GetTermsRequest {
     this.schoolId,
     this.termId,
   });
+
   GetTermsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = json['schoolId']?.toInt();
     termId = json['termId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['schoolId'] = schoolId;
@@ -1559,6 +1604,7 @@ class TermBean {
     termNumber = json['termNumber']?.toInt();
     termStartDate = json['termStartDate']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['schoolDisplayName'] = schoolDisplayName;
@@ -1611,6 +1657,7 @@ class GetTermsResponse {
     this.responseStatus,
     this.termBeanList,
   });
+
   GetTermsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1626,6 +1673,7 @@ class GetTermsResponse {
       termBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1694,6 +1742,7 @@ class CreateOrUpdateTermRequest {
     this.termNumber,
     this.termStartDate,
   });
+
   CreateOrUpdateTermRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1705,6 +1754,7 @@ class CreateOrUpdateTermRequest {
     termNumber = json['termNumber']?.toInt();
     termStartDate = json['termStartDate']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1746,6 +1796,7 @@ class CreateOrUpdateTermResponse {
     this.responseStatus,
     this.termId,
   });
+
   CreateOrUpdateTermResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1754,6 +1805,7 @@ class CreateOrUpdateTermResponse {
     responseStatus = json['responseStatus']?.toString();
     termId = json['termId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1806,6 +1858,7 @@ class GetSectionWiseTermFeesRequest {
     this.sectionId,
     this.termId,
   });
+
   GetSectionWiseTermFeesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
@@ -1814,6 +1867,7 @@ class GetSectionWiseTermFeesRequest {
     sectionId = json['sectionId']?.toInt();
     termId = json['termId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
@@ -1878,6 +1932,7 @@ class SectionWiseTermFeesBean {
     this.termFeeAmount,
     this.termFeeMapId,
   });
+
   SectionWiseTermFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     termId = json['termId']?.toInt();
@@ -1895,6 +1950,7 @@ class SectionWiseTermFeesBean {
     termFeeAmount = json['termFeeAmount']?.toInt();
     termFeeMapId = json['termFeeMapId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['termId'] = termId;
@@ -1958,6 +2014,7 @@ class GetSectionWiseTermFeesResponse {
     this.responseStatus,
     this.sectionWiseTermFeesBeanList,
   });
+
   GetSectionWiseTermFeesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1973,6 +2030,7 @@ class GetSectionWiseTermFeesResponse {
       sectionWiseTermFeesBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -2050,6 +2108,7 @@ class UpdateSectionWiseTermFeeBean {
     this.termName,
     this.termNumber,
   });
+
   UpdateSectionWiseTermFeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -2064,6 +2123,7 @@ class UpdateSectionWiseTermFeeBean {
     termName = json['termName']?.toString();
     termNumber = json['termNumber']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -2116,6 +2176,7 @@ class CreateOrUpdateSectionWiseTermFeeMapRequest {
     this.schoolId,
     this.sectionWiseTermFeeList,
   });
+
   CreateOrUpdateSectionWiseTermFeeMapRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -2129,6 +2190,7 @@ class CreateOrUpdateSectionWiseTermFeeMapRequest {
       sectionWiseTermFeeList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -2169,6 +2231,7 @@ class CreateOrUpdateSectionWiseTermFeeMapResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateSectionWiseTermFeeMapResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -2176,6 +2239,7 @@ class CreateOrUpdateSectionWiseTermFeeMapResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -2232,6 +2296,7 @@ class GetStudentWiseTermFeesRequest {
     this.studentId,
     this.termId,
   });
+
   GetStudentWiseTermFeesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
@@ -2241,6 +2306,7 @@ class GetStudentWiseTermFeesRequest {
     studentId = json['studentId']?.toInt();
     termId = json['termId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
@@ -2359,6 +2425,7 @@ class StudentWiseTermFeeMapBean {
     this.transactionStatus,
     this.transactionType,
   });
+
   StudentWiseTermFeeMapBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -2394,6 +2461,7 @@ class StudentWiseTermFeeMapBean {
     transactionStatus = json['transactionStatus']?.toString();
     transactionType = json['transactionType']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -2478,6 +2546,7 @@ class StudentWalletTransactionBean {
     this.transactionStatus,
     this.agent,
   });
+
   StudentWalletTransactionBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     studentId = json['studentId']?.toInt();
@@ -2493,6 +2562,7 @@ class StudentWalletTransactionBean {
     transactionStatus = json['transactionStatus']?.toString();
     agent = json['agent']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['studentId'] = studentId;
@@ -2584,6 +2654,7 @@ class StudentWiseTermFeesBean {
     this.studentWiseTermFeeMapBeanList,
     this.studentWalletTransactionBeans,
   });
+
   StudentWiseTermFeesBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     actualFee = json['actualFee']?.toInt();
@@ -2609,6 +2680,7 @@ class StudentWiseTermFeesBean {
       studentWalletTransactionBeans = arr1;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['actualFee'] = actualFee;
@@ -2707,6 +2779,7 @@ class GetStudentWiseTermFeesResponse {
     this.responseStatus,
     this.studentWiseTermFeesBeanList,
   });
+
   GetStudentWiseTermFeesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -2722,6 +2795,7 @@ class GetStudentWiseTermFeesResponse {
       studentWiseTermFeesBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -2822,6 +2896,7 @@ class CreateOrUpdateStudentFeePaidRequest {
     this.studentName,
     this.sectionName,
   });
+
   CreateOrUpdateStudentFeePaidRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -2840,6 +2915,7 @@ class CreateOrUpdateStudentFeePaidRequest {
     studentName = json['studentName']?.toString();
     sectionName = json['sectionName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -2885,6 +2961,7 @@ class CreateOrUpdateStudentFeePaidResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudentFeePaidResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -2892,6 +2969,7 @@ class CreateOrUpdateStudentFeePaidResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -2954,6 +3032,7 @@ class TransportFeeAssignmentTypeBean {
   }) {
     amountController.text = amount == null ? "" : doubleToStringAsFixed(amount! / 100, decimalPlaces: 2);
   }
+
   TransportFeeAssignmentTypeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -2965,6 +3044,7 @@ class TransportFeeAssignmentTypeBean {
     validFrom = json['validFrom']?.toString();
     validThrough = json['validThrough']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -3013,6 +3093,7 @@ class GetTransportFeeAssignmentTypeResponse {
     this.responseStatus,
     this.transportFeeAssignmentTypeBean,
   });
+
   GetTransportFeeAssignmentTypeResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -3022,6 +3103,7 @@ class GetTransportFeeAssignmentTypeResponse {
     transportFeeAssignmentTypeBean =
         (json['transportFeeAssignmentTypeBean'] != null) ? TransportFeeAssignmentTypeBean.fromJson(json['transportFeeAssignmentTypeBean']) : null;
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -3050,4 +3132,19 @@ Future<GetTransportFeeAssignmentTypeResponse> getTransportFeeAssignmentType(
 
   debugPrint("GetTransportFeeAssignmentTypeResponse ${getTransportFeeAssignmentTypeResponse.toJson()}");
   return getTransportFeeAssignmentTypeResponse;
+}
+
+Future<List<int>> detailedFeeReport(GetStudentWiseAnnualFeesRequest getStudentWiseAnnualFeesRequest, FeeReportType feeReportType) async {
+  debugPrint("Raising request to getStudentWiseAnnualFees with request ${jsonEncode(getStudentWiseAnnualFeesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + (feeReportType == FeeReportType.detailed ? GET_FEE_DETAILS_REPORT : GET_FEE_SUMMARY_REPORT);
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getStudentWiseAnnualFeesRequest.toJson()),
+  );
+
+  List<int> getResponse = response.bodyBytes;
+  return getResponse;
 }

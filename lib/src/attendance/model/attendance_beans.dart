@@ -275,6 +275,8 @@ class GetStudentAttendanceBeansRequest {
   int? studentId;
   int? teacherId;
 
+  List<int?>? sectionIds;
+
   GetStudentAttendanceBeansRequest({
     this.attendanceTimeSlotId,
     this.date,
@@ -285,6 +287,7 @@ class GetStudentAttendanceBeansRequest {
     this.startDate,
     this.studentId,
     this.teacherId,
+    this.sectionIds,
   });
 
   GetStudentAttendanceBeansRequest.fromJson(Map<String, dynamic> json) {
@@ -297,6 +300,14 @@ class GetStudentAttendanceBeansRequest {
     startDate = json['startDate'];
     studentId = json['studentId'];
     teacherId = json['teacherId'];
+    if (json['sectionIds'] != null) {
+      final v = json['sectionIds'];
+      final arr0 = <int?>[];
+      v.forEach((v) {
+        arr0.add(int.tryParse(v));
+      });
+      sectionIds = arr0.toList();
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -310,6 +321,7 @@ class GetStudentAttendanceBeansRequest {
     data['startDate'] = startDate;
     data['studentId'] = studentId;
     data['teacherId'] = teacherId;
+    data['sectionIds'] = sectionIds;
     return data;
   }
 }

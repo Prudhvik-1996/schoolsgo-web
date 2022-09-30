@@ -568,3 +568,18 @@ Future<RandomizeSectionWiseTimeSlotsResponse> randomizeSectionWiseTimeSlots(
   debugPrint("randomizeSectionWiseTimeSlotsResponse ${randomizeSectionWiseTimeSlotsResponse.toJson()}");
   return randomizeSectionWiseTimeSlotsResponse;
 }
+
+Future<List<int>> getSectionWiseTimeSlotsReport(GetSectionWiseTimeSlotsRequest getSectionWiseTimeSlotsRequest) async {
+  debugPrint("Raising request to getSectionWiseTimeSlots with request ${jsonEncode(getSectionWiseTimeSlotsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_TIME_TABLE_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await http.post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getSectionWiseTimeSlotsRequest.toJson()),
+  );
+
+  List<int> getStudentExamBytesResponse = response.bodyBytes;
+  return getStudentExamBytesResponse;
+}

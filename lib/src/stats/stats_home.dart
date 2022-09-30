@@ -4,8 +4,15 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/stats/admin_expenses/admin_expenses_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/attendance/student_attendance_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/diary/diary_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/fees/fees_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/ledger/ledger_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/student_time_table/student_time_table_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/suggestion_box/suggestion_box_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/teacher_logbook/teacher_logbook_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/under_development_screen.dart';
 
 class StatsHome extends StatefulWidget {
   const StatsHome({
@@ -36,15 +43,15 @@ class _StatsHomeState extends State<StatsHome> {
     setState(() => _isLoading = true);
     statsType = [
       StatsType("assets/images/attendance.svg", "Student Attendance", newScreen: StudentAttendanceReportScreen(adminProfile: widget.adminProfile)),
-      StatsType("assets/images/exams.svg", "Exams", newScreen: null),
-      StatsType("assets/images/timetable.svg", "Time Table", newScreen: null),
+      StatsType("assets/images/exams.svg", "Exams", newScreen: UnderDevelopmentScreen(adminProfile: widget.adminProfile)),
+      StatsType("assets/images/timetable.svg", "Time Table", newScreen: StudentTimeTableReportScreen(adminProfile: widget.adminProfile)),
       StatsType("assets/images/diary.svg", "Student Diary", newScreen: DiaryReportScreen(adminProfile: widget.adminProfile)),
-      StatsType("assets/images/logbook.svg", "Teacher Log Book", newScreen: null),
-      StatsType("assets/images/complainbox.svg", "Suggestion", newScreen: null),
-      StatsType("assets/images/ledger.svg", "Ledger", newScreen: null),
-      StatsType("assets/images/fee.svg", "Fee", newScreen: null),
-      StatsType("assets/images/admin_expenses.svg", "Admin Expenses", newScreen: null),
-      StatsType("assets/images/payslips.svg", "Payslips", newScreen: null),
+      StatsType("assets/images/logbook.svg", "Teacher Log Book", newScreen: TeacherLogbookReportScreen(adminProfile: widget.adminProfile)),
+      StatsType("assets/images/complainbox.svg", "Suggestion Box", newScreen: SuggestionBoxReportScreen(adminProfile: widget.adminProfile)),
+      StatsType("assets/images/ledger.svg", "Ledger", newScreen: LedgerReportScreen(adminProfile: widget.adminProfile)),
+      StatsType("assets/images/fee.svg", "Fee", newScreen: FeesReportScreen(adminProfile: widget.adminProfile)),
+      StatsType("assets/images/admin_expenses.svg", "Admin Expenses", newScreen: AdminExpensesReportScreen(adminProfile: widget.adminProfile)),
+      StatsType("assets/images/payslips.svg", "Payslips", newScreen: UnderDevelopmentScreen(adminProfile: widget.adminProfile)),
     ];
     setState(() => _isLoading = false);
   }

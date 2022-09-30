@@ -18,6 +18,7 @@ const String GET_SCHOOL_WISE_EMPLOYEES = "/users/getSchoolWiseEmployees";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
 const String DO_LOGIN = "/auth/doLogin";
+const String DO_LOGOUT = "/auth/doLogout";
 const String CREATE_OR_UPDATE_USER_FCM_TOKEN = "/users/createOrUpdateUserFcmToken";
 
 const String REQUEST_OTP = "/auth/requestOtp";
@@ -31,7 +32,6 @@ const String RANDOMISE_SECTION_WISE_TIME_SLOTS = "/timetable/randomizeTimeTable"
 const String GET_STUDENT_ATTENDANCE_TIME_SLOTS = "/attendance/getStudentAttendanceTimeSlots";
 const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_TIME_SLOTS = "/attendance/createOrUpdateAttendanceTimeSlotBeans";
 const String GET_STUDENT_ATTENDANCE_BEANS = "/attendance/getStudentAttendanceBeans";
-const String GET_STUDENT_ATTENDANCE_REPORT = "/reports/getStudentAttendanceFile";
 const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS = "/attendance/createOrUpdateStudentAttendance";
 const String BULK_EDIT_ATTENDANCE_TIME_SLOTS = "/attendance/bulkEditAttendanceTimeSlots";
 
@@ -59,7 +59,6 @@ const String GET_LOGBOOK = "/teachers/getTeacherLogBook";
 const String CREATE_OR_UPDATE_LOGBOOK = "/teachers/createOrUpdateTeacherLogBook";
 
 const String GET_DIARY = "/diary/getStudentDiary";
-const String GET_DIARY_REPORT = "/reports/getStudentDiaryReport";
 const String CREATE_OR_UPDATE_DIARY = "/diary/createOrUpdateDiary";
 
 const String GET_SUGGESTION_BOX = "/complaintBox/getComplaintBox";
@@ -141,3 +140,13 @@ const String GET_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/getPayslipTemplateFo
 const String CREATE_OR_UPDATE_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/createOrUpdatePayslipTemplateForEmployeeBean";
 
 const List<String> shouldEncryptDataForUrl = [GET_USER_DETAILS, UPDATE_USER_PIN, DO_LOGIN];
+
+const String GET_STUDENT_ATTENDANCE_REPORT = "/reports/getStudentAttendanceFile";
+const String GET_DIARY_REPORT = "/reports/getStudentDiaryReport";
+const String GET_STUDENT_TIME_TABLE_REPORT = "/reports/getStudentTimeTableReport";
+const String GET_LEDGER_REPORT = "/reports/getLedgerReport";
+const String GET_SUGGESTION_BOX_REPORT = "/reports/getSuggestionBoxReport";
+const String GET_LOGBOOK_REPORT = "/reports/getTeacherLogBookReport";
+const String GET_ADMIN_EXPENSES_REPORT = "/reports/getAdminExpensesReport";
+const String GET_FEE_DETAILS_REPORT = "/reports/getDetailedFeesReport";
+const String GET_FEE_SUMMARY_REPORT = "/reports/getFeesSummaryReport";

@@ -3,19 +3,22 @@ import 'dart:convert';
 import 'dart:html' show AnchorElement;
 
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/diary/model/diary.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/date_selection_type.dart';
+import 'package:schoolsgo_web/src/stats/constants/suggestions_raised_against.dart';
+import 'package:schoolsgo_web/src/suggestion_box/model/suggestion_box.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class DiaryReportScreen extends StatefulWidget {
-  const DiaryReportScreen({
+class SuggestionBoxReportScreen extends StatefulWidget {
+  const SuggestionBoxReportScreen({
     Key? key,
     required this.adminProfile,
   }) : super(key: key);
@@ -23,18 +26,23 @@ class DiaryReportScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
   @override
-  State<DiaryReportScreen> createState() => _DiaryReportScreenState();
+  State<SuggestionBoxReportScreen> createState() => _SuggestionBoxReportScreenState();
 }
 
-class _DiaryReportScreenState extends State<DiaryReportScreen> {
+class _SuggestionBoxReportScreenState extends State<SuggestionBoxReportScreen> {
   bool _isLoading = true;
   bool _isFileDownloading = false;
+
+  SuggestionsRaisedAgainst _getOnlySuggestionsAgainst = SuggestionsRaisedAgainst.all;
+
+  List<Teacher> _teachersList = [];
+  List<int> _selectedTeacherIds = [];
 
   List<Section> sectionsList = [];
   List<Section> selectedSectionsList = [];
   bool _isSectionPickerOpen = false;
 
-  DateSelectionType _dateSelectionType = DateSelectionType.date;
+  DateSelectionType _dateSelectionType = DateSelectionType.year;
 
   int? _startDate;
   int? _endDate;
@@ -45,6 +53,8 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
   late int currentMonth;
   late int currentYear;
   late List<String> monthYears;
+
+  late bool _getOnlyAnonymous;
 
   late String reportName;
 
@@ -58,7 +68,22 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
     setState(() {
       _isLoading = true;
       _isFileDownloading = false;
+      _getOnlyAnonymous = false;
+      _getOnlySuggestionsAgainst = SuggestionsRaisedAgainst.all;
     });
+
+    GetTeachersRequest getTeachersRequest = GetTeachersRequest(
+      schoolId: widget.adminProfile.schoolId,
+    );
+    GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
+
+    if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
+      setState(() {
+        _teachersList = getTeachersResponse.teachers!;
+        _selectedTeacherIds = [];
+      });
+    }
+
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     );
@@ -77,7 +102,7 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
     currentMonthYearIndex = monthYears.length - 1;
     _selectedMonthYearIndex = currentMonthYearIndex;
 
-    reportName = "StudentDiaryReport${DateTime.now().millisecondsSinceEpoch}.xlsx";
+    reportName = "SuggestionBox${DateTime.now().millisecondsSinceEpoch}.xlsx";
 
     setState(() {
       _isLoading = false;
@@ -90,6 +115,7 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
       duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
       child: Container(
         padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
         child: _isSectionPickerOpen
             ? Container(
                 margin: const EdgeInsets.all(10),
@@ -394,7 +420,7 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
           DateTime? _newDate = await showDatePicker(
             context: context,
             initialDate: _startDate == null ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(_startDate!),
-            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+            firstDate: DateTime.now().subtract(const Duration(days: 2 * 365)),
             lastDate: DateTime.now(),
             helpText: "Pick start date",
           );
@@ -488,6 +514,143 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
     );
   }
 
+  Widget _getOnlyAnonymousFilter() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+      child: Row(
+        children: [
+          Checkbox(
+            value: _getOnlyAnonymous,
+            onChanged: (bool? newValue) {
+              setState(() {
+                _getOnlyAnonymous = newValue!;
+              });
+            },
+          ),
+          const Expanded(
+            child: Text("Get only anonymously posted suggestions"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _getSuggestionsRaisedAgainstDropdown() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 5, 20, 21),
+      child: ClayContainer(
+        depth: 40,
+        color: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                child: const Text("Suggestions for: "),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+              child: DropdownButton<SuggestionsRaisedAgainst>(
+                value: _getOnlySuggestionsAgainst,
+                items: SuggestionsRaisedAgainst.values.map((e) => DropdownMenuItem(value: e, child: Text(e.name.capitalize()))).toList(),
+                onChanged: (SuggestionsRaisedAgainst? selectedE) {
+                  if (selectedE == null) return;
+                  setState(() {
+                    _getOnlySuggestionsAgainst = selectedE;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _searchableDropdownButtonForTeacher() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 5, 20, 21),
+      child: ClayButton(
+        depth: 40,
+        color: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              label: Text(
+                "Selected teachers",
+              ),
+              border: InputBorder.none,
+            ),
+            child: DropdownSearch<Teacher>.multiSelection(
+              mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+              items: _teachersList,
+              selectedItems: _teachersList.where((e) => _selectedTeacherIds.contains(e.teacherId)).toList()
+                ..sort((a, b) => (a.teacherName ?? "").compareTo((b.teacherName ?? ""))),
+              itemAsString: (Teacher? teacher) {
+                return teacher == null ? "" : teacher.teacherName ?? "";
+              },
+              showSearchBox: true,
+              dropdownBuilder: (BuildContext context, List<Teacher>? teachers) {
+                return Column(children: (teachers ?? []).map((e) => _buildTeacherWidget(e)).toList());
+              },
+              showClearButton: true,
+              compareFn: (item, selectedItem) => item?.teacherId == selectedItem?.teacherId,
+              dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+              filterFn: (Teacher? teacher, String? key) {
+                return teacher!.teacherName!.toLowerCase().contains(key!.toLowerCase());
+              },
+              onChanged: (List<Teacher> selectedTeachers) {
+                setState(() {
+                  _selectedTeacherIds = selectedTeachers.map((e) => e.teacherId).where((e) => e != null).map((e) => e!).toSet().toList();
+                });
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeacherWidget(Teacher e) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: ListTile(
+        tileColor: _selectedTeacherIds.contains(e.teacherId!) ? Colors.blue[100] : null,
+        leading: Container(
+          width: 50,
+          padding: const EdgeInsets.all(5),
+          child: e.teacherPhotoUrl == null
+              ? Image.asset(
+                  "assets/images/avatar.png",
+                  fit: BoxFit.contain,
+                )
+              : Image.network(
+                  e.teacherPhotoUrl!,
+                  fit: BoxFit.contain,
+                ),
+        ),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            e.teacherName ?? "Select a Teacher",
+            style: TextStyle(
+              fontSize: 14,
+              color: _selectedTeacherIds.contains(e.teacherId!) ? Colors.black : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _proceedToGenerateSheetButton() {
     return Center(
       child: GestureDetector(
@@ -506,17 +669,19 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
             _endDate = endDateTime.millisecondsSinceEpoch + 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
           }
 
-          List<int> bytes = await getDiaryReport(GetDiaryRequest(
+          List<int> bytes = await getSuggestionBoxReport(GetSuggestionBoxRequest(
+            startDate: _startDate,
+            endDate: _endDate,
             schoolId: widget.adminProfile.schoolId,
-            startDate: _startDate == null ? null : convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(_startDate!)),
-            endDate: _endDate == null ? null : convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(_endDate!)),
-            sectionIds: selectedSectionsList.map((e) => e.sectionId).where((e) => e != null).map((e) => e!).toList(),
+            postingSectionIds: selectedSectionsList.map((e) => e.sectionId).toSet().toList(),
+            anonymous: _getOnlyAnonymous,
+            teacherIds: _selectedTeacherIds,
           ));
           AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
             ..setAttribute("download", reportName)
             ..click();
           setState(() {
-            reportName = "StudentDiaryReport${DateTime.now().millisecondsSinceEpoch}.xlsx";
+            reportName = "SuggestionBox${DateTime.now().millisecondsSinceEpoch}.xlsx";
             _isFileDownloading = false;
           });
         },
@@ -543,7 +708,7 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Diary Stats"),
+        title: const Text("Suggestion Box Stats"),
         actions: [
           buildRoleButtonForAppBar(context, widget.adminProfile),
         ],
@@ -585,28 +750,31 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
                     const SizedBox(
                       height: 15,
                     ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    _getSuggestionsRaisedAgainstDropdown(),
+                    if (_getOnlySuggestionsAgainst == SuggestionsRaisedAgainst.teachers) _searchableDropdownButtonForTeacher(),
                     _sectionPicker(),
                     const SizedBox(
                       height: 15,
                     ),
-                    if (selectedSectionsList.isNotEmpty) _getDateFiltersWidget(),
-                    if (selectedSectionsList.isNotEmpty)
+                    _getDateFiltersWidget(),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    if (_dateSelectionType == DateSelectionType.date) _startDateAndEndDatePicker(),
+                    if (_dateSelectionType == DateSelectionType.month) _monthPicker(),
+                    if ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.year))
                       const SizedBox(
                         height: 15,
                       ),
-                    if (selectedSectionsList.isNotEmpty && _dateSelectionType == DateSelectionType.date) _startDateAndEndDatePicker(),
-                    if (selectedSectionsList.isNotEmpty && _dateSelectionType == DateSelectionType.month) _monthPicker(),
-                    if (selectedSectionsList.isNotEmpty &&
-                        ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.year)))
-                      const SizedBox(
-                        height: 15,
-                      ),
-                    if (selectedSectionsList.isNotEmpty &&
-                        ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.year)))
+                    _getOnlyAnonymousFilter(),
+                    if ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.year))
                       _proceedToGenerateSheetButton()
                   ],
                 ),

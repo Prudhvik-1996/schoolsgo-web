@@ -32,7 +32,7 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
 
   List<Section> _sectionsList = [];
   bool _isSectionPickerOpen = false;
-  Section? _selectedSection;
+  List<Section> _selectedSectionsList = [];
 
   DateSelectionType _dateSelectionType = DateSelectionType.date;
 
@@ -114,19 +114,19 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
         onTap: () {
           if (_isLoading) return;
           setState(() {
-            if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
-              _selectedSection = null;
+            if (_selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId)) {
+              _selectedSectionsList.removeWhere((e) => e.sectionId == section.sectionId);
             } else {
-              _selectedSection = section;
+              _selectedSectionsList.add(section);
             }
-            _isSectionPickerOpen = false;
+            // _isSectionPickerOpen = false;
           });
         },
         child: ClayButton(
           depth: 40,
-          spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? 0 : 2,
+          spread: _selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId) ? 0 : 2,
           surfaceColor:
-              _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
+              _selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId) ? Colors.blue.shade300 : clayContainerColor(context),
           parentColor: clayContainerColor(context),
           borderRadius: 10,
           child: FittedBox(
@@ -162,7 +162,9 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
                   child: Container(
                     margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                     child: Text(
-                      _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
+                      _selectedSectionsList.isEmpty
+                          ? "Select a section"
+                          : "Selected sections: ${_selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}",
                     ),
                   ),
                 ),
@@ -182,6 +184,60 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
             crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
             shrinkWrap: true,
             children: _sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedSectionsList.map((e) => e).toList().forEach((e) {
+                        _selectedSectionsList.remove(e);
+                      });
+                      _selectedSectionsList.addAll(_sectionsList.map((e) => e).toList());
+                      _isSectionPickerOpen = false;
+                    });
+                  },
+                  child: ClayButton(
+                    depth: 40,
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 25,
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: const Text("Select All"),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedSectionsList = [];
+                      _isSectionPickerOpen = false;
+                    });
+                  },
+                  child: ClayButton(
+                    depth: 40,
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 25,
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: const Text("Clear"),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(
             height: 15,
@@ -218,7 +274,9 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      _selectedSection == null ? "Select Section" : "${_selectedSection!.sectionName}",
+                      _selectedSectionsList.isEmpty
+                          ? "Select Section"
+                          : "Selected sections: ${_selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}",
                     ),
                   ),
                 ),
@@ -452,12 +510,13 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
             schoolId: widget.adminProfile.schoolId,
             startDate: _startDate == null ? null : convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(_startDate!)),
             endDate: _endDate == null ? null : convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(_endDate!)),
-            sectionId: _selectedSection!.sectionId,
+            sectionIds: _selectedSectionsList.map((e) => e.sectionId).toList(),
           ));
           AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
             ..setAttribute("download", reportName)
             ..click();
           setState(() {
+            reportName = "StudentAttendanceReport${DateTime.now().millisecondsSinceEpoch}.xlsx";
             _isFileDownloading = false;
           });
         },
@@ -519,11 +578,6 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
                         child: Text(reportName),
                       ),
                     ),
-                    const Expanded(
-                      child: Center(
-                        child: Text("File will be download is in progress"),
-                      ),
-                    )
                   ],
                 )
               : ListView(
@@ -535,21 +589,21 @@ class _StudentAttendanceReportScreenState extends State<StudentAttendanceReportS
                     const SizedBox(
                       height: 15,
                     ),
-                    if (_selectedSection != null) _getDateFiltersWidget(),
-                    if (_selectedSection != null)
+                    if (_selectedSectionsList.isNotEmpty) _getDateFiltersWidget(),
+                    if (_selectedSectionsList.isNotEmpty)
                       const SizedBox(
                         height: 15,
                       ),
-                    if (_selectedSection != null && _dateSelectionType == DateSelectionType.date) _startDateAndEndDatePicker(),
-                    if (_selectedSection != null && _dateSelectionType == DateSelectionType.month) _monthPicker(),
-                    if (_selectedSection != null &&
+                    if (_selectedSectionsList.isNotEmpty && _dateSelectionType == DateSelectionType.date) _startDateAndEndDatePicker(),
+                    if (_selectedSectionsList.isNotEmpty && _dateSelectionType == DateSelectionType.month) _monthPicker(),
+                    if (_selectedSectionsList.isNotEmpty &&
                         ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
                             (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
                             (_dateSelectionType == DateSelectionType.year)))
                       const SizedBox(
                         height: 15,
                       ),
-                    if (_selectedSection != null &&
+                    if (_selectedSectionsList.isNotEmpty &&
                         ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
                             (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
                             (_dateSelectionType == DateSelectionType.year)))

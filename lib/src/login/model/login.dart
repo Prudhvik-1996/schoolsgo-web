@@ -332,3 +332,89 @@ Future<DoLoginResponse> doLogin(DoLoginRequest doLoginRequest) async {
   debugPrint("DoLoginResponse ${doLoginResponse.toJson()}");
   return doLoginResponse;
 }
+
+class DoLogoutRequest {
+/*
+{
+  "fcmToken": "string",
+  "userId": 0
+}
+*/
+
+  String? fcmToken;
+  int? userId;
+  Map<String, dynamic> __origJson = {};
+
+  DoLogoutRequest({
+    this.fcmToken,
+    this.userId,
+  });
+  DoLogoutRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    fcmToken = json['fcmToken']?.toString();
+    userId = json['userId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['fcmToken'] = fcmToken;
+    data['userId'] = userId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class DoLogoutResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  DoLogoutResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  DoLogoutResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<DoLogoutResponse> doLogout(DoLogoutRequest doLogoutRequest) async {
+  debugPrint("Raising request to doLogout with request ${jsonEncode(doLogoutRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + DO_LOGOUT;
+
+  DoLogoutResponse doLogoutResponse = await HttpUtils.post(
+    _url,
+    doLogoutRequest.toJson(),
+    DoLogoutResponse.fromJson,
+  );
+
+  debugPrint("DoLogoutResponse ${doLogoutResponse.toJson()}");
+  return doLogoutResponse;
+}

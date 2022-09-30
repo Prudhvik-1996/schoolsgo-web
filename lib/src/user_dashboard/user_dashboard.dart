@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -251,6 +252,12 @@ class _UserDashboardState extends State<UserDashboard> {
                         onPressed: () async {
                           Navigator.of(context).pop();
                           SharedPreferences prefs = await SharedPreferences.getInstance();
+                          int? userId = prefs.getInt('LOGGED_IN_USER_ID');
+                          String? fcmToken = prefs.getString('USER_FCM_TOKEN');
+                          await doLogout(DoLogoutRequest(
+                            userId: userId,
+                            fcmToken: fcmToken,
+                          ));
                           await prefs.remove('USER_FOUR_DIGIT_PIN');
                           await prefs.remove('IS_USER_LOGGED_IN');
                           await prefs.remove('LOGGED_IN_USER_ID');

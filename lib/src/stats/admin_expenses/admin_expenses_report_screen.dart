@@ -2,20 +2,18 @@ import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' show AnchorElement;
 
-import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/diary/model/diary.dart';
-import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/date_selection_type.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class DiaryReportScreen extends StatefulWidget {
-  const DiaryReportScreen({
+class AdminExpensesReportScreen extends StatefulWidget {
+  const AdminExpensesReportScreen({
     Key? key,
     required this.adminProfile,
   }) : super(key: key);
@@ -23,18 +21,14 @@ class DiaryReportScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
   @override
-  State<DiaryReportScreen> createState() => _DiaryReportScreenState();
+  State<AdminExpensesReportScreen> createState() => _AdminExpensesReportScreenState();
 }
 
-class _DiaryReportScreenState extends State<DiaryReportScreen> {
+class _AdminExpensesReportScreenState extends State<AdminExpensesReportScreen> {
   bool _isLoading = true;
   bool _isFileDownloading = false;
 
-  List<Section> sectionsList = [];
-  List<Section> selectedSectionsList = [];
-  bool _isSectionPickerOpen = false;
-
-  DateSelectionType _dateSelectionType = DateSelectionType.date;
+  DateSelectionType _dateSelectionType = DateSelectionType.year;
 
   int? _startDate;
   int? _endDate;
@@ -59,16 +53,6 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
       _isLoading = true;
       _isFileDownloading = false;
     });
-    GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
-    );
-    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
-
-    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
-      setState(() {
-        sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
-      });
-    }
 
     currentMonth = DateTime.now().month - 1;
     currentYear = DateTime.now().year;
@@ -77,219 +61,11 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
     currentMonthYearIndex = monthYears.length - 1;
     _selectedMonthYearIndex = currentMonthYearIndex;
 
-    reportName = "StudentDiaryReport${DateTime.now().millisecondsSinceEpoch}.xlsx";
+    reportName = "AdminExpenses${DateTime.now().millisecondsSinceEpoch}.xlsx";
 
     setState(() {
       _isLoading = false;
     });
-  }
-
-  Widget _sectionPicker() {
-    return AnimatedSize(
-      curve: Curves.fastOutSlowIn,
-      duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        child: _isSectionPickerOpen
-            ? Container(
-                margin: const EdgeInsets.all(10),
-                child: ClayContainer(
-                  depth: 40,
-                  surfaceColor: clayContainerColor(context),
-                  parentColor: clayContainerColor(context),
-                  spread: 2,
-                  borderRadius: 10,
-                  child: _selectSectionExpanded(),
-                ),
-              )
-            : _selectSectionCollapsed(),
-      ),
-    );
-  }
-
-  Widget _buildSectionCheckBox(Section section) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      child: GestureDetector(
-        onTap: () {
-          if (_isLoading) return;
-          setState(() {
-            if (selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId)) {
-              selectedSectionsList.removeWhere((e) => e.sectionId == section.sectionId);
-            } else {
-              selectedSectionsList.add(section);
-            }
-            // _isSectionPickerOpen = false;
-          });
-        },
-        child: ClayButton(
-          depth: 40,
-          spread: selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId) ? 0 : 2,
-          surfaceColor:
-              selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId) ? Colors.blue.shade300 : clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          borderRadius: 10,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              section.sectionName!,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _selectSectionExpanded() {
-    return Container(
-      width: double.infinity,
-      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
-      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
-      child: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          InkWell(
-            onTap: () {
-              if (_isLoading) return;
-              setState(() {
-                _isSectionPickerOpen = !_isSectionPickerOpen;
-              });
-            },
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-                    child: Text(
-                      selectedSectionsList.isEmpty
-                          ? "Select a section"
-                          : "Selected sections: ${selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}",
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                  child: const Icon(Icons.expand_less),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.25,
-            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
-            shrinkWrap: true,
-            children: sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          Row(
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedSectionsList.map((e) => e).toList().forEach((e) {
-                        selectedSectionsList.remove(e);
-                      });
-                      selectedSectionsList.addAll(sectionsList.map((e) => e).toList());
-                      _isSectionPickerOpen = false;
-                    });
-                  },
-                  child: ClayButton(
-                    depth: 40,
-                    surfaceColor: clayContainerColor(context),
-                    parentColor: clayContainerColor(context),
-                    spread: 1,
-                    borderRadius: 25,
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      child: const Text("Select All"),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedSectionsList = [];
-                      _isSectionPickerOpen = false;
-                    });
-                  },
-                  child: ClayButton(
-                    depth: 40,
-                    surfaceColor: clayContainerColor(context),
-                    parentColor: clayContainerColor(context),
-                    spread: 1,
-                    borderRadius: 25,
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      child: const Text("Clear"),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _selectSectionCollapsed() {
-    return ClayContainer(
-      depth: 20,
-      surfaceColor: clayContainerColor(context),
-      parentColor: clayContainerColor(context),
-      spread: 2,
-      borderRadius: 10,
-      child: InkWell(
-        onTap: () {
-          if (_isLoading) return;
-          setState(() {
-            _isSectionPickerOpen = !_isSectionPickerOpen;
-          });
-        },
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-          padding: const EdgeInsets.all(2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      selectedSectionsList.isEmpty
-                          ? "Select Section"
-                          : "Selected sections: ${selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}",
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                child: const Icon(Icons.expand_more),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _getDateFiltersWidget() {
@@ -394,7 +170,7 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
           DateTime? _newDate = await showDatePicker(
             context: context,
             initialDate: _startDate == null ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(_startDate!),
-            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+            firstDate: DateTime.now().subtract(const Duration(days: 2 * 365)),
             lastDate: DateTime.now(),
             helpText: "Pick start date",
           );
@@ -506,17 +282,16 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
             _endDate = endDateTime.millisecondsSinceEpoch + 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
           }
 
-          List<int> bytes = await getDiaryReport(GetDiaryRequest(
+          List<int> bytes = await getAdminExpensesReport(GetAdminExpensesRequest(
             schoolId: widget.adminProfile.schoolId,
-            startDate: _startDate == null ? null : convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(_startDate!)),
-            endDate: _endDate == null ? null : convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(_endDate!)),
-            sectionIds: selectedSectionsList.map((e) => e.sectionId).where((e) => e != null).map((e) => e!).toList(),
+            startDate: _startDate,
+            endDate: _endDate,
           ));
           AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
             ..setAttribute("download", reportName)
             ..click();
           setState(() {
-            reportName = "StudentDiaryReport${DateTime.now().millisecondsSinceEpoch}.xlsx";
+            reportName = "AdminExpenses${DateTime.now().millisecondsSinceEpoch}.xlsx";
             _isFileDownloading = false;
           });
         },
@@ -543,7 +318,7 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Diary Stats"),
+        title: const Text("Admin Expenses Stats"),
         actions: [
           buildRoleButtonForAppBar(context, widget.adminProfile),
         ],
@@ -585,28 +360,21 @@ class _DiaryReportScreenState extends State<DiaryReportScreen> {
                     const SizedBox(
                       height: 15,
                     ),
-                    _sectionPicker(),
+                    _getDateFiltersWidget(),
                     const SizedBox(
                       height: 15,
                     ),
-                    if (selectedSectionsList.isNotEmpty) _getDateFiltersWidget(),
-                    if (selectedSectionsList.isNotEmpty)
+                    if (_dateSelectionType == DateSelectionType.date) _startDateAndEndDatePicker(),
+                    if (_dateSelectionType == DateSelectionType.month) _monthPicker(),
+                    if ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.year))
                       const SizedBox(
                         height: 15,
                       ),
-                    if (selectedSectionsList.isNotEmpty && _dateSelectionType == DateSelectionType.date) _startDateAndEndDatePicker(),
-                    if (selectedSectionsList.isNotEmpty && _dateSelectionType == DateSelectionType.month) _monthPicker(),
-                    if (selectedSectionsList.isNotEmpty &&
-                        ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.year)))
-                      const SizedBox(
-                        height: 15,
-                      ),
-                    if (selectedSectionsList.isNotEmpty &&
-                        ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
-                            (_dateSelectionType == DateSelectionType.year)))
+                    if ((_dateSelectionType == DateSelectionType.date ? (_startDate != null && _endDate != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.month ? (_selectedMonthYearIndex != null) : false) ||
+                        (_dateSelectionType == DateSelectionType.year))
                       _proceedToGenerateSheetButton()
                   ],
                 ),
