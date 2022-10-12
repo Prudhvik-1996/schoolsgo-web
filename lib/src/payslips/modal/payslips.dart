@@ -153,9 +153,9 @@ class GetMonthsAndYearsForSchoolsResponse {
     if (monthAndYearForSchoolBeans != null) {
       final v = monthAndYearForSchoolBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['monthAndYearForSchoolBeans'] = arr0;
     }
     data['responseStatus'] = responseStatus;
@@ -392,9 +392,9 @@ class GetPayslipComponentsResponse {
     if (payslipComponentBeans != null) {
       final v = payslipComponentBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['payslipComponentBeans'] = arr0;
     }
     data['responseStatus'] = responseStatus;
@@ -466,9 +466,9 @@ class CreateOrUpdatePayslipComponentsRequest {
     if (payslipComponents != null) {
       final v = payslipComponents;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['payslipComponents'] = arr0;
     }
     data['schoolId'] = schoolId;
@@ -738,9 +738,9 @@ class PayslipTemplateForEmployeeBean {
     if (payslipTemplateComponentBeans != null) {
       final v = payslipTemplateComponentBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['payslipTemplateComponentBeans'] = arr0;
     }
     data['roles'] = roles;
@@ -960,4 +960,485 @@ Future<CreateOrUpdatePayslipTemplateForEmployeeBeanResponse> createOrUpdatePaysl
 
   debugPrint("createOrUpdatePayslipTemplateForEmployeeBeanResponse ${createOrUpdatePayslipTemplateForEmployeeBeanResponse.toJson()}");
   return createOrUpdatePayslipTemplateForEmployeeBeanResponse;
+}
+
+class GetEmployeePayslipsRequest {
+/*
+{
+  "employeeId": 2,
+  "franchiseId": 0,
+  "monthYearId": 0,
+  "schoolId": 91
+}
+*/
+
+  int? employeeId;
+  int? franchiseId;
+  int? monthYearId;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  GetEmployeePayslipsRequest({
+    this.employeeId,
+    this.franchiseId,
+    this.monthYearId,
+    this.schoolId,
+  });
+  GetEmployeePayslipsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    employeeId = json['employeeId']?.toInt();
+    franchiseId = json['franchiseId']?.toInt();
+    monthYearId = json['monthYearId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['employeeId'] = employeeId;
+    data['franchiseId'] = franchiseId;
+    data['monthYearId'] = monthYearId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class MonthWiseEmployeePayslipComponentBean {
+/*
+{
+  "amount": 0,
+  "componentName": "string",
+  "componentType": "EARNINGS",
+  "employeeId": 0,
+  "employeeName": "string",
+  "franchiseId": 0,
+  "month": "string",
+  "monthYearId": 0,
+  "noOfLopDays": 0,
+  "noOfWorkingDays": 0,
+  "payslipComponentId": 0,
+  "roles": "string",
+  "schoolId": 0,
+  "schoolName": "string",
+  "year": 0
+}
+*/
+
+  int? amount;
+  String? componentName;
+  String? componentType;
+  int? employeeId;
+  String? employeeName;
+  int? franchiseId;
+  String? month;
+  int? monthYearId;
+  int? noOfLopDays;
+  int? noOfWorkingDays;
+  int? payslipComponentId;
+  String? roles;
+  int? schoolId;
+  String? schoolName;
+  int? year;
+  Map<String, dynamic> __origJson = {};
+
+  MonthWiseEmployeePayslipComponentBean({
+    this.amount,
+    this.componentName,
+    this.componentType,
+    this.employeeId,
+    this.employeeName,
+    this.franchiseId,
+    this.month,
+    this.monthYearId,
+    this.noOfLopDays,
+    this.noOfWorkingDays,
+    this.payslipComponentId,
+    this.roles,
+    this.schoolId,
+    this.schoolName,
+    this.year,
+  });
+  MonthWiseEmployeePayslipComponentBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    amount = json['amount']?.toInt();
+    componentName = json['componentName']?.toString();
+    componentType = json['componentType']?.toString();
+    employeeId = json['employeeId']?.toInt();
+    employeeName = json['employeeName']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    month = json['month']?.toString();
+    monthYearId = json['monthYearId']?.toInt();
+    noOfLopDays = json['noOfLopDays']?.toInt();
+    noOfWorkingDays = json['noOfWorkingDays']?.toInt();
+    payslipComponentId = json['payslipComponentId']?.toInt();
+    roles = json['roles']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    year = json['year']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['amount'] = amount;
+    data['componentName'] = componentName;
+    data['componentType'] = componentType;
+    data['employeeId'] = employeeId;
+    data['employeeName'] = employeeName;
+    data['franchiseId'] = franchiseId;
+    data['month'] = month;
+    data['monthYearId'] = monthYearId;
+    data['noOfLopDays'] = noOfLopDays;
+    data['noOfWorkingDays'] = noOfWorkingDays;
+    data['payslipComponentId'] = payslipComponentId;
+    data['roles'] = roles;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['year'] = year;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class MonthlyEmployeePayslipBean {
+  MonthAndYearForSchoolBean? monthAndYearBean;
+  List<MonthWiseEmployeePayslipComponentBean?>? monthWiseEmployeePayslipComponentBeans;
+  Map<String, dynamic> __origJson = {};
+
+  MonthlyEmployeePayslipBean({
+    this.monthAndYearBean,
+    this.monthWiseEmployeePayslipComponentBeans,
+  });
+  MonthlyEmployeePayslipBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    monthAndYearBean = (json['monthAndYearBean'] != null) ? MonthAndYearForSchoolBean.fromJson(json['monthAndYearBean']) : null;
+    if (json['monthWiseEmployeePayslipComponentBeans'] != null) {
+      final v = json['monthWiseEmployeePayslipComponentBeans'];
+      final arr0 = <MonthWiseEmployeePayslipComponentBean>[];
+      v.forEach((v) {
+        arr0.add(MonthWiseEmployeePayslipComponentBean.fromJson(v));
+      });
+      monthWiseEmployeePayslipComponentBeans = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (monthAndYearBean != null) {
+      data['monthAndYearBean'] = monthAndYearBean!.toJson();
+    }
+    if (monthWiseEmployeePayslipComponentBeans != null) {
+      final v = monthWiseEmployeePayslipComponentBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['monthWiseEmployeePayslipComponentBeans'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean {
+/*
+{
+  "employeeId": 0,
+  "employeeName": "string",
+  "franchiseId": 0,
+  "franchiseName": "string",
+  "roles": [
+    "string"
+  ],
+  "schoolDisplayName": "string",
+  "schoolId": 0
+}
+*/
+
+  int? employeeId;
+  String? employeeName;
+  int? franchiseId;
+  String? franchiseName;
+  List<String?>? roles;
+  String? schoolDisplayName;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean({
+    this.employeeId,
+    this.employeeName,
+    this.franchiseId,
+    this.franchiseName,
+    this.roles,
+    this.schoolDisplayName,
+    this.schoolId,
+  });
+  GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    employeeId = json['employeeId']?.toInt();
+    employeeName = json['employeeName']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
+    if (json['roles'] != null) {
+      final v = json['roles'];
+      final arr0 = <String>[];
+      v.forEach((v) {
+        arr0.add(v.toString());
+      });
+      roles = arr0;
+    }
+    schoolDisplayName = json['schoolDisplayName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['employeeId'] = employeeId;
+    data['employeeName'] = employeeName;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
+    if (roles != null) {
+      final v = roles;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v);
+      }
+      data['roles'] = arr0;
+    }
+    data['schoolDisplayName'] = schoolDisplayName;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class EmployeePayslipBean {
+/*
+{
+  "employeeBean": {
+    "employeeId": 0,
+    "employeeName": "string",
+    "franchiseId": 0,
+    "franchiseName": "string",
+    "roles": [
+      "string"
+    ],
+    "schoolDisplayName": "string",
+    "schoolId": 0
+  },
+  "monthlyEmployeePayslipBeans": [
+    {
+      "monthAndYearBean": {
+        "agent": 0,
+        "createTime": {
+          "date": 0,
+          "day": 0,
+          "hours": 0,
+          "minutes": 0,
+          "month": 0,
+          "nanos": 0,
+          "seconds": 0,
+          "time": 0,
+          "timezoneOffset": 0,
+          "year": 0
+        },
+        "month": "JANUARY",
+        "monthAndYearForSchoolId": 0,
+        "noOfWorkingDays": 0,
+        "schoolId": 0,
+        "status": "active",
+        "year": 0
+      },
+      "monthWiseEmployeePayslipComponentBeans": [
+        {
+          "amount": 0,
+          "componentName": "string",
+          "componentType": "EARNINGS",
+          "employeeId": 0,
+          "employeeName": "string",
+          "franchiseId": 0,
+          "month": "string",
+          "monthYearId": 0,
+          "noOfLopDays": 0,
+          "noOfWorkingDays": 0,
+          "payslipComponentId": 0,
+          "roles": "string",
+          "schoolId": 0,
+          "schoolName": "string",
+          "year": 0
+        }
+      ]
+    }
+  ]
+}
+*/
+
+  GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean? employeeBean;
+  List<MonthlyEmployeePayslipBean?>? monthlyEmployeePayslipBeans;
+  Map<String, dynamic> __origJson = {};
+
+  EmployeePayslipBean({
+    this.employeeBean,
+    this.monthlyEmployeePayslipBeans,
+  });
+  EmployeePayslipBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    employeeBean = (json['employeeBean'] != null) ? GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean.fromJson(json['employeeBean']) : null;
+    if (json['monthlyEmployeePayslipBeans'] != null) {
+      final v = json['monthlyEmployeePayslipBeans'];
+      final arr0 = <MonthlyEmployeePayslipBean>[];
+      v.forEach((v) {
+        arr0.add(MonthlyEmployeePayslipBean.fromJson(v));
+      });
+      monthlyEmployeePayslipBeans = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (employeeBean != null) {
+      data['employeeBean'] = employeeBean!.toJson();
+    }
+    if (monthlyEmployeePayslipBeans != null) {
+      final v = monthlyEmployeePayslipBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['monthlyEmployeePayslipBeans'] = arr0;
+    }
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetEmployeePayslipsResponse {
+/*
+{
+  "employeePayslipBeans": [
+    {
+      "employeeBean": {
+        "employeeId": 0,
+        "employeeName": "string",
+        "franchiseId": 0,
+        "franchiseName": "string",
+        "roles": [
+          "string"
+        ],
+        "schoolDisplayName": "string",
+        "schoolId": 0
+      },
+      "monthlyEmployeePayslipBeans": [
+        {
+          "monthAndYearBean": {
+            "agent": 0,
+            "createTime": {
+              "date": 0,
+              "day": 0,
+              "hours": 0,
+              "minutes": 0,
+              "month": 0,
+              "nanos": 0,
+              "seconds": 0,
+              "time": 0,
+              "timezoneOffset": 0,
+              "year": 0
+            },
+            "month": "JANUARY",
+            "monthAndYearForSchoolId": 0,
+            "noOfWorkingDays": 0,
+            "schoolId": 0,
+            "status": "active",
+            "year": 0
+          },
+          "monthWiseEmployeePayslipComponentBeans": [
+            {
+              "amount": 0,
+              "componentName": "string",
+              "componentType": "EARNINGS",
+              "employeeId": 0,
+              "employeeName": "string",
+              "franchiseId": 0,
+              "month": "string",
+              "monthYearId": 0,
+              "noOfLopDays": 0,
+              "noOfWorkingDays": 0,
+              "payslipComponentId": 0,
+              "roles": "string",
+              "schoolId": 0,
+              "schoolName": "string",
+              "year": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  List<EmployeePayslipBean?>? employeePayslipBeans;
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  GetEmployeePayslipsResponse({
+    this.employeePayslipBeans,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  GetEmployeePayslipsResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    if (json['employeePayslipBeans'] != null) {
+      final v = json['employeePayslipBeans'];
+      final arr0 = <EmployeePayslipBean>[];
+      v.forEach((v) {
+        arr0.add(EmployeePayslipBean.fromJson(v));
+      });
+      employeePayslipBeans = arr0;
+    }
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (employeePayslipBeans != null) {
+      final v = employeePayslipBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['employeePayslipBeans'] = arr0;
+    }
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetEmployeePayslipsResponse> getEmployeePayslips(GetEmployeePayslipsRequest getEmployeePayslipsRequest) async {
+  debugPrint("Raising request to getEmployeePayslips with request ${jsonEncode(getEmployeePayslipsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_EMPLOYEE_PAYSLIPS;
+
+  GetEmployeePayslipsResponse getEmployeePayslipsResponse = await HttpUtils.post(
+    _url,
+    getEmployeePayslipsRequest.toJson(),
+    GetEmployeePayslipsResponse.fromJson,
+  );
+
+  debugPrint("GetEmployeePayslipsResponse ${getEmployeePayslipsResponse.toJson()}");
+  return getEmployeePayslipsResponse;
 }
