@@ -58,7 +58,7 @@ class _PayslipTemplatesScreenState extends State<PayslipTemplatesScreen> {
       );
     } else {
       setState(() {
-        template = getPayslipTemplateForEmployeeResponse.payslipTemplateForEmployeeBean;
+        template = getPayslipTemplateForEmployeeResponse.payslipTemplateForEmployeeBeans?.firstOrNull;
       });
     }
     GetEmployeePayslipsResponse getEmployeePayslipsResponse = await getEmployeePayslips(

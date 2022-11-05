@@ -104,7 +104,7 @@ class _AdminPayStudentFeeScreenState extends State<AdminPayStudentFeeScreen> {
         studentTermWiseTransactionHistoryBeans: [],
         studentProfile: studentProfile,
       );
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .where((e) => e != null)
           .map((e) => e!)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -120,7 +120,7 @@ class _AdminPayStudentFeeScreenState extends State<AdminPayStudentFeeScreen> {
           );
         }
       });
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .where((e) => e != null)
           .map((e) => e!)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -144,7 +144,7 @@ class _AdminPayStudentFeeScreenState extends State<AdminPayStudentFeeScreen> {
           }
         });
       });
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .where((e) => e != null)
           .map((e) => e!)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -174,7 +174,7 @@ class _AdminPayStudentFeeScreenState extends State<AdminPayStudentFeeScreen> {
         });
       });
 
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .map((e) => e!)
           .where((e) => e.transactionId != null)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {

@@ -791,7 +791,7 @@ class GetPayslipTemplateForEmployeeResponse {
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
-  PayslipTemplateForEmployeeBean? payslipTemplateForEmployeeBean;
+  List<PayslipTemplateForEmployeeBean?>? payslipTemplateForEmployeeBeans;
   String? responseStatus;
   Map<String, dynamic> __origJson = {};
 
@@ -799,7 +799,7 @@ class GetPayslipTemplateForEmployeeResponse {
     this.errorCode,
     this.errorMessage,
     this.httpStatus,
-    this.payslipTemplateForEmployeeBean,
+    this.payslipTemplateForEmployeeBeans,
     this.responseStatus,
   });
   GetPayslipTemplateForEmployeeResponse.fromJson(Map<String, dynamic> json) {
@@ -807,8 +807,14 @@ class GetPayslipTemplateForEmployeeResponse {
     errorCode = json['errorCode']?.toString();
     errorMessage = json['errorMessage']?.toString();
     httpStatus = json['httpStatus']?.toString();
-    payslipTemplateForEmployeeBean =
-        (json['payslipTemplateForEmployeeBean'] != null) ? PayslipTemplateForEmployeeBean.fromJson(json['payslipTemplateForEmployeeBean']) : null;
+    if (json['payslipTemplateForEmployeeBeans'] != null) {
+      final v = json['payslipTemplateForEmployeeBeans'];
+      final arr0 = <PayslipTemplateForEmployeeBean>[];
+      v.forEach((v) {
+        arr0.add(PayslipTemplateForEmployeeBean.fromJson(v));
+      });
+      payslipTemplateForEmployeeBeans = arr0;
+    }
     responseStatus = json['responseStatus']?.toString();
   }
   Map<String, dynamic> toJson() {
@@ -816,8 +822,13 @@ class GetPayslipTemplateForEmployeeResponse {
     data['errorCode'] = errorCode;
     data['errorMessage'] = errorMessage;
     data['httpStatus'] = httpStatus;
-    if (payslipTemplateForEmployeeBean != null) {
-      data['payslipTemplateForEmployeeBean'] = payslipTemplateForEmployeeBean!.toJson();
+    if (payslipTemplateForEmployeeBeans != null) {
+      final v = payslipTemplateForEmployeeBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['payslipTemplateForEmployeeBeans'] = arr0;
     }
     data['responseStatus'] = responseStatus;
     return data;
@@ -1139,7 +1150,7 @@ class MonthlyEmployeePayslipBean {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-class GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean {
+class EmployeeBean {
 /*
 {
   "employeeId": 0,
@@ -1161,9 +1172,10 @@ class GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean {
   List<String?>? roles;
   String? schoolDisplayName;
   int? schoolId;
+  String? photoUrl;
   Map<String, dynamic> __origJson = {};
 
-  GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean({
+  EmployeeBean({
     this.employeeId,
     this.employeeName,
     this.franchiseId,
@@ -1171,8 +1183,9 @@ class GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean {
     this.roles,
     this.schoolDisplayName,
     this.schoolId,
+    this.photoUrl,
   });
-  GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean.fromJson(Map<String, dynamic> json) {
+  EmployeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeId = json['employeeId']?.toInt();
     employeeName = json['employeeName']?.toString();
@@ -1188,6 +1201,7 @@ class GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean {
     }
     schoolDisplayName = json['schoolDisplayName']?.toString();
     schoolId = json['schoolId']?.toInt();
+    photoUrl = json['photoUrl']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -1205,6 +1219,7 @@ class GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean {
     }
     data['schoolDisplayName'] = schoolDisplayName;
     data['schoolId'] = schoolId;
+    data['photoUrl'] = photoUrl;
     return data;
   }
 
@@ -1272,8 +1287,12 @@ class EmployeePayslipBean {
 }
 */
 
-  GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean? employeeBean;
+  EmployeeBean? employeeBean;
   List<MonthlyEmployeePayslipBean?>? monthlyEmployeePayslipBeans;
+
+  bool isTapped = false;
+  bool isSelected = false;
+
   Map<String, dynamic> __origJson = {};
 
   EmployeePayslipBean({
@@ -1282,7 +1301,7 @@ class EmployeePayslipBean {
   });
   EmployeePayslipBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    employeeBean = (json['employeeBean'] != null) ? GetEmployeePayslipsResponseEmployeePayslipBeansEmployeeBean.fromJson(json['employeeBean']) : null;
+    employeeBean = (json['employeeBean'] != null) ? EmployeeBean.fromJson(json['employeeBean']) : null;
     if (json['monthlyEmployeePayslipBeans'] != null) {
       final v = json['monthlyEmployeePayslipBeans'];
       final arr0 = <MonthlyEmployeePayslipBean>[];
@@ -1306,6 +1325,39 @@ class EmployeePayslipBean {
       data['monthlyEmployeePayslipBeans'] = arr0;
     }
     return data;
+  }
+
+  bool isPaid() {
+    return (monthlyEmployeePayslipBeans ?? []).map((e) => e?.monthWiseEmployeePayslipComponentBeans ?? []).expand((i) => i).length > 1;
+  }
+
+  double netPay(List<PayslipTemplateForEmployeeBean> payslipTemplates) {
+    return isPaid()
+        ? ((monthlyEmployeePayslipBeans ?? [])
+                .map((e) => e?.monthWiseEmployeePayslipComponentBeans ?? [])
+                .expand((i) => i)
+                .map((e) =>
+                    (e == null
+                        ? 0
+                        : e.componentType == "EARNINGS"
+                            ? 1
+                            : -1) *
+                    (e?.amount ?? 0))
+                .reduce((a1, a2) => a1 + a2) /
+            100.0)
+        : payslipTemplates
+                .where((e1) => e1.employeeId == employeeBean?.employeeId)
+                .map((e) => e.payslipTemplateComponentBeans ?? [])
+                .expand((i) => i)
+                .map((e) =>
+                    (e == null
+                        ? 0
+                        : e.payslipComponentType == "EARNINGS"
+                            ? 1
+                            : -1) *
+                    (e?.amount ?? 0))
+                .reduce((a1, a2) => a1 + a2) /
+            100.0;
   }
 
   Map<String, dynamic> origJson() => __origJson;
@@ -1441,4 +1493,364 @@ Future<GetEmployeePayslipsResponse> getEmployeePayslips(GetEmployeePayslipsReque
 
   debugPrint("GetEmployeePayslipsResponse ${getEmployeePayslipsResponse.toJson()}");
   return getEmployeePayslipsResponse;
+}
+
+class EmployeeLopBean {
+/*
+{
+  "agent": 0,
+  "employeeId": 0,
+  "employeeName": "string",
+  "franchiseId": 0,
+  "franchiseName": "string",
+  "lopAmount": 0,
+  "lopDays": 0,
+  "lopId": 0,
+  "month": "JANUARY",
+  "monthYearId": 0,
+  "noOfWorkingDays": 0,
+  "profilePhotoUrl": "string",
+  "roles": "string",
+  "schoolDisplayName": "string",
+  "schoolId": 0,
+  "status": "active",
+  "year": 0
+}
+*/
+
+  int? agent;
+  int? employeeId;
+  String? employeeName;
+  int? franchiseId;
+  String? franchiseName;
+  int? lopAmount;
+  int? lopDays;
+  int? lopId;
+  String? month;
+  int? monthYearId;
+  int? noOfWorkingDays;
+  String? profilePhotoUrl;
+  String? roles;
+  String? schoolDisplayName;
+  int? schoolId;
+  String? status;
+  int? year;
+  Map<String, dynamic> __origJson = {};
+
+  EmployeeLopBean({
+    this.agent,
+    this.employeeId,
+    this.employeeName,
+    this.franchiseId,
+    this.franchiseName,
+    this.lopAmount,
+    this.lopDays,
+    this.lopId,
+    this.month,
+    this.monthYearId,
+    this.noOfWorkingDays,
+    this.profilePhotoUrl,
+    this.roles,
+    this.schoolDisplayName,
+    this.schoolId,
+    this.status,
+    this.year,
+  });
+  EmployeeLopBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    employeeId = json['employeeId']?.toInt();
+    employeeName = json['employeeName']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
+    lopAmount = json['lopAmount']?.toInt();
+    lopDays = json['lopDays']?.toInt();
+    lopId = json['lopId']?.toInt();
+    month = json['month']?.toString();
+    monthYearId = json['monthYearId']?.toInt();
+    noOfWorkingDays = json['noOfWorkingDays']?.toInt();
+    profilePhotoUrl = json['profilePhotoUrl']?.toString();
+    roles = json['roles']?.toString();
+    schoolDisplayName = json['schoolDisplayName']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    year = json['year']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['employeeId'] = employeeId;
+    data['employeeName'] = employeeName;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
+    data['lopAmount'] = lopAmount;
+    data['lopDays'] = lopDays;
+    data['lopId'] = lopId;
+    data['month'] = month;
+    data['monthYearId'] = monthYearId;
+    data['noOfWorkingDays'] = noOfWorkingDays;
+    data['profilePhotoUrl'] = profilePhotoUrl;
+    data['roles'] = roles;
+    data['schoolDisplayName'] = schoolDisplayName;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    data['year'] = year;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateLossOfPayForEmployeesRequest {
+/*
+{
+  "agent": 0,
+  "franchiseId": 0,
+  "lopBeans": [
+    {
+      "agent": 0,
+      "employeeId": 0,
+      "employeeName": "string",
+      "franchiseId": 0,
+      "franchiseName": "string",
+      "lopAmount": 0,
+      "lopDays": 0,
+      "lopId": 0,
+      "month": "JANUARY",
+      "monthYearId": 0,
+      "noOfWorkingDays": 0,
+      "profilePhotoUrl": "string",
+      "roles": "string",
+      "schoolDisplayName": "string",
+      "schoolId": 0,
+      "status": "active",
+      "year": 0
+    }
+  ],
+  "schoolId": 0
+}
+*/
+
+  int? agent;
+  int? franchiseId;
+  List<EmployeeLopBean?>? lopBeans;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateLossOfPayForEmployeesRequest({
+    this.agent,
+    this.franchiseId,
+    this.lopBeans,
+    this.schoolId,
+  });
+  CreateOrUpdateLossOfPayForEmployeesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    franchiseId = json['franchiseId']?.toInt();
+    if (json['lopBeans'] != null) {
+      final v = json['lopBeans'];
+      final arr0 = <EmployeeLopBean>[];
+      v.forEach((v) {
+        arr0.add(EmployeeLopBean.fromJson(v));
+      });
+      lopBeans = arr0;
+    }
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['franchiseId'] = franchiseId;
+    if (lopBeans != null) {
+      final v = lopBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['lopBeans'] = arr0;
+    }
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateLossOfPayForEmployeesResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateLossOfPayForEmployeesResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateLossOfPayForEmployeesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateLossOfPayForEmployeesResponse> createOrUpdateLossOfPayForEmployees(
+    CreateOrUpdateLossOfPayForEmployeesRequest createOrUpdateLossOfPayForEmployeesRequest) async {
+  debugPrint(
+      "Raising request to createOrUpdateLossOfPayForEmployeesRequest with request ${jsonEncode(createOrUpdateLossOfPayForEmployeesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_LOSS_OF_PAY_FOR_EMPLOYEES;
+
+  CreateOrUpdateLossOfPayForEmployeesResponse createMonthsAndYearsForSchoolsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateLossOfPayForEmployeesRequest.toJson(),
+    CreateOrUpdateLossOfPayForEmployeesResponse.fromJson,
+  );
+
+  debugPrint("CreateOrUpdateLossOfPayForEmployeesResponse ${createMonthsAndYearsForSchoolsResponse.toJson()}");
+  return createMonthsAndYearsForSchoolsResponse;
+}
+
+class PayEmployeeSalariesRequest {
+/*
+{
+  "agent": 0,
+  "employeeIds": [
+    0
+  ],
+  "franchiseId": 0,
+  "monthYearId": 0,
+  "schoolId": 0
+}
+*/
+
+  int? agent;
+  List<int?>? employeeIds;
+  int? franchiseId;
+  int? monthYearId;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  PayEmployeeSalariesRequest({
+    this.agent,
+    this.employeeIds,
+    this.franchiseId,
+    this.monthYearId,
+    this.schoolId,
+  });
+  PayEmployeeSalariesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    if (json['employeeIds'] != null) {
+      final v = json['employeeIds'];
+      final arr0 = <int>[];
+      v.forEach((v) {
+        arr0.add(v.toInt());
+      });
+      employeeIds = arr0;
+    }
+    franchiseId = json['franchiseId']?.toInt();
+    monthYearId = json['monthYearId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    if (employeeIds != null) {
+      final v = employeeIds;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v);
+      }
+      data['employeeIds'] = arr0;
+    }
+    data['franchiseId'] = franchiseId;
+    data['monthYearId'] = monthYearId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class PayEmployeeSalariesResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "transactionId": 0
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  int? transactionId;
+  Map<String, dynamic> __origJson = {};
+
+  PayEmployeeSalariesResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.transactionId,
+  });
+  PayEmployeeSalariesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    transactionId = json['transactionId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    data['transactionId'] = transactionId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<PayEmployeeSalariesResponse> payEmployeeSalaries(PayEmployeeSalariesRequest payEmployeeSalariesRequest) async {
+  debugPrint("Raising request to payEmployeeSalariesRequest with request ${jsonEncode(payEmployeeSalariesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + PAY_EMPLOYEE_SALARIES;
+
+  PayEmployeeSalariesResponse payEmployeeSalariesResponse = await HttpUtils.post(
+    _url,
+    payEmployeeSalariesRequest.toJson(),
+    PayEmployeeSalariesResponse.fromJson,
+  );
+
+  debugPrint("PayEmployeeSalariesResponse ${payEmployeeSalariesResponse.toJson()}");
+  return payEmployeeSalariesResponse;
 }

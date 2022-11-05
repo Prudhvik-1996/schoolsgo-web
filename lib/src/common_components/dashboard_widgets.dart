@@ -132,7 +132,7 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         routeName: "/fee",
         argument: studentProfile,
       ),
-      if (studentProfile.isAssignedToBusStop ?? false)
+      if (((studentProfile.isAssignedToBusStop ?? false) || 1 != 1))
         DashboardWidget(
           image: SvgPicture.asset("assets/images/bus.svg"),
           title: "Bus",

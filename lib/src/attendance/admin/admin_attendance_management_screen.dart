@@ -773,7 +773,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
 
   void handleNextScreenOptions(String value) {
     switch (value) {
-      case 'Edit Attendance Time Slots':
+      case 'Bulk Edit Attendance Time Slots':
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return AdminBulkEditAttendanceTimeSlotsScreen(
             adminProfile: widget.adminProfile,

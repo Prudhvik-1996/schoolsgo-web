@@ -2640,7 +2640,7 @@ class StudentWiseTermFeesBean {
   String? sectionName;
   int? studentId;
   String? studentName;
-  List<StudentWiseTermFeeMapBean?>? studentWiseTermFeeMapBeanList;
+  List<StudentWiseTermFeeMapBean?>? studentTermFeeMapBeanList;
   List<StudentWalletTransactionBean?>? studentWalletTransactionBeans;
   Map<String, dynamic> __origJson = {};
 
@@ -2651,7 +2651,7 @@ class StudentWiseTermFeesBean {
     this.sectionName,
     this.studentId,
     this.studentName,
-    this.studentWiseTermFeeMapBeanList,
+    this.studentTermFeeMapBeanList,
     this.studentWalletTransactionBeans,
   });
 
@@ -2663,13 +2663,13 @@ class StudentWiseTermFeesBean {
     sectionName = json['sectionName']?.toString();
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
-    if (json['studentWiseTermFeeMapBeanList'] != null) {
-      final v = json['studentWiseTermFeeMapBeanList'];
+    if (json['studentTermFeeMapBeanList'] != null) {
+      final v = json['studentTermFeeMapBeanList'];
       final arr0 = <StudentWiseTermFeeMapBean>[];
       v.forEach((v) {
         arr0.add(StudentWiseTermFeeMapBean.fromJson(v));
       });
-      studentWiseTermFeeMapBeanList = arr0;
+      studentTermFeeMapBeanList = arr0;
     }
     if (json['studentWalletTransactionBeans'] != null) {
       final v = json['studentWalletTransactionBeans'];
@@ -2689,8 +2689,8 @@ class StudentWiseTermFeesBean {
     data['sectionName'] = sectionName;
     data['studentId'] = studentId;
     data['studentName'] = studentName;
-    if (studentWiseTermFeeMapBeanList != null) {
-      final v = studentWiseTermFeeMapBeanList;
+    if (studentTermFeeMapBeanList != null) {
+      final v = studentTermFeeMapBeanList;
       final arr0 = [];
       for (var v in v!) {
         arr0.add(v!.toJson());

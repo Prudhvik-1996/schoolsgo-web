@@ -252,7 +252,7 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
       }
 
       setState(() {
-        allMasterTransactionIds = studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList
+        allMasterTransactionIds = studentWiseTermFeesBean?.studentTermFeeMapBeanList
                 ?.where((e) => e?.masterTransactionId != null)
                 .map((e) => e!.masterTransactionId!)
                 .toSet()
@@ -265,7 +265,7 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
           masterTransactionIdWiseStudentTermWiseTransactionHistoryBeans: allMasterTransactionIds
               .map((eachMasterTransactionId) => _MasterTransactionIdWiseStudentTermWiseTransactionHistory(
                     masterTransactionId: eachMasterTransactionId,
-                    masterTransactionDate: studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList
+                    masterTransactionDate: studentWiseTermFeesBean?.studentTermFeeMapBeanList
                         ?.where((e) => e?.masterTransactionId == eachMasterTransactionId)
                         .firstOrNull
                         ?.masterTransactionDate,
@@ -275,7 +275,7 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
           studentProfile: studentProfile,
         );
 
-        studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList
+        studentWiseTermFeesBean?.studentTermFeeMapBeanList
             ?.where((e) => e != null)
             .map((e) => e!)
             .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -294,7 +294,7 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
           });
         });
 
-        studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList
+        studentWiseTermFeesBean?.studentTermFeeMapBeanList
             ?.where((e) => e != null)
             .map((e) => e!)
             .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {

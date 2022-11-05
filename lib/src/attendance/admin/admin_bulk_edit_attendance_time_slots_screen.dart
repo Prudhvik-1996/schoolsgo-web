@@ -22,6 +22,7 @@ class AdminBulkEditAttendanceTimeSlotsScreen extends StatefulWidget {
 
 class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAttendanceTimeSlotsScreen> {
   bool _isLoading = true;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Section> _sectionsList = [];
 
@@ -432,7 +433,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
 
   Future<void> _saveChanges() async {
     showDialog(
-      context: context,
+      context: _scaffoldKey.currentContext!,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Attendance Management'),
@@ -553,6 +554,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Attendance Time Slots"),
       ),

@@ -96,7 +96,7 @@ class _AdminStudentWiseFeeReceiptScreenState extends State<AdminStudentWiseFeeRe
       _isLoading = true;
     });
     setState(() {
-      allMasterTransactionIds = studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList
+      allMasterTransactionIds = studentWiseTermFeesBean?.studentTermFeeMapBeanList
               ?.where((e) => e?.masterTransactionId != null)
               .map((e) => e!.masterTransactionId!)
               .toSet()
@@ -109,7 +109,7 @@ class _AdminStudentWiseFeeReceiptScreenState extends State<AdminStudentWiseFeeRe
         studentTermWiseTransactionHistoryBeans: [],
         studentProfile: studentProfile,
       );
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .where((e) => e != null)
           .map((e) => e!)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -130,7 +130,7 @@ class _AdminStudentWiseFeeReceiptScreenState extends State<AdminStudentWiseFeeRe
           ?.forEach((_StudentTermWiseTransactionHistory eachStudentTermWiseTransactionHistory) {
         for (String eachMasterTransactionId in allMasterTransactionIds) {
           List<_StudentTermWiseFeeTypeTransactionHistory> list = [];
-          (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+          (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
               .where((e) => e != null)
               .map((e) => e!)
               .where((e) => e.masterTransactionId == eachMasterTransactionId && e.termId == eachStudentTermWiseTransactionHistory.termId)
@@ -204,7 +204,7 @@ class _AdminStudentWiseFeeReceiptScreenState extends State<AdminStudentWiseFeeRe
           eachStudentTermWiseTransactionHistory.masterTransactionIdWiseStudentTermWiseFeeTypeTransactionHistory!
               .add(_MasterTransactionIdWiseStudentTermWiseFeeTypeTransactionHistory(
             masterTransactionId: eachMasterTransactionId,
-            masterTransactionDate: studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList
+            masterTransactionDate: studentWiseTermFeesBean?.studentTermFeeMapBeanList
                 ?.where((e) => e?.masterTransactionId == eachMasterTransactionId)
                 .firstOrNull
                 ?.masterTransactionDate,

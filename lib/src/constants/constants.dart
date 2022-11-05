@@ -139,8 +139,10 @@ const String CREATE_OR_UPDATE_PAYSLIP_COMPONENTS = "/payslips/createOrUpdatePays
 const String GET_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/getPayslipTemplateForEmployee";
 const String CREATE_OR_UPDATE_PAYSLIP_TEMPLATE_FOR_EMPLOYEE = "/payslips/createOrUpdatePayslipTemplateForEmployeeBean";
 const String GET_EMPLOYEE_PAYSLIPS = "/payslips/getEmployeePayslips";
+const String CREATE_OR_UPDATE_LOSS_OF_PAY_FOR_EMPLOYEES = "/payslips/createOrUpdateLossOfPayForEmployees";
+const String PAY_EMPLOYEE_SALARIES = "/payslips/payEmployeeSalaries";
 
-const List<String> shouldEncryptDataForUrl = [GET_USER_DETAILS, UPDATE_USER_PIN, DO_LOGIN];
+const List<String> shouldEncryptDataForUrl = []; // [GET_USER_DETAILS, UPDATE_USER_PIN, DO_LOGIN];
 
 const String GET_STUDENT_ATTENDANCE_REPORT = "/reports/getStudentAttendanceFile";
 const String GET_DIARY_REPORT = "/reports/getStudentDiaryReport";

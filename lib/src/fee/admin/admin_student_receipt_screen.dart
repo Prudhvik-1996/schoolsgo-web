@@ -99,7 +99,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
         studentTermWiseTransactionHistoryBeans: [],
         studentProfile: studentProfile,
       );
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .where((e) => e != null)
           .map((e) => e!)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -115,7 +115,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
           );
         }
       });
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .where((e) => e != null)
           .map((e) => e!)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -138,7 +138,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
           }
         });
       });
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .where((e) => e != null)
           .map((e) => e!)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -167,7 +167,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
         });
       });
 
-      (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+      (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
           .map((e) => e!)
           .where((e) => e.transactionId != null)
           .forEach((StudentWiseTermFeeMapBean eachStudentWiseTermFeeMapBean) {
@@ -265,7 +265,7 @@ class _AdminStudentReceiptsScreenState extends State<AdminStudentReceiptsScreen>
                   .map((e) => convertYYYYMMDDFormatToDateTime(e.date))
                   .toSet()
                   .toList() +
-              (studentWiseTermFeesBean?.studentWiseTermFeeMapBeanList ?? [])
+              (studentWiseTermFeesBean?.studentTermFeeMapBeanList ?? [])
                   .where((e) => e != null && e.transactionId != null)
                   .map((e) => e!)
                   .map((e) => convertYYYYMMDDFormatToDateTime(e.paymentDate))

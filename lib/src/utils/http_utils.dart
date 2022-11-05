@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:schoolsgo_web/src/constants/constants.dart';
 
@@ -10,6 +11,7 @@ class HttpUtils {
     Function targetResponseMapper,
   ) async {
     if (shouldEncryptDataForUrl.contains(url)) {
+      debugPrint("Encrypting data");
       http.Response httpResponse = await http.post(
         Uri.parse(url),
         headers: const {"Content-type": "application/json", "encrypt": "encrypted"},

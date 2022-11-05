@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/payslips/admin/months_and_years/payslips_of_given_month_screen.dart';
 import 'package:schoolsgo_web/src/payslips/modal/payslips.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -320,34 +321,45 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
       margin: MediaQuery.of(context).orientation == Orientation.portrait
           ? const EdgeInsets.fromLTRB(25, 10, 25, 10)
           : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.calendar_month,
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: Text(
-                  monthAndYearForSchoolBean.month!.toLowerCase().capitalize() + " - " + "${monthAndYearForSchoolBean.year!}",
+      child: GestureDetector(
+        onTap: () {
+          // PayslipsOfGivenMonthScreen
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return PayslipsOfGivenMonthScreen(
+              adminProfile: widget.adminProfile,
+              monthAndYearForSchoolBean: monthAndYearForSchoolBean,
+            );
+          }));
+        },
+        child: ClayButton(
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 10,
+          depth: 40,
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_month,
                 ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Text(
-                "${monthAndYearForSchoolBean.noOfWorkingDays!}",
-              ),
-            ],
+                const SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Text(
+                    monthAndYearForSchoolBean.month!.toLowerCase().capitalize() + " - " + "${monthAndYearForSchoolBean.year!}",
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "${monthAndYearForSchoolBean.noOfWorkingDays!}",
+                ),
+              ],
+            ),
           ),
         ),
       ),

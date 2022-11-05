@@ -22,6 +22,7 @@ class AdminBulkEditSectionWiseTimeSlots extends StatefulWidget {
 
 class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSectionWiseTimeSlots> {
   bool _isLoading = true;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Section> _sectionsList = [];
 
@@ -445,7 +446,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
 
   Future<void> _saveChanges() async {
     showDialog(
-      context: context,
+      context: _scaffoldKey.currentContext!,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Time Table Management'),
@@ -562,6 +563,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Section Wise Time Slots"),
       ),

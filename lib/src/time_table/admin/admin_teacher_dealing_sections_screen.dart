@@ -481,6 +481,18 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
   }
 
   Widget _buildTDSWidgets() {
+    if (_tdsList
+        .where((e) => e.sectionId == _selectedSection!.sectionId && e.status == 'active')
+        .map((e) => _isEditMode ? _buildTDSWidgetEditMode(e) : _buildTDSWidgetViewMode(e))
+        .toList()
+        .isEmpty) {
+      return const SizedBox(
+        height: 150,
+        child: Center(
+          child: Text("No records to show!!"),
+        ),
+      );
+    }
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.all(10),
