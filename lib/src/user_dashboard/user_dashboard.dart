@@ -50,7 +50,6 @@ class _UserDashboardState extends State<UserDashboard> {
     setState(() {
       _isLoading = true;
     });
-
     GetUserRolesRequest getUserRolesRequest = GetUserRolesRequest(userId: widget.loggedInUserId);
     GetUserRolesDetailsResponse getUserRolesResponse = await getUserRoles(getUserRolesRequest);
     if (getUserRolesResponse.httpStatus != "OK" || getUserRolesResponse.responseStatus != "success") {
@@ -258,9 +257,7 @@ class _UserDashboardState extends State<UserDashboard> {
                             userId: userId,
                             fcmToken: fcmToken,
                           ));
-                          await prefs.remove('USER_FOUR_DIGIT_PIN');
-                          await prefs.remove('IS_USER_LOGGED_IN');
-                          await prefs.remove('LOGGED_IN_USER_ID');
+                          await prefs.clear();
                           Navigator.pushNamedAndRemoveUntil(
                             context,
                             SplashScreen.routeName,

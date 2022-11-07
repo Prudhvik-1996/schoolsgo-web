@@ -13,9 +13,13 @@ extension StringExtension on String {
 
   String trimTrailingRegex(String reg) {
     int i = length;
-    while (startsWith(reg, i - reg.length)) {
-      i -= reg.length;
+    try {
+      while (startsWith(reg, i - reg.length)) {
+        i -= reg.length;
+      }
+      return substring(0, i);
+    } catch (e) {
+      return reg;
     }
-    return substring(0, i);
   }
 }

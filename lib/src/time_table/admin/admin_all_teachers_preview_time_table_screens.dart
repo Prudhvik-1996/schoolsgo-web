@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
@@ -252,6 +253,71 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
     );
   }
 
+  Widget _buildSearchableTeacherDropdown() {
+    return DropdownSearch<Teacher>(
+      enabled: true,
+      mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+      selectedItem: _selectedTeacher,
+      items: _teachersList,
+      itemAsString: (Teacher? teacher) {
+        return teacher == null ? "" : teacher.teacherName ?? "";
+      },
+      showSearchBox: true,
+      dropdownBuilder: (BuildContext context, Teacher? teacher) {
+        return _buildTeacherWidget(teacher ?? Teacher());
+      },
+      onChanged: (Teacher? teacher) {
+        if (teacher == null) return;
+        setState(() {
+          _selectedTeacher = teacher;
+        });
+      },
+      showClearButton: false,
+      compareFn: (item, selectedItem) => item?.teacherId == selectedItem?.teacherId,
+      dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+      filterFn: (Teacher? teacher, String? key) {
+        return teacher!.teacherName!.toLowerCase().contains(key!.toLowerCase());
+      },
+    );
+  }
+
+  Widget _buildTeacherWidget(Teacher e) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 50,
+            padding: const EdgeInsets.all(5),
+            child: e.teacherPhotoUrl == null
+                ? Image.asset(
+                    "assets/images/avatar.png",
+                    fit: BoxFit.contain,
+                  )
+                : Image.network(
+                    e.teacherPhotoUrl!,
+                    fit: BoxFit.contain,
+                  ),
+          ),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                e.teacherName ?? "Select a Teacher",
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Container _previewTimeTable(int weekId) {
     double height = 70;
     if (_selectedTeacher == null) {
@@ -371,7 +437,7 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
             child: Padding(
               padding: const EdgeInsets.all(3.0),
               child: Text(
-                "${e.startTime} - ${e.endTime}\n${(e.teacherName ?? "-").capitalize()}\n${(e.sectionNames ?? "-").trimTrailingRegex(", ")}\n${(e.subjectName ?? "-").capitalize()}",
+                "${e.startTime} - ${e.endTime}\n${(e.teacherName ?? "-").capitalize()}\n${(e.sectionNames ?? "-")}\n${(e.subjectName ?? "-").capitalize()}",
                 textAlign: TextAlign.center,
               ),
             ),
@@ -644,78 +710,85 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
                 width: 500,
               ),
             )
-          : Container(
-              margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-              height: (70 * 9.0) + 2,
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(),
-                  bottom: BorderSide(),
-                ),
-              ),
-              child: InteractiveViewer(
-                minScale: 0.25,
-                maxScale: 10,
-                panEnabled: true,
-                alignPanAxis: false,
-                child: RepaintBoundary(
-                  key: GlobalKey(),
-                  child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                            Container(
-                              padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
-                              decoration: BoxDecoration(
-                                color: Colors.blue[200],
-                                border: const Border(
-                                  top: BorderSide(),
-                                  bottom: BorderSide(),
-                                ),
-                              ),
-                              width: MediaQuery.of(context).size.width,
-                              height: 70,
-                              child: Center(
-                                child: widget.teacherProfile == null
-                                    ? _selectTeacher()
-                                    : ListTile(
-                                        leading: Container(
-                                          width: 50,
-                                          padding: const EdgeInsets.all(5),
-                                          child: widget.teacherProfile == null
-                                              ? Container()
-                                              : widget.teacherProfile!.teacherPhotoUrl == null
-                                                  ? Image.asset(
-                                                      "assets/images/avatar.png",
-                                                      fit: BoxFit.contain,
-                                                    )
-                                                  : Image.network(
-                                                      widget.teacherProfile!.teacherPhotoUrl!,
-                                                      fit: BoxFit.contain,
-                                                    ),
-                                        ),
-                                        title: Text(
-                                          widget.teacherProfile == null ? "-" : widget.teacherProfile!.teacherName ?? "-",
-                                          style: const TextStyle(
-                                            fontSize: 14,
+          : ListView(
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(5, 20, 5, 20),
+                  height: (70 * 9.0) + 2,
+                  width: MediaQuery.of(context).size.width - 100,
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      top: BorderSide(),
+                      bottom: BorderSide(),
+                    ),
+                  ),
+                  child: InteractiveViewer(
+                    minScale: 0.25,
+                    maxScale: 10,
+                    panEnabled: true,
+                    alignPanAxis: false,
+                    child: RepaintBoundary(
+                      key: GlobalKey(),
+                      child: ListView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          children: [
+                                Container(
+                                  padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[200],
+                                    border: const Border(
+                                      top: BorderSide(),
+                                      bottom: BorderSide(),
+                                    ),
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  height: 70,
+                                  child: Center(
+                                    child: widget.teacherProfile == null
+                                        ? _buildSearchableTeacherDropdown()
+                                        // ? _selectTeacher()
+                                        : ListTile(
+                                            leading: Container(
+                                              width: 50,
+                                              padding: const EdgeInsets.all(5),
+                                              child: widget.teacherProfile == null
+                                                  ? Container()
+                                                  : widget.teacherProfile!.teacherPhotoUrl == null
+                                                      ? Image.asset(
+                                                          "assets/images/avatar.png",
+                                                          fit: BoxFit.contain,
+                                                        )
+                                                      : Image.network(
+                                                          widget.teacherProfile!.teacherPhotoUrl!,
+                                                          fit: BoxFit.contain,
+                                                        ),
+                                            ),
+                                            title: Text(
+                                              widget.teacherProfile == null ? "-" : widget.teacherProfile!.teacherName ?? "-",
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                              ),
-                            ),
-                            Stack(
-                              children: [
-                                ListView(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: [1, 2, 3, 4, 5, 6, 7].map((e) => _previewTimeTable(e)).toList(),
+                                  ),
                                 ),
-                                Opacity(opacity: 0.05, child: _buildGrid()),
-                              ],
-                            ),
-                          ] +
-                          [_buildXAxis()]),
+                                Stack(
+                                  children: [
+                                    ListView(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      children: [1, 2, 3, 4, 5, 6, 7].map((e) => _previewTimeTable(e)).toList(),
+                                    ),
+                                    Opacity(opacity: 0.05, child: _buildGrid()),
+                                  ],
+                                ),
+                              ] +
+                              [_buildXAxis()]),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
     );
   }

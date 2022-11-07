@@ -424,6 +424,7 @@ class _LoginScreenState extends State<LoginScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('IS_USER_LOGGED_IN', true);
       await prefs.setInt('LOGGED_IN_USER_ID', getUserDetailsResponse.userDetails!.first.userId!);
+      await prefs.setBool("IS_EMAIL_LOGIN", true);
       if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
         await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
       }

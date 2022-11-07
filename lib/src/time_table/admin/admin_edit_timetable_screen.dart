@@ -418,8 +418,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
               return;
             } else if (selectedTds != null &&
                 eachTimeSlot.subjectId != selectedTds.subjectId &&
-                ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
-                    (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
+                ((startTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited < eachTimeSlotEndTime) ||
+                    (endTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited < eachTimeSlotEndTime))) {
               errorMessage =
                   "Teacher ${selectedTds.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
             }
@@ -768,7 +768,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
 
   void handleNextScreenOptions(String value) {
     switch (value) {
-      case 'Edit Attendance Time Slots':
+      case 'Edit Time Table Time Slots':
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return AdminEditSectionWiseTimeSlots(
             adminProfile: widget.adminProfile,
@@ -789,7 +789,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
                 PopupMenuButton<String>(
                   onSelected: handleNextScreenOptions,
                   itemBuilder: (BuildContext context) {
-                    return {'Edit Attendance Time Slots'}.map((String choice) {
+                    return {'Edit Time Table Time Slots'}.map((String choice) {
                       return PopupMenuItem<String>(
                         value: choice,
                         child: Text(choice),
