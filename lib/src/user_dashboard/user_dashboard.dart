@@ -1,5 +1,6 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -16,9 +17,14 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboard extends StatefulWidget {
-  const UserDashboard({Key? key, required this.loggedInUserId}) : super(key: key);
+  const UserDashboard({
+    Key? key,
+    required this.loggedInUserId,
+    required this.loggedInSchoolId,
+  }) : super(key: key);
 
   final int? loggedInUserId;
+  final int? loggedInSchoolId;
 
   static const routeName = "/user_dashboard";
 
@@ -50,6 +56,7 @@ class _UserDashboardState extends State<UserDashboard> {
     setState(() {
       _isLoading = true;
     });
+    print("widget.loggedInSchoolId: ${widget.loggedInSchoolId}");
     GetUserRolesRequest getUserRolesRequest = GetUserRolesRequest(userId: widget.loggedInUserId);
     GetUserRolesDetailsResponse getUserRolesResponse = await getUserRoles(getUserRolesRequest);
     if (getUserRolesResponse.httpStatus != "OK" || getUserRolesResponse.responseStatus != "success") {
@@ -64,13 +71,27 @@ class _UserDashboardState extends State<UserDashboard> {
           content: Text("Login Success"),
         ),
       );
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool loggedInWithEmail = prefs.getBool('IS_EMAIL_LOGIN') ?? false;
       setState(() {
         _userDetails = getUserRolesResponse.userDetails!;
-        _studentProfiles = (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList();
-        _teacherProfiles = (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList();
-        _adminProfiles = (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).toList();
-        _otherRoleProfile = (getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e!).toList();
-        _megaAdminProfiles = (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList();
+        _studentProfiles = loggedInWithEmail ? (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList() : [];
+        _teacherProfiles = (getUserRolesResponse.teacherProfiles ?? [])
+            .map((e) => e!)
+            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
+            .toList();
+        _adminProfiles = (getUserRolesResponse.adminProfiles ?? [])
+            .map((e) => e!)
+            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
+            .toList();
+        _otherRoleProfile = (getUserRolesResponse.otherUserRoleProfiles ?? [])
+            .map((e) => e!)
+            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
+            .toList();
+        _megaAdminProfiles = (getUserRolesResponse.megaAdminProfiles ?? [])
+            .map((e) => e!)
+            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
+            .toList();
       });
     }
 
@@ -264,6 +285,7 @@ class _UserDashboardState extends State<UserDashboard> {
                             (route) => route.isFirst,
                             arguments: true,
                           );
+                          await Restart.restartApp(webOrigin: null);
                         },
                       ),
                       TextButton(

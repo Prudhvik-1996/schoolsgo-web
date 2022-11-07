@@ -98,8 +98,13 @@ class _MyAppState extends State<MyApp> {
   bool _isLoading = true;
   late bool isUserLoggedIn;
   int? loggedInUserId;
+  int? loggedInSchoolId;
 
   NetworkStatus networkStatus = NetworkStatus.Offline;
+
+  bool? loggedInWithEmail;
+  int? loggedInStudentId;
+  StudentProfile? loggedInStudentProfile;
 
   @override
   void initState() {
@@ -115,25 +120,46 @@ class _MyAppState extends State<MyApp> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool boolValue = prefs.getBool('IS_USER_LOGGED_IN') ?? false;
     setState(() {
-      isUserLoggedIn = boolValue;
+      loggedInStudentId = prefs.getInt('LOGGED_IN_STUDENT_ID');
+      loggedInSchoolId = prefs.getInt('LOGGED_IN_SCHOOL_ID');
     });
-    if (isUserLoggedIn) {
-      int id = prefs.getInt('LOGGED_IN_USER_ID') ?? 0;
-      setState(() {
-        loggedInUserId = id;
-      });
-    }
-
-    if (isUserLoggedIn) {
-      Navigator.restorablePushNamed(
+    if (loggedInStudentId != null) {
+      GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(
+        GetStudentProfileRequest(
+          studentId: loggedInStudentId,
+        ),
+      );
+      Navigator.pushAndRemoveUntil(
         context,
-        SplashScreen.routeName,
+        MaterialPageRoute(builder: (context) {
+          return StudentDashBoard(
+            studentProfile: getStudentProfileResponse.studentProfiles!.first!,
+          );
+        }),
+        (Route<dynamic> route) => false,
       );
     } else {
-      Navigator.restorablePushNamed(
-        context,
-        LoginScreen.routeName,
-      );
+      setState(() {
+        isUserLoggedIn = boolValue;
+      });
+      if (isUserLoggedIn) {
+        int id = prefs.getInt('LOGGED_IN_USER_ID') ?? 0;
+        setState(() {
+          loggedInUserId = id;
+        });
+      }
+
+      if (isUserLoggedIn) {
+        Navigator.restorablePushNamed(
+          context,
+          SplashScreen.routeName,
+        );
+      } else {
+        Navigator.restorablePushNamed(
+          context,
+          LoginScreen.routeName,
+        );
+      }
     }
     setState(() {
       _isLoading = false;
@@ -209,6 +235,7 @@ class _MyAppState extends State<MyApp> {
             try {
               return UserDashboard(
                 loggedInUserId: loggedInUserId ?? (routeSettings.arguments as int),
+                loggedInSchoolId: loggedInSchoolId,
               );
             } catch (e) {
               return const SplashScreen();

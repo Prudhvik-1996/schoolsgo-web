@@ -1,16 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/glass_container/glass_container.dart';
+import 'package:schoolsgo_web/src/common_components/upper_case_text_formatter.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/login/generate_new_login_pin_screen.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/model/auth.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
+import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
+import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
+import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
@@ -37,10 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
   String? token = DateTime.now().millisecondsSinceEpoch.toString();
 
   TextEditingController emailEditingController = TextEditingController();
+  TextEditingController loginIdEditingController = TextEditingController();
+  TextEditingController loginPinEditingController = TextEditingController();
+  bool _loggingWithEmail = false;
   bool loginWithOtp = true;
   bool otpToBeEntered = false;
   String otp = "2107";
   String emailErrorText = "";
+  String loginIdErrorText = "";
   bool _isSendingOtp = false;
 
   final YoutubePlayerController _controller = YoutubePlayerController(
@@ -113,6 +125,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _newGoogleSignInButton() {
     return GestureDetector(
       onTap: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
         await _handleSignIn();
         if (_currentUser != null) {
           setState(() {
@@ -327,9 +341,10 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             "Login",
             style: GoogleFonts.archivoBlack(
-                textStyle: const TextStyle(
-              fontSize: 24,
-            )),
+              textStyle: const TextStyle(
+                fontSize: 24,
+              ),
+            ),
           ),
         ),
         Container(
@@ -401,7 +416,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> doAppLogin(String email) async {
-    UserDetails getUserDetailsRequest = UserDetails(
+    user_details.UserDetails getUserDetailsRequest = user_details.UserDetails(
       mailId: email,
     );
     setState(() {
@@ -495,152 +510,34 @@ class _LoginScreenState extends State<LoginScreen> {
             )),
           ),
         ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  onTap: () {
-                    setState(() {
-                      emailErrorText = "";
-                    });
-                  },
-                  controller: emailEditingController,
-                  enabled: !otpToBeEntered,
-                  keyboardType: TextInputType.text,
-                  decoration: const InputDecoration(
-                    border: UnderlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide(color: Colors.blue),
-                    ),
-                    labelText: 'Email Address',
-                    hintText: 'Email Address',
-                    contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                  ),
-                  style: const TextStyle(
-                    fontSize: 12,
-                  ),
-                  autofocus: true,
-                  onChanged: (String e) {
-                    setState(() {
-                      emailErrorText = "";
-                    });
-                  },
-                ),
-              ),
-              if (otpToBeEntered)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        otpToBeEntered = false;
-                        otp = "";
-                      });
-                    },
-                    child: const Icon(Icons.clear),
-                  ),
-                )
-            ],
-          ),
+        if (_loggingWithEmail) ...emailLoginWidgets(),
+        if (!_loggingWithEmail) ...userIdLoginWidgets(),
+        const SizedBox(
+          height: 10,
         ),
-        if (otpToBeEntered && !_isSendingOtp)
-          Container(
-            margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-            child: TextField(
+        Row(
+          children: [
+            const Spacer(),
+            InkWell(
               onTap: () {
-                setState(() {
-                  emailErrorText = "";
-                });
+                setState(() => _loggingWithEmail = !_loggingWithEmail);
               },
-              controller: TextEditingController(),
-              enabled: otpToBeEntered,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: UnderlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-                labelText: 'OTP',
-                hintText: 'OTP',
-                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-              ),
-              style: const TextStyle(
-                fontSize: 12,
-              ),
-              autofocus: true,
-              onChanged: (String value) {
-                if (value.length == 4 && value != otp) {
-                  setState(() {
-                    emailErrorText = "Invalid OTP";
-                  });
-                }
-                if (value == otp) {
-                  doAppLogin(emailEditingController.text);
-                }
-              },
-            ),
-          ),
-        if (emailErrorText != "")
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(
-                width: 15,
-              ),
-              SizedBox(
-                height: 15,
-                width: 15,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.red,
-                    ),
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.transparent,
-                  ),
-                  child: const FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.center,
-                    child: Text(
-                      "!",
-                      style: TextStyle(
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Expanded(
-                flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
                 child: Text(
-                  emailErrorText,
+                  _loggingWithEmail ? "Login with User Id" : "Login with e-mail",
+                  textAlign: TextAlign.right,
                   style: const TextStyle(
-                    color: Colors.red,
+                    color: Colors.blue,
                     fontSize: 12,
                   ),
-                  textAlign: TextAlign.start,
                 ),
               ),
-            ],
-          ),
-        Container(
-          margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: buildRequestLoginOtp(context),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(
+              width: 15,
+            ),
+          ],
         ),
         const SizedBox(
           height: 20,
@@ -667,10 +564,310 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  List<Widget> emailLoginWidgets() {
+    return [
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                onTap: () {
+                  setState(() {
+                    emailErrorText = "";
+                  });
+                },
+                controller: emailEditingController,
+                enabled: !otpToBeEntered,
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  labelText: 'Email Address',
+                  hintText: 'Email Address',
+                  contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                ),
+                style: const TextStyle(
+                  fontSize: 12,
+                ),
+                autofocus: true,
+                onChanged: (String e) {
+                  setState(() {
+                    emailErrorText = "";
+                  });
+                },
+              ),
+            ),
+            if (otpToBeEntered)
+              Container(
+                margin: const EdgeInsets.fromLTRB(5, 2, 5, 2),
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      otpToBeEntered = false;
+                      otp = "";
+                    });
+                  },
+                  child: const Icon(Icons.clear),
+                ),
+              )
+          ],
+        ),
+      ),
+      if (otpToBeEntered && !_isSendingOtp)
+        Container(
+          margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+          child: TextField(
+            onTap: () {
+              setState(() {
+                emailErrorText = "";
+              });
+            },
+            controller: TextEditingController(),
+            enabled: otpToBeEntered,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              border: UnderlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide(color: Colors.blue),
+              ),
+              labelText: 'OTP',
+              hintText: 'OTP',
+              contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+            ),
+            style: const TextStyle(
+              fontSize: 12,
+            ),
+            autofocus: true,
+            onChanged: (String value) {
+              if (value.length == 4 && value != otp) {
+                setState(() {
+                  emailErrorText = "Invalid OTP";
+                });
+              }
+              if (value == otp) {
+                doAppLogin(emailEditingController.text);
+              }
+            },
+          ),
+        ),
+      if (emailErrorText != "")
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 15,
+            ),
+            SizedBox(
+              height: 15,
+              width: 15,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.red,
+                  ),
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.transparent,
+                ),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Text(
+                    "!",
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                emailErrorText,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+          ],
+        ),
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: buildRequestLoginOtp(context),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> userIdLoginWidgets() {
+    return [
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                onTap: () {
+                  setState(() {
+                    loginIdErrorText = "";
+                  });
+                },
+                controller: loginIdEditingController,
+                enabled: true,
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  labelText: 'User Id',
+                  hintText: 'User Id',
+                  contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                ),
+                style: const TextStyle(
+                  fontSize: 12,
+                ),
+                autofocus: true,
+                inputFormatters: [
+                  UpperCaseTextFormatter(),
+                ],
+                onChanged: (String e) {
+                  setState(() {
+                    loginIdErrorText = "";
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: TextField(
+          onTap: () {
+            setState(() {
+              loginIdErrorText = "";
+            });
+          },
+          controller: loginPinEditingController,
+          enabled: true,
+          keyboardType: TextInputType.number,
+          obscureText: true,
+          decoration: const InputDecoration(
+            border: UnderlineInputBorder(),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: Colors.blue),
+            ),
+            labelText: '6-Digit PIN',
+            hintText: '6-Digit PIN',
+            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+          ),
+          style: const TextStyle(
+            fontSize: 12,
+          ),
+          inputFormatters: [
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              try {
+                final text = newValue.text;
+                if (text.length > 6) return oldValue;
+                if (text.isNotEmpty) int.parse(text);
+                return newValue;
+              } catch (e) {}
+              return oldValue;
+            }),
+          ],
+          autofocus: true,
+          onChanged: (String value) {
+            // doAppLogin(emailEditingController.text);
+          },
+        ),
+      ),
+      if (loginIdErrorText != "")
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 15,
+            ),
+            SizedBox(
+              height: 15,
+              width: 15,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.red,
+                  ),
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.transparent,
+                ),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Text(
+                    "!",
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                loginIdErrorText,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+          ],
+        ),
+      Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: buildVerifyCredentials(context),
+            ),
+          ],
+        ),
+      ),
+    ];
+  }
+
   GestureDetector buildRequestLoginOtp(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        UserDetails getUserDetailsRequest = UserDetails(
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        user_details.UserDetails getUserDetailsRequest = user_details.UserDetails(
           mailId: emailEditingController.text,
         );
         GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(getUserDetailsRequest);
@@ -721,7 +918,128 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _sendOtp(UserDetails userDetails) async {
+  GestureDetector buildVerifyCredentials(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        DoLoginWithLoginUserIdAndPasswordResponse doLoginWithLoginUserIdAndPasswordResponse = await doLoginWithLoginUserIdAndPassword(
+          DoLoginWithLoginUserIdAndPasswordRequest(
+            userLoginId: loginIdEditingController.text,
+            password: loginPinEditingController.text,
+          ),
+        );
+        if (doLoginWithLoginUserIdAndPasswordResponse.errorCode != null) {
+          setState(() {
+            loginIdErrorText = doLoginWithLoginUserIdAndPasswordResponse.errorCode!.replaceAll("_", " ").toLowerCase().capitalize();
+          });
+        } else {
+          if (doLoginWithLoginUserIdAndPasswordResponse.errorCode == null && loginPinEditingController.text == "123456") {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return GenerateNewLoginPinScreen(
+                  userLoginId: loginIdEditingController.text,
+                  userId: doLoginWithLoginUserIdAndPasswordResponse.userId,
+                  studentId: doLoginWithLoginUserIdAndPasswordResponse.studentId,
+                  schoolId: doLoginWithLoginUserIdAndPasswordResponse.schoolId,
+                );
+              }),
+              (Route<dynamic> route) => false,
+            );
+          } else {
+            if (doLoginWithLoginUserIdAndPasswordResponse.userId != null) {
+              user_details.UserDetails getUserDetailsRequest = user_details.UserDetails(
+                userId: doLoginWithLoginUserIdAndPasswordResponse.userId,
+              );
+              GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(getUserDetailsRequest);
+              if (getUserDetailsResponse.responseStatus != "success" ||
+                  getUserDetailsResponse.httpStatus != "OK" ||
+                  getUserDetailsResponse.userDetails!.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Error Occurred"),
+                  ),
+                );
+                setState(() {
+                  _isLoading = false;
+                });
+                return;
+              } else {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('IS_USER_LOGGED_IN', true);
+                await prefs.setInt('LOGGED_IN_USER_ID', getUserDetailsResponse.userDetails!.first.userId!);
+                await prefs.setInt('LOGGED_IN_SCHOOL_ID', doLoginWithLoginUserIdAndPasswordResponse.schoolId!);
+                await prefs.setBool("IS_EMAIL_LOGIN", false);
+                if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
+                  await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);
+                }
+                await doLogin(
+                  DoLoginRequest(
+                    createOrUpdateFcmTokenRequest: CreateOrUpdateFcmTokenRequest(
+                      fcmBean: FcmBean(
+                        userId: getUserDetailsResponse.userDetails!.first.userId!,
+                        fcmToken: token,
+                        fcmTokenId: null,
+                        requestedDevice: "web",
+                        userName: getUserDetailsResponse.userDetails!.first.firstName,
+                      ),
+                    ),
+                  ),
+                );
+                setState(() {
+                  _isLoading = false;
+                });
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  SplashScreen.routeName,
+                  (route) => false,
+                  arguments: getUserDetailsResponse.userDetails!.first.userId!,
+                );
+                return;
+              }
+            } else if (doLoginWithLoginUserIdAndPasswordResponse.studentId != null) {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('IS_USER_LOGGED_IN', true);
+              await prefs.setInt('LOGGED_IN_STUDENT_ID', doLoginWithLoginUserIdAndPasswordResponse.studentId!);
+              await prefs.setBool("IS_EMAIL_LOGIN", false);
+              GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
+                studentId: doLoginWithLoginUserIdAndPasswordResponse.studentId,
+              ));
+              setState(() {
+                _isLoading = false;
+              });
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                StudentDashBoard.routeName,
+                (route) => false,
+                arguments: getStudentProfileResponse.studentProfiles!.first!,
+              );
+              return;
+            }
+          }
+        }
+      },
+      child: ClayButton(
+        depth: 40,
+        parentColor: clayContainerColor(context),
+        surfaceColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+          child: const FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "Submit",
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sendOtp(user_details.UserDetails userDetails) async {
     setState(() {
       _isSendingOtp = true;
     });

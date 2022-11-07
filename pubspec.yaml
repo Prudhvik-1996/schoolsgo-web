@@ -89,6 +89,7 @@ dependencies:
   youtube_player_iframe: ^2.2.2
 
   charts_flutter: ^0.12.0
+  restart_app: ^1.1.0
 
 dev_dependencies:
   flutter_test:

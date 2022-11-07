@@ -6,6 +6,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/login/login_screen.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
+import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
+import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,6 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isLoading = true;
   bool isUserLoggedIn = false;
   late int loggedInUserId;
+  late int loggedInStudentId;
 
   int splashScreenDelay = 1;
 
@@ -41,6 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool boolValue = prefs.getBool('IS_USER_LOGGED_IN') ?? false;
+    loggedInStudentId = prefs.getInt('LOGGED_IN_STUDENT_ID') ?? 0;
     setState(() {
       isUserLoggedIn = boolValue;
     });
@@ -50,7 +55,7 @@ class _SplashScreenState extends State<SplashScreen> {
         loggedInUserId = id;
       });
       GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(
-        UserDetails(
+        user_details.UserDetails(
           userId: id,
         ),
       );
@@ -70,11 +75,22 @@ class _SplashScreenState extends State<SplashScreen> {
 
     debugPrint("57:");
     if (isUserLoggedIn) {
-      Navigator.restorablePushNamed(
-        context,
-        UserDashboard.routeName,
-        arguments: loggedInUserId,
-      );
+      if (loggedInUserId != 0) {
+        Navigator.restorablePushNamed(
+          context,
+          UserDashboard.routeName,
+          arguments: loggedInUserId,
+        );
+      } else if (loggedInStudentId != 0) {
+        GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
+          studentId: loggedInStudentId,
+        ));
+        Navigator.restorablePushNamed(
+          context,
+          StudentDashBoard.routeName,
+          arguments: getStudentProfileResponse.studentProfiles!.first!,
+        );
+      }
     } else {
       Navigator.restorablePushNamed(
         context,

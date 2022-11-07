@@ -2,6 +2,7 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -59,15 +60,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         onPressed: () async {
                           Navigator.of(context).pop();
                           SharedPreferences prefs = await SharedPreferences.getInstance();
-                          await prefs.remove('USER_FOUR_DIGIT_PIN');
-                          await prefs.remove('IS_USER_LOGGED_IN');
-                          await prefs.remove('LOGGED_IN_USER_ID');
+                          await prefs.clear();
                           Navigator.pushNamedAndRemoveUntil(
                             context,
                             SplashScreen.routeName,
                             (route) => route.isFirst,
                             arguments: true,
                           );
+                          await Restart.restartApp(webOrigin: null);
                         },
                       ),
                       TextButton(

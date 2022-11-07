@@ -164,3 +164,221 @@ Future<UpdateUserFourDigitPinResponse> updateUserFourDigitPin(UpdateUserFourDigi
   debugPrint("UpdateUserFourDigitPinResponse ${updateUserFourDigitPinResponse.toJson()}");
   return updateUserFourDigitPinResponse;
 }
+
+class DoLoginWithLoginUserIdAndPasswordRequest {
+/*
+{
+  "password": "string",
+  "userLoginId": "string"
+}
+*/
+
+  String? password;
+  String? userLoginId;
+  Map<String, dynamic> __origJson = {};
+
+  DoLoginWithLoginUserIdAndPasswordRequest({
+    this.password,
+    this.userLoginId,
+  });
+  DoLoginWithLoginUserIdAndPasswordRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    password = json['password']?.toString();
+    userLoginId = json['userLoginId']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['password'] = password;
+    data['userLoginId'] = userLoginId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class DoLoginWithLoginUserIdAndPasswordResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "schoolId": 0,
+  "studentId": 0,
+  "userId": 0
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  int? schoolId;
+  int? studentId;
+  int? userId;
+  Map<String, dynamic> __origJson = {};
+
+  DoLoginWithLoginUserIdAndPasswordResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.schoolId,
+    this.studentId,
+    this.userId,
+  });
+  DoLoginWithLoginUserIdAndPasswordResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    userId = json['userId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    data['schoolId'] = schoolId;
+    data['studentId'] = studentId;
+    data['userId'] = userId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<DoLoginWithLoginUserIdAndPasswordResponse> doLoginWithLoginUserIdAndPassword(
+    DoLoginWithLoginUserIdAndPasswordRequest doLoginWithLoginUserIdAndPasswordRequest) async {
+  debugPrint("Raising request to doLoginWithLoginUserIdAndPassword with request ${jsonEncode(doLoginWithLoginUserIdAndPasswordRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + DO_LOGIN_WITH_USER_ID_AND_PASSWORD;
+
+  DoLoginWithLoginUserIdAndPasswordResponse doLoginWithLoginUserIdAndPasswordResponse = await HttpUtils.post(
+    _url,
+    doLoginWithLoginUserIdAndPasswordRequest.toJson(),
+    DoLoginWithLoginUserIdAndPasswordResponse.fromJson,
+  );
+
+  debugPrint("DoLoginWithLoginUserIdAndPasswordResponse ${doLoginWithLoginUserIdAndPasswordResponse.toJson()}");
+  return doLoginWithLoginUserIdAndPasswordResponse;
+}
+
+class UpdateLoginCredentialsRequest {
+/*
+{
+  "agentId": 0,
+  "newSixDigitPin": "string",
+  "schoolId": 0,
+  "studentId": 0,
+  "userId": 0
+}
+*/
+
+  int? agentId;
+  String? newSixDigitPin;
+  int? schoolId;
+  int? studentId;
+  int? userId;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateLoginCredentialsRequest({
+    this.agentId,
+    this.newSixDigitPin,
+    this.schoolId,
+    this.studentId,
+    this.userId,
+  });
+  UpdateLoginCredentialsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    newSixDigitPin = json['newSixDigitPin']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    userId = json['userId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['newSixDigitPin'] = newSixDigitPin;
+    data['schoolId'] = schoolId;
+    data['studentId'] = studentId;
+    data['userId'] = userId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class UpdateLoginCredentialsResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success",
+  "schoolId": 0,
+  "studentId": 0,
+  "userId": 0
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  int? schoolId;
+  int? studentId;
+  int? userId;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateLoginCredentialsResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+    this.schoolId,
+    this.studentId,
+    this.userId,
+  });
+  UpdateLoginCredentialsResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    userId = json['userId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    data['schoolId'] = schoolId;
+    data['studentId'] = studentId;
+    data['userId'] = userId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<UpdateLoginCredentialsResponse> updateLoginCredentials(UpdateLoginCredentialsRequest updateLoginCredentialsRequest) async {
+  debugPrint("Raising request to updateLoginCredentials with request ${jsonEncode(updateLoginCredentialsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + UPDATE_LOGIN_CREDENTIALS;
+
+  UpdateLoginCredentialsResponse updateLoginCredentialsResponse = await HttpUtils.post(
+    _url,
+    updateLoginCredentialsRequest.toJson(),
+    UpdateLoginCredentialsResponse.fromJson,
+  );
+
+  debugPrint("UpdateLoginCredentialsResponse ${updateLoginCredentialsResponse.toJson()}");
+  return updateLoginCredentialsResponse;
+}

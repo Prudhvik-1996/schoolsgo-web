@@ -18,6 +18,8 @@ const String GET_SCHOOL_WISE_EMPLOYEES = "/users/getSchoolWiseEmployees";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
 const String DO_LOGIN = "/auth/doLogin";
+const String DO_LOGIN_WITH_USER_ID_AND_PASSWORD = "/auth/doLoginWithLoginUserIdAndPassword";
+const String UPDATE_LOGIN_CREDENTIALS = "/auth/updateLoginCredentials";
 const String DO_LOGOUT = "/auth/doLogout";
 const String CREATE_OR_UPDATE_USER_FCM_TOKEN = "/users/createOrUpdateUserFcmToken";
 
