@@ -73,25 +73,28 @@ class _UserDashboardState extends State<UserDashboard> {
       );
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool loggedInWithEmail = prefs.getBool('IS_EMAIL_LOGIN') ?? false;
+      int? schoolId = prefs.getInt('LOGGED_IN_SCHOOL_ID');
       setState(() {
         _userDetails = getUserRolesResponse.userDetails!;
         _studentProfiles = loggedInWithEmail ? (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList() : [];
-        _teacherProfiles = (getUserRolesResponse.teacherProfiles ?? [])
-            .map((e) => e!)
-            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
-            .toList();
-        _adminProfiles = (getUserRolesResponse.adminProfiles ?? [])
-            .map((e) => e!)
-            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
-            .toList();
-        _otherRoleProfile = (getUserRolesResponse.otherUserRoleProfiles ?? [])
-            .map((e) => e!)
-            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
-            .toList();
-        _megaAdminProfiles = (getUserRolesResponse.megaAdminProfiles ?? [])
-            .map((e) => e!)
-            .where((e) => widget.loggedInSchoolId == null || widget.loggedInSchoolId == e.schoolId)
-            .toList();
+        _teacherProfiles = loggedInWithEmail
+            ? (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList()
+            : (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
+        _adminProfiles = loggedInWithEmail
+            ? (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).toList()
+            : (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
+        _otherRoleProfile = loggedInWithEmail
+            ? (getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e!).toList()
+            : (getUserRolesResponse.otherUserRoleProfiles ?? [])
+                .map((e) => e!)
+                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
+                .toList();
+        _megaAdminProfiles = loggedInWithEmail
+            ? (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList()
+            : (getUserRolesResponse.megaAdminProfiles ?? [])
+                .map((e) => e!)
+                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
+                .toList();
       });
     }
 
