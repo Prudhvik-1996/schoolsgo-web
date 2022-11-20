@@ -444,7 +444,6 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
                 onPressed: () async {
                   HapticFeedback.vibrate();
                   Navigator.of(context).pop();
-
                   if (!(_selectedSectionsMap.values.toSet().contains(true))) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -479,21 +478,22 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
                   BulkEditAttendanceTimeSlotsResponse bulkEditAttendanceTimeSlotsResponse =
                       await bulkEditAttendanceTimeSlots(bulkEditAttendanceTimeSlotsRequest);
                   if (bulkEditAttendanceTimeSlotsResponse.httpStatus == "OK" && bulkEditAttendanceTimeSlotsResponse.responseStatus == "success") {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    debugPrint("success..");
+                    ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(
                       const SnackBar(
                         content: Text("Success!"),
                       ),
                     );
                     _loadData();
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(
                       const SnackBar(
                         content: Text("Something went wrong!"),
                       ),
                     );
                   }
                   setState(() {
-                    _isLoading = true;
+                    _isLoading = false;
                   });
                 }),
             TextButton(

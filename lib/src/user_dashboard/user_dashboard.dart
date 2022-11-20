@@ -56,7 +56,6 @@ class _UserDashboardState extends State<UserDashboard> {
     setState(() {
       _isLoading = true;
     });
-    print("widget.loggedInSchoolId: ${widget.loggedInSchoolId}");
     GetUserRolesRequest getUserRolesRequest = GetUserRolesRequest(userId: widget.loggedInUserId);
     GetUserRolesDetailsResponse getUserRolesResponse = await getUserRoles(getUserRolesRequest);
     if (getUserRolesResponse.httpStatus != "OK" || getUserRolesResponse.responseStatus != "success") {
@@ -129,7 +128,8 @@ class _UserDashboardState extends State<UserDashboard> {
         child: Container(
           padding: const EdgeInsets.all(20),
           child: Text(
-              "${((userDetails.firstName ?? " ") + (userDetails.middleName ?? " ") + (userDetails.lastName ?? " ")).split(" ").where((i) => i != "").join(" ")}\n${userDetails.mailId}"),
+              "${((userDetails.firstName ?? " ") + (userDetails.middleName ?? " ") + (userDetails.lastName ?? " ")).split(" ").where((i) => i != "").join(" ")}\n${userDetails.mailId ?? ""}"
+                  .trim()),
         ),
       ),
     );

@@ -57,7 +57,6 @@ String convertHHMMSSSecondsEquivalentToHHMMA(int eq) {
   int minutes = eq ~/ 60;
   eq = eq ~/ 60;
   int sec = eq ~/ 60;
-  String tod = "";
   return DateFormat("hh:mm a")
       .format(DateTime(
         0,
@@ -86,7 +85,6 @@ String timeOfDayToHHMMSS(TimeOfDay tod) {
 
 TimeOfDay formatHHMMSSToTimeOfDay(String tod) {
   final format = DateFormat("HH:mm:ss");
-  final now = DateTime.now();
   return TimeOfDay.fromDateTime(format.parse(tod));
 }
 
@@ -121,11 +119,11 @@ String convert24To12HourFormat(String time) {
 }
 
 String convertDateTimeToDDMMYYYYFormat(DateTime date) {
-  return DateFormat("dd-MM-yyyy").format(date == null ? DateTime.now() : date);
+  return DateFormat("dd-MM-yyyy").format(date);
 }
 
 String convertDateTimeToYYYYMMDDFormat(DateTime? date) {
-  return DateFormat("yyyy-MM-dd").format(date == null ? DateTime.now() : date);
+  return DateFormat("yyyy-MM-dd").format(date ?? DateTime.now());
 }
 
 DateTime convertYYYYMMDDFormatToDateTime(String? date) {

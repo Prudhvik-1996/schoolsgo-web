@@ -530,7 +530,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
             (!_showOnlyAbsentees) ||
             (_showOnlyAbsentees &&
                 eachWiseStudentAttendanceBean.studentAttendanceBeans
-                    .where((eachStudentAttendanceBean) => eachStudentAttendanceBean.isPresent != 1)
+                    .where((eachStudentAttendanceBean) => eachStudentAttendanceBean.isPresent == -1)
                     .isNotEmpty))
         .toList();
     return Row(
@@ -599,7 +599,9 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                               borderRadius: 10,
                               height: _cellColumnHeight,
                               width: _cellColumnWidth,
-                              child: _isEditMode ? _editModeSwitchCell(i, j) : _readModeCell(i, j),
+                              child: _isEditMode
+                                  ? _editModeSwitchCell(i, j, studentWiseAttendanceBeansToBeDisplayed)
+                                  : _readModeCell(i, j, studentWiseAttendanceBeansToBeDisplayed),
                             ),
                           ),
                       ],
@@ -614,7 +616,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
     );
   }
 
-  Center _readModeCell(int i, int j) {
+  Center _readModeCell(int i, int j, List<_StudentWiseAttendanceTimeSlot> studentWiseAttendanceBeans) {
     int isPresent = studentWiseAttendanceBeans[i].studentAttendanceBeans[j].isPresent ?? 0;
     return Center(
       child: isPresent == -1
@@ -637,7 +639,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
     );
   }
 
-  Widget _editModeSwitchCell(int i, int j) {
+  Widget _editModeSwitchCell(int i, int j, List<_StudentWiseAttendanceTimeSlot> studentWiseAttendanceBeans) {
     int isPresent = studentWiseAttendanceBeans[i].studentAttendanceBeans[j].isPresent ?? 0;
     return Padding(
       padding: const EdgeInsets.all(10),
@@ -665,52 +667,107 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: GestureDetector(
-        onTap: () async {
-          if (_isEditMode) return;
-          DateTime? _newDate = await showDatePicker(
-            context: context,
-            initialDate: _selectedDate,
-            firstDate: DateTime(2021),
-            lastDate: DateTime.now(),
-            helpText: "Pick  date to mark attendance",
-          );
-          setState(() {
-            _selectedDate = _newDate ?? _selectedDate;
-          });
-          await _loadStudentAttendance();
-        },
-        child: ClayButton(
-          depth: 40,
-          color: clayContainerColor(context),
-          spread: 2,
-          borderRadius: 10,
-          child: Container(
-            padding: const EdgeInsets.all(15),
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      convertDateTimeToDDMMYYYYFormat(_selectedDate),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const Icon(
-                      Icons.calendar_today,
-                      size: 18,
-                    ),
-                  ],
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () async {
+              setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)));
+              await _loadStudentAttendance();
+            },
+            child: ClayButton(
+              depth: 40,
+              color: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 100,
+              height: 20,
+              width: 20,
+              child: const Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(Icons.arrow_left),
                 ),
               ),
             ),
           ),
-        ),
+          const SizedBox(
+            width: 10,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () async {
+                if (_isEditMode) return;
+                DateTime? _newDate = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                  firstDate: DateTime(2021),
+                  lastDate: DateTime.now(),
+                  helpText: "Pick  date to mark attendance",
+                );
+                setState(() {
+                  _selectedDate = _newDate ?? _selectedDate;
+                });
+                await _loadStudentAttendance();
+              },
+              child: ClayButton(
+                depth: 40,
+                color: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            convertDateTimeToDDMMYYYYFormat(_selectedDate),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          GestureDetector(
+            onTap: () async {
+              if (convertDateTimeToDDMMYYYYFormat(_selectedDate) == convertDateTimeToDDMMYYYYFormat(DateTime.now())) return;
+              setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)));
+              await _loadStudentAttendance();
+            },
+            child: ClayButton(
+              depth: 40,
+              color: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 100,
+              height: 20,
+              width: 20,
+              child: const Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(Icons.arrow_right),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

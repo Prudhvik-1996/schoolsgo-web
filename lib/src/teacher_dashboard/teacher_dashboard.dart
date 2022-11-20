@@ -213,6 +213,9 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('USER_FOUR_DIGIT_PIN');
     }
+    if (getUserDetailsResponse.userDetails!.first.mailId == null) {
+      setState(() => canGoToDashBoard = true);
+    }
     setState(() {
       fourDigitPin = prefs.getString('USER_FOUR_DIGIT_PIN');
     });
