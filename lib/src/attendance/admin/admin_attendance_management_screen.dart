@@ -813,17 +813,11 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
                 width: 500,
               ),
             )
-          : RefreshIndicator(
-              onRefresh: () async {
-                await _loadData();
-                return;
-              },
-              child: ListView(
-                children: [
-                  _buildSectionsFilter(),
-                  _selectedSection == null ? Container() : buildAttendanceTimeSlotsForAllSelectedSections(),
-                ],
-              ),
+          : ListView(
+              children: [
+                _buildSectionsFilter(),
+                _selectedSection == null ? Container() : buildAttendanceTimeSlotsForAllSelectedSections(),
+              ],
             ),
     );
   }

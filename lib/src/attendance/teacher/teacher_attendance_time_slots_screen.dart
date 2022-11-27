@@ -162,24 +162,18 @@ class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots>
                 width: 500,
               ),
             )
-          : RefreshIndicator(
-              onRefresh: () async {
-                await _loadData();
-                return;
-              },
-              child: ListView(
-                children: [
-                      _getDatePicker(),
-                      if (_attendanceTimeSlots.isEmpty)
-                        Container(
-                          margin: const EdgeInsets.all(50),
-                          child: const Center(
-                            child: Text("You are not assigned as an attendance manager to any session for the day.."),
-                          ),
+          : ListView(
+              children: [
+                    _getDatePicker(),
+                    if (_attendanceTimeSlots.isEmpty)
+                      Container(
+                        margin: const EdgeInsets.all(50),
+                        child: const Center(
+                          child: Text("You are not assigned as an attendance manager to any session for the day.."),
                         ),
-                    ] +
-                    _attendanceTimeSlots.map((e) => buildEachATSWidget(e)).toList(),
-              ),
+                      ),
+                  ] +
+                  _attendanceTimeSlots.map((e) => buildEachATSWidget(e)).toList(),
             ),
     );
   }

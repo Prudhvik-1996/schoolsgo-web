@@ -40,6 +40,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
     double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       restorationId: 'AdminDashBoard',
       key: _scaffoldKey,
       appBar: AppBar(

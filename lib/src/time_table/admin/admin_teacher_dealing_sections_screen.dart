@@ -534,21 +534,15 @@ class _AdminTeacherDealingSectionsScreenState extends State<AdminTeacherDealingS
                 width: 500,
               ),
             )
-          : RefreshIndicator(
-              onRefresh: () async {
-                // await _loadData();
-                return;
-              },
-              child: ListView(
-                children: [
-                  _buildSectionsFilter(),
-                  // Text("$_selectedSection"),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(screenWidth / 4, 0, screenWidth / 4, 0),
-                    child: _selectedSection != null ? _buildTDSWidgets() : Container(),
-                  ),
-                ],
-              ),
+          : ListView(
+              children: [
+                _buildSectionsFilter(),
+                // Text("$_selectedSection"),
+                Container(
+                  padding: EdgeInsets.fromLTRB(screenWidth / 4, 0, screenWidth / 4, 0),
+                  child: _selectedSection != null ? _buildTDSWidgets() : Container(),
+                ),
+              ],
             ),
     );
   }

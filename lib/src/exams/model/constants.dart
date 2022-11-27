@@ -1,4 +1,4 @@
-enum InternalsComputationCode { A, B }
+enum InternalsComputationCode { A, B, S }
 
 extension InternalsComputationCodeExt on InternalsComputationCode {
   String toShortString() {
@@ -11,6 +11,8 @@ extension InternalsComputationCodeExt on InternalsComputationCode {
         return "Average";
       case InternalsComputationCode.B:
         return "Best Of";
+      case InternalsComputationCode.S:
+        return "Sum";
       default:
         return "-";
     }
@@ -114,6 +116,8 @@ InternalsComputationCode? fromInternalsComputationCodeString(String value) {
       return InternalsComputationCode.A;
     case "B":
       return InternalsComputationCode.B;
+    case "S":
+      return InternalsComputationCode.S;
     default:
       return null;
   }

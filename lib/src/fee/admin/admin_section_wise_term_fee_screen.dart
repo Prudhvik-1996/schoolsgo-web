@@ -2,7 +2,6 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:horizontal_data_table/horizontal_data_table.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
@@ -644,24 +643,31 @@ class _AdminSectionWiseTermFeeScreenState extends State<AdminSectionWiseTermFeeS
       child: SizedBox(
         width: 160.0 * rhsHeaderWidgets.length + 150,
         height: 64.0 * (lhsHeaderWidgets.length + 1),
-        child: HorizontalDataTable(
-          leftHandSideColumnWidth: 150,
-          rightHandSideColumnWidth: 160.0 * rhsHeaderWidgets.length,
-          isFixedHeader: true,
-          headerWidgets: <Widget>[
-                lhsHeaderTableCell("Fee Types"),
-              ] +
-              rhsHeaderWidgets.map((e) => tableCell(e)).toList(),
-          leftSideChildren: lhsHeaderWidgets.map((e) => lhsHeaderTableCell(e)).toList(),
-          rightSideItemBuilder: (BuildContext context, int index) {
-            return Row(
-              children: rhsWidgets[index].map((e) => tableCell(e)).toList(),
-            );
-          },
-          itemCount: lhsHeaderWidgets.length,
-          elevation: 0.0,
-          leftHandSideColBackgroundColor: clayContainerColor(context),
-          rightHandSideColBackgroundColor: clayContainerColor(context),
+        // child: HorizontalDataTable(
+        //   enablePullToRefresh: false,
+        //   enablePullToLoadNewData: false,
+        //   leftHandSideColumnWidth: 150,
+        //   rightHandSideColumnWidth: 160.0 * rhsHeaderWidgets.length,
+        //   isFixedHeader: true,
+        //   headerWidgets: <Widget>[
+        //         lhsHeaderTableCell("Fee Types"),
+        //       ] +
+        //       rhsHeaderWidgets.map((e) => tableCell(e)).toList(),
+        //   leftSideChildren: lhsHeaderWidgets.map((e) => lhsHeaderTableCell(e)).toList(),
+        //   rightSideItemBuilder: (BuildContext context, int index) {
+        //     return Row(
+        //       children: rhsWidgets[index].map((e) => tableCell(e)).toList(),
+        //     );
+        //   },
+        //   itemCount: lhsHeaderWidgets.length,
+        //   elevation: 0.0,
+        //   leftHandSideColBackgroundColor: clayContainerColor(context),
+        //   rightHandSideColBackgroundColor: clayContainerColor(context),
+        // ),
+        child: const Center(
+          child: Text(
+            "Under development",
+          ),
         ),
       ),
     );

@@ -583,67 +583,61 @@ class _AdminMarkAttendanceScreenState extends State<AdminMarkAttendanceScreen> {
                 width: 500,
               ),
             )
-          : RefreshIndicator(
-              onRefresh: () async {
-                await _loadData();
-                return;
-              },
-              child: ListView(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _getDatePicker(),
-                      ),
-                      widget.adminProfile.isMegaAdmin
-                          ? Container()
-                          : InkWell(
-                              onTap: () {
-                                if (_isEditMode) {
-                                  _saveChanges();
-                                } else {
-                                  setState(() {
-                                    _isEditMode = !_isEditMode;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                                child: _isEditMode
-                                    ? ClayContainer(
-                                        emboss: true,
-                                        color: clayContainerColor(context),
-                                        height: 50,
-                                        width: 50,
-                                        borderRadius: 50,
-                                        spread: 4,
-                                        child: const Icon(
-                                          Icons.check,
-                                          color: Colors.green,
-                                        ),
-                                      )
-                                    : ClayContainer(
-                                        color: clayContainerColor(context),
-                                        height: 50,
-                                        width: 50,
-                                        borderRadius: 50,
-                                        spread: 4,
-                                        child: Icon(
-                                          Icons.edit,
-                                          color: _isEditMode ? Colors.green[200] : Colors.black38,
-                                        ),
+          : ListView(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: _getDatePicker(),
+                    ),
+                    widget.adminProfile.isMegaAdmin
+                        ? Container()
+                        : InkWell(
+                            onTap: () {
+                              if (_isEditMode) {
+                                _saveChanges();
+                              } else {
+                                setState(() {
+                                  _isEditMode = !_isEditMode;
+                                });
+                              }
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: _isEditMode
+                                  ? ClayContainer(
+                                      emboss: true,
+                                      color: clayContainerColor(context),
+                                      height: 50,
+                                      width: 50,
+                                      borderRadius: 50,
+                                      spread: 4,
+                                      child: const Icon(
+                                        Icons.check,
+                                        color: Colors.green,
                                       ),
-                              ),
+                                    )
+                                  : ClayContainer(
+                                      color: clayContainerColor(context),
+                                      height: 50,
+                                      width: 50,
+                                      borderRadius: 50,
+                                      spread: 4,
+                                      child: Icon(
+                                        Icons.edit,
+                                        color: _isEditMode ? Colors.green[200] : Colors.black38,
+                                      ),
+                                    ),
                             ),
-                    ],
-                  ),
-                  _buildSectionsFilter(),
-                  _attendanceTimeSlotBeans.isEmpty ? Container() : _buildAttendanceTable(),
-                ],
-              ),
+                          ),
+                  ],
+                ),
+                _buildSectionsFilter(),
+                _attendanceTimeSlotBeans.isEmpty ? Container() : _buildAttendanceTable(),
+              ],
             ),
     );
   }

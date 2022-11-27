@@ -1217,7 +1217,7 @@ class _AdminManageExamsScreenState extends State<AdminManageExamsScreen> {
         onTap: () async {
           DateTime? _newDate = await showDatePicker(
             context: context,
-            initialDate: examTdsMapBean.examTdsDate == null ? DateTime.now() convertYYYYMMDDFormatToDateTime(examTdsMapBean.examTdsDate!),
+            initialDate: examTdsMapBean.examTdsDate == null ? DateTime.now() : convertYYYYMMDDFormatToDateTime(examTdsMapBean.examTdsDate!),
             firstDate: DateTime(2021),
             lastDate: DateTime(2031),
             helpText: "${(examTdsMapBean.subjectName ?? "").capitalize()}-${(examTdsMapBean.sectionName ?? "").capitalize()}",

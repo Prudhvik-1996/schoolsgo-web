@@ -109,6 +109,7 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
       );
     }
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Set Login Pin"),
       ),

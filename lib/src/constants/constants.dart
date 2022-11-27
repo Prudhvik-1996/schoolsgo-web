@@ -112,6 +112,7 @@ const String CREATE_SECTION_WISE_TERM_FEES = "/fee/createOrUpdateSectionWiseTerm
 const String GET_STUDENT_WISE_TERM_FEES = "/fee/getStudentWiseTermFees";
 const String CREATE_OR_UPDATE_FEE_PAID = "/fee/createOrUpdateStudentFeePaid";
 const String GET_STUDENT_FEE_DETAILS = "/fee/getStudentFeeDetails";
+const String GET_STUDENT_FEE_DETAILS_SUPPORT_CLASSES = "/fee/getStudentFeeDetailsSupportClasses";
 const String CREATE_NEW_FEE_RECEIPTS = "/fee/createNewReceipts";
 // const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
 // const String GET_FEE_MAP = "/fee/getFeeMap";

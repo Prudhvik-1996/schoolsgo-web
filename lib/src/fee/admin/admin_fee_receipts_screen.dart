@@ -39,7 +39,13 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
   List<StudentProfile> studentProfiles = [];
 
-  List<StudentFeeDetailsBean> studentFeeDetailsBeanList = [];
+  List<StudentFeeDetailsBean> studentFeeDetailsBeans = [];
+  List<StudentAnnualFeeSupportBean> studentAnnualFeeBeanBeans = [];
+  List<StudentTermWiseFeeSupportBean> studentTermWiseFeeBeans = [];
+  List<StudentMasterTransactionSupportBean> studentMasterTransactionBeans = [];
+  List<StudentWiseFeePaidSupportBean> studentWiseFeePaidBeans = [];
+  List<StudentBusFeeLogBean> busFeeBeans = [];
+
   List<StudentFeeDetailsBean> filteredStudentFeeDetailsBeanList = [];
 
   DateTime? startDate;
@@ -57,6 +63,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   List<_MonthWiseTxnAmount> monthWiseTxnAmounts = [];
 
   List<_NewReceipt> newReceipts = [];
+  late int latestReceiptNumberToBeAdded;
 
   @override
   void initState() {
@@ -101,7 +108,14 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       );
     } else {
       setState(() {
-        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
+        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList()
+          ..add(FeeType(
+            schoolId: widget.adminProfile.schoolId,
+            customFeeTypesList: [],
+            feeType: "Bus Fee",
+            feeTypeId: -1,
+            feeTypeStatus: "active",
+          ));
         selectedFeeTypes = feeTypes.where((e) => e.customFeeTypesList?.isEmpty ?? true).map((e) => e.feeTypeId ?? 0).toList();
         selectedCustomFeeTypes = feeTypes
             .where((e) => e.customFeeTypesList?.isNotEmpty ?? false)
@@ -111,41 +125,140 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
             .toList();
       });
     }
-    GetStudentFeeDetailsResponse getStudentFeeDetailsResponse = await getStudentFeeDetails(GetStudentFeeDetailsRequest(
+    // GetStudentFeeDetailsResponse getStudentFeeDetailsResponse = await getStudentFeeDetails(GetStudentFeeDetailsRequest(
+    //   schoolId: widget.adminProfile.schoolId,
+    // ));
+    // if (getStudentFeeDetailsResponse.httpStatus != "OK" || getStudentFeeDetailsResponse.responseStatus != "success") {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(
+    //       content: Text("Something went wrong! Try again later.."),
+    //     ),
+    //   );
+    // } else {
+    //   studentFeeDetailsBeanList = (getStudentFeeDetailsResponse.studentFeeDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).toList();
+    // }
+    GetStudentFeeDetailsSupportClassesResponse getStudentFeeDetailsSupportClassesResponse =
+        await getStudentFeeDetailsSupportClasses(GetStudentFeeDetailsRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
-    if (getStudentFeeDetailsResponse.httpStatus != "OK" || getStudentFeeDetailsResponse.responseStatus != "success") {
+    if (getStudentFeeDetailsSupportClassesResponse.httpStatus != "OK" || getStudentFeeDetailsSupportClassesResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong! Try again later.."),
         ),
       );
     } else {
-      studentFeeDetailsBeanList = (getStudentFeeDetailsResponse.studentFeeDetailsBeanList ?? []).where((e) => e != null).map((e) => e!).toList();
-    }
-    setState(() {
-      _isAddNew = false;
-      newReceipts = [];
-      newReceipts.add(_NewReceipt(
-        context: _scaffoldKey.currentContext!,
-        notifyParent: setState,
-        receiptNumber: studentFeeDetailsBeanList
-                .map((e) => e.studentFeeTransactionList ?? [])
-                .expand((i) => i)
+      studentFeeDetailsBeans = studentFeeDetailsBeans;
+      studentAnnualFeeBeanBeans =
+          (getStudentFeeDetailsSupportClassesResponse.studentAnnualFeeBeanBeans ?? []).where((e) => e != null).map((e) => e!).toList();
+      studentTermWiseFeeBeans =
+          (getStudentFeeDetailsSupportClassesResponse.studentTermWiseFeeBeans ?? []).where((e) => e != null).map((e) => e!).toList();
+      studentMasterTransactionBeans =
+          (getStudentFeeDetailsSupportClassesResponse.studentMasterTransactionBeans ?? []).where((e) => e != null).map((e) => e!).toList();
+      studentWiseFeePaidBeans =
+          (getStudentFeeDetailsSupportClassesResponse.studentWiseFeePaidBeans ?? []).where((e) => e != null).map((e) => e!).toList();
+      busFeeBeans = (getStudentFeeDetailsSupportClassesResponse.busFeeBeans ?? []).where((e) => e != null).map((e) => e!).toList();
+      mergeAndGetStudentFeeDetailsBeans();
+      try {
+        latestReceiptNumberToBeAdded = (getStudentFeeDetailsSupportClassesResponse.studentMasterTransactionBeans ?? [])
                 .where((e) => e != null)
-                .map((e) => e!)
-                .map((e) => e.receiptId ?? 0)
+                .map((e) => e!.receiptId ?? 0)
                 .reduce(max) +
-            1,
-        selectedDate: DateTime.now(),
-        sectionsList: sectionsList,
-        studentProfiles: studentProfiles,
-        studentFeeDetails: studentFeeDetailsBeanList.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList(),
-        feeTypes: feeTypes,
-      ));
-    });
+            1;
+      } catch (e) {
+        latestReceiptNumberToBeAdded = 1;
+      }
+    }
+    _isAddNew = false;
+    newReceipts = [];
+    newReceipts.add(_NewReceipt(
+      context: _scaffoldKey.currentContext!,
+      notifyParent: setState,
+      receiptNumber: latestReceiptNumberToBeAdded,
+      selectedDate: DateTime.now(),
+      sectionsList: sectionsList,
+      studentProfiles: studentProfiles,
+      studentFeeDetails: studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList(),
+      studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+      feeTypes: feeTypes,
+      totalBusFee: null,
+      busFeePaid: null,
+      busFeeBeans: busFeeBeans,
+    ));
     await _filterData();
     setState(() => _isLoading = false);
+  }
+
+  List<StudentFeeDetailsBean> mergeAndGetStudentFeeDetailsBeans() {
+    for (var studentAnnualFeeBean in studentAnnualFeeBeanBeans) {
+      if (studentFeeDetailsBeans.where((studentFeeDetailsBean) => studentFeeDetailsBean.studentId == studentAnnualFeeBean.studentId).isEmpty) {
+        StudentFeeDetailsBean newStudentBean = StudentFeeDetailsBean();
+        newStudentBean.studentId = studentAnnualFeeBean.studentId;
+        newStudentBean.rollNumber = studentAnnualFeeBean.rollNumber;
+        newStudentBean.studentName = studentAnnualFeeBean.studentName;
+        newStudentBean.sectionId = studentAnnualFeeBean.sectionId;
+        newStudentBean.sectionName = studentAnnualFeeBean.sectionName;
+        newStudentBean.schoolId = studentAnnualFeeBean.schoolId;
+        newStudentBean.schoolName = studentAnnualFeeBean.schoolDisplayName;
+        newStudentBean.studentWiseFeeTypeDetailsList = [];
+        newStudentBean.studentFeeTransactionList = [];
+        studentFeeDetailsBeans.add(newStudentBean);
+      }
+    }
+    for (var studentFeeDetailsBean in studentFeeDetailsBeans) {
+      studentAnnualFeeBeanBeans
+          .where((studentAnnualFeeBean) => studentAnnualFeeBean.studentId == studentFeeDetailsBean.studentId)
+          .forEach((studentAnnualFeeBean) => {
+                studentFeeDetailsBean.totalAnnualFee = studentAnnualFeeBean.amount,
+                studentFeeDetailsBean.totalFeePaid = studentAnnualFeeBean.amountPaid,
+                studentFeeDetailsBean.sectionId = studentAnnualFeeBean.sectionId,
+                studentFeeDetailsBean.sectionName = studentAnnualFeeBean.sectionName,
+                studentFeeDetailsBean.studentName = studentAnnualFeeBean.studentName,
+                studentFeeDetailsBean.studentWiseFeeTypeDetailsList = [],
+                studentFeeDetailsBean.studentFeeTransactionList = [],
+              });
+    }
+    for (var studentFeeDetailsBean in studentFeeDetailsBeans) {
+      studentMasterTransactionBeans
+          .where((studentMasterTransactionBean) => (studentMasterTransactionBean.studentId == studentFeeDetailsBean.studentId))
+          .forEach((studentMasterTransactionBean) => {
+                studentFeeDetailsBean.studentFeeTransactionList!.add(StudentFeeTransactionBean(
+                  studentId: studentMasterTransactionBean.studentId,
+                  studentName: studentMasterTransactionBean.studentName,
+                  masterTransactionId: studentMasterTransactionBean.transactionId,
+                  transactionDate: studentMasterTransactionBean.transactionTime,
+                  transactionAmount: studentMasterTransactionBean.amount,
+                  receiptId: studentMasterTransactionBean.receiptId,
+                  studentFeeChildTransactionList: [],
+                )),
+              });
+    }
+    studentFeeDetailsBeans
+        .forEach((studentFeeDetailsBean) => (studentFeeDetailsBean.studentFeeTransactionList ?? []).forEach((studentFeeTransactionBean) {
+              studentFeeTransactionBean?.studentFeeChildTransactionList ??= [];
+              studentFeeTransactionBean?.studentFeeChildTransactionList = (studentWiseFeePaidBeans.where(
+                      (studentWiseFeePaidBean) => (studentWiseFeePaidBean.masterTransactionId == studentFeeTransactionBean.masterTransactionId)))
+                  .map((studentWiseFeePaidBean) {
+                return StudentFeeChildTransactionBean(
+                  studentId: studentWiseFeePaidBean.studentId,
+                  studentName: studentWiseFeePaidBean.studentName,
+                  masterTransactionId: studentWiseFeePaidBean.masterTransactionId,
+                  transactionId: studentWiseFeePaidBean.transactionId,
+                  transactionDate: studentWiseFeePaidBean.transactionDate,
+                  feePaidAmount: studentWiseFeePaidBean.amount,
+                  feeTypeId: studentWiseFeePaidBean.feeTypeId,
+                  feeType: studentWiseFeePaidBean.feeType,
+                  customFeeTypeId: studentWiseFeePaidBean.customFeeTypeId,
+                  customFeeType: studentWiseFeePaidBean.customFeeType,
+                );
+              }).toList();
+            }));
+    studentFeeDetailsBeans.forEach((eachStudentFeeDetails) {
+      busFeeBeans.where((eachBusFee) => eachBusFee.studentId == eachStudentFeeDetails.studentId).forEach((eachBusFee) {
+        eachStudentFeeDetails.busFeePaid = eachBusFee.fare;
+      });
+    });
+    return studentFeeDetailsBeans;
   }
 
   Future<void> _filterData() async {
@@ -153,7 +266,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       _isLoading = true;
     });
     setState(() {
-      filteredStudentFeeDetailsBeanList = studentFeeDetailsBeanList.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList();
+      filteredStudentFeeDetailsBeanList = studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList();
     });
     if (startDate != null) {
       setState(() {
@@ -319,6 +432,8 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     }
     List<NewReceiptBean> newReceiptsToBePaid = newReceipts
         .map((eachNewReceipt) => NewReceiptBean(
+              busFeePaidAmount:
+                  int.tryParse(eachNewReceipt.busFeeController.text) == null ? null : int.parse(eachNewReceipt.busFeeController.text) * 100,
               studentId: eachNewReceipt.selectedStudent!.studentId!,
               sectionId: eachNewReceipt.selectedSection!.sectionId!,
               receiptNumber: int.parse(eachNewReceipt.receiptNumberController.text),
@@ -363,7 +478,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                   .expand((i) => i)
                   .toList(),
             ))
-        .where((e) => (e.subBeans ?? []).isNotEmpty)
+        .where((e) => (e.subBeans ?? []).isNotEmpty || e.busFeePaidAmount != null)
         .toList();
     if (newReceiptsToBePaid.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -435,15 +550,23 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                                     );
                                     return;
                                   }
-                                  newReceipts.add(_NewReceipt(
+                                  newReceipts = [
+                                    _NewReceipt(
                                       context: _scaffoldKey.currentContext!,
                                       notifyParent: setState,
                                       receiptNumber: newReceipts.map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
                                       selectedDate: newReceipts.lastOrNull?.selectedDate ?? DateTime.now(),
                                       sectionsList: sectionsList,
                                       studentProfiles: studentProfiles,
-                                      studentFeeDetails: studentFeeDetailsBeanList,
-                                      feeTypes: feeTypes));
+                                      studentFeeDetails: studentFeeDetailsBeans,
+                                      studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+                                      feeTypes: feeTypes,
+                                      totalBusFee: null,
+                                      busFeePaid: null,
+                                      busFeeBeans: busFeeBeans,
+                                    ),
+                                    ...newReceipts,
+                                  ];
                                 });
                               },
                               child: ClayButton(
@@ -558,7 +681,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     );
   }
 
-  Widget studentFeeTransactionWidget(StudentFeeTransaction e) {
+  Widget studentFeeTransactionWidget(StudentFeeTransactionBean e) {
     return Container(
       margin: MediaQuery.of(context).orientation == Orientation.landscape
           ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
@@ -720,7 +843,10 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                             style: TextStyle(color: Colors.grey),
                           ),
                         ),
-                        child: Center(child: Text(e.sectionName ?? "")),
+                        child: Center(
+                            child: Text(
+                          e.sectionName ?? studentFeeDetailsBeans.where((e1) => e.studentId == e1.studentId).firstOrNull?.sectionName ?? "",
+                        )),
                       ),
                     ),
                   ],
@@ -759,17 +885,20 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     );
   }
 
-  List<Widget> childTransactionsWidget(StudentFeeTransaction e) {
+  List<Widget> childTransactionsWidget(StudentFeeTransactionBean e) {
     // return (e.studentFeeChildTransactionList ?? []).map((e) => Container()).toList();
     List<Widget> childTxnWidgets = [];
-    List<StudentFeeChildTransaction> childTxns = (e.studentFeeChildTransactionList ?? []).map((e) => e!).toList();
+    List<StudentFeeChildTransactionBean> childTxns =
+        (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId != null).toList();
+    List<StudentFeeChildTransactionBean> busFeeTxns =
+        (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId == null).toList();
     List<_FeeTypeTxn> feeTypeTxns = [];
-    for (StudentFeeChildTransaction eachChildTxn in childTxns) {
+    for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
       if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
         feeTypeTxns.add(_FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, []));
       }
     }
-    for (StudentFeeChildTransaction eachChildTxn in childTxns) {
+    for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
       if (eachChildTxn.customFeeTypeId != null && eachChildTxn.customFeeTypeId != 0) {
         feeTypeTxns.where((e) => e.feeTypeId == eachChildTxn.feeTypeId).forEach((eachFeeTypeTxn) {
           eachFeeTypeTxn.customFeeTypeTxns?.add(
@@ -777,10 +906,19 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
         });
       }
     }
+    for (StudentFeeChildTransactionBean eachChildTxn in busFeeTxns) {
+      if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
+        feeTypeTxns.add(_FeeTypeTxn(eachChildTxn.feeTypeId, "Bus Fee", eachChildTxn.feePaidAmount, eachChildTxn.transactionId, []));
+      }
+    }
     feeTypeTxns.sort(
-      (a, b) => (a.customFeeTypeTxns ?? []).isEmpty ? -1 : 1,
+      (a, b) => a.feeType == "Bus Fee"
+          ? -2
+          : (a.customFeeTypeTxns ?? []).isEmpty
+              ? -1
+              : 1,
     );
-    for (_FeeTypeTxn eachFeeTypeTxn in feeTypeTxns) {
+    for (_FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.where((e) => e.feeTypeId != null)) {
       if (eachFeeTypeTxn.customFeeTypeTxns?.isEmpty ?? true) {
         eachFeeTypeTxn.feePaidAmount =
             childTxns.where((e) => e.feeTypeId == eachFeeTypeTxn.feeTypeId).map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
@@ -844,6 +982,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
         }
       }
     }
+
     return childTxnWidgets;
   }
 
@@ -1377,6 +1516,8 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
     super.initState();
   }
 
+  bool isBusFeeChecked = false;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1446,8 +1587,122 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
               ),
               const SizedBox(height: 10),
               ...widget.newReceipt.termWiseFeeToBePaidBeans.map((e) => termWiseWidget(e)).toList(),
+              const SizedBox(height: 10),
+              if (widget.newReceipt.selectedStudent != null && (widget.newReceipt.totalBusFee ?? 0) != 0) buildBusFeePayableWidget(context),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Container buildBusFeePayableWidget(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        emboss: true,
+        child: Container(
+          margin: const EdgeInsets.all(15),
+          child: Row(
+            children: [
+              Checkbox(
+                onChanged: (bool? value) {
+                  if (value == null) return;
+                  if (value) {
+                    widget.newReceipt.notifyParent(() {
+                      isBusFeeChecked = value;
+                      widget.newReceipt.busFeeController.text =
+                          doubleToStringAsFixedForINR(((widget.newReceipt.totalBusFee ?? 0) - (widget.newReceipt.busFeePaid ?? 0)) / 100.0);
+                    });
+                  } else {
+                    widget.newReceipt.notifyParent(() {
+                      isBusFeeChecked = value;
+                      widget.newReceipt.busFeeController.text = "";
+                    });
+                  }
+                },
+                value: isBusFeeChecked,
+              ),
+              const SizedBox(width: 5),
+              const SizedBox(width: 15),
+              const CustomVerticalDivider(),
+              const SizedBox(width: 15),
+              const Expanded(
+                child: Text("Bus Fee"),
+              ),
+              const SizedBox(width: 10),
+              Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.newReceipt.totalBusFee ?? 0) / 100)} /-"),
+              const SizedBox(width: 20),
+              _feePayingTextField(),
+              const SizedBox(width: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  SizedBox _feePayingTextField() {
+    return SizedBox(
+      width: 100,
+      height: 40,
+      child: InputDecorator(
+        isFocused: true,
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Colors.blue),
+          ),
+          label: Text(
+            "$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.newReceipt.busFeePaid ?? 0) / 100)} /-",
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ),
+        child: TextField(
+          enabled: (widget.newReceipt.totalBusFee ?? 0) - (widget.newReceipt.busFeePaid ?? 0) != 0,
+          onTap: () {
+            widget.newReceipt.busFeeController.selection = TextSelection(
+              baseOffset: 0,
+              extentOffset: widget.newReceipt.busFeeController.text.length,
+            );
+          },
+          controller: widget.newReceipt.busFeeController,
+          keyboardType: TextInputType.number,
+          maxLines: 1,
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 12),
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
+            hintText: "Amount",
+          ),
+          textAlign: TextAlign.center,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              try {
+                if (newValue.text == "") return newValue;
+                final text = newValue.text;
+                double payingAmount = double.parse(text);
+                if (payingAmount * 100 > (widget.newReceipt.totalBusFee ?? 0) - (widget.newReceipt.busFeePaid ?? 0)) {
+                  return oldValue;
+                }
+                return newValue;
+              } catch (e) {
+                return oldValue;
+              }
+            }),
+          ],
         ),
       ),
     );
@@ -1891,6 +2146,7 @@ class _NewReceipt {
   List<Section> sectionsList;
   List<StudentProfile> studentProfiles;
   List<StudentFeeDetailsBean> studentFeeDetails;
+  List<StudentTermWiseFeeSupportBean> studentTermWiseFeeBeans;
   List<FeeType> feeTypes;
 
   Section? selectedSection;
@@ -1900,6 +2156,11 @@ class _NewReceipt {
   final Function notifyParent;
 
   List<_TermWiseFeeToBePaid> termWiseFeeToBePaidBeans = [];
+  TextEditingController busFeeController = TextEditingController();
+
+  int? totalBusFee;
+  int? busFeePaid;
+  late List<StudentBusFeeLogBean> busFeeBeans;
 
   _NewReceipt({
     required this.context,
@@ -1909,7 +2170,11 @@ class _NewReceipt {
     required this.sectionsList,
     required this.studentProfiles,
     required this.studentFeeDetails,
+    required this.studentTermWiseFeeBeans,
     required this.feeTypes,
+    required this.totalBusFee,
+    required this.busFeePaid,
+    required this.busFeeBeans,
   }) {
     receiptNumberController.text = receiptNumber?.toString() ?? "";
     studentProfiles.sort((a, b) => ((a.sectionId ?? 0)).compareTo((b.sectionId ?? 0)) != 0
@@ -1922,8 +2187,71 @@ class _NewReceipt {
   void updatedSelectedStudent(StudentProfile? newStudent, Function setState) {
     setState(() {
       selectedStudent = newStudent;
+      populateStudentTermWiseFeeDetails(selectedStudentId: newStudent?.studentId);
       termWiseFeeToBePaidBeans = getTermWiseFees();
     });
+    notifyParent(() {});
+  }
+
+  void populateStudentTermWiseFeeDetails({int? selectedStudentId}) {
+    if (selectedStudentId == null) return;
+    for (var studentTermWiseFeeBean in studentTermWiseFeeBeans.where((e) => e.studentId == selectedStudentId)) {
+      var filteredStudentFeeDetailsBeans = studentFeeDetails.where((studentFeeDetailsBean) =>
+          studentFeeDetailsBean.studentId == selectedStudentId &&
+          (studentFeeDetailsBean.studentWiseFeeTypeDetailsList ?? [])
+              .where((studentWiseFeeTypeDetailsBean) =>
+                  studentTermWiseFeeBean.studentId == studentWiseFeeTypeDetailsBean?.studentId &&
+                  studentTermWiseFeeBean.feeTypeId == studentWiseFeeTypeDetailsBean?.feeTypeId &&
+                  (studentTermWiseFeeBean.customFeeTypeId == null ||
+                      studentTermWiseFeeBean.customFeeTypeId == studentWiseFeeTypeDetailsBean?.customFeeTypeId))
+              .isEmpty);
+      for (var studentFeeDetailsBean in filteredStudentFeeDetailsBeans.where((e) => e.studentId == selectedStudentId)) {
+        studentFeeDetailsBean.studentWiseFeeTypeDetailsList!.add(StudentWiseFeeTypeDetailsBean(
+          studentId: studentTermWiseFeeBean.studentId,
+          sectionId: studentTermWiseFeeBean.sectionId,
+          schoolId: studentTermWiseFeeBean.schoolId,
+          feeTypeId: studentTermWiseFeeBean.feeTypeId,
+          feeType: studentTermWiseFeeBean.feeType,
+          customFeeTypeId: studentTermWiseFeeBean.customFeeTypeId,
+          customFeeType: studentTermWiseFeeBean.customFeeType,
+          studentTermWiseFeeTypeDetailsList: [],
+        ));
+      }
+    }
+    for (var studentTermWiseFeeBean in studentTermWiseFeeBeans.where((e) => e.studentId == selectedStudentId)) {
+      for (var studentFeeDetailsBean
+          in studentFeeDetails.where((studentFeeDetailsBean) => (studentTermWiseFeeBean.studentId == studentFeeDetailsBean.studentId))) {
+        for (var studentWiseFeeTypeDetailsBean in (studentFeeDetailsBean.studentWiseFeeTypeDetailsList ?? [])) {
+          if ((studentWiseFeeTypeDetailsBean?.feeTypeId == studentTermWiseFeeBean.feeTypeId) &&
+              (studentTermWiseFeeBean.customFeeTypeId == null ||
+                  (studentTermWiseFeeBean.customFeeTypeId == studentWiseFeeTypeDetailsBean?.customFeeTypeId))) {
+            studentWiseFeeTypeDetailsBean?.studentTermWiseFeeTypeDetailsList!.add(
+              StudentTermWiseFeeTypeDetailsBean(
+                studentId: studentTermWiseFeeBean.studentId,
+                sectionId: studentTermWiseFeeBean.sectionId,
+                schoolId: studentTermWiseFeeBean.schoolId,
+                feeTypeId: studentTermWiseFeeBean.feeTypeId,
+                customFeeTypeId: studentTermWiseFeeBean.customFeeTypeId,
+                termId: studentTermWiseFeeBean.termId,
+                termName: studentTermWiseFeeBean.termName,
+                termWiseTotalFee: studentTermWiseFeeBean.termWiseAmount,
+                termWiseTotalFeePaid: studentTermWiseFeeBean.termWiseAmountPaid,
+              ),
+            );
+          }
+        }
+      }
+    }
+    totalBusFee = studentFeeDetails.where((e) => e.studentId == selectedStudentId).map((e) => e.busFeePaid).firstOrNull;
+    busFeePaid = studentFeeDetails
+        .where((e) => e.studentId == selectedStudentId)
+        .map((e) => e.studentFeeTransactionList ?? [])
+        .expand((i) => i)
+        .map((e) => e?.studentFeeChildTransactionList ?? [])
+        .expand((i) => i)
+        .where((e) => e?.feeTypeId == null)
+        .firstOrNull
+        ?.feePaidAmount;
   }
 
   Widget widget() {
@@ -1993,7 +2321,7 @@ class _NewReceipt {
       for (_TermWiseFeeType eachTermWiseFeeTypeFee in (eachTermWiseFee.termWiseFeeTypes ?? [])) {
         if ((eachTermWiseFeeTypeFee.termWiseCustomFeeTypes ?? []).isNotEmpty) {
           for (_TermWiseCustomFeeType eachTermWiseCustomFeeTypeFee in (eachTermWiseFeeTypeFee.termWiseCustomFeeTypes ?? [])) {
-            StudentTermWiseFeeTypeDetails? studentWiseCustomFeeTypeDetails = ((feeDetails.studentWiseFeeTypeDetailsList ?? [])
+            StudentTermWiseFeeTypeDetailsBean? studentWiseCustomFeeTypeDetails = ((feeDetails.studentWiseFeeTypeDetailsList ?? [])
                         .where((e) => e != null)
                         .map((e) => e!)
                         .where((e) =>
@@ -2009,7 +2337,7 @@ class _NewReceipt {
             eachTermWiseCustomFeeTypeFee.termWiseFeePaid = studentWiseCustomFeeTypeDetails?.termWiseTotalFeePaid;
           }
         } else {
-          StudentTermWiseFeeTypeDetails? studentWiseFeeTypeDetails = ((feeDetails.studentWiseFeeTypeDetailsList ?? [])
+          StudentTermWiseFeeTypeDetailsBean? studentWiseFeeTypeDetails = ((feeDetails.studentWiseFeeTypeDetailsList ?? [])
                       .where((e) => e != null)
                       .map((e) => e!)
                       .where((e) => e.feeTypeId == eachTermWiseFeeTypeFee.feeTypeId)

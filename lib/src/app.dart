@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
@@ -10,9 +10,7 @@ import 'package:schoolsgo_web/src/chat_room/teacher/teacher_chat_room.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/circulars/mega_admin/mega_admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/circulars/teachers/teacher_circular_screen.dart';
-import 'package:schoolsgo_web/src/common_components/default_splash_screen.dart';
 import 'package:schoolsgo_web/src/common_components/network_status/constants/network_status.dart';
-import 'package:schoolsgo_web/src/common_components/network_status/no_internet_screen.dart';
 import 'package:schoolsgo_web/src/common_components/network_status/service/network_status_service.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
@@ -171,45 +169,40 @@ class _MyAppState extends State<MyApp> {
     return AnimatedBuilder(
       animation: widget.settingsController,
       builder: (BuildContext context, Widget? child) {
-        return StreamProvider<NetworkStatus>(
-          initialData: networkStatus,
-          create: (context) => NetworkStatusService().networkStatusController.stream,
-          child: MaterialApp(
-            title: "Epsilon Diary",
-            debugShowCheckedModeBanner: false,
-            restorationScopeId: 'app',
-            theme: ThemeData(
-              textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
-                bodyColor: Colors.black,
-                displayColor: Colors.black,
-              ),
+        return MaterialApp(
+          title: "Epsilon Diary",
+          debugShowCheckedModeBanner: false,
+          restorationScopeId: 'app',
+          theme: ThemeData(
+            textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
+              bodyColor: Colors.black,
+              displayColor: Colors.black,
             ),
-            darkTheme: ThemeData.dark().copyWith(
-              textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
-                bodyColor: Colors.white,
-                displayColor: Colors.white,
-              ),
-            ),
-            themeMode: widget.settingsController.themeMode,
-            onUnknownRoute: (RouteSettings routeSettings) {
-              return MaterialPageRoute<void>(
-                  settings: routeSettings,
-                  builder: (BuildContext context) {
-                    NetworkStatus networkStatus = Provider.of<NetworkStatus>(context);
-                    if (networkStatus == NetworkStatus.Offline) {
-                      return const NoInternetScreen();
-                    }
-                    return const E404NotFoundScreen();
-                  });
-            },
-            onGenerateRoute: (RouteSettings routeSettings) {
-              debugPrint(routeSettings.name);
-              return buildCustomMaterialPageRoute(routeSettings);
-            },
           ),
+          darkTheme: ThemeData.dark().copyWith(
+            textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
+              bodyColor: Colors.white,
+              displayColor: Colors.white,
+            ),
+          ),
+          themeMode: widget.settingsController.themeMode,
+          onUnknownRoute: (RouteSettings routeSettings) {
+            return MaterialPageRoute<void>(
+                settings: routeSettings,
+                builder: (BuildContext context) {
+                  // NetworkStatus networkStatus = Provider.of<NetworkStatus>(context);
+                  // if (networkStatus == NetworkStatus.Offline) {
+                  //   return const NoInternetScreen();
+                  // }
+                  return const E404NotFoundScreen();
+                });
+          },
+          onGenerateRoute: (RouteSettings routeSettings) {
+            debugPrint(routeSettings.name);
+            return buildCustomMaterialPageRoute(routeSettings);
+          },
         );
       },
-      child: _isLoading ? defaultSplashScreen(context) : Container(),
     );
   }
 
@@ -218,10 +211,10 @@ class _MyAppState extends State<MyApp> {
       settings: routeSettings,
       builder: (BuildContext context) {
         // if (loggedInUserId == null) return const SplashScreen();
-        NetworkStatus networkStatus = Provider.of<NetworkStatus>(context);
-        if (networkStatus == NetworkStatus.Offline) {
-          return const NoInternetScreen();
-        }
+        // NetworkStatus networkStatus = Provider.of<NetworkStatus>(context);
+        // if (networkStatus == NetworkStatus.Offline) {
+        //   return const NoInternetScreen();
+        // }
         switch (routeSettings.name) {
           // case "manifest.json":
           //   return

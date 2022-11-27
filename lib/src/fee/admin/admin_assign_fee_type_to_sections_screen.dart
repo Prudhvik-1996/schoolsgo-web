@@ -166,8 +166,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Fee Management'),
-          content: const Text("Are you sure to save changes?\n"
-              "These changes will effect the student fees (if already paid, difference amount would be added to the student wallet balance)"),
+          content: const Text("Are you sure to save changes?"),
           actions: <Widget>[
             TextButton(
               child: const Text("YES"),
@@ -181,6 +180,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                   schoolId: widget.adminProfile.schoolId,
                   agent: widget.adminProfile.userId,
                   sectionWiseFeesBeanList: (actualSectionWiseAnnualFeeBeanMap[section]?.feeTypes ?? [])
+                      .where((e) => e.sectionWiseFeesStatus != null)
                       .map((SectionWiseAnnualFeeTypeBean eachFeeType) {
                         List<SectionWiseAnnualFeesBean> list = [];
                         if ((eachFeeType.sectionWiseAnnualCustomFeeTypeBeans ?? []).isEmpty) {
@@ -253,6 +253,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
     int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Assign Fee Types To Sections"),
       ),

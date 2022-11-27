@@ -256,6 +256,7 @@ class _UserDashboardState extends State<UserDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       restorationId: 'UserDashboard',
       key: _scaffoldKey,
       appBar: AppBar(

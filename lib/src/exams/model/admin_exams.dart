@@ -81,6 +81,7 @@ class InternalExamTdsMapBean {
   int? internalExamMapTdsId;
   String? internalExamName;
   int? internalNumber;
+  String? internalName;
   int? maxMarks;
   int? sectionId;
   String? sectionName;
@@ -103,6 +104,7 @@ class InternalExamTdsMapBean {
     this.internalExamMapTdsId,
     this.internalExamName,
     this.internalNumber,
+    this.internalName,
     this.maxMarks,
     this.sectionId,
     this.sectionName,
@@ -126,6 +128,7 @@ class InternalExamTdsMapBean {
     internalExamMapTdsId = json['internalExamMapTdsId']?.toInt();
     internalExamName = json['internalExamName']?.toString();
     internalNumber = json['internalNumber']?.toInt();
+    internalName = json['internalName']?.toString();
     maxMarks = json['maxMarks']?.toInt();
     sectionId = json['sectionId']?.toInt();
     sectionName = json['sectionName']?.toString();
@@ -149,6 +152,7 @@ class InternalExamTdsMapBean {
     data['internalExamMapTdsId'] = internalExamMapTdsId;
     data['internalExamName'] = internalExamName;
     data['internalNumber'] = internalNumber;
+    data['internalName'] = internalName;
     data['maxMarks'] = maxMarks;
     data['sectionId'] = sectionId;
     data['sectionName'] = sectionName;

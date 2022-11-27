@@ -167,48 +167,52 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
       ),
       body: _isLoading
           ? Center(
-        child: Image.asset('assets/images/eis_loader.gif',
-          height: 500,
-          width: 500,),
-      )
-          : isCreateNew
-          ? PageView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _createNewPageController,
-        children: [
-          _firstScreen(),
-          _secondScreen(),
-        ],
-      )
-          : Stack(
-        children: [
-          _getAllExamsLandscapeScreen(),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: allAvailableExams.map((e) => e.isEditMode).contains(true) || widget.adminProfile.isMegaAdmin ? Container() : Container(
-              margin: const EdgeInsets.all(15),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isCreateNew = true;
-                  });
-                },
-                child: ClayButton(
-                  depth: 40,
-                  surfaceColor: clayContainerColor(context),
-                  parentColor: clayContainerColor(context),
-                  spread: 1,
-                  borderRadius: 100,
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    child: const Icon(Icons.add),
-                  ),
-                ),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
               ),
-            ),
-          ),
-        ],
-      ),
+            )
+          : isCreateNew
+              ? PageView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: _createNewPageController,
+                  children: [
+                    _firstScreen(),
+                    _secondScreen(),
+                  ],
+                )
+              : Stack(
+                  children: [
+                    _getAllExamsLandscapeScreen(),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: allAvailableExams.map((e) => e.isEditMode).contains(true) || widget.adminProfile.isMegaAdmin
+                          ? Container()
+                          : Container(
+                              margin: const EdgeInsets.all(15),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isCreateNew = true;
+                                  });
+                                },
+                                child: ClayButton(
+                                  depth: 40,
+                                  surfaceColor: clayContainerColor(context),
+                                  parentColor: clayContainerColor(context),
+                                  spread: 1,
+                                  borderRadius: 100,
+                                  child: Container(
+                                    margin: const EdgeInsets.all(10),
+                                    child: const Icon(Icons.add),
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
     );
   }
 
@@ -396,8 +400,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
               examType: "TERM",
               examSectionMapBeanList: selectedSectionsList
                   .map(
-                    (Section section) =>
-                    ExamSectionMapBean(
+                    (Section section) => ExamSectionMapBean(
                       examId: null,
                       examSectionMapId: null,
                       markingAlgorithmId: selectedMarkingAlgorithm == null ? null : selectedMarkingAlgorithm!.markingAlgorithmId,
@@ -409,100 +412,97 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                       examTdsMapBeanList: tdsList
                           .where((e) => e.sectionId == section.sectionId)
                           .map((TeacherDealingSection tds) {
-                        if (dateTimeSubjectMaxMarks.map((e) => e.subject!.subjectId).contains((tds.subjectId))) {
-                          List<DateTimeSubjectMaxMarks> slots =
-                          dateTimeSubjectMaxMarks.where((e) => e.subject!.subjectId == tds.subjectId).toList();
-                          return slots
-                              .map((slot) =>
-                              ExamTdsMapBean(
-                                examTdsMapId: null,
-                                examId: null,
-                                examName: newExam.examName,
-                                sectionId: section.sectionId,
-                                sectionName: section.sectionName,
-                                maxMarks: tds.subjectId == slot.subject!.subjectId ? slot.maxMarks!.toInt() : null,
-                                subjectId: tds.subjectId,
-                                subjectName: tds.subjectName,
-                                examTdsDate: tds.subjectId == slot.subject!.subjectId ? convertDateTimeToYYYYMMDDFormat(slot.date) : null,
-                                startTime: tds.subjectId == slot.subject!.subjectId ? timeOfDayToHHMMSS(slot.startTime!) : null,
-                                endTime: tds.subjectId == slot.subject!.subjectId ? timeOfDayToHHMMSS(slot.endTime!) : null,
-                                internalsComputationCode: internalsComputationCodeForNewExam.toShortString(),
-                                tdsId: tds.tdsId,
-                                teacherId: tds.teacherId,
-                                teacherName: tds.teacherName,
-                                status: "active",
-                                internalsWeightage: internals.isNotEmpty ? double.parse(weightageEditingController.text) : null,
-                                internalExamTdsMapBeanList: internals
-                                    .map((AdminExamBean eachAdminExamBean) =>
-                                    allAvailableExams
-                                        .where((AdminExamBean eachExam) => eachExam.examId == eachAdminExamBean.examId)
-                                        .map((AdminExamBean eachExam) => eachExam.examSectionMapBeanList ?? [])
-                                        .expand((List<ExamSectionMapBean?> eachList) => eachList)
-                                        .where((ExamSectionMapBean? eachExamSectionMapBean) =>
-                                    eachExamSectionMapBean != null && eachExamSectionMapBean.sectionId == section.sectionId)
-                                        .where((ExamSectionMapBean? eachExamSectionMapBean) => eachExamSectionMapBean != null)
-                                        .map((ExamSectionMapBean? eachExamSectionMapBean) => eachExamSectionMapBean!)
-                                        .map((ExamSectionMapBean e) => e.examTdsMapBeanList ?? [])
-                                        .map((List<ExamTdsMapBean?>? eachExamTdsMapBeanList) => eachExamTdsMapBeanList ?? [])
-                                        .expand((i) => i)
-                                        .where((ExamTdsMapBean? eachExamTdsMapBean) => eachExamTdsMapBean != null)
-                                        .map((ExamTdsMapBean? eachExamTdsMapBean) => eachExamTdsMapBean!)
-                                        .where((ExamTdsMapBean eachInternalTdsMapBean) => eachInternalTdsMapBean.tdsId == tds.tdsId)
-                                        .map((ExamTdsMapBean eachInternalTdsMapBean) =>
-                                        InternalExamTdsMapBean(
-                                          internalExamId: eachInternalTdsMapBean.examId,
-                                          internalExamMapTdsId: eachInternalTdsMapBean.examTdsMapId,
-                                          internalNumber: internals.indexOf(eachAdminExamBean) + 1,
-                                          teacherName: eachInternalTdsMapBean.teacherName,
-                                          teacherId: eachInternalTdsMapBean.teacherId,
-                                          tdsId: eachInternalTdsMapBean.tdsId,
-                                          status: "active",
-                                          startTime: eachInternalTdsMapBean.startTime,
-                                          endTime: eachInternalTdsMapBean.endTime,
-                                          examTdsDate: eachInternalTdsMapBean.examTdsDate,
-                                          subjectId: eachInternalTdsMapBean.subjectId,
-                                          subjectName: eachInternalTdsMapBean.subjectName,
-                                          sectionId: eachInternalTdsMapBean.sectionId,
-                                          sectionName: eachInternalTdsMapBean.sectionName,
-                                          examName: eachAdminExamBean.examName,
-                                          maxMarks: eachInternalTdsMapBean.maxMarks,
-                                          examId: null,
-                                          internalExamName: eachInternalTdsMapBean.examName,
-                                          examTdsMapId: null,
-                                        ))
-                                        .toList())
-                                    .expand((List<InternalExamTdsMapBean> i) => i)
-                                    .toList(),
-                              ))
-                              .toList();
-                        } else {
-                          return [
-                            ExamTdsMapBean(
-                              examTdsMapId: null,
-                              examId: null,
-                              examName: newExam.examName,
-                              sectionId: section.sectionId,
-                              sectionName: section.sectionName,
-                              maxMarks: null,
-                              subjectId: tds.subjectId,
-                              subjectName: tds.subjectName,
-                              examTdsDate: null,
-                              startTime: null,
-                              endTime: null,
-                              internalsComputationCode: internalsComputationCodeForNewExam.toShortString(),
-                              tdsId: tds.tdsId,
-                              teacherId: tds.teacherId,
-                              teacherName: tds.teacherName,
-                              status: "active",
-                              internalExamTdsMapBeanList: [],
-                            )
-                          ];
-                        }
-                      })
+                            if (dateTimeSubjectMaxMarks.map((e) => e.subject!.subjectId).contains((tds.subjectId))) {
+                              List<DateTimeSubjectMaxMarks> slots =
+                                  dateTimeSubjectMaxMarks.where((e) => e.subject!.subjectId == tds.subjectId).toList();
+                              return slots
+                                  .map((slot) => ExamTdsMapBean(
+                                        examTdsMapId: null,
+                                        examId: null,
+                                        examName: newExam.examName,
+                                        sectionId: section.sectionId,
+                                        sectionName: section.sectionName,
+                                        maxMarks: tds.subjectId == slot.subject!.subjectId ? slot.maxMarks!.toInt() : null,
+                                        subjectId: tds.subjectId,
+                                        subjectName: tds.subjectName,
+                                        examTdsDate: tds.subjectId == slot.subject!.subjectId ? convertDateTimeToYYYYMMDDFormat(slot.date) : null,
+                                        startTime: tds.subjectId == slot.subject!.subjectId ? timeOfDayToHHMMSS(slot.startTime!) : null,
+                                        endTime: tds.subjectId == slot.subject!.subjectId ? timeOfDayToHHMMSS(slot.endTime!) : null,
+                                        internalsComputationCode: internalsComputationCodeForNewExam.toShortString(),
+                                        tdsId: tds.tdsId,
+                                        teacherId: tds.teacherId,
+                                        teacherName: tds.teacherName,
+                                        status: "active",
+                                        internalsWeightage: internals.isNotEmpty ? double.parse(weightageEditingController.text) : null,
+                                        internalExamTdsMapBeanList: internals
+                                            .map((AdminExamBean eachAdminExamBean) => allAvailableExams
+                                                .where((AdminExamBean eachExam) => eachExam.examId == eachAdminExamBean.examId)
+                                                .map((AdminExamBean eachExam) => eachExam.examSectionMapBeanList ?? [])
+                                                .expand((List<ExamSectionMapBean?> eachList) => eachList)
+                                                .where((ExamSectionMapBean? eachExamSectionMapBean) =>
+                                                    eachExamSectionMapBean != null && eachExamSectionMapBean.sectionId == section.sectionId)
+                                                .where((ExamSectionMapBean? eachExamSectionMapBean) => eachExamSectionMapBean != null)
+                                                .map((ExamSectionMapBean? eachExamSectionMapBean) => eachExamSectionMapBean!)
+                                                .map((ExamSectionMapBean e) => e.examTdsMapBeanList ?? [])
+                                                .map((List<ExamTdsMapBean?>? eachExamTdsMapBeanList) => eachExamTdsMapBeanList ?? [])
+                                                .expand((i) => i)
+                                                .where((ExamTdsMapBean? eachExamTdsMapBean) => eachExamTdsMapBean != null)
+                                                .map((ExamTdsMapBean? eachExamTdsMapBean) => eachExamTdsMapBean!)
+                                                .where((ExamTdsMapBean eachInternalTdsMapBean) => eachInternalTdsMapBean.tdsId == tds.tdsId)
+                                                .map((ExamTdsMapBean eachInternalTdsMapBean) => InternalExamTdsMapBean(
+                                                      internalExamId: eachInternalTdsMapBean.examId,
+                                                      internalExamMapTdsId: eachInternalTdsMapBean.examTdsMapId,
+                                                      internalNumber: internals.indexOf(eachAdminExamBean) + 1,
+                                                      teacherName: eachInternalTdsMapBean.teacherName,
+                                                      teacherId: eachInternalTdsMapBean.teacherId,
+                                                      tdsId: eachInternalTdsMapBean.tdsId,
+                                                      status: "active",
+                                                      startTime: eachInternalTdsMapBean.startTime,
+                                                      endTime: eachInternalTdsMapBean.endTime,
+                                                      examTdsDate: eachInternalTdsMapBean.examTdsDate,
+                                                      subjectId: eachInternalTdsMapBean.subjectId,
+                                                      subjectName: eachInternalTdsMapBean.subjectName,
+                                                      sectionId: eachInternalTdsMapBean.sectionId,
+                                                      sectionName: eachInternalTdsMapBean.sectionName,
+                                                      examName: eachAdminExamBean.examName,
+                                                      maxMarks: eachInternalTdsMapBean.maxMarks,
+                                                      examId: null,
+                                                      internalExamName: eachInternalTdsMapBean.examName,
+                                                      examTdsMapId: null,
+                                                    ))
+                                                .toList())
+                                            .expand((List<InternalExamTdsMapBean> i) => i)
+                                            .toList(),
+                                      ))
+                                  .toList();
+                            } else {
+                              return [
+                                ExamTdsMapBean(
+                                  examTdsMapId: null,
+                                  examId: null,
+                                  examName: newExam.examName,
+                                  sectionId: section.sectionId,
+                                  sectionName: section.sectionName,
+                                  maxMarks: null,
+                                  subjectId: tds.subjectId,
+                                  subjectName: tds.subjectName,
+                                  examTdsDate: null,
+                                  startTime: null,
+                                  endTime: null,
+                                  internalsComputationCode: internalsComputationCodeForNewExam.toShortString(),
+                                  tdsId: tds.tdsId,
+                                  teacherId: tds.teacherId,
+                                  teacherName: tds.teacherName,
+                                  status: "active",
+                                  internalExamTdsMapBeanList: [],
+                                )
+                              ];
+                            }
+                          })
                           .expand((i) => i)
                           .toList(),
                     ),
-              )
+                  )
                   .toList(),
             );
           });
@@ -523,17 +523,17 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
             margin: const EdgeInsets.all(10),
             child: _isLoading
                 ? const Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Colors.transparent,
-              ),
-            )
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.transparent,
+                    ),
+                  )
                 : Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
-                Text("Continue"),
-                Icon(Icons.arrow_forward_ios_rounded),
-              ],
-            ),
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Text("Continue"),
+                      Icon(Icons.arrow_forward_ios_rounded),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -547,9 +547,9 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         children: <Widget>[
-          _getTableHeaderRow(),
-          for (DateTimeSubjectMaxMarks slot in dateTimeSubjectMaxMarks) _getSlotReadModeWidget(slot),
-        ] +
+              _getTableHeaderRow(),
+              for (DateTimeSubjectMaxMarks slot in dateTimeSubjectMaxMarks) _getSlotReadModeWidget(slot),
+            ] +
             [
               _getNewSlotWidget(),
             ],
@@ -695,15 +695,12 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
 
   Widget _getNewSlotWidget() {
     DateTime defaultSlotDate = convertYYYYMMDDFormatToDateTime(newExam.examStartDate);
-    if (dateTimeSubjectMaxMarks
-        .map((e) => e.date)
-        .where((e) => e != null)
-        .isNotEmpty) {
+    if (dateTimeSubjectMaxMarks.map((e) => e.date).where((e) => e != null).isNotEmpty) {
       List<DateTime> x = dateTimeSubjectMaxMarks.map((e) => e.date!).toSet().toList();
       defaultSlotDate = x.reversed.first;
     }
     List<Subject> _availableSubjectsList =
-    subjectsList.where((e) => !dateTimeSubjectMaxMarks.map((e) => e.subject!.subjectId).contains(e.subjectId)).toList();
+        subjectsList.where((e) => !dateTimeSubjectMaxMarks.map((e) => e.subject!.subjectId).contains(e.subjectId)).toList();
     return Row(
       children: [
         Expanded(
@@ -789,7 +786,9 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
     });
   }
 
-  Widget _slotDatePicker(DateTime defaultSlotDate,) {
+  Widget _slotDatePicker(
+    DateTime defaultSlotDate,
+  ) {
     return Container(
       margin: const EdgeInsets.all(10),
       child: GestureDetector(
@@ -916,7 +915,9 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
     );
   }
 
-  Widget _slotSubjectPicker(List<Subject> availableSubjectsList,) {
+  Widget _slotSubjectPicker(
+    List<Subject> availableSubjectsList,
+  ) {
     return Container(
       margin: const EdgeInsets.all(10),
       child: ClayButton(
@@ -930,8 +931,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
           underline: Container(),
           items: availableSubjectsList
               .map(
-                (Subject e) =>
-                DropdownMenuItem(
+                (Subject e) => DropdownMenuItem(
                   value: e,
                   child: Center(
                     child: FittedBox(
@@ -942,7 +942,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                     ),
                   ),
                 ),
-          )
+              )
               .toList(),
           value: newSlot.subject,
           onChanged: (Subject? newValue) {
@@ -1062,8 +1062,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                 items: allAvailableExams
                     .where((eachExam) => !internals.map((e) => e.examId).contains(eachExam.examId))
                     .map(
-                      (AdminExamBean e) =>
-                      DropdownMenuItem(
+                      (AdminExamBean e) => DropdownMenuItem(
                         value: e,
                         child: Center(
                           child: FittedBox(
@@ -1074,7 +1073,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                           ),
                         ),
                       ),
-                )
+                    )
                     .toList(),
                 value: newInternal,
                 onChanged: (AdminExamBean? newValue) {
@@ -1203,8 +1202,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                     underline: Container(),
                     items: markingAlgorithms
                         .map(
-                          (MarkingAlgorithmBean e) =>
-                          DropdownMenuItem(
+                          (MarkingAlgorithmBean e) => DropdownMenuItem(
                             value: e,
                             child: Center(
                               child: FittedBox(
@@ -1215,7 +1213,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                               ),
                             ),
                           ),
-                    )
+                        )
                         .toList(),
                     value: selectedMarkingAlgorithm,
                     hint: const Text("Choose Marking Algorithm"),
@@ -1342,14 +1340,12 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
             child: Container(
               margin: const EdgeInsets.all(5),
               child: Center(
-                child: MediaQuery
-                    .of(context)
-                    .orientation == Orientation.landscape
+                child: MediaQuery.of(context).orientation == Orientation.landscape
                     ? Text(type)
                     : FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(type),
-                ),
+                        fit: BoxFit.scaleDown,
+                        child: Text(type),
+                      ),
               ),
             ),
           ),
@@ -1448,17 +1444,17 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                   )
                 ],
               ),
-              for (TeacherDealingSection eachTds in examSectionMapBean.examId == null ? tdsList.where((eachTds) =>
-              eachTds.sectionId == examSectionMapBean.sectionId) : (examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) =>
-                  TeacherDealingSection(
-                    teacherName: e.teacherName,
-                    teacherId: e.teacherId,
-                    tdsId: e.tdsId,
-                    sectionName: e.subjectName,
-                    sectionId: e.sectionId,
-                    subjectName: e.subjectName,
-                    subjectId: e.subjectId,
-                  )))
+              for (TeacherDealingSection eachTds in examSectionMapBean.examId == null
+                  ? tdsList.where((eachTds) => eachTds.sectionId == examSectionMapBean.sectionId)
+                  : (examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e!).map((e) => TeacherDealingSection(
+                        teacherName: e.teacherName,
+                        teacherId: e.teacherId,
+                        tdsId: e.tdsId,
+                        sectionName: e.subjectName,
+                        sectionId: e.sectionId,
+                        subjectName: e.subjectName,
+                        subjectId: e.subjectId,
+                      )))
                 _buildTdsWiseExamWidget(eachTds, examSectionMapBean),
             ],
           ),
@@ -1569,14 +1565,12 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
             width: 15,
             margin: const EdgeInsets.all(5),
             child: Center(
-              child: MediaQuery
-                  .of(context)
-                  .orientation == Orientation.landscape
+              child: MediaQuery.of(context).orientation == Orientation.landscape
                   ? Text(type)
                   : FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(type),
-              ),
+                      fit: BoxFit.scaleDown,
+                      child: Text(type),
+                    ),
             ),
           ),
         ),
@@ -1601,8 +1595,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
               underline: Container(),
               items: markingAlgorithms
                   .map(
-                    (MarkingAlgorithmBean e) =>
-                    DropdownMenuItem(
+                    (MarkingAlgorithmBean e) => DropdownMenuItem(
                       value: e,
                       child: Center(
                         child: FittedBox(
@@ -1613,14 +1606,14 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                         ),
                       ),
                     ),
-              )
+                  )
                   .toList(),
               value: markingAlgorithms
-                  .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
-                  .isNotEmpty
+                      .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
+                      .isNotEmpty
                   ? markingAlgorithms
-                  .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
-                  .first
+                      .where((eachMarkingAlgorithm) => examSectionMapBean.markingAlgorithmId == eachMarkingAlgorithm.markingAlgorithmId)
+                      .first
                   : null,
               hint: const Text("Choose Marking Algorithm"),
               onChanged: (MarkingAlgorithmBean? newValue) {
@@ -1650,9 +1643,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
 
   Widget _buildTdsWiseExamWidget(TeacherDealingSection eachTds, ExamSectionMapBean examSectionMapBean) {
     ExamTdsMapBean? examTdsMapBean = (examSectionMapBean.examTdsMapBeanList ?? []).map((e) => e?.tdsId).contains(eachTds.tdsId)
-        ? (examSectionMapBean.examTdsMapBeanList ?? [])
-        .where((e) => e != null && e.tdsId == eachTds.tdsId)
-        .first
+        ? (examSectionMapBean.examTdsMapBeanList ?? []).where((e) => e != null && e.tdsId == eachTds.tdsId).first
         : null;
     return Container(
       margin: const EdgeInsets.all(8),
@@ -1740,8 +1731,8 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
 
   Widget _addInternalsForTds(ExamTdsMapBean examTdsMapBean) {
     List<Widget> _widgets = [];
-    for (InternalExamTdsMapBean eachInternalExamTdsMapBean in (examTdsMapBean.internalExamTdsMapBeanList ?? []).where((e) => e != null).map((
-        e) => e!)) {
+    for (InternalExamTdsMapBean eachInternalExamTdsMapBean
+        in (examTdsMapBean.internalExamTdsMapBeanList ?? []).where((e) => e != null).map((e) => e!)) {
       _widgets.add(
         Container(
           margin: const EdgeInsets.all(5),
@@ -1761,9 +1752,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                         labelText: 'Internal ${eachInternalExamTdsMapBean.internalNumber}',
                         border: InputBorder.none,
                       ),
-                      child: Text(
-                          eachInternalExamTdsMapBean.internalExamName ?? "-"
-                      ),
+                      child: Text(eachInternalExamTdsMapBean.internalExamName ?? "-"),
                     ),
                   ),
                 ),
@@ -1781,10 +1770,12 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
               ),
             ],
           ),
-        ),);
+        ),
+      );
     }
-    List<InternalExamTdsMapBean> _internalTdsMapBeans = allAvailableExams.where((e) => e.examId != examTdsMapBean.examId).map((e) =>
-    e.examSectionMapBeanList)
+    List<InternalExamTdsMapBean> _internalTdsMapBeans = allAvailableExams
+        .where((e) => e.examId != examTdsMapBean.examId)
+        .map((e) => e.examSectionMapBeanList)
         .where((List<ExamSectionMapBean?>? e) => e != null)
         .map((List<ExamSectionMapBean?>? e) => e!)
         .expand((List<ExamSectionMapBean?> i) => i)
@@ -1797,110 +1788,108 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
         .where((ExamTdsMapBean? e) => e != null)
         .map((ExamTdsMapBean? e) => e!)
         .where((ExamTdsMapBean e) => e.tdsId == examTdsMapBean.tdsId)
-        .map((ExamTdsMapBean e) =>
-        InternalExamTdsMapBean(
-          maxMarks: e.maxMarks,
-          examId: examTdsMapBean.examId,
-          internalExamName: e.examName,
-          examTdsMapId: examTdsMapBean.examTdsMapId,
-          examName: examTdsMapBean.examName,
-          sectionName: e.sectionName,
-          sectionId: e.sectionId,
-          subjectName: e.subjectName,
-          subjectId: e.subjectId,
-          examTdsDate: e.examTdsDate,
-          endTime: e.endTime,
-          startTime: e.startTime,
-          status: null,
-          tdsId: e.tdsId,
-          teacherId: e.teacherId,
-          teacherName: e.teacherName,
-          internalExamId: e.examId,
-          internalExamMapTdsId: e.examTdsMapId,
-          internalNumber: null,
-        ))
-        .toList()
-    ;
-    _widgets.add(
-        Container(
-          margin: const EdgeInsets.all(5),
-          child: Row(
-            children: [
-              Expanded(
-                child: DropdownButton<InternalExamTdsMapBean>(
-                  isExpanded: true,
-                  underline: Container(),
-                  items: _internalTdsMapBeans
-                      .map(
-                        (InternalExamTdsMapBean e) =>
-                        DropdownMenuItem(
-                          value: e,
-                          child: Center(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                (e.internalExamName ?? "-").capitalize(),
-                              ),
-                            ),
-                          ),
-                        ),
-                  )
-                      .toList(),
-                  hint: const Text("Choose internal Exam"),
-                  onChanged: (InternalExamTdsMapBean? newValue) {
-                    if (newValue == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Can't add an internal without selecting one.."),
-                        ),
-                      );
-                      return;
-                    }
-                    if ((examTdsMapBean.internalExamTdsMapBeanList ?? []).map((e) => e!.internalExamId).contains(newValue.internalExamId)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("This exam has already been added.."),
-                        ),
-                      );
-                      return;
-                    }
-                    setState(() {
-                      examTdsMapBean.internalExamTdsMapBeanList ??= [];
-                      newValue.internalNumber = (examTdsMapBean.internalExamTdsMapBeanList ?? []).length + 1;
-                      examTdsMapBean.internalExamTdsMapBeanList!.add(newValue);
-                    });
-                  },
-                ),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  margin: const EdgeInsets.all(5),
-                  child: const Icon(Icons.add_circle_outline, color: Colors.green),
-                ),
-              ),
-            ],
-          ),
-        )
-    );
-    return
-      Row(
-        mainAxisSize: MainAxisSize.min,
+        .map((ExamTdsMapBean e) => InternalExamTdsMapBean(
+              maxMarks: e.maxMarks,
+              examId: examTdsMapBean.examId,
+              internalExamName: e.examName,
+              examTdsMapId: examTdsMapBean.examTdsMapId,
+              examName: examTdsMapBean.examName,
+              sectionName: e.sectionName,
+              sectionId: e.sectionId,
+              subjectName: e.subjectName,
+              subjectId: e.subjectId,
+              examTdsDate: e.examTdsDate,
+              endTime: e.endTime,
+              startTime: e.startTime,
+              status: null,
+              tdsId: e.tdsId,
+              teacherId: e.teacherId,
+              teacherName: e.teacherName,
+              internalExamId: e.examId,
+              internalExamMapTdsId: e.examTdsMapId,
+              internalNumber: null,
+            ))
+        .toList();
+    _widgets.add(Container(
+      margin: const EdgeInsets.all(5),
+      child: Row(
         children: [
           Expanded(
-            flex: 2,
-            child: ListView(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: _widgets,
+            child: DropdownButton<InternalExamTdsMapBean>(
+              isExpanded: true,
+              underline: Container(),
+              items: _internalTdsMapBeans
+                  .map(
+                    (InternalExamTdsMapBean e) => DropdownMenuItem(
+                      value: e,
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            (e.internalExamName ?? "-").capitalize(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              hint: const Text("Choose internal Exam"),
+              onChanged: (InternalExamTdsMapBean? newValue) {
+                if (newValue == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Can't add an internal without selecting one.."),
+                    ),
+                  );
+                  return;
+                }
+                if ((examTdsMapBean.internalExamTdsMapBeanList ?? []).map((e) => e!.internalExamId).contains(newValue.internalExamId)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("This exam has already been added.."),
+                    ),
+                  );
+                  return;
+                }
+                setState(() {
+                  examTdsMapBean.internalExamTdsMapBeanList ??= [];
+                  newValue.internalNumber = (examTdsMapBean.internalExamTdsMapBeanList ?? []).length + 1;
+                  examTdsMapBean.internalExamTdsMapBeanList!.add(newValue);
+                });
+              },
             ),
           ),
-          if (_widgets.length > 1)
-            const SizedBox(width: 15,),
-          if (_widgets.length > 1)
-            Expanded(child: _inputInternalsWeightageForExamTds(examTdsMapBean),)
+          GestureDetector(
+            onTap: () {},
+            child: Container(
+              margin: const EdgeInsets.all(5),
+              child: const Icon(Icons.add_circle_outline, color: Colors.green),
+            ),
+          ),
         ],
-      );
+      ),
+    ));
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(
+          flex: 2,
+          child: ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            children: _widgets,
+          ),
+        ),
+        if (_widgets.length > 1)
+          const SizedBox(
+            width: 15,
+          ),
+        if (_widgets.length > 1)
+          Expanded(
+            child: _inputInternalsWeightageForExamTds(examTdsMapBean),
+          )
+      ],
+    );
   }
 
   Widget _inputInternalsWeightageForExamTds(ExamTdsMapBean examTdsMapBean) {
@@ -1933,7 +1922,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
         onTap: () async {
           DateTime? _newDate = await showDatePicker(
             context: context,
-            initialDate: examTdsMapBean.examTdsDate == null ? DateTime.now() convertYYYYMMDDFormatToDateTime(examTdsMapBean.examTdsDate!),
+            initialDate: examTdsMapBean.examTdsDate == null ? DateTime.now() : convertYYYYMMDDFormatToDateTime(examTdsMapBean.examTdsDate!),
             firstDate: DateTime(2021),
             lastDate: DateTime(2031),
             helpText: "${(examTdsMapBean.subjectName ?? "").capitalize()}-${(examTdsMapBean.sectionName ?? "").capitalize()}",
@@ -2214,9 +2203,9 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
   }
 
   Widget _buildEachExamDetails(AdminExamBean _selectedExamBean) {
-    return
-      !widget.adminProfile.isMegaAdmin && _selectedExamBean.isEditMode ? _buildEditableAdminExamBeanWidget(_selectedExamBean) :
-      _buildReadableAdminExamBeanWidget(_selectedExamBean);
+    return !widget.adminProfile.isMegaAdmin && _selectedExamBean.isEditMode
+        ? _buildEditableAdminExamBeanWidget(_selectedExamBean)
+        : _buildReadableAdminExamBeanWidget(_selectedExamBean);
   }
 
   Container _buildEditableAdminExamBeanWidget(AdminExamBean examBean) {
@@ -2361,7 +2350,8 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
               Row(
                 children: [
                   Expanded(
-                    child: Text("Sections: " + _selectedExamBean.examSectionMapBeanList!.map((e) => e!.sectionName!).toList().join(", "),
+                    child: Text(
+                      "Sections: " + _selectedExamBean.examSectionMapBeanList!.map((e) => e!.sectionName!).toList().join(", "),
                     ),
                   ),
                 ],
@@ -2369,8 +2359,11 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
               Expanded(
                 child: ListView(
                   controller: ScrollController(),
-                  children: _selectedExamBean.examSectionMapBeanList!.map((e) =>
-                      _buildSectionWiseTdsMapWidget(_selectedExamBean, e!),).toList(),
+                  children: _selectedExamBean.examSectionMapBeanList!
+                      .map(
+                        (e) => _buildSectionWiseTdsMapWidget(_selectedExamBean, e!),
+                      )
+                      .toList(),
                 ),
               ),
             ],
@@ -2412,24 +2405,26 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                       ),
                     ),
                   ),
-                  widget.adminProfile.isMegaAdmin ? Container() : InkWell(
-                    onTap: () {
-                      setState(() {
-                        examBean.isEditMode = true;
-                      });
-                    },
-                    child: ClayButton(
-                      depth: 40,
-                      surfaceColor: clayContainerColor(context),
-                      parentColor: clayContainerColor(context),
-                      spread: 1,
-                      borderRadius: 100,
-                      child: Container(
-                        margin: const EdgeInsets.all(5),
-                        child: const Icon(Icons.edit),
-                      ),
-                    ),
-                  ),
+                  widget.adminProfile.isMegaAdmin
+                      ? Container()
+                      : InkWell(
+                          onTap: () {
+                            setState(() {
+                              examBean.isEditMode = true;
+                            });
+                          },
+                          child: ClayButton(
+                            depth: 40,
+                            surfaceColor: clayContainerColor(context),
+                            parentColor: clayContainerColor(context),
+                            spread: 1,
+                            borderRadius: 100,
+                            child: Container(
+                              margin: const EdgeInsets.all(5),
+                              child: const Icon(Icons.edit),
+                            ),
+                          ),
+                        ),
                 ],
               ),
               for (ExamTdsMapBean eachExamTdsBean in (eachSectionWiseTdsMapBean.examTdsMapBeanList ?? []).map((e) => e!))
@@ -2460,7 +2455,9 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
             mainAxisSize: MainAxisSize.min,
             children: [
               Text("Marking Algorithm: ${eachSectionWiseTdsMapBean.markingAlgorithmName ?? "-"}"),
-              const SizedBox(height: 10,),
+              const SizedBox(
+                height: 10,
+              ),
               ClayContainer(
                 depth: 40,
                 surfaceColor: clayContainerColor(context),
@@ -2525,20 +2522,22 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
         child: AnimatedSize(
           curve: Curves.fastOutSlowIn,
           duration: const Duration(milliseconds: 500),
-          child: eachExamTdsMapBean.isExpanded ? Container(
-            margin: const EdgeInsets.all(10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildExamTdsMapBeanCollapsedWidget(eachExamTdsMapBean),
-                _buildExamTdsMapInternalsWidget(eachExamTdsMapBean),
-              ],
-            ),
-          ) : Container(
-            margin: const EdgeInsets.all(15),
-            child: _buildExamTdsMapBeanCollapsedWidget(eachExamTdsMapBean),
-          ),
+          child: eachExamTdsMapBean.isExpanded
+              ? Container(
+                  margin: const EdgeInsets.all(10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildExamTdsMapBeanCollapsedWidget(eachExamTdsMapBean),
+                      _buildExamTdsMapInternalsWidget(eachExamTdsMapBean),
+                    ],
+                  ),
+                )
+              : Container(
+                  margin: const EdgeInsets.all(15),
+                  child: _buildExamTdsMapBeanCollapsedWidget(eachExamTdsMapBean),
+                ),
         ),
       ),
     );
@@ -2556,7 +2555,8 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
         Expanded(
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            child: Text((eachExamTdsMapBean.startTime == null ? "-" : formatHHMMSStoHHMMA(eachExamTdsMapBean.startTime!)) + "-" +
+            child: Text((eachExamTdsMapBean.startTime == null ? "-" : formatHHMMSStoHHMMA(eachExamTdsMapBean.startTime!)) +
+                "-" +
                 (eachExamTdsMapBean.endTime == null ? "-" : formatHHMMSStoHHMMA(eachExamTdsMapBean.endTime!))),
           ),
         ),
@@ -2601,7 +2601,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
           if ((eachExamTdsMapBean.internalExamTdsMapBeanList ?? []).isEmpty)
             Container(
               margin: const EdgeInsets.all(15),
-              child: const Text ("No Internals added for this exam"),
+              child: const Text("No Internals added for this exam"),
             ),
           for (InternalExamTdsMapBean eachInternalTdsMapBean in (eachExamTdsMapBean.internalExamTdsMapBeanList ?? []).map((e) => e!))
             _buildEachInternalTdsMapBeanWidget(eachInternalTdsMapBean),
@@ -2612,9 +2612,7 @@ class _AdminCreateOrManageExamsScreenState extends State<AdminCreateOrManageExam
                 children: [
                   Expanded(
                     child: Text(
-                      "Marks from internals are computed using ${fromInternalsComputationCodeString(
-                          eachExamTdsMapBean.internalsComputationCode ?? "-")
-                          ?.description ?? "-"}",
+                      "Marks from internals are computed using ${fromInternalsComputationCodeString(eachExamTdsMapBean.internalsComputationCode ?? "-")?.description ?? "-"}",
                     ),
                   ),
                 ],

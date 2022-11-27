@@ -84,6 +84,8 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       });
     }
 
+    await loadSectionWiseStudentsFeeMap();
+
     setState(() {
       _isLoading = false;
     });
@@ -176,7 +178,11 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             walletBalance: eachAnnualFeeBean.studentWalletBalance,
             sectionId: eachAnnualFeeBean.sectionId,
             sectionName: eachAnnualFeeBean.sectionName,
-            studentBusFeeBean: eachAnnualFeeBean.studentBusFeeBean,
+            studentBusFeeBean: eachAnnualFeeBean.studentBusFeeBean ??
+                StudentBusFeeBean(
+                  schoolId: widget.adminProfile.schoolId,
+                  studentId: eachAnnualFeeBean.studentId,
+                ),
             studentAnnualFeeTypeBeans: feeTypesForSelectedSection
                 .map(
                   (eachFeeType) => StudentAnnualFeeTypeBean(
@@ -262,8 +268,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Fee Management'),
-          content: const Text("Are you sure to save changes?\n"
-              "These changes will effect the student fees (if already paid, difference amount would be added to the student wallet balance)"),
+          content: const Text("Are you sure to save changes?"),
           actions: <Widget>[
             TextButton(
               child: const Text("YES"),
@@ -303,6 +308,18 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
                           .toList(),
+                  studentRouteStopFares: studentAnnualFeeBeans
+                      .where((e) =>
+                              e.studentBusFeeBean != null &&
+                              e.studentId == studentId &&
+                              (int.tryParse(e.studentBusFeeBean!.fareController.text)) != null
+                          // && (e.studentBusFeeBean!.fare ?? 0) != int.tryParse(e.studentBusFeeBean!.fareController.text)
+                          )
+                      .map((e) => StudentStopFare(
+                            studentId: studentId,
+                            fare: int.parse(e.studentBusFeeBean!.fareController.text) * 100,
+                          ))
+                      .toList(),
                 );
                 CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse =
                     await createOrUpdateStudentAnnualFeeMap(createOrUpdateStudentAnnualFeeMapRequest);
@@ -347,6 +364,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
     int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
     return Scaffold(
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Student Fee Management"),
       ),
@@ -491,7 +509,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                         width: 60,
                         child: TextField(
                           controller: eachStudentAnnualFeeTypeBean.amountController,
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             border: UnderlineInputBorder(),
                             labelText: 'Amount',
@@ -505,7 +523,9 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 final text = newValue.text;
                                 if (text.isNotEmpty) double.parse(text);
                                 return newValue;
-                              } catch (e) {}
+                              } catch (e) {
+                                debugPrintStack();
+                              }
                               return oldValue;
                             }),
                           ],
@@ -522,7 +542,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                       )
                     : eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0
                         ? Container()
-                        : Text("$INR_SYMBOL ${(eachStudentAnnualFeeTypeBean.amount! / 100).toStringAsFixed(2)}"),
+                        : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualFeeTypeBean.amount! / 100)}"),
           ],
         ),
       );
@@ -550,7 +570,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                           width: 60,
                           child: TextField(
                             controller: eachStudentAnnualCustomFeeTypeBean.amountController,
-                            keyboardType: TextInputType.text,
+                            keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
                               border: UnderlineInputBorder(),
                               labelText: 'Amount',
@@ -564,7 +584,9 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                   final text = newValue.text;
                                   if (text.isNotEmpty) double.parse(text);
                                   return newValue;
-                                } catch (e) {}
+                                } catch (e) {
+                                  debugPrintStack();
+                                }
                                 return oldValue;
                               }),
                             ],
@@ -581,7 +603,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                         )
                       : eachStudentAnnualCustomFeeTypeBean.amount == null || eachStudentAnnualCustomFeeTypeBean.amount == 0
                           ? Container()
-                          : Text("$INR_SYMBOL ${(eachStudentAnnualCustomFeeTypeBean.amount! / 100).toStringAsFixed(2)}"),
+                          : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualCustomFeeTypeBean.amount! / 100)}"),
             ],
           ),
         );
@@ -593,7 +615,9 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       }
     }
 
-    if (studentWiseAnnualFeesBean.studentBusFeeBean != null) {
+    if (studentWiseAnnualFeesBean.studentBusFeeBean != null &&
+        studentWiseAnnualFeesBean.studentBusFeeBean?.fare != null &&
+        (editingStudentId != studentWiseAnnualFeesBean.studentId)) {
       feeStats.add(Row(
         children: [
           Expanded(
@@ -648,7 +672,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                                     width: 10,
                                                   ),
                                                   Expanded(
-                                                    child: Text("$INR_SYMBOL ${e?.fare == null ? "-" : doubleToStringAsFixed(e!.fare! / 100)}"),
+                                                    child: Text("$INR_SYMBOL ${e?.fare == null ? "-" : doubleToStringAsFixedForINR(e!.fare! / 100)}"),
                                                   ),
                                                 ],
                                               ),
@@ -684,13 +708,56 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
           Text(
             studentWiseAnnualFeesBean.studentBusFeeBean?.fare == null
                 ? "-"
-                : INR_SYMBOL + " " + doubleToStringAsFixed(studentWiseAnnualFeesBean.studentBusFeeBean!.fare! / 100),
+                : INR_SYMBOL + " " + doubleToStringAsFixedForINR(studentWiseAnnualFeesBean.studentBusFeeBean!.fare! / 100),
           ),
         ],
       ));
       feeStats.add(
         const SizedBox(
           height: 15,
+        ),
+      );
+    } else if (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId) {
+      feeStats.add(
+        Row(
+          children: [
+            const SizedBox(
+              width: 10,
+            ),
+            const Expanded(
+              child: Text("Bus Fee"),
+            ),
+            SizedBox(
+              width: 60,
+              child: TextField(
+                controller: studentWiseAnnualFeesBean.studentBusFeeBean!.fareController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: 'Amount',
+                  hintText: 'Amount',
+                  contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    try {
+                      final text = newValue.text;
+                      if (text.isNotEmpty) double.parse(text);
+                      return newValue;
+                    } catch (e) {
+                      debugPrintStack();
+                    }
+                    return oldValue;
+                  }),
+                ],
+                style: const TextStyle(
+                  fontSize: 12,
+                ),
+                autofocus: true,
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -714,7 +781,9 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             child: Text("Total:"),
           ),
           Text(
-            studentWiseAnnualFeesBean.totalFee == null ? "-" : "$INR_SYMBOL ${((studentWiseAnnualFeesBean.totalFee ?? 0) / 100).toStringAsFixed(2)}",
+            studentWiseAnnualFeesBean.totalFee == null
+                ? "-"
+                : "$INR_SYMBOL ${doubleToStringAsFixedForINR((studentWiseAnnualFeesBean.totalFee ?? 0) / 100)}",
             textAlign: TextAlign.end,
           ),
         ],
@@ -729,7 +798,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
           Text(
             studentWiseAnnualFeesBean.totalFeePaid == null
                 ? "-"
-                : "$INR_SYMBOL ${((studentWiseAnnualFeesBean.totalFeePaid ?? 0) / 100).toStringAsFixed(2)}",
+                : "$INR_SYMBOL ${doubleToStringAsFixedForINR((studentWiseAnnualFeesBean.totalFeePaid ?? 0) / 100)}",
             textAlign: TextAlign.end,
             style: const TextStyle(
               color: Colors.green,
@@ -765,7 +834,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             ),
           ),
           Text(
-            "$INR_SYMBOL ${(((studentWiseAnnualFeesBean.totalFee ?? 0) - (studentWiseAnnualFeesBean.totalFeePaid ?? 0) - (studentWiseAnnualFeesBean.walletBalance ?? 0)) / 100).toStringAsFixed(2)}",
+            "$INR_SYMBOL ${doubleToStringAsFixedForINR(((studentWiseAnnualFeesBean.totalFee ?? 0) - (studentWiseAnnualFeesBean.totalFeePaid ?? 0) - (studentWiseAnnualFeesBean.walletBalance ?? 0)) / 100)}",
             textAlign: TextAlign.end,
             style: TextStyle(
               color: ((studentWiseAnnualFeesBean.totalFee ?? 0) -

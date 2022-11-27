@@ -46,6 +46,7 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
     int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
     double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Epsilon Diary"),
