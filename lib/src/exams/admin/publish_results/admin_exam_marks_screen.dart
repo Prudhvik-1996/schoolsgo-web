@@ -73,6 +73,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
   static const double _studentColumnHeight = 60;
   static const double _cellColumnWidth = 88;
   static const double _cellColumnHeight = 60;
+
   Color get _headerColor => clayContainerColor(context);
   static const double _cellPadding = 4.0;
   final int _lhsFlex = 1;
@@ -242,65 +243,67 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                   width: 500,
                 ),
               )
-            : _forceShowInternals ? buildNewMarksSheetLayout(context) : buildOldMarksSheetLayout(context),
+            : _forceShowInternals
+                ? buildNewMarksSheetLayout(context)
+                : buildOldMarksSheetLayout(context),
         floatingActionButton: widget.adminProfile.isMegaAdmin || _isLoading || _showPreview ? null : _changeEditModeButton());
   }
 
   RawKeyboardListener buildOldMarksSheetLayout(BuildContext context) {
     return RawKeyboardListener(
-              onKey: (RawKeyEvent event) {
-                if (!_isEditMode || widget.adminProfile.isMegaAdmin) return;
-                setState(() {
-                  if ((event.isKeyPressed(LogicalKeyboardKey.tab) || event.isKeyPressed(LogicalKeyboardKey.arrowRight)) &&
-                      currentCellIndexY <= _marksGrid[currentCellIndexX].length - 2) {
-                    _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY + 1);
-                  } else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft) && currentCellIndexY >= 1) {
-                    _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY - 1);
-                  } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) && currentCellIndexX >= 1) {
-                    _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX - 1, currentCellIndexY);
-                  } else if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) && currentCellIndexX <= _marksGrid.length - 2) {
-                    _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX + 1, currentCellIndexY);
-                  } else {
-                    _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY);
-                  }
-                });
-              },
-              focusNode: FocusNode(),
-              autofocus: true,
-              child: CustomScrollView(
-                controller: sliverScrollController,
-                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                slivers: [
-                  SliverAppBar(
-                    pinned: false,
-                    snap: false,
-                    floating: false,
-                    stretch: true,
-                    onStretchTrigger: () {
-                      return Future<void>.value();
-                    },
-                    toolbarHeight: 0,
-                    collapsedHeight: 0,
-                    leading: null,
-                    backgroundColor: Colors.transparent,
-                    expandedHeight: (MediaQuery.of(context).size.height / 2) + 50,
-                    flexibleSpace: FlexibleSpaceBar(
-                      background: _examDetailsWidget(),
-                      stretchModes: const <StretchMode>[
-                        StretchMode.zoomBackground,
-                        StretchMode.blurBackground,
-                        StretchMode.fadeTitle,
-                      ],
-                    ),
-                  ),
-                  SliverFillRemaining(
-                    hasScrollBody: true,
-                    fillOverscroll: true,
-                    child: _marksTableWidget(),
-                  ),
-                ],
-              ),
-            );
+      onKey: (RawKeyEvent event) {
+        if (!_isEditMode || widget.adminProfile.isMegaAdmin) return;
+        setState(() {
+          if ((event.isKeyPressed(LogicalKeyboardKey.tab) || event.isKeyPressed(LogicalKeyboardKey.arrowRight)) &&
+              currentCellIndexY <= _marksGrid[currentCellIndexX].length - 2) {
+            _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY + 1);
+          } else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft) && currentCellIndexY >= 1) {
+            _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY - 1);
+          } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) && currentCellIndexX >= 1) {
+            _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX - 1, currentCellIndexY);
+          } else if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) && currentCellIndexX <= _marksGrid.length - 2) {
+            _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX + 1, currentCellIndexY);
+          } else {
+            _makeCellEditable(currentCellIndexX, currentCellIndexY, currentCellIndexX, currentCellIndexY);
+          }
+        });
+      },
+      focusNode: FocusNode(),
+      autofocus: true,
+      child: CustomScrollView(
+        controller: sliverScrollController,
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverAppBar(
+            pinned: false,
+            snap: false,
+            floating: false,
+            stretch: true,
+            onStretchTrigger: () {
+              return Future<void>.value();
+            },
+            toolbarHeight: 0,
+            collapsedHeight: 0,
+            leading: null,
+            backgroundColor: Colors.transparent,
+            expandedHeight: (MediaQuery.of(context).size.height / 2) + 50,
+            flexibleSpace: FlexibleSpaceBar(
+              background: _examDetailsWidget(),
+              stretchModes: const <StretchMode>[
+                StretchMode.zoomBackground,
+                StretchMode.blurBackground,
+                StretchMode.fadeTitle,
+              ],
+            ),
+          ),
+          SliverFillRemaining(
+            hasScrollBody: true,
+            fillOverscroll: true,
+            child: _marksTableWidget(),
+          ),
+        ],
+      ),
+    );
   }
 
   // Future<void> _saveChanges() async {

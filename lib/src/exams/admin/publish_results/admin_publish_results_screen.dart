@@ -5,7 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_exam_marks_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_exam_marks_v2_screen.dart';
+import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_exam_marks_v3_screen.dart';
 import 'package:schoolsgo_web/src/exams/model/admin_exams.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -128,7 +128,7 @@ class _AdminPublishResultsScreenState extends State<AdminPublishResultsScreen> {
               .toList()
               .contains("S")) {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return AdminMarksV2Screen(
+              return AdminExamMarksV3Screen(
                 adminProfile: widget.adminProfile,
                 examBean: examBean,
                 section: _selectedSection!,

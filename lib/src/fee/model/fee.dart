@@ -1100,6 +1100,7 @@ class StudentBusFeeBean {
   StudentBusFeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fare = json['fare']?.toInt();
+    fareController.text = "${fare ?? ""}";
     routeId = json['routeId']?.toInt();
     routeName = json['routeName']?.toString();
     schoolId = json['schoolId']?.toInt();
@@ -1186,6 +1187,7 @@ class StudentWiseAnnualFeesBean {
   String? studentName;
   int? studentWalletBalance;
   String? rollNumber;
+  String? status;
   StudentBusFeeBean? studentBusFeeBean;
   Map<String, dynamic> __origJson = {};
 
@@ -1199,6 +1201,7 @@ class StudentWiseAnnualFeesBean {
     this.studentName,
     this.studentWalletBalance,
     this.rollNumber,
+    this.status,
     this.studentBusFeeBean,
   });
 
@@ -1221,6 +1224,7 @@ class StudentWiseAnnualFeesBean {
     studentName = json['studentName']?.toString();
     studentWalletBalance = json['studentWalletBalance']?.toInt();
     rollNumber = json['rollNumber']?.toString();
+    status = json['status']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -1244,6 +1248,7 @@ class StudentWiseAnnualFeesBean {
     data['studentName'] = studentName;
     data['studentWalletBalance'] = studentWalletBalance;
     data['rollNumber'] = rollNumber;
+    data['status'] = status;
     return data;
   }
 

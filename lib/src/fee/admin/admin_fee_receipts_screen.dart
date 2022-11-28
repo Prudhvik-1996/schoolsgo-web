@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/clay_containers.dart';
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
@@ -108,14 +109,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       );
     } else {
       setState(() {
-        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList()
-          ..add(FeeType(
-            schoolId: widget.adminProfile.schoolId,
-            customFeeTypesList: [],
-            feeType: "Bus Fee",
-            feeTypeId: -1,
-            feeTypeStatus: "active",
-          ));
+        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
         selectedFeeTypes = feeTypes.where((e) => e.customFeeTypesList?.isEmpty ?? true).map((e) => e.feeTypeId ?? 0).toList();
         selectedCustomFeeTypes = feeTypes
             .where((e) => e.customFeeTypesList?.isNotEmpty ?? false)
@@ -416,7 +410,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   Future<void> _saveChanges() async {
     setState(() => _isLoading = true);
     String? errorText;
-    for (_NewReceipt eachNewReceipt in newReceipts) {
+    for (_NewReceipt eachNewReceipt in newReceipts.where((e) => e.status != "deleted")) {
       if (eachNewReceipt.selectedStudent == null || eachNewReceipt.selectedSection == null) {
         errorText = "Select a student and enter the details to proceed adding a new receipt";
       }
@@ -431,6 +425,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       return;
     }
     List<NewReceiptBean> newReceiptsToBePaid = newReceipts
+        .where((e) => e.status != "deleted")
         .map((eachNewReceipt) => NewReceiptBean(
               busFeePaidAmount:
                   int.tryParse(eachNewReceipt.busFeeController.text) == null ? null : int.parse(eachNewReceipt.busFeeController.text) * 100,
@@ -542,7 +537,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  if (newReceipts.map((e) => e.selectedStudent).contains(null)) {
+                                  if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text("Select a student and enter the details to proceed adding a new receipt"),
@@ -554,8 +549,9 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                                     _NewReceipt(
                                       context: _scaffoldKey.currentContext!,
                                       notifyParent: setState,
-                                      receiptNumber: newReceipts.map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
-                                      selectedDate: newReceipts.lastOrNull?.selectedDate ?? DateTime.now(),
+                                      receiptNumber:
+                                          newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
+                                      selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
                                       sectionsList: sectionsList,
                                       studentProfiles: studentProfiles,
                                       studentFeeDetails: studentFeeDetailsBeans,
@@ -576,7 +572,12 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                                 child: const Padding(
                                   padding: EdgeInsets.all(15),
                                   child: Center(
-                                    child: Text("Add New Receipt"),
+                                    child: Text(
+                                      "Add New Receipt",
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -628,7 +629,12 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                                 child: const Padding(
                                   padding: EdgeInsets.all(15),
                                   child: Center(
-                                    child: Text("Submit"),
+                                    child: Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -650,11 +656,12 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                             .expand((i) => i)
                             .toList()
                           ..sort(
-                            (a, b) =>
-                                convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
-                                    ? (b.masterTransactionId ?? 0).compareTo((a.masterTransactionId ?? 0))
-                                    : convertYYYYMMDDFormatToDateTime(b.transactionDate)
-                                        .compareTo(convertYYYYMMDDFormatToDateTime(a.transactionDate)),
+                            (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                                ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
+                                        0
+                                    ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
+                                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
                           ))
                         .map((e) => studentFeeTransactionWidget(e))
                         .toList(),
@@ -1516,8 +1523,6 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
     super.initState();
   }
 
-  bool isBusFeeChecked = false;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1615,18 +1620,18 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
                   if (value == null) return;
                   if (value) {
                     widget.newReceipt.notifyParent(() {
-                      isBusFeeChecked = value;
+                      widget.newReceipt.isBusFeeChecked = value;
                       widget.newReceipt.busFeeController.text =
                           doubleToStringAsFixedForINR(((widget.newReceipt.totalBusFee ?? 0) - (widget.newReceipt.busFeePaid ?? 0)) / 100.0);
                     });
                   } else {
                     widget.newReceipt.notifyParent(() {
-                      isBusFeeChecked = value;
+                      widget.newReceipt.isBusFeeChecked = value;
                       widget.newReceipt.busFeeController.text = "";
                     });
                   }
                 },
-                value: isBusFeeChecked,
+                value: widget.newReceipt.isBusFeeChecked,
               ),
               const SizedBox(width: 5),
               const SizedBox(width: 15),
@@ -1678,9 +1683,21 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
           },
           controller: widget.newReceipt.busFeeController,
           keyboardType: TextInputType.number,
+          textAlignVertical: TextAlignVertical.center,
           maxLines: 1,
+          onChanged: (String e) {
+            if (e.isNotEmpty) {
+              widget.newReceipt.notifyParent(() {
+                widget.newReceipt.isBusFeeChecked = true;
+              });
+            } else {
+              widget.newReceipt.notifyParent(() {
+                widget.newReceipt.isBusFeeChecked = false;
+              });
+            }
+          },
           decoration: const InputDecoration(
-            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 12),
+            contentPadding: EdgeInsets.zero,
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             disabledBorder: InputBorder.none,
@@ -1764,7 +1781,7 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
               const SizedBox(
                 height: 10,
               ),
-              if (termWiseFeeToBePaid.isExpanded ?? false) ...(termWiseFeeToBePaid.termWiseFeeTypes ?? []).map((e) => e.widget()).toList(),
+              if (termWiseFeeToBePaid.isExpanded ?? false) ...(termWiseFeeToBePaid.termWiseFeeTypes ?? []).map((e) => e.widget(context)).toList(),
               const SizedBox(
                 height: 10,
               ),
@@ -2030,7 +2047,7 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
             });
             widget.newReceipt.updatedSelectedStudent(student, setState);
           },
-          showClearButton: true,
+          showClearButton: false,
           compareFn: (item, selectedItem) => item?.studentId == selectedItem?.studentId,
           dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
           filterFn: (StudentProfile? student, String? key) {
@@ -2055,30 +2072,32 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
       width: MediaQuery.of(context).size.width,
       height: 40,
       child: ListTile(
-        leading: Container(
-          width: 50,
-          padding: const EdgeInsets.all(5),
-          child: e.studentPhotoUrl == null
-              ? Image.asset(
-                  "assets/images/avatar.png",
-                  fit: BoxFit.contain,
-                )
-              : Image.network(
-                  e.studentPhotoUrl!,
-                  fit: BoxFit.contain,
-                ),
-        ),
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            ((e.rollNumber ?? "") == "" ? "" : e.rollNumber! + ". ") +
-                ([e.studentFirstName ?? "", e.studentMiddleName ?? "", e.studentLastName ?? ""].where((e) => e != "").join(" ") +
-                        " - ${e.sectionName ?? ""}")
-                    .trim(),
-            style: const TextStyle(
-              fontSize: 14,
-            ),
+        leading: MediaQuery.of(context).orientation == Orientation.portrait
+            ? null
+            : Container(
+                width: 50,
+                padding: const EdgeInsets.all(5),
+                child: e.studentPhotoUrl == null
+                    ? Image.asset(
+                        "assets/images/avatar.png",
+                        fit: BoxFit.contain,
+                      )
+                    : Image.network(
+                        e.studentPhotoUrl!,
+                        fit: BoxFit.contain,
+                      ),
+              ),
+        title: AutoSizeText(
+          ((e.rollNumber ?? "") == "" ? "" : e.rollNumber! + ". ") +
+              ([e.studentFirstName ?? "", e.studentMiddleName ?? "", e.studentLastName ?? ""].where((e) => e != "").join(" ") +
+                      " - ${e.sectionName ?? ""}")
+                  .trim(),
+          style: const TextStyle(
+            fontSize: 14,
           ),
+          overflow: TextOverflow.visible,
+          maxLines: 3,
+          minFontSize: 12,
         ),
       ),
     );
@@ -2124,7 +2143,7 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
             });
             widget.newReceipt.updatedSelectedStudent(null, setState);
           },
-          showClearButton: true,
+          showClearButton: false,
           compareFn: (item, selectedItem) => item?.sectionId == selectedItem?.sectionId,
           dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
           filterFn: (Section? section, String? key) {
@@ -2157,6 +2176,7 @@ class _NewReceipt {
 
   List<_TermWiseFeeToBePaid> termWiseFeeToBePaidBeans = [];
   TextEditingController busFeeController = TextEditingController();
+  bool isBusFeeChecked = false;
 
   int? totalBusFee;
   int? busFeePaid;
@@ -2451,7 +2471,7 @@ class _TermWiseFeeType {
   TextEditingController feePayingController = TextEditingController();
   bool isChecked = false;
 
-  Widget widget() {
+  Widget widget(BuildContext context) {
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -2491,18 +2511,18 @@ class _TermWiseFeeType {
                   )
                 : Container(),
             const SizedBox(width: 20),
-            (termWiseCustomFeeTypes ?? []).isEmpty ? _feePayingTextField() : Container(),
+            (termWiseCustomFeeTypes ?? []).isEmpty ? _feePayingTextField(context) : Container(),
           ],
         ),
         const SizedBox(
           height: 10,
         ),
-        ...(termWiseCustomFeeTypes ?? []).map((e) => e.widget()).toList(),
+        ...(termWiseCustomFeeTypes ?? []).map((e) => e.widget(context)).toList(),
       ],
     );
   }
 
-  SizedBox _feePayingTextField() {
+  SizedBox _feePayingTextField(BuildContext context) {
     return SizedBox(
       width: 100,
       height: 40,
@@ -2534,13 +2554,25 @@ class _TermWiseFeeType {
           controller: feePayingController,
           keyboardType: TextInputType.number,
           maxLines: 1,
+          textAlignVertical: TextAlignVertical.center,
           decoration: const InputDecoration(
-            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 12),
+            contentPadding: EdgeInsets.zero,
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             disabledBorder: InputBorder.none,
             hintText: "Amount",
           ),
+          onChanged: (String e) {
+            if (e.isNotEmpty) {
+              notifyParent(() {
+                isChecked = true;
+              });
+            } else {
+              notifyParent(() {
+                isChecked = false;
+              });
+            }
+          },
           textAlign: TextAlign.center,
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
@@ -2598,7 +2630,7 @@ class _TermWiseCustomFeeType {
   TextEditingController feePayingController = TextEditingController();
   bool isChecked = false;
 
-  Widget widget() {
+  Widget widget(BuildContext context) {
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -2633,7 +2665,7 @@ class _TermWiseCustomFeeType {
             const SizedBox(width: 10),
             Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((termWiseFee ?? 0) / 100)} /-"),
             const SizedBox(width: 20),
-            _feePayingTextField(),
+            _feePayingTextField(context),
           ],
         ),
         const SizedBox(height: 10),
@@ -2641,7 +2673,7 @@ class _TermWiseCustomFeeType {
     );
   }
 
-  SizedBox _feePayingTextField() {
+  SizedBox _feePayingTextField(BuildContext context) {
     return SizedBox(
       width: 100,
       height: 40,
@@ -2673,14 +2705,26 @@ class _TermWiseCustomFeeType {
           controller: feePayingController,
           keyboardType: TextInputType.number,
           maxLines: 1,
+          textAlignVertical: TextAlignVertical.center,
           decoration: const InputDecoration(
-            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 12),
+            contentPadding: EdgeInsets.zero,
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             disabledBorder: InputBorder.none,
             hintText: "Amount",
           ),
           textAlign: TextAlign.center,
+          onChanged: (String e) {
+            if (e.isNotEmpty) {
+              notifyParent(() {
+                isChecked = true;
+              });
+            } else {
+              notifyParent(() {
+                isChecked = false;
+              });
+            }
+          },
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
             TextInputFormatter.withFunction((oldValue, newValue) {

@@ -178,6 +178,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             walletBalance: eachAnnualFeeBean.studentWalletBalance,
             sectionId: eachAnnualFeeBean.sectionId,
             sectionName: eachAnnualFeeBean.sectionName,
+            status: eachAnnualFeeBean.status,
             studentBusFeeBean: eachAnnualFeeBean.studentBusFeeBean ??
                 StudentBusFeeBean(
                   schoolId: widget.adminProfile.schoolId,
@@ -256,6 +257,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
           ),
         );
       }
+      studentAnnualFeeBeans = studentAnnualFeeBeans.where((e) => e.status != "inactive").toList();
       studentAnnualFeeBeans.sort(
         (a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0),
       );
@@ -616,94 +618,13 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
     }
 
     if (studentWiseAnnualFeesBean.studentBusFeeBean != null &&
-        studentWiseAnnualFeesBean.studentBusFeeBean?.fare != null &&
+        (studentWiseAnnualFeesBean.studentBusFeeBean?.fare ?? 0) != 0 &&
         (editingStudentId != studentWiseAnnualFeesBean.studentId)) {
       feeStats.add(Row(
         children: [
-          Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text("Bus Fee"),
-                const SizedBox(
-                  width: 10,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    showDialog<void>(
-                      context: _scaffoldKey.currentContext!,
-                      builder: (BuildContext dialogContext) {
-                        return AlertDialog(
-                          title: Text('Bus Fee for ${studentWiseAnnualFeesBean.studentBusFeeBean?.studentName ?? "-"}'),
-                          content: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            height: MediaQuery.of(context).size.height * 0.8,
-                            child: ListView(
-                              children: studentWiseAnnualFeesBean.studentBusFeeBean?.studentBusFeeLogBeans
-                                      ?.map(
-                                        (e) => Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                '${e?.routeName ?? "-"}\n${e?.stopName}',
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                              width: 10,
-                                            ),
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Expanded(
-                                                    child: Text("${e?.validFrom}"),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text("${e?.validThrough}"),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text("$INR_SYMBOL ${e?.fare == null ? "-" : doubleToStringAsFixedForINR(e!.fare! / 100)}"),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                      .toList() ??
-                                  [],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Ok'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Dismiss alert dialog
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: const Icon(
-                    Icons.warning,
-                    color: Colors.orange,
-                    size: 15,
-                  ),
-                ),
-              ],
-            ),
+          const Text("Bus Fee"),
+          const SizedBox(
+            width: 10,
           ),
           Text(
             studentWiseAnnualFeesBean.studentBusFeeBean?.fare == null
@@ -1134,6 +1055,7 @@ class StudentAnnualFeeBean {
   int? walletBalance;
   int? sectionId;
   String? sectionName;
+  String? status;
 
   StudentAnnualFeeBean({
     this.studentId,
@@ -1146,6 +1068,7 @@ class StudentAnnualFeeBean {
     this.walletBalance,
     this.sectionId,
     this.sectionName,
+    this.status,
   });
 
   @override

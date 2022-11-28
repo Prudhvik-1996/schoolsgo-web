@@ -92,6 +92,7 @@ dependencies:
   restart_app: ^1.1.0
 
   pluto_grid: ^5.4.3
+  syncfusion_flutter_datagrid: ^20.3.58
 
 dev_dependencies:
   flutter_test:
