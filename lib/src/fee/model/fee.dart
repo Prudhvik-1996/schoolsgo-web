@@ -191,7 +191,7 @@ class FeeType {
     feeType = json['feeType']?.toString();
     feeTypeController.text = feeType ?? "";
     feeTypeDescription = json['feeTypeDescription']?.toString();
-    feeTypeId = json['feeTypeId']?.toInt();
+    feeTypeId = json['feeTypeId']?.toInt() ?? -1;
     feeTypeStatus = json['feeTypeStatus']?.toString();
     schoolDisplayName = json['schoolDisplayName']?.toString();
     schoolId = json['schoolId']?.toInt();

@@ -33,11 +33,15 @@ class AdminExamMarksV3Screen extends StatefulWidget {
 
 class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
   bool _isLoading = true;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   List<StudentExamMarksDetailsBean> studentExamMarksDetailsList = [];
 
   MarkingAlgorithmBean? markingAlgorithm;
   List<Subject> subjects = [];
   List<StudentProfile> students = [];
+
+  List<ExamMarksRowSource> examMarksCellsDataList = [];
   late DataGridController marksDataGridController;
   late MarksDataSource marksDataSource;
   Map<String, double> widthsMap = {};
@@ -102,9 +106,9 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
       });
     }
 
-    List<ExamMarksRowSource> examMarksCellsDataList = buildExamMarksCellsData();
+    examMarksCellsDataList = buildExamMarksCellsData();
     buildExamMarksColumns();
-    marksDataSource = MarksDataSource(examMarksCellsDataList, context);
+    marksDataSource = MarksDataSource(examMarksCellsDataList, context, marksDataGridController, setState);
     widthsMap = {
       "rno": 150,
       "name": 150,
@@ -131,6 +135,53 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
     }
 
     setState(() => _isLoading = false);
+  }
+
+  Future<void> _saveChanges() async {
+    List<StudentMarksUpdateBean> updateExamMarksList = examMarksCellsDataList
+        .map((e) => e.sourceCells ?? [])
+        .expand((i) => i)
+        .where((e) =>
+            ((e.marksObtained ?? 0) < 0 ? 0 : (e.marksObtained ?? 0)) != ((e.initialMarksObtained ?? 0) < 0 ? 0 : (e.initialMarksObtained ?? 0)))
+        .map((e) {
+      return StudentMarksUpdateBean(
+        studentId: e.studentId,
+        examId: e.examId,
+        examTdsMapId: e.examTdsMapId,
+        marksObtained: e.marksObtained,
+        maxMarks: e.maxMarks,
+      );
+    }).toList();
+
+    if (updateExamMarksList.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    CreateOrUpdateStudentExamMarksRequest createOrUpdateStudentExamMarksRequest = CreateOrUpdateStudentExamMarksRequest(
+      schoolId: widget.adminProfile.schoolId,
+      agentId: widget.adminProfile.userId,
+      studentExamMarksDetailsList: updateExamMarksList,
+    );
+    CreateOrUpdateStudentExamMarksResponse createOrUpdateStudentExamMarksResponse =
+        await createOrUpdateStudentExamMarks(createOrUpdateStudentExamMarksRequest);
+    if (createOrUpdateStudentExamMarksResponse.httpStatus == "OK" && createOrUpdateStudentExamMarksResponse.responseStatus == "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Success!"),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong!"),
+        ),
+      );
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   List<Subject> extractSubjects() => studentExamMarksDetailsList
@@ -161,8 +212,44 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text((widget.examBean.examName ?? "-").capitalize()),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () {
+              showDialog(
+                context: _scaffoldKey.currentContext!,
+                builder: (currentContext) {
+                  return AlertDialog(
+                    title: const Text("Exams"),
+                    content: const Text("Are you sure you want to save changes?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _saveChanges();
+                          // _loadData();
+                        },
+                        child: const Text("YES"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          // _saveChanges();
+                          // _loadData();
+                        },
+                        child: const Text("No"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 10),
+        ],
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
@@ -244,6 +331,7 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
       GridColumn(
         width: widthsMap["rno"] ?? 150,
         columnWidthMode: ColumnWidthMode.none,
+        minimumWidth: 50,
         columnName: "rno",
         label: Container(
           padding: const EdgeInsets.all(16.0),
@@ -256,6 +344,7 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
       GridColumn(
         width: widthsMap["student"] ?? 150,
         columnWidthMode: ColumnWidthMode.none,
+        minimumWidth: 50,
         columnName: "student",
         label: Container(
           padding: const EdgeInsets.all(16.0),
@@ -284,12 +373,12 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
                   (e) => GridColumn(
                     width: getColumnWidthByName(e.internalExamMapTdsId?.toString() ?? ""),
                     columnWidthMode: ColumnWidthMode.none,
+                    minimumWidth: 50,
                     columnName: e.internalExamMapTdsId!.toString(),
-                    label: Container(
-                      padding: const EdgeInsets.all(16.0),
-                      alignment: Alignment.center,
+                    label: Center(
                       child: Text(
-                        e.internalExamName ?? "-",
+                        (e.internalExamName ?? "-") + (((e.maxMarks ?? 0) == 0) ? "" : "\n[${e.maxMarks}]"),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -300,12 +389,12 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
                   (e) => GridColumn(
                     width: getColumnWidthByName(e.examTdsMapId?.toString() ?? ""),
                     columnWidthMode: ColumnWidthMode.none,
+                    minimumWidth: 50,
                     columnName: e.examTdsMapId!.toString(),
-                    label: Container(
-                      padding: const EdgeInsets.all(16.0),
-                      alignment: Alignment.center,
+                    label: Center(
                       child: Text(
-                        e.examName ?? "-",
+                        (e.examName ?? "-") + (((e.maxMarks ?? 0) == 0) ? "" : "\n[${e.maxMarks}]"),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -343,103 +432,121 @@ class _AdminExamMarksV3ScreenState extends State<AdminExamMarksV3Screen> {
             .expand((i) => i)
             .toList();
         marksRowSource.sourceCells!.addAll(
-          subjectWiseInternalsExamTdsMapBeans
-                  .map(
-                    (eachInternal) => ExamMarksCellSource(
-                      studentId: eachStudent.studentId,
-                      subjectId: eachInternal.subjectId,
-                      examTdsMapId: eachInternal.internalExamMapTdsId,
-                      parentExamTdsMapId: eachInternal.examTdsMapId,
-                      internalsComputationCode: null,
-                      parentExamInternalsComputationCode: fromInternalsComputationCodeString(subjectWiseExamTdsMapBeans
-                              .where((eachExternal) => (eachExternal.internalExamTdsMapBeanList ?? [])
-                                  .map((eachInnerInternal) => eachInnerInternal?.internalExamMapTdsId)
-                                  .contains(eachInternal.internalExamMapTdsId))
+          subjectWiseInternalsExamTdsMapBeans.map((eachInternal) {
+                int? internalMarksObtained = studentExamMarksDetailsList
+                    .where((e) => eachStudent.studentId == e.studentId)
+                    .map((e) => e.studentInternalExamMarksDetailsBeanList ?? [])
+                    .expand((i) => i)
+                    .where((e) => e?.internalTdsMapId == eachInternal.internalExamMapTdsId)
+                    .firstOrNull
+                    ?.internalsMarksObtained;
+                if (internalMarksObtained == null || internalMarksObtained < 0) {
+                  internalMarksObtained = null;
+                }
+                return ExamMarksCellSource(
+                  studentId: eachStudent.studentId,
+                  examId: eachInternal.internalExamId,
+                  subjectId: eachInternal.subjectId,
+                  examTdsMapId: eachInternal.internalExamMapTdsId,
+                  parentExamTdsMapId: eachInternal.examTdsMapId,
+                  internalsComputationCode: null,
+                  parentExamInternalsComputationCode: fromInternalsComputationCodeString(subjectWiseExamTdsMapBeans
+                          .where((eachExternal) => (eachExternal.internalExamTdsMapBeanList ?? [])
+                              .map((eachInnerInternal) => eachInnerInternal?.internalExamMapTdsId)
+                              .contains(eachInternal.internalExamMapTdsId))
+                          .firstOrNull
+                          ?.internalsComputationCode ??
+                      ""),
+                  marksObtained: internalMarksObtained,
+                  initialMarksObtained: internalMarksObtained,
+                  maxMarks: eachInternal.maxMarks,
+                  internalsWeightage: null,
+                  isInternal: true,
+                  canEdit: fromInternalsComputationCodeString(subjectWiseExamTdsMapBeans.firstOrNull?.internalsComputationCode ?? "") ==
+                      InternalsComputationCode.S,
+                  setState: setState,
+                  updateExternalsMarksAsPerInternalSum: updateExternalsMarksAsPerInternalSum,
+                )..marksObtained = internalMarksObtained;
+              }).toList() +
+              subjectWiseExamTdsMapBeans.map((eachExamTdsMapBean) {
+                int? marksObtained;
+                if (eachExamTdsMapBean.internalsComputationCode == "S") {
+                  marksObtained = (studentExamMarksDetailsList
+                              .where((e) => e.studentId == eachStudent.studentId && e.examTdsMapId == eachExamTdsMapBean.examTdsMapId)
                               .firstOrNull
-                              ?.internalsComputationCode ??
-                          ""),
-                      marksObtained: null,
-                      maxMarks: eachInternal.maxMarks,
-                      internalsWeightage: null,
-                      isInternal: true,
-                      canEdit: fromInternalsComputationCodeString(subjectWiseExamTdsMapBeans.firstOrNull?.internalsComputationCode ?? "") ==
-                          InternalsComputationCode.S,
-                      setState: setState,
-                      updateExternalsMarksAsPerInternalSum: updateExternalsMarksAsPerInternalSum,
-                    ),
-                  )
-                  .toList() +
-              subjectWiseExamTdsMapBeans
-                  .map(
-                    (e) => ExamMarksCellSource(
-                      studentId: eachStudent.studentId,
-                      subjectId: e.subjectId,
-                      examTdsMapId: e.examTdsMapId,
-                      parentExamTdsMapId: null,
-                      internalsComputationCode: fromInternalsComputationCodeString(e.internalsComputationCode ?? ""),
-                      parentExamInternalsComputationCode: null,
-                      marksObtained: null,
-                      maxMarks: e.maxMarks,
-                      internalsWeightage: e.internalsWeightage,
-                      isInternal: false,
-                      canEdit: e.internalsWeightage != 100,
-                      setState: setState,
-                      updateExternalsMarksAsPerInternalSum: null,
-                    ),
-                  )
-                  .toList(),
+                              ?.studentInternalExamMarksDetailsBeanList ??
+                          [])
+                      .map((e) => e?.internalsMarksObtained)
+                      .reduce((a, b) {
+                    if (a == null || a < 0) {
+                      a = null;
+                    }
+                    if (b == null || b < 0) {
+                      b = null;
+                    }
+                    return (a ?? 0) + (b ?? 0);
+                  });
+                } else {
+                  marksObtained = studentExamMarksDetailsList
+                      .where((e) => e.studentId == eachStudent.studentId && e.examTdsMapId == eachExamTdsMapBean.examTdsMapId)
+                      .firstOrNull
+                      ?.marksObtained;
+                }
+                if (marksObtained == null || marksObtained < 0) {
+                  marksObtained = null;
+                }
+                return ExamMarksCellSource(
+                  studentId: eachStudent.studentId,
+                  examId: eachExamTdsMapBean.examId,
+                  subjectId: eachExamTdsMapBean.subjectId,
+                  examTdsMapId: eachExamTdsMapBean.examTdsMapId,
+                  parentExamTdsMapId: null,
+                  internalsComputationCode: fromInternalsComputationCodeString(eachExamTdsMapBean.internalsComputationCode ?? ""),
+                  parentExamInternalsComputationCode: null,
+                  marksObtained: marksObtained,
+                  initialMarksObtained: marksObtained,
+                  maxMarks: eachExamTdsMapBean.maxMarks,
+                  internalsWeightage: eachExamTdsMapBean.internalsWeightage,
+                  isInternal: false,
+                  canEdit: eachExamTdsMapBean.internalsWeightage != 100,
+                  setState: setState,
+                  updateExternalsMarksAsPerInternalSum: null,
+                );
+              }).toList(),
         );
       }
       data.add(marksRowSource);
-    }
-    for (ExamMarksRowSource eachRow in data) {
-      for (ExamMarksCellSource eachCell in eachRow.sourceCells ?? []) {
-        eachCell.marksObtained = studentExamMarksDetailsList
-                .where((e) => e.studentId == eachRow.studentId && e.examTdsMapId == eachCell.examTdsMapId)
-                .firstOrNull
-                ?.marksObtained ??
-            studentExamMarksDetailsList
-                .where((e) => e.studentId == eachRow.studentId)
-                .map((e) => e.studentInternalExamMarksDetailsBeanList ?? [])
-                .expand((i) => i)
-                .where((e) => e?.examTdsMapId == eachCell.examTdsMapId)
-                .firstOrNull
-                ?.internalsMaxMarks;
-        if (eachCell.marksObtained != null && eachCell.marksObtained! < 0) {
-          eachCell.marksObtained = 0;
-        }
-      }
     }
     return data;
   }
 
   void updateExternalsMarksAsPerInternalSum(int studentId, int parentExamTdsMapId) {
-    setState(() {
-      int newMarks = marksDataSource.dataGridSourceRows
-          .where((e) => e.studentId == studentId)
-          .map((e) => e.sourceCells ?? [])
-          .expand((i) => i)
-          .where((e) => e.parentExamTdsMapId == parentExamTdsMapId)
-          .map((e) => e.marksObtained ?? 0)
-          .reduce((a, b) => a + b);
-      ExamMarksCellSource? x = marksDataSource.dataGridSourceRows
-          .where((e) => e.studentId == studentId)
-          .map((e) => e.sourceCells ?? [])
-          .expand((i) => i)
-          .where((e) => e.examTdsMapId == parentExamTdsMapId)
-          .firstOrNull;
-      if (x != null) {
-        x.marksObtained = newMarks;
-        x.marksObtainedController.text = "$newMarks";
-      }
-    });
+    int newMarks = marksDataSource.dataGridSourceRows
+        .where((e) => e.studentId == studentId)
+        .map((e) => e.sourceCells ?? [])
+        .expand((i) => i)
+        .where((e) => e.parentExamTdsMapId == parentExamTdsMapId)
+        .map((e) => e.marksObtained ?? 0)
+        .reduce((a, b) => a + b);
+    ExamMarksCellSource? x = marksDataSource.dataGridSourceRows
+        .where((e) => e.studentId == studentId)
+        .map((e) => e.sourceCells ?? [])
+        .expand((i) => i)
+        .where((e) => e.examTdsMapId == parentExamTdsMapId)
+        .firstOrNull;
+    if (x != null) {
+      x.marksObtained = newMarks;
+      x.marksObtainedController.text = "$newMarks";
+    }
   }
 }
 
 class MarksDataSource extends DataGridSource {
-  MarksDataSource(this.dataGridSourceRows, this.context);
+  MarksDataSource(this.dataGridSourceRows, this.context, this.marksDataGridController, this.setState);
 
   List<ExamMarksRowSource> dataGridSourceRows = [];
+  final DataGridController marksDataGridController;
+  Function setState;
   BuildContext context;
 
   @override
@@ -470,10 +577,15 @@ class MarksDataSource extends DataGridSource {
           ),
         );
       } else {
-        return dataGridCell.value!.widget(context);
+        bool isSelected = isCellSelected(row, dataGridCell);
+        return dataGridCell.value!.widget(context, isSelected, marksDataGridController);
       }
     }).toList());
   }
+
+  bool isCellSelected(DataGridRow row, DataGridCell<dynamic> dataGridCell) =>
+      marksDataGridController.currentCell.rowIndex == rows.indexWhere((e) => e.getCells()[0].value == row.getCells()[0].value) &&
+      marksDataGridController.currentCell.columnIndex == row.getCells().indexWhere((e) => e == dataGridCell);
 }
 
 class ExamMarksRowSource {
@@ -491,11 +603,13 @@ class ExamMarksRowSource {
 }
 
 class ExamMarksCellSource {
+  int? examId;
   int? studentId;
   int? subjectId;
   int? examTdsMapId;
   int? parentExamTdsMapId;
   int? marksObtained;
+  int? initialMarksObtained;
   int? maxMarks;
   InternalsComputationCode? internalsComputationCode;
   InternalsComputationCode? parentExamInternalsComputationCode;
@@ -510,11 +624,13 @@ class ExamMarksCellSource {
   Function? updateExternalsMarksAsPerInternalSum;
 
   ExamMarksCellSource({
+    this.examId,
     this.studentId,
     this.subjectId,
     this.examTdsMapId,
     this.parentExamTdsMapId,
     this.marksObtained,
+    this.initialMarksObtained,
     this.maxMarks,
     this.internalsComputationCode,
     this.parentExamInternalsComputationCode,
@@ -523,12 +639,14 @@ class ExamMarksCellSource {
     this.canEdit,
     required this.setState,
     this.updateExternalsMarksAsPerInternalSum,
-  });
+  }) {
+    marksObtainedController.text = marksObtained?.toString() ?? "";
+  }
 
-  Widget widget(BuildContext context) {
+  Widget widget(BuildContext context, bool isSelected, DataGridController marksDataGridController) {
     return Center(
-      child: canEdit == null || !canEdit!
-          ? Text("$marksObtained")
+      child: canEdit == null || !canEdit! || !isSelected
+          ? Text(marksObtained?.toString() ?? "-")
           : TextField(
               keyboardType: TextInputType.number,
               expands: true,
@@ -537,15 +655,17 @@ class ExamMarksCellSource {
               textInputAction: TextInputAction.next,
               textAlign: TextAlign.center,
               textAlignVertical: TextAlignVertical.center,
-              enabled: canEdit,
+              enabled: true,
+              autofocus: true,
               decoration: const InputDecoration.collapsed(hintText: ''),
               onChanged: (String e) {
-                setState(() {
-                  marksObtained = int.tryParse(e) ?? marksObtained;
-                  if (updateExternalsMarksAsPerInternalSum != null && parentExamInternalsComputationCode == InternalsComputationCode.S) {
-                    updateExternalsMarksAsPerInternalSum!(studentId, parentExamTdsMapId);
-                  }
-                });
+                marksObtained = int.tryParse(e) ?? marksObtained;
+                if (updateExternalsMarksAsPerInternalSum != null && parentExamInternalsComputationCode == InternalsComputationCode.S) {
+                  updateExternalsMarksAsPerInternalSum!(studentId, parentExamTdsMapId);
+                }
+              },
+              onEditingComplete: () {
+                moveFocusOnComplete(marksDataGridController);
               },
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
@@ -563,8 +683,33 @@ class ExamMarksCellSource {
                   }
                 }),
               ],
+              controller: marksObtainedController,
             ),
     );
+  }
+
+  void moveFocusOnComplete(DataGridController marksDataGridController) {
+    try {
+      print("562: Trying to move down");
+      marksDataGridController.beginEdit(
+        RowColumnIndex(
+          marksDataGridController.currentCell.rowIndex + 1,
+          marksDataGridController.currentCell.columnIndex,
+        ),
+      );
+    } catch (e) {
+      try {
+        print("568: Trying to move right");
+        marksDataGridController.beginEdit(
+          RowColumnIndex(
+            0,
+            marksDataGridController.currentCell.columnIndex + 1,
+          ),
+        );
+      } catch (e) {
+        print("572: Done trying to move");
+      }
+    }
   }
 
   @override

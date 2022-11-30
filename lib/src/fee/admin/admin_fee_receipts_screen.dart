@@ -110,7 +110,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     } else {
       setState(() {
         feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
-        selectedFeeTypes = feeTypes.where((e) => e.customFeeTypesList?.isEmpty ?? true).map((e) => e.feeTypeId ?? 0).toList();
+        selectedFeeTypes = feeTypes.where((e) => e.customFeeTypesList?.isEmpty ?? true).map((e) => e.feeTypeId ?? 0).toList() + [-1];
         selectedCustomFeeTypes = feeTypes
             .where((e) => e.customFeeTypesList?.isNotEmpty ?? false)
             .map((e) => e.customFeeTypesList ?? [])
@@ -1111,6 +1111,8 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                     lastNDatesStatRadioButton(),
                     const SizedBox(height: 10),
                     feeTypeFilter(),
+                    const SizedBox(height: 10),
+                    busFeeTypeFilter(),
                   ],
                 ),
               const SizedBox(height: 10),
@@ -1267,7 +1269,63 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       child: ListView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        children: [...feeTypes.map((e) => feeTypeWidget(e)).toList()],
+        children: [...feeTypes.map((e) => feeTypeWidget(e)).toList()] +
+            [
+              busFeeTypeFilter(),
+            ],
+      ),
+    );
+  }
+
+  Widget busFeeTypeFilter() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Checkbox(
+                    onChanged: (bool? value) {
+                      if (value == null) return;
+                      if (value) {
+                        setState(() {
+                          selectedFeeTypes.add(-1);
+                        });
+                        _filterData();
+                      } else {
+                        setState(() {
+                          selectedFeeTypes.remove(-1);
+                        });
+                        _filterData();
+                      }
+                    },
+                    value: selectedFeeTypes.contains(-1),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      "Bus Fee",
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_exam_marks_v3_screen.dart';
 import 'package:schoolsgo_web/src/exams/model/admin_exams.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -117,36 +116,36 @@ class _AdminPublishResultsScreenState extends State<AdminPublishResultsScreen> {
           : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10),
       child: InkWell(
         onTap: () {
-          if ((examBean.examSectionMapBeanList ?? [])
-              .map((ExamSectionMapBean? e) => e!)
-              .where((ExamSectionMapBean eachSectionMapBean) => eachSectionMapBean.sectionId == _selectedSection?.sectionId)
-              .map((ExamSectionMapBean eachSectionMapBean) => eachSectionMapBean.examTdsMapBeanList ?? [])
-              .expand((List<ExamTdsMapBean?> i) => i)
-              .map((ExamTdsMapBean? examTdsMapBean) => examTdsMapBean!)
-              .where((ExamTdsMapBean examTdsMapBean) => examTdsMapBean.sectionId == _selectedSection?.sectionId)
-              .map((e) => e.internalsComputationCode)
-              .toList()
-              .contains("S")) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return AdminExamMarksV3Screen(
-                adminProfile: widget.adminProfile,
-                examBean: examBean,
-                section: _selectedSection!,
-                subjectId: null,
-                teacherId: null,
-              );
-            }));
-          } else {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return AdminExamMarksScreen(
-                adminProfile: widget.adminProfile,
-                examBean: examBean,
-                section: _selectedSection!,
-                subjectId: null,
-                teacherId: null,
-              );
-            }));
-          }
+          // if ((examBean.examSectionMapBeanList ?? [])
+          //     .map((ExamSectionMapBean? e) => e!)
+          //     .where((ExamSectionMapBean eachSectionMapBean) => eachSectionMapBean.sectionId == _selectedSection?.sectionId)
+          //     .map((ExamSectionMapBean eachSectionMapBean) => eachSectionMapBean.examTdsMapBeanList ?? [])
+          //     .expand((List<ExamTdsMapBean?> i) => i)
+          //     .map((ExamTdsMapBean? examTdsMapBean) => examTdsMapBean!)
+          //     .where((ExamTdsMapBean examTdsMapBean) => examTdsMapBean.sectionId == _selectedSection?.sectionId)
+          //     .map((e) => e.examName)
+          //     .toList()
+          //     .contains("")) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return AdminExamMarksV3Screen(
+              adminProfile: widget.adminProfile,
+              examBean: examBean,
+              section: _selectedSection!,
+              subjectId: null,
+              teacherId: null,
+            );
+          }));
+          // } else {
+          //   Navigator.push(context, MaterialPageRoute(builder: (context) {
+          //     return AdminExamMarksScreen(
+          //       adminProfile: widget.adminProfile,
+          //       examBean: examBean,
+          //       section: _selectedSection!,
+          //       subjectId: null,
+          //       teacherId: null,
+          //     );
+          //   }));
+          // }
         },
         child: ClayButton(
           depth: 40,
