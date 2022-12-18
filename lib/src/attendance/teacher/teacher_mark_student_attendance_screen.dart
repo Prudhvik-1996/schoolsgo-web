@@ -158,29 +158,25 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                 width: 500,
               ),
             )
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  if (attendanceTimeSlotBeans.isNotEmpty) _headerWidget(),
-                  if (attendanceTimeSlotBeans.isNotEmpty && _isEditMode) _subHeaderWidget(),
-                  if (attendanceTimeSlotBeans.isNotEmpty)
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height - (_isEditMode ? 2 : 1) * (_cellColumnHeight + _cellPadding + _cellPadding),
-                      width: MediaQuery.of(context).size.width,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Column(
-                          children: [
-                            _studentAttendanceWidgets(),
-                          ],
+          : Column(
+              children: [
+                const SizedBox(
+                  height: 20,
+                ),
+                if (attendanceTimeSlotBeans.isNotEmpty) _headerWidget(),
+                if (attendanceTimeSlotBeans.isNotEmpty && _isEditMode) _subHeaderWidget(),
+                if (attendanceTimeSlotBeans.isNotEmpty)
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        _studentAttendanceWidgets(),
+                        const SizedBox(
+                          height: 100,
                         ),
-                      ),
+                      ],
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
       floatingActionButton: buildEditButton(context),
     );
