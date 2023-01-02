@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:download/download.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 
 enum MediaFileType {
@@ -275,7 +274,6 @@ String getAssetImageForFileType(MediaFileType fileType) {
 
 downloadFile(String url, {String? filename}) async {
   debugPrint(url);
-
   http.Response response = await http.get(
     Uri.parse(allowCORSEndPoint + url),
   );
@@ -376,11 +374,23 @@ class MediaBean {
 Future<UploadFileToDriveResponse> uploadFileToDrive(
   Object file,
   String fileName, {
+  String? fileType,
   String? filePath,
+  int? agent,
 }) async {
   try {
-    debugPrint("Raising request to uploadFileToDrive with request $fileName $filePath + $fileName");
-    String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL + UPLOAD_FILE_TO_DRIVE;
+    if (fileType == null && fileName.contains(".")) {
+      fileType = fileName.split(".").last;
+      fileName = fileName.split(".").sublist(0, fileName.split(".").length - 1).join("").trim();
+    }
+    if (fileType == null) throw Exception("File Type cannot be null");
+    debugPrint("Raising request to uploadFileToDrive with request fileName : $fileName, fileType : $fileType, filePath : $filePath");
+    String _url = SCHOOLS_GO_DRIVE_SERVICE_BASE_URL +
+        UPLOAD_FILE_TO_DRIVE +
+        "?" +
+        (agent == null ? "" : "agent=$agent&") +
+        "fileName=$fileName&fileType=$fileType";
+    print(_url);
     var request = http.MultipartRequest('POST', Uri.parse(_url));
     Uint8List _bytesData = const Base64Decoder().convert(file.toString().split(",").last);
     List<int> _selectedFile = _bytesData;
@@ -389,13 +399,12 @@ Future<UploadFileToDriveResponse> uploadFileToDrive(
           ? http.MultipartFile.fromBytes(
               'file',
               _selectedFile,
-              contentType: MediaType('application', 'octet-stream'),
-              filename: fileName,
+              filename: fileName + "." + fileType,
             )
           : (await http.MultipartFile.fromPath(
               'file',
               filePath + fileName,
-              filename: fileName,
+              filename: fileName + "." + fileType,
             )),
     );
     debugPrint("Request: $request");

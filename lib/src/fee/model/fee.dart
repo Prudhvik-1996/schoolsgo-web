@@ -4617,3 +4617,99 @@ Future<GetStudentFeeDetailsSupportClassesResponse> getStudentFeeDetailsSupportCl
   debugPrint("GetStudentFeeDetailsSupportClassesResponse ${getStudentFeeDetailsSupportClassesResponse.toJson()}");
   return getStudentFeeDetailsSupportClassesResponse;
 }
+
+class DeleteReceiptRequest {
+/*
+{
+  "agentId": 0,
+  "comments": "string",
+  "masterTransactionId": 0,
+  "schoolId": 0
+}
+*/
+
+  int? agentId;
+  String? comments;
+  int? masterTransactionId;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  DeleteReceiptRequest({
+    this.agentId,
+    this.comments,
+    this.masterTransactionId,
+    this.schoolId,
+  });
+  DeleteReceiptRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    comments = json['comments']?.toString();
+    masterTransactionId = json['masterTransactionId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['comments'] = comments;
+    data['masterTransactionId'] = masterTransactionId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class DeleteReceiptResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  DeleteReceiptResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  DeleteReceiptResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<DeleteReceiptResponse> deleteReceipt(DeleteReceiptRequest deleteReceiptRequest) async {
+  debugPrint("Raising request to deleteReceipt with request ${jsonEncode(deleteReceiptRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + DELETE_FEE_RECEIPT;
+
+  DeleteReceiptResponse deleteReceiptResponse = await HttpUtils.post(
+    _url,
+    deleteReceiptRequest.toJson(),
+    DeleteReceiptResponse.fromJson,
+  );
+
+  debugPrint("DeleteReceiptResponse ${deleteReceiptResponse.toJson()}");
+  return deleteReceiptResponse;
+}

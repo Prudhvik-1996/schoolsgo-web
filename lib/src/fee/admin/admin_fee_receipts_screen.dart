@@ -66,6 +66,8 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   List<_NewReceipt> newReceipts = [];
   late int latestReceiptNumberToBeAdded;
 
+  TextEditingController reasonToDeleteTextController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -73,7 +75,10 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      reasonToDeleteTextController.text = "";
+      _isLoading = true;
+    });
     GetSectionsResponse getSectionsResponse = await getSections(GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
@@ -717,14 +722,106 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
+                  const SizedBox(
+                    width: 10,
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     child: Tooltip(
                       message: convertDateToDDMMMYYYEEEE(e.transactionDate),
                       child: Text(
                         "Date:${MediaQuery.of(context).orientation == Orientation.landscape ? " " : "\n"}${convertDateToDDMMMYYY(e.transactionDate)}",
-                        textAlign: MediaQuery.of(context).orientation == Orientation.landscape ? TextAlign.end : TextAlign.center,
+                        textAlign: TextAlign.end,
                         style: const TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      //  TODO
+                      await showDialog(
+                        context: _scaffoldKey.currentContext!,
+                        builder: (BuildContext dialogueContext) {
+                          return AlertDialog(
+                            title: const Text('Are you sure you want to delete the receipt?'),
+                            content: TextField(
+                              onChanged: (value) {},
+                              controller: reasonToDeleteTextController,
+                              decoration: InputDecoration(
+                                hintText: "Reason to delete",
+                                errorText: reasonToDeleteTextController.text.trim() == "" ? "Reason cannot be empty!" : "",
+                              ),
+                              autofocus: true,
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text("Yes"),
+                                onPressed: () async {
+                                  if (reasonToDeleteTextController.text.trim() == "") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Reason to delete cannot be empty.."),
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                    return;
+                                  }
+                                  Navigator.pop(context);
+                                  setState(() => _isLoading = true);
+                                  DeleteReceiptRequest deleteReceiptRequest = DeleteReceiptRequest(
+                                    schoolId: widget.adminProfile.schoolId,
+                                    agentId: widget.adminProfile.userId,
+                                    masterTransactionId: e.masterTransactionId,
+                                    comments: reasonToDeleteTextController.text.trim(),
+                                  );
+                                  DeleteReceiptResponse deleteReceiptResponse = await deleteReceipt(deleteReceiptRequest);
+                                  if (deleteReceiptResponse.httpStatus != "OK" || deleteReceiptResponse.responseStatus != "success") {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Something went wrong! Try again later.."),
+                                      ),
+                                    );
+                                  } else {
+                                    _loadData();
+                                  }
+                                  setState(() => _isLoading = false);
+                                },
+                              ),
+                              TextButton(
+                                child: const Text("No"),
+                                onPressed: () async {
+                                  setState(() {
+                                    reasonToDeleteTextController.text = "";
+                                  });
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: ClayButton(
+                      color: clayContainerColor(context),
+                      height: 20,
+                      width: 20,
+                      spread: 1,
+                      borderRadius: 10,
+                      depth: 40,
+                      child: const Padding(
+                        padding: EdgeInsets.all(3.0),
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

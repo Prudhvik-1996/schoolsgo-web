@@ -84,18 +84,6 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
         title: const Text("Ledger"),
         actions: [
           buildRoleButtonForAppBar(context, widget.adminProfile),
-          InkWell(
-            onTap: () {
-              //  TODO download report
-            },
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(5, 0, 15, 0),
-              child: const Tooltip(
-                message: "Download",
-                child: Icon(Icons.download),
-              ),
-            ),
-          ),
         ],
       ),
       drawer: AdminAppDrawer(
@@ -608,7 +596,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
               child: Text("Net amount:"),
             ),
             Text(
-              "$INR_SYMBOL ${(doubleToStringAsFixedForINR((filteredTransactions.map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100)).replaceAll("-", "")}",
+              "$INR_SYMBOL ${(doubleToStringAsFixedForINR((filteredTransactions.where((e) => e.status == "active").map((e) => (e.transactionKind == "CR" ? 1 : -1) * (e.amount ?? 0)).toList().sum) / 100)).replaceAll("-", "")}",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -841,7 +829,8 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 20,
-        color: clayContainerColor(context),
+        surfaceColor: eachTxn.status == "inactive" ? Colors.red[300] : clayContainerColor(context),
+        parentColor: clayContainerColor(context),
         spread: 2,
         borderRadius: 10,
         child: Container(
@@ -858,9 +847,9 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                   Expanded(
                     child: Text(
                       (eachTxn.transactionType ?? "-").replaceAll("_", " "),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
-                        color: Colors.blue,
+                        color: eachTxn.status == "inactive" ? clayContainerColor(context) : Colors.blue,
                       ),
                     ),
                   ),
@@ -936,8 +925,17 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Expanded(
-                    child: Text(""),
+                  Expanded(
+                    child: Text(
+                      eachTxn.comments ?? "",
+                      style: TextStyle(
+                        color: clayContainerColor(context),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
                   ),
                   Text(
                     eachTxn.transactionTime == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachTxn.transactionTime!),
@@ -992,19 +990,19 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Text(
                         "Hide details",
                         style: TextStyle(
-                          color: Colors.lightBlue,
+                          color: eachTxn.status == "inactive" ? clayContainerColor(context) : Colors.blue,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Icon(
                         Icons.keyboard_arrow_up,
-                        color: Colors.lightBlue,
+                        color: eachTxn.status == "inactive" ? clayContainerColor(context) : Colors.blue,
                       ),
                     ],
                   ),
@@ -1087,19 +1085,19 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Text(
                         "Show more details",
                         style: TextStyle(
-                          color: Colors.lightBlue,
+                          color: eachTxn.status == "inactive" ? clayContainerColor(context) : Colors.blue,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Icon(
                         Icons.keyboard_arrow_down,
-                        color: Colors.lightBlue,
+                        color: eachTxn.status == "inactive" ? clayContainerColor(context) : Colors.blue,
                       ),
                     ],
                   ),

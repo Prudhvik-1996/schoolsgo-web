@@ -93,6 +93,7 @@ class TransactionBean {
   String? branchCode;
   List<TransactionBean?>? childTransactions;
   String? description;
+  String? comments;
   int? franchiseId;
   String? franchiseName;
   String? parentTransactionId;
@@ -114,6 +115,7 @@ class TransactionBean {
     this.branchCode,
     this.childTransactions,
     this.description,
+    this.comments,
     this.franchiseId,
     this.franchiseName,
     this.parentTransactionId,
@@ -140,6 +142,7 @@ class TransactionBean {
       childTransactions = arr0;
     }
     description = json['description']?.toString();
+    comments = json['comments']?.toString();
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
     parentTransactionId = json['parentTransactionId']?.toString();
@@ -166,6 +169,7 @@ class TransactionBean {
       data['childTransactions'] = arr0;
     }
     data['description'] = description;
+    data['comments'] = comments;
     data['franchiseId'] = franchiseId;
     data['franchiseName'] = franchiseName;
     data['parentTransactionId'] = parentTransactionId;

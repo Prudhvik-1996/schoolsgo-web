@@ -114,8 +114,7 @@ const String CREATE_OR_UPDATE_FEE_PAID = "/fee/createOrUpdateStudentFeePaid";
 const String GET_STUDENT_FEE_DETAILS = "/fee/getStudentFeeDetails";
 const String GET_STUDENT_FEE_DETAILS_SUPPORT_CLASSES = "/fee/getStudentFeeDetailsSupportClasses";
 const String CREATE_NEW_FEE_RECEIPTS = "/fee/createNewReceipts";
-// const String GET_CUSTOM_FEE_TYPES = "/fee/getCustomFees";
-// const String GET_FEE_MAP = "/fee/getFeeMap";
+const String DELETE_FEE_RECEIPT = "/fee/deleteReceipt";
 
 const String GET_BUSES_DRIVERS = "/buses/getDrivers";
 const String GET_BUSES_BASE_DETAILS = "/buses/getBusesBaseDetails";

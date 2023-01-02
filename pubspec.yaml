@@ -92,7 +92,12 @@ dependencies:
   restart_app: ^1.1.0
 
   pluto_grid: ^5.4.3
-  syncfusion_flutter_datagrid: ^20.3.58
+  syncfusion_flutter_datagrid: ^20.4.38
+
+  internet_file: ^1.2.0
+  pdfx: ^2.3.0
+
+  webviewx: ^0.2.1
 
 dev_dependencies:
   flutter_test:

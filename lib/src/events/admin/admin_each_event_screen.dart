@@ -23,6 +23,7 @@ class AdminEachEventScreen extends StatefulWidget {
   final Event event;
 
   static const routeName = "/event";
+
   @override
   _AdminEachEventScreenState createState() => _AdminEachEventScreenState();
 }
@@ -266,7 +267,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
             )
           : previewingIndex == null
               ? Container(
-                  margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
+                  margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, 0),
                   child: GridView.count(
                     primary: false,
                     padding: const EdgeInsets.all(1.5),
@@ -370,15 +371,17 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                                       child: Icon(Icons.arrow_left),
                                     ),
                                   )
-                                : Tooltip(
-                                    message: 'Previous',
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          previewingIndex = previewingIndex! - 1;
-                                        });
-                                      },
-                                      child: const SizedBox(
+                                : InkWell(
+                                    onTap: () {
+                                      print("Prev : $previewingIndex");
+                                      setState(() {
+                                        previewingIndex = (previewingIndex ?? 1) - 1;
+                                      });
+                                      print("Prev : $previewingIndex");
+                                    },
+                                    child: const Tooltip(
+                                      message: 'Previous',
+                                      child: SizedBox(
                                         height: 50,
                                         width: 50,
                                         child: FittedBox(
@@ -393,13 +396,8 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                             width: MediaQuery.of(context).size.width / 2,
                             height: MediaQuery.of(context).size.height / 1,
                             child: getFileTypeForExtension(eventMedia[previewingIndex!].mediaType!) == MediaFileType.IMAGE_FILES
-                                ? MediaLoadingWidget(
-                                    mediaUrl: eventMedia[previewingIndex!].mediaUrl!,
-                                    mediaFit: BoxFit.contain,
-                                  )
-                                : HtmlElementView(
-                                    viewType: eventMedia[previewingIndex!].mediaUrl!,
-                                  ),
+                                ? buildMediaLoadingWidget()
+                                : buildHtmlElementView(),
                           ),
                           Container(
                             margin: const EdgeInsets.all(20),
@@ -412,15 +410,17 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                                       child: Icon(Icons.arrow_right),
                                     ),
                                   )
-                                : Tooltip(
-                                    message: 'Next',
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          previewingIndex = previewingIndex! + 1;
-                                        });
-                                      },
-                                      child: const SizedBox(
+                                : InkWell(
+                                    onTap: () {
+                                      print("Next : $previewingIndex");
+                                      setState(() {
+                                        previewingIndex = (previewingIndex ?? 0) + 1;
+                                      });
+                                      print("Next : $previewingIndex");
+                                    },
+                                    child: const Tooltip(
+                                      message: 'Next',
+                                      child: SizedBox(
                                         height: 50,
                                         width: 50,
                                         child: FittedBox(
@@ -445,7 +445,7 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
                   uploadInput.multiple = true;
                   uploadInput.draggable = true;
                   uploadInput.accept =
-                      '.png,.jpg,.jpeg,.3g2,.3gp,.avi,.flv,.h264,.m4v,.mkv,.mov,.mp4,.mpg,.mpeg,.rm,.swf,.vob,.wmv,.PNG,.JPG,.JPEG,.3G2,.3GP,.AVI,.FLV,.H264,.M4V,.MKV,.MOV,.MP4,.MPG,.MPEG,.RM,.SWF,.VOB,.WMV';
+                      '.png,.jpg,.jpeg,.3g2,.3gp,.avi,.flv,.h264,.m4v,.mkv,.mov,.mp4,.mpg,.mpeg,.rm,.swf,.vob,.wmv,.PNG,.JPG,.JPEG,.3G2,.3GP,.AVI,.FLV,.H264,.M4V,.MKV,.MOV,.MP4,.MPG,.MPEG,.RM,.SWF,.VOB,.WMV,.pdf';
                   uploadInput.click();
                   uploadInput.onChange.listen(
                     (changeEvent) async {
@@ -507,6 +507,19 @@ class _AdminEachEventScreenState extends State<AdminEachEventScreen> {
               },
               child: const Icon(Icons.add),
             ),
+    );
+  }
+
+  Widget buildHtmlElementView() {
+    return HtmlElementView(
+      viewType: eventMedia[previewingIndex!].mediaUrl!,
+    );
+  }
+
+  Widget buildMediaLoadingWidget() {
+    return MediaLoadingWidget(
+      mediaUrl: eventMedia[previewingIndex!].mediaUrl!,
+      mediaFit: BoxFit.contain,
     );
   }
 }
