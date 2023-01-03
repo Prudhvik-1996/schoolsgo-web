@@ -307,13 +307,13 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                   flex: 1,
                   child: _radioListTileForFeeReportType(FeeReportType.detailed),
                 ),
-                const SizedBox(
-                  width: 15,
-                ),
-                Expanded(
-                  flex: 1,
-                  child: _radioListTileForFeeReportType(FeeReportType.summary),
-                ),
+                // const SizedBox(
+                //   width: 15,
+                // ),
+                // Expanded(
+                //   flex: 1,
+                //   child: _radioListTileForFeeReportType(FeeReportType.summary),
+                // ),
               ],
             )
           : Column(
@@ -322,13 +322,13 @@ class _FeesReportScreenState extends State<FeesReportScreen> {
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
                   child: _radioListTileForFeeReportType(FeeReportType.detailed),
                 ),
-                const SizedBox(
-                  width: 15,
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-                  child: _radioListTileForFeeReportType(FeeReportType.summary),
-                ),
+                // const SizedBox(
+                //   width: 15,
+                // ),
+                // Container(
+                //   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                //   child: _radioListTileForFeeReportType(FeeReportType.summary),
+                // ),
               ],
             ),
     );
