@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/clay_containers.dart';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -179,6 +180,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       studentProfiles: studentProfiles,
       studentFeeDetails: studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList(),
       studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+      studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
       feeTypes: feeTypes,
       totalBusFee: null,
       busFeePaid: null,
@@ -252,11 +254,11 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 );
               }).toList();
             }));
-    studentFeeDetailsBeans.forEach((eachStudentFeeDetails) {
+    for (var eachStudentFeeDetails in studentFeeDetailsBeans) {
       busFeeBeans.where((eachBusFee) => eachBusFee.studentId == eachStudentFeeDetails.studentId).forEach((eachBusFee) {
         eachStudentFeeDetails.busFeePaid = eachBusFee.fare;
       });
-    });
+    }
     return studentFeeDetailsBeans;
   }
 
@@ -441,29 +443,27 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                   .millisecondsSinceEpoch,
               agentId: widget.adminProfile.userId,
               schoolId: widget.adminProfile.schoolId,
-              subBeans: eachNewReceipt.termWiseFeeToBePaidBeans
+              subBeans: eachNewReceipt.feeToBePaidBeans
                   .map((eachTermWiseFeeToBePaid) {
                     List<NewReceiptBeanSubBean> subBeans = [];
-                    if ((eachTermWiseFeeToBePaid.termWiseFeeTypes ?? []).isNotEmpty) {
-                      for (_TermWiseFeeType eachTermWiseFeeType in (eachTermWiseFeeToBePaid.termWiseFeeTypes ?? [])) {
-                        if ((eachTermWiseFeeType.termWiseCustomFeeTypes ?? []).isEmpty) {
+                    if ((eachTermWiseFeeToBePaid.feeTypes ?? []).isNotEmpty) {
+                      for (_FeeType eachTermWiseFeeType in (eachTermWiseFeeToBePaid.feeTypes ?? [])) {
+                        if ((eachTermWiseFeeType.customFeeTypes ?? []).isEmpty) {
                           if (eachTermWiseFeeType.isChecked &&
                               eachTermWiseFeeType.feePayingController.text.trim().isNotEmpty &&
                               eachTermWiseFeeType.feePayingController.text != "0") {
                             subBeans.add(NewReceiptBeanSubBean(
-                              // termId: eachTermWiseFeeToBePaid.termId!,
                               feeTypeId: eachTermWiseFeeType.feeTypeId!,
                               customFeeTypeId: null,
                               feePaying: int.parse(eachTermWiseFeeType.feePayingController.text.replaceAll(",", "")) * 100,
                             ));
                           }
                         } else {
-                          for (_TermWiseCustomFeeType eachTermWiseCustomFeeType in (eachTermWiseFeeType.termWiseCustomFeeTypes ?? [])) {
+                          for (_CustomFeeType eachTermWiseCustomFeeType in (eachTermWiseFeeType.customFeeTypes ?? [])) {
                             if (eachTermWiseCustomFeeType.isChecked &&
                                 eachTermWiseCustomFeeType.feePayingController.text.trim().isNotEmpty &&
                                 eachTermWiseCustomFeeType.feePayingController.text != "0") {
                               subBeans.add(NewReceiptBeanSubBean(
-                                // termId: eachTermWiseCustomFeeType.termId!,
                                 feeTypeId: eachTermWiseCustomFeeType.feeTypeId!,
                                 customFeeTypeId: eachTermWiseCustomFeeType.customFeeTypeId,
                                 feePaying: int.parse(eachTermWiseCustomFeeType.feePayingController.text.replaceAll(",", "")) * 100,
@@ -561,6 +561,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                                       studentProfiles: studentProfiles,
                                       studentFeeDetails: studentFeeDetailsBeans,
                                       studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+                                      studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
                                       feeTypes: feeTypes,
                                       totalBusFee: null,
                                       busFeePaid: null,
@@ -1746,7 +1747,7 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
                 ],
               ),
               const SizedBox(height: 10),
-              ...widget.newReceipt.termWiseFeeToBePaidBeans.map((e) => termWiseWidget(e)).toList(),
+              ...widget.newReceipt.feeToBePaidBeans.map((e) => feeToBePaidWidget(e)).toList(),
               const SizedBox(height: 10),
               if (widget.newReceipt.selectedStudent != null && (widget.newReceipt.totalBusFee ?? 0) != 0) buildBusFeePayableWidget(context),
             ],
@@ -1880,7 +1881,7 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
     );
   }
 
-  Widget termWiseWidget(_TermWiseFeeToBePaid termWiseFeeToBePaid) {
+  Widget feeToBePaidWidget(_FeeToBePaid feeToBePaid) {
     return Container(
       margin: const EdgeInsets.all(15),
       child: ClayContainer(
@@ -1901,42 +1902,37 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
               ),
               Row(
                 children: [
-                  Expanded(
-                    child: Text(
-                      termWiseFeeToBePaid.termName ?? "-",
-                      style: const TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
+                  const Expanded(
+                    child: Text(""),
                   ),
                   const SizedBox(width: 15),
                   GestureDetector(
                       onTap: () {
-                        if (termWiseFeeToBePaid.isExpanded == null) {
+                        if (feeToBePaid.isExpanded == null) {
                           setState(() {
-                            termWiseFeeToBePaid.isExpanded = true;
+                            feeToBePaid.isExpanded = true;
                           });
                           widget.newReceipt.notifyParent(() {});
-                        } else if (termWiseFeeToBePaid.isExpanded!) {
+                        } else if (feeToBePaid.isExpanded!) {
                           setState(() {
-                            termWiseFeeToBePaid.isExpanded = false;
+                            feeToBePaid.isExpanded = false;
                           });
                           widget.newReceipt.notifyParent(() {});
                         } else {
                           setState(() {
-                            termWiseFeeToBePaid.isExpanded = true;
+                            feeToBePaid.isExpanded = true;
                           });
                           widget.newReceipt.notifyParent(() {});
                         }
                       },
-                      child: (termWiseFeeToBePaid.isExpanded ?? false) ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down)),
+                      child: (feeToBePaid.isExpanded ?? false) ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down)),
                   const SizedBox(width: 15),
                 ],
               ),
               const SizedBox(
                 height: 10,
               ),
-              if (termWiseFeeToBePaid.isExpanded ?? false) ...(termWiseFeeToBePaid.termWiseFeeTypes ?? []).map((e) => e.widget(context)).toList(),
+              ...(feeToBePaid.feeTypes ?? []).map((e) => e.widget(context)).toList(),
               const SizedBox(
                 height: 10,
               ),
@@ -2321,6 +2317,8 @@ class _NewReceipt {
   List<StudentProfile> studentProfiles;
   List<StudentFeeDetailsBean> studentFeeDetails;
   List<StudentTermWiseFeeSupportBean> studentTermWiseFeeBeans;
+  List<StudentAnnualFeeSupportBean> studentAnnualFeeBeanBeans;
+
   List<FeeType> feeTypes;
 
   Section? selectedSection;
@@ -2329,7 +2327,7 @@ class _NewReceipt {
   String status = "active";
   final Function notifyParent;
 
-  List<_TermWiseFeeToBePaid> termWiseFeeToBePaidBeans = [];
+  List<_FeeToBePaid> feeToBePaidBeans = [];
   TextEditingController busFeeController = TextEditingController();
   bool isBusFeeChecked = false;
 
@@ -2346,6 +2344,7 @@ class _NewReceipt {
     required this.studentProfiles,
     required this.studentFeeDetails,
     required this.studentTermWiseFeeBeans,
+    required this.studentAnnualFeeBeanBeans,
     required this.feeTypes,
     required this.totalBusFee,
     required this.busFeePaid,
@@ -2363,7 +2362,7 @@ class _NewReceipt {
     setState(() {
       selectedStudent = newStudent;
       populateStudentTermWiseFeeDetails(selectedStudentId: newStudent?.studentId);
-      termWiseFeeToBePaidBeans = getTermWiseFees();
+      feeToBePaidBeans = getFeeToBePaidBeans();
     });
     notifyParent(() {});
   }
@@ -2435,41 +2434,26 @@ class _NewReceipt {
     );
   }
 
-  List<_TermWiseFeeToBePaid> getTermWiseFees() {
+  List<_FeeToBePaid> getFeeToBePaidBeans() {
     if (selectedStudent == null) return [];
     StudentFeeDetailsBean? feeDetails = studentFeeDetails.where((e) => e.studentId == selectedStudent?.studentId).firstOrNull;
     if (feeDetails == null) return [];
-    List<_Term> terms = (feeDetails.studentWiseFeeTypeDetailsList ?? [])
-        .where((e) => e != null)
-        .map((e) => e!)
-        .map((e) => e.studentTermWiseFeeTypeDetailsList ?? [])
-        .expand((i) => i)
-        .where((e) => e != null)
-        .map((e) => e!)
-        .map((e) => _Term(e.termId, e.termName))
-        .toSet()
-        .toList();
-    List<_TermWiseFeeToBePaid> termWiseFees = [];
-    for (var eachTerm in terms) {
-      termWiseFees.add(_TermWiseFeeToBePaid(
-        context,
-        notifyParent,
-        eachTerm.termId,
-        eachTerm.termName,
-        selectedStudent?.studentId,
-        [selectedStudent?.studentFirstName ?? "", selectedStudent?.studentMiddleName ?? "", selectedStudent?.studentLastName ?? ""]
-            .where((e) => e != "")
-            .join(" "),
-        null,
-        null,
-        null,
-      ));
-    }
+    List<_FeeToBePaid> feeToBePaidBeans = [];
+    feeToBePaidBeans.add(_FeeToBePaid(
+      context,
+      notifyParent,
+      selectedStudent?.studentId,
+      [selectedStudent?.studentFirstName ?? "", selectedStudent?.studentMiddleName ?? "", selectedStudent?.studentLastName ?? ""]
+          .where((e) => e != "")
+          .join(" "),
+      null,
+      null,
+      null,
+    ));
 
-    for (var eachTermWiseFee in termWiseFees) {
-      eachTermWiseFee.termWiseFeeTypes = feeTypes.map((eachFeeType) {
-        return _TermWiseFeeType(
-          eachTermWiseFee.termId,
+    for (var eachFeeToBePaidBean in feeToBePaidBeans) {
+      eachFeeToBePaidBean.feeTypes = feeTypes.map((eachFeeType) {
+        return _FeeType(
           eachFeeType.feeTypeId,
           eachFeeType.feeType,
           null,
@@ -2477,8 +2461,7 @@ class _NewReceipt {
           (eachFeeType.customFeeTypesList ?? [])
               .where((e) => e != null)
               .map((e) => e!)
-              .map((eachCustomFeeType) => _TermWiseCustomFeeType(
-                    eachTermWiseFee.termId,
+              .map((eachCustomFeeType) => _CustomFeeType(
                     eachCustomFeeType.feeTypeId,
                     eachCustomFeeType.customFeeTypeId,
                     eachCustomFeeType.customFeeType,
@@ -2492,134 +2475,97 @@ class _NewReceipt {
       }).toList();
     }
 
-    for (_TermWiseFeeToBePaid eachTermWiseFee in termWiseFees) {
-      for (_TermWiseFeeType eachTermWiseFeeTypeFee in (eachTermWiseFee.termWiseFeeTypes ?? [])) {
-        if ((eachTermWiseFeeTypeFee.termWiseCustomFeeTypes ?? []).isNotEmpty) {
-          for (_TermWiseCustomFeeType eachTermWiseCustomFeeTypeFee in (eachTermWiseFeeTypeFee.termWiseCustomFeeTypes ?? [])) {
-            StudentTermWiseFeeTypeDetailsBean? studentWiseCustomFeeTypeDetails = ((feeDetails.studentWiseFeeTypeDetailsList ?? [])
-                        .where((e) => e != null)
-                        .map((e) => e!)
-                        .where((e) =>
-                            e.feeTypeId == eachTermWiseFeeTypeFee.feeTypeId && e.customFeeTypeId == eachTermWiseCustomFeeTypeFee.customFeeTypeId)
-                        .firstOrNull
-                        ?.studentTermWiseFeeTypeDetailsList ??
-                    [])
-                .where((e) => e != null)
-                .map((e) => e!)
-                .where((e) => e.termId == eachTermWiseCustomFeeTypeFee.termId)
-                .firstOrNull;
-            eachTermWiseCustomFeeTypeFee.termWiseFee = studentWiseCustomFeeTypeDetails?.termWiseTotalFee;
-            eachTermWiseCustomFeeTypeFee.termWiseFeePaid = studentWiseCustomFeeTypeDetails?.termWiseTotalFeePaid;
+    for (_FeeToBePaid eachFeeToBePaidBean in feeToBePaidBeans) {
+      for (_FeeType eachFeeTypeFeeToBePaidBean in (eachFeeToBePaidBean.feeTypes ?? [])) {
+        if ((eachFeeTypeFeeToBePaidBean.customFeeTypes ?? []).isNotEmpty) {
+          for (_CustomFeeType eachTermWiseCustomFeeTypeFee in (eachFeeTypeFeeToBePaidBean.customFeeTypes ?? [])) {
+            StudentAnnualFeeSupportBean? studentWiseCustomFeeTypeDetails = ((studentAnnualFeeBeanBeans)
+                .where((e) =>
+                    e.studentId == selectedStudent?.studentId &&
+                    e.feeTypeId == eachFeeTypeFeeToBePaidBean.feeTypeId &&
+                    e.customFeeTypeId == eachTermWiseCustomFeeTypeFee.customFeeTypeId)
+                .firstOrNull);
+            eachTermWiseCustomFeeTypeFee.fee = studentWiseCustomFeeTypeDetails?.amount;
+            eachTermWiseCustomFeeTypeFee.feePaid = studentWiseCustomFeeTypeDetails?.amountPaid;
           }
         } else {
-          StudentTermWiseFeeTypeDetailsBean? studentWiseFeeTypeDetails = ((feeDetails.studentWiseFeeTypeDetailsList ?? [])
-                      .where((e) => e != null)
-                      .map((e) => e!)
-                      .where((e) => e.feeTypeId == eachTermWiseFeeTypeFee.feeTypeId)
-                      .firstOrNull
-                      ?.studentTermWiseFeeTypeDetailsList ??
-                  [])
-              .where((e) => e != null)
-              .map((e) => e!)
-              .where((e) => e.termId == eachTermWiseFeeTypeFee.termId)
-              .firstOrNull;
-          eachTermWiseFeeTypeFee.termWiseFee = studentWiseFeeTypeDetails?.termWiseTotalFee;
-          eachTermWiseFeeTypeFee.termWiseFeePaid = studentWiseFeeTypeDetails?.termWiseTotalFeePaid;
+          StudentAnnualFeeSupportBean? studentWiseFeeTypeDetails = ((studentAnnualFeeBeanBeans)
+              .where((e) => e.studentId == selectedStudent?.studentId && e.feeTypeId == eachFeeTypeFeeToBePaidBean.feeTypeId)
+              .firstOrNull);
+          eachFeeTypeFeeToBePaidBean.fee = studentWiseFeeTypeDetails?.amount;
+          eachFeeTypeFeeToBePaidBean.feePaid = studentWiseFeeTypeDetails?.amountPaid;
         }
       }
     }
 
-    for (var eachTermWiseFee in termWiseFees) {
-      eachTermWiseFee.termWiseTotalFee = (eachTermWiseFee.termWiseFeeTypes ?? [])
-          .map((e) => (e.termWiseCustomFeeTypes ?? []).isEmpty
-              ? e.termWiseFee
-              : (e.termWiseCustomFeeTypes ?? []).map((e) => e.termWiseFee).reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0)))
+    for (var eachFeeToBePaidBean in feeToBePaidBeans) {
+      eachFeeToBePaidBean.totalFee = (eachFeeToBePaidBean.feeTypes ?? [])
+          .map((e) => (e.customFeeTypes ?? []).isEmpty ? e.fee : (e.customFeeTypes ?? []).map((e) => e.fee).reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0)))
           .reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0));
-      eachTermWiseFee.termWiseTotalFeesPaid = (eachTermWiseFee.termWiseFeeTypes ?? [])
-          .map((e) => (e.termWiseCustomFeeTypes ?? []).isEmpty
-              ? e.termWiseFeePaid
-              : (e.termWiseCustomFeeTypes ?? []).map((e) => e.termWiseFeePaid).reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0)))
+      eachFeeToBePaidBean.totalFeesPaid = (eachFeeToBePaidBean.feeTypes ?? [])
+          .map((e) =>
+              (e.customFeeTypes ?? []).isEmpty ? e.feePaid : (e.customFeeTypes ?? []).map((e) => e.feePaid).reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0)))
           .reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0));
     }
 
-    for (_TermWiseFeeToBePaid eachTerm in termWiseFees) {
-      if ((eachTerm.termWiseTotalFee ?? 0) > (eachTerm.termWiseTotalFeesPaid ?? 0)) {
+    for (_FeeToBePaid eachTerm in feeToBePaidBeans) {
+      if ((eachTerm.totalFee ?? 0) > (eachTerm.totalFeesPaid ?? 0)) {
         eachTerm.isExpanded = true;
         break;
       }
     }
 
-    return termWiseFees;
+    return feeToBePaidBeans;
   }
 
   @override
   String toString() {
-    return """{"studentId": ${selectedStudent?.studentId}, "receiptNumber": $receiptNumber, "termWiseFeeToBePaidBeans": $termWiseFeeToBePaidBeans}""";
+    return """{"studentId": ${selectedStudent?.studentId}, "receiptNumber": $receiptNumber, "termWiseFeeToBePaidBeans": $feeToBePaidBeans}""";
   }
 }
 
-class _Term {
-  int? termId;
-  String? termName;
-
-  _Term(this.termId, this.termName);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is _Term && runtimeType == other.runtimeType && termId == other.termId && termName == other.termName;
-
-  @override
-  int get hashCode => termId.hashCode ^ termName.hashCode;
-}
-
-class _TermWiseFeeToBePaid {
+class _FeeToBePaid {
   BuildContext context;
   Function notifyParent;
-  int? termId;
-  String? termName;
   int? studentId;
   String? studentName;
-  int? termWiseTotalFee;
-  int? termWiseTotalFeesPaid;
+  int? totalFee;
+  int? totalFeesPaid;
 
-  List<_TermWiseFeeType>? termWiseFeeTypes;
+  List<_FeeType>? feeTypes;
 
   bool? isExpanded;
 
-  _TermWiseFeeToBePaid(
+  _FeeToBePaid(
     this.context,
     this.notifyParent,
-    this.termId,
-    this.termName,
     this.studentId,
     this.studentName,
-    this.termWiseTotalFee,
-    this.termWiseTotalFeesPaid,
-    this.termWiseFeeTypes,
+    this.totalFee,
+    this.totalFeesPaid,
+    this.feeTypes,
   );
 
   @override
   String toString() {
-    return '{termId: $termId, termName: $termName, studentId: $studentId, studentName: $studentName, termWiseTotalFee: $termWiseTotalFee, termWiseTotalFeesPaid: $termWiseTotalFeesPaid, termWiseFeeTypes: $termWiseFeeTypes}';
+    return '{studentId: $studentId, studentName: $studentName, termWiseTotalFee: $totalFee, termWiseTotalFeesPaid: $totalFeesPaid, termWiseFeeTypes: $feeTypes}';
   }
 }
 
-class _TermWiseFeeType {
-  int? termId;
+class _FeeType {
   int? feeTypeId;
   String? feeType;
-  int? termWiseFee;
-  int? termWiseFeePaid;
-  List<_TermWiseCustomFeeType>? termWiseCustomFeeTypes;
+  int? fee;
+  int? feePaid;
+  List<_CustomFeeType>? customFeeTypes;
   Function notifyParent;
 
-  _TermWiseFeeType(
-    this.termId,
+  _FeeType(
     this.feeTypeId,
     this.feeType,
-    this.termWiseFee,
-    this.termWiseFeePaid,
-    this.termWiseCustomFeeTypes,
+    this.fee,
+    this.feePaid,
+    this.customFeeTypes,
     this.notifyParent,
   );
 
@@ -2636,14 +2582,14 @@ class _TermWiseFeeType {
         ),
         Row(
           children: [
-            (termWiseCustomFeeTypes ?? []).isEmpty
+            (customFeeTypes ?? []).isEmpty
                 ? Checkbox(
                     onChanged: (bool? value) {
                       if (value == null) return;
                       if (value) {
                         notifyParent(() {
                           isChecked = value;
-                          feePayingController.text = doubleToStringAsFixedForINR(((termWiseFee ?? 0) - (termWiseFeePaid ?? 0)) / 100.0);
+                          feePayingController.text = doubleToStringAsFixedForINR(((fee ?? 0) - (feePaid ?? 0)) / 100.0);
                         });
                       } else {
                         notifyParent(() {
@@ -2655,24 +2601,24 @@ class _TermWiseFeeType {
                     value: isChecked,
                   )
                 : Container(),
-            (termWiseCustomFeeTypes ?? []).isEmpty ? const SizedBox(width: 10) : Container(),
+            (customFeeTypes ?? []).isEmpty ? const SizedBox(width: 10) : Container(),
             Expanded(
               child: Text(feeType ?? "-"),
             ),
             const SizedBox(width: 10),
-            (termWiseCustomFeeTypes ?? []).isEmpty
+            (customFeeTypes ?? []).isEmpty
                 ? Text(
-                    "$INR_SYMBOL ${doubleToStringAsFixedForINR((termWiseFee ?? 0) / 100)} /-",
+                    "$INR_SYMBOL ${doubleToStringAsFixedForINR((fee ?? 0) / 100)} /-",
                   )
                 : Container(),
             const SizedBox(width: 20),
-            (termWiseCustomFeeTypes ?? []).isEmpty ? _feePayingTextField(context) : Container(),
+            (customFeeTypes ?? []).isEmpty ? _feePayingTextField(context) : Container(),
           ],
         ),
         const SizedBox(
           height: 10,
         ),
-        ...(termWiseCustomFeeTypes ?? []).map((e) => e.widget(context)).toList(),
+        ...(customFeeTypes ?? []).map((e) => e.widget(context)).toList(),
       ],
     );
   }
@@ -2694,12 +2640,12 @@ class _TermWiseFeeType {
             borderSide: BorderSide(color: Colors.blue),
           ),
           label: Text(
-            "$INR_SYMBOL ${doubleToStringAsFixedForINR((termWiseFeePaid ?? 0) / 100)} /-",
+            "$INR_SYMBOL ${doubleToStringAsFixedForINR((feePaid ?? 0) / 100)} /-",
             style: const TextStyle(color: Colors.grey),
           ),
         ),
         child: TextField(
-          enabled: (termWiseFee ?? 0) - (termWiseFeePaid ?? 0) != 0,
+          enabled: (fee ?? 0) - (feePaid ?? 0) != 0,
           onTap: () {
             feePayingController.selection = TextSelection(
               baseOffset: 0,
@@ -2736,7 +2682,7 @@ class _TermWiseFeeType {
                 if (newValue.text == "") return newValue;
                 final text = newValue.text;
                 double payingAmount = double.parse(text);
-                if (payingAmount * 100 > (termWiseFee ?? 0) - (termWiseFeePaid ?? 0)) {
+                if (payingAmount * 100 > (fee ?? 0) - (feePaid ?? 0)) {
                   return oldValue;
                 }
                 return newValue;
@@ -2752,33 +2698,31 @@ class _TermWiseFeeType {
 
   @override
   String toString() {
-    if ((termWiseCustomFeeTypes ?? []).isEmpty && feePayingController.text.trim().isNotEmpty && feePayingController.text.trim() != "0") {
-      return """{"termId": $termId, "feeTypeId": $feeTypeId, "feeType": "$feeType", "customFeeTypeId": null, "customFeeType": null, "feePaying": ${feePayingController.text}}""";
+    if ((customFeeTypes ?? []).isEmpty && feePayingController.text.trim().isNotEmpty && feePayingController.text.trim() != "0") {
+      return """{"feeTypeId": $feeTypeId, "feeType": "$feeType", "customFeeTypeId": null, "customFeeType": null, "feePaying": ${feePayingController.text}}""";
     }
-    if ((termWiseCustomFeeTypes ?? []).isNotEmpty) {
-      return termWiseCustomFeeTypes?.map((e) => e.toString()).join(",") ?? "";
+    if ((customFeeTypes ?? []).isNotEmpty) {
+      return customFeeTypes?.map((e) => e.toString()).join(",") ?? "";
     }
     // return '_TermWiseFeeType{termId: $termId, feeTypeId: $feeTypeId, feeType: $feeType, termWiseFee: $termWiseFee, termWiseFeePaid: $termWiseFeePaid, termWiseCustomFeeTypes: $termWiseCustomFeeTypes, feePayingController: $feePayingController}';
     return "";
   }
 }
 
-class _TermWiseCustomFeeType {
-  int? termId;
+class _CustomFeeType {
   int? feeTypeId;
   int? customFeeTypeId;
   String? customFeeType;
-  int? termWiseFee;
-  int? termWiseFeePaid;
+  int? fee;
+  int? feePaid;
   Function notifyParent;
 
-  _TermWiseCustomFeeType(
-    this.termId,
+  _CustomFeeType(
     this.feeTypeId,
     this.customFeeTypeId,
     this.customFeeType,
-    this.termWiseFee,
-    this.termWiseFeePaid,
+    this.fee,
+    this.feePaid,
     this.notifyParent,
   );
 
@@ -2799,7 +2743,7 @@ class _TermWiseCustomFeeType {
                 if (value) {
                   notifyParent(() {
                     isChecked = value;
-                    feePayingController.text = doubleToStringAsFixedForINR(((termWiseFee ?? 0) - (termWiseFeePaid ?? 0)) / 100.0);
+                    feePayingController.text = doubleToStringAsFixedForINR(((fee ?? 0) - (feePaid ?? 0)) / 100.0);
                   });
                 } else {
                   notifyParent(() {
@@ -2818,7 +2762,7 @@ class _TermWiseCustomFeeType {
               child: Text(customFeeType ?? "-"),
             ),
             const SizedBox(width: 10),
-            Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((termWiseFee ?? 0) / 100)} /-"),
+            Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((fee ?? 0) / 100)} /-"),
             const SizedBox(width: 20),
             _feePayingTextField(context),
           ],
@@ -2845,12 +2789,12 @@ class _TermWiseCustomFeeType {
             borderSide: BorderSide(color: Colors.blue),
           ),
           label: Text(
-            "$INR_SYMBOL ${doubleToStringAsFixedForINR((termWiseFeePaid ?? 0) / 100)} /-",
+            "$INR_SYMBOL ${doubleToStringAsFixedForINR((feePaid ?? 0) / 100)} /-",
             style: const TextStyle(color: Colors.grey),
           ),
         ),
         child: TextField(
-          enabled: (termWiseFee ?? 0) - (termWiseFeePaid ?? 0) != 0,
+          enabled: (fee ?? 0) - (feePaid ?? 0) != 0,
           onTap: () {
             feePayingController.selection = TextSelection(
               baseOffset: 0,
@@ -2887,7 +2831,7 @@ class _TermWiseCustomFeeType {
                 if (newValue.text == "") return newValue;
                 final text = newValue.text;
                 double payingAmount = double.parse(text);
-                if (payingAmount * 100 > (termWiseFee ?? 0) - (termWiseFeePaid ?? 0)) {
+                if (payingAmount * 100 > (fee ?? 0) - (feePaid ?? 0)) {
                   return oldValue;
                 }
                 return newValue;
@@ -2904,7 +2848,7 @@ class _TermWiseCustomFeeType {
   @override
   String toString() {
     if (feePayingController.text.trim().isNotEmpty && feePayingController.text.trim() != "0") {
-      return """{"termId": $termId, "feeTypeId": $feeTypeId, "feeType": null, "customFeeTypeId": $customFeeTypeId, "customFeeType": "$customFeeType", "feePaying": ${feePayingController.text}}""";
+      return """{"feeTypeId": $feeTypeId, "feeType": null, "customFeeTypeId": $customFeeTypeId, "customFeeType": "$customFeeType", "feePaying": ${feePayingController.text}}""";
     }
     // return '_TermWiseCustomFeeType{termId: $termId, feeTypeId: $feeTypeId, customFeeTypeId: $customFeeTypeId, customFeeType: $customFeeType, termWiseFee: $termWiseFee, termWiseFeePaid: $termWiseFeePaid, feePayingController: $feePayingController}';
     return "";

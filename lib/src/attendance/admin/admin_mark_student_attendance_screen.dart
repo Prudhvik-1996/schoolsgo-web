@@ -805,6 +805,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                         content: Text("Success!"),
                       ),
                     );
+                    await _loadStudentAttendance();
                     setState(() {
                       _isEditMode = false;
                     });

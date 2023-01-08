@@ -348,12 +348,12 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
         const SizedBox(height: 15),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text("No. of days present: $presentDays"),
+          child: Text("No. of days present: ${doubleToStringAsFixed(presentDays)}"),
         ),
         const SizedBox(height: 15),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text("No. of days absent: $absentDays"),
+          child: Text("No. of days absent: ${doubleToStringAsFixed(absentDays)}"),
         ),
         const SizedBox(height: 15),
         FittedBox(

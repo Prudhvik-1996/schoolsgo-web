@@ -1094,13 +1094,13 @@ class StudentBusFeeBean {
     this.studentId,
     this.studentName,
   }) {
-    fareController.text = "${fare ?? ""}";
+    fareController.text = "${(fare ?? 0) / 100}";
   }
 
   StudentBusFeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fare = json['fare']?.toInt();
-    fareController.text = "${fare ?? ""}";
+    fareController.text = "${(fare ?? 0) / 100}";
     routeId = json['routeId']?.toInt();
     routeName = json['routeName']?.toString();
     schoolId = json['schoolId']?.toInt();
@@ -3949,28 +3949,24 @@ class NewReceiptBeanSubBean {
   int? customFeeTypeId;
   int? feePaying;
   int? feeTypeId;
-  int? termId;
   Map<String, dynamic> __origJson = {};
 
   NewReceiptBeanSubBean({
     this.customFeeTypeId,
     this.feePaying,
     this.feeTypeId,
-    this.termId,
   });
   NewReceiptBeanSubBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
     feePaying = json['feePaying']?.toInt();
     feeTypeId = json['feeTypeId']?.toInt();
-    termId = json['termId']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
     data['feePaying'] = feePaying;
     data['feeTypeId'] = feeTypeId;
-    data['termId'] = termId;
     return data;
   }
 

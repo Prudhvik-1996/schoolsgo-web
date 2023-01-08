@@ -570,6 +570,7 @@ class _TeacherMarkStudentAttendanceScreenState extends State<TeacherMarkStudentA
                         content: Text("Success!"),
                       ),
                     );
+                    await _loadStudentAttendance();
                     setState(() {
                       _isEditMode = false;
                     });

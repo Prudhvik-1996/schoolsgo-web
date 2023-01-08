@@ -4,7 +4,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_assign_bus_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_assign_fee_type_to_sections_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v2.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
