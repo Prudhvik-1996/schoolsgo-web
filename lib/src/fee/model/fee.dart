@@ -3511,6 +3511,8 @@ class StudentFeeChildTransactionBean {
   String? studentName;
   String? transactionDate;
   int? transactionId;
+
+  List<TermComponent>? termComponents;
   Map<String, dynamic> __origJson = {};
 
   StudentFeeChildTransactionBean({
@@ -3524,6 +3526,7 @@ class StudentFeeChildTransactionBean {
     this.studentName,
     this.transactionDate,
     this.transactionId,
+    this.termComponents,
   });
   StudentFeeChildTransactionBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -3554,6 +3557,20 @@ class StudentFeeChildTransactionBean {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+}
+
+class TermComponent {
+  int? termId;
+  String? termName;
+  int? feePaid;
+  int? fee;
+
+  TermComponent(this.termId, this.termName, this.feePaid, this.fee);
+
+  @override
+  String toString() {
+    return 'TermComponent{termId: $termId, termName: $termName, feePaid: $feePaid, fee: $fee}';
+  }
 }
 
 class StudentFeeTransactionBean {

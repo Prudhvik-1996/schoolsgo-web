@@ -1,19 +1,23 @@
+import 'dart:html' as html;
 import 'dart:math';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/clay_containers.dart';
-
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_switch/flutter_switch.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/new_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/fee/model/fee_support_classes.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -35,6 +39,7 @@ class AdminFeeReceiptsScreen extends StatefulWidget {
 class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   bool _isLoading = true;
   bool _isAddNew = false;
+  bool _isTermWise = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Section> sectionsList = [];
@@ -53,7 +58,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   DateTime? startDate;
   DateTime? endDate;
   List<Section> selectedSection = [];
-  _StatFilterType statFilterType = _StatFilterType.daily;
+  StatFilterType statFilterType = StatFilterType.daily;
   TextEditingController nController = TextEditingController();
   List<int> selectedFeeTypes = [];
   List<int> selectedCustomFeeTypes = [];
@@ -61,13 +66,14 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
   List<FeeType> feeTypes = [];
 
-  List<_DateWiseTxnAmount> dateWiseTxnAmounts = [];
-  List<_MonthWiseTxnAmount> monthWiseTxnAmounts = [];
+  List<DateWiseTxnAmount> dateWiseTxnAmounts = [];
+  List<MonthWiseTxnAmount> monthWiseTxnAmounts = [];
 
-  List<_NewReceipt> newReceipts = [];
+  List<NewReceipt> newReceipts = [];
   late int latestReceiptNumberToBeAdded;
 
   TextEditingController reasonToDeleteTextController = TextEditingController();
+  Uint8List? pdfInBytes;
 
   @override
   void initState() {
@@ -158,7 +164,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       studentWiseFeePaidBeans =
           (getStudentFeeDetailsSupportClassesResponse.studentWiseFeePaidBeans ?? []).where((e) => e != null).map((e) => e!).toList();
       busFeeBeans = (getStudentFeeDetailsSupportClassesResponse.busFeeBeans ?? []).where((e) => e != null).map((e) => e!).toList();
-      mergeAndGetStudentFeeDetailsBeans();
+      studentFeeDetailsBeans = mergeAndGetStudentFeeDetailsBeans();
       try {
         latestReceiptNumberToBeAdded = (getStudentFeeDetailsSupportClassesResponse.studentMasterTransactionBeans ?? [])
                 .where((e) => e != null)
@@ -171,7 +177,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     }
     _isAddNew = false;
     newReceipts = [];
-    newReceipts.add(_NewReceipt(
+    newReceipts.add(NewReceipt(
       context: _scaffoldKey.currentContext!,
       notifyParent: setState,
       receiptNumber: latestReceiptNumberToBeAdded,
@@ -251,6 +257,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                   feeType: studentWiseFeePaidBean.feeType,
                   customFeeTypeId: studentWiseFeePaidBean.customFeeTypeId,
                   customFeeType: studentWiseFeePaidBean.customFeeType,
+                  termComponents: [],
                 );
               }).toList();
             }));
@@ -269,6 +276,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     setState(() {
       filteredStudentFeeDetailsBeanList = studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList();
     });
+    populateTermTxnWiseComponents();
     if (startDate != null) {
       setState(() {
         for (var eachStudentDetails in filteredStudentFeeDetailsBeanList) {
@@ -340,7 +348,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
           .toList();
       txnDates.sorted((a, b) => a.compareTo(b));
       DateTime leastDate = txnDates.firstOrNull ?? DateTime.now();
-      if (statFilterType == _StatFilterType.lastNDays) {
+      if (statFilterType == StatFilterType.lastNDays) {
         for (DateTime eachDate =
                 int.tryParse(nController.text) == null ? leastDate : DateTime.now().subtract(Duration(days: int.parse(nController.text)));
             eachDate.compareTo(DateTime.now()) <= 0;
@@ -363,7 +371,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               dateWiseTxnAmount += eachChildTxnAmount ?? 0;
             }
           });
-          dateWiseTxnAmounts.add(_DateWiseTxnAmount(eachDate, dateWiseTxnAmount, context));
+          dateWiseTxnAmounts.add(DateWiseTxnAmount(eachDate, dateWiseTxnAmount, context));
         }
       } else {
         for (DateTime eachDate = leastDate; eachDate.compareTo(DateTime.now()) <= 0; eachDate = eachDate.add(const Duration(days: 1))) {
@@ -385,19 +393,19 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               dateWiseTxnAmount += eachChildTxnAmount ?? 0;
             }
           });
-          dateWiseTxnAmounts.add(_DateWiseTxnAmount(eachDate, dateWiseTxnAmount, context));
+          dateWiseTxnAmounts.add(DateWiseTxnAmount(eachDate, dateWiseTxnAmount, context));
         }
       }
     });
     monthWiseTxnAmounts = [];
-    if (statFilterType == _StatFilterType.monthly) {
-      for (_DateWiseTxnAmount eachDateWiseTxn in dateWiseTxnAmounts) {
+    if (statFilterType == StatFilterType.monthly) {
+      for (DateWiseTxnAmount eachDateWiseTxn in dateWiseTxnAmounts) {
         int month = eachDateWiseTxn.dateTime.month;
         int year = eachDateWiseTxn.dateTime.year;
-        _MonthWiseTxnAmount? monthWiseTxnAmount =
+        MonthWiseTxnAmount? monthWiseTxnAmount =
             monthWiseTxnAmounts.where((eachMonthWiseBean) => eachMonthWiseBean.month == month && eachMonthWiseBean.year == year).firstOrNull;
         if (monthWiseTxnAmount == null) {
-          monthWiseTxnAmount = _MonthWiseTxnAmount(
+          monthWiseTxnAmount = MonthWiseTxnAmount(
             month,
             year,
             eachDateWiseTxn.amount,
@@ -414,10 +422,51 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     });
   }
 
+  void populateTermTxnWiseComponents() {
+    for (StudentFeeDetailsBean eachStudentFeeDetailsBean in filteredStudentFeeDetailsBeanList) {
+      List<StudentTermWiseFeeSupportBean> studentWiseTermFeeTypes = (studentTermWiseFeeBeans)
+          .where((e) => e.studentId == eachStudentFeeDetailsBean.studentId)
+          .map((e) => StudentTermWiseFeeSupportBean.fromJson(e.origJson()))
+          .toList();
+      studentWiseTermFeeTypes.sort((a, b) => (a.termId ?? 0).compareTo((b.termId ?? 0)));
+      (eachStudentFeeDetailsBean.studentFeeTransactionList ?? []).forEach((StudentFeeTransactionBean? eachStudentFeeTransactionBean) {
+        if (eachStudentFeeTransactionBean == null) return;
+        (eachStudentFeeTransactionBean.studentFeeChildTransactionList ?? []).forEach((StudentFeeChildTransactionBean? eachChildTxn) {
+          if (eachChildTxn == null) return;
+          int paidAmountDec = eachChildTxn.feePaidAmount ?? 0;
+          while (paidAmountDec != 0) {
+            StudentTermWiseFeeSupportBean? x = studentWiseTermFeeTypes
+                .where((e) =>
+                    e.feeTypeId == eachChildTxn.feeTypeId &&
+                    (eachChildTxn.customFeeTypeId == null || eachChildTxn.customFeeTypeId == e.customFeeTypeId))
+                .where((e) => (e.termWiseAmount ?? 0) > 0)
+                .firstOrNull;
+            if (x == null) {
+              break;
+            }
+            int amountPaidForTerm = 0;
+            int termFee = x.termWiseAmount ?? 0;
+            if ((x.termWiseAmount ?? 0) > paidAmountDec) {
+              amountPaidForTerm = paidAmountDec;
+              x.termWiseAmount = termFee - paidAmountDec;
+              paidAmountDec = 0;
+            } else {
+              amountPaidForTerm = termFee;
+              paidAmountDec = paidAmountDec - termFee;
+              x.termWiseAmount = 0;
+            }
+            eachChildTxn.termComponents ??= [];
+            eachChildTxn.termComponents!.add(TermComponent(x.termId, x.termName, amountPaidForTerm, termFee));
+          }
+        });
+      });
+    }
+  }
+
   Future<void> _saveChanges() async {
     setState(() => _isLoading = true);
     String? errorText;
-    for (_NewReceipt eachNewReceipt in newReceipts.where((e) => e.status != "deleted")) {
+    for (NewReceipt eachNewReceipt in newReceipts.where((e) => e.status != "deleted")) {
       if (eachNewReceipt.selectedStudent == null || eachNewReceipt.selectedSection == null) {
         errorText = "Select a student and enter the details to proceed adding a new receipt";
       }
@@ -447,7 +496,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                   .map((eachTermWiseFeeToBePaid) {
                     List<NewReceiptBeanSubBean> subBeans = [];
                     if ((eachTermWiseFeeToBePaid.feeTypes ?? []).isNotEmpty) {
-                      for (_FeeType eachTermWiseFeeType in (eachTermWiseFeeToBePaid.feeTypes ?? [])) {
+                      for (FeeTypeForNewReceipt eachTermWiseFeeType in (eachTermWiseFeeToBePaid.feeTypes ?? [])) {
                         if ((eachTermWiseFeeType.customFeeTypes ?? []).isEmpty) {
                           if (eachTermWiseFeeType.isChecked &&
                               eachTermWiseFeeType.feePayingController.text.trim().isNotEmpty &&
@@ -459,7 +508,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                             ));
                           }
                         } else {
-                          for (_CustomFeeType eachTermWiseCustomFeeType in (eachTermWiseFeeType.customFeeTypes ?? [])) {
+                          for (CustomFeeTypeForNewReceipt eachTermWiseCustomFeeType in (eachTermWiseFeeType.customFeeTypes ?? [])) {
                             if (eachTermWiseCustomFeeType.isChecked &&
                                 eachTermWiseCustomFeeType.feePayingController.text.trim().isNotEmpty &&
                                 eachTermWiseCustomFeeType.feePayingController.text != "0") {
@@ -509,12 +558,76 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     setState(() => _isLoading = false);
   }
 
+  Future<void> makePdf() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final pdf = pw.Document();
+    // var imageLogo = (await NetworkAssetBundle(
+    //             Uri.parse("https://play-lh.googleusercontent.com/fK3bg948BMSBJ9Plo0q3JOEe7E8PRQAKlS39xZ5OY0mB6fiNa51Y1W5wsGf0sOOehNA"))
+    //         .load("https://play-lh.googleusercontent.com/fK3bg948BMSBJ9Plo0q3JOEe7E8PRQAKlS39xZ5OY0mB6fiNa51Y1W5wsGf0sOOehNA"))
+    //     .buffer
+    //     .asUint8List();
+    final font = await PdfGoogleFonts.nunitoExtraLight();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (context) {
+          return [
+            pw.SizedBox(
+              width: double.infinity,
+              child: pw.FittedBox(
+                child: pw.Text("Title", style: pw.TextStyle(font: font)),
+              ),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Flexible(child: pw.FlutterLogo())
+          ];
+        },
+      ),
+    );
+    var x = await pdf.save();
+    setState(() {
+      pdfInBytes = x;
+    });
+
+    final blob = html.Blob([pdfInBytes], 'application/pdf');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    // html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    // anchorElement.download = "fileName.pdf";
+    // anchorElement.click();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Fee Receipts"),
+        actions: _isLoading
+            ? []
+            : [
+                pdfInBytes == null
+                    ? IconButton(
+                        onPressed: () {
+                          makePdf();
+                        },
+                        icon: const Icon(Icons.print),
+                      )
+                    : IconButton(
+                        onPressed: () {
+                          setState(() {
+                            pdfInBytes = null;
+                          });
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+              ],
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
@@ -527,152 +640,160 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 width: 500,
               ),
             )
-          : _isAddNew
-              ? Column(
-                  children: [
-                    Expanded(
-                      child: newReceiptWidget(),
-                    ),
-                    SizedBox(
-                      height: 50,
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Select a student and enter the details to proceed adding a new receipt"),
-                                      ),
-                                    );
-                                    return;
-                                  }
-                                  newReceipts = [
-                                    _NewReceipt(
-                                      context: _scaffoldKey.currentContext!,
-                                      notifyParent: setState,
-                                      receiptNumber:
-                                          newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
-                                      selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
-                                      sectionsList: sectionsList,
-                                      studentProfiles: studentProfiles,
-                                      studentFeeDetails: studentFeeDetailsBeans,
-                                      studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-                                      studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
-                                      feeTypes: feeTypes,
-                                      totalBusFee: null,
-                                      busFeePaid: null,
-                                      busFeeBeans: busFeeBeans,
-                                    ),
-                                    ...newReceipts,
-                                  ];
-                                });
-                              },
-                              child: ClayButton(
-                                color: clayContainerColor(context),
-                                borderRadius: 10,
-                                spread: 2,
-                                child: const Padding(
-                                  padding: EdgeInsets.all(15),
-                                  child: Center(
-                                    child: Text(
-                                      "Add New Receipt",
-                                      style: TextStyle(
-                                        color: Colors.blue,
+          : pdfInBytes != null
+              ? PdfPreview(
+                  build: (format) => pdfInBytes!,
+                  pdfFileName: "Fee Receipts",
+                )
+              : _isAddNew
+                  ? Column(
+                      children: [
+                        Expanded(
+                          child: newReceiptWidget(),
+                        ),
+                        SizedBox(
+                          height: 50,
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Select a student and enter the details to proceed adding a new receipt"),
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      newReceipts = [
+                                        NewReceipt(
+                                          context: _scaffoldKey.currentContext!,
+                                          notifyParent: setState,
+                                          receiptNumber:
+                                              newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) +
+                                                  1,
+                                          selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
+                                          sectionsList: sectionsList,
+                                          studentProfiles: studentProfiles,
+                                          studentFeeDetails: studentFeeDetailsBeans,
+                                          studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+                                          studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
+                                          feeTypes: feeTypes,
+                                          totalBusFee: null,
+                                          busFeePaid: null,
+                                          busFeeBeans: busFeeBeans,
+                                        ),
+                                        ...newReceipts,
+                                      ];
+                                    });
+                                  },
+                                  child: ClayButton(
+                                    color: clayContainerColor(context),
+                                    borderRadius: 10,
+                                    spread: 2,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(15),
+                                      child: Center(
+                                        child: Text(
+                                          "Add New Receipt",
+                                          style: TextStyle(
+                                            color: Colors.blue,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: _scaffoldKey.currentContext!,
-                                  builder: (currentContext) {
-                                    return AlertDialog(
-                                      title: const Text("Fee Receipts"),
-                                      content: const Text("Are you sure you want to save changes?"),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            _saveChanges();
-                                            // _loadData();
-                                          },
-                                          child: const Text("YES"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                            setState(() {
-                                              _isAddNew = false;
-                                            });
-                                          },
-                                          child: const Text("NO"),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text("Cancel"),
-                                        ),
-                                      ],
+                              const SizedBox(width: 20),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: _scaffoldKey.currentContext!,
+                                      builder: (currentContext) {
+                                        return AlertDialog(
+                                          title: const Text("Fee Receipts"),
+                                          content: const Text("Are you sure you want to save changes?"),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                _saveChanges();
+                                                // _loadData();
+                                              },
+                                              child: const Text("YES"),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                setState(() {
+                                                  _isAddNew = false;
+                                                });
+                                              },
+                                              child: const Text("NO"),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text("Cancel"),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     );
                                   },
-                                );
-                              },
-                              child: ClayButton(
-                                color: clayContainerColor(context),
-                                borderRadius: 10,
-                                spread: 2,
-                                child: const Padding(
-                                  padding: EdgeInsets.all(15),
-                                  child: Center(
-                                    child: Text(
-                                      "Submit",
-                                      style: TextStyle(
-                                        color: Colors.green,
+                                  child: ClayButton(
+                                    color: clayContainerColor(context),
+                                    borderRadius: 10,
+                                    spread: 2,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(15),
+                                      child: Center(
+                                        child: Text(
+                                          "Submit",
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(width: 20),
+                            ],
                           ),
-                          const SizedBox(width: 20),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    )
+                  : ListView(
+                      children: [
+                        statsWidget(),
+                        filtersWidget(),
+                        ...(filteredStudentFeeDetailsBeanList
+                                .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                                .expand((i) => i)
+                                .toList()
+                              ..sort(
+                                (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                                    ? convertYYYYMMDDFormatToDateTime(a.transactionDate)
+                                                .compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
+                                            0
+                                        ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                                        : convertYYYYMMDDFormatToDateTime(a.transactionDate)
+                                            .compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
+                                    : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
+                              ))
+                            .map((e) => studentFeeTransactionWidget(e))
+                            .toList(),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                  ],
-                )
-              : ListView(
-                  children: [
-                    statsWidget(),
-                    filtersWidget(),
-                    ...(filteredStudentFeeDetailsBeanList
-                            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
-                            .expand((i) => i)
-                            .toList()
-                          ..sort(
-                            (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                                ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
-                                        0
-                                    ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
-                                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
-                          ))
-                        .map((e) => studentFeeTransactionWidget(e))
-                        .toList(),
-                  ],
-                ),
       floatingActionButton: _isLoading || _isAddNew
           ? null
           : FloatingActionButton(
@@ -997,23 +1118,24 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
         (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId != null).toList();
     List<StudentFeeChildTransactionBean> busFeeTxns =
         (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId == null).toList();
-    List<_FeeTypeTxn> feeTypeTxns = [];
+    List<FeeTypeTxn> feeTypeTxns = [];
     for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
-      if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
-        feeTypeTxns.add(_FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, []));
-      }
+      // if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
+      feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
+      // }
     }
     for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
       if (eachChildTxn.customFeeTypeId != null && eachChildTxn.customFeeTypeId != 0) {
         feeTypeTxns.where((e) => e.feeTypeId == eachChildTxn.feeTypeId).forEach((eachFeeTypeTxn) {
-          eachFeeTypeTxn.customFeeTypeTxns?.add(
-              _CustomFeeTypeTxn(eachChildTxn.customFeeTypeId, eachChildTxn.customFeeType, eachChildTxn.feePaidAmount, eachFeeTypeTxn.transactionId));
+          eachFeeTypeTxn.customFeeTypeTxns?.add(CustomFeeTypeTxn(eachChildTxn.customFeeTypeId, eachChildTxn.customFeeType, eachChildTxn.feePaidAmount,
+              eachFeeTypeTxn.transactionId, eachChildTxn.termComponents ?? []));
         });
       }
     }
     for (StudentFeeChildTransactionBean eachChildTxn in busFeeTxns) {
       if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
-        feeTypeTxns.add(_FeeTypeTxn(eachChildTxn.feeTypeId, "Bus Fee", eachChildTxn.feePaidAmount, eachChildTxn.transactionId, []));
+        feeTypeTxns.add(FeeTypeTxn(
+            eachChildTxn.feeTypeId, "Bus Fee", eachChildTxn.feePaidAmount, eachChildTxn.transactionId, [], eachChildTxn.termComponents ?? []));
       }
     }
     feeTypeTxns.sort(
@@ -1023,7 +1145,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               ? -1
               : 1,
     );
-    for (_FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.where((e) => e.feeTypeId != null)) {
+    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.where((e) => e.feeTypeId != null)) {
       if (eachFeeTypeTxn.customFeeTypeTxns?.isEmpty ?? true) {
         eachFeeTypeTxn.feePaidAmount =
             childTxns.where((e) => e.feeTypeId == eachFeeTypeTxn.feeTypeId).map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
@@ -1032,19 +1154,47 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
         eachFeeTypeTxn.feePaidAmount = eachFeeTypeTxn.customFeeTypeTxns?.map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
       }
     }
-    for (_FeeTypeTxn eachFeeTypeTxn in feeTypeTxns) {
+    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns) {
       if ((eachFeeTypeTxn.customFeeTypeTxns ?? []).isEmpty) {
-        childTxnWidgets.add(Container(
-          margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(eachFeeTypeTxn.feeType ?? "-"),
-              ),
-              Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
-            ],
+        childTxnWidgets.add(
+          Container(
+            margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(eachFeeTypeTxn.feeType ?? "-"),
+                ),
+                !_isTermWise || (eachFeeTypeTxn.termComponents).isEmpty
+                    ? Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
+                    : const Text(""),
+              ],
+            ),
           ),
-        ));
+        );
+        if (_isTermWise && (eachFeeTypeTxn.termComponents).isNotEmpty) {
+          for (TermComponent eachTermComponent in eachFeeTypeTxn.termComponents) {
+            childTxnWidgets.add(
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: Row(
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    const CustomVerticalDivider(color: Colors.amber),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Expanded(
+                      child: Text(eachTermComponent.termName ?? "-"),
+                    ),
+                    Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.feePaid ?? 0) / 100.0)} /-")
+                  ],
+                ),
+              ),
+            );
+          }
+        }
         childTxnWidgets.add(const SizedBox(
           height: 5,
         ));
@@ -1077,10 +1227,36 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 Expanded(
                   child: Text(eachCustomFeeTypeTxn.customFeeType ?? "-"),
                 ),
-                Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachCustomFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
+                !_isTermWise || (eachCustomFeeTypeTxn.termComponents).isEmpty
+                    ? Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachCustomFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
+                    : const Text(""),
               ],
             ),
           ));
+          if (_isTermWise && (eachCustomFeeTypeTxn.termComponents).isNotEmpty) {
+            for (TermComponent eachTermComponent in eachCustomFeeTypeTxn.termComponents) {
+              childTxnWidgets.add(
+                Container(
+                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      const CustomVerticalDivider(color: Colors.amber),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: Text(eachTermComponent.termName ?? "-"),
+                      ),
+                      Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.feePaid ?? 0) / 100.0)} /-")
+                    ],
+                  ),
+                ),
+              );
+            }
+          }
           childTxnWidgets.add(const SizedBox(
             height: 5,
           ));
@@ -1125,7 +1301,47 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
             ),
           ),
           const SizedBox(width: 15),
+          Expanded(
+            child: termWiseFilter(),
+          ),
+          const SizedBox(width: 15),
         ],
+      ),
+    );
+  }
+
+  ClayContainer termWiseFilter() {
+    return ClayContainer(
+      color: clayContainerColor(context),
+      borderRadius: 10,
+      spread: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 10),
+            FlutterSwitch(
+              value: _isTermWise,
+              onToggle: (bool value) {
+                setState(() {
+                  _isTermWise = !_isTermWise;
+                });
+              },
+              activeText: "",
+              inactiveText: "",
+              showOnOff: true,
+              width: 30,
+              height: 15,
+              toggleSize: 15,
+            ),
+            const SizedBox(width: 10),
+            const Expanded(child: Text("Term Wise")),
+            const SizedBox(width: 2),
+          ],
+        ),
       ),
     );
   }
@@ -1218,7 +1434,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 height: 75,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: statFilterType == _StatFilterType.monthly
+                  children: statFilterType == StatFilterType.monthly
                       ? monthWiseTxnAmounts.map((e) => e.widget()).toList()
                       : dateWiseTxnAmounts.map((e) => e.widget()).toList(),
                 ),
@@ -1244,9 +1460,9 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   ListTile lastNDatesStatRadioButton() {
     return ListTile(
       leading: Radio(
-        value: _StatFilterType.lastNDays,
+        value: StatFilterType.lastNDays,
         groupValue: statFilterType,
-        onChanged: (_StatFilterType? value) {
+        onChanged: (StatFilterType? value) {
           if (value != null) {
             setState(() {
               statFilterType = value;
@@ -1292,7 +1508,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 }),
               ],
               autofocus: false,
-              enabled: statFilterType == _StatFilterType.lastNDays,
+              enabled: statFilterType == StatFilterType.lastNDays,
               onChanged: (String e) {
                 int? n = int.tryParse(e);
                 if (n != null) {
@@ -1321,9 +1537,9 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   ListTile monthlyStatRadioButton() {
     return ListTile(
       leading: Radio(
-        value: _StatFilterType.monthly,
+        value: StatFilterType.monthly,
         groupValue: statFilterType,
-        onChanged: (_StatFilterType? value) {
+        onChanged: (StatFilterType? value) {
           if (value != null) {
             setState(() {
               statFilterType = value;
@@ -1342,9 +1558,9 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   ListTile dailyStatRadioButton() {
     return ListTile(
       leading: Radio(
-        value: _StatFilterType.daily,
+        value: StatFilterType.daily,
         groupValue: statFilterType,
-        onChanged: (_StatFilterType? value) {
+        onChanged: (StatFilterType? value) {
           if (value != null) {
             setState(() {
               statFilterType = value;
@@ -1532,1325 +1748,5 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
         ],
       ),
     );
-  }
-}
-
-class _FeeTypeTxn {
-  int? feeTypeId;
-  String? feeType;
-  int? feePaidAmount;
-  int? transactionId;
-  List<_CustomFeeTypeTxn>? customFeeTypeTxns;
-
-  _FeeTypeTxn(this.feeTypeId, this.feeType, this.feePaidAmount, this.transactionId, this.customFeeTypeTxns);
-}
-
-class _CustomFeeTypeTxn {
-  int? customFeeTypeId;
-  String? customFeeType;
-  int? feePaidAmount;
-  int? transactionId;
-
-  _CustomFeeTypeTxn(this.customFeeTypeId, this.customFeeType, this.feePaidAmount, this.transactionId);
-}
-
-enum _StatFilterType { daily, monthly, lastNDays }
-
-class _DateWiseTxnAmount {
-  DateTime dateTime;
-  int amount;
-  BuildContext context;
-
-  _DateWiseTxnAmount(this.dateTime, this.amount, this.context);
-
-  @override
-  String toString() {
-    return """_DateWiseTxnAmount {"dateTime": "${convertDateTimeToYYYYMMDDFormat(dateTime)}", "amount": ${doubleToStringAsFixedForINR(amount / 100.0)}}""";
-  }
-
-  Widget widget() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: ClayContainer(
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          depth: 40,
-          emboss: true,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: RichText(
-                text: TextSpan(
-                  text: "${convertDateTimeToDDMMYYYYFormat(dateTime)}\n",
-                  children: [
-                    TextSpan(
-                      text: "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount / 100.0)} /-",
-                      style: const TextStyle(
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                  style: TextStyle(
-                    color: clayContainerTextColor(context),
-                  ),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MonthWiseTxnAmount {
-  int month;
-  int year;
-  int amount;
-  BuildContext context;
-
-  _MonthWiseTxnAmount(this.month, this.year, this.amount, this.context);
-
-  @override
-  String toString() {
-    return '_MonthWiseTxnAmount{month: $month, year: $year, amount: $amount, context: $context}';
-  }
-
-  Widget widget() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: ClayContainer(
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          depth: 40,
-          emboss: true,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: RichText(
-                text: TextSpan(
-                  text: "${MONTHS[month - 1].toLowerCase().capitalize()} - $year\n",
-                  children: [
-                    TextSpan(
-                      text: "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount / 100.0)} /-",
-                      style: const TextStyle(
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                  style: TextStyle(
-                    color: clayContainerTextColor(context),
-                  ),
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class NewReceiptWidget extends StatefulWidget {
-  const NewReceiptWidget({
-    Key? key,
-    required this.newReceipt,
-  }) : super(key: key);
-
-  final _NewReceipt newReceipt;
-
-  @override
-  State<NewReceiptWidget> createState() => _NewReceiptWidgetState();
-}
-
-class _NewReceiptWidgetState extends State<NewReceiptWidget> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
-          : const EdgeInsets.all(10),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: ListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              Row(
-                children: [
-                  const SizedBox(width: 15),
-                  const Expanded(
-                    child: Text(
-                      "New Receipt",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  _deleteReceiptButton(context),
-                  const SizedBox(width: 15),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 1,
-                    child: _receiptTextField(),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: _getDatePicker(),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 2,
-                    child: _studentSearchableDropDown(),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    flex: 1,
-                    child: _sectionSearchableDropDown(),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              const SizedBox(height: 10),
-              ...widget.newReceipt.feeToBePaidBeans.map((e) => feeToBePaidWidget(e)).toList(),
-              const SizedBox(height: 10),
-              if (widget.newReceipt.selectedStudent != null && (widget.newReceipt.totalBusFee ?? 0) != 0) buildBusFeePayableWidget(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Container buildBusFeePayableWidget(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(15),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        emboss: true,
-        child: Container(
-          margin: const EdgeInsets.all(15),
-          child: Row(
-            children: [
-              Checkbox(
-                onChanged: (bool? value) {
-                  if (value == null) return;
-                  if (value) {
-                    widget.newReceipt.notifyParent(() {
-                      widget.newReceipt.isBusFeeChecked = value;
-                      widget.newReceipt.busFeeController.text =
-                          doubleToStringAsFixedForINR(((widget.newReceipt.totalBusFee ?? 0) - (widget.newReceipt.busFeePaid ?? 0)) / 100.0);
-                    });
-                  } else {
-                    widget.newReceipt.notifyParent(() {
-                      widget.newReceipt.isBusFeeChecked = value;
-                      widget.newReceipt.busFeeController.text = "";
-                    });
-                  }
-                },
-                value: widget.newReceipt.isBusFeeChecked,
-              ),
-              const SizedBox(width: 5),
-              const SizedBox(width: 15),
-              const CustomVerticalDivider(),
-              const SizedBox(width: 15),
-              const Expanded(
-                child: Text("Bus Fee"),
-              ),
-              const SizedBox(width: 10),
-              Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.newReceipt.totalBusFee ?? 0) / 100)} /-"),
-              const SizedBox(width: 20),
-              _feePayingTextField(),
-              const SizedBox(width: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  SizedBox _feePayingTextField() {
-    return SizedBox(
-      width: 100,
-      height: 40,
-      child: InputDecorator(
-        isFocused: true,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.blue),
-          ),
-          label: Text(
-            "$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.newReceipt.busFeePaid ?? 0) / 100)} /-",
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ),
-        child: TextField(
-          enabled: (widget.newReceipt.totalBusFee ?? 0) - (widget.newReceipt.busFeePaid ?? 0) != 0,
-          onTap: () {
-            widget.newReceipt.busFeeController.selection = TextSelection(
-              baseOffset: 0,
-              extentOffset: widget.newReceipt.busFeeController.text.length,
-            );
-          },
-          controller: widget.newReceipt.busFeeController,
-          keyboardType: TextInputType.number,
-          textAlignVertical: TextAlignVertical.center,
-          maxLines: 1,
-          onChanged: (String e) {
-            if (e.isNotEmpty) {
-              widget.newReceipt.notifyParent(() {
-                widget.newReceipt.isBusFeeChecked = true;
-              });
-            } else {
-              widget.newReceipt.notifyParent(() {
-                widget.newReceipt.isBusFeeChecked = false;
-              });
-            }
-          },
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.zero,
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            hintText: "Amount",
-          ),
-          textAlign: TextAlign.center,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              try {
-                if (newValue.text == "") return newValue;
-                final text = newValue.text;
-                double payingAmount = double.parse(text);
-                if (payingAmount * 100 > (widget.newReceipt.totalBusFee ?? 0) - (widget.newReceipt.busFeePaid ?? 0)) {
-                  return oldValue;
-                }
-                return newValue;
-              } catch (e) {
-                return oldValue;
-              }
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget feeToBePaidWidget(_FeeToBePaid feeToBePaid) {
-    return Container(
-      margin: const EdgeInsets.all(15),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        emboss: true,
-        child: Container(
-          margin: const EdgeInsets.all(15),
-          child: ListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(""),
-                  ),
-                  const SizedBox(width: 15),
-                  GestureDetector(
-                      onTap: () {
-                        if (feeToBePaid.isExpanded == null) {
-                          setState(() {
-                            feeToBePaid.isExpanded = true;
-                          });
-                          widget.newReceipt.notifyParent(() {});
-                        } else if (feeToBePaid.isExpanded!) {
-                          setState(() {
-                            feeToBePaid.isExpanded = false;
-                          });
-                          widget.newReceipt.notifyParent(() {});
-                        } else {
-                          setState(() {
-                            feeToBePaid.isExpanded = true;
-                          });
-                          widget.newReceipt.notifyParent(() {});
-                        }
-                      },
-                      child: (feeToBePaid.isExpanded ?? false) ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down)),
-                  const SizedBox(width: 15),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              ...(feeToBePaid.feeTypes ?? []).map((e) => e.widget(context)).toList(),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  GestureDetector _deleteReceiptButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        await showDialog<void>(
-          context: widget.newReceipt.context,
-          builder: (currentContext) {
-            return StatefulBuilder(builder: (context, setState) {
-              return AlertDialog(
-                title: const Text("Fee Receipts"),
-                content: const Text("Are you sure you want to delete the receipt?"),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      setState(() => widget.newReceipt.status = "deleted");
-                      widget.newReceipt.notifyParent(() {});
-                    },
-                    child: const Text("YES"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("NO"),
-                  ),
-                ],
-              );
-            });
-          },
-        );
-      },
-      child: ClayButton(
-        color: clayContainerColor(context),
-        borderRadius: 100,
-        spread: 2,
-        child: const Padding(
-          padding: EdgeInsets.all(15),
-          child: Center(
-            child: Icon(Icons.delete, color: Colors.red),
-          ),
-        ),
-      ),
-    );
-  }
-
-  SizedBox _receiptTextField() {
-    return SizedBox(
-      width: 50,
-      height: 40,
-      child: InputDecorator(
-        isFocused: true,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.blue),
-          ),
-          label: Text(
-            "Receipt",
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-        child: TextField(
-          controller: widget.newReceipt.receiptNumberController,
-          keyboardType: TextInputType.number,
-          maxLines: 1,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 12),
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            hintText: "Receipt No.",
-          ),
-          textAlign: TextAlign.center,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              try {
-                if (newValue.text == "") return newValue;
-                final text = newValue.text;
-                if (text.isNotEmpty) int.parse(text);
-                if (double.parse(text) > 0) {
-                  return newValue;
-                } else {
-                  return oldValue;
-                }
-              } catch (e) {
-                return oldValue;
-              }
-            }),
-          ],
-          onChanged: (String e) {
-            widget.newReceipt.receiptNumber = int.tryParse(e);
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _getDatePicker() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: () async {
-              setState(() => widget.newReceipt.selectedDate = widget.newReceipt.selectedDate.subtract(const Duration(days: 1)));
-            },
-            child: ClayButton(
-              color: clayContainerColor(context),
-              height: 20,
-              width: 20,
-              spread: 1,
-              borderRadius: 10,
-              depth: 40,
-              child: const Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Icon(Icons.arrow_left),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () async {
-                DateTime? _newDate = await showDatePicker(
-                  context: context,
-                  initialDate: widget.newReceipt.selectedDate,
-                  firstDate: DateTime(2021),
-                  lastDate: DateTime.now(),
-                  helpText: "Pick  date to mark attendance",
-                );
-                setState(() {
-                  widget.newReceipt.selectedDate = _newDate ?? widget.newReceipt.selectedDate;
-                });
-              },
-              child: ClayButton(
-                color: clayContainerColor(context),
-                spread: 1,
-                borderRadius: 10,
-                depth: 40,
-                child: Container(
-                  padding: const EdgeInsets.all(15),
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            convertDateTimeToDDMMYYYYFormat(widget.newReceipt.selectedDate),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 18,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          GestureDetector(
-            onTap: () async {
-              if (convertDateTimeToDDMMYYYYFormat(widget.newReceipt.selectedDate) == convertDateTimeToDDMMYYYYFormat(DateTime.now())) return;
-              setState(() => widget.newReceipt.selectedDate = widget.newReceipt.selectedDate.add(const Duration(days: 1)));
-            },
-            child: ClayButton(
-              color: clayContainerColor(context),
-              height: 20,
-              width: 20,
-              spread: 1,
-              borderRadius: 10,
-              depth: 40,
-              child: const Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Icon(Icons.arrow_right),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _studentSearchableDropDown() {
-    return InputDecorator(
-      isFocused: true,
-      decoration: const InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        label: Text(
-          "Student",
-          style: TextStyle(color: Colors.grey),
-        ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-        child: DropdownSearch<StudentProfile>(
-          mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
-          selectedItem: widget.newReceipt.selectedStudent,
-          items: widget.newReceipt.studentProfiles
-              .where((e) => widget.newReceipt.selectedSection == null || widget.newReceipt.selectedSection?.sectionId == e.sectionId)
-              .toList(),
-          itemAsString: (StudentProfile? student) {
-            return student == null
-                ? ""
-                : [
-                      ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
-                      student.studentFirstName ?? "",
-                      student.studentMiddleName ?? "",
-                      student.studentLastName ?? ""
-                    ].where((e) => e != "").join(" ").trim() +
-                    " - ${student.sectionName}";
-          },
-          showSearchBox: true,
-          dropdownBuilder: (BuildContext context, StudentProfile? student) {
-            return buildStudentWidget(student ?? StudentProfile());
-          },
-          onChanged: (StudentProfile? student) {
-            setState(() {
-              widget.newReceipt.selectedSection = widget.newReceipt.sectionsList.where((e) => e.sectionId == student?.sectionId).firstOrNull;
-            });
-            widget.newReceipt.updatedSelectedStudent(student, setState);
-          },
-          showClearButton: false,
-          compareFn: (item, selectedItem) => item?.studentId == selectedItem?.studentId,
-          dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
-          filterFn: (StudentProfile? student, String? key) {
-            return ([
-                      ((student?.rollNumber ?? "") == "" ? "" : student!.rollNumber! + "."),
-                      student?.studentFirstName ?? "",
-                      student?.studentMiddleName ?? "",
-                      student?.studentLastName ?? ""
-                    ].where((e) => e != "").join(" ") +
-                    " - ${student?.sectionName ?? ""}")
-                .toLowerCase()
-                .trim()
-                .contains(key!.toLowerCase());
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget buildStudentWidget(StudentProfile e) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: 40,
-      child: ListTile(
-        leading: MediaQuery.of(context).orientation == Orientation.portrait
-            ? null
-            : Container(
-                width: 50,
-                padding: const EdgeInsets.all(5),
-                child: e.studentPhotoUrl == null
-                    ? Image.asset(
-                        "assets/images/avatar.png",
-                        fit: BoxFit.contain,
-                      )
-                    : Image.network(
-                        e.studentPhotoUrl!,
-                        fit: BoxFit.contain,
-                      ),
-              ),
-        title: AutoSizeText(
-          ((e.rollNumber ?? "") == "" ? "" : e.rollNumber! + ". ") +
-              ([e.studentFirstName ?? "", e.studentMiddleName ?? "", e.studentLastName ?? ""].where((e) => e != "").join(" ") +
-                      " - ${e.sectionName ?? ""}")
-                  .trim(),
-          style: const TextStyle(
-            fontSize: 14,
-          ),
-          overflow: TextOverflow.visible,
-          maxLines: 3,
-          minFontSize: 12,
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionSearchableDropDown() {
-    return InputDecorator(
-      isFocused: true,
-      decoration: const InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(15, 0, 5, 0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        label: Text(
-          "Section",
-          style: TextStyle(color: Colors.grey),
-        ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
-        child: DropdownSearch<Section>(
-          mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
-          selectedItem: widget.newReceipt.selectedSection,
-          items: widget.newReceipt.sectionsList,
-          itemAsString: (Section? section) {
-            return section == null ? "" : section.sectionName ?? "-";
-          },
-          showSearchBox: true,
-          dropdownBuilder: (BuildContext context, Section? section) {
-            return FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(widget.newReceipt.selectedSection?.sectionName ?? "-"),
-            );
-          },
-          onChanged: (Section? section) {
-            setState(() {
-              widget.newReceipt.selectedSection = section;
-            });
-            widget.newReceipt.updatedSelectedStudent(null, setState);
-          },
-          showClearButton: false,
-          compareFn: (item, selectedItem) => item?.sectionId == selectedItem?.sectionId,
-          dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
-          filterFn: (Section? section, String? key) {
-            return (section?.sectionName ?? "").toLowerCase().contains(key!.toLowerCase());
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _NewReceipt {
-  BuildContext context;
-  TextEditingController receiptNumberController = TextEditingController();
-
-  int? receiptNumber;
-  DateTime selectedDate;
-
-  List<Section> sectionsList;
-  List<StudentProfile> studentProfiles;
-  List<StudentFeeDetailsBean> studentFeeDetails;
-  List<StudentTermWiseFeeSupportBean> studentTermWiseFeeBeans;
-  List<StudentAnnualFeeSupportBean> studentAnnualFeeBeanBeans;
-
-  List<FeeType> feeTypes;
-
-  Section? selectedSection;
-  StudentProfile? selectedStudent;
-
-  String status = "active";
-  final Function notifyParent;
-
-  List<_FeeToBePaid> feeToBePaidBeans = [];
-  TextEditingController busFeeController = TextEditingController();
-  bool isBusFeeChecked = false;
-
-  int? totalBusFee;
-  int? busFeePaid;
-  late List<StudentBusFeeLogBean> busFeeBeans;
-
-  _NewReceipt({
-    required this.context,
-    required this.notifyParent,
-    required this.receiptNumber,
-    required this.selectedDate,
-    required this.sectionsList,
-    required this.studentProfiles,
-    required this.studentFeeDetails,
-    required this.studentTermWiseFeeBeans,
-    required this.studentAnnualFeeBeanBeans,
-    required this.feeTypes,
-    required this.totalBusFee,
-    required this.busFeePaid,
-    required this.busFeeBeans,
-  }) {
-    receiptNumberController.text = receiptNumber?.toString() ?? "";
-    studentProfiles.sort((a, b) => ((a.sectionId ?? 0)).compareTo((b.sectionId ?? 0)) != 0
-        ? ((a.sectionId ?? 0)).compareTo((b.sectionId ?? 0))
-        : ((int.tryParse(a.rollNumber ?? "") ?? 0)).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0)) != 0
-            ? ((int.tryParse(a.rollNumber ?? "") ?? 0)).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))
-            : (((a.studentFirstName ?? ""))).compareTo(((b.studentFirstName ?? ""))));
-  }
-
-  void updatedSelectedStudent(StudentProfile? newStudent, Function setState) {
-    setState(() {
-      selectedStudent = newStudent;
-      populateStudentTermWiseFeeDetails(selectedStudentId: newStudent?.studentId);
-      feeToBePaidBeans = getFeeToBePaidBeans();
-    });
-    notifyParent(() {});
-  }
-
-  void populateStudentTermWiseFeeDetails({int? selectedStudentId}) {
-    if (selectedStudentId == null) return;
-    for (var studentTermWiseFeeBean in studentTermWiseFeeBeans.where((e) => e.studentId == selectedStudentId)) {
-      var filteredStudentFeeDetailsBeans = studentFeeDetails.where((studentFeeDetailsBean) =>
-          studentFeeDetailsBean.studentId == selectedStudentId &&
-          (studentFeeDetailsBean.studentWiseFeeTypeDetailsList ?? [])
-              .where((studentWiseFeeTypeDetailsBean) =>
-                  studentTermWiseFeeBean.studentId == studentWiseFeeTypeDetailsBean?.studentId &&
-                  studentTermWiseFeeBean.feeTypeId == studentWiseFeeTypeDetailsBean?.feeTypeId &&
-                  (studentTermWiseFeeBean.customFeeTypeId == null ||
-                      studentTermWiseFeeBean.customFeeTypeId == studentWiseFeeTypeDetailsBean?.customFeeTypeId))
-              .isEmpty);
-      for (var studentFeeDetailsBean in filteredStudentFeeDetailsBeans.where((e) => e.studentId == selectedStudentId)) {
-        studentFeeDetailsBean.studentWiseFeeTypeDetailsList!.add(StudentWiseFeeTypeDetailsBean(
-          studentId: studentTermWiseFeeBean.studentId,
-          sectionId: studentTermWiseFeeBean.sectionId,
-          schoolId: studentTermWiseFeeBean.schoolId,
-          feeTypeId: studentTermWiseFeeBean.feeTypeId,
-          feeType: studentTermWiseFeeBean.feeType,
-          customFeeTypeId: studentTermWiseFeeBean.customFeeTypeId,
-          customFeeType: studentTermWiseFeeBean.customFeeType,
-          studentTermWiseFeeTypeDetailsList: [],
-        ));
-      }
-    }
-    for (var studentTermWiseFeeBean in studentTermWiseFeeBeans.where((e) => e.studentId == selectedStudentId)) {
-      for (var studentFeeDetailsBean
-          in studentFeeDetails.where((studentFeeDetailsBean) => (studentTermWiseFeeBean.studentId == studentFeeDetailsBean.studentId))) {
-        for (var studentWiseFeeTypeDetailsBean in (studentFeeDetailsBean.studentWiseFeeTypeDetailsList ?? [])) {
-          if ((studentWiseFeeTypeDetailsBean?.feeTypeId == studentTermWiseFeeBean.feeTypeId) &&
-              (studentTermWiseFeeBean.customFeeTypeId == null ||
-                  (studentTermWiseFeeBean.customFeeTypeId == studentWiseFeeTypeDetailsBean?.customFeeTypeId))) {
-            studentWiseFeeTypeDetailsBean?.studentTermWiseFeeTypeDetailsList!.add(
-              StudentTermWiseFeeTypeDetailsBean(
-                studentId: studentTermWiseFeeBean.studentId,
-                sectionId: studentTermWiseFeeBean.sectionId,
-                schoolId: studentTermWiseFeeBean.schoolId,
-                feeTypeId: studentTermWiseFeeBean.feeTypeId,
-                customFeeTypeId: studentTermWiseFeeBean.customFeeTypeId,
-                termId: studentTermWiseFeeBean.termId,
-                termName: studentTermWiseFeeBean.termName,
-                termWiseTotalFee: studentTermWiseFeeBean.termWiseAmount,
-                termWiseTotalFeePaid: studentTermWiseFeeBean.termWiseAmountPaid,
-              ),
-            );
-          }
-        }
-      }
-    }
-    totalBusFee = studentFeeDetails.where((e) => e.studentId == selectedStudentId).map((e) => e.busFeePaid).firstOrNull;
-    busFeePaid = studentFeeDetails
-        .where((e) => e.studentId == selectedStudentId)
-        .map((e) => e.studentFeeTransactionList ?? [])
-        .expand((i) => i)
-        .map((e) => e?.studentFeeChildTransactionList ?? [])
-        .expand((i) => i)
-        .where((e) => e?.feeTypeId == null)
-        .firstOrNull
-        ?.feePaidAmount;
-  }
-
-  Widget widget() {
-    return NewReceiptWidget(
-      newReceipt: this,
-    );
-  }
-
-  List<_FeeToBePaid> getFeeToBePaidBeans() {
-    if (selectedStudent == null) return [];
-    StudentFeeDetailsBean? feeDetails = studentFeeDetails.where((e) => e.studentId == selectedStudent?.studentId).firstOrNull;
-    if (feeDetails == null) return [];
-    List<_FeeToBePaid> feeToBePaidBeans = [];
-    feeToBePaidBeans.add(_FeeToBePaid(
-      context,
-      notifyParent,
-      selectedStudent?.studentId,
-      [selectedStudent?.studentFirstName ?? "", selectedStudent?.studentMiddleName ?? "", selectedStudent?.studentLastName ?? ""]
-          .where((e) => e != "")
-          .join(" "),
-      null,
-      null,
-      null,
-    ));
-
-    for (var eachFeeToBePaidBean in feeToBePaidBeans) {
-      eachFeeToBePaidBean.feeTypes = feeTypes.map((eachFeeType) {
-        return _FeeType(
-          eachFeeType.feeTypeId,
-          eachFeeType.feeType,
-          null,
-          null,
-          (eachFeeType.customFeeTypesList ?? [])
-              .where((e) => e != null)
-              .map((e) => e!)
-              .map((eachCustomFeeType) => _CustomFeeType(
-                    eachCustomFeeType.feeTypeId,
-                    eachCustomFeeType.customFeeTypeId,
-                    eachCustomFeeType.customFeeType,
-                    null,
-                    null,
-                    notifyParent,
-                  ))
-              .toList(),
-          notifyParent,
-        );
-      }).toList();
-    }
-
-    for (_FeeToBePaid eachFeeToBePaidBean in feeToBePaidBeans) {
-      for (_FeeType eachFeeTypeFeeToBePaidBean in (eachFeeToBePaidBean.feeTypes ?? [])) {
-        if ((eachFeeTypeFeeToBePaidBean.customFeeTypes ?? []).isNotEmpty) {
-          for (_CustomFeeType eachTermWiseCustomFeeTypeFee in (eachFeeTypeFeeToBePaidBean.customFeeTypes ?? [])) {
-            StudentAnnualFeeSupportBean? studentWiseCustomFeeTypeDetails = ((studentAnnualFeeBeanBeans)
-                .where((e) =>
-                    e.studentId == selectedStudent?.studentId &&
-                    e.feeTypeId == eachFeeTypeFeeToBePaidBean.feeTypeId &&
-                    e.customFeeTypeId == eachTermWiseCustomFeeTypeFee.customFeeTypeId)
-                .firstOrNull);
-            eachTermWiseCustomFeeTypeFee.fee = studentWiseCustomFeeTypeDetails?.amount;
-            eachTermWiseCustomFeeTypeFee.feePaid = studentWiseCustomFeeTypeDetails?.amountPaid;
-          }
-        } else {
-          StudentAnnualFeeSupportBean? studentWiseFeeTypeDetails = ((studentAnnualFeeBeanBeans)
-              .where((e) => e.studentId == selectedStudent?.studentId && e.feeTypeId == eachFeeTypeFeeToBePaidBean.feeTypeId)
-              .firstOrNull);
-          eachFeeTypeFeeToBePaidBean.fee = studentWiseFeeTypeDetails?.amount;
-          eachFeeTypeFeeToBePaidBean.feePaid = studentWiseFeeTypeDetails?.amountPaid;
-        }
-      }
-    }
-
-    for (var eachFeeToBePaidBean in feeToBePaidBeans) {
-      eachFeeToBePaidBean.totalFee = (eachFeeToBePaidBean.feeTypes ?? [])
-          .map((e) => (e.customFeeTypes ?? []).isEmpty ? e.fee : (e.customFeeTypes ?? []).map((e) => e.fee).reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0)))
-          .reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0));
-      eachFeeToBePaidBean.totalFeesPaid = (eachFeeToBePaidBean.feeTypes ?? [])
-          .map((e) =>
-              (e.customFeeTypes ?? []).isEmpty ? e.feePaid : (e.customFeeTypes ?? []).map((e) => e.feePaid).reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0)))
-          .reduce((a1, a2) => (a1 ?? 0) + (a2 ?? 0));
-    }
-
-    for (_FeeToBePaid eachTerm in feeToBePaidBeans) {
-      if ((eachTerm.totalFee ?? 0) > (eachTerm.totalFeesPaid ?? 0)) {
-        eachTerm.isExpanded = true;
-        break;
-      }
-    }
-
-    return feeToBePaidBeans;
-  }
-
-  @override
-  String toString() {
-    return """{"studentId": ${selectedStudent?.studentId}, "receiptNumber": $receiptNumber, "termWiseFeeToBePaidBeans": $feeToBePaidBeans}""";
-  }
-}
-
-class _FeeToBePaid {
-  BuildContext context;
-  Function notifyParent;
-  int? studentId;
-  String? studentName;
-  int? totalFee;
-  int? totalFeesPaid;
-
-  List<_FeeType>? feeTypes;
-
-  bool? isExpanded;
-
-  _FeeToBePaid(
-    this.context,
-    this.notifyParent,
-    this.studentId,
-    this.studentName,
-    this.totalFee,
-    this.totalFeesPaid,
-    this.feeTypes,
-  );
-
-  @override
-  String toString() {
-    return '{studentId: $studentId, studentName: $studentName, termWiseTotalFee: $totalFee, termWiseTotalFeesPaid: $totalFeesPaid, termWiseFeeTypes: $feeTypes}';
-  }
-}
-
-class _FeeType {
-  int? feeTypeId;
-  String? feeType;
-  int? fee;
-  int? feePaid;
-  List<_CustomFeeType>? customFeeTypes;
-  Function notifyParent;
-
-  _FeeType(
-    this.feeTypeId,
-    this.feeType,
-    this.fee,
-    this.feePaid,
-    this.customFeeTypes,
-    this.notifyParent,
-  );
-
-  TextEditingController feePayingController = TextEditingController();
-  bool isChecked = false;
-
-  Widget widget(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        const SizedBox(
-          height: 10,
-        ),
-        Row(
-          children: [
-            (customFeeTypes ?? []).isEmpty
-                ? Checkbox(
-                    onChanged: (bool? value) {
-                      if (value == null) return;
-                      if (value) {
-                        notifyParent(() {
-                          isChecked = value;
-                          feePayingController.text = doubleToStringAsFixedForINR(((fee ?? 0) - (feePaid ?? 0)) / 100.0);
-                        });
-                      } else {
-                        notifyParent(() {
-                          isChecked = value;
-                          feePayingController.text = "";
-                        });
-                      }
-                    },
-                    value: isChecked,
-                  )
-                : Container(),
-            (customFeeTypes ?? []).isEmpty ? const SizedBox(width: 10) : Container(),
-            Expanded(
-              child: Text(feeType ?? "-"),
-            ),
-            const SizedBox(width: 10),
-            (customFeeTypes ?? []).isEmpty
-                ? Text(
-                    "$INR_SYMBOL ${doubleToStringAsFixedForINR((fee ?? 0) / 100)} /-",
-                  )
-                : Container(),
-            const SizedBox(width: 20),
-            (customFeeTypes ?? []).isEmpty ? _feePayingTextField(context) : Container(),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        ...(customFeeTypes ?? []).map((e) => e.widget(context)).toList(),
-      ],
-    );
-  }
-
-  SizedBox _feePayingTextField(BuildContext context) {
-    return SizedBox(
-      width: 100,
-      height: 40,
-      child: InputDecorator(
-        isFocused: true,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.blue),
-          ),
-          label: Text(
-            "$INR_SYMBOL ${doubleToStringAsFixedForINR((feePaid ?? 0) / 100)} /-",
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ),
-        child: TextField(
-          enabled: (fee ?? 0) - (feePaid ?? 0) != 0,
-          onTap: () {
-            feePayingController.selection = TextSelection(
-              baseOffset: 0,
-              extentOffset: feePayingController.text.length,
-            );
-          },
-          controller: feePayingController,
-          keyboardType: TextInputType.number,
-          maxLines: 1,
-          textAlignVertical: TextAlignVertical.center,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.zero,
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            hintText: "Amount",
-          ),
-          onChanged: (String e) {
-            if (e.isNotEmpty) {
-              notifyParent(() {
-                isChecked = true;
-              });
-            } else {
-              notifyParent(() {
-                isChecked = false;
-              });
-            }
-          },
-          textAlign: TextAlign.center,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              try {
-                if (newValue.text == "") return newValue;
-                final text = newValue.text;
-                double payingAmount = double.parse(text);
-                if (payingAmount * 100 > (fee ?? 0) - (feePaid ?? 0)) {
-                  return oldValue;
-                }
-                return newValue;
-              } catch (e) {
-                return oldValue;
-              }
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  String toString() {
-    if ((customFeeTypes ?? []).isEmpty && feePayingController.text.trim().isNotEmpty && feePayingController.text.trim() != "0") {
-      return """{"feeTypeId": $feeTypeId, "feeType": "$feeType", "customFeeTypeId": null, "customFeeType": null, "feePaying": ${feePayingController.text}}""";
-    }
-    if ((customFeeTypes ?? []).isNotEmpty) {
-      return customFeeTypes?.map((e) => e.toString()).join(",") ?? "";
-    }
-    // return '_TermWiseFeeType{termId: $termId, feeTypeId: $feeTypeId, feeType: $feeType, termWiseFee: $termWiseFee, termWiseFeePaid: $termWiseFeePaid, termWiseCustomFeeTypes: $termWiseCustomFeeTypes, feePayingController: $feePayingController}';
-    return "";
-  }
-}
-
-class _CustomFeeType {
-  int? feeTypeId;
-  int? customFeeTypeId;
-  String? customFeeType;
-  int? fee;
-  int? feePaid;
-  Function notifyParent;
-
-  _CustomFeeType(
-    this.feeTypeId,
-    this.customFeeTypeId,
-    this.customFeeType,
-    this.fee,
-    this.feePaid,
-    this.notifyParent,
-  );
-
-  TextEditingController feePayingController = TextEditingController();
-  bool isChecked = false;
-
-  Widget widget(BuildContext context) {
-    return ListView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Checkbox(
-              onChanged: (bool? value) {
-                if (value == null) return;
-                if (value) {
-                  notifyParent(() {
-                    isChecked = value;
-                    feePayingController.text = doubleToStringAsFixedForINR(((fee ?? 0) - (feePaid ?? 0)) / 100.0);
-                  });
-                } else {
-                  notifyParent(() {
-                    isChecked = value;
-                    feePayingController.text = "";
-                  });
-                }
-              },
-              value: isChecked,
-            ),
-            const SizedBox(width: 5),
-            const SizedBox(width: 15),
-            const CustomVerticalDivider(),
-            const SizedBox(width: 15),
-            Expanded(
-              child: Text(customFeeType ?? "-"),
-            ),
-            const SizedBox(width: 10),
-            Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((fee ?? 0) / 100)} /-"),
-            const SizedBox(width: 20),
-            _feePayingTextField(context),
-          ],
-        ),
-        const SizedBox(height: 10),
-      ],
-    );
-  }
-
-  SizedBox _feePayingTextField(BuildContext context) {
-    return SizedBox(
-      width: 100,
-      height: 40,
-      child: InputDecorator(
-        isFocused: true,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.fromLTRB(10, 15, 10, 15),
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.blue),
-          ),
-          label: Text(
-            "$INR_SYMBOL ${doubleToStringAsFixedForINR((feePaid ?? 0) / 100)} /-",
-            style: const TextStyle(color: Colors.grey),
-          ),
-        ),
-        child: TextField(
-          enabled: (fee ?? 0) - (feePaid ?? 0) != 0,
-          onTap: () {
-            feePayingController.selection = TextSelection(
-              baseOffset: 0,
-              extentOffset: feePayingController.text.length,
-            );
-          },
-          controller: feePayingController,
-          keyboardType: TextInputType.number,
-          maxLines: 1,
-          textAlignVertical: TextAlignVertical.center,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.zero,
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            disabledBorder: InputBorder.none,
-            hintText: "Amount",
-          ),
-          textAlign: TextAlign.center,
-          onChanged: (String e) {
-            if (e.isNotEmpty) {
-              notifyParent(() {
-                isChecked = true;
-              });
-            } else {
-              notifyParent(() {
-                isChecked = false;
-              });
-            }
-          },
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              try {
-                if (newValue.text == "") return newValue;
-                final text = newValue.text;
-                double payingAmount = double.parse(text);
-                if (payingAmount * 100 > (fee ?? 0) - (feePaid ?? 0)) {
-                  return oldValue;
-                }
-                return newValue;
-              } catch (e) {
-                return oldValue;
-              }
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  String toString() {
-    if (feePayingController.text.trim().isNotEmpty && feePayingController.text.trim() != "0") {
-      return """{"feeTypeId": $feeTypeId, "feeType": null, "customFeeTypeId": $customFeeTypeId, "customFeeType": "$customFeeType", "feePaying": ${feePayingController.text}}""";
-    }
-    // return '_TermWiseCustomFeeType{termId: $termId, feeTypeId: $feeTypeId, customFeeTypeId: $customFeeTypeId, customFeeType: $customFeeType, termWiseFee: $termWiseFee, termWiseFeePaid: $termWiseFeePaid, feePayingController: $feePayingController}';
-    return "";
   }
 }

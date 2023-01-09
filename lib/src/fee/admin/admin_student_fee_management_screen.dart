@@ -8,8 +8,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_pay_student_fee_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_receipt_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_receipt_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -622,7 +621,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         (editingStudentId != studentWiseAnnualFeesBean.studentId)) {
       feeStats.add(Row(
         children: [
-          const Text("Bus Fee"),
+          const Expanded(child: Text("Bus Fee")),
           const SizedBox(
             width: 10,
           ),
@@ -816,13 +815,13 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) {
-                                    return AdminStudentWiseReceiptScreen(
-                                      studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
+                                    return AdminStudentWiseFeeReceiptsScreen(
+                                      studentAnnualFeeBean: studentWiseAnnualFeesBean,
                                       adminProfile: widget.adminProfile,
                                     );
                                   },
                                 ),
-                              );
+                              ).then((value) => _loadData());
                             },
                             child: ClayButton(
                               depth: 40,
@@ -845,49 +844,49 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: ((studentWiseAnnualFeesBean.totalFee ?? 0) -
-                                    (studentWiseAnnualFeesBean.totalFeePaid ?? 0) -
-                                    (studentWiseAnnualFeesBean.walletBalance ?? 0)) ==
-                                0
-                            ? const Text("")
-                            : Container(
-                                margin: const EdgeInsets.all(8),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return AdminPayStudentFeeScreen(
-                                            studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
-                                            adminProfile: widget.adminProfile,
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                  child: ClayButton(
-                                    depth: 40,
-                                    surfaceColor: clayContainerColor(context),
-                                    parentColor: clayContainerColor(context),
-                                    spread: 1,
-                                    borderRadius: 5,
-                                    child: Center(
-                                      child: Container(
-                                        margin: const EdgeInsets.all(10),
-                                        child: const Text(
-                                          "Pay Fee",
-                                          style: TextStyle(
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                      ),
+                      // Expanded(
+                      //   child: ((studentWiseAnnualFeesBean.totalFee ?? 0) -
+                      //               (studentWiseAnnualFeesBean.totalFeePaid ?? 0) -
+                      //               (studentWiseAnnualFeesBean.walletBalance ?? 0)) ==
+                      //           0
+                      //       ? const Text("")
+                      //       : Container(
+                      //           margin: const EdgeInsets.all(8),
+                      //           child: GestureDetector(
+                      //             onTap: () {
+                      //               Navigator.push(
+                      //                 context,
+                      //                 MaterialPageRoute(
+                      //                   builder: (context) {
+                      //                     return AdminPayStudentFeeScreen(
+                      //                       studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
+                      //                       adminProfile: widget.adminProfile,
+                      //                     );
+                      //                   },
+                      //                 ),
+                      //               );
+                      //             },
+                      //             child: ClayButton(
+                      //               depth: 40,
+                      //               surfaceColor: clayContainerColor(context),
+                      //               parentColor: clayContainerColor(context),
+                      //               spread: 1,
+                      //               borderRadius: 5,
+                      //               child: Center(
+                      //                 child: Container(
+                      //                   margin: const EdgeInsets.all(10),
+                      //                   child: const Text(
+                      //                     "Pay Fee",
+                      //                     style: TextStyle(
+                      //                       color: Colors.blue,
+                      //                     ),
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ),
+                      // ),
                     ],
                   )
                 ],

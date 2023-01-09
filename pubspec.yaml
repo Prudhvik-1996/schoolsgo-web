@@ -98,6 +98,8 @@ dependencies:
   pdfx: ^2.3.0
 
   webviewx: ^0.2.1
+  pdf: ^3.8.4
+  printing: ^5.9.3
 
 dev_dependencies:
   flutter_test:
