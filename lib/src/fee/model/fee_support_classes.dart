@@ -22,6 +22,16 @@ class FeeTypeTxn {
   String toString() {
     return 'FeeTypeTxn{feeTypeId: $feeTypeId, feeType: $feeType, feePaidAmount: $feePaidAmount, transactionId: $transactionId, customFeeTypeTxns: $customFeeTypeTxns, termComponents: $termComponents}';
   }
+
+  @override
+  int get hashCode {
+    return toString().hashCode;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return hashCode == other.hashCode;
+  }
 }
 
 class CustomFeeTypeTxn {

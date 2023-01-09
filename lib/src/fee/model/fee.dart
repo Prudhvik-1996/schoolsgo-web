@@ -3604,6 +3604,7 @@ class StudentFeeTransactionBean {
   String? studentName;
   int? sectionId;
   String? sectionName;
+  String? modeOfPayment;
   int? transactionAmount;
   int? receiptId;
   String? transactionDate;
@@ -3616,6 +3617,7 @@ class StudentFeeTransactionBean {
     this.studentName,
     this.sectionId,
     this.sectionName,
+    this.modeOfPayment,
     this.transactionAmount,
     this.receiptId,
     this.transactionDate,
@@ -3635,6 +3637,7 @@ class StudentFeeTransactionBean {
     studentName = json['studentName']?.toString();
     sectionId = json['sectionId']?.toInt();
     sectionName = json['sectionName']?.toString();
+    modeOfPayment = json['modeOfPayment']?.toString();
     transactionAmount = json['transactionAmount']?.toInt();
     receiptId = json['receiptId']?.toInt();
     transactionDate = json['transactionDate']?.toString();
@@ -3654,6 +3657,7 @@ class StudentFeeTransactionBean {
     data['studentName'] = studentName;
     data['sectionId'] = sectionId;
     data['sectionName'] = sectionName;
+    data['modeOfPayment'] = modeOfPayment;
     data['transactionAmount'] = transactionAmount;
     data['receiptId'] = receiptId;
     data['transactionDate'] = transactionDate;

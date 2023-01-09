@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -29,6 +31,8 @@ class DiaryEditScreen extends StatefulWidget {
 class _DiaryEditScreenState extends State<DiaryEditScreen> {
   bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _showBackToTopButton = false;
+  late ScrollController _scrollController;
 
   List<Teacher> _teachersList = [];
   Teacher? _selectedTeacher;
@@ -48,7 +52,34 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        if (_scrollController.offset >= 400) {
+          setState(() {
+            _showBackToTopButton = true;
+          });
+          Timer(const Duration(seconds: 3), () {
+            setState(() {
+              _showBackToTopButton = false;
+            });
+          });
+        } else {
+          setState(() {
+            _showBackToTopButton = false;
+          });
+        }
+      });
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(0, duration: const Duration(seconds: 1), curve: Curves.linear);
   }
 
   Future<void> _loadData() async {
@@ -527,6 +558,16 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
         message: "Previous Day",
         child: GestureDetector(
           onTap: () {
+            DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+            if (editingEntry != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Save changes for the following diary entry to proceed..\n"
+                      "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+                ),
+              );
+              return;
+            }
             if (_selectedDate.millisecondsSinceEpoch == DateTime.now().subtract(const Duration(days: 364)).millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.subtract(const Duration(days: 1));
@@ -553,6 +594,16 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
         message: "Next Day",
         child: GestureDetector(
           onTap: () {
+            DiaryEntry? editingEntry = _filteredDiaryList.where((e) => e.isEditMode).firstOrNull;
+            if (editingEntry != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Save changes for the following diary entry to proceed..\n"
+                      "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+                ),
+              );
+              return;
+            }
             if (_selectedDate.millisecondsSinceEpoch == DateTime.now().millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.add(const Duration(days: 1));
@@ -819,6 +870,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
               ),
             )
           : ListView(
+              controller: _scrollController,
               children: <Widget>[
                 widget.teacherProfile != null
                     ? Container(
@@ -923,6 +975,12 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
                   ),
                 for (DiaryEntry eachDiary in _filteredDiaryList) _getDiaryWidget(eachDiary),
               ],
+            ),
+      floatingActionButton: _showBackToTopButton == false
+          ? null
+          : FloatingActionButton(
+              onPressed: _scrollToTop,
+              child: const Icon(Icons.arrow_upward),
             ),
     );
   }

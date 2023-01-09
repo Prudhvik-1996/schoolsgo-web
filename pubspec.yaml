@@ -171,6 +171,7 @@ flutter:
     - assets/images/gear-loader.svg
     - assets/images/stats.svg
     - assets/images/gear-loader.gif
+    - assets/images/EISlogo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

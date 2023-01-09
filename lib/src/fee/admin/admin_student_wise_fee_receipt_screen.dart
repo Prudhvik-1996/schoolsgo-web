@@ -1,9 +1,16 @@
+import 'dart:html' as html;
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:clay_containers/widgets/clay_container.dart';
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_switch/flutter_switch.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
@@ -13,6 +20,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.
 import 'package:schoolsgo_web/src/fee/admin/new_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/fee_support_classes.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -30,7 +38,10 @@ class AdminStudentWiseFeeReceiptsScreen extends StatefulWidget {
 
 class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeReceiptsScreen> {
   bool _isLoading = true;
+  bool _isTermWise = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  late SchoolInfoBean schoolInfoBean;
 
   List<StudentProfile> studentProfiles = [];
   List<FeeType> feeTypes = [];
@@ -45,6 +56,7 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
   List<NewReceipt> newReceipts = [];
   late int latestReceiptNumberToBeAdded;
   TextEditingController reasonToDeleteTextController = TextEditingController();
+  Uint8List? pdfInBytes;
 
   @override
   void initState() {
@@ -56,6 +68,18 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
     setState(() {
       _isLoading = true;
     });
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      schoolInfoBean = getSchoolsResponse.schoolInfo!;
+    }
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile.schoolId,
       studentId: widget.studentAnnualFeeBean.studentId,
@@ -802,9 +826,13 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
         (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId == null).toList();
     List<FeeTypeTxn> feeTypeTxns = [];
     for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
-      // if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
-      feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
-      // }
+      if (eachChildTxn.customFeeTypeId == null) {
+        feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
+      } else {
+        if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
+          feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
+        }
+      }
     }
     for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
       if (eachChildTxn.customFeeTypeId != null && eachChildTxn.customFeeTypeId != 0) {
@@ -836,7 +864,7 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
         eachFeeTypeTxn.feePaidAmount = eachFeeTypeTxn.customFeeTypeTxns?.map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
       }
     }
-    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns) {
+    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.toSet()) {
       if ((eachFeeTypeTxn.customFeeTypeTxns ?? []).isEmpty) {
         childTxnWidgets.add(
           Container(
@@ -846,14 +874,14 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                 Expanded(
                   child: Text(eachFeeTypeTxn.feeType ?? "-"),
                 ),
-                (eachFeeTypeTxn.termComponents).isEmpty
+                !_isTermWise || (eachFeeTypeTxn.termComponents).isEmpty
                     ? Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
                     : const Text(""),
               ],
             ),
           ),
         );
-        if ((eachFeeTypeTxn.termComponents).isNotEmpty) {
+        if (_isTermWise && (eachFeeTypeTxn.termComponents).isNotEmpty) {
           for (TermComponent eachTermComponent in eachFeeTypeTxn.termComponents) {
             childTxnWidgets.add(
               Container(
@@ -909,13 +937,13 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                 Expanded(
                   child: Text(eachCustomFeeTypeTxn.customFeeType ?? "-"),
                 ),
-                (eachCustomFeeTypeTxn.termComponents).isEmpty
+                !_isTermWise || (eachCustomFeeTypeTxn.termComponents).isEmpty
                     ? Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachCustomFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
                     : const Text(""),
               ],
             ),
           ));
-          if ((eachCustomFeeTypeTxn.termComponents).isNotEmpty) {
+          if (_isTermWise && (eachCustomFeeTypeTxn.termComponents).isNotEmpty) {
             for (TermComponent eachTermComponent in eachCustomFeeTypeTxn.termComponents) {
               childTxnWidgets.add(
                 Container(
@@ -1044,6 +1072,463 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
     setState(() => _isLoading = false);
   }
 
+  pw.Widget paddedText(
+    final String text,
+    final pw.Font font, {
+    final pw.EdgeInsets padding = const pw.EdgeInsets.all(6),
+    final pw.TextAlign align = pw.TextAlign.left,
+    final double fontSize = 16,
+    final pw.FontWeight fontWeight = pw.FontWeight.normal,
+  }) =>
+      pw.Padding(
+        padding: padding,
+        child: pw.Text(
+          text,
+          textAlign: align,
+          style: pw.TextStyle(
+            font: font,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+          ),
+        ),
+      );
+
+  Future<void> makePdf() async {
+    setState(() {
+      _isLoading = true;
+    });
+    final pdf = pw.Document();
+    final schoolNameFont = await PdfGoogleFonts.acmeRegular();
+    final font = await PdfGoogleFonts.merriweatherRegular();
+
+    pw.ImageProvider logoImageProvider;
+
+    try {
+      logoImageProvider = await networkImage(
+        schoolInfoBean.logoPictureUrl! ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
+      );
+    } catch (e) {
+      logoImageProvider = pw.MemoryImage(
+        (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
+      );
+    }
+
+    (studentFeeDetailsBeans.map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!)).expand((i) => i).toList()
+          ..sort(
+            (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+                    ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
+                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
+          ))
+        .forEach((eachTransaction) {
+      List<pw.Widget> widgets = [];
+      widgets.add(
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          children: [
+            // pw.Padding(
+            //   padding: const pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+            //   child: pw.Image(
+            //     logoImageProvider,
+            //     width: 60,
+            //     height: 60,
+            //   ),
+            // ),
+            // pw.SizedBox(width: 10),
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                mainAxisSize: pw.MainAxisSize.min,
+                children: [
+                  pw.Text(
+                    schoolInfoBean.schoolDisplayName ?? "-",
+                    style: pw.TextStyle(font: schoolNameFont, fontSize: 30, color: PdfColors.blue),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                  pw.Text(
+                    schoolInfoBean.detailedAddress ?? "-",
+                    style: pw.TextStyle(font: font, fontSize: 14, color: PdfColors.grey900),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+      pw.Container eachTxnContainer = pw.Container(
+        // decoration: pw.BoxDecoration(
+        //   border: pw.Border.all(color: PdfColors.black),
+        // ),
+        padding: const pw.EdgeInsets.fromLTRB(50, 10, 50, 10),
+        child: pw.Column(
+          children: [
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  child: pw.Text(
+                    "Fee Receipt",
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 18,
+                      decoration: pw.TextDecoration.underline,
+                      color: PdfColors.black,
+                    ),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                    flex: 3,
+                    child: pw.Row(mainAxisSize: pw.MainAxisSize.min, children: [
+                      pw.Text(
+                        "Receipt No.: ",
+                        style: pw.TextStyle(font: font, fontSize: 16),
+                        textAlign: pw.TextAlign.left,
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          " ${eachTransaction.receiptId ?? "-"}",
+                          style: pw.TextStyle(
+                            font: font,
+                            fontSize: 16,
+                            color: PdfColors.red,
+                          ),
+                          textAlign: pw.TextAlign.left,
+                        ),
+                      ),
+                    ])),
+                pw.Expanded(
+                  flex: 2,
+                  child: pw.Text(
+                    "Date: ${convertDateToDDMMMYYY(eachTransaction.transactionDate)}",
+                    style: pw.TextStyle(font: font, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  child: pw.Text(
+                    "Student Name: ${eachTransaction.studentName ?? "-"}",
+                    style: pw.TextStyle(font: font, fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+            if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.fatherName != null)
+              pw.SizedBox(
+                height: 10,
+              ),
+            if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.fatherName != null)
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "S/o / D/o: ${studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.fatherName ?? "-"}",
+                      style: pw.TextStyle(font: font, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  flex: 3,
+                  child: pw.Text(
+                    "Section: ${studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.sectionName ?? "-"}",
+                    style: pw.TextStyle(font: font, fontSize: 16),
+                  ),
+                ),
+                pw.Expanded(
+                  flex: 2,
+                  child: pw.Text(
+                    "Roll No.: ${studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.rollNumber ?? "-"}",
+                    style: pw.TextStyle(font: font, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
+      );
+      widgets.add(eachTxnContainer);
+      widgets.add(
+        pw.Padding(
+          padding: const pw.EdgeInsets.fromLTRB(50, 10, 50, 10),
+          child: pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.black),
+            children: [
+              pw.TableRow(
+                children: [
+                  pw.Expanded(
+                    child: paddedText(
+                      "Particulars",
+                      font,
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      align: pw.TextAlign.center,
+                    ),
+                  ),
+                  paddedText(
+                    "Amount",
+                    font,
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                    align: pw.TextAlign.center,
+                  ),
+                ],
+              ),
+              ...childTransactionsPdfWidgets(eachTransaction, font),
+              pw.TableRow(
+                children: [
+                  pw.Expanded(
+                    child: paddedText(
+                      "Total",
+                      font,
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      align: pw.TextAlign.center,
+                    ),
+                  ),
+                  paddedText(
+                    "$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTransaction.transactionAmount ?? 0) / 100)} /-",
+                    font,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    align: pw.TextAlign.right,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+      widgets.add(
+        pw.Padding(
+          padding: const pw.EdgeInsets.fromLTRB(50, 10, 50, 10),
+          child: pw.Row(
+            children: [
+              paddedText(
+                "Mode Of Payment: ${eachTransaction.modeOfPayment ?? "CASH"}",
+                font,
+                fontSize: 14,
+                align: pw.TextAlign.left,
+              ),
+              pw.Expanded(
+                child: paddedText(
+                  "Signature",
+                  font,
+                  fontSize: 16,
+                  align: pw.TextAlign.right,
+                  padding: const pw.EdgeInsets.fromLTRB(6, 60, 6, 6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      pdf.addPage(pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (context) {
+          return widgets;
+        },
+      ));
+    });
+
+    var x = await pdf.save();
+    setState(() {
+      pdfInBytes = x;
+    });
+
+    final blob = html.Blob([pdfInBytes], 'application/pdf');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    // html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    // anchorElement.download = "fileName.pdf";
+    // anchorElement.click();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  List<pw.TableRow> childTransactionsPdfWidgets(StudentFeeTransactionBean e, pw.Font font) {
+    // return (e.studentFeeChildTransactionList ?? []).map((e) => Container()).toList();
+    List<pw.TableRow> childTxnWidgets = [];
+    List<StudentFeeChildTransactionBean> childTxns =
+        (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId != null).toList();
+    List<StudentFeeChildTransactionBean> busFeeTxns =
+        (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId == null).toList();
+    List<FeeTypeTxn> feeTypeTxns = [];
+    for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
+      if (eachChildTxn.customFeeTypeId == null) {
+        feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
+      } else {
+        if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
+          feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
+        }
+      }
+    }
+    for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
+      if (eachChildTxn.customFeeTypeId != null && eachChildTxn.customFeeTypeId != 0) {
+        feeTypeTxns.where((e) => e.feeTypeId == eachChildTxn.feeTypeId).forEach((eachFeeTypeTxn) {
+          eachFeeTypeTxn.customFeeTypeTxns?.add(CustomFeeTypeTxn(eachChildTxn.customFeeTypeId, eachChildTxn.customFeeType, eachChildTxn.feePaidAmount,
+              eachFeeTypeTxn.transactionId, eachChildTxn.termComponents ?? []));
+        });
+      }
+    }
+    for (StudentFeeChildTransactionBean eachChildTxn in busFeeTxns) {
+      if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
+        feeTypeTxns.add(FeeTypeTxn(
+            eachChildTxn.feeTypeId, "Bus Fee", eachChildTxn.feePaidAmount, eachChildTxn.transactionId, [], eachChildTxn.termComponents ?? []));
+      }
+    }
+    feeTypeTxns.sort(
+      (a, b) => a.feeType == "Bus Fee"
+          ? -2
+          : (a.customFeeTypeTxns ?? []).isEmpty
+              ? -1
+              : 1,
+    );
+    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.where((e) => e.feeTypeId != null)) {
+      if (eachFeeTypeTxn.customFeeTypeTxns?.isEmpty ?? true) {
+        eachFeeTypeTxn.feePaidAmount =
+            childTxns.where((e) => e.feeTypeId == eachFeeTypeTxn.feeTypeId).map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
+        eachFeeTypeTxn.transactionId = childTxns.where((e) => e.feeTypeId == eachFeeTypeTxn.feeTypeId).map((e) => e.transactionId).firstOrNull;
+      } else {
+        eachFeeTypeTxn.feePaidAmount = eachFeeTypeTxn.customFeeTypeTxns?.map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
+      }
+    }
+    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.toSet()) {
+      if ((eachFeeTypeTxn.customFeeTypeTxns ?? []).isEmpty) {
+        childTxnWidgets.add(
+          pw.TableRow(
+            children: [
+              pw.Expanded(
+                child: paddedText(eachFeeTypeTxn.feeType ?? "-", font),
+              ),
+              !_isTermWise || (eachFeeTypeTxn.termComponents).isEmpty
+                  ? paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-", font,
+                      align: pw.TextAlign.right)
+                  : paddedText("", font),
+            ],
+          ),
+        );
+        if (_isTermWise && (eachFeeTypeTxn.termComponents).isNotEmpty) {
+          for (TermComponent eachTermComponent in eachFeeTypeTxn.termComponents) {
+            childTxnWidgets.add(
+              pw.TableRow(
+                children: [
+                  pw.Expanded(
+                    child: paddedText(eachTermComponent.termName ?? "-", font, padding: const pw.EdgeInsets.fromLTRB(12, 6, 6, 6)),
+                  ),
+                  paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.feePaid ?? 0) / 100.0)} /-", font,
+                      align: pw.TextAlign.right)
+                ],
+              ),
+            );
+          }
+        }
+      } else {
+        childTxnWidgets.add(pw.TableRow(
+          children: [
+            pw.Expanded(
+              child: paddedText(eachFeeTypeTxn.feeType ?? "-", font),
+            ),
+          ],
+        ));
+        for (var eachCustomFeeTypeTxn in (eachFeeTypeTxn.customFeeTypeTxns ?? [])) {
+          childTxnWidgets.add(pw.TableRow(
+            children: [
+              pw.Expanded(
+                child: paddedText(eachCustomFeeTypeTxn.customFeeType ?? "-", font, padding: const pw.EdgeInsets.fromLTRB(8, 6, 6, 6)),
+              ),
+              !_isTermWise || (eachCustomFeeTypeTxn.termComponents).isEmpty
+                  ? paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachCustomFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-", font,
+                      align: pw.TextAlign.right)
+                  : paddedText("", font),
+            ],
+          ));
+          if (_isTermWise && (eachCustomFeeTypeTxn.termComponents).isNotEmpty) {
+            for (TermComponent eachTermComponent in eachCustomFeeTypeTxn.termComponents) {
+              childTxnWidgets.add(
+                pw.TableRow(
+                  children: [
+                    pw.Expanded(
+                      child: paddedText(eachTermComponent.termName ?? "-", font, padding: const pw.EdgeInsets.fromLTRB(12, 6, 6, 6)),
+                    ),
+                    paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.feePaid ?? 0) / 100.0)} /-", font,
+                        align: pw.TextAlign.right)
+                  ],
+                ),
+              );
+            }
+          }
+        }
+      }
+    }
+
+    return childTxnWidgets;
+  }
+
+  ClayContainer termWiseFilter() {
+    return ClayContainer(
+      color: clayContainerColor(context),
+      borderRadius: 10,
+      spread: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 10),
+            FlutterSwitch(
+              value: _isTermWise,
+              onToggle: (bool value) {
+                setState(() {
+                  _isTermWise = !_isTermWise;
+                });
+              },
+              activeText: "",
+              inactiveText: "",
+              showOnOff: true,
+              width: 30,
+              height: 15,
+              toggleSize: 15,
+            ),
+            const SizedBox(width: 10),
+            const Expanded(child: Text("Term Wise")),
+            const SizedBox(width: 2),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -1070,168 +1555,199 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Student Fee Management"),
+        actions: _isLoading
+            ? []
+            : [
+                pdfInBytes == null
+                    ? IconButton(
+                        onPressed: () {
+                          makePdf();
+                        },
+                        icon: const Icon(Icons.print),
+                      )
+                    : IconButton(
+                        onPressed: () {
+                          setState(() {
+                            pdfInBytes = null;
+                          });
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+              ],
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
-      body: _isAddNew
-          ? Column(
-              children: [
-                Expanded(
-                  child: newReceiptWidget(),
-                ),
-                SizedBox(
-                  height: 50,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Select a student and enter the details to proceed adding a new receipt"),
-                                  ),
-                                );
-                                return;
-                              }
-                              newReceipts = [
-                                NewReceipt(
-                                  context: _scaffoldKey.currentContext!,
-                                  notifyParent: setState,
-                                  receiptNumber:
-                                      newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
-                                  selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
-                                  sectionsList: [
-                                    Section(
-                                      sectionId: widget.studentAnnualFeeBean.sectionId,
-                                      sectionName: widget.studentAnnualFeeBean.sectionName,
-                                      schoolId: widget.adminProfile.schoolId,
+      body: pdfInBytes != null
+          ? PdfPreview(
+              build: (format) => pdfInBytes!,
+              pdfFileName: "Fee Receipts [${widget.studentAnnualFeeBean.studentName} - ${widget.studentAnnualFeeBean.sectionName}]",
+            )
+          : _isAddNew
+              ? Column(
+                  children: [
+                    Expanded(
+                      child: newReceiptWidget(),
+                    ),
+                    SizedBox(
+                      height: 50,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Select a student and enter the details to proceed adding a new receipt"),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  newReceipts = [
+                                    NewReceipt(
+                                      context: _scaffoldKey.currentContext!,
+                                      notifyParent: setState,
+                                      receiptNumber:
+                                          newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
+                                      selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
+                                      sectionsList: [
+                                        Section(
+                                          sectionId: widget.studentAnnualFeeBean.sectionId,
+                                          sectionName: widget.studentAnnualFeeBean.sectionName,
+                                          schoolId: widget.adminProfile.schoolId,
+                                        )
+                                      ],
+                                      studentProfiles: studentProfiles,
+                                      studentFeeDetails: studentFeeDetailsBeans,
+                                      studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+                                      studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
+                                      feeTypes: feeTypes,
+                                      totalBusFee: null,
+                                      busFeePaid: null,
+                                      busFeeBeans: busFeeBeans,
                                     )
-                                  ],
-                                  studentProfiles: studentProfiles,
-                                  studentFeeDetails: studentFeeDetailsBeans,
-                                  studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-                                  studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
-                                  feeTypes: feeTypes,
-                                  totalBusFee: null,
-                                  busFeePaid: null,
-                                  busFeeBeans: busFeeBeans,
-                                )
-                                  ..selectedStudent = studentProfiles[0]
-                                  ..selectedSection = Section(
-                                    sectionId: widget.studentAnnualFeeBean.sectionId,
-                                    sectionName: widget.studentAnnualFeeBean.sectionName,
-                                    schoolId: widget.adminProfile.schoolId,
-                                  )
-                                  ..updatedSelectedStudent(studentProfiles[0], setState),
-                                ...newReceipts,
-                              ];
-                            });
-                          },
-                          child: ClayButton(
-                            color: clayContainerColor(context),
-                            borderRadius: 10,
-                            spread: 2,
-                            child: const Padding(
-                              padding: EdgeInsets.all(15),
-                              child: Center(
-                                child: Text(
-                                  "Add New Receipt",
-                                  style: TextStyle(
-                                    color: Colors.blue,
+                                      ..selectedStudent = studentProfiles[0]
+                                      ..selectedSection = Section(
+                                        sectionId: widget.studentAnnualFeeBean.sectionId,
+                                        sectionName: widget.studentAnnualFeeBean.sectionName,
+                                        schoolId: widget.adminProfile.schoolId,
+                                      )
+                                      ..updatedSelectedStudent(studentProfiles[0], setState),
+                                    ...newReceipts,
+                                  ];
+                                });
+                              },
+                              child: ClayButton(
+                                color: clayContainerColor(context),
+                                borderRadius: 10,
+                                spread: 2,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(15),
+                                  child: Center(
+                                    child: Text(
+                                      "Add New Receipt",
+                                      style: TextStyle(
+                                        color: Colors.blue,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: _scaffoldKey.currentContext!,
-                              builder: (currentContext) {
-                                return AlertDialog(
-                                  title: const Text("Fee Receipts"),
-                                  content: const Text("Are you sure you want to save changes?"),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        _saveChanges();
-                                        // _loadData();
-                                      },
-                                      child: const Text("YES"),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                        setState(() {
-                                          _isAddNew = false;
-                                        });
-                                      },
-                                      child: const Text("NO"),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text("Cancel"),
-                                    ),
-                                  ],
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: _scaffoldKey.currentContext!,
+                                  builder: (currentContext) {
+                                    return AlertDialog(
+                                      title: const Text("Fee Receipts"),
+                                      content: const Text("Are you sure you want to save changes?"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            _saveChanges();
+                                            // _loadData();
+                                          },
+                                          child: const Text("YES"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            setState(() {
+                                              _isAddNew = false;
+                                            });
+                                          },
+                                          child: const Text("NO"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("Cancel"),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                          child: ClayButton(
-                            color: clayContainerColor(context),
-                            borderRadius: 10,
-                            spread: 2,
-                            child: const Padding(
-                              padding: EdgeInsets.all(15),
-                              child: Center(
-                                child: Text(
-                                  "Submit",
-                                  style: TextStyle(
-                                    color: Colors.green,
+                              child: ClayButton(
+                                color: clayContainerColor(context),
+                                borderRadius: 10,
+                                spread: 2,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(15),
+                                  child: Center(
+                                    child: Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 20),
+                        ],
                       ),
-                      const SizedBox(width: 20),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                )
+              : ListView(
+                  children: [
+                    buildStudentWiseAnnualFeeMapCard(),
+                    Container(
+                      margin: MediaQuery.of(context).orientation == Orientation.landscape
+                          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
+                          : const EdgeInsets.all(10),
+                      child: termWiseFilter(),
+                    ),
+                    ...(studentFeeDetailsBeans
+                            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                            .expand((i) => i)
+                            .toList()
+                          ..sort(
+                            (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                                ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
+                                        0
+                                    ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
+                                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
+                          ))
+                        .map((e) => studentFeeTransactionWidget(e))
+                        .toList(),
+                  ],
                 ),
-                const SizedBox(height: 10),
-              ],
-            )
-          : ListView(
-              children: [
-                buildStudentWiseAnnualFeeMapCard(),
-                ...(studentFeeDetailsBeans
-                        .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
-                        .expand((i) => i)
-                        .toList()
-                      ..sort(
-                        (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                            ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
-                                ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                                : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
-                            : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
-                      ))
-                    .map((e) => studentFeeTransactionWidget(e))
-                    .toList(),
-              ],
-            ),
-      floatingActionButton: _isLoading || _isAddNew
+      floatingActionButton: _isLoading || _isAddNew || pdfInBytes != null
           ? null
           : FloatingActionButton(
               onPressed: () {

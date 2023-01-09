@@ -510,7 +510,7 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                         onChanged: (text) => setState(() {
                           eachNews.title = text;
                         }),
-                        // onEditingComplete: () => debugPrint("text"),
+                        onEditingComplete: () => debugPrint("text"),
                       ),
                     ),
                     if (eachNews.newsId != null)
@@ -544,6 +544,14 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       child: InkWell(
                         onTap: () {
                           if (eachNews.newsId == null) {
+                            if ((eachNews.title ?? "").trim() == "") {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Subject of the notice cannot be empty"),
+                                ),
+                              );
+                              return;
+                            }
                             _saveNewNews();
                           } else {
                             _saveChanges(eachNews);
@@ -909,17 +917,17 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
               ),
             )
           : _createNewNews
-              ? Center(
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height / 1.5,
-                    width: MediaQuery.of(context).size.width / 1.5,
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        buildEachEditableNewsWidget(newNews),
-                      ],
+              ? ListView(
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(25.0),
+                      child: buildEachEditableNewsWidget(newNews),
                     ),
-                  ),
+                    const SizedBox(
+                      height: 100,
+                    ),
+                  ],
                 )
               : ScrollablePositionedList.builder(
                   reverse: _isReverse,
@@ -992,8 +1000,11 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
                       ],
                     ),
             ),
-      floatingActionButtonLocation:
-          MediaQuery.of(context).orientation == Orientation.landscape ? FloatingActionButtonLocation.endTop : FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: _createNewNews
+          ? FloatingActionButtonLocation.endFloat
+          : MediaQuery.of(context).orientation == Orientation.landscape
+              ? FloatingActionButtonLocation.endTop
+              : FloatingActionButtonLocation.endFloat,
     );
   }
 }
