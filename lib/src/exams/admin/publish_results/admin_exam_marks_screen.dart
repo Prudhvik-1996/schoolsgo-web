@@ -17,8 +17,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-import 'build_new_marks_sheet_layout.dart';
-
 class AdminExamMarksScreen extends StatefulWidget {
   const AdminExamMarksScreen({
     Key? key,
@@ -243,9 +241,7 @@ class _AdminExamMarksScreenState extends State<AdminExamMarksScreen> {
                   width: 500,
                 ),
               )
-            : _forceShowInternals
-                ? buildNewMarksSheetLayout(context)
-                : buildOldMarksSheetLayout(context),
+            : buildOldMarksSheetLayout(context),
         floatingActionButton: widget.adminProfile.isMegaAdmin || _isLoading || _showPreview ? null : _changeEditModeButton());
   }
 
