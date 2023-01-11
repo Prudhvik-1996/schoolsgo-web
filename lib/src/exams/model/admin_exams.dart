@@ -1454,6 +1454,9 @@ class StudentInternalExamMarksDetailsBean {
   int? internalNumber;
   Map<String, dynamic> __origJson = {};
 
+  TextEditingController internalsMarksEditingController = TextEditingController();
+  bool isMarksEditable = false;
+
   StudentInternalExamMarksDetailsBean({
     this.examId,
     this.examName,
@@ -1481,7 +1484,19 @@ class StudentInternalExamMarksDetailsBean {
     this.studentId,
     this.studentName,
     this.internalNumber,
-  });
+  }) {
+    _adjustTextController();
+  }
+
+  void _adjustTextController() {
+    if (internalsMarksObtained == null || internalsMarksObtained == -1) {
+      internalsMarksEditingController.text = "";
+    } else if (internalsMarksObtained == -2) {
+      internalsMarksEditingController.text = "A";
+    } else {
+      internalsMarksEditingController.text = "${internalsMarksObtained ?? ""}";
+    }
+  }
 
   StudentInternalExamMarksDetailsBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -1498,6 +1513,7 @@ class StudentInternalExamMarksDetailsBean {
     internalsDate = json['internalsDate']?.toString();
     internalsEndTime = json['internalsEndTime']?.toString();
     internalsMarksObtained = json['internalsMarksObtained']?.toInt();
+    _adjustTextController();
     internalsMaxMarks = json['internalsMaxMarks']?.toInt();
     internalsSectionId = json['internalsSectionId']?.toInt();
     internalsSectionName = json['internalsSectionName']?.toString();

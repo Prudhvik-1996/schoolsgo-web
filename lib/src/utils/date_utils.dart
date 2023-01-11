@@ -154,6 +154,11 @@ String convertDateToDDMMMYYYY(String? date) {
   return DateFormat('dd\nMMM\nyyyy').format(DateFormat("yyyy-MM-dd").parse(date));
 }
 
+String convertDateToDDMMYYYYHHMMSS(String? dateTime) {
+  dateTime ??= DateFormat("dd-MM-yyyy hh:mm:ss").format(DateTime.now());
+  return DateFormat('dd MMM, yyyy h:mm a').format(DateFormat("dd-MM-yyyy hh:mm:ss").parse(dateTime));
+}
+
 String convertEpochToDDMMYYYYEEEEHHMMAA(int millis) {
   return DateFormat("dd MMM, yyyy EEEE, h:mm a").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }

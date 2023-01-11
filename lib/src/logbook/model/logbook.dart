@@ -117,6 +117,8 @@ class LogBook {
   int? tdsId;
   int? teacherId;
   String? teacherName;
+  int? sectionSeqOrder;
+  int? subjectSeqOrder;
   Map<String, dynamic> __origJson = {};
   bool isEditMode = false;
 
@@ -136,6 +138,8 @@ class LogBook {
     this.tdsId,
     this.teacherId,
     this.teacherName,
+    this.sectionSeqOrder,
+    this.subjectSeqOrder,
   });
   LogBook.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -154,6 +158,8 @@ class LogBook {
     tdsId = int.tryParse(json["tdsId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
     teacherName = json["teacherName"]?.toString();
+    sectionSeqOrder = int.tryParse(json["sectionSeqOrder"]?.toString() ?? '');
+    subjectSeqOrder = int.tryParse(json["subjectSeqOrder"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -172,6 +178,8 @@ class LogBook {
     data["tdsId"] = tdsId;
     data["teacherId"] = teacherId;
     data["teacherName"] = teacherName;
+    data["sectionSeqOrder"] = sectionSeqOrder;
+    data["subjectSeqOrder"] = subjectSeqOrder;
     return data;
   }
 

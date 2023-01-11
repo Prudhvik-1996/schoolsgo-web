@@ -149,12 +149,12 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     if (getDiaryResponse.httpStatus == "OK" && getDiaryResponse.responseStatus == "success") {
       setState(() {
         _diaryList = (getDiaryResponse.diaryEntries ?? []).where((e) => e != null).map((e) => e!).toList();
-        _diaryList.sort((b, a) => (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0) == 0
-            ? (b.subjectSeqOrder ?? 0).compareTo(a.subjectSeqOrder ?? 0)
+        _diaryList.sort((a, b) => (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0) == 0
+            ? (a.subjectSeqOrder ?? 0).compareTo(b.subjectSeqOrder ?? 0)
             : (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0));
         _filteredDiaryList = (getDiaryResponse.diaryEntries ?? []).where((e) => e != null).map((e) => e!).toList();
-        _filteredDiaryList.sort((b, a) => (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0) == 0
-            ? (b.subjectSeqOrder ?? 0).compareTo(a.subjectSeqOrder ?? 0)
+        _filteredDiaryList.sort((a, b) => (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0) == 0
+            ? (a.subjectSeqOrder ?? 0).compareTo(b.subjectSeqOrder ?? 0)
             : (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0));
       });
     }
@@ -604,7 +604,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
               );
               return;
             }
-            if (_selectedDate.millisecondsSinceEpoch == DateTime.now().millisecondsSinceEpoch) return;
+            if (_selectedDate.add(const Duration(days: 1)).millisecondsSinceEpoch >= DateTime.now().millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.add(const Duration(days: 1));
             });

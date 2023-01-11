@@ -279,18 +279,18 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
           },
           child: ClayContainer(
             depth: 40,
-            surfaceColor: Colors.red.shade400,
+            surfaceColor: _showOnlyAbsentees ? Colors.green : Colors.red.shade400,
             parentColor: clayContainerColor(context),
             spread: 2,
             borderRadius: 10,
             emboss: _showOnlyAbsentees,
             child: Container(
               padding: const EdgeInsets.all(15),
-              child: const Center(
+              child: Center(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
-                    "Show only\nabsentees",
+                    _showOnlyAbsentees ? "Show only\nabsentees" : "Show all",
                   ),
                 ),
               ),

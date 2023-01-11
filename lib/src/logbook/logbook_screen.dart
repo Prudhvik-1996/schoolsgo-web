@@ -1,4 +1,6 @@
 import 'package:clay_containers/clay_containers.dart';
+import 'package:collection/collection.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +11,6 @@ import 'package:schoolsgo_web/src/logbook/model/logbook.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 class LogbookScreen extends StatefulWidget {
@@ -33,12 +34,12 @@ class _LogbookScreenState extends State<LogbookScreen> {
   List<Section> _sectionsList = [];
   Section? _selectedSection;
 
-  List<SectionWiseTimeSlotBean> _sectionWiseTimeSlots = [];
-
   DateTime _selectedDate = DateTime.now();
 
   List<LogBook> _logBookList = [];
   List<LogBook> _filteredLogBookList = [];
+
+  bool _isSectionPickerOpen = false;
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
+      _isSectionPickerOpen = false;
     });
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
@@ -72,23 +74,9 @@ class _LogbookScreenState extends State<LogbookScreen> {
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
-
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
-      });
-    }
-
-    GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
-      schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
-      status: "active",
-    ));
-    if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
-      setState(() {
-        _sectionWiseTimeSlots = getSectionWiseTimeSlotsResponse.sectionWiseTimeSlotBeanList!;
-
-        _sectionWiseTimeSlots.sort((a, b) =>
-            getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, a.weekId!).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime!, b.weekId!)));
       });
     }
 
@@ -130,164 +118,295 @@ class _LogbookScreenState extends State<LogbookScreen> {
     if (_selectedSection != null) {
       _filteredLogBookList = _filteredLogBookList.where((e) => e.sectionId == _selectedSection!.sectionId).toList();
     }
-    _filteredLogBookList.sort(
-      (a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime!, 1).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime!, 1)),
-    );
     setState(() {
       _isLoading = false;
     });
   }
 
-  Widget _selectTeacher() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
-      child: ClayContainer(
-        depth: 20,
-        color: clayContainerColor(context),
-        spread: 5,
-        borderRadius: 10,
-        child: _teachersList.length != 1 && _selectedTeacher != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(child: dropdownButtonForTeacher()),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedTeacher = null;
-                        });
-                        _filterLogBookList();
-                      },
-                      child: const Icon(Icons.close),
-                    ),
+  Widget _teacherPicker() {
+    return _filteredLogBookList.where((e) => e.isEditMode).isNotEmpty
+        ? GestureDetector(
+            onTap: () {
+              LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+              if (editingEntry != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Save changes for the following logbook entry to proceed..\n"
+                        "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
                   ),
-                ],
-              )
-            : dropdownButtonForTeacher(),
+                );
+                return;
+              }
+            },
+            child: ClayButton(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 10,
+              height: 60,
+              width: 60,
+              child: Center(
+                child: _buildTeacherWidget(_selectedTeacher ?? Teacher()),
+              ),
+            ),
+          )
+        : _buildSearchableTeacherDropdown();
+  }
+
+  ClayButton _buildSearchableTeacherDropdown() {
+    return ClayButton(
+      depth: 40,
+      parentColor: clayContainerColor(context),
+      surfaceColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      height: 60,
+      width: 60,
+      child: DropdownSearch<Teacher>(
+        enabled: _filteredLogBookList.where((e) => e.isEditMode).isEmpty,
+        mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+        selectedItem: _selectedTeacher,
+        items: _teachersList,
+        itemAsString: (Teacher? teacher) {
+          return teacher == null ? "" : teacher.teacherName ?? "";
+        },
+        showSearchBox: true,
+        dropdownBuilder: (BuildContext context, Teacher? teacher) {
+          return _buildTeacherWidget(teacher ?? Teacher());
+        },
+        onChanged: (Teacher? teacher) {
+          LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+          if (editingEntry != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Save changes for the following logbook entry to proceed..\n"
+                    "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+              ),
+            );
+            return;
+          } else {
+            setState(() {
+              _selectedTeacher = teacher;
+            });
+            _filterLogBookList();
+          }
+        },
+        showClearButton: true,
+        compareFn: (item, selectedItem) => item?.teacherId == selectedItem?.teacherId,
+        dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+        filterFn: (Teacher? teacher, String? key) {
+          return teacher!.teacherName!.toLowerCase().contains(key!.toLowerCase());
+        },
       ),
     );
   }
 
-  DropdownButton<Teacher> dropdownButtonForTeacher() {
-    return DropdownButton(
-      hint: const Center(child: Text("Select Teacher")),
-      underline: Container(),
-      isExpanded: true,
-      value: _selectedTeacher,
-      onChanged: (Teacher? teacher) {
-        setState(() {
-          _selectedTeacher = teacher!;
-        });
-        _filterLogBookList();
-      },
-      items: _teachersList
-          .map(
-            (e) => DropdownMenuItem<Teacher>(
-              value: e,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 40,
-                child: ListTile(
-                  leading: Container(
-                    width: 50,
-                    padding: const EdgeInsets.all(5),
-                    child: e.teacherPhotoUrl == null
-                        ? Image.asset(
-                            "assets/images/avatar.png",
-                            fit: BoxFit.contain,
-                          )
-                        : Image.network(
-                            e.teacherPhotoUrl!,
-                            fit: BoxFit.contain,
-                          ),
+  Widget _buildTeacherWidget(Teacher e) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 50,
+            padding: const EdgeInsets.all(5),
+            child: e.teacherPhotoUrl == null
+                ? Image.asset(
+                    "assets/images/avatar.png",
+                    fit: BoxFit.contain,
+                  )
+                : Image.network(
+                    e.teacherPhotoUrl!,
+                    fit: BoxFit.contain,
                   ),
-                  title: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      e.teacherName ?? "-",
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
+          ),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                e.teacherName ?? "Select a Teacher",
+                style: const TextStyle(
+                  fontSize: 14,
                 ),
               ),
             ),
           )
-          .toList(),
-    );
-  }
-
-  Widget _selectSection() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
-      child: ClayContainer(
-        depth: 20,
-        color: clayContainerColor(context),
-        spread: 5,
-        borderRadius: 10,
-        child: _sectionsList.length != 1 && _selectedSection != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Expanded(child: dropdownButtonForSection()),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _selectedSection = null;
-                        });
-                        _filterLogBookList();
-                      },
-                      child: const Icon(Icons.close),
-                    ),
-                  ),
-                ],
-              )
-            : dropdownButtonForSection(),
+        ],
       ),
     );
   }
 
-  DropdownButton<Section> dropdownButtonForSection() {
-    return DropdownButton(
-      hint: const Center(child: Text("Select Section")),
-      underline: Container(),
-      isExpanded: true,
-      value: _selectedSection,
-      onChanged: (Section? section) {
-        setState(() {
-          _selectedSection = section!;
-        });
-        _filterLogBookList();
-      },
-      items: _sectionsList
-          .map(
-            (e) => DropdownMenuItem<Section>(
-              value: e,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: 40,
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
+  Widget _sectionPicker() {
+    return AnimatedSize(
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
+      child: Container(
+        margin: const EdgeInsets.all(20),
+        child: _isSectionPickerOpen
+            ? ClayContainer(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 10,
+                child: _selectSectionExpanded(),
+              )
+            : _selectSectionCollapsed(),
+      ),
+    );
+  }
+
+  Widget _buildSectionCheckBox(Section section) {
+    return Container(
+      margin: const EdgeInsets.all(5),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.vibrate();
+          if (_isLoading) return;
+          LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+          if (editingEntry != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Save changes for the following logbook entry to proceed..\n"
+                    "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+              ),
+            );
+            return;
+          } else {
+            setState(() {
+              if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
+                _selectedSection = null;
+              } else {
+                _selectedSection = section;
+              }
+              _isSectionPickerOpen = false;
+            });
+            _filterLogBookList();
+          }
+        },
+        child: ClayButton(
+          depth: 40,
+          spread: _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? 0 : 2,
+          surfaceColor:
+              _selectedSection != null && _selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectSectionExpanded() {
+    return Container(
+      width: double.infinity,
+      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
+      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
+      child: ListView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.vibrate();
+              if (_isLoading) return;
+              setState(() {
+                _isSectionPickerOpen = !_isSectionPickerOpen;
+              });
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
                     child: Text(
-                      e.sectionName ?? "-",
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
+                      _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName}",
                     ),
                   ),
                 ),
-              ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const Icon(Icons.expand_less),
+                ),
+              ],
             ),
-          )
-          .toList(),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          GridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 2.25,
+            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
+            shrinkWrap: true,
+            children: _sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _selectSectionCollapsed() {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.vibrate();
+        if (_isLoading) return;
+        LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+        if (editingEntry != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Save changes for the following logbook entry to proceed..\n"
+                  "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+            ),
+          );
+          return;
+        } else {
+          setState(() {
+            _isSectionPickerOpen = !_isSectionPickerOpen;
+          });
+        }
+      },
+      child: ClayButton(
+        depth: 40,
+        parentColor: clayContainerColor(context),
+        surfaceColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        height: 60,
+        width: 60,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(5, 15, 5, 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  child: Text(
+                    _selectedSection == null ? "Select a section" : "Sections: ${_selectedSection!.sectionName}",
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: const Icon(Icons.expand_more),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -295,8 +414,18 @@ class _LogbookScreenState extends State<LogbookScreen> {
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-      child: InkWell(
+      child: GestureDetector(
         onTap: () async {
+          LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+          if (editingEntry != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Save changes for the following logbook entry to proceed..\n"
+                    "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+              ),
+            );
+            return;
+          }
           HapticFeedback.vibrate();
           DateTime? _newDate = await showDatePicker(
             context: context,
@@ -313,28 +442,39 @@ class _LogbookScreenState extends State<LogbookScreen> {
         },
         child: ClayButton(
           depth: 40,
-          color: const Color(0xFFC9EDF8),
           parentColor: clayContainerColor(context),
+          surfaceColor: clayContainerColor(context),
           spread: 2,
-          borderRadius: 50,
+          borderRadius: 10,
           height: 60,
           width: 60,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
+            // mainAxisSize: MainAxisSize.min,
             children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  convertDateTimeToDDMMYYYYFormat(_selectedDate),
-                  style: const TextStyle(
-                    color: Colors.black,
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    convertDateTimeToDDMMYYYYFormat(_selectedDate),
                   ),
                 ),
               ),
-              const Icon(
-                Icons.calendar_today_rounded,
-                color: Colors.blueGrey,
+              const SizedBox(
+                width: 10,
+              ),
+              const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Icon(
+                  Icons.calendar_today_rounded,
+                ),
+              ),
+              const SizedBox(
+                width: 20,
               ),
             ],
           ),
@@ -350,6 +490,16 @@ class _LogbookScreenState extends State<LogbookScreen> {
         message: "Previous Day",
         child: InkWell(
           onTap: () {
+            LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+            if (editingEntry != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Save changes for the following logbook entry to proceed..\n"
+                      "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+                ),
+              );
+              return;
+            }
             if (_selectedDate.millisecondsSinceEpoch == DateTime.now().subtract(const Duration(days: 364)).millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.subtract(const Duration(days: 1));
@@ -376,7 +526,17 @@ class _LogbookScreenState extends State<LogbookScreen> {
         message: "Next Day",
         child: InkWell(
           onTap: () {
-            if (_selectedDate.millisecondsSinceEpoch == DateTime.now().millisecondsSinceEpoch) return;
+            LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+            if (editingEntry != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Save changes for the following logbook entry to proceed..\n"
+                      "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+                ),
+              );
+              return;
+            }
+            if (_selectedDate.add(const Duration(days: 1)).millisecondsSinceEpoch >= DateTime.now().millisecondsSinceEpoch) return;
             setState(() {
               _selectedDate = _selectedDate.add(const Duration(days: 1));
             });
@@ -475,7 +635,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(child: buildNotesWidget(logBook)),
-                  (widget.adminProfile != null && widget.adminProfile!.isMegaAdmin) ? Container() : buildEditButton(logBook),
+                  (widget.adminProfile != null) ? Container() : buildEditButton(logBook),
                 ],
               ),
               Row(
@@ -483,7 +643,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Last Updated Time: ${logBook.lastUpdatedTime ?? "-"}",
+                    "Last Updated Time: ${logBook.lastUpdatedTime == null ? "-" : convertDateToDDMMYYYYHHMMSS(logBook.lastUpdatedTime!)}",
                   ),
                 ],
               ),
@@ -566,6 +726,16 @@ class _LogbookScreenState extends State<LogbookScreen> {
       margin: const EdgeInsets.all(10),
       child: InkWell(
         onTap: () {
+          LogBook? editingEntry = _filteredLogBookList.where((e) => e.isEditMode).firstOrNull;
+          if (editingEntry != null && !logBook.isEditMode) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Save changes for the following logbook entry to proceed..\n"
+                    "${editingEntry.sectionName ?? "-"} - ${editingEntry.subjectName ?? "-"}"),
+              ),
+            );
+            return;
+          }
           if (logBook.isEditMode) {
             if (logBook.notes != logBook.origJson()["notes"]) {
               _saveChanges(logBook);
@@ -614,32 +784,100 @@ class _LogbookScreenState extends State<LogbookScreen> {
             )
           : ListView(
               children: [
-                    Container(
-                      child: MediaQuery.of(context).orientation == Orientation.landscape
-                          ? Row(
+                    widget.teacherProfile != null
+                        ? Container(
+                            padding: MediaQuery.of(context).orientation == Orientation.landscape
+                                ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
+                                : const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Expanded(child: _selectSection()),
-                                Expanded(child: _selectTeacher()),
-                                Expanded(child: _getDatePicker()),
+                                const SizedBox(
+                                  width: 10,
+                                ),
                                 _getLeftArrow(),
+                                const SizedBox(
+                                  width: 1,
+                                ),
+                                Expanded(child: _getDatePicker()),
+                                const SizedBox(
+                                  width: 1,
+                                ),
                                 _getRightArrow(),
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                _selectSection(),
-                                _selectTeacher(),
-                                Row(
-                                  children: [
-                                    _getLeftArrow(),
-                                    Expanded(child: _getDatePicker()),
-                                    _getRightArrow(),
-                                  ],
+                                const SizedBox(
+                                  width: 10,
                                 ),
                               ],
                             ),
-                    ),
+                          )
+                        : Container(
+                            child: MediaQuery.of(context).orientation == Orientation.landscape
+                                ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Expanded(child: _sectionPicker()),
+                                      if (!_isSectionPickerOpen) Expanded(child: _teacherPicker()),
+                                      if (!_isSectionPickerOpen)
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                      if (!_isSectionPickerOpen) _getLeftArrow(),
+                                      if (!_isSectionPickerOpen)
+                                        const SizedBox(
+                                          width: 1,
+                                        ),
+                                      if (!_isSectionPickerOpen) Expanded(child: _getDatePicker()),
+                                      if (!_isSectionPickerOpen)
+                                        const SizedBox(
+                                          width: 1,
+                                        ),
+                                      if (!_isSectionPickerOpen) _getRightArrow(),
+                                      if (!_isSectionPickerOpen)
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                    ],
+                                  )
+                                : Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Expanded(
+                                            child: _sectionPicker(),
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          const SizedBox(
+                                            width: 25,
+                                          ),
+                                          Expanded(
+                                            child: _teacherPicker(),
+                                          ),
+                                          const SizedBox(
+                                            width: 25,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          _getLeftArrow(),
+                                          Expanded(child: _getDatePicker()),
+                                          _getRightArrow(),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                          ),
                   ] +
                   _filteredLogBookList.map((e) => _getLogBookWidget(e)).toList(),
             ),
