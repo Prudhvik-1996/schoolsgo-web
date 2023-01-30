@@ -7,7 +7,8 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/admin_expenses/admin_expenses_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/attendance/student_attendance_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/diary/diary_report_screen.dart';
-import 'package:schoolsgo_web/src/stats/fees/fees_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/fees/detailed_fees_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/fees/fee_reports_options_screen.dart';
 import 'package:schoolsgo_web/src/stats/ledger/ledger_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/student_time_table/student_time_table_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/suggestion_box/suggestion_box_report_screen.dart';
@@ -49,7 +50,7 @@ class _StatsHomeState extends State<StatsHome> {
       StatsType("assets/images/logbook.svg", "Teacher Log Book", newScreen: TeacherLogbookReportScreen(adminProfile: widget.adminProfile)),
       StatsType("assets/images/complainbox.svg", "Suggestion Box", newScreen: SuggestionBoxReportScreen(adminProfile: widget.adminProfile)),
       StatsType("assets/images/ledger.svg", "Ledger", newScreen: LedgerReportScreen(adminProfile: widget.adminProfile)),
-      StatsType("assets/images/fee.svg", "Fee", newScreen: FeesReportScreen(adminProfile: widget.adminProfile)),
+      StatsType("assets/images/fee.svg", "Fee", newScreen: FeeReportsOptionsScreen(adminProfile: widget.adminProfile)),
       StatsType("assets/images/admin_expenses.svg", "Admin Expenses", newScreen: AdminExpensesReportScreen(adminProfile: widget.adminProfile)),
       StatsType("assets/images/payslips.svg", "Payslips", newScreen: UnderDevelopmentScreen(adminProfile: widget.adminProfile)),
     ];

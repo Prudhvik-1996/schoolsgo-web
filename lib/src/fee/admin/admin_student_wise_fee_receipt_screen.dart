@@ -256,7 +256,7 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
             }));
     for (var eachStudentFeeDetails in studentFeeDetailsBeans) {
       busFeeBeans.where((eachBusFee) => eachBusFee.studentId == eachStudentFeeDetails.studentId).forEach((eachBusFee) {
-        eachStudentFeeDetails.busFeePaid = eachBusFee.fare;
+        eachStudentFeeDetails.busFee = eachBusFee.fare;
       });
     }
     populateTermTxnWiseComponents();

@@ -2,28 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_assign_bus_fee_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_assign_fee_type_to_sections_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v2.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/fees/due_receipts_report_screen.dart';
 
-class AdminFeeOptionsScreen extends StatefulWidget {
-  const AdminFeeOptionsScreen({
+import 'detailed_fees_report_screen.dart';
+
+class FeeReportsOptionsScreen extends StatefulWidget {
+  const FeeReportsOptionsScreen({
     Key? key,
     required this.adminProfile,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
-  static const routeName = "/fee";
 
   @override
-  _AdminFeeOptionsScreenState createState() => _AdminFeeOptionsScreenState();
+  State<FeeReportsOptionsScreen> createState() => _FeeReportsOptionsScreenState();
 }
 
-class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
+class _FeeReportsOptionsScreenState extends State<FeeReportsOptionsScreen> {
   Widget _getFeeOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
@@ -89,7 +85,7 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Fee"),
+        title: const Text("Fee Reports"),
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
@@ -98,55 +94,21 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
         padding: EdgeInsets.zero,
         primary: false,
         children: <Widget>[
-          // _getTimeTableOption(
-          //   "Manage Fee Types",
+          _getFeeOption(
+            "Detailed Fee Receipts",
+            null,
+            DetailedFeesReportScreen(adminProfile: widget.adminProfile),
+          ),
+          _getFeeOption(
+            "Due Receipts",
+            null,
+            DueReceiptsScreen(adminProfile: widget.adminProfile),
+          ),
+          // _getFeeOption(
+          //   "Bus Wise Fee Receipts",
           //   null,
-          //   AdminManageFeeTypesScreen(
-          //     adminProfile: widget.adminProfile,
-          //   ),
+          //   DetailedFeesReportScreen(adminProfile: widget.adminProfile),
           // ),
-          _getFeeOption(
-            "Manage Fee Assignment",
-            null,
-            AdminAssignFeeTypesToSectionsScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getFeeOption(
-            "Terms Management",
-            null,
-            AdminManageTermsScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getFeeOption(
-            "Student Fee Management",
-            null,
-            AdminStudentFeeManagementScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getFeeOption(
-            "Bus Fee Management",
-            null,
-            AdminAssignBusFeeScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getFeeOption(
-            "Fee Receipts",
-            null,
-            AdminFeeReceiptsScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getFeeOption(
-            "Fee Due Reports",
-            null,
-            DueReceiptsScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
         ],
       ),
     );

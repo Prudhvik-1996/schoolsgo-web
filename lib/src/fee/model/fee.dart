@@ -3742,6 +3742,7 @@ class StudentFeeDetailsBean {
   List<StudentWiseFeeTypeDetailsBean?>? studentWiseFeeTypeDetailsList;
   int? totalAnnualFee;
   int? totalFeePaid;
+  int? busFee;
   int? busFeePaid;
   Map<String, dynamic> __origJson = {};
 
@@ -3757,6 +3758,7 @@ class StudentFeeDetailsBean {
     this.studentWiseFeeTypeDetailsList,
     this.totalAnnualFee,
     this.totalFeePaid,
+    this.busFee,
     this.busFeePaid,
   });
   StudentFeeDetailsBean.fromJson(Map<String, dynamic> json) {
@@ -3786,7 +3788,8 @@ class StudentFeeDetailsBean {
     }
     totalAnnualFee = json['totalAnnualFee']?.toInt();
     totalFeePaid = json['totalFeePaid']?.toInt();
-    busFeePaid = json['busFee']?.toInt();
+    busFee = json['busFee']?.toInt();
+    busFeePaid = json['busFeePaid']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -3815,7 +3818,8 @@ class StudentFeeDetailsBean {
     }
     data['totalAnnualFee'] = totalAnnualFee;
     data['totalFeePaid'] = totalFeePaid;
-    data['busFee'] = busFeePaid;
+    data['busFee'] = busFee;
+    data['busFeePaid'] = busFeePaid;
     return data;
   }
 

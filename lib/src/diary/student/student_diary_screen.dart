@@ -168,7 +168,7 @@ class _StudentDiaryScreenState extends State<StudentDiaryScreen> {
         message: "Next Day",
         child: GestureDetector(
           onTap: () {
-            if (_selectedDate.millisecondsSinceEpoch == DateTime.now().millisecondsSinceEpoch) return;
+            if (convertDateTimeToYYYYMMDDFormat(_selectedDate) == convertDateTimeToYYYYMMDDFormat(null)) return;
             setState(() {
               _selectedDate = _selectedDate.add(const Duration(days: 1));
             });

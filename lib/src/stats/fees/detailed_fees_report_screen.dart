@@ -12,8 +12,8 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
 
-class FeesReportScreen extends StatefulWidget {
-  const FeesReportScreen({
+class DetailedFeesReportScreen extends StatefulWidget {
+  const DetailedFeesReportScreen({
     Key? key,
     required this.adminProfile,
   }) : super(key: key);
@@ -21,10 +21,10 @@ class FeesReportScreen extends StatefulWidget {
   final AdminProfile adminProfile;
 
   @override
-  State<FeesReportScreen> createState() => _FeesReportScreenState();
+  State<DetailedFeesReportScreen> createState() => _DetailedFeesReportScreenState();
 }
 
-class _FeesReportScreenState extends State<FeesReportScreen> {
+class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
   bool _isLoading = true;
   bool _isFileDownloading = false;
 

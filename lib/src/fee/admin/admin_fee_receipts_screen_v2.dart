@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -41,6 +42,8 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   bool _isLoading = true;
   bool _isAddNew = false;
   bool _isTermWise = true;
+  String? _renderingReceiptText;
+  double _loadingReceiptPercentage = 0.0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late SchoolInfoBean schoolInfoBean;
@@ -181,6 +184,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       busFeeBeans = (getStudentFeeDetailsSupportClassesResponse.busFeeBeans ?? []).where((e) => e != null).map((e) => e!).toList();
       studentFeeDetailsBeans = mergeAndGetStudentFeeDetailsBeans();
       try {
+        // TODO discuss a logic to figure out latest
         latestReceiptNumberToBeAdded = (getStudentFeeDetailsSupportClassesResponse.studentMasterTransactionBeans ?? [])
                 .where((e) => e != null)
                 .map((e) => e!.receiptId ?? 0)
@@ -278,7 +282,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
             }));
     for (var eachStudentFeeDetails in studentFeeDetailsBeans) {
       busFeeBeans.where((eachBusFee) => eachBusFee.studentId == eachStudentFeeDetails.studentId).forEach((eachBusFee) {
-        eachStudentFeeDetails.busFeePaid = eachBusFee.fare;
+        eachStudentFeeDetails.busFee = eachBusFee.fare;
       });
     }
     return studentFeeDetailsBeans;
@@ -596,7 +600,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
   Future<void> makePdf() async {
     setState(() {
-      _isLoading = true;
+      _renderingReceiptText = "Preparing receipts";
     });
     final pdf = pw.Document();
     final schoolNameFont = await PdfGoogleFonts.acmeRegular();
@@ -606,7 +610,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
     try {
       logoImageProvider = await networkImage(
-        schoolInfoBean.logoPictureUrl! ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
+        schoolInfoBean.logoPictureUrl ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
       );
     } catch (e) {
       logoImageProvider = pw.MemoryImage(
@@ -614,15 +618,23 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       );
     }
 
-    (studentFeeDetailsBeans.map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!)).expand((i) => i).toList()
+    List<StudentFeeTransactionBean> txns =
+        (studentFeeDetailsBeans.map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!)).expand((i) => i).toList()
           ..sort(
-            (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+            (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+                ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
                     ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
-                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
-          ))
-        .forEach((eachTransaction) {
+                    : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+          ));
+
+    for (int i = 0; i < txns.length; i++) {
+      StudentFeeTransactionBean eachTransaction = txns[i];
+      print("Receipt no. ${eachTransaction.receiptId}");
+      setState(() {
+        _renderingReceiptText = "Rendering receipt ${eachTransaction.receiptId}";
+        _loadingReceiptPercentage = 100.0 * (i / txns.length);
+      });
       List<pw.Widget> widgets = [];
       widgets.add(
         pw.Row(
@@ -858,7 +870,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
           return widgets;
         },
       ));
-    });
+    }
 
     var x = await pdf.save();
     setState(() {
@@ -867,10 +879,11 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
     final blob = html.Blob([pdfInBytes], 'application/pdf');
     final url = html.Url.createObjectUrlFromBlob(blob);
-    // html.AnchorElement anchorElement = html.AnchorElement(href: url);
-    // anchorElement.download = "fileName.pdf";
-    // anchorElement.click();
+    html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    anchorElement.download = "Receipts.pdf";
+    anchorElement.click();
     setState(() {
+      _renderingReceiptText = null;
       _isLoading = false;
     });
   }
@@ -1031,160 +1044,13 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 width: 500,
               ),
             )
-          : pdfInBytes != null
-              ? PdfPreview(
-                  build: (format) => pdfInBytes!,
-                  pdfFileName: "Fee Receipts",
-                )
-              : _isAddNew
-                  ? Column(
-                      children: [
-                        Expanded(
-                          child: newReceiptWidget(),
-                        ),
-                        SizedBox(
-                          height: 50,
-                          child: Row(
-                            children: [
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text("Select a student and enter the details to proceed adding a new receipt"),
-                                          ),
-                                        );
-                                        return;
-                                      }
-                                      newReceipts = [
-                                        NewReceipt(
-                                          context: _scaffoldKey.currentContext!,
-                                          notifyParent: setState,
-                                          receiptNumber:
-                                              newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) +
-                                                  1,
-                                          selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
-                                          sectionsList: sectionsList,
-                                          studentProfiles: studentProfiles,
-                                          studentFeeDetails: studentFeeDetailsBeans,
-                                          studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-                                          studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
-                                          feeTypes: feeTypes,
-                                          totalBusFee: null,
-                                          busFeePaid: null,
-                                          busFeeBeans: busFeeBeans,
-                                        ),
-                                        ...newReceipts,
-                                      ];
-                                    });
-                                  },
-                                  child: ClayButton(
-                                    color: clayContainerColor(context),
-                                    borderRadius: 10,
-                                    spread: 2,
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(15),
-                                      child: Center(
-                                        child: Text(
-                                          "Add New Receipt",
-                                          style: TextStyle(
-                                            color: Colors.blue,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: _scaffoldKey.currentContext!,
-                                      builder: (currentContext) {
-                                        return AlertDialog(
-                                          title: const Text("Fee Receipts"),
-                                          content: const Text("Are you sure you want to save changes?"),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                _saveChanges();
-                                                // _loadData();
-                                              },
-                                              child: const Text("YES"),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                setState(() {
-                                                  _isAddNew = false;
-                                                });
-                                              },
-                                              child: const Text("NO"),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text("Cancel"),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  child: ClayButton(
-                                    color: clayContainerColor(context),
-                                    borderRadius: 10,
-                                    spread: 2,
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(15),
-                                      child: Center(
-                                        child: Text(
-                                          "Submit",
-                                          style: TextStyle(
-                                            color: Colors.green,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    )
-                  : ListView(
-                      children: [
-                        statsWidget(),
-                        filtersWidget(),
-                        ...(filteredStudentFeeDetailsBeanList
-                                .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
-                                .expand((i) => i)
-                                .toList()
-                              ..sort(
-                                (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                                    ? convertYYYYMMDDFormatToDateTime(a.transactionDate)
-                                                .compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
-                                            0
-                                        ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                                        : convertYYYYMMDDFormatToDateTime(a.transactionDate)
-                                            .compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
-                                    : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
-                              ))
-                            .map((e) => studentFeeTransactionWidget(e))
-                            .toList(),
-                      ],
-                    ),
+          : _renderingReceiptText != null
+              ? buildRenderingReceiptsWidget()
+              : pdfInBytes != null
+                  ? buildPdfPreviewWidget()
+                  : _isAddNew
+                      ? buildNewReceiptWidget(context)
+                      : buildFilteredReceiptsListView(),
       floatingActionButton: _isLoading || _isAddNew
           ? null
           : FloatingActionButton(
@@ -1195,6 +1061,207 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               },
               child: _isAddNew ? const Icon(Icons.check) : const Icon(Icons.add),
             ),
+    );
+  }
+
+  ListView buildFilteredReceiptsListView() {
+    return ListView(
+      children: [
+        statsWidget(),
+        filtersWidget(),
+        ...(filteredStudentFeeDetailsBeanList
+                .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                .expand((i) => i)
+                .toList()
+              ..sort(
+                (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+                    ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                        ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                        : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+              ))
+            .map((e) => studentFeeTransactionWidget(e))
+            .toList(),
+      ],
+    );
+  }
+
+  Column buildNewReceiptWidget(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: newReceiptWidget(),
+        ),
+        SizedBox(
+          height: 50,
+          child: Row(
+            children: [
+              const SizedBox(width: 20),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Select a student and enter the details to proceed adding a new receipt"),
+                          ),
+                        );
+                        return;
+                      }
+                      newReceipts = [
+                        NewReceipt(
+                          context: _scaffoldKey.currentContext!,
+                          notifyParent: setState,
+                          receiptNumber: newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
+                          selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
+                          sectionsList: sectionsList,
+                          studentProfiles: studentProfiles,
+                          studentFeeDetails: studentFeeDetailsBeans,
+                          studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+                          studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
+                          feeTypes: feeTypes,
+                          totalBusFee: null,
+                          busFeePaid: null,
+                          busFeeBeans: busFeeBeans,
+                        ),
+                        ...newReceipts,
+                      ];
+                    });
+                  },
+                  child: ClayButton(
+                    color: clayContainerColor(context),
+                    borderRadius: 10,
+                    spread: 2,
+                    child: const Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Center(
+                        child: Text(
+                          "Add New Receipt",
+                          style: TextStyle(
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: _scaffoldKey.currentContext!,
+                      builder: (currentContext) {
+                        return AlertDialog(
+                          title: const Text("Fee Receipts"),
+                          content: const Text("Are you sure you want to save changes?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                _saveChanges();
+                                // _loadData();
+                              },
+                              child: const Text("YES"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                setState(() {
+                                  _isAddNew = false;
+                                });
+                              },
+                              child: const Text("NO"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Cancel"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: ClayButton(
+                    color: clayContainerColor(context),
+                    borderRadius: 10,
+                    spread: 2,
+                    child: const Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Center(
+                        child: Text(
+                          "Submit",
+                          style: TextStyle(
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  PdfPreview buildPdfPreviewWidget() {
+    return PdfPreview(
+      build: (format) => pdfInBytes!,
+      pdfFileName: "Fee Receipts",
+    );
+  }
+
+  Column buildRenderingReceiptsWidget() {
+    return Column(
+      children: [
+        const Expanded(
+          flex: 1,
+          child: Center(
+            child: Text("Generating PDF"),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Image.asset(
+            'assets/images/eis_loader.gif',
+            fit: BoxFit.scaleDown,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Center(
+            child: Text(_renderingReceiptText!),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: LinearPercentIndicator(
+              padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+              alignment: MainAxisAlignment.center,
+              width: 140.0,
+              lineHeight: 14.0,
+              percent: _loadingReceiptPercentage,
+              center: Text(
+                "${_loadingReceiptPercentage.toStringAsFixed(2)} %",
+                style: const TextStyle(fontSize: 12.0),
+              ),
+              leading: const Icon(Icons.file_upload),
+              linearStrokeCap: LinearStrokeCap.roundAll,
+              backgroundColor: Colors.grey,
+              progressColor: Colors.blue,
+            ),
+          ),
+        )
+      ],
     );
   }
 

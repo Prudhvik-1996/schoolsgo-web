@@ -769,7 +769,7 @@ class NewReceipt {
         }
       }
     }
-    totalBusFee = studentFeeDetails.where((e) => e.studentId == selectedStudentId).map((e) => e.busFeePaid).firstOrNull;
+    totalBusFee = studentFeeDetails.where((e) => e.studentId == selectedStudentId).map((e) => e.busFee).firstOrNull;
     busFeePaid = studentFeeDetails
         .where((e) => e.studentId == selectedStudentId)
         .map((e) => e.studentFeeTransactionList ?? [])

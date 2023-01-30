@@ -254,7 +254,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
             }));
     studentFeeDetailsBeans.forEach((eachStudentFeeDetails) {
       busFeeBeans.where((eachBusFee) => eachBusFee.studentId == eachStudentFeeDetails.studentId).forEach((eachBusFee) {
-        eachStudentFeeDetails.busFeePaid = eachBusFee.fare;
+        eachStudentFeeDetails.busFee = eachBusFee.fare;
       });
     });
     return studentFeeDetailsBeans;
@@ -2417,7 +2417,7 @@ class _NewReceipt {
         }
       }
     }
-    totalBusFee = studentFeeDetails.where((e) => e.studentId == selectedStudentId).map((e) => e.busFeePaid).firstOrNull;
+    totalBusFee = studentFeeDetails.where((e) => e.studentId == selectedStudentId).map((e) => e.busFee).firstOrNull;
     busFeePaid = studentFeeDetails
         .where((e) => e.studentId == selectedStudentId)
         .map((e) => e.studentFeeTransactionList ?? [])
