@@ -510,23 +510,23 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
 
   Future<void> makePdf() async {
     setState(() {
-      _renderingReceiptText = "Preparing receipts";
+      _renderingReceiptText = "Preparing report";
     });
     final pdf = pw.Document();
     final schoolNameFont = await PdfGoogleFonts.acmeRegular();
     final font = await PdfGoogleFonts.merriweatherRegular();
 
-    pw.ImageProvider logoImageProvider;
-
-    try {
-      logoImageProvider = await networkImage(
-        schoolInfoBean.logoPictureUrl ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
-      );
-    } catch (e) {
-      logoImageProvider = pw.MemoryImage(
-        (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
-      );
-    }
+    // pw.ImageProvider logoImageProvider;
+    //
+    // try {
+    //   logoImageProvider = await networkImage(
+    //     schoolInfoBean.logoPictureUrl ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
+    //   );
+    // } catch (e) {
+    //   logoImageProvider = pw.MemoryImage(
+    //     (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
+    //   );
+    // }
 
     selectedStudentProfiles.sort(
       (a, b) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0) == 0
@@ -535,6 +535,13 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
     );
     for (int si = 0; si < selectedStudentProfiles.length; si++) {
       StudentProfile studentProfile = selectedStudentProfiles[si];
+      String reportBeingPreparedFor =
+          "Preparing report for ${studentProfile.rollNumber}. ${((studentProfile.studentFirstName ?? "" ' ') + (studentProfile.studentMiddleName ?? "" ' ') + (studentProfile.studentLastName ?? "" ' ')).split(" ").where((i) => i != "").join(" ")} - [${studentProfile.sectionName}]";
+      debugPrint(reportBeingPreparedFor);
+      setState(() {
+        _loadingReceiptPercentage = si * 100 / selectedStudentProfiles.length;
+        _renderingReceiptText = reportBeingPreparedFor;
+      });
       StudentFeeDetailsBean? detailBean = studentFeeDetailsBeans.where((e) => e.studentId == studentProfile.studentId).firstOrNull;
 
       List<StudentFeeTransactionBean> txns = (studentFeeDetailsBeans
@@ -555,14 +562,14 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
           crossAxisAlignment: pw.CrossAxisAlignment.center,
           mainAxisAlignment: pw.MainAxisAlignment.center,
           children: [
-            pw.Padding(
-              padding: const pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
-              child: pw.Image(
-                logoImageProvider,
-                width: 60,
-                height: 60,
-              ),
-            ),
+            // pw.Padding(
+            //   padding: const pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+            //   child: pw.Image(
+            //     logoImageProvider,
+            //     width: 60,
+            //     height: 60,
+            //   ),
+            // ),
             pw.SizedBox(width: 10),
             pw.Expanded(
               child: pw.Column(
@@ -953,7 +960,7 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
     anchorElement.click();
     setState(() {
       _renderingReceiptText = null;
-      pdfInBytes = null;
+      // pdfInBytes = null;
       _loadingReceiptPercentage = null;
       _isLoading = false;
     });
@@ -1040,7 +1047,7 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
         Expanded(
           flex: 2,
           child: Center(
-            child: Text(_renderingReceiptText!),
+            child: Text(_renderingReceiptText ?? "-"),
           ),
         ),
         Expanded(
@@ -1070,6 +1077,7 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
     return PdfPreview(
       build: (format) => pdfInBytes!,
       pdfFileName: "Fee Receipts",
+      canDebug: false,
     );
   }
 
@@ -1415,52 +1423,93 @@ class _MyDialogState extends State<_MyDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Expanded(
-                  child: InkWell(
+                  child: GestureDetector(
                     onTap: () {
                       setState(() {
                         _tempSelectedStudentProfiles.clear();
                         _tempSelectedStudentProfiles.addAll(widget.studentProfiles);
                       });
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text("Select All"),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClayButton(
+                        depth: 40,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        spread: 1,
+                        borderRadius: 25,
+                        child: Container(
+                          margin: const EdgeInsets.all(10),
+                          child: const Center(child: Text("Select All")),
+                        ),
+                      ),
                     ),
                   ),
                 ),
                 Expanded(
-                  child: InkWell(
+                  child: GestureDetector(
                     onTap: () {
                       setState(() {
                         _tempSelectedStudentProfiles.clear();
                       });
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text("Clear All"),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SwitchListTile(
-                      title: const Text(
-                        "Show Transaction\nHistory",
-                        textAlign: TextAlign.center,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ClayButton(
+                        depth: 40,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        spread: 1,
+                        borderRadius: 25,
+                        child: Container(
+                          margin: const EdgeInsets.all(10),
+                          child: const Center(child: Text("Clear")),
+                        ),
                       ),
-                      value: _tempShowPreviousTransactions,
-                      onChanged: (value) {
-                        setState(() {
-                          _tempShowPreviousTransactions = value;
-                        });
-                      },
                     ),
                   ),
                 ),
+                if (MediaQuery.of(context).orientation == Orientation.landscape)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SwitchListTile(
+                        title: const Text(
+                          "Show Transaction\nHistory",
+                          textAlign: TextAlign.center,
+                        ),
+                        value: _tempShowPreviousTransactions,
+                        onChanged: (value) {
+                          setState(() {
+                            _tempShowPreviousTransactions = value;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
+          if (MediaQuery.of(context).orientation == Orientation.portrait)
+            const SizedBox(
+              height: 20,
+            ),
+          if (MediaQuery.of(context).orientation == Orientation.portrait)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SwitchListTile(
+                title: const Text(
+                  "Show Transaction\nHistory",
+                  textAlign: TextAlign.center,
+                ),
+                value: _tempShowPreviousTransactions,
+                onChanged: (value) {
+                  setState(() {
+                    _tempShowPreviousTransactions = value;
+                  });
+                },
+              ),
+            ),
           const SizedBox(
             height: 20,
           ),

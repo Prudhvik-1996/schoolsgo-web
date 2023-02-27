@@ -1101,25 +1101,25 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
     final schoolNameFont = await PdfGoogleFonts.acmeRegular();
     final font = await PdfGoogleFonts.merriweatherRegular();
 
-    pw.ImageProvider logoImageProvider;
-
-    try {
-      logoImageProvider = await networkImage(
-        schoolInfoBean.logoPictureUrl! ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
-      );
-    } catch (e) {
-      logoImageProvider = pw.MemoryImage(
-        (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
-      );
-    }
+    // pw.ImageProvider logoImageProvider;
+    //
+    // try {
+    //   logoImageProvider = await networkImage(
+    //     schoolInfoBean.logoPictureUrl! ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
+    //   );
+    // } catch (e) {
+    //   logoImageProvider = pw.MemoryImage(
+    //     (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
+    //   );
+    // }
 
     (studentFeeDetailsBeans.map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!)).expand((i) => i).toList()
           ..sort(
-            (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+            (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+                ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
                     ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
-                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
+                    : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
           ))
         .forEach((eachTransaction) {
       List<pw.Widget> widgets = [];
@@ -1736,12 +1736,13 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                             .expand((i) => i)
                             .toList()
                           ..sort(
-                            (b, a) => (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                                ? convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
-                                        0
+                            (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate)
+                                        .compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
+                                    0
+                                ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
                                     ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate))
-                                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0),
+                                    : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                                : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
                           ))
                         .map((e) => studentFeeTransactionWidget(e))
                         .toList(),

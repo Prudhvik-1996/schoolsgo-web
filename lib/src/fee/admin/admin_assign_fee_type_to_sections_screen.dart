@@ -501,7 +501,10 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
     return widgets;
   }
 
-  Row buildFeeTypeWidget(SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean, bool isEditMode) {
+  Widget buildFeeTypeWidget(SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean, bool isEditMode) {
+    if (!isEditMode && (sectionWiseAnnualFeeTypeBean.amount ?? 0) == 0) {
+      return Container();
+    }
     return Row(
       children: [
         if (isEditMode && (sectionWiseAnnualFeeTypeBean.sectionWiseAnnualCustomFeeTypeBeans ?? []).isEmpty)
@@ -577,7 +580,10 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
     );
   }
 
-  Row buildCustomFeeTypeWidget(SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean, bool isEditMode) {
+  Widget buildCustomFeeTypeWidget(SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean, bool isEditMode) {
+    if (!isEditMode && (sectionWiseAnnualCustomFeeTypeBean.amount ?? 0) == 0) {
+      return Container();
+    }
     return Row(
       children: [
         isEditMode

@@ -606,17 +606,17 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     final schoolNameFont = await PdfGoogleFonts.acmeRegular();
     final font = await PdfGoogleFonts.merriweatherRegular();
 
-    pw.ImageProvider logoImageProvider;
-
-    try {
-      logoImageProvider = await networkImage(
-        schoolInfoBean.logoPictureUrl ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
-      );
-    } catch (e) {
-      logoImageProvider = pw.MemoryImage(
-        (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
-      );
-    }
+    // pw.ImageProvider logoImageProvider;
+    //
+    // try {
+    //   logoImageProvider = await networkImage(
+    //     schoolInfoBean.logoPictureUrl ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
+    //   );
+    // } catch (e) {
+    //   logoImageProvider = pw.MemoryImage(
+    //     (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
+    //   );
+    // }
 
     List<StudentFeeTransactionBean> txns =
         (studentFeeDetailsBeans.map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!)).expand((i) => i).toList()

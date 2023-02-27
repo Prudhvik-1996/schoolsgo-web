@@ -498,54 +498,59 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
     List<Widget> feeStats = [];
     for (StudentAnnualFeeTypeBean eachStudentAnnualFeeTypeBean in (studentWiseAnnualFeesBean.studentAnnualFeeTypeBeans ?? [])) {
       feeStats.add(
-        Row(
-          children: [
-            Expanded(
-              child: Text(eachStudentAnnualFeeTypeBean.feeType ?? "-"),
-            ),
-            eachStudentAnnualFeeTypeBean.amount == null
-                ? Container()
-                : (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
-                    ? SizedBox(
-                        width: 60,
-                        child: TextField(
-                          controller: eachStudentAnnualFeeTypeBean.amountController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            border: UnderlineInputBorder(),
-                            labelText: 'Amount',
-                            hintText: 'Amount',
-                            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                          ),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                            TextInputFormatter.withFunction((oldValue, newValue) {
-                              try {
-                                final text = newValue.text;
-                                if (text.isNotEmpty) double.parse(text);
-                                return newValue;
-                              } catch (e) {
-                                debugPrintStack();
-                              }
-                              return oldValue;
-                            }),
-                          ],
-                          onChanged: (String e) {
-                            setState(() {
-                              eachStudentAnnualFeeTypeBean.amount = (double.parse(e) * 100).round();
-                            });
-                          },
-                          style: const TextStyle(
-                            fontSize: 12,
-                          ),
-                          autofocus: true,
-                        ),
-                      )
-                    : eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0
-                        ? Container()
-                        : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualFeeTypeBean.amount! / 100)}"),
-          ],
-        ),
+        (eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0) &&
+                ((eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty ||
+                    ((eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).map((e) => e.amount ?? 0).reduce((a, b) => a + b)) == 0) &&
+                editingStudentId != studentWiseAnnualFeesBean.studentId
+            ? Container()
+            : Row(
+                children: [
+                  Expanded(
+                    child: Text(eachStudentAnnualFeeTypeBean.feeType ?? "-"),
+                  ),
+                  (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
+                      ? ((eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isNotEmpty)
+                          ? Container()
+                          : SizedBox(
+                              width: 60,
+                              child: TextField(
+                                controller: eachStudentAnnualFeeTypeBean.amountController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  labelText: 'Amount',
+                                  hintText: 'Amount',
+                                  contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                                  TextInputFormatter.withFunction((oldValue, newValue) {
+                                    try {
+                                      final text = newValue.text;
+                                      if (text.isNotEmpty) double.parse(text);
+                                      return newValue;
+                                    } catch (e) {
+                                      debugPrintStack();
+                                    }
+                                    return oldValue;
+                                  }),
+                                ],
+                                onChanged: (String e) {
+                                  setState(() {
+                                    eachStudentAnnualFeeTypeBean.amount = (double.parse(e) * 100).round();
+                                  });
+                                },
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                ),
+                                autofocus: true,
+                              ),
+                            )
+                      : eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0
+                          ? Container()
+                          : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualFeeTypeBean.amount! / 100)}"),
+                ],
+              ),
       );
       feeStats.add(
         const SizedBox(
@@ -554,6 +559,9 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       );
       for (StudentAnnualCustomFeeTypeBean eachStudentAnnualCustomFeeTypeBean
           in (eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])) {
+        if ((editingStudentId != studentWiseAnnualFeesBean.studentId) && (eachStudentAnnualCustomFeeTypeBean.amount ?? 0) == 0) {
+          continue;
+        }
         feeStats.add(
           Row(
             children: [
