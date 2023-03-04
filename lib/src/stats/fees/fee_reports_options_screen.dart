@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/stats/fees/bus_route_wise_fee_reports_screen.dart';
 import 'package:schoolsgo_web/src/stats/fees/due_receipts_report_screen.dart';
 
 import 'detailed_fees_report_screen.dart';
@@ -104,11 +105,11 @@ class _FeeReportsOptionsScreenState extends State<FeeReportsOptionsScreen> {
             null,
             DueReceiptsScreen(adminProfile: widget.adminProfile),
           ),
-          // _getFeeOption(
-          //   "Bus Wise Fee Receipts",
-          //   null,
-          //   DetailedFeesReportScreen(adminProfile: widget.adminProfile),
-          // ),
+          _getFeeOption(
+            "Bus Route Wise Fees Stats",
+            null,
+            BusRouteWiseFeeReportsScreen(adminProfile: widget.adminProfile),
+          ),
         ],
       ),
     );

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/common_components/map_widgets/modal/bus_lat_long.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
@@ -22,11 +23,13 @@ class GetDriversRequest {
     this.driverId,
     this.schoolId,
   });
+
   GetDriversRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     driverId = json['driverId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['driverId'] = driverId;
@@ -62,6 +65,7 @@ class BusDriverBean {
     this.userName,
     this.userPhotoUrl,
   });
+
   BusDriverBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = json['schoolId']?.toInt();
@@ -70,6 +74,7 @@ class BusDriverBean {
     userName = json['userName']?.toString();
     userPhotoUrl = json['userPhotoUrl']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['schoolId'] = schoolId;
@@ -116,6 +121,7 @@ class GetDriversResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetDriversResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['drivers'] != null) {
@@ -131,6 +137,7 @@ class GetDriversResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (drivers != null) {
@@ -188,6 +195,7 @@ class GetBusesBaseDetailsRequest {
     this.routeId,
     this.schoolId,
   });
+
   GetBusesBaseDetailsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     busDriverId = json['busDriverId']?.toInt();
@@ -195,6 +203,7 @@ class GetBusesBaseDetailsRequest {
     routeId = json['routeId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['busDriverId'] = busDriverId;
@@ -242,6 +251,8 @@ class RouteStopWiseStudent {
   int? studentId;
   String? rollNumber;
   String? studentName;
+  int? busFee;
+  int? busFeePaid;
   Map<String, dynamic> __origJson = {};
 
   RouteStopWiseStudent({
@@ -260,7 +271,10 @@ class RouteStopWiseStudent {
     this.studentId,
     this.rollNumber,
     this.studentName,
+    this.busFee,
+    this.busFeePaid,
   });
+
   RouteStopWiseStudent.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -272,13 +286,16 @@ class RouteStopWiseStudent {
     busStopName = json['busStopName']?.toString();
     routeId = json['routeId']?.toInt();
     routeName = json['routeName']?.toString();
-    sectionId = json['sectionId']?.toInt();
     sectionName = json['sectionName']?.toString();
     status = json['status']?.toString();
     studentId = json['studentId']?.toInt();
     rollNumber = json['rollNumber']?.toString();
     studentName = json['studentName']?.toString();
+    sectionId = json['sectionId']?.toInt();
+    busFee = json['busFee']?.toInt();
+    busFeePaid = json['busFeePaid']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -296,6 +313,8 @@ class RouteStopWiseStudent {
     data['studentId'] = studentId;
     data['rollNumber'] = rollNumber;
     data['studentName'] = studentName;
+    data['busFee'] = busFee;
+    data['busFeePaid'] = busFeePaid;
     return data;
   }
 
@@ -397,6 +416,7 @@ class BusRouteStop {
     terminalNameController.text = terminalName ?? "";
     fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
+
   BusRouteStop.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -423,6 +443,7 @@ class BusRouteStop {
     fare = json['fare']?.toInt();
     fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -529,7 +550,7 @@ class BusRouteInfo {
 
   bool isExpanded = false;
   int currentStep = 0;
-  bool expandAllStops = false;
+  bool expandAllStops = true;
   bool isEditMode = false;
 
   int? agent;
@@ -577,6 +598,7 @@ class BusRouteInfo {
     routeNameController.text = busRouteName ?? "";
     fareEditingController.text = fare == null ? "" : doubleToStringAsFixed(fare! / 100, decimalPlaces: 2);
   }
+
   BusRouteInfo.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -792,6 +814,7 @@ class BusBaseDetails {
     busNameController.text = busName ?? "";
     regNoController.text = regNo ?? "";
   }
+
   BusBaseDetails.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     busDriverId = json['busDriverId']?.toInt();
@@ -809,6 +832,7 @@ class BusBaseDetails {
     schoolName = json['schoolName']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['busDriverId'] = busDriverId;
@@ -941,6 +965,7 @@ class GetBusesBaseDetailsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetBusesBaseDetailsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['busBaseDetailsList'] != null) {
@@ -956,6 +981,7 @@ class GetBusesBaseDetailsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (busBaseDetailsList != null) {
@@ -1028,6 +1054,7 @@ class CreateOrUpdateBusRequest {
     this.schoolId,
     this.status,
   });
+
   CreateOrUpdateBusRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1040,6 +1067,7 @@ class CreateOrUpdateBusRequest {
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1082,6 +1110,7 @@ class CreateOrUpdateBusResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateBusResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     busId = json['busId']?.toInt();
@@ -1090,6 +1119,7 @@ class CreateOrUpdateBusResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['busId'] = busId;
@@ -1135,6 +1165,7 @@ class GetBusRouteDetailsRequest {
   int? busId;
   int? busStopId;
   int? routeId;
+  List<int?>? routeIds;
   int? schoolId;
   int? sectionId;
   int? studentId;
@@ -1145,26 +1176,38 @@ class GetBusRouteDetailsRequest {
     this.busId,
     this.busStopId,
     this.routeId,
+    this.routeIds,
     this.schoolId,
     this.sectionId,
     this.studentId,
   });
+
   GetBusRouteDetailsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     busDriverId = json['busDriverId']?.toInt();
     busId = json['busId']?.toInt();
     busStopId = json['busStopId']?.toInt();
     routeId = json['routeId']?.toInt();
+    if (json['routeIds'] != null) {
+      final v = json['routeIds'];
+      final arr0 = <int?>[];
+      v.forEach((v) {
+        arr0.add(int.tryParse(v));
+      });
+      routeIds = arr0.toList();
+    }
     schoolId = json['schoolId']?.toInt();
     sectionId = json['sectionId']?.toInt();
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['busDriverId'] = busDriverId;
     data['busId'] = busId;
     data['busStopId'] = busStopId;
     data['routeId'] = routeId;
+    data['routeIds'] = routeIds;
     data['schoolId'] = schoolId;
     data['sectionId'] = sectionId;
     data['studentId'] = studentId;
@@ -1271,6 +1314,7 @@ class GetBusRouteDetailsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetBusRouteDetailsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['busRouteInfoBeanList'] != null) {
@@ -1286,6 +1330,7 @@ class GetBusRouteDetailsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (busRouteInfoBeanList != null) {
@@ -1318,6 +1363,21 @@ Future<GetBusRouteDetailsResponse> getBusRouteDetails(GetBusRouteDetailsRequest 
 
   debugPrint("GetBusRouteDetailsResponse ${getBusRouteDetailsResponse.toJson()}");
   return getBusRouteDetailsResponse;
+}
+
+Future<List<int>> getBusWiseFeesSummaryReport(GetBusRouteDetailsRequest getBusWiseFeesSummaryReportRequest) async {
+  debugPrint("Raising request to getBusWiseFeesSummaryReport with request ${jsonEncode(getBusWiseFeesSummaryReportRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_BUS_WISE_FEES_SUMMARY_REPORT;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(getBusWiseFeesSummaryReportRequest.toJson()),
+  );
+
+  List<int> getResponse = response.bodyBytes;
+  return getResponse;
 }
 
 class CreateOrUpdateBusRouteDetailsRequest {
@@ -1411,6 +1471,7 @@ class CreateOrUpdateBusRouteDetailsRequest {
     this.schoolId,
     this.status,
   });
+
   CreateOrUpdateBusRouteDetailsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1437,6 +1498,7 @@ class CreateOrUpdateBusRouteDetailsRequest {
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1493,6 +1555,7 @@ class CreateOrUpdateBusRouteDetailsResponse {
     this.responseStatus,
     this.routeId,
   });
+
   CreateOrUpdateBusRouteDetailsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1501,6 +1564,7 @@ class CreateOrUpdateBusRouteDetailsResponse {
     responseStatus = json['responseStatus']?.toString();
     routeId = json['routeId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1548,12 +1612,14 @@ class StopWiseStudentUpdateBean {
     this.oldStopId,
     this.studentId,
   });
+
   StopWiseStudentUpdateBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     newStopId = json['newStopId']?.toInt();
     oldStopId = json['oldStopId']?.toInt();
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['newStopId'] = newStopId;
@@ -1590,6 +1656,7 @@ class CreateOrUpdateStopWiseStudentsAssignmentRequest {
     this.schoolId,
     this.stopWiseStudentBeans,
   });
+
   CreateOrUpdateStopWiseStudentsAssignmentRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1603,6 +1670,7 @@ class CreateOrUpdateStopWiseStudentsAssignmentRequest {
       stopWiseStudentBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1643,6 +1711,7 @@ class CreateOrUpdateStopWiseStudentsAssignmentResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStopWiseStudentsAssignmentResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1650,6 +1719,7 @@ class CreateOrUpdateStopWiseStudentsAssignmentResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1787,6 +1857,7 @@ class UpdateBusFaresRequest {
     this.schoolId,
     this.stopWiseStudents,
   });
+
   UpdateBusFaresRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1810,6 +1881,7 @@ class UpdateBusFaresRequest {
       stopWiseStudents = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1860,6 +1932,7 @@ class UpdateBusFaresResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   UpdateBusFaresResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1867,6 +1940,7 @@ class UpdateBusFaresResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

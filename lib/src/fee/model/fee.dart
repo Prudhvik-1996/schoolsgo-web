@@ -4734,3 +4734,102 @@ Future<DeleteReceiptResponse> deleteReceipt(DeleteReceiptRequest deleteReceiptRe
   debugPrint("DeleteReceiptResponse ${deleteReceiptResponse.toJson()}");
   return deleteReceiptResponse;
 }
+
+class UpdateReceiptRequest {
+/*
+{
+  "agent": 0,
+  "date": "string",
+  "receiptId": 0,
+  "schoolId": 0,
+  "transactionId": 0
+}
+*/
+
+  int? agent;
+  String? date;
+  int? receiptId;
+  int? schoolId;
+  int? transactionId;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateReceiptRequest({
+    this.agent,
+    this.date,
+    this.receiptId,
+    this.schoolId,
+    this.transactionId,
+  });
+  UpdateReceiptRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    date = json['date']?.toString();
+    receiptId = json['receiptId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    transactionId = json['transactionId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['date'] = date;
+    data['receiptId'] = receiptId;
+    data['schoolId'] = schoolId;
+    data['transactionId'] = transactionId;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class UpdateReceiptResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateReceiptResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  UpdateReceiptResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<UpdateReceiptResponse> updateReceipt(UpdateReceiptRequest updateReceiptRequest) async {
+  debugPrint("Raising request to updateReceipt with request ${jsonEncode(updateReceiptRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + UPDATE_FEE_RECEIPT;
+
+  UpdateReceiptResponse updateReceiptResponse = await HttpUtils.post(
+    _url,
+    updateReceiptRequest.toJson(),
+    UpdateReceiptResponse.fromJson,
+  );
+
+  debugPrint("UpdateReceiptResponse ${updateReceiptResponse.toJson()}");
+  return updateReceiptResponse;
+}

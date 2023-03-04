@@ -2,11 +2,13 @@ import 'dart:html' as html;
 import 'dart:math';
 
 import 'package:clay_containers/clay_containers.dart';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:number_paginator/number_paginator.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -16,6 +18,8 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_each_receipt_widget.dart';
+import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/fee_support_classes.dart';
@@ -25,6 +29,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class AdminFeeReceiptsScreen extends StatefulWidget {
   const AdminFeeReceiptsScreen({
@@ -46,6 +51,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   double _loadingReceiptPercentage = 0.0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  final ItemScrollController _itemScrollController = ItemScrollController();
   late SchoolInfoBean schoolInfoBean;
 
   List<Section> sectionsList = [];
@@ -80,6 +86,11 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
   TextEditingController reasonToDeleteTextController = TextEditingController();
   Uint8List? pdfInBytes;
+
+  int offset = 0;
+  int limit = 5;
+  bool isSearchBarSelected = false;
+  final NumberPaginatorController paginationController = NumberPaginatorController();
 
   @override
   void initState() {
@@ -630,7 +641,6 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
     for (int i = 0; i < txns.length; i++) {
       StudentFeeTransactionBean eachTransaction = txns[i];
-      print("Receipt no. ${eachTransaction.receiptId}");
       setState(() {
         _renderingReceiptText = "Rendering receipt ${eachTransaction.receiptId}";
         _loadingReceiptPercentage = 100.0 * (i / txns.length);
@@ -1013,7 +1023,11 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Fee Receipts"),
-        actions: _isLoading
+        actions: _isLoading ||
+                filteredStudentFeeDetailsBeanList
+                    .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                    .expand((i) => i)
+                    .isEmpty
             ? []
             : [
                 pdfInBytes == null
@@ -1031,6 +1045,30 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                         },
                         icon: const Icon(Icons.close),
                       ),
+                if (!isSearchBarSelected)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                    child: SearchWidget(
+                      isSearchBarSelectedByDefault: false,
+                      onComplete: scrollToReceiptNumber,
+                      receiptNumbers: (filteredStudentFeeDetailsBeanList
+                              .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                              .expand((i) => i)
+                              .toList()
+                            ..sort(
+                              (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate)
+                                          .compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) ==
+                                      0
+                                  ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                                      ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                                      : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                                  : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+                            ))
+                          .map((e) => (e.receiptId ?? "-").toString())
+                          .toList(),
+                      isSearchButtonSelected: isSearchButtonSelected,
+                    ),
+                  ),
               ],
       ),
       drawer: AdminAppDrawer(
@@ -1064,27 +1102,148 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     );
   }
 
-  ListView buildFilteredReceiptsListView() {
-    return ListView(
+  void scrollToReceiptNumber(int e) {
+    if (e == -1) return;
+    setState(() {
+      offset = (e / limit).floor() * limit;
+    });
+    _itemScrollController.scrollTo(
+      index: e - offset + 2,
+      duration: const Duration(milliseconds: 1),
+      curve: Curves.linear,
+    );
+    paginationController.navigateToPage((offset / limit).floor());
+  }
+
+  Widget buildFilteredReceiptsListView() {
+    List filteredList = filteredStudentFeeDetailsBeanList
+        .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+        .expand((i) => i)
+        .toList()
+      ..sort(
+        (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+            ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+            : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+      );
+    if (filteredList.isEmpty) {
+      return ListView(
+        children: [
+          // statsWidget(),
+          filtersWidget(),
+          const SizedBox(height: 20),
+          const Center(
+            child: Text(
+              "No Transactions to display",
+            ),
+          ),
+          const SizedBox(height: 150),
+        ],
+      );
+    }
+    return Stack(
       children: [
-        statsWidget(),
-        filtersWidget(),
-        ...(filteredStudentFeeDetailsBeanList
-                .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
-                .expand((i) => i)
-                .toList()
-              ..sort(
-                (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
-                    ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                        ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                        : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
-                    : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
-              ))
-            .map((e) => studentFeeTransactionWidget(e))
-            .toList(),
+        ScrollablePositionedList.builder(
+          initialScrollIndex: filteredList.isNotEmpty ? 2 : 0,
+          physics: const BouncingScrollPhysics(),
+          itemScrollController: _itemScrollController,
+          itemCount: filteredList.sublist(offset).length > limit ? limit + 3 : filteredList.sublist(offset).length + 3,
+          itemBuilder: (BuildContext context, int index) {
+            if (index == 0) {
+              // return statsWidget();
+              return Container();
+            } else if (index == 1) {
+              return filtersWidget();
+            } else if ((filteredList.sublist(offset).length > limit ? limit + 2 : filteredList.sublist(offset).length + 2) == index) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(50, 5, 50, 150),
+                child: NumberPaginator(
+                  controller: paginationController,
+                  numberPages: (filteredList.length / limit).ceil(),
+                  onPageChange: (int pageIndex) {
+                    setState(() {
+                      offset = pageIndex * limit;
+                    });
+                  },
+                  initialPage: (offset / limit).floor(),
+                  config: NumberPaginatorUIConfig(
+                    height: 48,
+                    mode: MediaQuery.of(context).orientation == Orientation.landscape ? ContentDisplayMode.numbers : ContentDisplayMode.dropdown,
+                    buttonShape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                    buttonSelectedForegroundColor: Colors.white,
+                    buttonUnselectedForegroundColor: Colors.white,
+                    buttonUnselectedBackgroundColor: MediaQuery.of(context).orientation == Orientation.landscape ? Colors.grey : Colors.blue,
+                    buttonSelectedBackgroundColor: Colors.blue,
+                  ),
+                ),
+              );
+            } else {
+              int studentIndex = offset + index - 2;
+              StudentFeeTransactionBean e = filteredList[studentIndex];
+              return AdminFeeReceiptsEachReceiptWidget(
+                studentFeeTransactionBean: e,
+                adminProfile: widget.adminProfile,
+                scaffoldKey: _scaffoldKey,
+                reasonToDeleteTextController: reasonToDeleteTextController,
+                studentId: e.studentId,
+                rollNumber:
+                    "${filteredStudentFeeDetailsBeanList.where((eachStudent) => eachStudent.studentId == e.studentId).firstOrNull?.rollNumber}",
+                studentName: e.studentName ?? " ",
+                sectionName: e.sectionName ?? studentFeeDetailsBeans.where((e1) => e.studentId == e1.studentId).firstOrNull?.sectionName ?? "",
+                isTermWise: _isTermWise,
+                childTransactions: (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId != null).toList(),
+                busFeeTransactions: (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId == null).toList(),
+                superSetState: stateUpdate,
+              );
+              // return studentFeeTransactionWidget(e);
+            }
+          },
+        ),
+        if (isSearchBarSelected)
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              height: 75,
+              padding: const EdgeInsets.fromLTRB(8, 0, 0, 8),
+              child: Container(
+                color: clayContainerColor(context),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: SearchWidget(
+                  isSearchBarSelectedByDefault: true,
+                  onComplete: scrollToReceiptNumber,
+                  receiptNumbers: (filteredStudentFeeDetailsBeanList
+                          .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                          .expand((i) => i)
+                          .toList()
+                        ..sort(
+                          (b, a) =>
+                              convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+                                  ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                                      ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                                      : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                                  : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+                        ))
+                      .map((e) => (e.receiptId ?? "-").toString())
+                      .toList(),
+                  isSearchButtonSelected: isSearchButtonSelected,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
+
+  void isSearchButtonSelected(bool isSelected) {
+    print("1224 :: $isSelected");
+    setState(() => isSearchBarSelected = isSelected);
+  }
+
+  void stateUpdate() => setState(() {});
 
   Column buildNewReceiptWidget(BuildContext context) {
     return Column(
@@ -1273,501 +1432,208 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     );
   }
 
-  Widget studentFeeTransactionWidget(StudentFeeTransactionBean e) {
+  Widget filtersWidget() {
     return Container(
-      margin: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
-          : const EdgeInsets.all(10),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-          child: ListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    child: Text(
-                      "Receipt No.:${MediaQuery.of(context).orientation == Orientation.landscape ? " " : "\n"}${(e.receiptId ?? 0) == 0 ? "" : e.receiptId}",
-                      textAlign: MediaQuery.of(context).orientation == Orientation.landscape ? TextAlign.start : TextAlign.center,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    child: Tooltip(
-                      message: convertDateToDDMMMYYYEEEE(e.transactionDate),
-                      child: Text(
-                        "Date:${MediaQuery.of(context).orientation == Orientation.landscape ? " " : "\n"}${convertDateToDDMMMYYY(e.transactionDate)}",
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      //  TODO
-                      await showDialog(
-                        context: _scaffoldKey.currentContext!,
-                        builder: (BuildContext dialogueContext) {
-                          return AlertDialog(
-                            title: const Text('Are you sure you want to delete the receipt?'),
-                            content: TextField(
-                              onChanged: (value) {},
-                              controller: reasonToDeleteTextController,
-                              decoration: InputDecoration(
-                                hintText: "Reason to delete",
-                                errorText: reasonToDeleteTextController.text.trim() == "" ? "Reason cannot be empty!" : "",
-                              ),
-                              autofocus: true,
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text("Yes"),
-                                onPressed: () async {
-                                  if (reasonToDeleteTextController.text.trim() == "") {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Reason to delete cannot be empty.."),
-                                      ),
-                                    );
-                                    Navigator.pop(context);
-                                    return;
-                                  }
-                                  Navigator.pop(context);
-                                  setState(() => _isLoading = true);
-                                  DeleteReceiptRequest deleteReceiptRequest = DeleteReceiptRequest(
-                                    schoolId: widget.adminProfile.schoolId,
-                                    agentId: widget.adminProfile.userId,
-                                    masterTransactionId: e.masterTransactionId,
-                                    comments: reasonToDeleteTextController.text.trim(),
-                                  );
-                                  DeleteReceiptResponse deleteReceiptResponse = await deleteReceipt(deleteReceiptRequest);
-                                  if (deleteReceiptResponse.httpStatus != "OK" || deleteReceiptResponse.responseStatus != "success") {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Something went wrong! Try again later.."),
-                                      ),
-                                    );
-                                  } else {
-                                    _loadData();
-                                  }
-                                  setState(() => _isLoading = false);
-                                },
-                              ),
-                              TextButton(
-                                child: const Text("No"),
-                                onPressed: () async {
-                                  setState(() {
-                                    reasonToDeleteTextController.text = "";
-                                  });
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: ClayButton(
-                      color: clayContainerColor(context),
-                      height: 20,
-                      width: 20,
-                      spread: 1,
-                      borderRadius: 10,
-                      depth: 40,
-                      child: const Padding(
-                        padding: EdgeInsets.all(3.0),
-                        child: Center(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              // Container(
-              //   margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-              //   child: ClayContainer(
-              //     surfaceColor: clayContainerColor(context),
-              //     parentColor: clayContainerColor(context),
-              //     spread: 1,
-              //     borderRadius: 10,
-              //     depth: 40,
-              //     emboss: true,
-              //     child: Padding(
-              //       padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
-              //       child: Row(
-              //         children: [
-              //           const SizedBox(
-              //             width: 10,
-              //           ),
-              //           const Text("Section:"),
-              //           const SizedBox(
-              //             width: 10,
-              //           ),
-              //           Expanded(
-              //             child: Text("${(e.sectionName)}"),
-              //           ),
-              //           const SizedBox(
-              //             width: 10,
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(
-              //   height: 10,
-              // ),
-              // Container(
-              //   margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-              //   child: ClayContainer(
-              //     surfaceColor: clayContainerColor(context),
-              //     parentColor: clayContainerColor(context),
-              //     spread: 1,
-              //     borderRadius: 10,
-              //     depth: 40,
-              //     emboss: true,
-              //     child: Padding(
-              //       padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
-              //       child: Row(
-              //         children: [
-              //           const SizedBox(
-              //             width: 10,
-              //           ),
-              //           const Text("Student:"),
-              //           const SizedBox(
-              //             width: 10,
-              //           ),
-              //           Expanded(
-              //             child: Text("${(e.studentName)}"),
-              //           ),
-              //           const SizedBox(
-              //             width: 10,
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+      margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
+      child: MediaQuery.of(context).orientation == Orientation.landscape
+          ? Row(
+              children: [
+                const SizedBox(width: 15),
+                Expanded(
+                  child: goToDateButton(),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: termWiseFilter(),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: perPageTransactionsWidget(),
+                ),
+                const SizedBox(width: 15),
+              ],
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
+                    const SizedBox(width: 15),
                     Expanded(
-                      flex: 2,
-                      child: InputDecorator(
-                        isFocused: true,
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            borderSide: BorderSide(color: Colors.grey),
+                      child: goToDateButton(),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: ClayButton(
+                        color: clayContainerColor(context),
+                        borderRadius: 10,
+                        spread: 2,
+                        child: const Padding(
+                          padding: EdgeInsets.all(15),
+                          child: Center(
+                            child: Text("Section"),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          label: Text(
-                            "Student",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                        child: Text(
-                          "${filteredStudentFeeDetailsBeanList.where((eachStudent) => eachStudent.studentId == e.studentId).firstOrNull?.rollNumber}. ${e.studentName ?? " "}",
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Flexible(
-                      flex: 1,
-                      child: InputDecorator(
-                        isFocused: true,
-                        decoration: const InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          label: Text(
-                            "Section",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                        child: Center(
-                            child: Text(
-                          e.sectionName ?? studentFeeDetailsBeans.where((e1) => e.studentId == e1.studentId).firstOrNull?.sectionName ?? "",
-                        )),
-                      ),
-                    ),
+                    const SizedBox(width: 15),
                   ],
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              ...childTransactionsWidget(e),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                const SizedBox(height: 15),
+                Row(
                   children: [
-                    Text(
-                      "Total: $INR_SYMBOL ${doubleToStringAsFixedForINR((e.transactionAmount ?? 0) / 100.0)} /-",
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontSize: 16,
-                      ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: termWiseFilter(),
                     ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: perPageTransactionsWidget(),
+                    ),
+                    const SizedBox(width: 15),
                   ],
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
+              ],
+            ),
+    );
+  }
+
+  Widget goToDateButton() {
+    return GestureDetector(
+      onTap: () async {
+        if (filteredStudentFeeDetailsBeanList
+            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+            .expand((i) => i)
+            .isEmpty) return;
+        Set<DateTime> transactionDatesSet = filteredStudentFeeDetailsBeanList
+            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+            .expand((i) => i)
+            .toList()
+            .sorted(
+              (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+                  ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                      ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                      : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                  : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+            )
+            .map((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate))
+            .toSet();
+        DateTime? _newDate = await showDatePicker(
+          context: context,
+          initialDate: transactionDatesSet.firstOrNull ?? DateTime.now(),
+          firstDate: DateTime.now().subtract(const Duration(days: 365 * 10)),
+          lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
+          helpText: "Select a date",
+          initialEntryMode: DatePickerEntryMode.calendar,
+          selectableDayPredicate: (DateTime? eachDate) {
+            return transactionDatesSet.contains(eachDate);
+          },
+        );
+        if (_newDate == null) return;
+        int newIndex = filteredStudentFeeDetailsBeanList
+            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+            .expand((i) => i)
+            .toList()
+            .sorted(
+              (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+                  ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                      ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                      : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+                  : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+            )
+            .indexWhere((e) => convertDateTimeToYYYYMMDDFormat(_newDate) == e.transactionDate);
+        setState(() {
+          offset = (newIndex / limit).floor() * limit;
+        });
+        _itemScrollController.scrollTo(
+          index: newIndex - offset + 2,
+          duration: const Duration(milliseconds: 1),
+          curve: Curves.linear,
+        );
+        paginationController.navigateToPage((offset / limit).floor());
+      },
+      child: ClayButton(
+        color: clayContainerColor(context),
+        borderRadius: 10,
+        spread: 2,
+        child: const Padding(
+          padding: EdgeInsets.all(15),
+          child: Center(
+            child: Icon(Icons.calendar_month),
           ),
         ),
       ),
     );
   }
 
-  List<Widget> childTransactionsWidget(StudentFeeTransactionBean e) {
-    // return (e.studentFeeChildTransactionList ?? []).map((e) => Container()).toList();
-    List<Widget> childTxnWidgets = [];
-    List<StudentFeeChildTransactionBean> childTxns =
-        (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId != null).toList();
-    List<StudentFeeChildTransactionBean> busFeeTxns =
-        (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId == null).toList();
-    List<FeeTypeTxn> feeTypeTxns = [];
-    for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
-      if (eachChildTxn.customFeeTypeId == null) {
-        feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
-      } else {
-        if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
-          feeTypeTxns.add(FeeTypeTxn(eachChildTxn.feeTypeId, eachChildTxn.feeType, null, null, [], eachChildTxn.termComponents ?? []));
-        }
-      }
-    }
-    for (StudentFeeChildTransactionBean eachChildTxn in childTxns) {
-      if (eachChildTxn.customFeeTypeId != null && eachChildTxn.customFeeTypeId != 0) {
-        feeTypeTxns.where((e) => e.feeTypeId == eachChildTxn.feeTypeId).forEach((eachFeeTypeTxn) {
-          eachFeeTypeTxn.customFeeTypeTxns?.add(CustomFeeTypeTxn(eachChildTxn.customFeeTypeId, eachChildTxn.customFeeType, eachChildTxn.feePaidAmount,
-              eachFeeTypeTxn.transactionId, eachChildTxn.termComponents ?? []));
-        });
-      }
-    }
-    for (StudentFeeChildTransactionBean eachChildTxn in busFeeTxns) {
-      if (!feeTypeTxns.map((e) => e.feeTypeId).contains(eachChildTxn.feeTypeId)) {
-        feeTypeTxns.add(FeeTypeTxn(
-            eachChildTxn.feeTypeId, "Bus Fee", eachChildTxn.feePaidAmount, eachChildTxn.transactionId, [], eachChildTxn.termComponents ?? []));
-      }
-    }
-    feeTypeTxns.sort(
-      (a, b) => a.feeType == "Bus Fee"
-          ? -2
-          : (a.customFeeTypeTxns ?? []).isEmpty
-              ? -1
-              : 1,
-    );
-    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.where((e) => e.feeTypeId != null)) {
-      if (eachFeeTypeTxn.customFeeTypeTxns?.isEmpty ?? true) {
-        eachFeeTypeTxn.feePaidAmount =
-            childTxns.where((e) => e.feeTypeId == eachFeeTypeTxn.feeTypeId).map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
-        eachFeeTypeTxn.transactionId = childTxns.where((e) => e.feeTypeId == eachFeeTypeTxn.feeTypeId).map((e) => e.transactionId).firstOrNull;
-      } else {
-        eachFeeTypeTxn.feePaidAmount = eachFeeTypeTxn.customFeeTypeTxns?.map((e) => e.feePaidAmount).reduce((c1, c2) => (c1 ?? 0) + (c2 ?? 0));
-      }
-    }
-    for (FeeTypeTxn eachFeeTypeTxn in feeTypeTxns.toSet()) {
-      if ((eachFeeTypeTxn.customFeeTypeTxns ?? []).isEmpty) {
-        childTxnWidgets.add(
-          Container(
-            margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(eachFeeTypeTxn.feeType ?? "-"),
-                ),
-                !_isTermWise || (eachFeeTypeTxn.termComponents).isEmpty
-                    ? Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
-                    : const Text(""),
-              ],
+  Widget perPageTransactionsWidget() {
+    return ClayContainer(
+      color: clayContainerColor(context),
+      borderRadius: 10,
+      spread: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 10),
+            const Expanded(child: Text("No. of receipts per page")),
+            const SizedBox(width: 10),
+            DropdownButton<String>(
+              isExpanded: false,
+              value: limit == -1 ? "All" : limit.toString(),
+              items: [
+                (filteredStudentFeeDetailsBeanList
+                        .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                        .expand((i) => i)
+                        .toList())
+                    .length,
+                5,
+                10,
+                20,
+                50,
+                100,
+                200
+              ]
+                  .map((e) => DropdownMenuItem<String>(
+                        child: Text(e == -1 ||
+                                e ==
+                                    (filteredStudentFeeDetailsBeanList
+                                            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                                            .expand((i) => i)
+                                            .toList())
+                                        .length
+                            ? "All"
+                            : "$e"),
+                        value: "$e",
+                      ))
+                  .toList(),
+              onChanged: (String? newValue) {
+                if (newValue == null) return;
+                if (newValue == "-1") {
+                  setState(() {
+                    offset = 0;
+                    limit = (filteredStudentFeeDetailsBeanList
+                            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+                            .expand((i) => i)
+                            .toList())
+                        .length;
+                  });
+                } else {
+                  setState(() {
+                    limit = int.tryParse(newValue) ?? limit;
+                    offset = (offset / limit).floor();
+                  });
+                }
+              },
             ),
-          ),
-        );
-        if (_isTermWise && (eachFeeTypeTxn.termComponents).isNotEmpty) {
-          for (TermComponent eachTermComponent in eachFeeTypeTxn.termComponents) {
-            childTxnWidgets.add(
-              Container(
-                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                child: Row(
-                  children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    const CustomVerticalDivider(color: Colors.amber),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Expanded(
-                      child: Text(eachTermComponent.termName ?? "-"),
-                    ),
-                    Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.feePaid ?? 0) / 100.0)} /-")
-                  ],
-                ),
-              ),
-            );
-          }
-        }
-        childTxnWidgets.add(const SizedBox(
-          height: 5,
-        ));
-      } else {
-        childTxnWidgets.add(Container(
-          margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(eachFeeTypeTxn.feeType ?? "-"),
-              ),
-            ],
-          ),
-        ));
-        childTxnWidgets.add(const SizedBox(
-          height: 5,
-        ));
-        for (var eachCustomFeeTypeTxn in (eachFeeTypeTxn.customFeeTypeTxns ?? [])) {
-          childTxnWidgets.add(Container(
-            margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 5,
-                ),
-                const CustomVerticalDivider(),
-                const SizedBox(
-                  width: 5,
-                ),
-                Expanded(
-                  child: Text(eachCustomFeeTypeTxn.customFeeType ?? "-"),
-                ),
-                !_isTermWise || (eachCustomFeeTypeTxn.termComponents).isEmpty
-                    ? Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachCustomFeeTypeTxn.feePaidAmount ?? 0) / 100.0)} /-")
-                    : const Text(""),
-              ],
-            ),
-          ));
-          if (_isTermWise && (eachCustomFeeTypeTxn.termComponents).isNotEmpty) {
-            for (TermComponent eachTermComponent in eachCustomFeeTypeTxn.termComponents) {
-              childTxnWidgets.add(
-                Container(
-                  margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                  child: Row(
-                    children: [
-                      const SizedBox(
-                        width: 15,
-                      ),
-                      const CustomVerticalDivider(color: Colors.amber),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                        child: Text(eachTermComponent.termName ?? "-"),
-                      ),
-                      Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.feePaid ?? 0) / 100.0)} /-")
-                    ],
-                  ),
-                ),
-              );
-            }
-          }
-          childTxnWidgets.add(const SizedBox(
-            height: 5,
-          ));
-        }
-      }
-    }
-
-    return childTxnWidgets;
-  }
-
-  Widget filtersWidget() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
-      child: Row(
-        children: [
-          const SizedBox(width: 15),
-          Expanded(
-            child: ClayButton(
-              color: clayContainerColor(context),
-              borderRadius: 10,
-              spread: 2,
-              child: const Padding(
-                padding: EdgeInsets.all(15),
-                child: Center(
-                  child: Text("Date"),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: ClayButton(
-              color: clayContainerColor(context),
-              borderRadius: 10,
-              spread: 2,
-              child: const Padding(
-                padding: EdgeInsets.all(15),
-                child: Center(
-                  child: Text("Section"),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: termWiseFilter(),
-          ),
-          const SizedBox(width: 15),
-        ],
+            const SizedBox(width: 2),
+          ],
+        ),
       ),
     );
   }
@@ -1953,7 +1819,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               ),
               textAlign: TextAlign.center,
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                FilteringTextInputFormatter.allow(RegExp(r"[\d.]")),
                 TextInputFormatter.withFunction((oldValue, newValue) {
                   try {
                     if (newValue.text == "") return newValue;

@@ -116,6 +116,7 @@ const String GET_STUDENT_FEE_DETAILS = "/fee/getStudentFeeDetails";
 const String GET_STUDENT_FEE_DETAILS_SUPPORT_CLASSES = "/fee/getStudentFeeDetailsSupportClasses";
 const String CREATE_NEW_FEE_RECEIPTS = "/fee/createNewReceipts";
 const String DELETE_FEE_RECEIPT = "/fee/deleteReceipt";
+const String UPDATE_FEE_RECEIPT = "/fee/updateReceipt";
 
 const String GET_BUSES_DRIVERS = "/buses/getDrivers";
 const String GET_BUSES_BASE_DETAILS = "/buses/getBusesBaseDetails";
@@ -158,3 +159,4 @@ const String GET_LOGBOOK_REPORT = "/reports/getTeacherLogBookReport";
 const String GET_ADMIN_EXPENSES_REPORT = "/reports/getAdminExpensesReport";
 const String GET_FEE_DETAILS_REPORT = "/reports/getDetailedFeesReport";
 const String GET_FEE_SUMMARY_REPORT = "/reports/getFeesSummaryReport";
+const String GET_BUS_WISE_FEES_SUMMARY_REPORT = "/reports/getBusWiseFeesSummaryReport";

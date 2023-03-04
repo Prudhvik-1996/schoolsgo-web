@@ -779,6 +779,7 @@ class _AdminRouteManagementScreenState extends State<AdminRouteManagementScreen>
 
   CustomStepper busRouteStopsStepper(BusRouteInfo busRouteInfo) {
     List<BusRouteStop> busStops = (busRouteInfo.busRouteStopsList ?? []).where((e) => e != null && e.status == 'active').map((e) => e!).toList();
+    busStops.sort((a, b) => (a.terminalNumber ?? 0).compareTo(b.terminalNumber ?? 0));
     List<CustomStep> widgets = [];
     for (int stepIndex = 0; stepIndex < busStops.length; stepIndex++) {
       widgets.add(

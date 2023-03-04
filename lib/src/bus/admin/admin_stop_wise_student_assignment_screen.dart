@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html';
+
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +10,12 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_stepper/custom_stepper.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminStopWiseStudentAssignmentScreen extends StatefulWidget {
   const AdminStopWiseStudentAssignmentScreen({
@@ -26,6 +32,8 @@ class AdminStopWiseStudentAssignmentScreen extends StatefulWidget {
 class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStudentAssignmentScreen> {
   bool _isLoading = true;
   bool _isEditMode = false;
+  bool _isFileDownloading = false;
+  final String reportName = "Bus Route Wise Fee Report.xlsx";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -45,6 +53,7 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
     setState(() {
       _isLoading = true;
       _isEditMode = false;
+      _isFileDownloading = false;
     });
 
     GetBusRouteDetailsResponse getBusRouteDetailsResponse = await getBusRouteDetails(GetBusRouteDetailsRequest(
@@ -110,12 +119,38 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
     });
   }
 
+  Future<void> _downloadFile() async {
+    setState(() {
+      _isFileDownloading = true;
+    });
+    List<int> bytes = await getBusWiseFeesSummaryReport(GetBusRouteDetailsRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+      ..setAttribute("download", reportName)
+      ..click();
+    setState(() {
+      _isFileDownloading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Student - Bus Assignment"),
+        actions: _isLoading || _isEditMode || _isFileDownloading
+            ? []
+            : [
+                InkWell(
+                  onTap: _downloadFile,
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
+                    child: Icon(Icons.download),
+                  ),
+                ),
+              ],
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
@@ -128,15 +163,39 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
                 width: 500,
               ),
             )
-          : ListView(
-              children: busRouteInfoBeans.map((e) => busRouteWidget(e)).toList() +
-                  [
-                    const SizedBox(
-                      height: 250,
+          : _isFileDownloading
+              ? Column(
+                  children: [
+                    const Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: Text("Report download in progress"),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Image.asset(
+                        'assets/images/eis_loader.gif',
+                        fit: BoxFit.scaleDown,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Center(
+                        child: Text(reportName),
+                      ),
                     ),
                   ],
-            ),
-      floatingActionButton: _buildEditButton(context),
+                )
+              : ListView(
+                  children: busRouteInfoBeans.map((e) => busRouteWidget(e)).toList() +
+                      [
+                        const SizedBox(
+                          height: 250,
+                        ),
+                      ],
+                ),
+      floatingActionButton: _isLoading ? null : _buildEditButton(context),
     );
   }
 
@@ -275,7 +334,7 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
 
   Widget busRouteWidget(BusRouteInfo busRouteInfo) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+      margin: MediaQuery.of(context).orientation == Orientation.landscape ? const EdgeInsets.all(25) : const EdgeInsets.fromLTRB(15, 25, 15, 25),
       child: ClayContainer(
         surfaceColor: clayContainerColor(context),
         parentColor: clayContainerColor(context),
@@ -283,7 +342,7 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
         borderRadius: 10,
         depth: 40,
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: MediaQuery.of(context).orientation == Orientation.landscape ? const EdgeInsets.all(25) : const EdgeInsets.fromLTRB(15, 25, 15, 25),
           child: Column(
             children: [
               routeWidget(busRouteInfo),
@@ -298,11 +357,112 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
                 routeId: busRouteInfo.busRouteId,
                 busRouteInfo: busRouteInfo,
               )),
+              buildBusFareDetailsWidget(busRouteInfo),
               if (busRouteInfo.isExpanded) busRouteStopsStepper(busRouteInfo),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildBusFareDetailsWidget(BusRouteInfo busRouteInfo) {
+    List<RouteStopWiseStudent> students = (busRouteInfo.busRouteStopsList ?? [])
+        .where((e) => e != null)
+        .map((e) => e!)
+        .map((e) => e.students ?? [])
+        .expand((i) => i)
+        .where((e) => e != null)
+        .map((e) => e!)
+        .toList();
+    students.sort(
+      (a, b) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0) == 0
+          ? (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))
+          : (a.sectionId ?? 0).compareTo(b.sectionId ?? 0),
+    );
+    int totalFee = students.isEmpty ? 0 : students.map((e) => e.busFee ?? 0).reduce((a, b) => a + b);
+    int totalFeePaid = students.isEmpty ? 0 : students.map((e) => e.busFeePaid ?? 0).reduce((a, b) => a + b);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Total Bus Fee:",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+            Text(
+              "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFee / 100.0)} /-",
+              style: const TextStyle(
+                color: Colors.blue,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Total Bus Fee Collected",
+                style: TextStyle(
+                  color: Colors.green,
+                ),
+              ),
+            ),
+            Text(
+              "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeePaid / 100.0)} /-",
+              style: const TextStyle(
+                color: Colors.green,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Total Due",
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+            Text(
+              "$INR_SYMBOL ${doubleToStringAsFixedForINR((totalFee - totalFeePaid) / 100.0)} /-",
+              style: const TextStyle(
+                color: Colors.red,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+      ],
     );
   }
 
@@ -427,6 +587,13 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
   CustomStepper busRouteStopsStepper(BusRouteInfo busRouteInfo) {
     List<CustomStep> widgets = [];
     for (int stopIndex = 0; stopIndex < (busRouteInfo.busRouteStopsList ?? []).length; stopIndex++) {
+      List<RouteStopWiseStudent> students =
+          ((busRouteInfo.busRouteStopsList?[stopIndex]?.students ?? [])).where((e) => e != null).map((e) => e!).toList();
+      students.sort(
+        (a, b) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0) == 0
+            ? (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))
+            : (a.sectionId ?? 0).compareTo(b.sectionId ?? 0),
+      );
       widgets.add(
         CustomStep(
           isActive: busRouteInfo.expandAllStops,
@@ -471,39 +638,98 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
               : Text(
                   busRouteInfo.busRouteStopsList?[stopIndex]?.terminalName ?? "-",
                 ),
-          subtitle: Text(
-            "Pick up time: ${busRouteInfo.busRouteStopsList![stopIndex]!.pickUpTime == null ? "-" : convert24To12HourFormat(busRouteInfo.busRouteStopsList![stopIndex]!.pickUpTime!)}\n"
-            "Drop time: ${busRouteInfo.busRouteStopsList![stopIndex]!.dropTime == null ? "-" : convert24To12HourFormat(busRouteInfo.busRouteStopsList![stopIndex]!.dropTime!)}",
+          subtitle: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Pick up time: ${busRouteInfo.busRouteStopsList![stopIndex]!.pickUpTime == null ? "-" : convert24To12HourFormat(busRouteInfo.busRouteStopsList![stopIndex]!.pickUpTime!)}",
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Drop time: ${busRouteInfo.busRouteStopsList![stopIndex]!.dropTime == null ? "-" : convert24To12HourFormat(busRouteInfo.busRouteStopsList![stopIndex]!.dropTime!)}",
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
           ),
-          content: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Container(
-              margin: const EdgeInsets.all(20),
-              child: ClayContainer(
-                surfaceColor: clayContainerColor(context),
-                parentColor: clayContainerColor(context),
-                spread: 1,
-                borderRadius: 10,
-                depth: 40,
-                emboss: true,
-                child: Container(
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: (busRouteInfo.busRouteStopsList?[stopIndex]?.students ?? []).isEmpty
-                        ? [const Text("-")]
-                        : ((busRouteInfo.busRouteStopsList?[stopIndex]?.students ?? [])
-                              ..sort(
-                                (a, b) => (a?.sectionId ?? 0).compareTo(b?.sectionId ?? 0) == 0
-                                    ? (int.tryParse(a?.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b?.rollNumber ?? "") ?? 0))
-                                    : (a?.sectionId ?? 0).compareTo(b?.sectionId ?? 0),
-                              ))
-                            .map((e) => buildStudentWidget(e))
-                            .toList(),
-                  ),
+          content: Container(
+            margin: MediaQuery.of(context).orientation == Orientation.landscape ? const EdgeInsets.all(15) : const EdgeInsets.fromLTRB(5, 15, 5, 15),
+            child: ClayContainer(
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 10,
+              depth: 40,
+              emboss: true,
+              child: Container(
+                padding:
+                    MediaQuery.of(context).orientation == Orientation.landscape ? const EdgeInsets.all(15) : const EdgeInsets.fromLTRB(5, 15, 5, 15),
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: students.isEmpty
+                      ? [const Text("-")]
+                      : [
+                          if (MediaQuery.of(context).orientation == Orientation.landscape)
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: clayContainerTextColor(context),
+                                    width: 0.1,
+                                  ),
+                                ),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                              margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: const [
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text("S. No."),
+                                  ),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Text(
+                                      "Student Details",
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      "Bus Fee",
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      "Paid Amount",
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      "Due",
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                ],
+                              ),
+                            ),
+                          ...students.mapIndexed((index, element) => buildStudentWidget(element, sno: index + 1)).toList(),
+                        ],
                 ),
               ),
             ),
@@ -544,18 +770,171 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
     );
   }
 
-  Widget buildStudentWidget(RouteStopWiseStudent? e) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
-          child: Text("${e?.studentName} (${e?.sectionName}${e?.rollNumber == null ? "" : " - ${e?.rollNumber}"})"),
+  Widget buildStudentWidget(
+    RouteStopWiseStudent? e, {
+    int sno = 0,
+  }) {
+    if (sno == 0) return Container();
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  "$sno. ${e?.studentName} [${e?.sectionName} - ${e?.rollNumber == null ? "" : "${e?.rollNumber}"}]",
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Text(
+                  "$INR_SYMBOL ${doubleToStringAsFixedForINR((e?.busFee ?? 0) / 100.0)} /-   ",
+                  style: const TextStyle(
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "$INR_SYMBOL ${doubleToStringAsFixedForINR((e?.busFeePaid ?? 0) / 100.0)} /-   ",
+                  style: const TextStyle(
+                    color: Colors.green,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "$INR_SYMBOL ${doubleToStringAsFixedForINR(((e?.busFee ?? 0) - (e?.busFeePaid ?? 0)) / 100.0)} /-   ",
+                  style: const TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
+      );
+    }
+    return StudentWidget(e: e, sno: sno, context: context);
+  }
+}
+
+class StudentWidget extends StatefulWidget {
+  const StudentWidget({
+    Key? key,
+    required this.e,
+    required this.sno,
+    required this.context,
+  }) : super(key: key);
+
+  final RouteStopWiseStudent? e;
+  final int sno;
+  final BuildContext context;
+
+  @override
+  State<StudentWidget> createState() => _StudentWidgetState();
+}
+
+class _StudentWidgetState extends State<StudentWidget> {
+  late RouteStopWiseStudent? e;
+  late int sno;
+
+  @override
+  void initState() {
+    super.initState();
+    e = widget.e;
+    sno = widget.sno;
+  }
+
+  bool _isHover = false;
+
+  void _onPointerHover(event) {
+    setState(() {
+      _isHover = true;
+    });
+  }
+
+  void _onPointerCancel(event) {
+    setState(() {
+      _isHover = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: _onPointerHover,
+      onExit: _onPointerCancel,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+        decoration: BoxDecoration(
+          color: _isHover ? Colors.grey : null,
         ),
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 1,
+              child: Text(
+                sno.toString(),
+              ),
+            ),
+            Expanded(
+              flex: 5,
+              child: Text(
+                "${e?.studentName ?? "-"} [${e?.sectionName} - ${e?.rollNumber == null ? "" : "${e?.rollNumber}]"}",
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 1,
+              child: Text(
+                "$INR_SYMBOL ${doubleToStringAsFixedForINR((e?.busFee ?? 0) / 100.0)} /-",
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 1,
+              child: Text(
+                "$INR_SYMBOL ${doubleToStringAsFixedForINR((e?.busFeePaid ?? 0) / 100.0)} /-",
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 1,
+              child: Text(
+                "$INR_SYMBOL ${doubleToStringAsFixedForINR(((e?.busFee ?? 0) - (e?.busFeePaid ?? 0)) / 100.0)} /-",
+              ),
+            ),
+            const SizedBox(width: 10),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -586,11 +965,19 @@ class _StudentPickerDialogueState extends State<StudentPickerDialogue> {
   BusRouteStop? stop;
   late BusRouteInfo route;
 
+  TextEditingController studentSearchKeyController = TextEditingController();
+  String studentSearchKey = "";
+
+  List<_SectionWiseStudentsBean> filteredSectionWiseStudentBeans = [];
+
   @override
   void initState() {
     super.initState();
     route = widget.busRouteInfoList.toList()[widget.routeIndex];
     stop = route.busRouteStopsList?[widget.stopIndex];
+    studentSearchKeyController = TextEditingController();
+    studentSearchKey = "";
+    filteredSectionWiseStudentBeans = widget.sectionWiseStudentBeans;
   }
 
   @override
@@ -602,8 +989,9 @@ class _StudentPickerDialogueState extends State<StudentPickerDialogue> {
         width: MediaQuery.of(widget.context).orientation == Orientation.landscape
             ? MediaQuery.of(widget.context).size.width - 400
             : MediaQuery.of(widget.context).size.width - 100,
-        child: ListView(
-          children: widget.sectionWiseStudentBeans
+        child: ListView(children: [
+          studentSearchKeyTextField(),
+          ...filteredSectionWiseStudentBeans
               .map((e) => Container(
                     margin: const EdgeInsets.fromLTRB(3, 10, 3, 10),
                     child: ClayContainer(
@@ -632,7 +1020,17 @@ class _StudentPickerDialogueState extends State<StudentPickerDialogue> {
                               ],
                             ),
                           ),
-                          for (StudentProfile eachStudent in e.students)
+                          for (StudentProfile eachStudent in e.students.where((eachStudent) {
+                            if (studentSearchKey.trim().isEmpty) return true;
+                            String studentNameKey = ((eachStudent.rollNumber == null ? "" : eachStudent.rollNumber! + ". ") +
+                                ((eachStudent.studentFirstName == null ? "" : (eachStudent.studentFirstName ?? "") + " ") +
+                                        (eachStudent.studentMiddleName == null ? "" : (eachStudent.studentMiddleName ?? "") + " ") +
+                                        (eachStudent.studentLastName == null ? "" : (eachStudent.studentLastName ?? "") + " ") +
+                                        (eachStudent.sectionName == null ? "" : (eachStudent.sectionName ?? "") + " "))
+                                    .trim()
+                                    .toLowerCase());
+                            return studentNameKey.contains(studentSearchKey.trim().toLowerCase());
+                          }))
                             Container(
                               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                               child: CheckboxListTile(
@@ -669,9 +1067,13 @@ class _StudentPickerDialogueState extends State<StudentPickerDialogue> {
                                     Expanded(
                                       child: Text(
                                         (eachStudent.rollNumber == null ? "" : eachStudent.rollNumber! + ". ") +
-                                            ((eachStudent.studentFirstName == null ? "" : (eachStudent.studentFirstName ?? "") + " ") +
-                                                    (eachStudent.studentMiddleName == null ? "" : (eachStudent.studentMiddleName ?? "") + " ") +
-                                                    (eachStudent.studentLastName == null ? "" : (eachStudent.studentLastName ?? "") + " "))
+                                            ((eachStudent.studentFirstName == null ? "" : (eachStudent.studentFirstName ?? "").capitalize() + " ") +
+                                                    (eachStudent.studentMiddleName == null
+                                                        ? ""
+                                                        : (eachStudent.studentMiddleName ?? "").capitalize() + " ") +
+                                                    (eachStudent.studentLastName == null
+                                                        ? ""
+                                                        : (eachStudent.studentLastName ?? "").capitalize() + " "))
                                                 .trim(),
                                       ),
                                     ),
@@ -688,7 +1090,7 @@ class _StudentPickerDialogueState extends State<StudentPickerDialogue> {
                     ),
                   ))
               .toList(),
-        ),
+        ]),
       ),
       actions: [
         Container(
@@ -787,6 +1189,74 @@ class _StudentPickerDialogueState extends State<StudentPickerDialogue> {
         sectionId: eachStudent.sectionId,
         sectionName: eachStudent.sectionName,
         agent: widget.adminProfile.userId,
+      ),
+    );
+  }
+
+  Widget studentSearchKeyTextField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.7,
+        height: 50,
+        child: InputDecorator(
+          isFocused: true,
+          decoration: const InputDecoration(
+            contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: Colors.blue),
+            ),
+            label: Text(
+              "Student Name",
+              style: TextStyle(color: Colors.blue),
+            ),
+          ),
+          child: TextField(
+            enabled: true,
+            autofocus: true,
+            onTap: () {
+              studentSearchKeyController.selection = TextSelection(
+                baseOffset: 0,
+                extentOffset: studentSearchKeyController.text.length,
+              );
+            },
+            onChanged: (String e) {
+              setState(() {
+                studentSearchKey = e;
+                filteredSectionWiseStudentBeans = widget.sectionWiseStudentBeans
+                    .where((eachSectionWiseStudentsList) => eachSectionWiseStudentsList.students.map((eachStudent) {
+                          if (studentSearchKey.trim().isEmpty) return true;
+                          String studentNameKey = ((eachStudent.rollNumber == null ? "" : eachStudent.rollNumber! + ". ") +
+                              ((eachStudent.studentFirstName == null ? "" : (eachStudent.studentFirstName ?? "") + " ") +
+                                      (eachStudent.studentMiddleName == null ? "" : (eachStudent.studentMiddleName ?? "") + " ") +
+                                      (eachStudent.studentLastName == null ? "" : (eachStudent.studentLastName ?? "") + " ") +
+                                      (eachStudent.sectionName == null ? "" : (eachStudent.sectionName ?? "") + " "))
+                                  .trim()
+                                  .toLowerCase());
+                          return studentNameKey.contains(studentSearchKey.trim().toLowerCase());
+                        }).contains(true))
+                    .toList();
+              });
+            },
+            controller: studentSearchKeyController,
+            keyboardType: TextInputType.text,
+            maxLines: 1,
+            textAlignVertical: TextAlignVertical.center,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              hintText: "Student Name",
+            ),
+            textAlign: TextAlign.left,
+          ),
+        ),
       ),
     );
   }
