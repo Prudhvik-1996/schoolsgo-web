@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 // import 'package:provider/provider.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
@@ -30,6 +31,7 @@ import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_boar
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
+import 'package:schoolsgo_web/src/school_management/school_management_options_screen.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -356,6 +358,19 @@ class _MyAppState extends State<MyApp> {
                 var adminProfile = routeSettings.arguments as AdminProfile;
                 return LogbookScreen(
                   teacherProfile: null,
+                  adminProfile: adminProfile,
+                );
+              } else {
+                return const E404NotFoundScreen();
+              }
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case SchoolManagementOptionsScreen.routeName:
+            try {
+              if (routeSettings.arguments is AdminProfile) {
+                var adminProfile = routeSettings.arguments as AdminProfile;
+                return SchoolManagementOptionsScreen(
                   adminProfile: adminProfile,
                 );
               } else {

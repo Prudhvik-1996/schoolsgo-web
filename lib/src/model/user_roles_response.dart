@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 /// adminProfiles : [{"agent":0,"firstName":"string","lastName":"string","mailId":"string","middleName":"string","schoolId":0,"schoolName":"string","schoolPhotoUrl":"string","userId":0}]
 /// errorCode : "INTERNAL_SERVER_ERROR"
@@ -81,6 +82,7 @@ class UserDetails {
     this.status,
     this.userId,
   });
+
   UserDetails.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toString();
@@ -97,6 +99,7 @@ class UserDetails {
     status = json['status']?.toString();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -177,6 +180,7 @@ class TeacherProfile {
     this.franchiseId,
     this.franchiseName,
   });
+
   TeacherProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toString();
@@ -197,6 +201,7 @@ class TeacherProfile {
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -260,6 +265,7 @@ class StudentProfile {
   String? gaurdianMailId;
   String? gaurdianMiddleName;
   String? gaurdianMobile;
+  String? alternateMobile;
   String? motherName;
   String? rollNumber;
   int? schoolId;
@@ -280,37 +286,62 @@ class StudentProfile {
   int? franchiseId;
   String? franchiseName;
   bool? isAssignedToBusStop;
+  String? loginId;
   Map<String, dynamic> __origJson = {};
 
-  StudentProfile(
-      {this.balanceAmount,
-      this.fatherName,
-      this.gaurdianFirstName,
-      this.gaurdianId,
-      this.gaurdianLastName,
-      this.gaurdianMailId,
-      this.gaurdianMiddleName,
-      this.gaurdianMobile,
-      this.motherName,
-      this.rollNumber,
-      this.schoolId,
-      this.schoolName,
-      this.branchCode,
-      this.schoolPhotoUrl,
-      this.sectionDescription,
-      this.sectionId,
-      this.sectionName,
-      this.studentDob,
-      this.studentFirstName,
-      this.studentId,
-      this.studentLastName,
-      this.studentMailId,
-      this.studentMiddleName,
-      this.studentMobile,
-      this.studentPhotoUrl,
-      this.franchiseId,
-      this.franchiseName,
-      this.isAssignedToBusStop});
+  TextEditingController rollNumberController = TextEditingController();
+  TextEditingController studentNameController = TextEditingController();
+  TextEditingController gaurdianNameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController alternatePhoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  StudentProfile({
+    this.balanceAmount,
+    this.fatherName,
+    this.gaurdianFirstName,
+    this.gaurdianId,
+    this.gaurdianLastName,
+    this.gaurdianMailId,
+    this.gaurdianMiddleName,
+    this.gaurdianMobile,
+    this.alternateMobile,
+    this.motherName,
+    this.rollNumber,
+    this.schoolId,
+    this.schoolName,
+    this.branchCode,
+    this.schoolPhotoUrl,
+    this.sectionDescription,
+    this.sectionId,
+    this.sectionName,
+    this.studentDob,
+    this.studentFirstName,
+    this.studentId,
+    this.studentLastName,
+    this.studentMailId,
+    this.studentMiddleName,
+    this.studentMobile,
+    this.studentPhotoUrl,
+    this.franchiseId,
+    this.franchiseName,
+    this.isAssignedToBusStop,
+    this.loginId,
+  }) {
+    rollNumberController = TextEditingController(text: rollNumber ?? "");
+    studentNameController = TextEditingController(
+        text: ((studentFirstName == null ? "" : (studentFirstName ?? "").capitalize() + " ") +
+            (studentMiddleName == null ? "" : (studentMiddleName ?? "").capitalize() + " ") +
+            (studentLastName == null ? "" : (studentLastName ?? "").capitalize() + " ")));
+    gaurdianNameController = TextEditingController(
+        text: ((gaurdianFirstName == null ? "" : (gaurdianFirstName ?? "").capitalize() + " ") +
+            (gaurdianMiddleName == null ? "" : (gaurdianMiddleName ?? "").capitalize() + " ") +
+            (gaurdianLastName == null ? "" : (gaurdianLastName ?? "").capitalize() + " ")));
+    phoneController = TextEditingController(text: gaurdianMobile ?? "");
+    alternatePhoneController = TextEditingController(text: alternateMobile ?? "");
+    emailController = TextEditingController(text: gaurdianMailId ?? "");
+  }
+
   StudentProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     balanceAmount = json['balanceAmount']?.toInt();
@@ -321,6 +352,7 @@ class StudentProfile {
     gaurdianMailId = json['gaurdianMailId']?.toString();
     gaurdianMiddleName = json['gaurdianMiddleName']?.toString();
     gaurdianMobile = json['gaurdianMobile']?.toString();
+    alternateMobile = json['alternateMobile']?.toString();
     motherName = json['motherName']?.toString();
     rollNumber = json['rollNumber']?.toString();
     schoolId = json['schoolId']?.toInt();
@@ -341,7 +373,21 @@ class StudentProfile {
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
     isAssignedToBusStop = json['assignedToBusStop']?.toString() == "true";
+    loginId = json['loginId']?.toString();
+    rollNumberController = TextEditingController(text: rollNumber ?? "");
+    studentNameController = TextEditingController(
+        text: ((studentFirstName == null ? "" : (studentFirstName ?? "").capitalize() + " ") +
+            (studentMiddleName == null ? "" : (studentMiddleName ?? "").capitalize() + " ") +
+            (studentLastName == null ? "" : (studentLastName ?? "").capitalize() + " ")));
+    gaurdianNameController = TextEditingController(
+        text: ((gaurdianFirstName == null ? "" : (gaurdianFirstName ?? "").capitalize() + " ") +
+            (gaurdianMiddleName == null ? "" : (gaurdianMiddleName ?? "").capitalize() + " ") +
+            (gaurdianLastName == null ? "" : (gaurdianLastName ?? "").capitalize() + " ")));
+    phoneController = TextEditingController(text: gaurdianMobile ?? "");
+    alternatePhoneController = TextEditingController(text: alternateMobile ?? "");
+    emailController = TextEditingController(text: gaurdianMailId ?? "");
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['balanceAmount'] = balanceAmount;
@@ -352,6 +398,7 @@ class StudentProfile {
     data['gaurdianMailId'] = gaurdianMailId;
     data['gaurdianMiddleName'] = gaurdianMiddleName;
     data['gaurdianMobile'] = gaurdianMobile;
+    data['alternateMobile'] = alternateMobile;
     data['motherName'] = motherName;
     data['rollNumber'] = rollNumber;
     data['schoolId'] = schoolId;
@@ -372,6 +419,7 @@ class StudentProfile {
     data['franchiseId'] = franchiseId;
     data['franchiseName'] = franchiseName;
     data['isAssignedToBusStop'] = isAssignedToBusStop;
+    data['loginId'] = loginId;
     return data;
   }
 
@@ -430,6 +478,7 @@ class OtherUserRoleProfile {
     this.userId,
     this.userName,
   });
+
   OtherUserRoleProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     mailId = json['mailId']?.toString();
@@ -442,6 +491,7 @@ class OtherUserRoleProfile {
     userId = json['userId']?.toInt();
     userName = json['userName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['mailId'] = mailId;
@@ -513,6 +563,7 @@ class MegaAdminProfile {
     this.userName,
     this.adminProfiles,
   });
+
   MegaAdminProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     detailedAddress = json['detailedAddress']?.toString();
@@ -531,6 +582,7 @@ class MegaAdminProfile {
     userId = json['userId']?.toInt();
     userName = json['userName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['detailedAddress'] = detailedAddress;
@@ -605,6 +657,7 @@ class AdminProfile {
     this.franchiseName,
     required this.isMegaAdmin,
   });
+
   AdminProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -621,6 +674,7 @@ class AdminProfile {
     userId = json['userId']?.toInt();
     adminPhotoUrl = json['adminPhotoUrl']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -779,6 +833,7 @@ class GetUserRolesDetailsResponse {
     this.teacherProfiles,
     this.userDetails,
   });
+
   GetUserRolesDetailsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['adminProfiles'] != null) {
@@ -827,6 +882,7 @@ class GetUserRolesDetailsResponse {
     }
     userDetails = (json['userDetails'] != null) ? UserDetails.fromJson(json['userDetails']) : null;
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (adminProfiles != null) {
@@ -900,12 +956,14 @@ class GetStudentProfileRequest {
     this.studentId,
     this.schoolId,
   });
+
   GetStudentProfileRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     sectionId = json['sectionId']?.toInt();
     studentId = json['studentId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['sectionId'] = sectionId;
@@ -969,6 +1027,7 @@ class GetStudentProfileResponse {
     this.responseStatus,
     this.studentProfiles,
   });
+
   GetStudentProfileResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -984,6 +1043,7 @@ class GetStudentProfileResponse {
       studentProfiles = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1103,6 +1163,7 @@ class CreateOrUpdateStudentProfileRequest {
     this.studentMobile,
     this.studentPhotoUrl,
   });
+
   CreateOrUpdateStudentProfileRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1131,6 +1192,7 @@ class CreateOrUpdateStudentProfileRequest {
     studentMobile = json['studentMobile']?.toString();
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1189,6 +1251,7 @@ class CreateOrUpdateStudentProfileResponse {
     this.responseStatus,
     this.studentId,
   });
+
   CreateOrUpdateStudentProfileResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1197,6 +1260,7 @@ class CreateOrUpdateStudentProfileResponse {
     responseStatus = json['responseStatus']?.toString();
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1279,6 +1343,7 @@ class CreateOrUpdateTeacherProfileRequest {
     this.teacherName,
     this.teacherPhotoUrl,
   });
+
   CreateOrUpdateTeacherProfileRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toString();
@@ -1297,6 +1362,7 @@ class CreateOrUpdateTeacherProfileRequest {
     teacherName = json['teacherName']?.toString();
     teacherPhotoUrl = json['teacherPhotoUrl']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1345,6 +1411,7 @@ class CreateOrUpdateTeacherProfileResponse {
     this.responseStatus,
     this.teacherId,
   });
+
   CreateOrUpdateTeacherProfileResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1353,6 +1420,7 @@ class CreateOrUpdateTeacherProfileResponse {
     responseStatus = json['responseStatus']?.toString();
     teacherId = json['teacherId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1420,6 +1488,7 @@ class CreateOrUpdateAdminProfileRequest {
     this.schoolPhotoUrl,
     this.userId,
   });
+
   CreateOrUpdateAdminProfileRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     adminPhotoUrl = json['adminPhotoUrl']?.toString();
@@ -1433,6 +1502,7 @@ class CreateOrUpdateAdminProfileRequest {
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['adminPhotoUrl'] = adminPhotoUrl;
@@ -1476,6 +1546,7 @@ class CreateOrUpdateAdminProfileResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateAdminProfileResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     adminId = json['adminId']?.toInt();
@@ -1484,6 +1555,7 @@ class CreateOrUpdateAdminProfileResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['adminId'] = adminId;
