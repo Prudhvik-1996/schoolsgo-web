@@ -2,12 +2,10 @@ import 'dart:html' as html;
 import 'dart:math';
 
 import 'package:clay_containers/clay_containers.dart';
-
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_switch/flutter_switch.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -19,6 +17,7 @@ import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_each_receipt_widget.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_stats_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
@@ -67,19 +66,9 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
   List<StudentFeeDetailsBean> filteredStudentFeeDetailsBeanList = [];
 
-  DateTime? startDate;
-  DateTime? endDate;
-  List<Section> selectedSection = [];
-  StatFilterType statFilterType = StatFilterType.daily;
-  TextEditingController nController = TextEditingController();
   List<int> selectedFeeTypes = [];
   List<int> selectedCustomFeeTypes = [];
-  int totalFeeCollected = 0;
-
   List<FeeType> feeTypes = [];
-
-  List<DateWiseTxnAmount> dateWiseTxnAmounts = [];
-  List<MonthWiseTxnAmount> monthWiseTxnAmounts = [];
 
   List<NewReceipt> newReceipts = [];
   late int latestReceiptNumberToBeAdded;
@@ -90,6 +79,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
   int offset = 0;
   int limit = 5;
   bool isSearchBarSelected = false;
+  bool isFilterPressed = false;
   final NumberPaginatorController paginationController = NumberPaginatorController();
 
   @override
@@ -307,24 +297,6 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       filteredStudentFeeDetailsBeanList = studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList();
     });
     populateTermTxnWiseComponents();
-    if (startDate != null) {
-      setState(() {
-        for (var eachStudentDetails in filteredStudentFeeDetailsBeanList) {
-          eachStudentDetails.studentFeeTransactionList = eachStudentDetails.studentFeeTransactionList
-              ?.where((e) => convertYYYYMMDDFormatToDateTime(e?.transactionDate).compareTo(startDate!) >= 0)
-              .toList();
-        }
-      });
-    }
-    if (endDate != null) {
-      setState(() {
-        for (var eachStudentDetails in filteredStudentFeeDetailsBeanList) {
-          eachStudentDetails.studentFeeTransactionList = eachStudentDetails.studentFeeTransactionList
-              ?.where((e) => convertYYYYMMDDFormatToDateTime(e?.transactionDate).compareTo(endDate!) <= 0)
-              .toList();
-        }
-      });
-    }
     setState(() {
       for (var eachStudentDetails in filteredStudentFeeDetailsBeanList) {
         eachStudentDetails.studentFeeTransactionList =
@@ -348,105 +320,6 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
         }).toList();
       }
     });
-    setState(() {
-      totalFeeCollected = 0;
-      filteredStudentFeeDetailsBeanList
-          .map((e) => e.studentFeeTransactionList ?? [])
-          .expand((i) => i)
-          .where((e) => e != null)
-          .map((e) => e!)
-          .map((e) => e.studentFeeChildTransactionList ?? [])
-          .expand((i) => i)
-          .where((e) => e != null)
-          .map((e) => e!)
-          .where((e) => selectedFeeTypes.contains(e.feeTypeId) || selectedCustomFeeTypes.contains(e.customFeeTypeId))
-          .map((e) => e.feePaidAmount ?? 0)
-          .forEach((e) {
-        totalFeeCollected += e;
-      });
-    });
-    setState(() {
-      dateWiseTxnAmounts = [];
-      List<DateTime> txnDates = filteredStudentFeeDetailsBeanList
-          .map((e) => e.studentFeeTransactionList ?? [])
-          .expand((i) => i)
-          .where((e) => e != null)
-          .map((e) => e!)
-          .where((e) => e.transactionDate != null)
-          .map((e) => e.transactionDate)
-          .map((e) => convertYYYYMMDDFormatToDateTime(e))
-          .toList();
-      txnDates.sorted((a, b) => a.compareTo(b));
-      DateTime leastDate = txnDates.firstOrNull ?? DateTime.now();
-      if (statFilterType == StatFilterType.lastNDays) {
-        for (DateTime eachDate =
-                int.tryParse(nController.text) == null ? leastDate : DateTime.now().subtract(Duration(days: int.parse(nController.text)));
-            eachDate.compareTo(DateTime.now()) <= 0;
-            eachDate = eachDate.add(const Duration(days: 1))) {
-          int dateWiseTxnAmount = 0;
-          filteredStudentFeeDetailsBeanList
-              .map((e) => e.studentFeeTransactionList ?? [])
-              .expand((i) => i)
-              .where((e) => e != null)
-              .map((e) => e!)
-              .where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(eachDate))
-              .forEach((eachStudentMasterTxnForDate) {
-            List<int?> eachChildTxnAmounts = (eachStudentMasterTxnForDate.studentFeeChildTransactionList ?? [])
-                .where((e) => e != null)
-                .map((e) => e!)
-                .where((e) => selectedFeeTypes.contains(e.feeTypeId) || selectedCustomFeeTypes.contains(e.customFeeTypeId))
-                .map((e) => e.feePaidAmount)
-                .toList();
-            for (int? eachChildTxnAmount in eachChildTxnAmounts) {
-              dateWiseTxnAmount += eachChildTxnAmount ?? 0;
-            }
-          });
-          dateWiseTxnAmounts.add(DateWiseTxnAmount(eachDate, dateWiseTxnAmount, context));
-        }
-      } else {
-        for (DateTime eachDate = leastDate; eachDate.compareTo(DateTime.now()) <= 0; eachDate = eachDate.add(const Duration(days: 1))) {
-          int dateWiseTxnAmount = 0;
-          filteredStudentFeeDetailsBeanList
-              .map((e) => e.studentFeeTransactionList ?? [])
-              .expand((i) => i)
-              .where((e) => e != null)
-              .map((e) => e!)
-              .where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(eachDate))
-              .forEach((eachStudentMasterTxnForDate) {
-            List<int?> eachChildTxnAmounts = (eachStudentMasterTxnForDate.studentFeeChildTransactionList ?? [])
-                .where((e) => e != null)
-                .map((e) => e!)
-                .where((e) => selectedFeeTypes.contains(e.feeTypeId) || selectedCustomFeeTypes.contains(e.customFeeTypeId))
-                .map((e) => e.feePaidAmount)
-                .toList();
-            for (int? eachChildTxnAmount in eachChildTxnAmounts) {
-              dateWiseTxnAmount += eachChildTxnAmount ?? 0;
-            }
-          });
-          dateWiseTxnAmounts.add(DateWiseTxnAmount(eachDate, dateWiseTxnAmount, context));
-        }
-      }
-    });
-    monthWiseTxnAmounts = [];
-    if (statFilterType == StatFilterType.monthly) {
-      for (DateWiseTxnAmount eachDateWiseTxn in dateWiseTxnAmounts) {
-        int month = eachDateWiseTxn.dateTime.month;
-        int year = eachDateWiseTxn.dateTime.year;
-        MonthWiseTxnAmount? monthWiseTxnAmount =
-            monthWiseTxnAmounts.where((eachMonthWiseBean) => eachMonthWiseBean.month == month && eachMonthWiseBean.year == year).firstOrNull;
-        if (monthWiseTxnAmount == null) {
-          monthWiseTxnAmount = MonthWiseTxnAmount(
-            month,
-            year,
-            eachDateWiseTxn.amount,
-            context,
-          );
-          monthWiseTxnAmounts.add(monthWiseTxnAmount);
-        } else {
-          monthWiseTxnAmount.amount += eachDateWiseTxn.amount;
-        }
-      }
-    }
     setState(() {
       _isLoading = false;
     });
@@ -1017,6 +890,26 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     return childTxnWidgets;
   }
 
+  Future<void> handleClick(String choice) async {
+    if (choice == "Go to date") {
+      await goToDateAction();
+    } else if (choice == "Term Wise") {
+      setState(() => _isTermWise = !_isTermWise);
+    } else if (choice == "Print") {
+      makePdf();
+    } else {
+      debugPrint("Clicked on $choice");
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AdminFeeReceiptsStatsScreen(
+          adminProfile: widget.adminProfile,
+          studentFeeDetailsBeanList: studentFeeDetailsBeans,
+          feeTypes: feeTypes,
+          studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+        );
+      }));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1030,22 +923,25 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                     .isEmpty
             ? []
             : [
-                pdfInBytes == null
+                pdfInBytes != null
                     ? IconButton(
-                        onPressed: () {
-                          makePdf();
-                        },
-                        icon: const Icon(Icons.print),
-                      )
-                    : IconButton(
                         onPressed: () {
                           setState(() {
                             pdfInBytes = null;
                           });
                         },
                         icon: const Icon(Icons.close),
-                      ),
-                if (!isSearchBarSelected)
+                      )
+                    : Container(),
+                if (pdfInBytes == null)
+                  IconButton(
+                    icon: Icon(isFilterPressed ? Icons.clear : Icons.filter_alt_sharp),
+                    onPressed: () => setState(() {
+                      isFilterPressed = !isFilterPressed;
+                      isSearchBarSelected = false;
+                    }),
+                  ),
+                if (pdfInBytes == null && !isSearchBarSelected)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                     child: SearchWidget(
@@ -1069,6 +965,21 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                       isSearchButtonSelected: isSearchButtonSelected,
                     ),
                   ),
+                PopupMenuButton<String>(
+                  onSelected: (String choice) async => await handleClick(choice),
+                  itemBuilder: (BuildContext context) {
+                    return {"Go to date", "Term Wise", "Stats", "Print"}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: choice == "Term Wise"
+                            ? _isTermWise
+                                ? const Text("Disable Term Wise")
+                                : const Text("Enable Term Wise")
+                            : Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
               ],
       ),
       drawer: AdminAppDrawer(
@@ -1129,16 +1040,16 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       );
     if (filteredList.isEmpty) {
       return ListView(
-        children: [
+        children: const [
           // statsWidget(),
-          filtersWidget(),
-          const SizedBox(height: 20),
-          const Center(
+          // filtersWidget(),
+          SizedBox(height: 20),
+          Center(
             child: Text(
               "No Transactions to display",
             ),
           ),
-          const SizedBox(height: 150),
+          SizedBox(height: 150),
         ],
       );
     }
@@ -1154,7 +1065,8 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               // return statsWidget();
               return Container();
             } else if (index == 1) {
-              return filtersWidget();
+              // return filtersWidget();
+              return Container();
             } else if ((filteredList.sublist(offset).length > limit ? limit + 2 : filteredList.sublist(offset).length + 2) == index) {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(50, 5, 50, 150),
@@ -1234,13 +1146,36 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               ),
             ),
           ),
+        if (isFilterPressed)
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(8, 0, 0, 8),
+              height: MediaQuery.of(context).orientation == Orientation.portrait
+                  ? MediaQuery.of(context).size.height * 0.25
+                  : MediaQuery.of(context).size.height * 0.35,
+              width: MediaQuery.of(context).orientation == Orientation.portrait
+                  ? MediaQuery.of(context).size.width
+                  : MediaQuery.of(context).size.width * 0.35,
+              color: clayContainerColor(context),
+              child: ListView(
+                children: [
+                  feeTypeFilter(),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
 
   void isSearchButtonSelected(bool isSelected) {
-    print("1224 :: $isSelected");
-    setState(() => isSearchBarSelected = isSelected);
+    setState(() {
+      isSearchBarSelected = isSelected;
+      if (isSelected) {
+        isFilterPressed = false;
+      }
+    });
   }
 
   void stateUpdate() => setState(() {});
@@ -1432,140 +1367,57 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     );
   }
 
-  Widget filtersWidget() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(10, 20, 10, 10),
-      child: MediaQuery.of(context).orientation == Orientation.landscape
-          ? Row(
-              children: [
-                const SizedBox(width: 15),
-                Expanded(
-                  child: goToDateButton(),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: termWiseFilter(),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: perPageTransactionsWidget(),
-                ),
-                const SizedBox(width: 15),
-              ],
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: goToDateButton(),
-                    ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: ClayButton(
-                        color: clayContainerColor(context),
-                        borderRadius: 10,
-                        spread: 2,
-                        child: const Padding(
-                          padding: EdgeInsets.all(15),
-                          child: Center(
-                            child: Text("Section"),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 15),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                Row(
-                  children: [
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: termWiseFilter(),
-                    ),
-                    const SizedBox(width: 15),
-                    Expanded(
-                      child: perPageTransactionsWidget(),
-                    ),
-                    const SizedBox(width: 15),
-                  ],
-                ),
-              ],
-            ),
-    );
-  }
-
-  Widget goToDateButton() {
-    return GestureDetector(
-      onTap: () async {
-        if (filteredStudentFeeDetailsBeanList
-            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
-            .expand((i) => i)
-            .isEmpty) return;
-        Set<DateTime> transactionDatesSet = filteredStudentFeeDetailsBeanList
-            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
-            .expand((i) => i)
-            .toList()
-            .sorted(
-              (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
-                  ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                      ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                      : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
-                  : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
-            )
-            .map((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate))
-            .toSet();
-        DateTime? _newDate = await showDatePicker(
-          context: context,
-          initialDate: transactionDatesSet.firstOrNull ?? DateTime.now(),
-          firstDate: DateTime.now().subtract(const Duration(days: 365 * 10)),
-          lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
-          helpText: "Select a date",
-          initialEntryMode: DatePickerEntryMode.calendar,
-          selectableDayPredicate: (DateTime? eachDate) {
-            return transactionDatesSet.contains(eachDate);
-          },
-        );
-        if (_newDate == null) return;
-        int newIndex = filteredStudentFeeDetailsBeanList
-            .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
-            .expand((i) => i)
-            .toList()
-            .sorted(
-              (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
-                  ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
-                      ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
-                      : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
-                  : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
-            )
-            .indexWhere((e) => convertDateTimeToYYYYMMDDFormat(_newDate) == e.transactionDate);
-        setState(() {
-          offset = (newIndex / limit).floor() * limit;
-        });
-        _itemScrollController.scrollTo(
-          index: newIndex - offset + 2,
-          duration: const Duration(milliseconds: 1),
-          curve: Curves.linear,
-        );
-        paginationController.navigateToPage((offset / limit).floor());
+  Future<void> goToDateAction() async {
+    if (filteredStudentFeeDetailsBeanList
+        .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+        .expand((i) => i)
+        .isEmpty) return;
+    Set<DateTime> transactionDatesSet = filteredStudentFeeDetailsBeanList
+        .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+        .expand((i) => i)
+        .toList()
+        .sorted(
+          (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+              ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                  ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                  : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+              : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+        )
+        .map((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate))
+        .toSet();
+    DateTime? _newDate = await showDatePicker(
+      context: context,
+      initialDate: transactionDatesSet.firstOrNull ?? DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 365 * 10)),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
+      helpText: "Select a date",
+      initialEntryMode: DatePickerEntryMode.calendar,
+      selectableDayPredicate: (DateTime? eachDate) {
+        return transactionDatesSet.contains(eachDate);
       },
-      child: ClayButton(
-        color: clayContainerColor(context),
-        borderRadius: 10,
-        spread: 2,
-        child: const Padding(
-          padding: EdgeInsets.all(15),
-          child: Center(
-            child: Icon(Icons.calendar_month),
-          ),
-        ),
-      ),
     );
+    if (_newDate == null) return;
+    int newIndex = filteredStudentFeeDetailsBeanList
+        .map((e) => (e.studentFeeTransactionList ?? []).where((e) => e != null).map((e) => e!))
+        .expand((i) => i)
+        .toList()
+        .sorted(
+          (b, a) => convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)) == 0
+              ? (a.receiptId ?? 0) == 0 || (b.receiptId ?? 0) == 0 || (a.receiptId ?? 0).compareTo(b.receiptId ?? 0) == 0
+                  ? (a.masterTransactionId ?? 0).compareTo((b.masterTransactionId ?? 0))
+                  : (a.receiptId ?? 0).compareTo(b.receiptId ?? 0)
+              : convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate)),
+        )
+        .indexWhere((e) => convertDateTimeToYYYYMMDDFormat(_newDate) == e.transactionDate);
+    setState(() {
+      offset = (newIndex / limit).floor() * limit;
+    });
+    _itemScrollController.scrollTo(
+      index: newIndex - offset + 2,
+      duration: const Duration(milliseconds: 1),
+      curve: Curves.linear,
+    );
+    paginationController.navigateToPage((offset / limit).floor());
   }
 
   Widget perPageTransactionsWidget() {
@@ -1638,272 +1490,6 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     );
   }
 
-  ClayContainer termWiseFilter() {
-    return ClayContainer(
-      color: clayContainerColor(context),
-      borderRadius: 10,
-      spread: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(width: 10),
-            FlutterSwitch(
-              value: _isTermWise,
-              onToggle: (bool value) {
-                setState(() {
-                  _isTermWise = !_isTermWise;
-                });
-              },
-              activeText: "",
-              inactiveText: "",
-              showOnOff: true,
-              width: 30,
-              height: 15,
-              toggleSize: 15,
-            ),
-            const SizedBox(width: 10),
-            const Expanded(child: Text("Term Wise")),
-            const SizedBox(width: 2),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget statsWidget() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-      child: ClayContainer(
-        color: clayContainerColor(context),
-        borderRadius: 10,
-        spread: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              const Center(
-                child: Text(
-                  "Stats",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              // if (MediaQuery.of(context).orientation == Orientation.landscape)
-              //   Row(
-              //     children: [
-              //       const SizedBox(
-              //         width: 10,
-              //       ),
-              //       Expanded(
-              //         child: dailyStatRadioButton(),
-              //       ),
-              //       const SizedBox(
-              //         width: 10,
-              //       ),
-              //       Expanded(
-              //         child: monthlyStatRadioButton(),
-              //       ),
-              //       const SizedBox(
-              //         width: 10,
-              //       ),
-              //       Expanded(
-              //         child: lastNDatesStatRadioButton(),
-              //       ),
-              //     ],
-              //   ),
-              const SizedBox(height: 10),
-              if (MediaQuery.of(context).orientation == Orientation.landscape)
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          dailyStatRadioButton(),
-                          const SizedBox(height: 10),
-                          monthlyStatRadioButton(),
-                          const SizedBox(height: 10),
-                          lastNDatesStatRadioButton(),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: feeTypeFilter(),
-                    ),
-                  ],
-                ),
-              if (MediaQuery.of(context).orientation == Orientation.portrait)
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    dailyStatRadioButton(),
-                    const SizedBox(height: 10),
-                    monthlyStatRadioButton(),
-                    const SizedBox(height: 10),
-                    lastNDatesStatRadioButton(),
-                    const SizedBox(height: 10),
-                    feeTypeFilter(),
-                    const SizedBox(height: 10),
-                    busFeeTypeFilter(),
-                  ],
-                ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 75,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: statFilterType == StatFilterType.monthly
-                      ? monthWiseTxnAmounts.map((e) => e.widget()).toList()
-                      : dateWiseTxnAmounts.map((e) => e.widget()).toList(),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(children: [
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Text("Total Fee Collected = "),
-                ),
-                const SizedBox(width: 10),
-                Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((totalFeeCollected) / 100.0)} /-"),
-                const SizedBox(width: 10),
-              ]),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  ListTile lastNDatesStatRadioButton() {
-    return ListTile(
-      leading: Radio(
-        value: StatFilterType.lastNDays,
-        groupValue: statFilterType,
-        onChanged: (StatFilterType? value) {
-          if (value != null) {
-            setState(() {
-              statFilterType = value;
-              startDate = null;
-              endDate = null;
-            });
-            _filterData();
-          }
-        },
-      ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Text("Last"),
-          const SizedBox(width: 5),
-          SizedBox(
-            width: 50,
-            height: 25,
-            child: TextField(
-              controller: nController,
-              keyboardType: TextInputType.number,
-              maxLines: 1,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 20),
-              ),
-              textAlign: TextAlign.center,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r"[\d.]")),
-                TextInputFormatter.withFunction((oldValue, newValue) {
-                  try {
-                    if (newValue.text == "") return newValue;
-                    final text = newValue.text;
-                    if (text.isNotEmpty) int.parse(text);
-                    if (double.parse(text) > 0) {
-                      return newValue;
-                    } else {
-                      return oldValue;
-                    }
-                  } catch (e) {
-                    return oldValue;
-                  }
-                }),
-              ],
-              autofocus: false,
-              enabled: statFilterType == StatFilterType.lastNDays,
-              onChanged: (String e) {
-                int? n = int.tryParse(e);
-                if (n != null) {
-                  DateTime now = DateTime.now();
-                  setState(() {
-                    endDate = now;
-                    startDate = now.subtract(Duration(days: n));
-                  });
-                } else {
-                  setState(() {
-                    endDate = null;
-                    startDate = null;
-                  });
-                }
-                _filterData();
-              },
-            ),
-          ),
-          const SizedBox(width: 5),
-          const Text("days"),
-        ],
-      ),
-    );
-  }
-
-  ListTile monthlyStatRadioButton() {
-    return ListTile(
-      leading: Radio(
-        value: StatFilterType.monthly,
-        groupValue: statFilterType,
-        onChanged: (StatFilterType? value) {
-          if (value != null) {
-            setState(() {
-              statFilterType = value;
-              startDate = null;
-              endDate = null;
-              nController.text = "";
-            });
-            _filterData();
-          }
-        },
-      ),
-      title: const Text("Monthly"),
-    );
-  }
-
-  ListTile dailyStatRadioButton() {
-    return ListTile(
-      leading: Radio(
-        value: StatFilterType.daily,
-        groupValue: statFilterType,
-        onChanged: (StatFilterType? value) {
-          if (value != null) {
-            setState(() {
-              statFilterType = value;
-              startDate = null;
-              endDate = null;
-              nController.text = "";
-            });
-            _filterData();
-          }
-        },
-      ),
-      title: const Text("Daily"),
-    );
-  }
-
   Widget feeTypeFilter() {
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
@@ -1921,116 +1507,96 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
 
   Widget busFeeTypeFilter() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Checkbox(
-                    onChanged: (bool? value) {
-                      if (value == null) return;
-                      if (value) {
-                        setState(() {
-                          selectedFeeTypes.add(-1);
-                        });
-                        _filterData();
-                      } else {
-                        setState(() {
-                          selectedFeeTypes.remove(-1);
-                        });
-                        _filterData();
-                      }
-                    },
-                    value: selectedFeeTypes.contains(-1),
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Checkbox(
+                onChanged: (bool? value) {
+                  if (value == null) return;
+                  if (value) {
+                    setState(() {
+                      selectedFeeTypes.add(-1);
+                    });
+                    _filterData();
+                  } else {
+                    setState(() {
+                      selectedFeeTypes.remove(-1);
+                    });
+                    _filterData();
+                  }
+                },
+                value: selectedFeeTypes.contains(-1),
+              ),
+              const Expanded(
+                child: Text(
+                  "Bus Fee",
+                  style: TextStyle(
+                    fontSize: 18,
                   ),
-                  const Expanded(
-                    child: Text(
-                      "Bus Fee",
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget feeTypeWidget(FeeType feeType) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (feeType.customFeeTypesList?.map((e) => e?.customFeeTypeId).where((e) => e != null).isEmpty ?? false)
-                        Checkbox(
-                          onChanged: (bool? value) {
-                            if (value == null) return;
-                            if (value) {
-                              setState(() {
-                                selectedFeeTypes.add(feeType.feeTypeId!);
-                              });
-                              _filterData();
-                            } else {
-                              setState(() {
-                                selectedFeeTypes.remove(feeType.feeTypeId!);
-                              });
-                              _filterData();
-                            }
-                          },
-                          value: selectedFeeTypes.contains(feeType.feeTypeId!),
-                        ),
-                      Expanded(
-                        child: Text(
-                          (feeType.feeType ?? "-").capitalize(),
-                          style: const TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if ((feeType.customFeeTypesList ?? []).isNotEmpty)
-                    const SizedBox(
-                      height: 5,
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (feeType.customFeeTypesList?.map((e) => e?.customFeeTypeId).where((e) => e != null).isEmpty ?? false)
+                    Checkbox(
+                      onChanged: (bool? value) {
+                        if (value == null) return;
+                        if (value) {
+                          setState(() {
+                            selectedFeeTypes.add(feeType.feeTypeId!);
+                          });
+                          _filterData();
+                        } else {
+                          setState(() {
+                            selectedFeeTypes.remove(feeType.feeTypeId!);
+                          });
+                          _filterData();
+                        }
+                      },
+                      value: selectedFeeTypes.contains(feeType.feeTypeId!),
                     ),
-                ] +
-                (feeType.customFeeTypesList ?? [])
-                    .map((e) => e!)
-                    .where((e) => (e.customFeeTypeStatus != null && e.customFeeTypeStatus == "active"))
-                    .map((e) => customFeeTypeWidget(feeType, (feeType.customFeeTypesList ?? []).indexOf(e)))
-                    .toList(),
-          ),
-        ),
+                  Expanded(
+                    child: Text(
+                      (feeType.feeType ?? "-").capitalize(),
+                      style: const TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if ((feeType.customFeeTypesList ?? []).isNotEmpty)
+                const SizedBox(
+                  height: 5,
+                ),
+            ] +
+            (feeType.customFeeTypesList ?? [])
+                .map((e) => e!)
+                .where((e) => (e.customFeeTypeStatus != null && e.customFeeTypeStatus == "active"))
+                .map((e) => customFeeTypeWidget(feeType, (feeType.customFeeTypesList ?? []).indexOf(e)))
+                .toList(),
       ),
     );
   }

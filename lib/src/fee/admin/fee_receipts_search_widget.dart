@@ -1,5 +1,8 @@
+import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 
 class SearchWidget extends StatefulWidget {
   const SearchWidget({
@@ -170,11 +173,32 @@ class _SearchWidgetState extends State<SearchWidget> {
       onTap: () {
         searchNext(_searchKeyController.text);
       },
-      child: const Padding(
-        padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-        child: Icon(
-          Icons.search,
-          size: 15,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+        child: ClayButton(
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 10,
+          depth: 40,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                SizedBox(width: 5),
+                Icon(
+                  Icons.search,
+                  size: 15,
+                ),
+                SizedBox(width: 5),
+                Text("Search", style: TextStyle(fontSize: 12),),
+                SizedBox(width: 5),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -59,38 +59,38 @@ class DateWiseTxnAmount {
     return """_DateWiseTxnAmount {"dateTime": "${convertDateTimeToYYYYMMDDFormat(dateTime)}", "amount": ${doubleToStringAsFixedForINR(amount / 100.0)}}""";
   }
 
-  Widget widget() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: ClayContainer(
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          depth: 40,
-          emboss: true,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: RichText(
-                text: TextSpan(
-                  text: "${convertDateTimeToDDMMYYYYFormat(dateTime)}\n",
-                  children: [
-                    TextSpan(
-                      text: "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount / 100.0)} /-",
-                      style: const TextStyle(
-                        color: Colors.green,
-                      ),
+  Widget widget({
+    double? height,
+    double? width,
+  }) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        emboss: true,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: RichText(
+              text: TextSpan(
+                text: "${convertDateTimeToDDMMYYYYFormat(dateTime)}\n",
+                children: [
+                  TextSpan(
+                    text: "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount / 100.0)} /-",
+                    style: const TextStyle(
+                      color: Colors.green,
                     ),
-                  ],
-                  style: TextStyle(
-                    color: clayContainerTextColor(context),
                   ),
+                ],
+                style: TextStyle(
+                  color: clayContainerTextColor(context),
                 ),
-                textAlign: TextAlign.center,
               ),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
@@ -112,38 +112,35 @@ class MonthWiseTxnAmount {
     return '_MonthWiseTxnAmount{month: $month, year: $year, amount: $amount, context: $context}';
   }
 
-  Widget widget() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: ClayContainer(
-          surfaceColor: clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          depth: 40,
-          emboss: true,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: RichText(
-                text: TextSpan(
-                  text: "${MONTHS[month - 1].toLowerCase().capitalize()} - $year\n",
-                  children: [
-                    TextSpan(
-                      text: "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount / 100.0)} /-",
-                      style: const TextStyle(
-                        color: Colors.green,
-                      ),
+  Widget widget({double? height, double? width}) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        emboss: true,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: RichText(
+              text: TextSpan(
+                text: "${MONTHS[month - 1].toLowerCase().capitalize()} - $year\n",
+                children: [
+                  TextSpan(
+                    text: "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount / 100.0)} /-",
+                    style: const TextStyle(
+                      color: Colors.green,
                     ),
-                  ],
-                  style: TextStyle(
-                    color: clayContainerTextColor(context),
                   ),
+                ],
+                style: TextStyle(
+                  color: clayContainerTextColor(context),
                 ),
-                textAlign: TextAlign.center,
               ),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
