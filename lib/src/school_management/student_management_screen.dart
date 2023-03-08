@@ -29,6 +29,8 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
   int? selectedStudentId;
   int? editingStudentId;
 
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -220,9 +222,18 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
     setState(() => editingStudentId = studentId);
   }
 
+  void updateStudentProfile(int? studentId, StudentProfile updatedStudentProfile) {
+    if (studentId == null) return;
+    setState(() {
+      studentProfiles.removeWhere((eachStudent) => eachStudent.studentId == studentId);
+      studentProfiles.add(updatedStudentProfile);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text("Student Management"),
       ),
@@ -245,13 +256,14 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                               : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
                         ))
                       .map((e) => StudentCardWidget(
-                            studentProfile: e,
-                            adminProfile: widget.adminProfile,
-                            isStudentSelected: selectedStudentId == e.studentId,
-                            onStudentSelected: onStudentSelected,
-                            isEditMode: editingStudentId == e.studentId,
-                            onEditSelected: onEditSelected,
-                          ))
+                          scaffoldKey: scaffoldKey,
+                          studentProfile: e,
+                          adminProfile: widget.adminProfile,
+                          isStudentSelected: selectedStudentId == e.studentId,
+                          onStudentSelected: onStudentSelected,
+                          isEditMode: editingStudentId == e.studentId,
+                          onEditSelected: onEditSelected,
+                          updateStudentProfile: updateStudentProfile))
                       .toList(),
               ],
             ),

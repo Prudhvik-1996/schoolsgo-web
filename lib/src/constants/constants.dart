@@ -52,6 +52,7 @@ const String GET_SUBJECTS = "/commons/getSubjects";
 const String GET_TEACHERS = "/commons/getTeachers";
 const String GET_STUDENT_PROFILE = "/students/getStudentProfile";
 const String CREATE_OR_UPDATE_STUDENT_PROFILE = "/students/createOrUpdateStudentProfile";
+const String UPDATE_STUDENT_PROFILE = "/students/updateStudentBio";
 const String CREATE_OR_UPDATE_TEACHER_PROFILE = "/teachers/createOrUpdateTeacherProfile";
 const String CREATE_OR_UPDATE_ADMIN_PROFILE = "/users/createOrUpdateAdminProfile";
 

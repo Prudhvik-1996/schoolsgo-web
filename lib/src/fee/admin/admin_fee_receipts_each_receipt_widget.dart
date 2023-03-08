@@ -66,94 +66,97 @@ class _AdminFeeReceiptsEachReceiptWidgetState extends State<AdminFeeReceiptsEach
       margin: MediaQuery.of(context).orientation == Orientation.landscape
           ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
           : const EdgeInsets.all(10),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-          child: Stack(
-            children: [
-              ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(child: receiptNumberWidget()),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      receiptDateWidget(),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          editReceiptButton(),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          deleteReceiptButton(),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: AbsorbPointer(
+        absorbing: _isLoading,
+        child: ClayContainer(
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 10,
+          depth: 40,
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+            child: Stack(
+              children: [
+                ListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: studentDetailsWidget(),
-                        ),
+                        Expanded(child: receiptNumberWidget()),
                         const SizedBox(
                           width: 10,
                         ),
-                        Flexible(
-                          flex: 1,
-                          child: sectionDetailsWidget(),
+                        receiptDateWidget(),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            editReceiptButton(),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            deleteReceiptButton(),
+                          ],
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ...childTransactionsWidget(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    child: receiptTotalWidget(),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ],
-              ),
-              if (_isLoading)
-                Align(
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    'assets/images/gear-loader.gif',
-                    fit: BoxFit.scaleDown,
-                  ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: studentDetailsWidget(),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Flexible(
+                            flex: 1,
+                            child: sectionDetailsWidget(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    ...childTransactionsWidget(),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      child: receiptTotalWidget(),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
                 ),
-            ],
+                if (_isLoading)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      'assets/images/gear-loader.gif',
+                      fit: BoxFit.scaleDown,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

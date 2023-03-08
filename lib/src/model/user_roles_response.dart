@@ -287,6 +287,7 @@ class StudentProfile {
   String? franchiseName;
   bool? isAssignedToBusStop;
   String? loginId;
+  int? agentId;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController rollNumberController = TextEditingController();
@@ -327,6 +328,7 @@ class StudentProfile {
     this.franchiseName,
     this.isAssignedToBusStop,
     this.loginId,
+    this.agentId,
   }) {
     rollNumberController = TextEditingController(text: rollNumber ?? "");
     studentNameController = TextEditingController(
@@ -374,6 +376,7 @@ class StudentProfile {
     franchiseName = json['franchiseName']?.toString();
     isAssignedToBusStop = json['assignedToBusStop']?.toString() == "true";
     loginId = json['loginId']?.toString();
+    agentId = json['agentId']?.toInt();
     rollNumberController = TextEditingController(text: rollNumber ?? "");
     studentNameController = TextEditingController(
         text: ((studentFirstName == null ? "" : (studentFirstName ?? "").capitalize() + " ") +
@@ -420,6 +423,7 @@ class StudentProfile {
     data['franchiseName'] = franchiseName;
     data['isAssignedToBusStop'] = isAssignedToBusStop;
     data['loginId'] = loginId;
+    data['agentId'] = agentId;
     return data;
   }
 
@@ -1286,6 +1290,20 @@ Future<CreateOrUpdateStudentProfileResponse> createOrUpdateStudentProfile(Create
 
   debugPrint("createStudentProfileResponse ${createStudentProfileResponse.toJson()}");
   return createStudentProfileResponse;
+}
+
+Future<CreateOrUpdateStudentProfileResponse> updateStudentProfile(StudentProfile studentProfile) async {
+  debugPrint("Raising request to updateStudentProfile with request ${jsonEncode(studentProfile.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + UPDATE_STUDENT_PROFILE;
+
+  CreateOrUpdateStudentProfileResponse updateStudentProfileResponse = await HttpUtils.post(
+    _url,
+    studentProfile.toJson(),
+    CreateOrUpdateStudentProfileResponse.fromJson,
+  );
+
+  debugPrint("updateStudentProfileResponse ${updateStudentProfileResponse.toJson()}");
+  return updateStudentProfileResponse;
 }
 
 class CreateOrUpdateTeacherProfileRequest {
