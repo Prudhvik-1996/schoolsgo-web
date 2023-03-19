@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class StudentCardWidget extends StatefulWidget {
@@ -17,6 +16,7 @@ class StudentCardWidget extends StatefulWidget {
     required this.isEditMode,
     required this.onEditSelected,
     required this.updateStudentProfile,
+    required this.allowExpansion,
   }) : super(key: key);
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -31,6 +31,8 @@ class StudentCardWidget extends StatefulWidget {
   final Function onEditSelected;
 
   final Function updateStudentProfile;
+
+  final bool allowExpansion;
 
   @override
   State<StudentCardWidget> createState() => _StudentCardWidgetState();
@@ -64,6 +66,34 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
       return;
     }
 
+    if (widget.studentProfile.studentNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Student Name is mandatory field.."),
+        ),
+      );
+    }
+
+    if ((widget.studentProfile.emailController.text.trim().isNotEmpty ||
+            widget.studentProfile.phoneController.text.trim().isNotEmpty ||
+            widget.studentProfile.alternatePhoneController.text.trim().isNotEmpty) &&
+        widget.studentProfile.gaurdianNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Parent's name is mandatory when other parent details are given.."),
+        ),
+      );
+      return;
+    }
+
+    if (widget.studentProfile.studentId != null) {
+      await updateStudentAlertDialog();
+    } else {
+      await createStudentAlertDialog();
+    }
+  }
+
+  Future<void> updateStudentAlertDialog() async {
     await showDialog(
       context: widget.scaffoldKey.currentContext!,
       builder: (BuildContext dialogueContext) {
@@ -115,6 +145,85 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                     widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
                     widget.updateStudentProfile(widget.studentProfile.studentId,
                         (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList().first);
+                  }
+                }
+              },
+            ),
+            TextButton(
+              child: const Text("No"),
+              onPressed: () async {
+                Navigator.pop(context);
+                widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> createStudentAlertDialog() async {
+    await showDialog(
+      context: widget.scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: const Text('Are you sure you want to add the student?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () async {
+                Navigator.pop(context);
+                setState(() => _isLoading = true);
+                CreateOrUpdateStudentProfileRequest createOrUpdateStudentProfileRequest = CreateOrUpdateStudentProfileRequest(
+                  studentId: null,
+                  sectionId: widget.studentProfile.sectionId,
+                  schoolId: widget.studentProfile.schoolId,
+                  agent: widget.adminProfile.userId,
+                  gaurdianFirstName: widget.studentProfile.gaurdianNameController.text.trim().isEmpty
+                      ? null
+                      : widget.studentProfile.gaurdianNameController.text.trim(),
+                  rollNumber:
+                      widget.studentProfile.rollNumberController.text.trim().isEmpty ? null : widget.studentProfile.rollNumberController.text.trim(),
+                  studentFirstName: widget.studentProfile.studentNameController.text.trim(),
+                  gaurdianMobile:
+                      widget.studentProfile.phoneController.text.trim().isEmpty ? null : widget.studentProfile.phoneController.text.trim(),
+                  alternateMobile: widget.studentProfile.alternatePhoneController.text.trim().isEmpty
+                      ? null
+                      : widget.studentProfile.alternatePhoneController.text.trim(),
+                  gaurdianMailId:
+                      widget.studentProfile.emailController.text.trim().isEmpty ? null : widget.studentProfile.emailController.text.trim(),
+                );
+                CreateOrUpdateStudentProfileResponse createOrUpdateStudentProfileResponse =
+                    await createOrUpdateStudentProfile(createOrUpdateStudentProfileRequest);
+                if (createOrUpdateStudentProfileResponse.httpStatus != "OK" || createOrUpdateStudentProfileResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                  setState(() => _isLoading = false);
+                  widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
+                } else {
+                  GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
+                    schoolId: widget.adminProfile.schoolId,
+                    studentId: createOrUpdateStudentProfileResponse.studentId,
+                  ));
+                  if (getStudentProfileResponse.httpStatus != "OK" ||
+                      getStudentProfileResponse.responseStatus != "success" ||
+                      (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Something went wrong! Try again later.."),
+                      ),
+                    );
+                    setState(() => _isLoading = false);
+                    widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
+                  } else {
+                    setState(() => _isLoading = false);
+                    widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
+                    widget.updateStudentProfile(widget.studentProfile.studentId,
+                        (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList().first,
+                        addNew: true);
                   }
                 }
               },
@@ -260,8 +369,8 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                   const SizedBox(height: 10),
                   Text("Alternate Mobile: ${widget.studentProfile.alternateMobile ?? "-"}"),
                   const SizedBox(height: 10),
-                  Text("Login Id: ${widget.studentProfile.loginId ?? "-"}"),
-                  const SizedBox(height: 10),
+                  if (widget.studentProfile.studentId != null) Text("Login Id: ${widget.studentProfile.loginId ?? "-"}"),
+                  if (widget.studentProfile.studentId != null) const SizedBox(height: 10),
                 ],
               ),
             ),
@@ -317,6 +426,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                   ),
                 ),
                 child: TextField(
+                  maxLines: null,
                   controller: widget.studentProfile.studentNameController,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -328,29 +438,29 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
               ),
             ),
             const SizedBox(width: 10),
-            _isLoading ? const Center(
-              child: CircularProgressIndicator()
-            ) :  GestureDetector(
-              onTap: () => saveChanges(),
-              child: ClayButton(
-                depth: 15,
-                surfaceColor: clayContainerColor(context),
-                parentColor: clayContainerColor(context),
-                spread: 2,
-                borderRadius: 100,
-                child: SizedBox(
-                  height: 25,
-                  width: 25,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: widget.isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : GestureDetector(
+                    onTap: () => saveChanges(),
+                    child: ClayButton(
+                      depth: 15,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 2,
+                      borderRadius: 100,
+                      child: SizedBox(
+                        height: 25,
+                        width: 25,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: widget.isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
             const SizedBox(width: 10),
           ],
         ),
@@ -488,8 +598,10 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: "Mobile",
+                        counterText: "",
                       ),
-                      keyboardType: TextInputType.text,
+                      maxLength: 10,
+                      keyboardType: TextInputType.number,
                       autofocus: true,
                     ),
                   ),
@@ -516,8 +628,10 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: "Alternate Mobile",
+                        counterText: "",
                       ),
-                      keyboardType: TextInputType.text,
+                      maxLength: 10,
+                      keyboardType: TextInputType.number,
                       autofocus: true,
                     ),
                   ),
@@ -549,74 +663,82 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
   }
 
   Widget buildCompactCard() {
-    return GestureDetector(
-      onTap: () => widget.onStudentSelected(widget.studentProfile.studentId),
-      child: Center(
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(width: 10),
-              Text("${widget.studentProfile.rollNumber ?? " - "}."),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  ((widget.studentProfile.studentFirstName == null ? "" : (widget.studentProfile.studentFirstName ?? "").capitalize() + " ") +
-                      (widget.studentProfile.studentMiddleName == null ? "" : (widget.studentProfile.studentMiddleName ?? "").capitalize() + " ") +
-                      (widget.studentProfile.studentLastName == null ? "" : (widget.studentProfile.studentLastName ?? "").capitalize() + " ")),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: widget.studentProfile.studentPhotoUrl == null
-                        ? Image.asset(
-                            "assets/images/avatar.png",
-                            fit: BoxFit.contain,
-                          )
-                        : Image.network(
-                            widget.studentProfile.studentPhotoUrl!,
-                            fit: BoxFit.contain,
-                          ),
+    return AbsorbPointer(
+      absorbing: !widget.allowExpansion,
+      child: GestureDetector(
+        onTap: () {
+          if (widget.allowExpansion) {
+            widget.onStudentSelected(widget.studentProfile.studentId);
+          }
+        },
+        child: Center(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(width: 10),
+                if (widget.studentProfile.rollNumber != null) Text("${widget.studentProfile.rollNumber ?? " - "}."),
+                if (widget.studentProfile.rollNumber != null) const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    ((widget.studentProfile.studentFirstName == null ? "" : (widget.studentProfile.studentFirstName ?? "").capitalize() + " ") +
+                        (widget.studentProfile.studentMiddleName == null ? "" : (widget.studentProfile.studentMiddleName ?? "").capitalize() + " ") +
+                        (widget.studentProfile.studentLastName == null ? "" : (widget.studentProfile.studentLastName ?? "").capitalize() + " ")),
                   ),
-                  const SizedBox(height: 10),
-                  Text(widget.studentProfile.sectionName ?? "-"),
-                ],
-              ),
-              const SizedBox(width: 10),
-              GestureDetector(
-                onTap: () => widget.onStudentSelected(widget.studentProfile.studentId),
-                child: ClayButton(
-                  depth: 15,
-                  surfaceColor: clayContainerColor(context),
-                  parentColor: clayContainerColor(context),
-                  spread: 2,
-                  borderRadius: 100,
-                  child: const SizedBox(
-                    height: 25,
-                    width: 25,
-                    child: Padding(
-                      padding: EdgeInsets.all(4),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Icon(Icons.keyboard_arrow_down),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: widget.studentProfile.studentPhotoUrl == null
+                          ? Image.asset(
+                              "assets/images/avatar.png",
+                              fit: BoxFit.contain,
+                            )
+                          : Image.network(
+                              widget.studentProfile.studentPhotoUrl!,
+                              fit: BoxFit.contain,
+                            ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(widget.studentProfile.sectionName ?? "-"),
+                  ],
+                ),
+                const SizedBox(width: 10),
+                if (widget.allowExpansion)
+                  GestureDetector(
+                    onTap: () => widget.onStudentSelected(widget.studentProfile.studentId),
+                    child: ClayButton(
+                      depth: 15,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 2,
+                      borderRadius: 100,
+                      child: const SizedBox(
+                        height: 25,
+                        width: 25,
+                        child: Padding(
+                          padding: EdgeInsets.all(4),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Icon(Icons.keyboard_arrow_down),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 10),
-            ],
+                if (widget.allowExpansion) const SizedBox(width: 10),
+              ],
+            ),
           ),
         ),
       ),

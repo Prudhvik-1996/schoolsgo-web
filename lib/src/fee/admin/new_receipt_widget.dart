@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -103,6 +104,57 @@ class _NewReceiptWidgetState extends State<NewReceiptWidget> {
               ...widget.newReceipt.feeToBePaidBeans.map((e) => feeToBePaidWidget(e)).toList(),
               const SizedBox(height: 10),
               if (widget.newReceipt.selectedStudent != null && (widget.newReceipt.totalBusFee ?? 0) != 0) buildBusFeePayableWidget(context),
+              if (widget.newReceipt.selectedStudent != null) buildModeOfPayment(context),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container buildModeOfPayment(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(15),
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        emboss: true,
+        child: Container(
+          margin: const EdgeInsets.all(15),
+          child: Row(
+            children: [
+              const SizedBox(width: 10),
+              const Expanded(child: Text("Mode Of Payment:")),
+              const SizedBox(width: 20),
+              DropdownButton(
+                  value: widget.newReceipt.modeOfPayment,
+                  items: [
+                    ModeOfPayment.CASH,
+                    ModeOfPayment.PHONEPE,
+                    ModeOfPayment.GPAY,
+                    ModeOfPayment.PAYTM,
+                    ModeOfPayment.NETBANKING,
+                    ModeOfPayment.CHEQUE
+                  ]
+                      .map((e) => DropdownMenuItem<ModeOfPayment>(
+                            value: e,
+                            child: Text(e.description),
+                            onTap: () {
+                              widget.newReceipt.notifyParent(() {
+                                widget.newReceipt.modeOfPayment = e;
+                              });
+                            },
+                          ))
+                      .toList(),
+                  onChanged: (ModeOfPayment? e) {
+                    widget.newReceipt.notifyParent(() {
+                      widget.newReceipt.modeOfPayment = e ?? ModeOfPayment.CASH;
+                    });
+                  }),
+              const SizedBox(width: 20),
             ],
           ),
         ),
@@ -688,6 +740,8 @@ class NewReceipt {
   int? busFeePaid;
   late List<StudentBusFeeLogBean> busFeeBeans;
 
+  ModeOfPayment modeOfPayment = ModeOfPayment.CASH;
+
   NewReceipt({
     required this.context,
     required this.notifyParent,
@@ -776,7 +830,7 @@ class NewReceipt {
         .expand((i) => i)
         .map((e) => e?.studentFeeChildTransactionList ?? [])
         .expand((i) => i)
-        .where((e) => e?.feeTypeId == null)
+        .where((e) => e?.feeTypeId == null || e?.feeTypeId == -1)
         .firstOrNull
         ?.feePaidAmount;
   }

@@ -1122,6 +1122,7 @@ class CreateOrUpdateStudentProfileRequest {
   String? gaurdianMailId;
   String? gaurdianMiddleName;
   String? gaurdianMobile;
+  String? alternateMobile;
   String? motherName;
   String? rollNumber;
   int? schoolId;
@@ -1150,6 +1151,7 @@ class CreateOrUpdateStudentProfileRequest {
     this.gaurdianMailId,
     this.gaurdianMiddleName,
     this.gaurdianMobile,
+    this.alternateMobile,
     this.motherName,
     this.rollNumber,
     this.schoolId,
@@ -1179,6 +1181,7 @@ class CreateOrUpdateStudentProfileRequest {
     gaurdianMailId = json['gaurdianMailId']?.toString();
     gaurdianMiddleName = json['gaurdianMiddleName']?.toString();
     gaurdianMobile = json['gaurdianMobile']?.toString();
+    alternateMobile = json['alternateMobile']?.toString();
     motherName = json['motherName']?.toString();
     rollNumber = json['rollNumber']?.toString();
     schoolId = json['schoolId']?.toInt();
@@ -1208,6 +1211,7 @@ class CreateOrUpdateStudentProfileRequest {
     data['gaurdianMailId'] = gaurdianMailId;
     data['gaurdianMiddleName'] = gaurdianMiddleName;
     data['gaurdianMobile'] = gaurdianMobile;
+    data['alternateMobile'] = alternateMobile;
     data['motherName'] = motherName;
     data['rollNumber'] = rollNumber;
     data['schoolId'] = schoolId;
@@ -1599,4 +1603,141 @@ Future<CreateOrUpdateAdminProfileResponse> createOrUpdateAdminProfile(CreateOrUp
 
   debugPrint("createAdminProfileResponse ${createAdminProfileResponse.toJson()}");
   return createAdminProfileResponse;
+}
+
+class CreateOrUpdateBulkStudentProfilesRequest {
+/*
+{
+  "agent": 0,
+  "schoolId": 0,
+  "studentProfiles": [
+    {
+      "agentId": 0,
+      "alternateMobile": "string",
+      "assignedToBusStop": true,
+      "balanceAmount": 0,
+      "branchCode": "string",
+      "fatherName": "string",
+      "franchiseId": 0,
+      "franchiseName": "string",
+      "gaurdianFirstName": "string",
+      "gaurdianId": 0,
+      "gaurdianLastName": "string",
+      "gaurdianMailId": "string",
+      "gaurdianMiddleName": "string",
+      "gaurdianMobile": "string",
+      "loginId": "string",
+      "motherName": "string",
+      "rollNumber": "string",
+      "schoolId": 0,
+      "schoolName": "string",
+      "schoolPhotoUrl": "string",
+      "sectionDescription": "string",
+      "sectionId": 0,
+      "sectionName": "string",
+      "studentDob": "string",
+      "studentFirstName": "string",
+      "studentId": 0,
+      "studentLastName": "string",
+      "studentMailId": "string",
+      "studentMiddleName": "string",
+      "studentMobile": "string",
+      "studentPhotoUrl": "string"
+    }
+  ]
+}
+*/
+
+  int? agent;
+  int? schoolId;
+  List<StudentProfile?>? studentProfiles;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateBulkStudentProfilesRequest({
+    this.agent,
+    this.schoolId,
+    this.studentProfiles,
+  });
+  CreateOrUpdateBulkStudentProfilesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    if (json['studentProfiles'] != null) {
+      final v = json['studentProfiles'];
+      final arr0 = <StudentProfile>[];
+      v.forEach((v) {
+        arr0.add(StudentProfile.fromJson(v));
+      });
+      studentProfiles = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['schoolId'] = schoolId;
+    if (studentProfiles != null) {
+      final v = studentProfiles;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['studentProfiles'] = arr0;
+    }
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateBulkStudentProfilesResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateBulkStudentProfilesResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateBulkStudentProfilesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateBulkStudentProfilesResponse> createOrUpdateBulkStudentProfiles(CreateOrUpdateBulkStudentProfilesRequest createBulkStudentProfilesRequest) async {
+  debugPrint("Raising request to createBulkStudentProfiles with request ${jsonEncode(createBulkStudentProfilesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_BULK_STUDENT_PROFILES;
+
+  CreateOrUpdateBulkStudentProfilesResponse createBulkStudentProfilesResponse = await HttpUtils.post(
+    _url,
+    createBulkStudentProfilesRequest.toJson(),
+    CreateOrUpdateBulkStudentProfilesResponse.fromJson,
+  );
+
+  debugPrint("createBulkStudentProfilesResponse ${createBulkStudentProfilesResponse.toJson()}");
+  return createBulkStudentProfilesResponse;
 }

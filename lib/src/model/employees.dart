@@ -57,6 +57,12 @@ class SchoolWiseEmployeeBean {
   List<String?>? roles;
   String? schoolDisplayName;
   int? schoolId;
+  String? photoUrl;
+  String? loginId;
+  String? emailId;
+  String? mobile;
+  String? alternateMobile;
+
   Map<String, dynamic> __origJson = {};
 
   SchoolWiseEmployeeBean({
@@ -67,6 +73,11 @@ class SchoolWiseEmployeeBean {
     this.roles,
     this.schoolDisplayName,
     this.schoolId,
+    this.photoUrl,
+    this.loginId,
+    this.emailId,
+    this.mobile,
+    this.alternateMobile,
   });
   SchoolWiseEmployeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -84,6 +95,11 @@ class SchoolWiseEmployeeBean {
     }
     schoolDisplayName = json['schoolDisplayName']?.toString();
     schoolId = json['schoolId']?.toInt();
+    photoUrl = json['photoUrl']?.toString();
+    loginId = json['loginId']?.toString();
+    emailId = json['emailId']?.toString();
+    mobile = json['mobile']?.toString();
+    alternateMobile = json['alternateMobile']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -101,6 +117,11 @@ class SchoolWiseEmployeeBean {
     }
     data['schoolDisplayName'] = schoolDisplayName;
     data['schoolId'] = schoolId;
+    data['photoUrl'] = photoUrl;
+    data['loginId'] = loginId;
+    data['emailId'] = emailId;
+    data['mobile'] = mobile;
+    data['alternateMobile'] = alternateMobile;
     return data;
   }
 

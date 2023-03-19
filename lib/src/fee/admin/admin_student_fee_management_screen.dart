@@ -1,4 +1,5 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
@@ -127,22 +128,18 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
               .map((e) => e.feeTypeId)
               .contains(eachFeeType.feeTypeId)) {
             feeTypesForSelectedSection.add(eachFeeType);
-            (feeTypesForSelectedSection.last.customFeeTypesList ?? []).where((e) => e != null).map((e) => e!).forEach((eachCustomFeeType) {
-              if (!sectionWiseAnnualFeeBeansList
-                  .where((e) => e.sectionId == selectedSection!.sectionId)
-                  .toList()
-                  .map((e) => e.customFeeTypeId)
-                  .contains(eachCustomFeeType.customFeeTypeId)) {
-                (feeTypesForSelectedSection.last.customFeeTypesList ?? []).remove(eachCustomFeeType);
-              }
-            });
+            (feeTypesForSelectedSection.last.customFeeTypesList ?? []).where((e) => e != null).map((e) => e!).toList().removeWhere(
+                (eachCustomFeeType) => (!sectionWiseAnnualFeeBeansList
+                    .where((e) => e.sectionId == selectedSection!.sectionId)
+                    .toList()
+                    .map((e) => e.customFeeTypeId)
+                    .contains(eachCustomFeeType.customFeeTypeId)));
           }
         }
       }
     });
     GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = await getStudentWiseAnnualFees(GetStudentWiseAnnualFeesRequest(
-      schoolId: widget.adminProfile.schoolId,
-      sectionId: selectedSection!.sectionId,
+      schoolId: widget.adminProfile.schoolId, sectionId: selectedSection!.sectionId,
       // studentId: 101,
     ));
     if (getStudentWiseAnnualFeesResponse.httpStatus != "OK" || getStudentWiseAnnualFeesResponse.responseStatus != "success") {
@@ -572,47 +569,45 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
               Expanded(
                 child: Text(eachStudentAnnualCustomFeeTypeBean.customFeeType ?? "-"),
               ),
-              eachStudentAnnualCustomFeeTypeBean.amount == null
-                  ? Container()
-                  : (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
-                      ? SizedBox(
-                          width: 60,
-                          child: TextField(
-                            controller: eachStudentAnnualCustomFeeTypeBean.amountController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'Amount',
-                              hintText: 'Amount',
-                              contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                              TextInputFormatter.withFunction((oldValue, newValue) {
-                                try {
-                                  final text = newValue.text;
-                                  if (text.isNotEmpty) double.parse(text);
-                                  return newValue;
-                                } catch (e) {
-                                  debugPrintStack();
-                                }
-                                return oldValue;
-                              }),
-                            ],
-                            onChanged: (String e) {
-                              setState(() {
-                                eachStudentAnnualCustomFeeTypeBean.amount = (double.parse(e) * 100).round();
-                              });
-                            },
-                            style: const TextStyle(
-                              fontSize: 12,
-                            ),
-                            autofocus: true,
-                          ),
-                        )
-                      : eachStudentAnnualCustomFeeTypeBean.amount == null || eachStudentAnnualCustomFeeTypeBean.amount == 0
-                          ? Container()
-                          : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualCustomFeeTypeBean.amount! / 100)}"),
+              (editingStudentId != null && editingStudentId == studentWiseAnnualFeesBean.studentId)
+                  ? SizedBox(
+                      width: 60,
+                      child: TextField(
+                        controller: eachStudentAnnualCustomFeeTypeBean.amountController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          border: UnderlineInputBorder(),
+                          labelText: 'Amount',
+                          hintText: 'Amount',
+                          contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            try {
+                              final text = newValue.text;
+                              if (text.isNotEmpty) double.parse(text);
+                              return newValue;
+                            } catch (e) {
+                              debugPrintStack();
+                            }
+                            return oldValue;
+                          }),
+                        ],
+                        onChanged: (String e) {
+                          setState(() {
+                            eachStudentAnnualCustomFeeTypeBean.amount = (double.parse(e) * 100).round();
+                          });
+                        },
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                        autofocus: true,
+                      ),
+                    )
+                  : eachStudentAnnualCustomFeeTypeBean.amount == null || eachStudentAnnualCustomFeeTypeBean.amount == 0
+                      ? Container()
+                      : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualCustomFeeTypeBean.amount! / 100)}"),
             ],
           ),
         );
@@ -702,6 +697,41 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       ),
     );
 
+    List<int> feeTypesIdsToBeConsideredForDiscount = sectionWiseAnnualFeeBeansList
+        .where((e) => e.sectionId == studentWiseAnnualFeesBean.sectionId)
+        .map((e) => e.feeTypeId == null || e.feeTypeId == -1 || e.amount == null || e.amount == 0 ? null : e.feeTypeId)
+        .where((e) => e != null)
+        .map((e) => e!)
+        .toSet()
+        .toList();
+    int actualFee = sectionWiseAnnualFeeBeansList
+        .where((e) => e.sectionId == studentWiseAnnualFeesBean.sectionId)
+        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
+        .map((e) => e.amount ?? 0)
+        .reduce((a, b) => a + b);
+    int feeAfterDiscount = (studentWiseAnnualFeesBean.studentAnnualFeeTypeBeans ?? [])
+        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
+        .map((e) => e.amount ?? 0)
+        .reduce((a, b) => a + b);
+    int discount = (actualFee - feeAfterDiscount);
+    if (discount > 0) {
+      feeStats.add(
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Discount:"),
+            ),
+            Text(
+              "$INR_SYMBOL ${doubleToStringAsFixedForINR(discount / 100)}",
+              textAlign: TextAlign.end,
+              style: const TextStyle(
+                color: Colors.blue,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     feeStats.add(
       Row(
         children: [
@@ -851,8 +881,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                             ),
                           ),
                         ),
-                      ),
-                      // Expanded(
+                      ), // Expanded(
                       //   child: ((studentWiseAnnualFeesBean.totalFee ?? 0) -
                       //               (studentWiseAnnualFeesBean.totalFeePaid ?? 0) -
                       //               (studentWiseAnnualFeesBean.walletBalance ?? 0)) ==

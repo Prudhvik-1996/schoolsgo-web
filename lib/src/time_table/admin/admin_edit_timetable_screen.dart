@@ -502,7 +502,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
                     return sectionTimeSlotsForGivenSection.where((eachTimeSlot) => eachTimeSlot.weekId == eachWeekId).length;
                   }).reduce(max) *
                   50 +
-              275;
+              350;
           double widthOfEachCard = (MediaQuery.of(context).size.width - 10) / crossAxisCount;
 
           return SizedBox(

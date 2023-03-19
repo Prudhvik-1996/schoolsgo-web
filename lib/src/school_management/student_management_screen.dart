@@ -1,4 +1,5 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -29,7 +30,12 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
   int? selectedStudentId;
   int? editingStudentId;
 
+  bool _isAddNew = false;
+  late StudentProfile newStudent;
+
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final ScrollController _controller = ScrollController();
 
   @override
   void initState() {
@@ -40,6 +46,10 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
+      newStudent = StudentProfile(
+        agentId: widget.adminProfile.userId,
+        schoolId: widget.adminProfile.schoolId,
+      );
     });
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -104,6 +114,8 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
               selectedSection = section;
               isSectionPickerOpen = false;
             }
+            newStudent.sectionId = selectedSection?.sectionId;
+            newStudent.sectionName = selectedSection?.sectionName;
           });
         },
         child: ClayButton(
@@ -213,25 +225,54 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
   }
 
   void onStudentSelected(int? studentId) {
+    if (_isAddNew) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter the new student's details to continue"),
+        ),
+      );
+      return;
+    }
     if (editingStudentId == null) {
       setState(() => selectedStudentId = studentId);
     }
   }
 
   void onEditSelected(int? studentId) {
+    if (_isAddNew) {
+      setState(() {
+        _isAddNew = false;
+        newStudent = StudentProfile(
+          agentId: widget.adminProfile.userId,
+          schoolId: widget.adminProfile.schoolId,
+          sectionId: selectedSection?.sectionId,
+          sectionName: selectedSection?.sectionName,
+        );
+      });
+      return;
+    }
     setState(() => editingStudentId = studentId);
   }
 
-  void updateStudentProfile(int? studentId, StudentProfile updatedStudentProfile) {
-    if (studentId == null) return;
+  void updateStudentProfile(int? studentId, StudentProfile updatedStudentProfile, {bool addNew = false}) {
+    if (studentId == null && !addNew) return;
     setState(() {
       studentProfiles.removeWhere((eachStudent) => eachStudent.studentId == studentId);
       studentProfiles.add(updatedStudentProfile);
     });
   }
 
+  void _scrollDown() {
+    _controller.animateTo(
+      _controller.position.maxScrollExtent,
+      duration: const Duration(seconds: 2),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_isAddNew) _scrollDown();
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -246,26 +287,98 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
               ),
             )
           : ListView(
+              controller: _controller,
               children: [
                 sectionPicker(),
                 if (selectedSection != null)
                   ...(studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList()
-                        ..sort(
-                          (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
-                              ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
-                              : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
-                        ))
-                      .map((e) => StudentCardWidget(
-                          scaffoldKey: scaffoldKey,
-                          studentProfile: e,
-                          adminProfile: widget.adminProfile,
-                          isStudentSelected: selectedStudentId == e.studentId,
-                          onStudentSelected: onStudentSelected,
-                          isEditMode: editingStudentId == e.studentId,
-                          onEditSelected: onEditSelected,
-                          updateStudentProfile: updateStudentProfile))
-                      .toList(),
+                            ..sort(
+                              (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
+                                  ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
+                                  : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
+                            ))
+                          .map(
+                            (e) => StudentCardWidget(
+                              scaffoldKey: scaffoldKey,
+                              studentProfile: e,
+                              adminProfile: widget.adminProfile,
+                              isStudentSelected: selectedStudentId == e.studentId,
+                              onStudentSelected: onStudentSelected,
+                              isEditMode: editingStudentId == e.studentId,
+                              onEditSelected: onEditSelected,
+                              updateStudentProfile: updateStudentProfile,
+                              allowExpansion: true,
+                            ),
+                          )
+                          .toList() +
+                      [
+                        if (_isAddNew)
+                          StudentCardWidget(
+                            scaffoldKey: scaffoldKey,
+                            studentProfile: newStudent,
+                            adminProfile: widget.adminProfile,
+                            isStudentSelected: true,
+                            onStudentSelected: onStudentSelected,
+                            isEditMode: true,
+                            onEditSelected: onEditSelected,
+                            updateStudentProfile: updateStudentProfile,
+                            allowExpansion: true,
+                          ),
+                      ],
               ],
+            ),
+      floatingActionButton: _isLoading || editingStudentId != null || _isAddNew
+          ? null
+          : GestureDetector(
+              onTap: () {
+                if (selectedSection == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Select a section to add student"),
+                    ),
+                  );
+                  return;
+                }
+                setState(() {
+                  newStudent.rollNumber = ((int.tryParse((studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList()
+                                        ..sort(
+                                          (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
+                                              ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
+                                              : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
+                                        ))
+                                      .reversed
+                                      .firstOrNull
+                                      ?.rollNumber ??
+                                  "") ??
+                              0) +
+                          1)
+                      .toString();
+                  newStudent.rollNumberController.text = newStudent.rollNumber ?? "";
+                  selectedStudentId = null;
+                  _isAddNew = !_isAddNew;
+                });
+              },
+              child: _isAddNew
+                  ? ClayButton(
+                      color: clayContainerColor(context),
+                      height: 50,
+                      width: 50,
+                      borderRadius: 100,
+                      spread: 4,
+                      child: const Icon(
+                        Icons.check,
+                      ),
+                    )
+                  : ClayButton(
+                      color: clayContainerColor(context),
+                      height: 50,
+                      width: 50,
+                      borderRadius: 100,
+                      spread: 4,
+                      child: const Icon(
+                        Icons.add,
+                      ),
+                    ),
             ),
     );
   }

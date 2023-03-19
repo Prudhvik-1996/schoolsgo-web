@@ -652,10 +652,15 @@ class _AdminFeeReceiptsEachReceiptWidgetState extends State<AdminFeeReceiptsEach
   }
 
   Row receiptTotalWidget() {
+    print("655 ${widget.studentFeeTransactionBean.modeOfPayment}");
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        Expanded(child: Text(widget.studentFeeTransactionBean.modeOfPayment ?? "")),
+        const SizedBox(
+          width: 10,
+        ),
         Text(
           "Total: $INR_SYMBOL ${doubleToStringAsFixedForINR((widget.studentFeeTransactionBean.transactionAmount ?? 0) / 100.0)} /-",
           style: const TextStyle(

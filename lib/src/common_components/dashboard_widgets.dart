@@ -438,12 +438,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         routeName: "/stats",
         argument: adminProfile,
       ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/student_management.svg"),
-        title: "School Management",
-        routeName: "/school_management",
-        argument: adminProfile,
-      ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/student_management.svg"),
+      //   title: "School Management",
+      //   routeName: "/school_management",
+      //   argument: adminProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",

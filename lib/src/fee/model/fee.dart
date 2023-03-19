@@ -4026,6 +4026,7 @@ class NewReceiptBean {
   int? studentId;
   List<NewReceiptBeanSubBean?>? subBeans;
   int? busFeePaidAmount;
+  String? modeOfPayment;
   Map<String, dynamic> __origJson = {};
 
   NewReceiptBean({
@@ -4037,6 +4038,7 @@ class NewReceiptBean {
     this.studentId,
     this.subBeans,
     this.busFeePaidAmount,
+    this.modeOfPayment,
   });
   NewReceiptBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -4055,6 +4057,7 @@ class NewReceiptBean {
       subBeans = arr0;
     }
     busFeePaidAmount = json['busFeePaidAmount']?.toInt();
+    modeOfPayment = json['modeOfPayment']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -4073,6 +4076,7 @@ class NewReceiptBean {
       data['subBeans'] = arr0;
     }
     data['busFeePaidAmount'] = busFeePaidAmount;
+    data['modeOfPayment'] = modeOfPayment;
     return data;
   }
 
@@ -4365,6 +4369,7 @@ class StudentMasterTransactionSupportBean {
   String? transactionStatus;
   String? transactionTime;
   String? transactionType;
+  String? modeOfPayment;
   Map<String, dynamic> __origJson = {};
 
   StudentMasterTransactionSupportBean({
@@ -4381,6 +4386,7 @@ class StudentMasterTransactionSupportBean {
     this.transactionStatus,
     this.transactionTime,
     this.transactionType,
+    this.modeOfPayment,
   });
   StudentMasterTransactionSupportBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -4397,6 +4403,7 @@ class StudentMasterTransactionSupportBean {
     transactionStatus = json['transactionStatus']?.toString();
     transactionTime = json['transactionTime']?.toString();
     transactionType = json['transactionType']?.toString();
+    modeOfPayment = json['modeOfPayment']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -4413,6 +4420,7 @@ class StudentMasterTransactionSupportBean {
     data['transactionStatus'] = transactionStatus;
     data['transactionTime'] = transactionTime;
     data['transactionType'] = transactionType;
+    data['modeOfPayment'] = modeOfPayment;
     return data;
   }
 

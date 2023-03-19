@@ -2,6 +2,7 @@ import 'dart:html' as html;
 import 'dart:math';
 
 import 'package:clay_containers/clay_containers.dart';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
@@ -256,6 +257,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                   transactionDate: studentMasterTransactionBean.transactionTime,
                   transactionAmount: studentMasterTransactionBean.amount,
                   receiptId: studentMasterTransactionBean.receiptId,
+                  modeOfPayment: studentMasterTransactionBean.modeOfPayment,
                   studentFeeChildTransactionList: [],
                 )),
               });
@@ -429,6 +431,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                   })
                   .expand((i) => i)
                   .toList(),
+              modeOfPayment: eachNewReceipt.modeOfPayment.name,
             ))
         .where((e) => (e.subBeans ?? []).isNotEmpty || e.busFeePaidAmount != null)
         .toList();
@@ -1111,7 +1114,6 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 busFeeTransactions: (e.studentFeeChildTransactionList ?? []).map((e) => e!).where((e) => e.feeTypeId == null).toList(),
                 superSetState: stateUpdate,
               );
-              // return studentFeeTransactionWidget(e);
             }
           },
         ),
