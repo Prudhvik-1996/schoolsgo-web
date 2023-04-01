@@ -81,7 +81,7 @@ class _AdminAssignBusFeeScreenState extends State<AdminAssignBusFeeScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Assign Fee Types To Sections"),
+        title: const Text("Assign Bus Fees"),
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
@@ -210,11 +210,10 @@ class _AdminAssignBusFeeScreenState extends State<AdminAssignBusFeeScreen> {
         );
         eachRoute.busRouteStopsList?.forEach((eachStop) {
           if (eachStop != null) {
-            updatedRouteFare.busRouteStopsList!.add(BusRouteStop(
-              schoolId: eachStop.schoolId,
-              agent: widget.adminProfile.userId,
-              fare: eachStop.fare,
-            ));
+            updatedRouteFare.busRouteStopsList!.add(eachStop
+              ..schoolId = eachStop.schoolId
+              ..agent = widget.adminProfile.userId
+              ..fare = eachStop.fare);
           }
         });
         updateBusFares.add(updatedRouteFare);
@@ -583,6 +582,7 @@ class _AdminAssignBusFeeScreenState extends State<AdminAssignBusFeeScreen> {
 
   CustomStepper busRouteStopsStepper(BusRouteInfo busRouteInfo) {
     List<BusRouteStop> busStops = (busRouteInfo.busRouteStopsList ?? []).where((e) => e != null && e.status == 'active').map((e) => e!).toList();
+    busStops.sort((a, b) => (a.terminalNumber ?? 0).compareTo(b.terminalNumber ?? 0));
     List<CustomStep> widgets = [];
     for (int stepIndex = 0; stepIndex < busStops.length; stepIndex++) {
       widgets.add(

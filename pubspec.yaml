@@ -175,6 +175,8 @@ flutter:
     - assets/images/stats.svg
     - assets/images/gear-loader.gif
     - assets/images/EISlogo.png
+    - assets/demo/student/diary/diary.pdf
+    - assets/demo/student/notice_board/notice_board.pdf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

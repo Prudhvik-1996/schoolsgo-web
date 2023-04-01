@@ -724,12 +724,10 @@ class _AdminRouteManagementScreenState extends State<AdminRouteManagementScreen>
                 setState(() {
                   _isLoading = true;
                 });
-                debugPrint(
-                    "723: ${busRouteInfo.busRouteStopsList?.where((e) => !(const DeepCollectionEquality()).equals(e?.toJson(), e?.origJson())).toList()}");
                 CreateOrUpdateBusRouteDetailsResponse createOrUpdateBusRouteDetailsResponse =
                     await createOrUpdateBusRouteDetails(CreateOrUpdateBusRouteDetailsRequest(
-                  schoolId: busRouteInfo.schoolId,
-                  agent: busRouteInfo.agent,
+                  schoolId: widget.adminProfile.schoolId,
+                  agent: widget.adminProfile.userId,
                   status: busRouteInfo.status,
                   busId: busRouteInfo.busId,
                   regNo: busRouteInfo.regNo,
@@ -811,7 +809,7 @@ class _AdminRouteManagementScreenState extends State<AdminRouteManagementScreen>
                         style: const TextStyle(
                           fontSize: 12,
                         ),
-                        autofocus: true,
+                        autofocus: busStops[stepIndex].terminalNameController.text.trim().isEmpty,
                       ),
                     ),
                     const SizedBox(
