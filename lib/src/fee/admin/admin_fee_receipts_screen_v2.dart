@@ -1099,7 +1099,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
             } else {
               int studentIndex = offset + index - 2;
               StudentFeeTransactionBean e = filteredList[studentIndex];
-              return AdminFeeReceiptsEachReceiptWidget(
+              return  AdminFeeReceiptsEachReceiptWidget(
                 studentFeeTransactionBean: e,
                 adminProfile: widget.adminProfile,
                 scaffoldKey: _scaffoldKey,

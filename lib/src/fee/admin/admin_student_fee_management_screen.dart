@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_receipt_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -848,15 +849,27 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                         child: Container(
                           margin: const EdgeInsets.all(8),
                           child: GestureDetector(
-                            onTap: () {
+                            onTap: () async {
+                              StudentProfile? studentProfile =
+                                  ((await getStudentProfile(GetStudentProfileRequest(studentId: studentWiseAnnualFeesBean.studentId)))
+                                              .studentProfiles ??
+                                          [])
+                                      .firstOrNull;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) {
-                                    return AdminStudentWiseFeeReceiptsScreen(
-                                      studentAnnualFeeBean: studentWiseAnnualFeesBean,
-                                      adminProfile: widget.adminProfile,
-                                    );
+                                    if (studentProfile != null) {
+                                      return StudentFeeScreenV3(
+                                        studentProfile: studentProfile,
+                                        adminProfile: widget.adminProfile,
+                                      );
+                                    } else {
+                                      return AdminStudentWiseFeeReceiptsScreen(
+                                        studentAnnualFeeBean: studentWiseAnnualFeesBean,
+                                        adminProfile: widget.adminProfile,
+                                      );
+                                    }
                                   },
                                 ),
                               ).then((value) => _loadData());

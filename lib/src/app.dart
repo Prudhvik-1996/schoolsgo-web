@@ -23,6 +23,7 @@ import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/teacher/teacher_exam_tds_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen.dart';
+import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
@@ -765,8 +766,9 @@ class _MyAppState extends State<MyApp> {
               if (routeSettings.arguments is StudentProfile) {
                 try {
                   var argument = (routeSettings.arguments as StudentProfile);
-                  return StudentFeeScreen(
+                  return StudentFeeScreenV3(
                     studentProfile: argument,
+                    adminProfile: null,
                   );
                 } catch (e) {
                   return const E404NotFoundScreen();

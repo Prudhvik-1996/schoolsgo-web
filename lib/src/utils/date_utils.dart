@@ -179,6 +179,10 @@ String convertEpochToYYYYMMDD(int millis) {
   return DateFormat("yyyy-MM-dd").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }
 
+DateTime convertEpochToDateTime(int millis) {
+  return DateTime.fromMillisecondsSinceEpoch(millis);
+}
+
 String getChatDateText(DateTime date) {
   final DateFormat _formatter = DateFormat('yyyy-MM-dd');
   final now = DateTime.now();

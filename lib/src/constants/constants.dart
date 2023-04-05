@@ -119,6 +119,7 @@ const String GET_STUDENT_FEE_DETAILS_SUPPORT_CLASSES = "/fee/getStudentFeeDetail
 const String CREATE_NEW_FEE_RECEIPTS = "/fee/createNewReceipts";
 const String DELETE_FEE_RECEIPT = "/fee/deleteReceipt";
 const String UPDATE_FEE_RECEIPT = "/fee/updateReceipt";
+const String GET_STUDENT_FEE_RECEIPTS = "/fee/getStudentFeeReceipts";
 
 const String GET_BUSES_DRIVERS = "/buses/getDrivers";
 const String GET_BUSES_BASE_DETAILS = "/buses/getBusesBaseDetails";
