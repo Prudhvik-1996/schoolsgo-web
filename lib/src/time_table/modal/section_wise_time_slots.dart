@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/time_slot.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetSectionWiseTimeSlotsRequest {
   String? date;
@@ -572,14 +573,5 @@ Future<RandomizeSectionWiseTimeSlotsResponse> randomizeSectionWiseTimeSlots(
 Future<List<int>> getSectionWiseTimeSlotsReport(GetSectionWiseTimeSlotsRequest getSectionWiseTimeSlotsRequest) async {
   debugPrint("Raising request to getSectionWiseTimeSlots with request ${jsonEncode(getSectionWiseTimeSlotsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_TIME_TABLE_REPORT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
-
-  Response response = await http.post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getSectionWiseTimeSlotsRequest.toJson()),
-  );
-
-  List<int> getStudentExamBytesResponse = response.bodyBytes;
-  return getStudentExamBytesResponse;
+  return await HttpUtils.postToDownloadFile(_url, getSectionWiseTimeSlotsRequest.toJson());
 }

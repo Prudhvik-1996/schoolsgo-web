@@ -398,14 +398,5 @@ Future<CreateOrUpdateDiaryResponse> createOrUpdateDiary(CreateOrUpdateDiaryReque
 Future<List<int>> getDiaryReport(GetDiaryRequest getDiaryRequest) async {
   debugPrint("Raising request to getDiary with request ${jsonEncode(getDiaryRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_DIARY_REPORT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
-
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getDiaryRequest.toJson()),
-  );
-
-  List<int> getResponse = response.bodyBytes;
-  return getResponse;
+  return await HttpUtils.postToDownloadFile(_url, getDiaryRequest.toJson());
 }

@@ -301,14 +301,5 @@ Future<GetTransactionsResponse> getTransactions(GetTransactionsRequest getTransa
 Future<List<int>> getTransactionsReport(GetTransactionsRequest getTransactionsRequest) async {
   debugPrint("Raising request to getTransactions with request ${jsonEncode(getTransactionsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_LEDGER_REPORT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
-
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getTransactionsRequest.toJson()),
-  );
-
-  List<int> getTransactionBytesResponse = response.bodyBytes;
-  return getTransactionBytesResponse;
+  return await HttpUtils.postToDownloadFile(_url, getTransactionsRequest.toJson());
 }

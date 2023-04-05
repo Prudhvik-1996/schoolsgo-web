@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -43,6 +42,7 @@ class GetLogBookRequest {
     this.startDate,
     this.endDate,
   });
+
   GetLogBookRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     date = int.tryParse(json["date"]?.toString() ?? '');
@@ -63,6 +63,7 @@ class GetLogBookRequest {
     startDate = int.tryParse(json["startDate"]?.toString() ?? '');
     endDate = int.tryParse(json["endDate"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["date"] = date;
@@ -141,6 +142,7 @@ class LogBook {
     this.sectionSeqOrder,
     this.subjectSeqOrder,
   });
+
   LogBook.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json["agent"]?.toString();
@@ -161,6 +163,7 @@ class LogBook {
     sectionSeqOrder = int.tryParse(json["sectionSeqOrder"]?.toString() ?? '');
     subjectSeqOrder = int.tryParse(json["subjectSeqOrder"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
@@ -229,6 +232,7 @@ class GetLogBookResponse {
     this.logs,
     this.responseStatus,
   });
+
   GetLogBookResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json["errorCode"]?.toString();
@@ -244,6 +248,7 @@ class GetLogBookResponse {
     }
     responseStatus = json["responseStatus"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
@@ -321,6 +326,7 @@ class CreateOrUpdateLogBookRequest {
     this.tdsId,
     this.teacherId,
   });
+
   CreateOrUpdateLogBookRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json["agentId"]?.toString() ?? '');
@@ -335,6 +341,7 @@ class CreateOrUpdateLogBookRequest {
     tdsId = int.tryParse(json["tdsId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agentId"] = agentId;
@@ -376,6 +383,7 @@ class CreateOrUpdateLogBookResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateLogBookResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json["errorCode"]?.toString();
@@ -383,6 +391,7 @@ class CreateOrUpdateLogBookResponse {
     httpStatus = json["httpStatus"]?.toString();
     responseStatus = json["responseStatus"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
@@ -412,14 +421,5 @@ Future<CreateOrUpdateLogBookResponse> createOrUpdateLogBook(CreateOrUpdateLogBoo
 Future<List<int>> getLogBookReport(GetLogBookRequest getLogBookRequest) async {
   debugPrint("Raising request to getLogBook with request ${jsonEncode(getLogBookRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_LOGBOOK_REPORT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
-
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getLogBookRequest.toJson()),
-  );
-
-  List<int> getResponse = response.bodyBytes;
-  return getResponse;
+  return await HttpUtils.postToDownloadFile(_url, getLogBookRequest.toJson());
 }

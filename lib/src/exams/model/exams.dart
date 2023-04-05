@@ -1503,15 +1503,5 @@ class GetStudentExamBytesRequest {
 Future<List<int>> getStudentExamBytes(GetStudentExamBytesRequest getStudentExamBytesRequest) async {
   debugPrint("Raising request to getStudentExamBytes with request ${jsonEncode(getStudentExamBytesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_EXAM_BYTES;
-  Map<String, String> _headers = {"Content-type": "application/json"};
-
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getStudentExamBytesRequest.toJson()),
-  );
-
-  List<int> getStudentExamBytesResponse = response.bodyBytes;
-  // debugPrint("GetStudentExamMarksDetailsResponse ${getStudentExamBytesResponse.toJson()}");
-  return getStudentExamBytesResponse;
+  return await HttpUtils.postToDownloadFile(_url, getStudentExamBytesRequest.toJson());
 }

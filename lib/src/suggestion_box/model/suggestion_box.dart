@@ -546,14 +546,5 @@ Future<UpdateSuggestionResponse> updateSuggestion(UpdateSuggestionRequest update
 Future<List<int>> getSuggestionBoxReport(GetSuggestionBoxRequest getSuggestionBoxRequest) async {
   debugPrint("Raising request to getSuggestionBox with request ${jsonEncode(getSuggestionBoxRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SUGGESTION_BOX_REPORT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
-
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getSuggestionBoxRequest.toJson()),
-  );
-
-  List<int> getResponse = response.bodyBytes;
-  return getResponse;
+  return await HttpUtils.postToDownloadFile(_url, getSuggestionBoxRequest.toJson());
 }

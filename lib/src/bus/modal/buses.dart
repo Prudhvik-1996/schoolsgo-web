@@ -1368,16 +1368,7 @@ Future<GetBusRouteDetailsResponse> getBusRouteDetails(GetBusRouteDetailsRequest 
 Future<List<int>> getBusWiseFeesSummaryReport(GetBusRouteDetailsRequest getBusWiseFeesSummaryReportRequest) async {
   debugPrint("Raising request to getBusWiseFeesSummaryReport with request ${jsonEncode(getBusWiseFeesSummaryReportRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_BUS_WISE_FEES_SUMMARY_REPORT;
-  Map<String, String> _headers = {"Content-type": "application/json"};
-
-  Response response = await post(
-    Uri.parse(_url),
-    headers: _headers,
-    body: jsonEncode(getBusWiseFeesSummaryReportRequest.toJson()),
-  );
-
-  List<int> getResponse = response.bodyBytes;
-  return getResponse;
+  return await HttpUtils.postToDownloadFile(_url, getBusWiseFeesSummaryReportRequest.toJson());
 }
 
 class CreateOrUpdateBusRouteDetailsRequest {
