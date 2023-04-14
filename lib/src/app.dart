@@ -22,7 +22,6 @@ import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_resu
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/teacher/teacher_exam_tds_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
-import 'package:schoolsgo_web/src/fee/student/student_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
@@ -34,6 +33,7 @@ import 'package:schoolsgo_web/src/payslips/admin/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
 import 'package:schoolsgo_web/src/school_management/school_management_options_screen.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
+import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -372,6 +372,19 @@ class _MyAppState extends State<MyApp> {
               if (routeSettings.arguments is AdminProfile) {
                 var adminProfile = routeSettings.arguments as AdminProfile;
                 return SchoolManagementOptionsScreen(
+                  adminProfile: adminProfile,
+                );
+              } else {
+                return const E404NotFoundScreen();
+              }
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case StudentInformationCenterStudentsListScreen.routeName:
+            try {
+              if (routeSettings.arguments is AdminProfile) {
+                var adminProfile = routeSettings.arguments as AdminProfile;
+                return StudentInformationCenterStudentsListScreen(
                   adminProfile: adminProfile,
                 );
               } else {

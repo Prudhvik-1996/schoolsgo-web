@@ -268,6 +268,7 @@ class StudentProfile {
   String? alternateMobile;
   String? motherName;
   String? rollNumber;
+  String? admissionNo;
   int? schoolId;
   String? schoolName;
   String? branchCode;
@@ -291,6 +292,7 @@ class StudentProfile {
   Map<String, dynamic> __origJson = {};
 
   TextEditingController rollNumberController = TextEditingController();
+  TextEditingController admissionNoController = TextEditingController();
   TextEditingController studentNameController = TextEditingController();
   TextEditingController gaurdianNameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
@@ -331,6 +333,7 @@ class StudentProfile {
     this.agentId,
   }) {
     rollNumberController = TextEditingController(text: rollNumber ?? "");
+    admissionNoController = TextEditingController(text: admissionNo ?? "");
     studentNameController = TextEditingController(
         text: ((studentFirstName == null ? "" : (studentFirstName ?? "").capitalize() + " ") +
             (studentMiddleName == null ? "" : (studentMiddleName ?? "").capitalize() + " ") +
@@ -357,6 +360,7 @@ class StudentProfile {
     alternateMobile = json['alternateMobile']?.toString();
     motherName = json['motherName']?.toString();
     rollNumber = json['rollNumber']?.toString();
+    admissionNo = json['admissionNo']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
     branchCode = json['branchCode']?.toString();
@@ -378,6 +382,7 @@ class StudentProfile {
     loginId = json['loginId']?.toString();
     agentId = json['agentId']?.toInt();
     rollNumberController = TextEditingController(text: rollNumber ?? "");
+    admissionNoController = TextEditingController(text: admissionNo ?? "");
     studentNameController = TextEditingController(
         text: ((studentFirstName == null ? "" : (studentFirstName ?? "").capitalize() + " ") +
             (studentMiddleName == null ? "" : (studentMiddleName ?? "").capitalize() + " ") +
@@ -404,6 +409,7 @@ class StudentProfile {
     data['alternateMobile'] = alternateMobile;
     data['motherName'] = motherName;
     data['rollNumber'] = rollNumber;
+    data['admissionNo'] = admissionNo;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
     data['branchCode'] = branchCode;

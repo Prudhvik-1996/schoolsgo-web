@@ -102,6 +102,8 @@ dependencies:
 
   number_pagination: ^0.0.3+2
   number_paginator: ^0.2.3
+  flip_card: ^0.7.0
+  d_chart: ^2.2.11
 
 dev_dependencies:
   flutter_test:
