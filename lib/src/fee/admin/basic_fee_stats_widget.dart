@@ -14,11 +14,15 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
     required this.studentWiseAnnualFeesBean,
     required this.context,
     required this.alignMargin,
+    this.title,
+    this.customMargin,
   }) : super(key: key);
 
   final StudentAnnualFeeBean studentWiseAnnualFeesBean;
   final BuildContext context;
   final bool alignMargin;
+  final String? title;
+  final EdgeInsets? customMargin;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +35,7 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              "${studentWiseAnnualFeesBean.rollNumber ?? "-"}. ${studentWiseAnnualFeesBean.studentName}",
+              title ?? "${studentWiseAnnualFeesBean.rollNumber ?? "-"}. ${studentWiseAnnualFeesBean.studentName}",
               style: const TextStyle(
                 fontSize: 18,
               ),
@@ -40,7 +44,7 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              studentWiseAnnualFeesBean.sectionName ?? "-",
+              title != null ? "" : (studentWiseAnnualFeesBean.sectionName ?? "-"),
               style: const TextStyle(
                 fontSize: 18,
               ),
@@ -325,11 +329,12 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
     );
 
     return Container(
-      margin: alignMargin
-          ? MediaQuery.of(context).orientation == Orientation.portrait
-              ? const EdgeInsets.fromLTRB(25, 10, 25, 10)
-              : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
-          : const EdgeInsets.fromLTRB(25, 10, 25, 10),
+      margin: customMargin ??
+          (alignMargin
+              ? MediaQuery.of(context).orientation == Orientation.portrait
+                  ? const EdgeInsets.fromLTRB(25, 10, 25, 10)
+                  : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
+              : const EdgeInsets.fromLTRB(25, 10, 25, 10)),
       child: ClayContainer(
         surfaceColor: clayContainerColor(context),
         parentColor: clayContainerColor(context),

@@ -1,9 +1,15 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/src/iterable_extensions.dart';
 import 'package:d_chart/d_chart.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/basic_fee_stats_widget.dart';
+import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
+import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_base_widget.dart';
@@ -28,9 +34,12 @@ class StudentInformationScreen extends StatefulWidget {
 class _StudentInformationScreenState extends State<StudentInformationScreen> {
   bool _isLoading = true;
   bool _loadingStudentAttendance = true;
-  bool _isAttendanceGraphView = false;
+  bool _isAttendanceGraphView = true;
 
   List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
+
+  StudentAnnualFeeBean? studentAnnualFeeBean;
+  List<StudentFeeReceipt> studentFeeReceipts = [];
 
   @override
   void initState() {
@@ -43,6 +52,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
       _isLoading = true;
     });
     await _loadStudentAttendance();
+    await _loadFeeData();
     setState(() {
       _isLoading = false;
     });
@@ -71,20 +81,185 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     });
   }
 
+  Future<void> _loadFeeData() async {
+    setState(() => _loadingStudentAttendance = true);
+    GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = await getStudentWiseAnnualFees(GetStudentWiseAnnualFeesRequest(
+      schoolId: widget.studentProfile.schoolId,
+      sectionId: widget.studentProfile.sectionId,
+      studentId: widget.studentProfile.studentId,
+    ));
+    StudentWiseAnnualFeesBean? annualFeesBean = (getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList ?? []).firstOrNull;
+    if (getStudentWiseAnnualFeesResponse.httpStatus != "OK" ||
+        getStudentWiseAnnualFeesResponse.responseStatus != "success" ||
+        annualFeesBean == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      List<int> feeTypeIds = (annualFeesBean.studentAnnualFeeMapBeanList ?? []).map((e) => e?.feeTypeId ?? 0).toSet().toList();
+      List<FeeType> feeTypes = feeTypeIds
+          .map((eachFeeTypeId) => FeeType(
+                customFeeTypesList: [],
+                feeType: (annualFeesBean.studentAnnualFeeMapBeanList ?? []).where((e) => e?.feeTypeId == eachFeeTypeId).firstOrNull?.feeType,
+                feeTypeDescription: "",
+                feeTypeId: eachFeeTypeId,
+                feeTypeStatus: (annualFeesBean.studentAnnualFeeMapBeanList ?? []).where((e) => e?.feeTypeId == eachFeeTypeId).firstOrNull?.status,
+                schoolDisplayName: widget.studentProfile.schoolName,
+                schoolId: widget.studentProfile.schoolId,
+              ))
+          .toList();
+      for (var eachFeeType in feeTypes) {
+        eachFeeType.customFeeTypesList = (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+            .where((e) => e?.feeTypeId == eachFeeType.feeTypeId && e?.customFeeTypeId != null)
+            .map((eachCustomFeeType) => CustomFeeType(
+                  customFeeType: eachCustomFeeType?.customFeeType,
+                  customFeeTypeDescription: "",
+                  customFeeTypeId: eachCustomFeeType?.customFeeTypeId,
+                  customFeeTypeStatus: eachCustomFeeType?.status,
+                  feeType: eachCustomFeeType?.feeType,
+                  feeTypeDescription: "",
+                  feeTypeId: eachCustomFeeType?.feeTypeId,
+                  feeTypeStatus: eachFeeType.feeTypeStatus,
+                  schoolDisplayName: widget.studentProfile.schoolName,
+                  schoolId: widget.studentProfile.schoolId,
+                ))
+            .toList();
+      }
+      setState(() => studentAnnualFeeBean = StudentAnnualFeeBean(
+            studentId: annualFeesBean.studentId,
+            rollNumber: annualFeesBean.rollNumber,
+            studentName: annualFeesBean.studentName,
+            totalFee: annualFeesBean.actualFee,
+            totalFeePaid: annualFeesBean.feePaid,
+            walletBalance: annualFeesBean.studentWalletBalance,
+            sectionId: annualFeesBean.sectionId,
+            sectionName: annualFeesBean.sectionName,
+            studentBusFeeBean: annualFeesBean.studentBusFeeBean,
+            studentAnnualFeeTypeBeans: feeTypes
+                .map(
+                  (eachFeeType) => StudentAnnualFeeTypeBean(
+                    feeTypeId: eachFeeType.feeTypeId,
+                    feeType: eachFeeType.feeType,
+                    studentFeeMapId: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.studentFeeMapId,
+                    sectionFeeMapId: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.sectionFeeMapId,
+                    amount: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.amount,
+                    amountPaid: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.amountPaid,
+                    studentAnnualCustomFeeTypeBeans: (eachFeeType.customFeeTypesList ?? [])
+                        .where((eachCustomFeeType) => eachCustomFeeType != null)
+                        .map((eachCustomFeeType) => eachCustomFeeType!)
+                        .map(
+                          (eachCustomFeeType) => StudentAnnualCustomFeeTypeBean(
+                            customFeeTypeId: eachCustomFeeType.customFeeTypeId,
+                            customFeeType: eachCustomFeeType.customFeeType,
+                            studentFeeMapId: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.studentFeeMapId,
+                            sectionFeeMapId: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.sectionFeeMapId,
+                            amount: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.amount,
+                            amountPaid: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.amountPaid,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                )
+                .toList(),
+          ));
+
+      GetStudentFeeReceiptsResponse studentFeeReceiptsResponse = await getStudentFeeReceipts(GetStudentFeeReceiptsRequest(
+        schoolId: widget.studentProfile.schoolId,
+        studentIds: [widget.studentProfile.studentId],
+      ));
+      if (studentFeeReceiptsResponse.httpStatus != "OK" || studentFeeReceiptsResponse.responseStatus != "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        setState(() {
+          studentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).toList();
+          studentFeeReceipts.sort((b, a) {
+            int dateCom = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
+            return (dateCom == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateCom;
+          });
+        });
+      }
+    }
+
+    setState(() => _loadingStudentAttendance = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.studentProfile.studentFirstName ?? ""),
       ),
-      body: ListView(
-        children: [
-          const SizedBox(height: 20),
-          StudentBaseWidget(context: context, studentProfile: widget.studentProfile),
-          const SizedBox(height: 20),
-          studentAttendanceCard(),
-        ],
-      ),
+      body: _isLoading
+          ? Center(
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
+            )
+          : ListView(
+              children: [
+                const SizedBox(height: 20),
+                StudentBaseWidget(context: context, studentProfile: widget.studentProfile),
+                const SizedBox(height: 20),
+                studentAttendanceCard(),
+                const SizedBox(height: 20),
+                studentFeeDetails(),
+                const SizedBox(height: 5),
+                studentFeeReceiptsButton(),
+                const SizedBox(height: 20),
+              ],
+            ),
     );
   }
 
@@ -104,6 +279,9 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
           child: Container(
             margin: const EdgeInsets.all(20),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: const [
                 SizedBox(height: 10),
                 Center(
@@ -128,35 +306,6 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
         ),
       );
     }
-    double screenWidth =
-        (MediaQuery.of(context).orientation == Orientation.portrait ? MediaQuery.of(context).size.width : MediaQuery.of(context).size.width / 2) - 50;
-    double eachWidgetHeight = 105;
-    double eachWidgetWidth = MediaQuery.of(context).orientation == Orientation.portrait ? 100 : 150;
-    List<Widget> rows = [];
-    int index = 0;
-    double horizontalPadding = MediaQuery.of(context).orientation == Orientation.portrait ? 7.5 : 15;
-    double verticalPadding = MediaQuery.of(context).orientation == Orientation.portrait ? 7.5 : 15;
-    while (index < studentMonthWiseAttendanceList.length) {
-      List<Widget> eachRowChildren = [];
-      double remainingWidth = screenWidth;
-      while (remainingWidth > (eachWidgetWidth) && index < studentMonthWiseAttendanceList.length) {
-        eachRowChildren.add(Padding(
-          padding: EdgeInsets.fromLTRB(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding),
-          child:
-              monthWiseTile(studentMonthWiseAttendanceList[index], eachWidgetHeight - 2 * verticalPadding, eachWidgetWidth - 2 * horizontalPadding),
-        ));
-        remainingWidth -= (eachWidgetWidth);
-        index += 1;
-      }
-      rows.add(
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: eachRowChildren,
-        ),
-      );
-    }
 
     return Container(
       padding: MediaQuery.of(context).orientation == Orientation.portrait
@@ -167,7 +316,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
         depth: 40,
         surfaceColor: clayContainerColor(context),
         parentColor: clayContainerColor(context),
-        spread: 2,
+        spread: 1,
         borderRadius: 10,
         child: Container(
           margin: const EdgeInsets.all(20),
@@ -179,7 +328,6 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      const SizedBox(width: 10),
                       const Expanded(
                         child: Text(
                           "Attendance",
@@ -199,9 +347,17 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                           parentColor: clayContainerColor(context),
                           borderRadius: 100,
                           child: Container(
-                            margin: const EdgeInsets.all(10),
-                            padding: const EdgeInsets.all(10),
-                            child: !_isAttendanceGraphView ? const Icon(Icons.auto_graph_sharp, size: 12,) : const Icon(Icons.grid_view_rounded, size: 12,),
+                            margin: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(4),
+                            child: !_isAttendanceGraphView
+                                ? const Icon(
+                                    Icons.auto_graph_sharp,
+                                    size: 12,
+                                  )
+                                : const Icon(
+                                    Icons.grid_view_rounded,
+                                    size: 12,
+                                  ),
                           ),
                         ),
                       ),
@@ -247,9 +403,9 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                 ] +
-                (_isAttendanceGraphView ? [graphView()] : rows) +
+                (_isAttendanceGraphView ? [graphView()] : gridViewWidgets()) +
                 <Widget>[
                   const SizedBox(height: 10),
                 ],
@@ -269,7 +425,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: DChartBarCustom(
-        loadingDuration: const Duration(milliseconds: 1500),
+        loadingDuration: const Duration(milliseconds: 500),
         showLoading: true,
         valueAlign: Alignment.topCenter,
         showDomainLine: true,
@@ -289,9 +445,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
         listData: List.generate(ranking.length, (index) {
           return DChartBarDataCustom(
             onTap: () {
-              print(
-                '${ranking[index]['monthYear']} => ${ranking[index]['percentage']}',
-              );
+              debugPrint('${ranking[index]['monthYear']} => ${ranking[index]['percentage']}');
             },
             elevation: 8,
             value: ranking[index]['percentage'].toDouble(),
@@ -323,11 +477,93 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     );
   }
 
-  Widget monthWiseTile(StudentMonthWiseAttendance e, double height, double width) {
+  List<Widget> gridViewWidgets() {
+    List<Widget> rows = [];
+    double eachTileWidth = (((MediaQuery.of(context).orientation == Orientation.landscape
+                    ? (MediaQuery.of(context).size.width / 2)
+                    : (MediaQuery.of(context).size.width - 20)) -
+                20) /
+            3) -
+        20;
+    double eachTileHeight = 100;
+    double totalWidthToFill = (MediaQuery.of(context).orientation == Orientation.landscape
+            ? (MediaQuery.of(context).size.width / 2)
+            : (MediaQuery.of(context).size.width - 20)) -
+        20;
+    double remainingWidth = totalWidthToFill;
+    Widget marginWidget = const SizedBox(width: 10);
+    List<Widget> rowsChildren = [];
+    for (var eachMonthWiseBean in studentMonthWiseAttendanceList) {
+      if (remainingWidth <= eachTileWidth) {
+        remainingWidth = totalWidthToFill;
+        rows.add(Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [marginWidget] + rowsChildren,
+        ));
+        rows.add(const SizedBox(height: 10));
+        rowsChildren = [];
+      }
+      rowsChildren.add(monthWiseTile(eachMonthWiseBean, height: eachTileHeight, width: eachTileWidth));
+      rowsChildren.add(marginWidget);
+      remainingWidth -= eachTileWidth;
+    }
+    return rows;
+  }
+
+  Widget monthWiseTile(StudentMonthWiseAttendance e, {double height = 0, double width = 0}) {
     double percentage = (e.present ?? 0.0) / ((e.present ?? 0.0) + (e.absent ?? 0.0)) * 100.0;
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      return SizedBox(
+        height: height == 0 ? null : height,
+        width: width == 0 ? null : width,
+        child: ClayContainer(
+          emboss: true,
+          depth: 40,
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 2,
+          borderRadius: 10,
+          child: Center(
+            child: RichText(
+              text: TextSpan(
+                text: "${MONTHS[(e.month ?? 1) - 1].substring(0, 3).toLowerCase().capitalize()} ${e.year ?? "-"}\n",
+                style: const TextStyle(
+                  color: Colors.blue,
+                ),
+                children: [
+                  TextSpan(
+                    text: "Present: ${doubleToStringAsFixed(e.present ?? 0.0)}\n",
+                    style: TextStyle(
+                      color: percentage >= 75
+                          ? Colors.green
+                          : percentage >= 65
+                          ? Colors.amber
+                          : Colors.red,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "Total: ${doubleToStringAsFixed((e.present ?? 0.0) + (e.absent ?? 0.0))}",
+                    style: TextStyle(
+                      color: percentage >= 75
+                          ? Colors.green
+                          : percentage >= 65
+                          ? Colors.amber
+                          : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
     return SizedBox(
-      height: height,
-      width: width,
+      height: height == 0 ? null : height,
+      width: width == 0 ? null : width,
       child: FlipCard(
         fill: Fill.fillBack,
         direction: FlipDirection.HORIZONTAL,
@@ -339,33 +575,28 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
           parentColor: clayContainerColor(context),
           spread: 2,
           borderRadius: 10,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 5),
-              Text(
-                "${MONTHS[(e.month ?? 1) - 1].substring(0, 3).toLowerCase().capitalize()} ${e.year ?? "-"}",
+          child: Center(
+            child: RichText(
+              text: TextSpan(
+                text: "${MONTHS[(e.month ?? 1) - 1].substring(0, 3).toLowerCase().capitalize()} ${e.year ?? "-"}\n",
                 style: const TextStyle(
                   color: Colors.blue,
                 ),
-                textAlign: TextAlign.center,
+                children: [
+                  TextSpan(
+                    text: doubleToStringAsFixed(percentage) + " %",
+                    style: TextStyle(
+                      color: percentage >= 75
+                          ? Colors.green
+                          : percentage >= 65
+                              ? Colors.amber
+                              : Colors.red,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              Text(
-                doubleToStringAsFixed(percentage) + " %",
-                style: TextStyle(
-                  color: percentage >= 75
-                      ? Colors.green
-                      : percentage >= 65
-                          ? Colors.amber
-                          : Colors.red,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 5),
-            ],
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
         back: ClayContainer(
@@ -375,48 +606,95 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
           parentColor: clayContainerColor(context),
           spread: 2,
           borderRadius: 10,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 5),
-              Text(
-                "${MONTHS[(e.month ?? 1) - 1].substring(0, 3).toLowerCase().capitalize()} ${e.year ?? "-"}",
+          child: Center(
+            child: RichText(
+              text: TextSpan(
+                text: "${MONTHS[(e.month ?? 1) - 1].substring(0, 3).toLowerCase().capitalize()} ${e.year ?? "-"}\n",
                 style: const TextStyle(
                   color: Colors.blue,
                 ),
-                textAlign: TextAlign.center,
+                children: [
+                  TextSpan(
+                    text: "Present: ${doubleToStringAsFixed(e.present ?? 0.0)}\n",
+                    style: TextStyle(
+                      color: percentage >= 75
+                          ? Colors.green
+                          : percentage >= 65
+                              ? Colors.amber
+                              : Colors.red,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "Total: ${doubleToStringAsFixed((e.present ?? 0.0) + (e.absent ?? 0.0))}",
+                    style: TextStyle(
+                      color: percentage >= 75
+                          ? Colors.green
+                          : percentage >= 65
+                              ? Colors.amber
+                              : Colors.red,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 5),
-              Text(
-                "Present: ${doubleToStringAsFixed(e.present ?? 0.0)}",
-                style: TextStyle(
-                  color: percentage >= 75
-                      ? Colors.green
-                      : percentage >= 65
-                          ? Colors.amber
-                          : Colors.red,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 5),
-              Text(
-                "Total: ${doubleToStringAsFixed((e.present ?? 0.0) + (e.absent ?? 0.0))}",
-                style: TextStyle(
-                  color: percentage >= 75
-                      ? Colors.green
-                      : percentage >= 65
-                          ? Colors.amber
-                          : Colors.red,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 5),
-            ],
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
         flipOnTouch: true,
+      ),
+    );
+  }
+
+  Widget studentFeeDetails() {
+    if (studentAnnualFeeBean == null) return Container();
+    return BasicFeeStatsReadWidget(
+      studentWiseAnnualFeesBean: studentAnnualFeeBean!,
+      context: context,
+      alignMargin: true,
+      title: "Fee Particulars",
+      customMargin: MediaQuery.of(context).orientation == Orientation.portrait
+          ? const EdgeInsets.all(10)
+          : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10),
+    );
+  }
+
+  Widget studentFeeReceiptsButton() {
+    return Container(
+      padding: MediaQuery.of(context).orientation == Orientation.portrait
+          ? const EdgeInsets.all(10)
+          : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10),
+      child: GestureDetector(
+        onTap: () async {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return StudentFeeScreenV3(
+                  studentProfile: widget.studentProfile,
+                  adminProfile: widget.adminProfile,
+                );
+              },
+            ),
+          ).then((value) => _loadData());
+        },
+        child: ClayButton(
+          depth: 40,
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 5,
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              child: const Text(
+                "Receipts",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

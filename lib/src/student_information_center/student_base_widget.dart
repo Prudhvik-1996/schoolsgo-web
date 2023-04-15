@@ -24,7 +24,7 @@ class StudentBaseWidget extends StatelessWidget {
         depth: 40,
         surfaceColor: clayContainerColor(context),
         parentColor: clayContainerColor(context),
-        spread: 2,
+        spread: 1,
         borderRadius: 10,
         child: Container(
           margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
