@@ -623,7 +623,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                 child: Text("Total credit amount:"),
               ),
               Text(
-                "$INR_SYMBOL ${doubleToStringAsFixedForINR((filteredTransactions.where((e) => e.transactionKind == "CR").map((e) => e.amount ?? 0).toList().sum) / 100)}",
+                "$INR_SYMBOL ${doubleToStringAsFixedForINR((filteredTransactions.where((e) => e.transactionKind == "CR" && e.status == "active").map((e) => e.amount ?? 0).toList().sum) / 100)}",
               ),
               const SizedBox(
                 width: 10,
@@ -644,7 +644,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                 child: Text("Total debit amount:"),
               ),
               Text(
-                "$INR_SYMBOL ${doubleToStringAsFixedForINR((filteredTransactions.where((e) => e.transactionKind == "DB").map((e) => e.amount ?? 0).toList().sum) / 100)}",
+                "$INR_SYMBOL ${doubleToStringAsFixedForINR((filteredTransactions.where((e) => e.transactionKind == "DB" && e.status == "active").map((e) => e.amount ?? 0).toList().sum) / 100)}",
               ),
               const SizedBox(
                 width: 10,

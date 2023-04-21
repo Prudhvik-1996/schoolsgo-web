@@ -1,8 +1,10 @@
 import 'package:clay_containers/widgets/clay_container.dart';
-import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:schoolsgo_web/src/admin_dashboard/admin_stats_widget.dart';
+import 'package:schoolsgo_web/src/admin_dashboard/modal/stats.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -13,6 +15,7 @@ import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
+import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminDashboard extends StatefulWidget {
@@ -29,6 +32,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
   bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  int? totalAcademicFee;
+  int? totalAcademicFeeCollected;
+  int? totalBusFee;
+  int? totalBusFeeCollected;
+  int? totalFeeCollectedForTheDay;
+  int? totalNoOfStudents;
+  int? totalNoOfStudentsMarkedForAttendance;
+  int? totalNoOfStudentsPresent;
+  int? totalNoOfEmployees;
+  int? totalNoOfEmployeesMarkedForAttendance;
+  int? totalNoOfEmployeesPresent;
+
+  bool showStats = false;
+
   @override
   void initState() {
     super.initState();
@@ -37,8 +54,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 3;
-    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? MediaQuery.of(context).size.width / 10 : 10;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       restorationId: 'AdminDashBoard',
@@ -47,6 +62,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
         title: const Text("Admin Dashboard"),
         actions: [
           buildRoleButtonForAppBar(context, widget.adminProfile),
+          if (canGoToDashBoard)
+            InkWell(
+              onTap: () {
+                setState(() => showStats = !showStats);
+              },
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                child: Icon(
+                  showStats ? Icons.info_sharp : Icons.info_outline,
+                  color: Colors.white,
+                ),
+              ),
+            ),
           InkWell(
             onTap: () {
               showDialog(
@@ -106,94 +134,118 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
             )
           : canGoToDashBoard
-              ? ListView(
-                  physics: const BouncingScrollPhysics(),
-                  controller: ScrollController(),
-                  children: [
-                    EisStandardHeader(
-                      title: ClayText(
-                        "Admin Dashboard",
-                        size: 32,
-                        textColor: Colors.blueGrey,
-                        spread: 2,
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
-                      child: GridView.count(
-                        primary: false,
-                        padding: const EdgeInsets.all(1.5),
-                        crossAxisCount: count,
-                        childAspectRatio: 1,
-                        mainAxisSpacing: 1.0,
-                        crossAxisSpacing: 1.0,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: adminDashBoardWidgets(widget.adminProfile)
-                            .map(
-                              (e) => GestureDetector(
-                                onTap: () {
-                                  debugPrint("Entering ${e.routeName}");
-                                  Navigator.pushNamed(
-                                    context,
-                                    e.routeName!,
-                                    arguments: e.argument as AdminProfile,
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  margin: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 7.0 : 0.0),
-                                  child: ClayButton(
-                                    depth: 40,
-                                    surfaceColor: clayContainerColor(context),
-                                    parentColor: clayContainerColor(context),
-                                    spread: 1,
-                                    borderRadius: 10,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Expanded(
-                                          flex: 3,
-                                          child: Container(
-                                            height: 50,
-                                            width: 50,
-                                            padding: const EdgeInsets.all(5),
-                                            child: FittedBox(
-                                              fit: BoxFit.contain,
-                                              child: Center(
-                                                child: e.image,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            height: 20,
-                                            padding: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 2),
-                                            width: double.infinity,
-                                            child: FittedBox(
-                                              fit: BoxFit.scaleDown,
-                                              child: Center(
-                                                child: Text("${e.title}"),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ), //new Cards()
-                            )
-                            .toList(),
-                        shrinkWrap: true,
-                      ),
-                    ),
-                  ],
-                )
+              ? buildOldDashBoardView()
               : goToSignUpPage
                   ? signUpPin()
                   : pinScreen(),
+    );
+  }
+
+  ListView buildOldDashBoardView() {
+    int count = MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 3;
+    double mainMargin = MediaQuery.of(context).orientation == Orientation.landscape ? 20 : 10;
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      controller: ScrollController(),
+      children: [
+        EisStandardHeader(
+          title: Text(
+            "Admin Dashboard",
+            style: GoogleFonts.archivoBlack(
+              textStyle: TextStyle(
+                fontSize: 36,
+                color: isDarkTheme(context) ? clayContainerTextColor(context) : Colors.white54,
+              ),
+            ),
+          ),
+        ),
+        if (showStats)
+          AdminStatsWidget(
+            context: context,
+            totalAcademicFee: totalAcademicFee,
+            totalAcademicFeeCollected: totalAcademicFeeCollected,
+            totalBusFee: totalBusFee,
+            totalBusFeeCollected: totalBusFeeCollected,
+            totalFeeCollectedForTheDay: totalFeeCollectedForTheDay,
+            totalNoOfStudents: totalNoOfStudents,
+            totalNoOfStudentsMarkedForAttendance: totalNoOfStudentsMarkedForAttendance,
+            totalNoOfStudentsPresent: totalNoOfStudentsPresent,
+            totalNoOfEmployees: totalNoOfEmployees,
+            totalNoOfEmployeesMarkedForAttendance: totalNoOfEmployeesMarkedForAttendance,
+            totalNoOfEmployeesPresent: totalNoOfEmployeesPresent,
+          ),
+        Container(
+          margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
+          child: GridView.count(
+            primary: false,
+            padding: const EdgeInsets.all(1.5),
+            crossAxisCount: count,
+            childAspectRatio: 1,
+            mainAxisSpacing: 1.0,
+            crossAxisSpacing: 1.0,
+            physics: const NeverScrollableScrollPhysics(),
+            children: adminDashBoardWidgets(widget.adminProfile)
+                .map(
+                  (e) => GestureDetector(
+                    onTap: () {
+                      debugPrint("Entering ${e.routeName}");
+                      Navigator.pushNamed(
+                        context,
+                        e.routeName!,
+                        arguments: e.argument as AdminProfile,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      margin: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 7.0 : 0.0),
+                      child: ClayButton(
+                        depth: 40,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        spread: 1,
+                        borderRadius: 10,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                height: 50,
+                                width: 50,
+                                padding: const EdgeInsets.all(5),
+                                child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: Center(
+                                    child: e.image,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                height: 20,
+                                padding: EdgeInsets.all(MediaQuery.of(context).orientation == Orientation.landscape ? 5 : 2),
+                                width: double.infinity,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Center(
+                                    child: Text("${e.title}"),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ), //new Cards()
+                )
+                .toList(),
+            shrinkWrap: true,
+          ),
+        ),
+      ],
     );
   }
 
@@ -215,7 +267,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       await prefs.remove('USER_FOUR_DIGIT_PIN');
     }
     if (getUserDetailsResponse.userDetails!.first.mailId == null) {
-      setState(() => canGoToDashBoard = true);
+      goToDashboardAction();
     }
     setState(() {
       fourDigitPin = prefs.getString('USER_FOUR_DIGIT_PIN');
@@ -223,6 +275,37 @@ class _AdminDashboardState extends State<AdminDashboard> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  Future<void> goToDashboardAction() async {
+    setState(() => _isLoading = true);
+    GetSchoolWiseStatsResponse statsResponse = await getSchoolWiseStats(GetSchoolWiseStatsRequest(
+      schoolId: widget.adminProfile.schoolId,
+      date: convertDateTimeToYYYYMMDDFormat(null),
+    ));
+    if (statsResponse.httpStatus != "OK" || statsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong while loading today's stats! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        totalAcademicFee = statsResponse.totalAcademicFee;
+        totalAcademicFeeCollected = statsResponse.totalAcademicFeeCollected;
+        totalBusFee = statsResponse.totalBusFee;
+        totalBusFeeCollected = statsResponse.totalBusFeeCollected;
+        totalFeeCollectedForTheDay = statsResponse.totalFeeCollectedForTheDay;
+        totalNoOfStudents = statsResponse.totalNoOfStudents;
+        totalNoOfStudentsMarkedForAttendance = statsResponse.totalNoOfStudentsMarkedForAttendance;
+        totalNoOfStudentsPresent = statsResponse.totalNoOfStudentsPresent;
+        totalNoOfEmployees = statsResponse.totalNoOfEmployees;
+        totalNoOfEmployeesPresent = statsResponse.totalNoOfEmployeesPresent;
+        totalNoOfEmployeesMarkedForAttendance = statsResponse.totalNoOfEmployeesMarkedForAttendance;
+      });
+    }
+    setState(() => _isLoading = false);
+    setState(() => canGoToDashBoard = true);
   }
 
   Future<void> _sendOtp() async {
@@ -471,7 +554,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         });
         if (e == fourDigitPin) {
           setState(() {
-            canGoToDashBoard = true;
+            goToDashboardAction();
           });
         }
       },
@@ -648,7 +731,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           } else {
             _loadPrefs();
             setState(() {
-              canGoToDashBoard = true;
+              goToDashboardAction();
             });
           }
         }

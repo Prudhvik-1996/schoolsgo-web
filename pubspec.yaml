@@ -157,6 +157,7 @@ flutter:
     - assets/images/school.svg
     - assets/images/payslips.svg
     - assets/images/student_management.svg
+    - assets/images/student_info.svg
     - assets/images/tick_icon.png
     - assets/images/logbook.svg
     - assets/images/cross_icon.png
@@ -177,6 +178,8 @@ flutter:
     - assets/images/stats.svg
     - assets/images/gear-loader.gif
     - assets/images/EISlogo.png
+    - assets/images/INR_symbol.png
+    - assets/images/student.png
     - assets/demo/student/diary/diary.pdf
     - assets/demo/student/notice_board/notice_board.pdf
 

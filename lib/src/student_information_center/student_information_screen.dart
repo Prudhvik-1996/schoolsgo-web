@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
+import 'package:schoolsgo_web/src/student_information_center/modal/student_comments.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_base_widget.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -24,7 +25,7 @@ class StudentInformationScreen extends StatefulWidget {
     required this.studentProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
   final StudentProfile studentProfile;
 
   @override
@@ -33,13 +34,17 @@ class StudentInformationScreen extends StatefulWidget {
 
 class _StudentInformationScreenState extends State<StudentInformationScreen> {
   bool _isLoading = true;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _loadingStudentAttendance = true;
   bool _isAttendanceGraphView = true;
+  final _bodyController = ScrollController();
 
   List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
 
   StudentAnnualFeeBean? studentAnnualFeeBean;
   List<StudentFeeReceipt> studentFeeReceipts = [];
+
+  List<StudentCommentBean> studentComments = [];
 
   @override
   void initState() {
@@ -53,6 +58,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     });
     await _loadStudentAttendance();
     await _loadFeeData();
+    await _loadStudentComments();
     setState(() {
       _isLoading = false;
     });
@@ -233,9 +239,38 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     setState(() => _loadingStudentAttendance = false);
   }
 
+  Future<void> _loadStudentComments() async {
+    setState(() => _isLoading = true);
+    GetStudentCommentsResponse getStudentCommentsResponse = await getStudentComments(GetStudentCommentsRequest(
+      studentId: widget.studentProfile.studentId,
+      schoolId: widget.studentProfile.schoolId,
+    ));
+    if (getStudentCommentsResponse.httpStatus != "OK" || getStudentCommentsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        studentComments = (getStudentCommentsResponse.studentCommentBeans ?? []).where((e) => e != null).map((e) => e!).toList();
+      });
+    }
+    setState(() => _isLoading = false);
+  }
+
+  void _scrollDown() {
+    _bodyController.animateTo(
+      _bodyController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.bounceIn,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(widget.studentProfile.studentFirstName ?? ""),
       ),
@@ -248,9 +283,14 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
               ),
             )
           : ListView(
+        controller: _bodyController,
               children: [
                 const SizedBox(height: 20),
-                StudentBaseWidget(context: context, studentProfile: widget.studentProfile),
+                StudentBaseWidget(
+                  context: context,
+                  studentProfile: widget.studentProfile,
+                  emboss: true,
+                ),
                 const SizedBox(height: 20),
                 studentAttendanceCard(),
                 const SizedBox(height: 20),
@@ -258,9 +298,79 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                 const SizedBox(height: 5),
                 studentFeeReceiptsButton(),
                 const SizedBox(height: 20),
+                studentCommentsWidget(),
+                const SizedBox(height: 100),
               ],
             ),
+      floatingActionButton: _isLoading ? null : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _scrollToBottomButton(),
+            if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true))) const SizedBox(height: 20),
+            if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true))) _buildAddNewFAB(),
+          ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildAddNewFAB() {
+    return Tooltip(
+            message: "Add new comment",
+            child: GestureDetector(
+              onTap: () {
+                  setState(() => studentComments.add(StudentCommentBean(
+                        isAdmin: widget.adminProfile != null ? "Y" : "N",
+                        admissionNo: widget.studentProfile.admissionNo,
+                        agent: widget.adminProfile?.userId,
+                        commentId: null,
+                        commentedBy: widget.adminProfile?.userId,
+                        commenter: widget.adminProfile?.firstName,
+                        date: null,
+                        note: "",
+                        isPtm: "N",
+                        rollNumber: widget.studentProfile.rollNumber,
+                        schoolId: widget.studentProfile.schoolId,
+                        sectionId: widget.studentProfile.sectionId,
+                        sectionName: widget.studentProfile.sectionName,
+                        status: "active",
+                        studentId: widget.studentProfile.studentId,
+                        studentName: widget.studentProfile.studentFirstName,
+                      )..isEditMode = true));
+              },
+              child: ClayButton(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 100,
+                child: Container(
+                  margin: const EdgeInsets.all(4),
+                  child: const Icon(Icons.add),
+                ),
+              ),
+            ),
+          );
+  }
+
+  Widget _scrollToBottomButton() {
+    return GestureDetector(
+        onTap: _scrollDown,
+    child: ClayButton(
+    depth: 40,
+    parentColor: clayContainerColor(context),
+    surfaceColor: clayContainerColor(context),
+    spread: 1,
+    borderRadius: 100,
+    child: Container(
+    margin: const EdgeInsets.all(8),
+    child: const Icon(Icons.arrow_downward),
+    ),
+    ),);
   }
 
   Widget studentAttendanceCard() {
@@ -539,8 +649,8 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                       color: percentage >= 75
                           ? Colors.green
                           : percentage >= 65
-                          ? Colors.amber
-                          : Colors.red,
+                              ? Colors.amber
+                              : Colors.red,
                     ),
                   ),
                   TextSpan(
@@ -549,8 +659,8 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                       color: percentage >= 75
                           ? Colors.green
                           : percentage >= 65
-                          ? Colors.amber
-                          : Colors.red,
+                              ? Colors.amber
+                              : Colors.red,
                     ),
                   ),
                 ],
@@ -696,6 +806,354 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget studentCommentsWidget() {
+    return Container(
+      padding: MediaQuery.of(context).orientation == Orientation.portrait
+          ? const EdgeInsets.all(10)
+          : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10),
+      child: ClayContainer(
+        emboss: false,
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(height: 10),
+              Row(
+                children: const [
+                  Expanded(
+                    child: Text(
+                      "Comments",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 24,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 10),
+              ...studentComments.map((e) => studentCommentWidget(e)),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget studentCommentWidget(StudentCommentBean e) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: ClayContainer(
+        emboss: true,
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Row(),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: e.isEditMode ? buildTextFieldForNote(e) : Text(e.note ?? "-"),
+                  ),
+                  const SizedBox(width: 10),
+                  if (widget.adminProfile != null &&
+                      (studentComments.map((e) => e.commentId).contains(null) ? e.commentId == null : e.commentId != null))
+                    GestureDetector(
+                      onTap: () => e.isEditMode ? createOrUpdateCommentAction(e) : setState(() => e.isEditMode = true),
+                      child: ClayButton(
+                        depth: 40,
+                        spread: 2,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        borderRadius: 100,
+                        child: Container(
+                          margin: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(
+                            e.isEditMode ? Icons.check : Icons.edit,
+                            size: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (widget.adminProfile != null && e.isEditMode && e.commentId != null) const SizedBox(width: 10),
+                  if (widget.adminProfile != null && e.isEditMode && e.commentId != null)
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: _scaffoldKey.currentContext!,
+                          builder: (currentContext) {
+                            return AlertDialog(
+                              title: const Text("Student Notes"),
+                              content: const Text("Are you sure you want to delete the comment?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    createOrUpdateCommentAction(e..status = "inactive");
+                                  },
+                                  child: const Text("YES"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text("No"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: ClayButton(
+                        depth: 40,
+                        spread: 2,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        borderRadius: 100,
+                        child: Container(
+                          margin: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(4),
+                          child: const Icon(
+                            Icons.delete,
+                            size: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (widget.adminProfile != null && e.isEditMode) const SizedBox(width: 10),
+                  if (widget.adminProfile != null && e.isEditMode)
+                    GestureDetector(
+                      onTap: () {
+                        if (e.commentId == null) {
+                          setState(() {
+                            studentComments.remove(e);
+                          });
+                        } else {
+                          setState(() {
+                            e.isEditMode = false;
+                            e.date = StudentCommentBean.fromJson(e.origJson()).date;
+                            e.note = StudentCommentBean.fromJson(e.origJson()).note;
+                            e.isPtm = StudentCommentBean.fromJson(e.origJson()).isPtm;
+                            e.noteEditingController.text = StudentCommentBean.fromJson(e.origJson()).note ?? "";
+                          });
+                        }
+                      },
+                      child: ClayButton(
+                        depth: 40,
+                        spread: 2,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        borderRadius: 100,
+                        child: Container(
+                          margin: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(4),
+                          child: const Icon(
+                            Icons.close,
+                            size: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (widget.adminProfile != null) const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const SizedBox(width: 10),
+                  if (e.isPtm == "Y" && !e.isEditMode)
+                    ClayContainer(
+                      depth: 40,
+                      spread: 2,
+                      surfaceColor: e.isPtm == "Y" ? Colors.blue : clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      borderRadius: 10,
+                      child: Container(
+                        margin: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(4),
+                        child: const Text("PTM"),
+                      ),
+                    ),
+                  if (e.isEditMode)
+                    GestureDetector(
+                      onTap: () => setState(() => (e.isPtm ?? "N") == "N" ? e.isPtm = "Y" : e.isPtm = "N"),
+                      child: ClayButton(
+                        depth: 40,
+                        spread: 2,
+                        surfaceColor: e.isPtm == "Y" ? Colors.blue : clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        borderRadius: 10,
+                        child: Container(
+                          margin: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(4),
+                          child: const Text("PTM"),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      "",
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "Commented by:\n" + (e.commenter ?? "-"),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  e.isEditMode
+                      ? _getDatePicker(e)
+                      : Text(
+                          convertDateToDDMMMYYY(e.date),
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            color: Colors.blue,
+                          ),
+                        ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _getDatePicker(StudentCommentBean e) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+      padding: const EdgeInsets.all(8),
+      child: GestureDetector(
+        onTap: () async {
+          DateTime? _newDate = await showDatePicker(
+            context: context,
+            initialDate: convertYYYYMMDDFormatToDateTime(e.date),
+            firstDate: DateTime.now().subtract(const Duration(days: 2 * 365)),
+            lastDate: DateTime.now(),
+            helpText: "Pick Commented Date",
+          );
+          if (_newDate == null || _newDate.millisecondsSinceEpoch == convertYYYYMMDDFormatToDateTime(e.date).millisecondsSinceEpoch) return;
+          setState(() {
+            e.date = convertDateTimeToYYYYMMDDFormat(_newDate);
+          });
+        },
+        child: ClayButton(
+          depth: 40,
+          color: clayContainerColor(context),
+          spread: 2,
+          borderRadius: 10,
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                e.date == null ? "Commented Date: -" : "Commented Date: ${convertDateToDDMMMYYY(e.date)}",
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> createOrUpdateCommentAction(StudentCommentBean e) async {
+    if (e.isEditMode) {
+      if ((e.note ?? "").trim() == e.noteEditingController.text.trim() &&
+          e.isPtm == StudentCommentBean.fromJson(e.origJson()).isPtm &&
+          e.date == StudentCommentBean.fromJson(e.origJson()).date &&
+          e.status == StudentCommentBean.fromJson(e.origJson()).status) {
+        setState(() => e.isEditMode = !e.isEditMode);
+        return;
+      }
+      setState(() => _isLoading = true);
+      CreateOrUpdateStudentCommentRequest createOrUpdateStudentCommentRequest = CreateOrUpdateStudentCommentRequest(e
+        ..note = e.noteEditingController.text.trim()
+        ..agent = widget.adminProfile?.userId);
+      CreateOrUpdateStudentCommentResponse createOrUpdateStudentCommentResponse =
+          await createOrUpdateStudentComment(createOrUpdateStudentCommentRequest);
+      if (createOrUpdateStudentCommentResponse.httpStatus != "OK" || createOrUpdateStudentCommentResponse.responseStatus != "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        await _loadStudentComments();
+      }
+      setState(() => _isLoading = false);
+    }
+  }
+
+  TextFormField buildTextFieldForNote(StudentCommentBean e) {
+    return TextFormField(
+      controller: e.noteEditingController,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        label: Text(
+          "Note",
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+      maxLines: null,
+      style: const TextStyle(
+        fontSize: 16,
+      ),
+      textAlign: TextAlign.start,
     );
   }
 }

@@ -36,8 +36,9 @@ class BasicFeeStatsReadWidget extends StatelessWidget {
           Expanded(
             child: Text(
               title ?? "${studentWiseAnnualFeesBean.rollNumber ?? "-"}. ${studentWiseAnnualFeesBean.studentName}",
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                color: title == null ? null : Colors.blue,
+                fontSize: title == null ? 18 : 24,
               ),
               textAlign: TextAlign.start,
             ),

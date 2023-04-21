@@ -1,12 +1,9 @@
-import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_base_widget.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_screen.dart';
-import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class StudentInformationCenterStudentsListScreen extends StatefulWidget {
   const StudentInformationCenterStudentsListScreen({
@@ -264,7 +261,11 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
           );
         }));
       },
-        child: StudentBaseWidget(context: context, studentProfile: studentProfile),
+      child: StudentBaseWidget(
+        context: context,
+        studentProfile: studentProfile,
+        isButton: true,
+      ),
     );
   }
 }

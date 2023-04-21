@@ -14,6 +14,7 @@ String allowCORSEndPoint = "https://api.allorigins.win/raw?url=";
 String INR_SYMBOL = "₹";
 
 const String GET_USER_DETAILS = "/users/getUserDetails";
+const String GET_SCHOOL_WISE_STATS = "/commons/getSchoolWiseStats";
 const String GET_SCHOOL_WISE_EMPLOYEES = "/users/getSchoolWiseEmployees";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String GET_SCHOOLS_DETAILS = "/commons/getSchoolInfo";
@@ -57,6 +58,8 @@ const String UPDATE_STUDENT_PROFILE = "/students/updateStudentBio";
 const String CREATE_OR_UPDATE_TEACHER_PROFILE = "/teachers/createOrUpdateTeacherProfile";
 const String CREATE_OR_UPDATE_ADMIN_PROFILE = "/users/createOrUpdateAdminProfile";
 const String CREATE_OR_UPDATE_BULK_STUDENT_PROFILES = "/students/createOrUpdateBulkStudentProfiles";
+const String GET_STUDENT_COMMENTS = "/students/getStudentComments";
+const String CREATE_OR_UPDATE_STUDENT_COMMENTS = "/students/createOrUpdateStudentComment";
 
 const String GET_TDS = "/timetable/getTeacherDealingSections";
 const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS = "/timetable/createOrUpdateTeacherDealingSections";

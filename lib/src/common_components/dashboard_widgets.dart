@@ -139,6 +139,12 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
           routeName: "/bus",
           argument: studentProfile,
         ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/student_management.svg"),
+      //   title: "Stats",
+      //   routeName: "/student_information_center",
+      //   argument: studentProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",
@@ -445,7 +451,7 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         argument: adminProfile,
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/student_management.svg"),
+        image: SvgPicture.asset("assets/images/student_info.svg"),
         title: "School Information Center",
         routeName: "/student_information_center",
         argument: adminProfile,
