@@ -1,0 +1,19 @@
+name: Publish Test Image
+on: [ pull_request ]
+jobs:
+  build-test-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD         
+      - name: Docker Build Image
+        run: |
+          DOCKER_BUILDKIT=1 docker build . -t epsilonis/schoolsgo-web:test
+      - name: Publish Docker Image
+        run: |
+          docker push epsilonis/schoolsgo-web:test
+          docker system prune -f -a
