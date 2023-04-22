@@ -179,7 +179,7 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                 child: Container(
                   margin: const EdgeInsets.all(8.0),
                   child: Text(
-                    "${widget.totalNoOfStudentsPresent ?? "-"} / ${widget.totalNoOfStudentsMarkedForAttendance == 0 ? "-" : widget.totalNoOfStudentsMarkedForAttendance}",
+                    "${((widget.totalNoOfStudentsMarkedForAttendance ?? 0) == 0) ? "-" : widget.totalNoOfStudentsMarkedForAttendance} / ${(widget.totalNoOfStudentsMarkedForAttendance ?? 0) == 0 ? widget.totalNoOfStudents : widget.totalNoOfStudentsMarkedForAttendance}",
                     style: GoogleFonts.archivoBlack(
                       textStyle: TextStyle(
                         fontSize: 18,

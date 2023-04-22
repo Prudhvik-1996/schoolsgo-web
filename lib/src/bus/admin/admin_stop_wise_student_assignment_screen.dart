@@ -105,12 +105,14 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
       List<StudentProfile> sectionWiseStudents = [];
       for (StudentProfile eachStudent in students) {
         if (eachSection.sectionId == eachStudent.sectionId) {
-          sectionWiseStudents.add(eachStudent);
+          if (!sectionWiseStudents.map((e) => e.studentId).contains(eachStudent.studentId)) {
+            sectionWiseStudents.add(eachStudent);
+          }
         }
       }
       sectionWiseStudentBeans.add(_SectionWiseStudentsBean(
         section: eachSection,
-        students: sectionWiseStudents,
+        students: sectionWiseStudents.toSet(),
       ));
     }
 
@@ -227,7 +229,6 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
     for (StudentProfile eachStudent in students) {
       int? oldStopId = oldStudentsList.where((e) => e.studentId == eachStudent.studentId).firstOrNull?.busStopId;
       int? newStopId = newStudentsList.where((e) => e.studentId == eachStudent.studentId).firstOrNull?.busStopId;
-      debugPrint("170: ${eachStudent.studentId} - $oldStopId - $newStopId");
       if ((oldStopId == null && newStopId != null) ||
           (oldStopId != null && newStopId == null) ||
           (oldStopId != null && newStopId != null && oldStopId != newStopId)) {
@@ -238,13 +239,14 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
         ));
       }
     }
+    updateBeans = updateBeans.toSet().toList();
     debugPrint("178: ${updateBeans.map((e) => e.toJson()).join("\n")}");
     if (updateBeans.isNotEmpty) {
       CreateOrUpdateStopWiseStudentsAssignmentResponse createOrUpdateStopWiseStudentsAssignmentResponse =
           await createOrUpdateStopWiseStudentsAssignment(CreateOrUpdateStopWiseStudentsAssignmentRequest(
         agent: widget.adminProfile.userId,
         schoolId: widget.adminProfile.schoolId,
-        stopWiseStudentBeans: updateBeans,
+        stopWiseStudentBeans: updateBeans.toSet().toList(),
       ));
       if (createOrUpdateStopWiseStudentsAssignmentResponse.httpStatus != "OK" ||
           createOrUpdateStopWiseStudentsAssignmentResponse.responseStatus != "success") {
@@ -1264,7 +1266,7 @@ class _StudentPickerDialogueState extends State<StudentPickerDialogue> {
 
 class _SectionWiseStudentsBean {
   late Section section;
-  late List<StudentProfile> students;
+  late Set<StudentProfile> students;
 
   _SectionWiseStudentsBean({required this.section, required this.students});
 }

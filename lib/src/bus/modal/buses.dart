@@ -1620,6 +1620,23 @@ class StopWiseStudentUpdateBean {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  String toString() {
+    return 'StopWiseStudentUpdateBean{newStopId: $newStopId, oldStopId: $oldStopId, studentId: $studentId}';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StopWiseStudentUpdateBean &&
+          runtimeType == other.runtimeType &&
+          newStopId == other.newStopId &&
+          oldStopId == other.oldStopId &&
+          studentId == other.studentId;
+
+  @override
+  int get hashCode => newStopId.hashCode ^ oldStopId.hashCode ^ studentId.hashCode;
 }
 
 class CreateOrUpdateStopWiseStudentsAssignmentRequest {
