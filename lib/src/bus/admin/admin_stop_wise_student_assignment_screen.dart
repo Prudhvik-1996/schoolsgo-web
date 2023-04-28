@@ -240,7 +240,6 @@ class _AdminStopWiseStudentAssignmentScreenState extends State<AdminStopWiseStud
       }
     }
     updateBeans = updateBeans.toSet().toList();
-    debugPrint("178: ${updateBeans.map((e) => e.toJson()).join("\n")}");
     if (updateBeans.isNotEmpty) {
       CreateOrUpdateStopWiseStudentsAssignmentResponse createOrUpdateStopWiseStudentsAssignmentResponse =
           await createOrUpdateStopWiseStudentsAssignment(CreateOrUpdateStopWiseStudentsAssignmentRequest(

@@ -203,7 +203,7 @@ class _LedgerReportScreenState extends State<LedgerReportScreen> {
             context: context,
             initialDate: _endDate == null ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(_endDate!),
             firstDate: DateTime(2021),
-            lastDate: DateTime(2023),
+            lastDate: DateTime(2024),
             helpText: "Pick end date",
           );
           if (_newDate == null || _newDate.millisecondsSinceEpoch == _endDate) return;
