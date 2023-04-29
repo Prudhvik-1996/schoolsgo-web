@@ -270,7 +270,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
         ),
       );
 
-  Future<void> makePdf() async {
+  Future<void> makePdf({int? transactionId}) async {
     setState(() {
       _renderingReceiptText = "Preparing receipts";
     });
@@ -292,11 +292,12 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     //   );
     // }
 
-    for (int i = 0; i < studentFeeReceipts.length; i++) {
-      StudentFeeReceipt eachTransaction = studentFeeReceipts[i];
+    List<StudentFeeReceipt> receiptsToPrint = studentFeeReceipts.where((e) => transactionId == null || e.transactionId == transactionId).toList();
+    for (int i = 0; i < receiptsToPrint.length; i++) {
+      StudentFeeReceipt eachTransaction = receiptsToPrint[i];
       setState(() {
         _renderingReceiptText = "Rendering receipt ${eachTransaction.receiptNumber}";
-        _loadingReceiptPercentage = 100.0 * (i / studentFeeReceipts.length);
+        _loadingReceiptPercentage = 100.0 * (i / receiptsToPrint.length);
       });
       List<pw.Widget> widgets = [];
       widgets.add(
@@ -729,7 +730,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                   : Stack(
                       children: [
                         ScrollablePositionedList.builder(
-                          initialScrollIndex: filteredStudentFeeReceipts.isNotEmpty ? 2 : 0,
+                          initialScrollIndex: 0,
                           physics: const BouncingScrollPhysics(),
                           itemScrollController: _itemScrollController,
                           itemCount: filteredStudentFeeReceipts.length,
@@ -740,6 +741,11 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                               isTermWise: isTermWise,
                               setState: setState,
                               reload: _loadData,
+                              makePdf: filteredStudentFeeReceipts[index].isEditMode
+                                  ? null
+                                  : (int? transactionId) async {
+                                makePdf(transactionId: transactionId);
+                              },
                             );
                           },
                         ),

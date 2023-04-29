@@ -1,9 +1,18 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+import 'dart:typed_data';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/basic_fee_stats_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
@@ -14,6 +23,7 @@ import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class StudentFeeScreenV3 extends StatefulWidget {
   const StudentFeeScreenV3({
@@ -43,6 +53,13 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
 
   SchoolInfoBean? schoolInfoBean;
   List<Section> sections = [];
+
+  bool isTermWise = false;
+
+  String? _renderingReceiptText;
+  double? _loadingReceiptPercentage;
+
+  Uint8List? pdfInBytes;
 
   @override
   void initState() {
@@ -244,6 +261,402 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
     });
   }
 
+  Future<void> makePdf({int? transactionId}) async {
+    setState(() {
+      _renderingReceiptText = "Preparing receipts";
+    });
+    if (schoolInfoBean == null) await getDataReadyToPrint();
+    if (schoolInfoBean == null) return;
+    final pdf = pw.Document();
+    final schoolNameFont = await PdfGoogleFonts.acmeRegular();
+    final font = await PdfGoogleFonts.merriweatherRegular();
+
+    // pw.ImageProvider logoImageProvider;
+    //
+    // try {
+    //   logoImageProvider = await networkImage(
+    //     schoolInfoBean.logoPictureUrl ?? "https://storage.googleapis.com/storage-schools-go/Episilon%20infinity.jpg",
+    //   );
+    // } catch (e) {
+    //   logoImageProvider = pw.MemoryImage(
+    //     (await rootBundle.load('images/EISlogo.png')).buffer.asUint8List(),
+    //   );
+    // }
+
+    List<StudentFeeReceipt> receiptsToPrint = studentFeeReceipts.where((e) => transactionId == null || e.transactionId == transactionId).toList();
+    for (int i = 0; i < receiptsToPrint.length; i++) {
+      StudentFeeReceipt eachTransaction = receiptsToPrint[i];
+      setState(() {
+        _renderingReceiptText = "Rendering receipt ${eachTransaction.receiptNumber}";
+        _loadingReceiptPercentage = 100.0 * (i / receiptsToPrint.length);
+      });
+      List<pw.Widget> widgets = [];
+      widgets.add(
+        pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.center,
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          children: [
+            // pw.Padding(
+            //   padding: const pw.EdgeInsets.fromLTRB(5, 5, 5, 5),
+            //   child: pw.Image(
+            //     logoImageProvider,
+            //     width: 60,
+            //     height: 60,
+            //   ),
+            // ),
+            // pw.SizedBox(width: 10),
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                mainAxisSize: pw.MainAxisSize.min,
+                children: [
+                  pw.Text(
+                    schoolInfoBean?.schoolDisplayName ?? "-",
+                    style: pw.TextStyle(font: schoolNameFont, fontSize: 30, color: PdfColors.blue),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                  pw.Text(
+                    schoolInfoBean?.detailedAddress ?? "-",
+                    style: pw.TextStyle(font: font, fontSize: 14, color: PdfColors.grey900),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+      pw.Container eachTxnContainer = pw.Container(
+        // decoration: pw.BoxDecoration(
+        //   border: pw.Border.all(color: PdfColors.black),
+        // ),
+        padding: const pw.EdgeInsets.fromLTRB(50, 10, 50, 10),
+        child: pw.Column(
+          children: [
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  child: pw.Text(
+                    "Fee Receipt",
+                    style: pw.TextStyle(
+                      font: font,
+                      fontSize: 18,
+                      decoration: pw.TextDecoration.underline,
+                      color: PdfColors.black,
+                    ),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                    flex: 3,
+                    child: pw.Row(mainAxisSize: pw.MainAxisSize.min, children: [
+                      pw.Text(
+                        "Receipt No.: ",
+                        style: pw.TextStyle(font: font, fontSize: 16),
+                        textAlign: pw.TextAlign.left,
+                      ),
+                      pw.Expanded(
+                        child: pw.Text(
+                          " ${eachTransaction.receiptNumber ?? "-"}",
+                          style: pw.TextStyle(
+                            font: font,
+                            fontSize: 16,
+                            color: PdfColors.red,
+                          ),
+                          textAlign: pw.TextAlign.left,
+                        ),
+                      ),
+                    ])),
+                pw.Expanded(
+                  flex: 2,
+                  child: pw.Text(
+                    "Date: ${convertDateToDDMMMYYY(eachTransaction.transactionDate)}",
+                    style: pw.TextStyle(font: font, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  child: pw.Text(
+                    "Student Name: ${eachTransaction.studentName ?? "-"}",
+                    style: pw.TextStyle(font: font, fontSize: 18),
+                  ),
+                ),
+              ],
+            ),
+            if (widget.studentProfile.fatherName != null)
+              pw.SizedBox(
+                height: 10,
+              ),
+            if (widget.studentProfile.fatherName != null)
+              pw.Row(
+                children: [
+                  pw.Expanded(
+                    child: pw.Text(
+                      "S/o / D/o: ${widget.studentProfile.fatherName ?? "-"}",
+                      style: pw.TextStyle(font: font, fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+            pw.SizedBox(
+              height: 10,
+            ),
+            pw.Row(
+              children: [
+                pw.Expanded(
+                  flex: 3,
+                  child: pw.Text(
+                    "Section: ${widget.studentProfile.sectionName ?? "-"}",
+                    style: pw.TextStyle(font: font, fontSize: 16),
+                  ),
+                ),
+                pw.Expanded(
+                  flex: 2,
+                  child: pw.Text(
+                    "Roll No.: ${widget.studentProfile.rollNumber ?? "-"}",
+                    style: pw.TextStyle(font: font, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            pw.SizedBox(
+              height: 10,
+            ),
+          ],
+        ),
+      );
+      widgets.add(eachTxnContainer);
+      widgets.add(
+        pw.Padding(
+          padding: const pw.EdgeInsets.fromLTRB(50, 10, 50, 10),
+          child: pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.black),
+            children: [
+              pw.TableRow(
+                children: [
+                  pw.Expanded(
+                    child: paddedText(
+                      "Particulars",
+                      font,
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      align: pw.TextAlign.center,
+                    ),
+                  ),
+                  paddedText(
+                    "Amount",
+                    font,
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                    align: pw.TextAlign.center,
+                  ),
+                ],
+              ),
+              ...childTransactionsPdfWidgets(eachTransaction, font),
+              pw.TableRow(
+                children: [
+                  pw.Expanded(
+                    child: paddedText(
+                      "Total",
+                      font,
+                      fontSize: 18,
+                      fontWeight: pw.FontWeight.bold,
+                      align: pw.TextAlign.center,
+                    ),
+                  ),
+                  paddedText(
+                    "$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTransaction.getTotalAmountForReceipt()) / 100)} /-",
+                    font,
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    align: pw.TextAlign.right,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+      widgets.add(
+        pw.Padding(
+          padding: const pw.EdgeInsets.fromLTRB(50, 10, 50, 10),
+          child: pw.Row(
+            children: [
+              paddedText(
+                "Mode Of Payment: ${eachTransaction.modeOfPayment ?? "CASH"}",
+                font,
+                fontSize: 14,
+                align: pw.TextAlign.left,
+              ),
+              pw.Expanded(
+                child: paddedText(
+                  "Signature",
+                  font,
+                  fontSize: 16,
+                  align: pw.TextAlign.right,
+                  padding: const pw.EdgeInsets.fromLTRB(6, 60, 6, 6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      pdf.addPage(pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (context) {
+          return widgets;
+        },
+      ));
+    }
+
+    var x = await pdf.save();
+    setState(() {
+      pdfInBytes = x;
+    });
+
+    final blob = html.Blob([pdfInBytes], 'application/pdf');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    html.AnchorElement anchorElement = html.AnchorElement(href: url);
+    anchorElement.download = "Receipts.pdf";
+    anchorElement.click();
+    setState(() {
+      _renderingReceiptText = null;
+    });
+  }
+
+  pw.Widget paddedText(
+    final String text,
+    final pw.Font font, {
+    final pw.EdgeInsets padding = const pw.EdgeInsets.all(6),
+    final pw.TextAlign align = pw.TextAlign.left,
+    final double fontSize = 16,
+    final pw.FontWeight fontWeight = pw.FontWeight.normal,
+  }) =>
+      pw.Padding(
+        padding: padding,
+        child: pw.Text(
+          text,
+          textAlign: align,
+          style: pw.TextStyle(
+            font: font,
+            fontSize: fontSize,
+            fontWeight: fontWeight,
+          ),
+        ),
+      );
+
+  List<pw.TableRow> childTransactionsPdfWidgets(StudentFeeReceipt receipt, pw.Font font) {
+    // return (e.studentFeeChildTransactionList ?? []).map((e) => Container()).toList();
+    List<pw.TableRow> childTxnWidgets = [];
+    (receipt.feeTypes ?? []).where((e) => e != null).map((e) => e!).forEach((eachFeeType) {
+      if ((eachFeeType.customFeeTypes ?? []).isEmpty) {
+        childTxnWidgets.add(
+          pw.TableRow(
+            children: [
+              pw.Expanded(
+                child: paddedText(eachFeeType.feeType ?? "-", font),
+              ),
+              !isTermWise || (eachFeeType.termWiseFeeComponents ?? []).isEmpty
+                  ? paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeType.amountPaidForTheReceipt ?? 0) / 100.0)} /-", font,
+                      align: pw.TextAlign.right)
+                  : paddedText("", font),
+            ],
+          ),
+        );
+        if (isTermWise && (eachFeeType.termWiseFeeComponents ?? []).isNotEmpty) {
+          for (TermWiseFeeComponent eachTermComponent in (eachFeeType.termWiseFeeComponents ?? []).where((e) => e != null).map((e) => e!)) {
+            childTxnWidgets.add(
+              pw.TableRow(
+                children: [
+                  pw.Expanded(
+                    child: paddedText(eachTermComponent.termName ?? "-", font, padding: const pw.EdgeInsets.fromLTRB(12, 6, 6, 6)),
+                  ),
+                  paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.termWiseAmountPaidForTheReceipt ?? 0) / 100.0)} /-", font,
+                      align: pw.TextAlign.right)
+                ],
+              ),
+            );
+          }
+        }
+      } else {
+        childTxnWidgets.add(
+          pw.TableRow(
+            children: [
+              pw.Expanded(
+                child: paddedText(eachFeeType.feeType ?? "-", font),
+              ),
+            ],
+          ),
+        );
+        (eachFeeType.customFeeTypes ?? []).where((e) => e != null).map((e) => e!).forEach((eachCustomFeeType) {
+          // eachCustomFeeType
+          childTxnWidgets.add(
+            pw.TableRow(
+              children: [
+                pw.Expanded(
+                  child: paddedText(eachCustomFeeType.customFeeType ?? "-", font, padding: const pw.EdgeInsets.fromLTRB(8, 6, 6, 6)),
+                ),
+                !isTermWise || (eachCustomFeeType.termWiseFeeComponents ?? []).isEmpty
+                    ? paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeType.amountPaidForTheReceipt ?? 0) / 100.0)} /-", font,
+                        align: pw.TextAlign.right)
+                    : paddedText("", font),
+              ],
+            ),
+          );
+          if (isTermWise && (eachCustomFeeType.termWiseFeeComponents ?? []).isNotEmpty) {
+            for (TermWiseFeeComponent eachTermComponent in (eachCustomFeeType.termWiseFeeComponents ?? []).where((e) => e != null).map((e) => e!)) {
+              childTxnWidgets.add(
+                pw.TableRow(
+                  children: [
+                    pw.Expanded(
+                      child: paddedText(eachTermComponent.termName ?? "-", font, padding: const pw.EdgeInsets.fromLTRB(12, 6, 6, 6)),
+                    ),
+                    paddedText(
+                        "$INR_SYMBOL ${doubleToStringAsFixedForINR((eachTermComponent.termWiseAmountPaidForTheReceipt ?? 0) / 100.0)} /-", font,
+                        align: pw.TextAlign.right)
+                  ],
+                ),
+              );
+            }
+          }
+        });
+      }
+    });
+
+    if ((receipt.busFeePaid ?? 0) != 0) {
+      childTxnWidgets.add(
+        pw.TableRow(
+          children: [
+            pw.Expanded(
+              child: paddedText("Bus Fee", font),
+            ),
+            paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((receipt.busFeePaid ?? 0) / 100.0)} /-", font, align: pw.TextAlign.right),
+          ],
+        ),
+      );
+    }
+
+    return childTxnWidgets;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -291,7 +704,18 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
                               alignMargin: true,
                             ))
                         .toList(),
-                    ...studentFeeReceipts.map((e) => e.widget(context, adminId: widget.adminProfile?.userId)),
+                    ...studentFeeReceipts.map((e) => e.widget(
+                          _scaffoldKey.currentContext ?? context,
+                          adminId: widget.adminProfile?.userId,
+                          isTermWise: isTermWise,
+                          setState: setState,
+                          reload: _loadData,
+                          makePdf: e.isEditMode
+                              ? null
+                              : (int? transactionId) async {
+                            makePdf(transactionId: transactionId);
+                          },
+                        )),
                   ],
                 ),
       floatingActionButton: _isLoading || widget.adminProfile == null

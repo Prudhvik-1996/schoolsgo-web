@@ -550,6 +550,7 @@ class StudentFeeReceipt {
     bool isTermWise = false,
     Function? setState,
     Function? reload,
+    Function(int?)? makePdf,
   }) {
     return Container(
       margin: MediaQuery.of(context).orientation == Orientation.landscape
@@ -585,10 +586,10 @@ class StudentFeeReceipt {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              if (makePdf != null) printReceiptButton(context, makePdf),
+                              if (makePdf != null) const SizedBox(width: 5),
                               editReceiptButton(context, setState, reload, adminId: adminId),
-                              const SizedBox(
-                                width: 5,
-                              ),
+                              const SizedBox(width: 5),
                               deleteReceiptButton(context, setState, reload, adminId: adminId),
                             ],
                           ),
@@ -906,6 +907,31 @@ class StudentFeeReceipt {
               child: Icon(
                 isEditMode ? Icons.check : Icons.edit,
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget printReceiptButton(BuildContext context, Function(int?) printReceiptAction) {
+    return GestureDetector(
+      onTap: () async {
+        printReceiptAction(transactionId);
+      },
+      child: ClayButton(
+        color: clayContainerColor(context),
+        height: 20,
+        width: 20,
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        child: const Padding(
+          padding: EdgeInsets.all(3.0),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(Icons.print),
             ),
           ),
         ),

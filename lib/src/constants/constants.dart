@@ -60,6 +60,7 @@ const String CREATE_OR_UPDATE_ADMIN_PROFILE = "/users/createOrUpdateAdminProfile
 const String CREATE_OR_UPDATE_BULK_STUDENT_PROFILES = "/students/createOrUpdateBulkStudentProfiles";
 const String GET_STUDENT_COMMENTS = "/students/getStudentComments";
 const String CREATE_OR_UPDATE_STUDENT_COMMENTS = "/students/createOrUpdateStudentComment";
+const String DEACTIVATE_STUDENT = "/students/deactivateStudent";
 
 const String GET_TDS = "/timetable/getTeacherDealingSections";
 const String CREATE_OR_UPDATE_TEACHER_DEALING_SECTIONS = "/timetable/createOrUpdateTeacherDealingSections";

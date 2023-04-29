@@ -289,6 +289,7 @@ class StudentProfile {
   bool? isAssignedToBusStop;
   String? loginId;
   int? agentId;
+  String? status;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController rollNumberController = TextEditingController();
@@ -331,6 +332,7 @@ class StudentProfile {
     this.isAssignedToBusStop,
     this.loginId,
     this.agentId,
+    this.status,
   }) {
     rollNumberController = TextEditingController(text: rollNumber ?? "");
     admissionNoController = TextEditingController(text: admissionNo ?? "");
@@ -381,6 +383,7 @@ class StudentProfile {
     isAssignedToBusStop = json['assignedToBusStop']?.toString() == "true";
     loginId = json['loginId']?.toString();
     agentId = json['agentId']?.toInt();
+    status = json['status']?.toString();
     rollNumberController = TextEditingController(text: rollNumber ?? "");
     admissionNoController = TextEditingController(text: admissionNo ?? "");
     studentNameController = TextEditingController(
@@ -430,6 +433,7 @@ class StudentProfile {
     data['isAssignedToBusStop'] = isAssignedToBusStop;
     data['loginId'] = loginId;
     data['agentId'] = agentId;
+    data['status'] = status;
     return data;
   }
 
@@ -1664,6 +1668,7 @@ class CreateOrUpdateBulkStudentProfilesRequest {
     this.schoolId,
     this.studentProfiles,
   });
+
   CreateOrUpdateBulkStudentProfilesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1677,6 +1682,7 @@ class CreateOrUpdateBulkStudentProfilesRequest {
       studentProfiles = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1691,6 +1697,7 @@ class CreateOrUpdateBulkStudentProfilesRequest {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -1716,6 +1723,7 @@ class CreateOrUpdateBulkStudentProfilesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateBulkStudentProfilesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1723,6 +1731,7 @@ class CreateOrUpdateBulkStudentProfilesResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1731,10 +1740,12 @@ class CreateOrUpdateBulkStudentProfilesResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateBulkStudentProfilesResponse> createOrUpdateBulkStudentProfiles(CreateOrUpdateBulkStudentProfilesRequest createBulkStudentProfilesRequest) async {
+Future<CreateOrUpdateBulkStudentProfilesResponse> createOrUpdateBulkStudentProfiles(
+    CreateOrUpdateBulkStudentProfilesRequest createBulkStudentProfilesRequest) async {
   debugPrint("Raising request to createBulkStudentProfiles with request ${jsonEncode(createBulkStudentProfilesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_BULK_STUDENT_PROFILES;
 
@@ -1746,4 +1757,96 @@ Future<CreateOrUpdateBulkStudentProfilesResponse> createOrUpdateBulkStudentProfi
 
   debugPrint("createBulkStudentProfilesResponse ${createBulkStudentProfilesResponse.toJson()}");
   return createBulkStudentProfilesResponse;
+}
+
+class DeactivateStudentRequest {
+/*
+{
+  "agentId": 0,
+  "reasonForDeactivation": "string",
+  "schoolId": 0,
+  "studentId": 0
+}
+*/
+
+  int agentId;
+  String reasonForDeactivation;
+  int schoolId;
+  int studentId;
+  Map<String, dynamic> __origJson = {};
+
+  DeactivateStudentRequest({
+    required this.agentId,
+    required this.reasonForDeactivation,
+    required this.schoolId,
+    required this.studentId,
+  });
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['reasonForDeactivation'] = reasonForDeactivation;
+    data['schoolId'] = schoolId;
+    data['studentId'] = studentId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class DeactivateStudentResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  DeactivateStudentResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+
+  DeactivateStudentResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<DeactivateStudentResponse> deactivateStudent(DeactivateStudentRequest deactivateStudentRequest) async {
+  debugPrint("Raising request to deactivateStudent with request ${jsonEncode(deactivateStudentRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + DEACTIVATE_STUDENT;
+
+  DeactivateStudentResponse deactivateStudentResponse = await HttpUtils.post(
+    _url,
+    deactivateStudentRequest.toJson(),
+    DeactivateStudentResponse.fromJson,
+  );
+
+  debugPrint("deactivateStudentResponse ${deactivateStudentResponse.toJson()}");
+  return deactivateStudentResponse;
 }

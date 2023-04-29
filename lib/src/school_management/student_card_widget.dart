@@ -17,6 +17,7 @@ class StudentCardWidget extends StatefulWidget {
     required this.onEditSelected,
     required this.updateStudentProfile,
     required this.allowExpansion,
+    required this.loadAllData,
   }) : super(key: key);
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -34,12 +35,15 @@ class StudentCardWidget extends StatefulWidget {
 
   final bool allowExpansion;
 
+  final Function loadAllData;
+
   @override
   State<StudentCardWidget> createState() => _StudentCardWidgetState();
 }
 
 class _StudentCardWidgetState extends State<StudentCardWidget> {
   bool _isLoading = false;
+  TextEditingController reasonToDeleteTextController = TextEditingController();
 
   Future<void> saveChanges() async {
     bool isRollNumberChanged = (widget.studentProfile.rollNumberController.text.trim()) != (widget.studentProfile.rollNumber ?? "");
@@ -91,6 +95,69 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
     } else {
       await createStudentAlertDialog();
     }
+  }
+
+  Future<void> deactivateStudentAction() async {
+    await showDialog(
+      context: widget.scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: const Text('Are you sure you want to delete the student?'),
+          content: TextField(
+            onChanged: (value) {},
+            controller: reasonToDeleteTextController,
+            decoration: InputDecoration(
+              hintText: "Reason to delete",
+              errorText: reasonToDeleteTextController.text.trim() == "" ? "Reason cannot be empty!" : "",
+            ),
+            autofocus: true,
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () async {
+                Navigator.pop(context);
+                if (reasonToDeleteTextController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Reason to delete cannot be empty!"),
+                    ),
+                  );
+                  return;
+                }
+                setState(() => _isLoading = true);
+                DeactivateStudentResponse deactivateStudentResponse = await deactivateStudent(DeactivateStudentRequest(
+                  agentId: widget.adminProfile.userId!,
+                  reasonForDeactivation: reasonToDeleteTextController.text.trim(),
+                  schoolId: widget.adminProfile.schoolId!,
+                  studentId: widget.studentProfile.studentId!,
+                ));
+                if (deactivateStudentResponse.httpStatus != "OK" || deactivateStudentResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                  setState(() => _isLoading = false);
+                  widget.onEditSelected(null);
+                } else {
+                  setState(() => _isLoading = false);
+                  widget.onEditSelected(null);
+                  widget.loadAllData();
+                }
+              },
+            ),
+            TextButton(
+              child: const Text("No"),
+              onPressed: () async {
+                Navigator.pop(context);
+                widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> updateStudentAlertDialog() async {
@@ -145,6 +212,68 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                     widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
                     widget.updateStudentProfile(widget.studentProfile.studentId,
                         (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList().first);
+                  }
+                }
+              },
+            ),
+            TextButton(
+              child: const Text("No"),
+              onPressed: () async {
+                Navigator.pop(context);
+                widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> activateStudentAction() async {
+    await showDialog(
+      context: widget.scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: const Text('Are you sure you want to activate the student?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () async {
+                Navigator.pop(context);
+                setState(() => _isLoading = true);
+                StudentProfile updateStudentBioRequest = StudentProfile(
+                  studentId: widget.studentProfile.studentId,
+                  status: 'active',
+                  schoolId: widget.adminProfile.schoolId,
+                  agentId: widget.adminProfile.userId,
+                );
+                CreateOrUpdateStudentProfileResponse updateStudentProfileResponse = await updateStudentProfile(updateStudentBioRequest);
+                if (updateStudentProfileResponse.httpStatus != "OK" || updateStudentProfileResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                  setState(() => _isLoading = false);
+                  widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
+                } else {
+                  GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
+                    schoolId: widget.adminProfile.schoolId,
+                    studentId: widget.studentProfile.studentId,
+                  ));
+                  if (getStudentProfileResponse.httpStatus != "OK" ||
+                      getStudentProfileResponse.responseStatus != "success" ||
+                      (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Something went wrong! Try again later.."),
+                      ),
+                    );
+                    setState(() => _isLoading = false);
+                  } else {
+                    setState(() => _isLoading = false);
+                    widget.onEditSelected(null);
+                    widget.loadAllData();
                   }
                 }
               },
@@ -252,15 +381,15 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
         child: ClayContainer(
           emboss: widget.isStudentSelected,
           depth: 15,
-          surfaceColor: clayContainerColor(context),
+          surfaceColor: widget.studentProfile.status == "active" ? clayContainerColor(context) : Colors.redAccent,
           parentColor: clayContainerColor(context),
           spread: 2,
           borderRadius: 10,
           child: Container(
             margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-            child: widget.isEditMode
+            child: widget.isEditMode && widget.studentProfile.status == "active"
                 ? buildEditableExpandedCard()
-                : widget.isStudentSelected
+                : widget.isStudentSelected && widget.studentProfile.status == "active"
                     ? buildExpandedCard()
                     : buildCompactCard(),
           ),
@@ -437,6 +566,31 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                 ),
               ),
             ),
+            if (widget.isEditMode) const SizedBox(width: 10),
+            if (widget.isEditMode)
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : GestureDetector(
+                      onTap: () => deactivateStudentAction(),
+                      child: ClayButton(
+                        depth: 15,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        spread: 2,
+                        borderRadius: 100,
+                        child: const SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: Padding(
+                            padding: EdgeInsets.all(4),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Icon(Icons.delete, color: Colors.red),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
             const SizedBox(width: 10),
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -716,14 +870,14 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                 const SizedBox(width: 10),
                 if (widget.allowExpansion)
                   GestureDetector(
-                    onTap: () => widget.onStudentSelected(widget.studentProfile.studentId),
+                    onTap: () => widget.studentProfile.status == "active" ? widget.onStudentSelected(widget.studentProfile.studentId) : activateStudentAction(),
                     child: ClayButton(
-                      depth: 15,
-                      surfaceColor: clayContainerColor(context),
-                      parentColor: clayContainerColor(context),
+                      depth: widget.studentProfile.status == "active" ? 15 : 50,
+                      surfaceColor: widget.studentProfile.status == "active" ? clayContainerColor(context) : Colors.redAccent,
+                      parentColor: widget.studentProfile.status == "active" ? clayContainerColor(context) : Colors.redAccent,
                       spread: 2,
                       borderRadius: 100,
-                      child: const SizedBox(
+                      child: widget.studentProfile.status == "active" ? const SizedBox(
                         height: 25,
                         width: 25,
                         child: Padding(
@@ -733,10 +887,20 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                             child: Icon(Icons.keyboard_arrow_down),
                           ),
                         ),
+                      ) : const SizedBox(
+                        height: 25,
+                        width: 25,
+                        child: Padding(
+                          padding: EdgeInsets.all(4),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Icon(Icons.add, color: Colors.green),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                if (widget.allowExpansion) const SizedBox(width: 10),
+                if (widget.allowExpansion && widget.studentProfile.status == "active") const SizedBox(width: 10),
               ],
             ),
           ),

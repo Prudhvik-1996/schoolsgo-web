@@ -291,7 +291,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
               children: [
                 sectionPicker(),
                 if (selectedSection != null)
-                  ...(studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList()
+                  ...(studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId && e.status == "active").toList()
                             ..sort(
                               (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
                                   ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
@@ -308,6 +308,28 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                               onEditSelected: onEditSelected,
                               updateStudentProfile: updateStudentProfile,
                               allowExpansion: true,
+                              loadAllData: _loadData,
+                            ),
+                          )
+                          .toList() +
+    (studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId && e.status == "inactive").toList()
+                            ..sort(
+                              (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
+                                  ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
+                                  : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
+                            ))
+                          .map(
+                            (e) => StudentCardWidget(
+                              scaffoldKey: scaffoldKey,
+                              studentProfile: e,
+                              adminProfile: widget.adminProfile,
+                              isStudentSelected: selectedStudentId == e.studentId,
+                              onStudentSelected: onStudentSelected,
+                              isEditMode: editingStudentId == e.studentId,
+                              onEditSelected: onEditSelected,
+                              updateStudentProfile: updateStudentProfile,
+                              allowExpansion: true,
+                              loadAllData: _loadData,
                             ),
                           )
                           .toList() +
@@ -323,6 +345,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                             onEditSelected: onEditSelected,
                             updateStudentProfile: updateStudentProfile,
                             allowExpansion: true,
+                            loadAllData: _loadData,
                           ),
                       ],
               ],
