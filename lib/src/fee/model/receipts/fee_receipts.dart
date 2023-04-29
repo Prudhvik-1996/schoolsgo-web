@@ -577,7 +577,7 @@ class StudentFeeReceipt {
                       children: [
                         Expanded(child: receiptNumberWidget(context)),
                         const SizedBox(width: 10),
-                        receiptDateWidget(context),
+                        receiptDateWidget(context, setState),
                         const SizedBox(width: 10),
                         if (adminId != null)
                           Row(
@@ -913,7 +913,7 @@ class StudentFeeReceipt {
     );
   }
 
-  Padding receiptDateWidget(BuildContext context) {
+  Padding receiptDateWidget(BuildContext context, Function? setState) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
       child: isEditMode
@@ -929,6 +929,7 @@ class StudentFeeReceipt {
                 );
                 if (_newDate == null) return;
                 transactionDate = convertDateTimeToYYYYMMDDFormat(_newDate);
+                if (setState != null) setState(() {});
               },
               child: ClayButton(
                 surfaceColor: clayContainerColor(context),
@@ -1154,10 +1155,13 @@ class NewReceiptSubBean {
   int? feeTypeId;
   Map<String, dynamic> __origJson = {};
 
+  bool? isPayable;
+
   NewReceiptSubBean({
     this.customFeeTypeId,
     this.feePaying,
     this.feeTypeId,
+    this.isPayable,
   });
 
   NewReceiptSubBean.fromJson(Map<String, dynamic> json) {
@@ -1300,5 +1304,17 @@ class FeeToBePaid {
     this.amountPaying,
   }) {
     amountPayingController.text = "${amountPaying ?? ""}";
+  }
+
+  FeeToBePaid replicateWithZeroFeePaying() {
+    return FeeToBePaid(
+      feeTypeId: feeTypeId,
+      feeType: feeType,
+      customFeeTypeId: customFeeTypeId,
+      customFeeType: customFeeType,
+      totalAmountToBePaid: totalAmountToBePaid,
+      remainingAmountToBePaid: remainingAmountToBePaid,
+      amountPaying: 0,
+    )..amountPayingController.text = "0";
   }
 }

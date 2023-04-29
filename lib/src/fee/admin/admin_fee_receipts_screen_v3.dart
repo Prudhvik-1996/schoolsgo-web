@@ -57,6 +57,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   Uint8List? pdfInBytes;
 
   bool isAddNew = false;
+  ScrollController newReceiptsListViewController = ScrollController();
 
   List<NewReceipt> newReceipts = [];
 
@@ -82,6 +83,17 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     });
     await loadReceipts();
     setState(() {
+      newReceipts[newReceipts.length - 1].receiptNumber = newReceipts.isEmpty
+          ? studentFeeReceipts.isEmpty
+              ? 1
+              : (studentFeeReceipts[0].receiptNumber ?? 0) + 1
+          : (newReceipts[newReceipts.length - 1].receiptNumber ?? 0) + 1;
+      newReceipts[newReceipts.length - 1].receiptNumberController.text = "${newReceipts[newReceipts.length - 1].receiptNumber}";
+      newReceipts[newReceipts.length - 1].date = newReceipts.isEmpty
+          ? studentFeeReceipts.isEmpty
+              ? DateTime.now().millisecondsSinceEpoch
+              : convertYYYYMMDDFormatToDateTime(studentFeeReceipts[0].transactionDate).millisecondsSinceEpoch
+          : (newReceipts[newReceipts.length - 1].date ?? DateTime.now().millisecondsSinceEpoch);
       _isLoading = false;
     });
   }
@@ -684,8 +696,9 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             )
           : isAddNew
               ? ListView(
+                  controller: newReceiptsListViewController,
                   children: [
-                    ...newReceipts.where((e) => e.status != "deleted").map(
+                    ...newReceipts.where((e) => e.status != "deleted").toList().reversed.map(
                           (e) => NewStudentFeeReceiptWidget(
                             context: _scaffoldKey.currentContext!,
                             setState: setState,
@@ -876,9 +889,23 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
           NewReceipt(
             schoolId: widget.adminProfile.schoolId,
             agentId: widget.adminProfile.userId,
-            date: DateTime.now().millisecondsSinceEpoch,
+            date: newReceipts.isEmpty
+                ? studentFeeReceipts.isEmpty
+                    ? DateTime.now().millisecondsSinceEpoch
+                    : convertYYYYMMDDFormatToDateTime(studentFeeReceipts[0].transactionDate).millisecondsSinceEpoch
+                : (newReceipts[newReceipts.length - 1].date ?? DateTime.now().millisecondsSinceEpoch),
             modeOfPayment: ModeOfPayment.CASH.name,
+            receiptNumber: newReceipts.isEmpty
+                ? studentFeeReceipts.isEmpty
+                    ? 1
+                    : (studentFeeReceipts[0].receiptNumber ?? 0) + 1
+                : (newReceipts[newReceipts.length - 1].receiptNumber ?? 0) + 1,
           ),
+        );
+        newReceiptsListViewController.animateTo(
+          newReceiptsListViewController.position.minScrollExtent,
+          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 500),
         );
       });
     }

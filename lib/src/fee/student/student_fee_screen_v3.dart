@@ -38,6 +38,7 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
   List<StudentFeeReceipt> studentFeeReceipts = [];
 
   bool isAddNew = false;
+  ScrollController newReceiptsListViewController = ScrollController();
   List<NewReceipt> newReceipts = [];
 
   SchoolInfoBean? schoolInfoBean;
@@ -100,6 +101,7 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
       );
     } else {
       setState(() {
+        studentAnnualFeeBeans = [];
         for (StudentWiseAnnualFeesBean eachAnnualFeeBean in getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList()) {
           studentAnnualFeeBeans.add(StudentAnnualFeeBean(
             studentId: eachAnnualFeeBean.studentId,
@@ -265,8 +267,9 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
             )
           : isAddNew
               ? ListView(
+                  controller: newReceiptsListViewController,
                   children: [
-                    ...newReceipts.where((e) => e.status != "deleted").map(
+                    ...newReceipts.where((e) => e.status != "deleted").toList().reversed.map(
                           (e) => NewStudentFeeReceiptWidget(
                             context: _scaffoldKey.currentContext!,
                             setState: setState,
@@ -303,8 +306,7 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
                     if (isAddNew && newReceipts.map((e) => e.status).contains("active") && !newReceipts.map((e) => e.status).contains("inactive"))
                       buildSubmitReceiptsButton(context),
                     const SizedBox(height: 20),
-                    if (isAddNew)
-                      buildCloseAddNewReceiptButton(context),
+                    if (isAddNew) buildCloseAddNewReceiptButton(context),
                     const SizedBox(height: 20),
                     buildAddNewReceiptButton(context),
                   ],
@@ -410,7 +412,9 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
     if (schoolInfoBean == null) await getDataReadyToPrint();
     if (!isAddNew) {
       setState(() => isAddNew = true);
-      addNewReceiptToPayAction();
+      if (newReceipts.isEmpty) {
+        addNewReceiptToPayAction();
+      }
     } else if (newReceipts.map((e) => e.status).contains("inactive")) {
       return;
     } else {
@@ -438,11 +442,27 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
       newReceipts.add(NewReceipt(
         schoolId: widget.studentProfile.schoolId,
         agentId: widget.adminProfile?.userId,
-        date: DateTime.now().millisecondsSinceEpoch,
-        modeOfPayment: ModeOfPayment.CASH.name,
         studentId: widget.studentProfile.studentId,
         sectionId: widget.studentProfile.sectionId,
-      ));
+        date: newReceipts.isEmpty
+            ? studentFeeReceipts.isEmpty
+                ? DateTime.now().millisecondsSinceEpoch
+                : convertYYYYMMDDFormatToDateTime(studentFeeReceipts[0].transactionDate).millisecondsSinceEpoch
+            : (newReceipts[newReceipts.length - 1].date ?? DateTime.now().millisecondsSinceEpoch),
+        modeOfPayment: ModeOfPayment.CASH.name,
+        receiptNumber: newReceipts.isEmpty
+            ? studentFeeReceipts.isEmpty
+                ? 1
+                : (studentFeeReceipts[0].receiptNumber ?? 0) + 1
+            : (newReceipts[newReceipts.length - 1].receiptNumber ?? 0) + 1,
+      )
+        ..studentAnnualFeeBean = newReceipts.isEmpty ? null : newReceipts[0].studentAnnualFeeBean
+        ..feeToBePaidList = newReceipts.isEmpty ? [] : newReceipts[0].feeToBePaidList.map((e) => e.replicateWithZeroFeePaying()).toList());
+      newReceiptsListViewController.animateTo(
+        newReceiptsListViewController.position.minScrollExtent,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 500),
+      );
     });
   }
 }

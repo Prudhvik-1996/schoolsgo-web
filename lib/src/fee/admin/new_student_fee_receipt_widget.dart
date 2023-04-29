@@ -48,13 +48,10 @@ class NewStudentFeeReceiptWidget extends StatefulWidget {
 class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget> {
   bool _isLoading = false;
 
-
   @override
   void initState() {
     super.initState();
-    if (widget.newReceipt.studentId!=null) {
-      _loadData();
-    }
+    _loadData();
   }
 
   Future<void> _loadData() async {
@@ -166,7 +163,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
         if (widget.newReceipt.feeToBePaidList.isEmpty) {
           widget.newReceipt.feeToBePaidList = (widget.newReceipt.studentAnnualFeeBean?.studentAnnualFeeTypeBeans ?? [])
               .map((eachFeeType) {
-                if ((eachFeeType.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+                if ((eachFeeType.studentAnnualCustomFeeTypeBeans ?? []).isEmpty && ((eachFeeType.amount ?? 0) != 0)) {
                   return [
                     FeeToBePaid(
                       feeTypeId: eachFeeType.feeTypeId,
@@ -179,6 +176,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                   ];
                 } else {
                   return (eachFeeType.studentAnnualCustomFeeTypeBeans ?? [])
+                      .where((eachCustomFeeType) => (eachCustomFeeType.amount ?? 0) != 0)
                       .map((eachCustomFeeType) => FeeToBePaid(
                             feeTypeId: eachFeeType.feeTypeId,
                             feeType: eachFeeType.feeType,
@@ -275,7 +273,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                       const SizedBox(width: 10),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   ...feeToBePaidBeans(),
                   const SizedBox(height: 10),
                   if (widget.newReceipt.studentId != null &&
@@ -492,13 +490,26 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
               .expand((i) => i),
         );
       } else {
-        feePayingWidgets.addAll([Text(eachFeeType.feeType ?? ""), const SizedBox(height: 10)]);
-        (eachFeeType.customFeeTypesList ?? []).where((e) => e != null).map((e) => e!).forEach((eachCustomFeeType) {
-          feePayingWidgets.addAll(widget.newReceipt.feeToBePaidList
-              .where((e) => e.feeTypeId == eachFeeType.feeTypeId && e.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
-              .map((e) => [feeToBePaidTextField(e), const SizedBox(height: 10)])
-              .expand((i) => i));
-        });
+        bool shouldShow = (eachFeeType.customFeeTypesList ?? []).isNotEmpty &&
+            widget.newReceipt.feeToBePaidList.map((e) => e.customFeeTypeId).map((mayBeCustomFeeTypeId) {
+              if ((eachFeeType.customFeeTypesList ?? [])
+                  .where((e) => e?.customFeeTypeId != null)
+                  .map((e) => e!.customFeeTypeId!)
+                  .toSet()
+                  .contains(mayBeCustomFeeTypeId)) {
+                return true;
+              }
+              return false;
+            }).contains(true);
+        if (shouldShow) {
+          feePayingWidgets.addAll([Text(eachFeeType.feeType ?? ""), const SizedBox(height: 10)]);
+          (eachFeeType.customFeeTypesList ?? []).where((e) => e != null).map((e) => e!).forEach((eachCustomFeeType) {
+            feePayingWidgets.addAll(widget.newReceipt.feeToBePaidList
+                .where((e) => e.feeTypeId == eachFeeType.feeTypeId && e.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                .map((e) => [feeToBePaidTextField(e), const SizedBox(height: 10)])
+                .expand((i) => i));
+          });
+        }
       }
     }
     return feePayingWidgets;

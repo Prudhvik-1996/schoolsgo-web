@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:clay_containers/widgets/clay_container.dart';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
@@ -159,7 +160,8 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
         context: _scaffoldKey.currentContext!,
         notifyParent: setState,
         receiptNumber: latestReceiptNumberToBeAdded,
-        selectedDate: DateTime.now(),
+        selectedDate: convertYYYYMMDDFormatToDateTime(
+            (getStudentFeeDetailsSupportClassesResponse.studentMasterTransactionBeans ?? []).reversed.firstOrNull?.transactionTime),
         sectionsList: [
           Section(
             sectionId: widget.studentAnnualFeeBean.sectionId,
@@ -1606,13 +1608,22 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                                     );
                                     return;
                                   }
-                                  newReceipts = [
+                                  newReceipts.add(
                                     NewReceipt(
                                       context: _scaffoldKey.currentContext!,
                                       notifyParent: setState,
-                                      receiptNumber:
-                                          newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
-                                      selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
+                                      receiptNumber: newReceipts.isEmpty
+                                          ? studentMasterTransactionBeans.isEmpty
+                                              ? 1
+                                              : studentMasterTransactionBeans[studentMasterTransactionBeans.length - 1].receiptId
+                                          : (newReceipts[newReceipts.length - 1].receiptNumber ?? 0) + 1,
+                                      // newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
+                                      selectedDate: newReceipts.isEmpty
+                                          ? studentMasterTransactionBeans.isEmpty
+                                              ? DateTime.now()
+                                              : convertYYYYMMDDFormatToDateTime(
+                                                  studentMasterTransactionBeans[studentMasterTransactionBeans.length - 1].transactionTime)
+                                          : (newReceipts[newReceipts.length - 1].selectedDate),
                                       sectionsList: [
                                         Section(
                                           sectionId: widget.studentAnnualFeeBean.sectionId,
@@ -1636,8 +1647,7 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                                         schoolId: widget.adminProfile.schoolId,
                                       )
                                       ..updatedSelectedStudent(studentProfiles[0], setState),
-                                    ...newReceipts,
-                                  ];
+                                  );
                                 });
                               },
                               child: ClayButton(
@@ -1764,7 +1774,7 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
   Widget newReceiptWidget() {
     return ListView(
       children: [
-        ...newReceipts.where((e) => e.status == "active").map((e) => e.widget()).toList(),
+        ...newReceipts.reversed.where((e) => e.status == "active").map((e) => e.widget()).toList(),
       ],
     );
   }
