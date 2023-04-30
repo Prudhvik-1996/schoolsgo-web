@@ -580,14 +580,14 @@ class StudentFeeReceipt {
                         const SizedBox(width: 10),
                         receiptDateWidget(context, setState),
                         const SizedBox(width: 10),
+                        if (makePdf != null) printReceiptButton(context, makePdf),
+                        if (makePdf != null) const SizedBox(width: 5),
                         if (adminId != null)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (makePdf != null) printReceiptButton(context, makePdf),
-                              if (makePdf != null) const SizedBox(width: 5),
                               editReceiptButton(context, setState, reload, adminId: adminId),
                               const SizedBox(width: 5),
                               deleteReceiptButton(context, setState, reload, adminId: adminId),
