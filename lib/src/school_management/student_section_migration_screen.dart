@@ -21,6 +21,7 @@ class StudentSectionMigrationScreen extends StatefulWidget {
 
 class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationScreen> {
   bool _isLoading = true;
+  final _bodyController = ScrollController();
 
   List<StudentProfile> studentProfiles = [];
   Set<int> selectedStudentsList = {};
@@ -228,6 +229,17 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
         return setState(() => _isRollNumberEditMode = true);
       case 'Exit Edit Mode':
         return setState(() => _isMigrateMode ? _isMigrateMode = false : _isRollNumberEditMode = false);
+      case 'Select All':
+        setState(() {
+          selectedStudentsList.clear();
+          selectedStudentsList.addAll((studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).map((e) => e.studentId!)));
+        });
+        _bodyController.animateTo(
+          _bodyController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.bounceIn,
+        );
+        return;
       default:
         return debugPrint("Selected Choice: $choice");
     }
@@ -248,7 +260,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
                     return ((!_isMigrateMode && !_isRollNumberEditMode)
                             ? {'Migrate Students', 'Update Roll Numbers'}
                             : _isMigrateMode
-                                ? {'Exit Edit Mode'}
+                                ? {if (selectedSection != null) 'Select All', 'Exit Edit Mode'}
                                 : {'Exit Edit Mode'})
                         .map((String choice) {
                       return PopupMenuItem<String>(
@@ -269,6 +281,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
               ),
             )
           : ListView(
+              controller: _bodyController,
               children: [
                 sectionPicker(),
                 if (selectedSection != null && _isRollNumberEditMode) rollNumberSortOptionsWidget(),
@@ -630,14 +643,16 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
         return AlertDialog(
           title: Text(
               'Are you sure you want to migrate the following students from ${selectedSection?.sectionName ?? "-"} to ${newSection?.sectionName ?? "-"}?'),
-          content: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: studentProfiles
-                .where((eachStudent) => selectedStudentsList.contains(eachStudent.studentId))
-                .map((eachStudent) => Text("${eachStudent.rollNumber}. ${eachStudent.studentFirstName}"))
-                .toList(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: studentProfiles
+                  .where((eachStudent) => selectedStudentsList.contains(eachStudent.studentId))
+                  .map((eachStudent) => Text("${eachStudent.rollNumber}. ${eachStudent.studentFirstName}"))
+                  .toList(),
+            ),
           ),
           actions: <Widget>[
             TextButton(
@@ -697,40 +712,34 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
           title: const Text(
             'Are you sure you want to change the roll number of following students?',
           ),
-          content: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: studentProfiles
-                      .where((eachStudent) => updatedStudentProfiles.map((e) => e.studentId).contains(eachStudent.studentId))
-                      .map((eachStudent) => Text("${eachStudent.rollNumber}. ${eachStudent.studentFirstName}"))
-                      .toList(),
+          content: SingleChildScrollView(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: studentProfiles
+                        .where((eachStudent) => updatedStudentProfiles.map((e) => e.studentId).contains(eachStudent.studentId))
+                        .map((eachStudent) => Text("${eachStudent.rollNumber}. ${eachStudent.studentFirstName}"))
+                        .toList(),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              const Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: Text("=>"),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: updatedStudentProfiles.map((eachStudent) => Text(" -\t${eachStudent.rollNumber}. ${eachStudent.studentFirstName}")).toList(),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: updatedStudentProfiles.map((eachStudent) => Text("${eachStudent.rollNumber}. ${eachStudent.studentFirstName}")).toList(),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(

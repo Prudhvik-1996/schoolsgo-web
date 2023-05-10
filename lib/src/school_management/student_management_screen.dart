@@ -49,6 +49,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
       newStudent = StudentProfile(
         agentId: widget.adminProfile.userId,
         schoolId: widget.adminProfile.schoolId,
+        status: 'active',
       );
     });
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
@@ -247,6 +248,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
           schoolId: widget.adminProfile.schoolId,
           sectionId: selectedSection?.sectionId,
           sectionName: selectedSection?.sectionName,
+          status: 'active',
         );
       });
       return;
