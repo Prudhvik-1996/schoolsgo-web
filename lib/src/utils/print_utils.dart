@@ -14,6 +14,8 @@ import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/utils/number_to_words.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 Future<void> printReceipts(
   BuildContext context,
@@ -60,8 +62,12 @@ Future<void> printReceipts(
               pw.SizedBox(
                 height: 10,
               ),
-            if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.fatherName != null)
-              parentNameWidget(studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.fatherName ?? "-", font),
+            if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.gaurdianFirstName != null)
+              pw.SizedBox(
+                height: 10,
+              ),
+            if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.gaurdianFirstName != null)
+              parentNameWidget(studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.gaurdianFirstName ?? "-", font),
             pw.SizedBox(
               height: 10,
             ),
@@ -80,14 +86,15 @@ Future<void> printReceipts(
         ),
       );
       widgets.addAll([
+        amountPayingInWordsWidget((eachTransaction.getTotalAmountForReceipt()) ~/ 100, font),
+        pw.SizedBox(
+          height: 5,
+        ),
         modeOfPaymentWidget(eachTransaction, font),
         pw.SizedBox(
-          height: 10,
+          height: 5,
         ),
         noteWidget(font),
-        pw.SizedBox(
-          height: 10,
-        ),
       ]);
       widgets.add(
         pw.Padding(
@@ -126,6 +133,23 @@ Future<void> printReceipts(
   html.AnchorElement anchorElement = html.AnchorElement(href: url);
   anchorElement.download = "Receipts.pdf";
   anchorElement.click();
+}
+
+pw.Widget amountPayingInWordsWidget(int amount, pw.Font font) {
+  return pw.Row(
+    children: [
+      pw.Expanded(
+        child: paddedText(
+          "Amount In Words: ${convertIntoWords(amount).capitalize()} only",
+          font,
+          fontSize: 12,
+          align: pw.TextAlign.left,
+          textColor: PdfColors.black,
+          padding: const pw.EdgeInsets.fromLTRB(50, 6, 6, 6),
+        ),
+      ),
+    ],
+  );
 }
 
 pw.Widget noteWidget(pw.Font font) {
@@ -189,7 +213,7 @@ pw.Expanded signatureWidget(pw.Font font) {
       font,
       fontSize: 16,
       align: pw.TextAlign.right,
-      padding: const pw.EdgeInsets.fromLTRB(6, 60, 6, 6),
+      padding: const pw.EdgeInsets.fromLTRB(6, 6, 6, 6),
     ),
   );
 }
@@ -286,7 +310,7 @@ pw.Row sectionAndRollNumberWidget(List<StudentProfile> studentProfiles, StudentF
       pw.Expanded(
         flex: 3,
         child: pw.Text(
-          "Section: ${studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.sectionName ?? "-"}",
+          "Class: ${studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.sectionName ?? "-"}",
           style: pw.TextStyle(font: font, fontSize: 16),
         ),
       ),
