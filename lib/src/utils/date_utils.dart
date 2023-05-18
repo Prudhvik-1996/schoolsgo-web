@@ -200,3 +200,8 @@ int daysInMonth(DateTime date) {
   var firstDayNextMonth = DateTime(firstDayThisMonth.year, firstDayThisMonth.month + 1, firstDayThisMonth.day);
   return firstDayNextMonth.difference(firstDayThisMonth).inDays;
 }
+
+List<DateTime> populateDates(DateTime startDate, DateTime endDate) => List.generate(
+      endDate.difference(startDate).inDays,
+      (index) => startDate.add(Duration(days: index)),
+    );

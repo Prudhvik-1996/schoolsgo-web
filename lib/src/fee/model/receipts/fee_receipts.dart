@@ -954,6 +954,7 @@ class StudentFeeReceipt {
                   helpText: "Select a date",
                 );
                 if (_newDate == null) return;
+                _newDate = DateTime.fromMillisecondsSinceEpoch(_newDate.millisecondsSinceEpoch + 23400000);
                 transactionDate = convertDateTimeToYYYYMMDDFormat(_newDate);
                 if (setState != null) setState(() {});
               },

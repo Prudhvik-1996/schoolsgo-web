@@ -727,7 +727,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
           GestureDetector(
             onTap: () async {
               setState(() =>
-                  widget.newReceipt.date = convertEpochToDateTime(widget.newReceipt.date!).subtract(const Duration(days: 1)).microsecondsSinceEpoch);
+                  widget.newReceipt.date = convertEpochToDateTime(widget.newReceipt.date!).subtract(const Duration(days: 1)).millisecondsSinceEpoch);
             },
             child: ClayButton(
               color: clayContainerColor(context),
@@ -758,7 +758,8 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                   helpText: "Pick  date to mark attendance",
                 );
                 setState(() {
-                  widget.newReceipt.date = _newDate?.millisecondsSinceEpoch ?? widget.newReceipt.date;
+                  widget.newReceipt.date =
+                      _newDate?.millisecondsSinceEpoch == null ? widget.newReceipt.date : _newDate!.millisecondsSinceEpoch + 23400000;
                 });
               },
               child: ClayButton(
@@ -800,7 +801,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
           GestureDetector(
             onTap: () async {
               setState(
-                  () => widget.newReceipt.date = convertEpochToDateTime(widget.newReceipt.date!).add(const Duration(days: 1)).microsecondsSinceEpoch);
+                  () => widget.newReceipt.date = convertEpochToDateTime(widget.newReceipt.date!).add(const Duration(days: 1)).millisecondsSinceEpoch);
             },
             child: ClayButton(
               color: clayContainerColor(context),

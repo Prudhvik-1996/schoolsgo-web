@@ -3,11 +3,10 @@ import 'dart:typed_data';
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/date_wise_receipt_stats.dart';
 import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
@@ -17,7 +16,6 @@ import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
-import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/print_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -80,12 +78,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     });
     await loadReceipts();
     setState(() {
-      newReceipts[newReceipts.length - 1].receiptNumber = newReceipts.isEmpty
-          ? studentFeeReceipts.isEmpty
-              ? 1
-              : (studentFeeReceipts[0].receiptNumber ?? 0) + 1
-          : (newReceipts[newReceipts.length - 1].receiptNumber ?? 0) + 1;
-      newReceipts[newReceipts.length - 1].receiptNumberController.text = "${newReceipts[newReceipts.length - 1].receiptNumber}";
+      newReceipts[newReceipts.length - 1].receiptNumber = getNewReceiptNumber();
+      newReceipts[newReceipts.length - 1].receiptNumberController.text = "${getNewReceiptNumber()}";
       newReceipts[newReceipts.length - 1].date = newReceipts.isEmpty
           ? studentFeeReceipts.isEmpty
               ? DateTime.now().millisecondsSinceEpoch
@@ -93,6 +87,16 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
           : (newReceipts[newReceipts.length - 1].date ?? DateTime.now().millisecondsSinceEpoch);
       _isLoading = false;
     });
+  }
+
+  int getNewReceiptNumber() {
+    if (newReceipts.length > 1) {
+      return newReceipts.map((e) => e.receiptNumber ?? 0).max + 1;
+    }
+    if (studentFeeReceipts.isEmpty) return 1;
+    DateTime latestDate =
+        studentFeeReceipts.where((e) => e.transactionDate != null).map((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate)).max;
+    return studentFeeReceipts.where((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate) == latestDate).map((e) => e.receiptNumber ?? 0).max + 1;
   }
 
   Future<void> loadReceipts() async {
@@ -214,16 +218,15 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       setState(() => isTermWise = !isTermWise);
     } else if (choice == "Print") {
       makePdf();
+    } else if (choice == "Stats") {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return DateWiseReceiptStats(
+          adminProfile: widget.adminProfile,
+          studentFeeReceipts: studentFeeReceipts,
+        );
+      }));
     } else {
       debugPrint("Clicked on $choice");
-      // Navigator.push(context, MaterialPageRoute(builder: (context) {
-      //   return AdminFeeReceiptsStatsScreen(
-      //     adminProfile: widget.adminProfile,
-      //     studentFeeDetailsBeanList: studentFeeDetailsBeans,
-      //     feeTypes: feeTypes,
-      //     studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-      //   );
-      // }));
     }
   }
 
@@ -598,17 +601,14 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             agentId: widget.adminProfile.userId,
             date: newReceipts.isEmpty
                 ? studentFeeReceipts.isEmpty
-                    ? DateTime.now().millisecondsSinceEpoch
+                    ? (DateTime.now().millisecondsSinceEpoch)
                     : convertYYYYMMDDFormatToDateTime(studentFeeReceipts[0].transactionDate).millisecondsSinceEpoch
-                : (newReceipts[newReceipts.length - 1].date ?? DateTime.now().millisecondsSinceEpoch),
+                : (newReceipts[newReceipts.length - 1].date ?? (DateTime.now().millisecondsSinceEpoch)),
             modeOfPayment: ModeOfPayment.CASH.name,
-            receiptNumber: newReceipts.isEmpty
-                ? studentFeeReceipts.isEmpty
-                    ? 1
-                    : (studentFeeReceipts[0].receiptNumber ?? 0) + 1
-                : (newReceipts[newReceipts.length - 1].receiptNumber ?? 0) + 1,
           ),
         );
+        newReceipts.last.receiptNumber = getNewReceiptNumber();
+        newReceipts.last.receiptNumberController.text = "${newReceipts.last.receiptNumber}";
         newReceiptsListViewController.animateTo(
           newReceiptsListViewController.position.minScrollExtent,
           curve: Curves.easeOut,
