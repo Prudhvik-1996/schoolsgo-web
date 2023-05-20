@@ -1,8 +1,10 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+
+// ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:d_chart/d_chart.dart';
-import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/FlippingTile.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
@@ -283,7 +285,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
               ),
             )
           : ListView(
-        controller: _bodyController,
+              controller: _bodyController,
               children: [
                 const SizedBox(height: 20),
                 StudentBaseWidget(
@@ -302,75 +304,79 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                 const SizedBox(height: 100),
               ],
             ),
-      floatingActionButton: _isLoading ? null : Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            _scrollToBottomButton(),
-            if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true))) const SizedBox(height: 20),
-            if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true))) _buildAddNewFAB(),
-          ],
-        ),
-      ),
+      floatingActionButton: _isLoading
+          ? null
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _scrollToBottomButton(),
+                  if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true)))
+                    const SizedBox(height: 20),
+                  if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true))) _buildAddNewFAB(),
+                ],
+              ),
+            ),
     );
   }
 
   Widget _buildAddNewFAB() {
     return Tooltip(
-            message: "Add new comment",
-            child: GestureDetector(
-              onTap: () {
-                  setState(() => studentComments.add(StudentCommentBean(
-                        isAdmin: widget.adminProfile != null ? "Y" : "N",
-                        admissionNo: widget.studentProfile.admissionNo,
-                        agent: widget.adminProfile?.userId,
-                        commentId: null,
-                        commentedBy: widget.adminProfile?.userId,
-                        commenter: widget.adminProfile?.firstName,
-                        date: null,
-                        note: "",
-                        isPtm: "N",
-                        rollNumber: widget.studentProfile.rollNumber,
-                        schoolId: widget.studentProfile.schoolId,
-                        sectionId: widget.studentProfile.sectionId,
-                        sectionName: widget.studentProfile.sectionName,
-                        status: "active",
-                        studentId: widget.studentProfile.studentId,
-                        studentName: widget.studentProfile.studentFirstName,
-                      )..isEditMode = true));
-              },
-              child: ClayButton(
-                depth: 40,
-                parentColor: clayContainerColor(context),
-                surfaceColor: clayContainerColor(context),
-                spread: 1,
-                borderRadius: 100,
-                child: Container(
-                  margin: const EdgeInsets.all(4),
-                  child: const Icon(Icons.add),
-                ),
-              ),
-            ),
-          );
+      message: "Add new comment",
+      child: GestureDetector(
+        onTap: () {
+          setState(() => studentComments.add(StudentCommentBean(
+                isAdmin: widget.adminProfile != null ? "Y" : "N",
+                admissionNo: widget.studentProfile.admissionNo,
+                agent: widget.adminProfile?.userId,
+                commentId: null,
+                commentedBy: widget.adminProfile?.userId,
+                commenter: widget.adminProfile?.firstName,
+                date: null,
+                note: "",
+                isPtm: "N",
+                rollNumber: widget.studentProfile.rollNumber,
+                schoolId: widget.studentProfile.schoolId,
+                sectionId: widget.studentProfile.sectionId,
+                sectionName: widget.studentProfile.sectionName,
+                status: "active",
+                studentId: widget.studentProfile.studentId,
+                studentName: widget.studentProfile.studentFirstName,
+              )..isEditMode = true));
+        },
+        child: ClayButton(
+          depth: 40,
+          parentColor: clayContainerColor(context),
+          surfaceColor: clayContainerColor(context),
+          spread: 1,
+          borderRadius: 100,
+          child: Container(
+            margin: const EdgeInsets.all(4),
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _scrollToBottomButton() {
     return GestureDetector(
-        onTap: _scrollDown,
-    child: ClayButton(
-    depth: 40,
-    parentColor: clayContainerColor(context),
-    surfaceColor: clayContainerColor(context),
-    spread: 1,
-    borderRadius: 100,
-    child: Container(
-    margin: const EdgeInsets.all(8),
-    child: const Icon(Icons.arrow_downward),
-    ),
-    ),);
+      onTap: _scrollDown,
+      child: ClayButton(
+        depth: 40,
+        parentColor: clayContainerColor(context),
+        surfaceColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 100,
+        child: Container(
+          margin: const EdgeInsets.all(8),
+          child: const Icon(Icons.arrow_downward),
+        ),
+      ),
+    );
   }
 
   Widget studentAttendanceCard() {
@@ -430,96 +436,98 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
         borderRadius: 10,
         child: Container(
           margin: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          "Attendance",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 24,
-                          ),
+          child: studentMonthWiseAttendanceList.isEmpty
+              ? const Center(child: Text("No records yet"))
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                "Attendance",
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 24,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () => setState(() => _isAttendanceGraphView = !_isAttendanceGraphView),
+                              child: ClayButton(
+                                depth: 40,
+                                spread: 2,
+                                surfaceColor: clayContainerColor(context),
+                                parentColor: clayContainerColor(context),
+                                borderRadius: 100,
+                                child: Container(
+                                  margin: const EdgeInsets.all(4),
+                                  padding: const EdgeInsets.all(4),
+                                  child: !_isAttendanceGraphView
+                                      ? const Icon(
+                                          Icons.auto_graph_sharp,
+                                          size: 12,
+                                        )
+                                      : const Icon(
+                                          Icons.grid_view_rounded,
+                                          size: 12,
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () => setState(() => _isAttendanceGraphView = !_isAttendanceGraphView),
-                        child: ClayButton(
-                          depth: 40,
-                          spread: 2,
-                          surfaceColor: clayContainerColor(context),
-                          parentColor: clayContainerColor(context),
-                          borderRadius: 100,
-                          child: Container(
-                            margin: const EdgeInsets.all(4),
-                            padding: const EdgeInsets.all(4),
-                            child: !_isAttendanceGraphView
-                                ? const Icon(
-                                    Icons.auto_graph_sharp,
-                                    size: 12,
-                                  )
-                                : const Icon(
-                                    Icons.grid_view_rounded,
-                                    size: 12,
-                                  ),
-                          ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "No. of days present: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => e.present ?? 0.0).reduce((a, b) => a + b))}",
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "No. of days present: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => e.present ?? 0.0).reduce((a, b) => a + b))}",
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "No. of days absent: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => e.absent ?? 0.0).reduce((a, b) => a + b))}",
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "No. of days absent: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => e.absent ?? 0.0).reduce((a, b) => a + b))}",
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Total no.of working days: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => (e.present ?? 0.0) + (e.absent ?? 0)).reduce((a, b) => a + b))}",
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Total no.of working days: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => (e.present ?? 0.0) + (e.absent ?? 0)).reduce((a, b) => a + b))}",
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Attendance Percentage: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => e.present ?? 0.0).reduce((a, b) => a + b) * 100.0 / studentMonthWiseAttendanceList.map((e) => (e.present ?? 0.0) + (e.absent ?? 0)).reduce((a, b) => a + b))} %",
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Attendance Percentage: ${doubleToStringAsFixed(studentMonthWiseAttendanceList.map((e) => e.present ?? 0.0).reduce((a, b) => a + b) * 100.0 / studentMonthWiseAttendanceList.map((e) => (e.present ?? 0.0) + (e.absent ?? 0)).reduce((a, b) => a + b))} %",
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ] +
-                (_isAttendanceGraphView ? [graphView()] : gridViewWidgets()) +
-                <Widget>[
-                  const SizedBox(height: 10),
-                ],
-          ),
+                        const SizedBox(height: 20),
+                      ] +
+                      (_isAttendanceGraphView ? [graphView()] : gridViewWidgets()) +
+                      <Widget>[
+                        const SizedBox(height: 10),
+                      ],
+                ),
         ),
       ),
     );
@@ -674,11 +682,8 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     return SizedBox(
       height: height == 0 ? null : height,
       width: width == 0 ? null : width,
-      child: FlipCard(
-        fill: Fill.fillBack,
-        direction: FlipDirection.HORIZONTAL,
-        side: CardSide.FRONT,
-        front: ClayContainer(
+      child: FlippingTile(
+        frontSideWidget: ClayContainer(
           emboss: true,
           depth: 40,
           surfaceColor: clayContainerColor(context),
@@ -709,7 +714,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
             ),
           ),
         ),
-        back: ClayContainer(
+        backSideWidget: ClayContainer(
           emboss: true,
           depth: 40,
           surfaceColor: clayContainerColor(context),
@@ -750,7 +755,6 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
             ),
           ),
         ),
-        flipOnTouch: true,
       ),
     );
   }
