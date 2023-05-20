@@ -6,6 +6,7 @@ import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_stats_widget.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/modal/stats.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
+import 'package:schoolsgo_web/src/common_components/academic_year_selection_widget.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/dashboard_widgets.dart';
@@ -61,6 +62,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       appBar: AppBar(
         title: const Text("Admin Dashboard"),
         actions: [
+          AcademicYearDropdown(schoolId: widget.adminProfile.schoolId),
           buildRoleButtonForAppBar(context, widget.adminProfile),
           if (canGoToDashBoard)
             InkWell(

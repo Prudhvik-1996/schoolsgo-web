@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
+import 'package:schoolsgo_web/src/common_components/academic_year_selection_widget.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/dashboard_widgets.dart';
@@ -46,6 +47,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       appBar: AppBar(
         title: const Text("Teacher Dashboard"),
         actions: [
+          AcademicYearDropdown(schoolId: widget.teacherProfile.schoolId),
           buildRoleButtonForAppBar(context, widget.teacherProfile),
           InkWell(
             onTap: () {

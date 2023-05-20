@@ -16,6 +16,7 @@ String INR_SYMBOL = "₹";
 const String GET_USER_DETAILS = "/users/getUserDetails";
 const String GET_SCHOOL_WISE_STATS = "/commons/getSchoolWiseStats";
 const String GET_SCHOOL_WISE_EMPLOYEES = "/users/getSchoolWiseEmployees";
+const String GET_SCHOOL_WISE_ACADEMIC_YEARS = "/commons/getSchoolWiseAcademicYears";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String GET_SCHOOLS_DETAILS = "/commons/getSchoolInfo";
 const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";

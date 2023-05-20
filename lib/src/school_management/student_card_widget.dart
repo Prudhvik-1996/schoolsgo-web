@@ -59,13 +59,14 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
     bool isPhoneNumberChanged = widget.studentProfile.phoneController.text.trim() != (widget.studentProfile.gaurdianMobile ?? "");
     bool isAlternatePhoneNumberChanged = widget.studentProfile.alternatePhoneController.text.trim() != (widget.studentProfile.alternateMobile ?? "");
     bool isEmailChanged = widget.studentProfile.emailController.text.trim() != (widget.studentProfile.gaurdianMailId ?? "");
+    bool isAdmissionNoChanged = widget.studentProfile.admissionNoController.text.trim() != (widget.studentProfile.admissionNo ?? "");
 
     if (!isRollNumberChanged &&
         !isStudentNameChanged &&
         !isGaurdianNameChanged &&
         !isPhoneNumberChanged &&
         !isAlternatePhoneNumberChanged &&
-        !isEmailChanged) {
+        !isEmailChanged && !isAdmissionNoChanged) {
       widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
       return;
     }
@@ -176,6 +177,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                   studentId: widget.studentProfile.studentId,
                   studentFirstName: widget.studentProfile.studentNameController.text,
                   rollNumber: (widget.studentProfile.rollNumberController.text.trim()),
+                  admissionNo: (widget.studentProfile.admissionNoController.text.trim()),
                   gaurdianFirstName: (widget.studentProfile.gaurdianNameController.text.trim()),
                   gaurdianMobile: widget.studentProfile.phoneController.text.trim(),
                   alternateMobile: widget.studentProfile.alternatePhoneController.text.trim(),
@@ -484,6 +486,8 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                   const SizedBox(height: 10),
                   Text("Roll No.: ${widget.studentProfile.rollNumber ?? "-"}"),
                   const SizedBox(height: 10),
+                  Text("Admission No.: ${widget.studentProfile.admissionNo ?? "-"}"),
+                  const SizedBox(height: 10),
                   Text(
                     "Section Name: ${widget.studentProfile.sectionName ?? "-"}",
                   ),
@@ -726,6 +730,34 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                         hintText: "Email Id",
                       ),
                       keyboardType: TextInputType.emailAddress,
+                      autofocus: true,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  InputDecorator(
+                    isFocused: true,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      label: Text(
+                        "Admission No.",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    child: TextField(
+                      controller: widget.studentProfile.admissionNoController,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Admission No.",
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(),
                       autofocus: true,
                     ),
                   ),

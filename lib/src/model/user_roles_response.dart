@@ -312,6 +312,7 @@ class StudentProfile {
     this.alternateMobile,
     this.motherName,
     this.rollNumber,
+    this.admissionNo,
     this.schoolId,
     this.schoolName,
     this.branchCode,

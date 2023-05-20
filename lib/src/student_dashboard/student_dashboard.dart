@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:schoolsgo_web/src/common_components/academic_year_selection_widget.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/dashboard_widgets.dart';
@@ -33,6 +34,7 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
       appBar: AppBar(
         title: const Text("Student Dashboard"),
         actions: [
+          AcademicYearDropdown(schoolId: widget.studentProfile.schoolId),
           buildRoleButtonForAppBar(context, widget.studentProfile),
           InkWell(
             onTap: () {
@@ -159,7 +161,7 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
                           ),
                         ),
                       ),
-                    ), //new Cards()
+                    ),
                   )
                   .toList(),
               shrinkWrap: true,

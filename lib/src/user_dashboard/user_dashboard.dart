@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
+import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
@@ -139,25 +140,29 @@ class _UserDashboardState extends State<UserDashboard> {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: GestureDetector(
-        onTap: () {
+        onTap: () async {
           if (role == "Student") {
+            await updateSchoolIdInPrefs((profile as StudentProfile).schoolId);
             Navigator.pushNamed(
               context,
               StudentDashBoard.routeName,
-              arguments: profile as StudentProfile,
-            );
+              arguments: profile,
+            ).then((_) => updateSchoolIdInPrefs(null));
           } else if (role == "Admin") {
+            await updateSchoolIdInPrefs((profile as AdminProfile).schoolId);
             Navigator.pushNamed(
               context,
               AdminDashboard.routeName,
-              arguments: profile as AdminProfile,
-            );
+              arguments: profile,
+            ).then((_) => updateSchoolIdInPrefs(null));
           } else if (role == "Teacher") {
+            await updateSchoolIdInPrefs((profile as TeacherProfile).schoolId);
             Navigator.pushNamed(
               context,
               TeacherDashboard.routeName,
-              arguments: profile as TeacherProfile,
-            );
+              arguments: profile,
+            ).then((_) => updateSchoolIdInPrefs(null));
+            ;
           } else if (role == "Mega Admin") {
             MegaAdminProfile x = (profile as List<MegaAdminProfile>).first;
             MegaAdminProfile megaAdminProfile = MegaAdminProfile(
@@ -197,8 +202,7 @@ class _UserDashboardState extends State<UserDashboard> {
           spread: 1,
           borderRadius: 10,
           child: Container(
-            padding: const EdgeInsets.all(20),
-            // child: Text("Student: ${e.studentFirstName}"),
+            padding: const EdgeInsets.all(20), // child: Text("Student: ${e.studentFirstName}"),
             child: Column(
               children: [
                 Row(
@@ -251,6 +255,15 @@ class _UserDashboardState extends State<UserDashboard> {
         ),
       ),
     );
+  }
+
+  Future<void> updateSchoolIdInPrefs(int? schoolId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (schoolId == null) {
+      prefs.remove('LOGGED_IN_SCHOOL_ID');
+    } else {
+      prefs.setInt('LOGGED_IN_SCHOOL_ID', schoolId);
+    }
   }
 
   @override

@@ -426,6 +426,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                               ),
                           ),
                         ),
+                    SizedBox(height: MediaQuery.of(context).size.height / 2),
                   ],
                 )
               : filteredStudentFeeReceipts.isEmpty
@@ -498,12 +499,25 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     return GestureDetector(
       onTap: () => setState(() => isAddNew = false),
       child: ClayButton(
-        surfaceColor: clayContainerColor(context),
+        surfaceColor: Colors.red[300],
         parentColor: clayContainerColor(context),
-        borderRadius: 100,
-        child: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Icon(Icons.close),
+        borderRadius: 20,
+        child: Container(
+          width: 100,
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Icon(Icons.close),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text("Close"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -577,12 +591,25 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     return GestureDetector(
       onTap: _saveChanges,
       child: ClayButton(
-        surfaceColor: clayContainerColor(context),
+        surfaceColor: Colors.green[300],
         parentColor: clayContainerColor(context),
-        borderRadius: 100,
-        child: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Icon(Icons.check),
+        borderRadius: 20,
+        child: Container(
+          width: 100,
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Icon(Icons.check),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text("Submit"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -623,12 +650,25 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     return GestureDetector(
       onTap: addNewReceiptAction,
       child: ClayButton(
-        surfaceColor: clayContainerColor(context),
+        surfaceColor: Colors.blue[300],
         parentColor: clayContainerColor(context),
-        borderRadius: 100,
-        child: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Icon(Icons.add),
+        borderRadius: 20,
+        child: Container(
+          width: 100,
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Icon(Icons.add),
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text("Add new"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
