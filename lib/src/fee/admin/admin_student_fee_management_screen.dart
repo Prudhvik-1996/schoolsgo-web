@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_receipt_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -1090,94 +1091,5 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         ),
       ),
     );
-  }
-}
-
-class StudentAnnualFeeBean {
-  int? studentId;
-  String? studentName;
-  String? rollNumber;
-  List<StudentAnnualFeeTypeBean>? studentAnnualFeeTypeBeans;
-  StudentBusFeeBean? studentBusFeeBean;
-  int? totalFee;
-  int? totalFeePaid;
-  int? walletBalance;
-  int? sectionId;
-  String? sectionName;
-  String? status;
-
-  StudentAnnualFeeBean({
-    this.studentId,
-    this.studentName,
-    this.rollNumber,
-    this.studentAnnualFeeTypeBeans,
-    this.studentBusFeeBean,
-    this.totalFee,
-    this.totalFeePaid,
-    this.walletBalance,
-    this.sectionId,
-    this.sectionName,
-    this.status,
-  });
-
-  @override
-  String toString() {
-    return "\n{\n\t'studentId': $studentId, \n\t'studentName': $studentName, \n\t'rollNumber': $rollNumber, \n\t'studentAnnualFeeTypeBeans': $studentAnnualFeeTypeBeans, \n\t'studentBusFeeBean': $studentBusFeeBean, \n\t'totalFee': $totalFee, \n\t'totalFeePaid': $totalFeePaid\n\t'walletBalance': $walletBalance}";
-  }
-}
-
-class StudentAnnualFeeTypeBean {
-  int? feeTypeId;
-  String? feeType;
-  int? amount;
-  int? amountPaid;
-  int? studentFeeMapId;
-  int? sectionFeeMapId;
-  List<StudentAnnualCustomFeeTypeBean>? studentAnnualCustomFeeTypeBeans;
-
-  TextEditingController amountController = TextEditingController();
-
-  StudentAnnualFeeTypeBean({
-    this.feeTypeId,
-    this.feeType,
-    this.amount,
-    this.amountPaid,
-    this.studentFeeMapId,
-    this.sectionFeeMapId,
-    this.studentAnnualCustomFeeTypeBeans,
-  }) {
-    amountController.text = amount == null ? "" : "${amount! / 100}";
-  }
-
-  @override
-  String toString() {
-    return "\n{\n\t'feeTypeId': $feeTypeId, \n\t'feeType': $feeType, \n\t'amount': $amount, \n\t'amountPaid': $amountPaid, \n\t'studentFeeMapId': $studentFeeMapId, \n\t'studentAnnualCustomFeeTypeBeans': $studentAnnualCustomFeeTypeBeans \n}";
-  }
-}
-
-class StudentAnnualCustomFeeTypeBean {
-  int? customFeeTypeId;
-  String? customFeeType;
-  int? amount;
-  int? amountPaid;
-  int? sectionFeeMapId;
-  int? studentFeeMapId;
-
-  TextEditingController amountController = TextEditingController();
-
-  StudentAnnualCustomFeeTypeBean({
-    this.customFeeTypeId,
-    this.customFeeType,
-    this.amount,
-    this.amountPaid,
-    this.sectionFeeMapId,
-    this.studentFeeMapId,
-  }) {
-    amountController.text = amount == null ? "" : "${amount! / 100}";
-  }
-
-  @override
-  String toString() {
-    return "\n{\n\t'customFeeTypeId': $customFeeTypeId, \n\t'customFeeType': $customFeeType, \n\t'amount': $amount, \n\t'amountPaid': $amountPaid, \n\t'studentFeeMapId': $studentFeeMapId \n}";
   }
 }

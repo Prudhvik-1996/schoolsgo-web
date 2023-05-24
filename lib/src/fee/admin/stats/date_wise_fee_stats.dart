@@ -96,7 +96,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Fee Stats"),
+        title: const Text("Date wise Fee Stats"),
         actions: [
           const SizedBox(width: 10),
           Tooltip(

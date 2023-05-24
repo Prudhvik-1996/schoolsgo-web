@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +10,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -540,6 +542,12 @@ class StudentFeeReceipt {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  int totalAmountPaid() {
+    return (busFeePaid ?? 0) +
+        (feeTypes ?? []).map((e) => e?.amountPaidForTheReceipt ?? 0).sum +
+        (feeTypes ?? []).map((e) => e?.customFeeTypes ?? []).expand((i) => i).map((e) => e?.amountPaidForTheReceipt ?? 0).sum;
+  }
 
   bool isLoading = false;
   bool isEditMode = false;
