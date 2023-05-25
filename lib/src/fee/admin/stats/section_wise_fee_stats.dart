@@ -245,166 +245,167 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
                   ),
                 )
               : ListView.builder(
-        itemCount: sections.length,
-        itemBuilder: (context, index) {
-          Section section = sections[index];
-          List<StudentProfile> sectionStudentProfiles = studentProfiles.where((studentProfile) => studentProfile.sectionId == section.sectionId).toList();
-          List<StudentAnnualFeeBean> sectionAnnualFeeBeans = studentAnnualFeeBeans
-              .where((feeBean) => sectionStudentProfiles.any((profile) => profile.studentId == feeBean.studentId))
-              .toList();
-          int actualTotalFee = sectionAnnualFeeBeans.map((e) => e.totalFee ?? 0).sum;
-          int totalFeesPaid = sectionAnnualFeeBeans.map((e) => e.totalFeePaid ?? 0).sum;
-          int totalFeesPending = actualTotalFee - totalFeesPaid;
+                  itemCount: sections.length,
+                  itemBuilder: (context, index) {
+                    Section section = sections[index];
+                    List<StudentProfile> sectionStudentProfiles =
+                        studentProfiles.where((studentProfile) => studentProfile.sectionId == section.sectionId).toList();
+                    List<StudentAnnualFeeBean> sectionAnnualFeeBeans = studentAnnualFeeBeans
+                        .where((feeBean) => sectionStudentProfiles.any((profile) => profile.studentId == feeBean.studentId))
+                        .toList();
+                    int actualTotalFee = sectionAnnualFeeBeans.map((e) => e.totalFee ?? 0).sum;
+                    int totalFeesPaid = sectionAnnualFeeBeans.map((e) => e.totalFeePaid ?? 0).sum;
+                    int totalFeesPending = actualTotalFee - totalFeesPaid;
 
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-            child: ClayButton(
-              depth: 40,
-              color: clayContainerColor(context),
-              spread: 2,
-              borderRadius: 10,
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent,
-                ),
-                child: ExpansionTile(
-                  tilePadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                  childrenPadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                  title: Text(
-                    section.sectionName ?? '-',
-                    style: GoogleFonts.archivoBlack(
-                      textStyle: const TextStyle(
-                        fontSize: 24,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                  subtitle: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Expanded(
-                            child: Text("Total Fee"),
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      child: ClayButton(
+                        depth: 40,
+                        color: clayContainerColor(context),
+                        spread: 2,
+                        borderRadius: 10,
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
                           ),
-                          Text(
-                            "$INR_SYMBOL ${doubleToStringAsFixedForINR(actualTotalFee / 100)}",
-                            style: const TextStyle(
-                              color: Colors.blue,
+                          child: ExpansionTile(
+                            tilePadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                            childrenPadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                            title: Text(
+                              section.sectionName ?? '-',
+                              style: GoogleFonts.archivoBlack(
+                                textStyle: const TextStyle(
+                                  fontSize: 24,
+                                  color: Colors.blue,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Expanded(
-                            child: Text("Fee Paid"),
-                          ),
-                          Text(
-                            "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeesPaid / 100)}",
-                            style: const TextStyle(
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Expanded(
-                            child: Text("Fee to be collected"),
-                          ),
-                          Text(
-                            "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeesPending / 100)}",
-                            style: const TextStyle(
-                              color: Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: SingleChildScrollView(
-                        child: DataTable(
-                          columnSpacing: 30, // Adjust this value as needed
-                          columns: const [
-                            DataColumn(label: Text('Student Name')),
-                            DataColumn(label: Text('Total Fee')),
-                            DataColumn(label: Text('Fee Paid')),
-                            DataColumn(label: Text('Discount')),
-                            DataColumn(label: Text('Fee Pending')),
-                          ],
-                          rows: sectionAnnualFeeBeans.map((feeBean) {
-                            return DataRow(
-                              cells: [
-                                DataCell(
-                                  Text(
-                                    "${feeBean.rollNumber ?? ''}${feeBean.rollNumber != null ? '. ' : ''}${feeBean.studentName ?? ''}",
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    feeBean.totalFee == null
-                                        ? "-"
-                                        : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.totalFee ?? 0) / 100)}",
-                                    style: const TextStyle(
-                                      color: Colors.blue,
+                            subtitle: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Expanded(
+                                      child: Text("Total Fee"),
                                     ),
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    feeBean.totalFeePaid == null
-                                        ? "-"
-                                        : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.totalFeePaid ?? 0) / 100)}",
-                                  ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    feeBean.totalFeePaid == null
-                                        ? "-"
-                                        : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.discount ?? 0) / 100)}",
-                                    style: const TextStyle(
-                                      color: Colors.green,
+                                    Text(
+                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR(actualTotalFee / 100)}",
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                DataCell(
-                                  Text(
-                                    feeBean.totalFee == null
-                                        ? "-"
-                                        : "$INR_SYMBOL ${doubleToStringAsFixedForINR(((feeBean.totalFee ?? 0) - (feeBean.totalFeePaid ?? 0)) / 100)}",
-                                    style: const TextStyle(
-                                      color: Colors.red,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Expanded(
+                                      child: Text("Fee Paid"),
                                     ),
-                                  ),
+                                    Text(
+                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeesPaid / 100)}",
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Expanded(
+                                      child: Text("Fee to be collected"),
+                                    ),
+                                    Text(
+                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeesPending / 100)}",
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            );
-                          }).toList(),
+                            ),
+                            children: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: SingleChildScrollView(
+                                  child: DataTable(
+                                    columnSpacing: 30, // Adjust this value as needed
+                                    columns: const [
+                                      DataColumn(label: Text('Student Name')),
+                                      DataColumn(label: Text('Total Fee')),
+                                      DataColumn(label: Text('Fee Paid')),
+                                      // DataColumn(label: Text('Discount')),
+                                      DataColumn(label: Text('Fee Pending')),
+                                    ],
+                                    rows: sectionAnnualFeeBeans.map((feeBean) {
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(
+                                            Text(
+                                              "${feeBean.rollNumber ?? ''}${feeBean.rollNumber != null ? '. ' : ''}${feeBean.studentName ?? ''}",
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              feeBean.totalFee == null
+                                                  ? "-"
+                                                  : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.totalFee ?? 0) / 100)}",
+                                              style: const TextStyle(
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              feeBean.totalFeePaid == null
+                                                  ? "-"
+                                                  : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.totalFeePaid ?? 0) / 100)}",
+                                              style: const TextStyle(
+                                                color: Colors.green,
+                                              ),
+                                            ),
+                                          ),
+                                          // DataCell(
+                                          //   Text(
+                                          //     feeBean.totalFeePaid == null
+                                          //         ? "-"
+                                          //         : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.discount ?? 0) / 100)}",
+                                          //   ),
+                                          // ),
+                                          DataCell(
+                                            Text(
+                                              feeBean.totalFee == null
+                                                  ? "-"
+                                                  : "$INR_SYMBOL ${doubleToStringAsFixedForINR(((feeBean.totalFee ?? 0) - (feeBean.totalFeePaid ?? 0)) / 100)}",
+                                              style: const TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }
