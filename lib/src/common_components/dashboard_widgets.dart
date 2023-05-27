@@ -456,6 +456,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         routeName: "/student_information_center",
         argument: adminProfile,
       ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/demo.svg"),
+      //   title: "Academin Planner",
+      //   routeName: "/academic_planner",
+      //   argument: adminProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_options_screen.dart';
 
 // import 'package:provider/provider.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
@@ -799,6 +800,15 @@ class _MyAppState extends State<MyApp> {
                   adminProfile: adminProfile,
                 );
               }
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case AdminAcademicPlannerOptionsScreen.routeName:
+            try {
+              var argument = (routeSettings.arguments as AdminProfile);
+              return AdminAcademicPlannerOptionsScreen(
+                adminProfile: argument,
+              );
             } catch (e) {
               return const E404NotFoundScreen();
             }

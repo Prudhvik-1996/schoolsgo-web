@@ -104,6 +104,9 @@ dependencies:
   number_paginator: ^0.2.3
   d_chart: ^2.2.11
 
+  calendar_view: ^1.0.3
+#  syncfusion_flutter_calendar: ^20.4.54
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

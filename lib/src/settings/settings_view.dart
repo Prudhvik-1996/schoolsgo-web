@@ -212,7 +212,7 @@ class _SettingsViewState extends State<SettingsView> {
             Icons.copy,
           ),
           onTap: () {
-            Clipboard.setData(ClipboardData(text: fcmToken));
+            Clipboard.setData(ClipboardData(text: fcmToken ?? ""));
           },
         ),
         const SizedBox(
