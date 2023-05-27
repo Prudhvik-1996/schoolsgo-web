@@ -167,6 +167,7 @@ const String GET_SUGGESTION_BOX_REPORT = "/reports/getSuggestionBoxReport";
 const String GET_LOGBOOK_REPORT = "/reports/getTeacherLogBookReport";
 const String GET_ADMIN_EXPENSES_REPORT = "/reports/getAdminExpensesReport";
 const String GET_FEE_DETAILS_REPORT = "/reports/getDetailedFeesReport";
+const String GET_FEE_SECTION_WISE_TERM_WISE_REPORT = "/reports/getSectionWiseFeesDueReport";
 const String GET_FEE_SUMMARY_REPORT = "/reports/getFeesSummaryReport";
 const String GET_BUS_WISE_FEES_SUMMARY_REPORT = "/reports/getBusWiseFeesSummaryReport";
 

@@ -1,1 +1,1 @@
-enum FeeReportType { detailed, summary }
+enum FeeReportType { detailed, summary, sectionWiseTermWise }

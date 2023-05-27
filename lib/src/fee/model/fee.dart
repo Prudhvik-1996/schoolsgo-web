@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
@@ -3197,7 +3196,12 @@ Future<GetTransportFeeAssignmentTypeResponse> getTransportFeeAssignmentType(
 
 Future<List<int>> detailedFeeReport(GetStudentWiseAnnualFeesRequest getStudentWiseAnnualFeesRequest, FeeReportType feeReportType) async {
   debugPrint("Raising request to getStudentWiseAnnualFees with request ${jsonEncode(getStudentWiseAnnualFeesRequest.toJson())}");
-  String _url = SCHOOLS_GO_BASE_URL + (feeReportType == FeeReportType.detailed ? GET_FEE_DETAILS_REPORT : GET_FEE_SUMMARY_REPORT);
+  String _url = SCHOOLS_GO_BASE_URL +
+      (feeReportType == FeeReportType.detailed
+          ? GET_FEE_DETAILS_REPORT
+          : feeReportType == FeeReportType.sectionWiseTermWise
+              ? GET_FEE_SECTION_WISE_TERM_WISE_REPORT
+              : GET_FEE_SUMMARY_REPORT);
   return await HttpUtils.postToDownloadFile(_url, getStudentWiseAnnualFeesRequest.toJson());
 }
 
@@ -3240,6 +3244,7 @@ class GetStudentFeeDetailsRequest {
     this.studentIds,
     this.termIds,
   });
+
   GetStudentFeeDetailsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
@@ -3278,6 +3283,7 @@ class GetStudentFeeDetailsRequest {
       termIds = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
@@ -3358,6 +3364,7 @@ class StudentTermWiseFeeTypeDetailsBean {
     this.termWiseTotalFee,
     this.termWiseTotalFeePaid,
   });
+
   StudentTermWiseFeeTypeDetailsBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
@@ -3370,6 +3377,7 @@ class StudentTermWiseFeeTypeDetailsBean {
     termWiseTotalFee = json['termWiseTotalFee']?.toInt();
     termWiseTotalFeePaid = json['termWiseTotalFeePaid']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
@@ -3439,6 +3447,7 @@ class StudentWiseFeeTypeDetailsBean {
     this.studentId,
     this.studentTermWiseFeeTypeDetailsList,
   });
+
   StudentWiseFeeTypeDetailsBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     annualFee = json['annualFee']?.toInt();
@@ -3459,6 +3468,7 @@ class StudentWiseFeeTypeDetailsBean {
       studentTermWiseFeeTypeDetailsList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['annualFee'] = annualFee;
@@ -3527,6 +3537,7 @@ class StudentFeeChildTransactionBean {
     this.transactionId,
     this.termComponents,
   });
+
   StudentFeeChildTransactionBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeType = json['customFeeType']?.toString();
@@ -3540,6 +3551,7 @@ class StudentFeeChildTransactionBean {
     transactionDate = json['transactionDate']?.toString();
     transactionId = json['transactionId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeType'] = customFeeType;
@@ -3621,6 +3633,7 @@ class StudentFeeTransactionBean {
     this.receiptId,
     this.transactionDate,
   });
+
   StudentFeeTransactionBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     masterTransactionId = json['masterTransactionId']?.toInt();
@@ -3641,6 +3654,7 @@ class StudentFeeTransactionBean {
     receiptId = json['receiptId']?.toInt();
     transactionDate = json['transactionDate']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['masterTransactionId'] = masterTransactionId;
@@ -3760,6 +3774,7 @@ class StudentFeeDetailsBean {
     this.busFee,
     this.busFeePaid,
   });
+
   StudentFeeDetailsBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     rollNumber = json['rollNumber']?.toString();
@@ -3790,6 +3805,7 @@ class StudentFeeDetailsBean {
     busFee = json['busFee']?.toInt();
     busFeePaid = json['busFeePaid']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['rollNumber'] = rollNumber;
@@ -3911,6 +3927,7 @@ class GetStudentFeeDetailsResponse {
     this.responseStatus,
     this.studentFeeDetailsBeanList,
   });
+
   GetStudentFeeDetailsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -3926,6 +3943,7 @@ class GetStudentFeeDetailsResponse {
       studentFeeDetailsBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -3980,12 +3998,14 @@ class NewReceiptBeanSubBean {
     this.feePaying,
     this.feeTypeId,
   });
+
   NewReceiptBeanSubBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeTypeId = json['customFeeTypeId']?.toInt();
     feePaying = json['feePaying']?.toInt();
     feeTypeId = json['feeTypeId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeTypeId'] = customFeeTypeId;
@@ -4039,6 +4059,7 @@ class NewReceiptBean {
     this.busFeePaidAmount,
     this.modeOfPayment,
   });
+
   NewReceiptBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -4058,6 +4079,7 @@ class NewReceiptBean {
     busFeePaidAmount = json['busFeePaidAmount']?.toInt();
     modeOfPayment = json['modeOfPayment']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -4112,6 +4134,7 @@ class CreateNewReceiptsRequest {
   CreateNewReceiptsRequest({
     this.newReceiptBeans,
   });
+
   CreateNewReceiptsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['newReceiptBeans'] != null) {
@@ -4123,6 +4146,7 @@ class CreateNewReceiptsRequest {
       newReceiptBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (newReceiptBeans != null) {
@@ -4161,6 +4185,7 @@ class CreateNewReceiptsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateNewReceiptsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -4168,6 +4193,7 @@ class CreateNewReceiptsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -4229,6 +4255,7 @@ class StudentWiseFeePaidSupportBean {
     this.transactionDate,
     this.transactionId,
   });
+
   StudentWiseFeePaidSupportBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -4247,6 +4274,7 @@ class StudentWiseFeePaidSupportBean {
     transactionDate = json['transactionDate']?.toString();
     transactionId = json['transactionId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -4309,6 +4337,7 @@ class StudentTermWiseFeeSupportBean {
     this.termWiseAmount,
     this.termWiseAmountPaid,
   });
+
   StudentTermWiseFeeSupportBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     customFeeType = json['customFeeType']?.toString();
@@ -4329,6 +4358,7 @@ class StudentTermWiseFeeSupportBean {
     termWiseAmount = json['termWiseAmount']?.toInt();
     termWiseAmountPaid = json['termWiseAmountPaid']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['customFeeType'] = customFeeType;
@@ -4387,6 +4417,7 @@ class StudentMasterTransactionSupportBean {
     this.transactionType,
     this.modeOfPayment,
   });
+
   StudentMasterTransactionSupportBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -4404,6 +4435,7 @@ class StudentMasterTransactionSupportBean {
     transactionType = json['transactionType']?.toString();
     modeOfPayment = json['modeOfPayment']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -4465,6 +4497,7 @@ class StudentAnnualFeeSupportBean {
     this.studentId,
     this.studentName,
   });
+
   StudentAnnualFeeSupportBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -4485,6 +4518,7 @@ class StudentAnnualFeeSupportBean {
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -4533,6 +4567,7 @@ class GetStudentFeeDetailsSupportClassesResponse {
     this.studentWiseFeePaidBeans,
     this.busFeeBeans,
   });
+
   GetStudentFeeDetailsSupportClassesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -4580,6 +4615,7 @@ class GetStudentFeeDetailsSupportClassesResponse {
       busFeeBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -4668,6 +4704,7 @@ class DeleteReceiptRequest {
     this.masterTransactionId,
     this.schoolId,
   });
+
   DeleteReceiptRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -4675,6 +4712,7 @@ class DeleteReceiptRequest {
     masterTransactionId = json['masterTransactionId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -4709,6 +4747,7 @@ class DeleteReceiptResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   DeleteReceiptResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -4716,6 +4755,7 @@ class DeleteReceiptResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -4767,6 +4807,7 @@ class UpdateReceiptRequest {
     this.schoolId,
     this.transactionId,
   });
+
   UpdateReceiptRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -4775,6 +4816,7 @@ class UpdateReceiptRequest {
     schoolId = json['schoolId']?.toInt();
     transactionId = json['transactionId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -4784,6 +4826,7 @@ class UpdateReceiptRequest {
     data['transactionId'] = transactionId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -4809,6 +4852,7 @@ class UpdateReceiptResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   UpdateReceiptResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -4816,6 +4860,7 @@ class UpdateReceiptResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -4824,6 +4869,7 @@ class UpdateReceiptResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' show AnchorElement;
 
@@ -67,7 +68,9 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
   void refreshReportName() {
     setState(() => reportName = (feeReportType == FeeReportType.detailed
         ? "DetailedFeesReport${DateTime.now().millisecondsSinceEpoch}.xlsx"
-        : "FeesSummaryReport${DateTime.now().millisecondsSinceEpoch}.xlsx"));
+        : feeReportType == FeeReportType.sectionWiseTermWise
+            ? "TermWiseFeeReport${DateTime.now().millisecondsSinceEpoch}.xlsx"
+            : "FeesSummaryReport${DateTime.now().millisecondsSinceEpoch}.xlsx"));
   }
 
   Widget _sectionPicker() {
@@ -288,11 +291,15 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
           setState(() => feeReportType = value);
           refreshReportName();
         },
-        title: Text(_feeReportType == FeeReportType.detailed
-            ? "Detailed Fees Report"
-            : _feeReportType == FeeReportType.summary
-                ? "Fees Summary Report"
-                : "-"),
+        title: Text(
+          _feeReportType == FeeReportType.detailed
+              ? "Detailed Fees Report"
+              : _feeReportType == FeeReportType.sectionWiseTermWise
+                  ? "Term Wise Report"
+                  : _feeReportType == FeeReportType.summary
+                      ? "Fees Summary Report"
+                      : "-",
+        ),
       ),
     );
   }
@@ -306,6 +313,10 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
                 Expanded(
                   flex: 1,
                   child: _radioListTileForFeeReportType(FeeReportType.detailed),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWise),
                 ),
                 // const SizedBox(
                 //   width: 15,
@@ -321,6 +332,10 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
                 Container(
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
                   child: _radioListTileForFeeReportType(FeeReportType.detailed),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                  child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWise),
                 ),
                 // const SizedBox(
                 //   width: 15,
