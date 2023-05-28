@@ -68,7 +68,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
   void refreshReportName() {
     setState(() => reportName = (feeReportType == FeeReportType.detailed
         ? "DetailedFeesReport${DateTime.now().millisecondsSinceEpoch}.xlsx"
-        : feeReportType == FeeReportType.sectionWiseTermWise
+        : feeReportType == FeeReportType.sectionWiseTermWiseForAllStudents
             ? "TermWiseFeeReport${DateTime.now().millisecondsSinceEpoch}.xlsx"
             : "FeesSummaryReport${DateTime.now().millisecondsSinceEpoch}.xlsx"));
   }
@@ -294,7 +294,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
         title: Text(
           _feeReportType == FeeReportType.detailed
               ? "Detailed Fees Report"
-              : _feeReportType == FeeReportType.sectionWiseTermWise
+              : _feeReportType == FeeReportType.sectionWiseTermWiseForAllStudents
                   ? "Term Wise Report"
                   : _feeReportType == FeeReportType.summary
                       ? "Fees Summary Report"
@@ -316,7 +316,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
                 ),
                 Expanded(
                   flex: 1,
-                  child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWise),
+                  child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWiseForAllStudents),
                 ),
                 // const SizedBox(
                 //   width: 15,
@@ -335,7 +335,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
                 ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-                  child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWise),
+                  child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWiseForAllStudents),
                 ),
                 // const SizedBox(
                 //   width: 15,

@@ -3199,8 +3199,8 @@ Future<List<int>> detailedFeeReport(GetStudentWiseAnnualFeesRequest getStudentWi
   String _url = SCHOOLS_GO_BASE_URL +
       (feeReportType == FeeReportType.detailed
           ? GET_FEE_DETAILS_REPORT
-          : feeReportType == FeeReportType.sectionWiseTermWise
-              ? GET_FEE_SECTION_WISE_TERM_WISE_REPORT
+          : feeReportType == FeeReportType.sectionWiseTermWiseForAllStudents
+              ? GET_FEE_SECTION_WISE_TERM_WISE_REPORT_FOR_ALL_STUDENTS
               : GET_FEE_SUMMARY_REPORT);
   return await HttpUtils.postToDownloadFile(_url, getStudentWiseAnnualFeesRequest.toJson());
 }
