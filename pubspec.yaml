@@ -105,6 +105,9 @@ dependencies:
   d_chart: ^2.2.11
 
   calendar_view: ^1.0.3
+
+  file_saver: ^0.2.4
+  excel: ^2.0.0
 #  syncfusion_flutter_calendar: ^20.4.54
 
 dev_dependencies:

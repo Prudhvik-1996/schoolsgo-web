@@ -543,12 +543,6 @@ class StudentFeeReceipt {
 
   Map<String, dynamic> origJson() => __origJson;
 
-  int totalAmountPaid() {
-    return (busFeePaid ?? 0) +
-        (feeTypes ?? []).map((e) => e?.amountPaidForTheReceipt ?? 0).sum +
-        (feeTypes ?? []).map((e) => e?.customFeeTypes ?? []).expand((i) => i).map((e) => e?.amountPaidForTheReceipt ?? 0).sum;
-  }
-
   bool isLoading = false;
   bool isEditMode = false;
 
@@ -652,10 +646,10 @@ class StudentFeeReceipt {
 
   int getTotalAmountForReceipt() {
     int busFee = busFeePaid ?? 0;
-    int feeTypesAmount = (feeTypes ?? []).isEmpty ? 0 : (feeTypes ?? []).map((e) => e?.amountPaidForTheReceipt ?? 0).reduce((a, b) => a + b);
+    int feeTypesAmount = (feeTypes ?? []).isEmpty ? 0 : (feeTypes ?? []).map((e) => e?.amountPaidForTheReceipt ?? 0).sum;
     List<int> customFeeTypeAmount =
         (feeTypes ?? []).map((e) => e?.customFeeTypes ?? []).expand((i) => i).map((e) => e?.amountPaidForTheReceipt ?? 0).toList();
-    int customFeeTypesAmount = customFeeTypeAmount.isEmpty ? 0 : customFeeTypeAmount.reduce((a, b) => a + b);
+    int customFeeTypesAmount = customFeeTypeAmount.isEmpty ? 0 : customFeeTypeAmount.sum;
     return busFee + feeTypesAmount + customFeeTypesAmount;
   }
 

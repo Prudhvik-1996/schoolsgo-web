@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +13,7 @@ import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class SectionWiseFeeStats extends StatefulWidget {
@@ -230,6 +234,38 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Section wise Fee Stats"),
+        actions: _isLoading ? [] : [
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () async {
+              List<int> bytes = await detailedFeeReport(
+                GetStudentWiseAnnualFeesRequest(
+                  schoolId: widget.adminProfile.schoolId,
+                ),
+                FeeReportType.sectionWiseTermWiseForAllStudents,
+              );
+              AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+                ..setAttribute("download", "Section wise due report")
+                ..click();
+            },
+            child: ClayButton(
+              depth: 40,
+              color: clayContainerColor(context),
+              spread: 2,
+              borderRadius: 10,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    "Download",
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+        ],
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,

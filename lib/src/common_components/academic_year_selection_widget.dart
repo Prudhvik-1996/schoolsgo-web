@@ -81,8 +81,8 @@ class _AcademicYearDropdownState extends State<AcademicYearDropdown> {
   @override
   Widget build(BuildContext context) {
     return _isLoading
-        ? const SizedBox(
-            width: 50,
+        ? const Padding(
+            padding: EdgeInsets.all(8),
             child: CircularProgressIndicator(),
           )
         : !shouldShowDropDown

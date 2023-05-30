@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_receipts_stats.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -198,7 +199,16 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
       itemBuilder: (context, index) {
         final date = dateWiseAmountsCollected[index].date;
         final amount = dateWiseAmountsCollected[index].amount;
-        return Card(
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return DateWiseReceiptsStatsWidget(
+                adminProfile: widget.adminProfile,
+                studentFeeReceipts: widget.studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(date)).toList(),
+                selectedDate: date,
+              );
+            }));
+          },
           child: ClayButton(
             depth: 40,
             spread: 2,

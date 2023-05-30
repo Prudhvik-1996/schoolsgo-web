@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_fee_stats.dart';
+import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_receipts_stats.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/section_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
@@ -214,7 +215,15 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   }
 
   Future<void> handleClick(String choice) async {
-    if (choice == "Go to date") {
+    if (choice == "Today") {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return DateWiseReceiptsStatsWidget(
+          adminProfile: widget.adminProfile,
+          studentFeeReceipts: studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).toList(),
+          selectedDate: DateTime.now(),
+        );
+      }));
+    } else if (choice == "Go to date") {
       await goToDateAction();
     } else if (choice == "Term Wise") {
       setState(() => isTermWise = !isTermWise);
@@ -382,10 +391,14 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                 PopupMenuButton<String>(
                   onSelected: (String choice) async => await handleClick(choice),
                   itemBuilder: (BuildContext context) {
-                    return (_renderingReceiptText == null
-                            ? {"Go to date", "Term Wise", "Date wise Stats", "Section wise Stats", "Print"}
-                            : {"Go to date", "Term Wise", "Date wise Stats", "Section wise Stats"})
-                        .map((String choice) {
+                    return {
+                      if (studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).isNotEmpty) "Today",
+                      "Go to date",
+                      "Term Wise",
+                      "Date wise Stats",
+                      "Section wise Stats",
+                      if (_renderingReceiptText == null) "Print",
+                    }.map((String choice) {
                       return PopupMenuItem<String>(
                         value: choice,
                         child: choice == "Term Wise"
