@@ -999,14 +999,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
               const SizedBox(width: 20),
               DropdownButton<String>(
                 value: widget.newReceipt.modeOfPayment,
-                items: [
-                  ModeOfPayment.CASH,
-                  ModeOfPayment.PHONEPE,
-                  ModeOfPayment.GPAY,
-                  ModeOfPayment.PAYTM,
-                  ModeOfPayment.NETBANKING,
-                  ModeOfPayment.CHEQUE
-                ]
+                items: ModeOfPayment.values
                     .map((e) => DropdownMenuItem<String>(
                           value: e.name,
                           child: Text(e.description),

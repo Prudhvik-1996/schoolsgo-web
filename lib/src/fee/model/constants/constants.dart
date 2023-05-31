@@ -1,7 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
-enum ModeOfPayment { CASH, PHONEPE, GPAY, PAYTM, NETBANKING, CHEQUE, OTHER }
+enum ModeOfPayment { CASH, PHONEPE, GPAY, PAYTM, NETBANKING, CHEQUE, CARD, OTHER }
 
 extension ModeOfPaymentExt on ModeOfPayment {
   String toShortString() {
@@ -22,6 +22,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         return "Net Banking";
       case ModeOfPayment.CHEQUE:
         return "Cheque";
+      case ModeOfPayment.CARD:
+        return "Card";
       default:
         return "Other";
     }
@@ -41,6 +43,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         return ModeOfPayment.NETBANKING;
       case "CHEQUE":
         return ModeOfPayment.CHEQUE;
+      case "CARD":
+        return ModeOfPayment.CARD;
       default:
         return ModeOfPayment.OTHER;
     }
@@ -60,6 +64,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         return charts.MaterialPalette.yellow.shadeDefault;
       case ModeOfPayment.CHEQUE:
         return charts.MaterialPalette.teal.shadeDefault;
+      case ModeOfPayment.CARD:
+        return charts.MaterialPalette.deepOrange.shadeDefault;
       default:
         return charts.MaterialPalette.gray.shadeDefault;
     }
@@ -79,6 +85,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         return Colors.yellow;
       case ModeOfPayment.CHEQUE:
         return Colors.teal;
+      case ModeOfPayment.CARD:
+        return Colors.deepOrange;
       default:
         return Colors.grey;
     }
@@ -86,7 +94,7 @@ extension ModeOfPaymentExt on ModeOfPayment {
 
   static Widget getChartLedgerRow(ModeOfPayment modeOfPayment) {
     return Padding(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.fromLTRB(4,2,4,2),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -94,8 +102,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         children: [
           Container(
             color: getColorForModeOfPayment(modeOfPayment),
-            height: 5,
-            width: 5,
+            height: 10,
+            width: 10,
           ),
           const SizedBox(width: 5),
           Expanded(child: Text(modeOfPayment.description)),
