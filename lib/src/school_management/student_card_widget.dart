@@ -323,6 +323,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                       : widget.studentProfile.alternatePhoneController.text.trim(),
                   gaurdianMailId:
                       widget.studentProfile.emailController.text.trim().isEmpty ? null : widget.studentProfile.emailController.text.trim(),
+                  admissionNo: widget.studentProfile.admissionNoController.text.trim().isEmpty ? null : widget.studentProfile.admissionNoController.text.trim(),
                 );
                 CreateOrUpdateStudentProfileResponse createOrUpdateStudentProfileResponse =
                     await createOrUpdateStudentProfile(createOrUpdateStudentProfileRequest);

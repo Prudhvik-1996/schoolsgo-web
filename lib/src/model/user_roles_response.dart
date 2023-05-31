@@ -228,54 +228,47 @@ class TeacherProfile {
 }
 
 class StudentProfile {
-/*
-{
-  "balanceAmount": 0,
-  "fatherName": "string",
-  "gaurdianFirstName": "string",
-  "gaurdianId": 0,
-  "gaurdianLastName": "string",
-  "gaurdianMailId": "string",
-  "gaurdianMiddleName": "string",
-  "gaurdianMobile": "string",
-  "motherName": "string",
-  "rollNumber": "string",
-  "schoolId": 0,
-  "schoolName": "string",
-  "schoolPhotoUrl": "string",
-  "sectionDescription": "string",
-  "sectionId": 0,
-  "sectionName": "string",
-  "studentDob": "string",
-  "studentFirstName": "string",
-  "studentId": 0,
-  "studentLastName": "string",
-  "studentMailId": "string",
-  "studentMiddleName": "string",
-  "studentMobile": "string",
-  "studentPhotoUrl": "string"
-}
-*/
 
+  String? aadhaarNo;
+  String? aadhaarPhotoUrl;
+  int? aadhaarPhotoUrlId;
+  String? admissionNo;
+  int? agentId;
+  String? alternateMobile;
+  bool? assignedToBusStop;
   int? balanceAmount;
+  String? branchCode;
+  String? custom;
+  int? fatherAnnualIncome;
   String? fatherName;
+  String? fatherOccupation;
+  String? fatherQualification;
+  int? franchiseId;
+  String? franchiseName;
   String? gaurdianFirstName;
   int? gaurdianId;
   String? gaurdianLastName;
   String? gaurdianMailId;
   String? gaurdianMiddleName;
   String? gaurdianMobile;
-  String? alternateMobile;
+  String? loginId;
+  int? motherAnnualIncome;
   String? motherName;
+  String? motherOccupation;
+  String? motherQualification;
+  String? motherTongue;
+  String? otherPhoneNumbers;
+  String? permanentResidence;
+  String? previousSchoolRecords;
+  String? residenceForCommunication;
   String? rollNumber;
-  String? admissionNo;
   int? schoolId;
   String? schoolName;
-  String? branchCode;
   String? schoolPhotoUrl;
   String? sectionDescription;
   int? sectionId;
   String? sectionName;
+  String? status;
   String? studentDob;
   String? studentFirstName;
   int? studentId;
@@ -284,12 +277,9 @@ class StudentProfile {
   String? studentMiddleName;
   String? studentMobile;
   String? studentPhotoUrl;
-  int? franchiseId;
-  String? franchiseName;
+  String? studentStatus;
+
   bool? isAssignedToBusStop;
-  String? loginId;
-  int? agentId;
-  String? status;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController rollNumberController = TextEditingController();
@@ -301,25 +291,46 @@ class StudentProfile {
   TextEditingController emailController = TextEditingController();
 
   StudentProfile({
+    this.aadhaarNo,
+    this.aadhaarPhotoUrl,
+    this.aadhaarPhotoUrlId,
+    this.admissionNo,
+    this.agentId,
+    this.alternateMobile,
+    this.assignedToBusStop,
     this.balanceAmount,
+    this.branchCode,
+    this.custom,
+    this.fatherAnnualIncome,
     this.fatherName,
+    this.fatherOccupation,
+    this.fatherQualification,
+    this.franchiseId,
+    this.franchiseName,
     this.gaurdianFirstName,
     this.gaurdianId,
     this.gaurdianLastName,
     this.gaurdianMailId,
     this.gaurdianMiddleName,
     this.gaurdianMobile,
-    this.alternateMobile,
+    this.loginId,
+    this.motherAnnualIncome,
     this.motherName,
+    this.motherOccupation,
+    this.motherQualification,
+    this.motherTongue,
+    this.otherPhoneNumbers,
+    this.permanentResidence,
+    this.previousSchoolRecords,
+    this.residenceForCommunication,
     this.rollNumber,
-    this.admissionNo,
     this.schoolId,
     this.schoolName,
-    this.branchCode,
     this.schoolPhotoUrl,
     this.sectionDescription,
     this.sectionId,
     this.sectionName,
+    this.status,
     this.studentDob,
     this.studentFirstName,
     this.studentId,
@@ -328,12 +339,8 @@ class StudentProfile {
     this.studentMiddleName,
     this.studentMobile,
     this.studentPhotoUrl,
-    this.franchiseId,
-    this.franchiseName,
+    this.studentStatus,
     this.isAssignedToBusStop,
-    this.loginId,
-    this.agentId,
-    this.status,
   }) {
     rollNumberController = TextEditingController(text: rollNumber ?? "");
     admissionNoController = TextEditingController(text: admissionNo ?? "");
@@ -1150,6 +1157,7 @@ class CreateOrUpdateStudentProfileRequest {
   String? studentMiddleName;
   String? studentMobile;
   String? studentPhotoUrl;
+  String? admissionNo;
   Map<String, dynamic> __origJson = {};
 
   CreateOrUpdateStudentProfileRequest({
@@ -1179,6 +1187,7 @@ class CreateOrUpdateStudentProfileRequest {
     this.studentMiddleName,
     this.studentMobile,
     this.studentPhotoUrl,
+    this.admissionNo,
   });
 
   CreateOrUpdateStudentProfileRequest.fromJson(Map<String, dynamic> json) {
@@ -1209,6 +1218,7 @@ class CreateOrUpdateStudentProfileRequest {
     studentMiddleName = json['studentMiddleName']?.toString();
     studentMobile = json['studentMobile']?.toString();
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
+    admissionNo = json['admissionNo']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -1239,6 +1249,7 @@ class CreateOrUpdateStudentProfileRequest {
     data['studentMiddleName'] = studentMiddleName;
     data['studentMobile'] = studentMobile;
     data['studentPhotoUrl'] = studentPhotoUrl;
+    data['admissionNo'] = admissionNo;
     return data;
   }
 
