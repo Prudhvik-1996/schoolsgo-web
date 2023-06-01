@@ -50,6 +50,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
   List<StudentProfile> selectedStudentProfiles = [];
 
   List<StudentFeeReceipt> filteredReceipts = [];
+  final ScrollController _controller = ScrollController();
 
   @override
   void initState() {
@@ -100,6 +101,8 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     // Add a sheet to the workbook
     Sheet sheet = excel['Receipts'];
 
+    int rowIndex = 0;
+
     // Append the school name
     sheet.appendRow(["${widget.adminProfile.schoolName}"]);
     // Apply formatting to the school name cell
@@ -110,6 +113,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).cellStyle = schoolNameStyle;
     sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: 0));
+    rowIndex++;
 
     sheet.appendRow(["Date: ${(convertDateTimeToDDMMYYYYFormat(widget.selectedDate))}"]);
     // Apply formatting to the date cell
@@ -119,6 +123,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)).cellStyle = dateStyle;
     sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: 1));
+    rowIndex++;
 
     sheet.appendRow(["Sections: ${selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}"]);
     // Apply formatting to the sections cell
@@ -128,23 +133,24 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2)).cellStyle = sectionsStyle;
     sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2), CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: 2));
+    rowIndex++;
 
     // Define the headers for the columns
-    sheet.appendRow(['Receipt Number', 'Class', 'Student Name', 'Parent Name', 'Amount Paid', 'Mode Of Payment', 'Phone']);
+    sheet.appendRow(['Receipt Number', 'Admission Number', 'Class', 'Roll Number', 'Student Name', 'Amount Paid', 'Mode Of Payment']);
+    rowIndex++;
 
     // Add the data rows to the sheet
     for (var receipt in studentFeeReceipts) {
       sheet.appendRow([
         receipt.receiptNumber ?? "-",
+        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.admissionNo ?? "-",
         receipt.sectionName,
+        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.rollNumber ?? "-",
         receipt.studentName,
-        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.gaurdianFirstName ?? "-",
         receipt.getTotalAmountForReceipt() / 100,
         ModeOfPaymentExt.fromString(receipt.modeOfPayment).description,
-        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.gaurdianMobile ??
-            studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.studentMobile ??
-            "-",
       ]);
+      rowIndex++;
     }
 
     // Deleting default sheet
@@ -156,6 +162,27 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     for (var i = 1; i < sheet.maxCols; i++) {
       sheet.setColAutoFit(i);
     }
+
+    sheet.appendRow(["Mode Of Payment", "Amount"]);
+    rowIndex++;
+    final paymentMap = <ModeOfPayment, int>{};
+    for (final receipt in studentFeeReceipts) {
+      final modeOfPayment = ModeOfPaymentExt.fromString(receipt.modeOfPayment);
+      final totalAmount = receipt.getTotalAmountForReceipt();
+      paymentMap[modeOfPayment] = (paymentMap[modeOfPayment] ?? 0) + totalAmount;
+    }
+    paymentMap.forEach((key, value) {
+      if (value != 0) {
+        sheet.appendRow([key.description, value / 100.0]);
+        rowIndex++;
+      }
+    });
+
+    sheet.appendRow([
+      "Total",
+      paymentMap.values.sum / 100.0,
+    ]);
+    rowIndex++;
 
     // Generate the Excel file as bytes
     var excelBytes = excel.encode();
@@ -239,33 +266,36 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
         borderRadius: 10,
         child: Container(
           margin: const EdgeInsets.all(10),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Receipt Number')),
-                DataColumn(label: Text('Class')),
-                DataColumn(label: Text('Student Name')),
-                DataColumn(label: Text('Parent Name')),
-                DataColumn(label: Text('Amount Paid')),
-                DataColumn(label: Text('Mode Of Payment')),
-                DataColumn(label: Text('Phone')),
-              ],
-              rows: studentFeeReceipts.sorted((a, b) => (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0)).map((receipt) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text("${receipt.receiptNumber ?? "-"}")),
-                    DataCell(Text("${receipt.sectionName}")),
-                    DataCell(Text("${receipt.studentName}")),
-                    DataCell(Text(studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.gaurdianFirstName ?? "-")),
-                    DataCell(Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(receipt.getTotalAmountForReceipt() / 100)} /-")),
-                    DataCell(Text(ModeOfPaymentExt.fromString(receipt.modeOfPayment).description)),
-                    DataCell(Text(studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.gaurdianMobile ??
-                        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.studentMobile ??
-                        "-")),
-                  ],
-                );
-              }).toList(),
+          child: Scrollbar(
+            thumbVisibility: true,
+            controller: _controller,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              controller: _controller,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Receipt Number')),
+                  DataColumn(label: Text('Admission Number')),
+                  DataColumn(label: Text('Class')),
+                  DataColumn(label: Text('Roll Number')),
+                  DataColumn(label: Text('Student Name')),
+                  DataColumn(label: Text('Amount Paid')),
+                  DataColumn(label: Text('Mode Of Payment')),
+                ],
+                rows: studentFeeReceipts.sorted((a, b) => (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0)).map((receipt) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text("${receipt.receiptNumber ?? "-"}")),
+                      DataCell(Text(studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.admissionNo ?? "-")),
+                      DataCell(Text("${receipt.sectionName}")),
+                      DataCell(Text(studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.rollNumber ?? "-")),
+                      DataCell(Text("${receipt.studentName}")),
+                      DataCell(Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(receipt.getTotalAmountForReceipt() / 100)} /-")),
+                      DataCell(Text(ModeOfPaymentExt.fromString(receipt.modeOfPayment).description)),
+                    ],
+                  );
+                }).toList(),
+              ),
             ),
           ),
         ),
@@ -644,8 +674,7 @@ List<charts.Series<PaymentSummary, String>> generatePieChartData(List<StudentFee
 
     return PaymentSummary(
       modeOfPayment.description, // Use the modeOfPayment as the category label
-      totalAmount / 100.0,
-      ModeOfPaymentExt.getChartColorForModeOfPayment(modeOfPayment), // Assign a color to each modeOfPayment
+      totalAmount / 100.0, ModeOfPaymentExt.getChartColorForModeOfPayment(modeOfPayment), // Assign a color to each modeOfPayment
     );
   }).toList();
 

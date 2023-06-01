@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget.dart';
+import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
 
 class StudentManagementScreen extends StatefulWidget {
   const StudentManagementScreen({
@@ -290,31 +291,38 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
             )
           : ListView(
               controller: _controller,
-              children: [
+              children: <Widget>[
                 sectionPicker(),
                 if (selectedSection != null)
                   ...(studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId && e.status == "active").toList()
-                            ..sort(
-                              (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
-                                  ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
-                                  : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
-                            ))
-                          .map(
-                            (e) => StudentCardWidget(
-                              scaffoldKey: scaffoldKey,
-                              studentProfile: e,
-                              adminProfile: widget.adminProfile,
-                              isStudentSelected: selectedStudentId == e.studentId,
-                              onStudentSelected: onStudentSelected,
-                              isEditMode: editingStudentId == e.studentId,
-                              onEditSelected: onEditSelected,
-                              updateStudentProfile: updateStudentProfile,
-                              allowExpansion: true,
-                              loadAllData: _loadData,
-                            ),
-                          )
-                          .toList() +
-    (studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId && e.status == "inactive").toList()
+                        ..sort(
+                          (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
+                              ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
+                              : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
+                        ))
+                      .map(
+                        (e) => StudentCardWidget(
+                          scaffoldKey: scaffoldKey,
+                          studentProfile: e,
+                          adminProfile: widget.adminProfile,
+                          isStudentSelected: selectedStudentId == e.studentId,
+                          onStudentSelected: onStudentSelected,
+                          isEditMode: editingStudentId == e.studentId,
+                          onEditSelected: onEditSelected,
+                          updateStudentProfile: updateStudentProfile,
+                          allowExpansion: true,
+                          loadAllData: _loadData,
+                        ),
+                        // (e) => StudentCardWidgetV2(
+                        //   studentProfile: e,
+                        //   sections: sectionsList,
+                        //   adminProfile: widget.adminProfile,
+                        //   students: studentProfiles,
+                        // ),
+                      )
+                      .toList(),
+                if (selectedSection != null)
+                  ...(studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId && e.status == "inactive").toList()
                             ..sort(
                               (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
                                   ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")

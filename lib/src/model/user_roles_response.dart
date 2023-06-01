@@ -278,6 +278,7 @@ class StudentProfile {
   String? studentMobile;
   String? studentPhotoUrl;
   String? studentStatus;
+  String? sex;
 
   bool? isAssignedToBusStop;
   Map<String, dynamic> __origJson = {};
@@ -340,6 +341,7 @@ class StudentProfile {
     this.studentMobile,
     this.studentPhotoUrl,
     this.studentStatus,
+    this.sex,
     this.isAssignedToBusStop,
   }) {
     rollNumberController = TextEditingController(text: rollNumber ?? "");
@@ -391,6 +393,8 @@ class StudentProfile {
     isAssignedToBusStop = json['assignedToBusStop']?.toString() == "true";
     loginId = json['loginId']?.toString();
     agentId = json['agentId']?.toInt();
+    studentStatus = json['studentStatus']?.toString();
+    sex = json['sex']?.toString();
     status = json['status']?.toString();
     rollNumberController = TextEditingController(text: rollNumber ?? "");
     admissionNoController = TextEditingController(text: admissionNo ?? "");
@@ -441,6 +445,7 @@ class StudentProfile {
     data['isAssignedToBusStop'] = isAssignedToBusStop;
     data['loginId'] = loginId;
     data['agentId'] = agentId;
+    data['studentStatus'] = studentStatus;
     data['status'] = status;
     return data;
   }
@@ -461,6 +466,46 @@ class StudentProfile {
       return super == other;
     }
   }
+
+  double profileProgress() {
+    List<bool> measures = [(aadhaarNo?.trim() ?? "").isEmpty];
+    return 0.0;
+  }
+}
+
+class PrevSchoolRecord {
+/*
+{
+  "schoolName": "",
+  "yearsOfStudy": "2021-01-01 - 2022-02-02",
+  "classPassed": ""
+}
+*/
+
+  String? schoolName;
+  String? yearsOfStudy;
+  String? classPassed;
+  Map<String, dynamic> __origJson = {};
+
+  PrevSchoolRecord({
+    this.schoolName,
+    this.yearsOfStudy,
+    this.classPassed,
+  });
+  PrevSchoolRecord.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    schoolName = json['schoolName']?.toString();
+    yearsOfStudy = json['yearsOfStudy']?.toString();
+    classPassed = json['classPassed']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['schoolName'] = schoolName;
+    data['yearsOfStudy'] = yearsOfStudy;
+    data['classPassed'] = classPassed;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
 }
 
 class OtherUserRoleProfile {
