@@ -7,7 +7,6 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget.dart';
-import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
 
 class StudentManagementScreen extends StatefulWidget {
   const StudentManagementScreen({
@@ -312,13 +311,9 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                           updateStudentProfile: updateStudentProfile,
                           allowExpansion: true,
                           loadAllData: _loadData,
+                          students: studentProfiles,
+                          sections: sectionsList,
                         ),
-                        // (e) => StudentCardWidgetV2(
-                        //   studentProfile: e,
-                        //   sections: sectionsList,
-                        //   adminProfile: widget.adminProfile,
-                        //   students: studentProfiles,
-                        // ),
                       )
                       .toList(),
                 if (selectedSection != null)
@@ -340,6 +335,8 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                               updateStudentProfile: updateStudentProfile,
                               allowExpansion: true,
                               loadAllData: _loadData,
+                              students: studentProfiles,
+                              sections: sectionsList,
                             ),
                           )
                           .toList() +
@@ -356,6 +353,8 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                             updateStudentProfile: updateStudentProfile,
                             allowExpansion: true,
                             loadAllData: _loadData,
+                            students: studentProfiles,
+                            sections: sectionsList,
                           ),
                       ],
               ],

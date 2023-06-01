@@ -230,8 +230,8 @@ pw.Widget modeOfPaymentWidget(StudentFeeReceipt eachTransaction, pw.Font font) {
 
 pw.Table transactionsTableWidget(pw.Font font, StudentFeeReceipt eachTransaction, bool isTermWise) {
   List<pw.TableRow> childTransactionsWidgets = childTransactionsPdfWidgets(eachTransaction, font, isTermWise);
-  if (childTransactionsWidgets.length < 5) {
-    for (int i = 0; i <= 5 - childTransactionsWidgets.length; i++) {
+  if (childTransactionsWidgets.length < 4) {
+    for (int i = 0; i <= 4 - childTransactionsWidgets.length; i++) {
       childTransactionsWidgets.add(pw.TableRow(
         children: [
           pw.Expanded(
