@@ -228,7 +228,6 @@ class TeacherProfile {
 }
 
 class StudentProfile {
-
   String? aadhaarNo;
   String? aadhaarPhotoUrl;
   int? aadhaarPhotoUrlId;
@@ -295,6 +294,20 @@ class StudentProfile {
   TextEditingController phoneController = TextEditingController();
   TextEditingController alternatePhoneController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController fatherNameController = TextEditingController();
+  TextEditingController fatherOccupationController = TextEditingController();
+  TextEditingController fatherAnnualIncomeController = TextEditingController();
+  TextEditingController motherNameController = TextEditingController();
+  TextEditingController motherOccupationController = TextEditingController();
+  TextEditingController motherAnnualIncomeController = TextEditingController();
+  TextEditingController aadhaarNumberController = TextEditingController();
+  TextEditingController nationalityController = TextEditingController(text: "India");
+  TextEditingController religionController = TextEditingController();
+  TextEditingController casteController = TextEditingController();
+  TextEditingController motherTongueController = TextEditingController();
+  TextEditingController addressForCommunicationController = TextEditingController();
+  TextEditingController permanentAddressController = TextEditingController();
+  TextEditingController identificationMarksController = TextEditingController();
 
   StudentProfile({
     this.aadhaarNo,
@@ -336,6 +349,7 @@ class StudentProfile {
     this.sectionDescription,
     this.sectionId,
     this.sectionName,
+    this.sex,
     this.status,
     this.studentDob,
     this.studentFirstName,
@@ -346,14 +360,12 @@ class StudentProfile {
     this.studentMobile,
     this.studentPhotoUrl,
     this.studentStatus,
-    this.sex,
-    this.nationality,
-    this.religion,
-    this.caste,
-    this.category,
-    this.identificationMarks,
     this.isAssignedToBusStop,
   }) {
+    populateControllers();
+  }
+
+  void populateControllers() {
     rollNumberController = TextEditingController(text: rollNumber ?? "");
     admissionNoController = TextEditingController(text: admissionNo ?? "");
     studentNameController = TextEditingController(
@@ -367,29 +379,89 @@ class StudentProfile {
     phoneController = TextEditingController(text: gaurdianMobile ?? "");
     alternatePhoneController = TextEditingController(text: alternateMobile ?? "");
     emailController = TextEditingController(text: gaurdianMailId ?? "");
+    fatherNameController = TextEditingController(text: fatherName ?? "");
+    fatherOccupationController = TextEditingController(text: fatherOccupation ?? "");
+    fatherAnnualIncomeController = TextEditingController(text: "${fatherAnnualIncome ?? ""}");
+    motherNameController = TextEditingController(text: motherName ?? "");
+    motherOccupationController = TextEditingController(text: motherOccupation ?? "");
+    motherAnnualIncomeController = TextEditingController(text: "${motherAnnualIncome ?? ""}");
+    aadhaarNumberController = TextEditingController(text: aadhaarNo ?? "");
+    nationalityController = TextEditingController(text: nationality ?? "India");
+    religionController = TextEditingController(text: religion);
+    casteController = TextEditingController(text: caste);
+    motherTongueController = TextEditingController(text: motherTongue);
+    addressForCommunicationController = TextEditingController(text: residenceForCommunication);
+    permanentAddressController = TextEditingController(text: permanentResidence);
+    identificationMarksController = TextEditingController(text: identificationMarks);
+  }
+
+  void fromControllers() {
+    rollNumber = rollNumberController.text;
+    admissionNo = admissionNoController.text;
+    studentFirstName = studentNameController.text;
+    gaurdianFirstName = gaurdianNameController.text;
+    gaurdianMobile = phoneController.text;
+    alternateMobile = alternatePhoneController.text;
+    gaurdianMailId = emailController.text;
+    fatherName = fatherNameController.text;
+    fatherOccupation = fatherOccupationController.text;
+    fatherAnnualIncome = int.tryParse(fatherAnnualIncomeController.text);
+    motherName = motherNameController.text;
+    motherOccupation = motherOccupationController.text;
+    motherAnnualIncome = int.tryParse(motherAnnualIncomeController.text);
+    aadhaarNo = aadhaarNumberController.text;
+    nationality = nationalityController.text;
+    religion = religionController.text;
+    caste = casteController.text;
+    motherTongue = motherTongueController.text;
+    residenceForCommunication = addressForCommunicationController.text;
+    permanentResidence = permanentAddressController.text;
+    identificationMarks = identificationMarksController.text;
   }
 
   StudentProfile.fromJson(Map<String, dynamic> json) {
     __origJson = json;
+    aadhaarNo = json['aadhaarNo']?.toString();
+    aadhaarPhotoUrl = json['aadhaarPhotoUrl']?.toString();
+    aadhaarPhotoUrlId = json['aadhaarPhotoUrlId']?.toInt();
+    admissionNo = json['admissionNo']?.toString();
+    agentId = json['agentId']?.toInt();
+    alternateMobile = json['alternateMobile']?.toString();
+    assignedToBusStop = json['assignedToBusStop'];
     balanceAmount = json['balanceAmount']?.toInt();
+    branchCode = json['branchCode']?.toString();
+    custom = json['custom']?.toString();
+    fatherAnnualIncome = json['fatherAnnualIncome']?.toInt();
     fatherName = json['fatherName']?.toString();
+    fatherOccupation = json['fatherOccupation']?.toString();
+    fatherQualification = json['fatherQualification']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
     gaurdianFirstName = json['gaurdianFirstName']?.toString();
     gaurdianId = json['gaurdianId']?.toInt();
     gaurdianLastName = json['gaurdianLastName']?.toString();
     gaurdianMailId = json['gaurdianMailId']?.toString();
     gaurdianMiddleName = json['gaurdianMiddleName']?.toString();
     gaurdianMobile = json['gaurdianMobile']?.toString();
-    alternateMobile = json['alternateMobile']?.toString();
+    loginId = json['loginId']?.toString();
+    motherAnnualIncome = json['motherAnnualIncome']?.toInt();
     motherName = json['motherName']?.toString();
+    motherOccupation = json['motherOccupation']?.toString();
+    motherQualification = json['motherQualification']?.toString();
+    motherTongue = json['motherTongue']?.toString();
+    otherPhoneNumbers = json['otherPhoneNumbers']?.toString();
+    permanentResidence = json['permanentResidence']?.toString();
+    previousSchoolRecords = json['previousSchoolRecords']?.toString();
+    residenceForCommunication = json['residenceForCommunication']?.toString();
     rollNumber = json['rollNumber']?.toString();
-    admissionNo = json['admissionNo']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
-    branchCode = json['branchCode']?.toString();
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
     sectionDescription = json['sectionDescription']?.toString();
     sectionId = json['sectionId']?.toInt();
     sectionName = json['sectionName']?.toString();
+    sex = json['sex']?.toString();
+    status = json['status']?.toString();
     studentDob = json['studentDob']?.toString();
     studentFirstName = json['studentFirstName']?.toString();
     studentId = json['studentId']?.toInt();
@@ -398,55 +470,110 @@ class StudentProfile {
     studentMiddleName = json['studentMiddleName']?.toString();
     studentMobile = json['studentMobile']?.toString();
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
+    studentStatus = json['studentStatus']?.toString();
+    populateControllers();
+  }
+
+  void modifyAsPerJson(Map<String, dynamic> json) {
+    if (json.isEmpty) {
+      json = origJson();
+    }
+    aadhaarNo = json['aadhaarNo']?.toString();
+    aadhaarPhotoUrl = json['aadhaarPhotoUrl']?.toString();
+    aadhaarPhotoUrlId = json['aadhaarPhotoUrlId']?.toInt();
+    admissionNo = json['admissionNo']?.toString();
+    agentId = json['agentId']?.toInt();
+    alternateMobile = json['alternateMobile']?.toString();
+    assignedToBusStop = json['assignedToBusStop'];
+    balanceAmount = json['balanceAmount']?.toInt();
+    branchCode = json['branchCode']?.toString();
+    custom = json['custom']?.toString();
+    fatherAnnualIncome = json['fatherAnnualIncome']?.toInt();
+    fatherName = json['fatherName']?.toString();
+    fatherOccupation = json['fatherOccupation']?.toString();
+    fatherQualification = json['fatherQualification']?.toString();
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
-    isAssignedToBusStop = json['assignedToBusStop']?.toString() == "true";
+    gaurdianFirstName = json['gaurdianFirstName']?.toString();
+    gaurdianId = json['gaurdianId']?.toInt();
+    gaurdianLastName = json['gaurdianLastName']?.toString();
+    gaurdianMailId = json['gaurdianMailId']?.toString();
+    gaurdianMiddleName = json['gaurdianMiddleName']?.toString();
+    gaurdianMobile = json['gaurdianMobile']?.toString();
     loginId = json['loginId']?.toString();
-    agentId = json['agentId']?.toInt();
-    studentStatus = json['studentStatus']?.toString();
+    motherAnnualIncome = json['motherAnnualIncome']?.toInt();
+    motherName = json['motherName']?.toString();
+    motherOccupation = json['motherOccupation']?.toString();
+    motherQualification = json['motherQualification']?.toString();
+    motherTongue = json['motherTongue']?.toString();
+    otherPhoneNumbers = json['otherPhoneNumbers']?.toString();
+    permanentResidence = json['permanentResidence']?.toString();
+    previousSchoolRecords = json['previousSchoolRecords']?.toString();
+    residenceForCommunication = json['residenceForCommunication']?.toString();
+    rollNumber = json['rollNumber']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
+    sectionDescription = json['sectionDescription']?.toString();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
     sex = json['sex']?.toString();
-    nationality = json['nationality']?.toString();
-    religion = json['religion']?.toString();
-    caste = json['caste']?.toString();
-    category = json['category']?.toString();
-    identificationMarks = json['identificationMarks']?.toString();
     status = json['status']?.toString();
-    rollNumberController = TextEditingController(text: rollNumber ?? "");
-    admissionNoController = TextEditingController(text: admissionNo ?? "");
-    studentNameController = TextEditingController(
-        text: ((studentFirstName == null ? "" : (studentFirstName ?? "").capitalize() + " ") +
-            (studentMiddleName == null ? "" : (studentMiddleName ?? "").capitalize() + " ") +
-            (studentLastName == null ? "" : (studentLastName ?? "").capitalize() + " ")));
-    gaurdianNameController = TextEditingController(
-        text: ((gaurdianFirstName == null ? "" : (gaurdianFirstName ?? "").capitalize() + " ") +
-            (gaurdianMiddleName == null ? "" : (gaurdianMiddleName ?? "").capitalize() + " ") +
-            (gaurdianLastName == null ? "" : (gaurdianLastName ?? "").capitalize() + " ")));
-    phoneController = TextEditingController(text: gaurdianMobile ?? "");
-    alternatePhoneController = TextEditingController(text: alternateMobile ?? "");
-    emailController = TextEditingController(text: gaurdianMailId ?? "");
+    studentDob = json['studentDob']?.toString();
+    studentFirstName = json['studentFirstName']?.toString();
+    studentId = json['studentId']?.toInt();
+    studentLastName = json['studentLastName']?.toString();
+    studentMailId = json['studentMailId']?.toString();
+    studentMiddleName = json['studentMiddleName']?.toString();
+    studentMobile = json['studentMobile']?.toString();
+    studentPhotoUrl = json['studentPhotoUrl']?.toString();
+    studentStatus = json['studentStatus']?.toString();
+    populateControllers();
   }
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
+    data['aadhaarNo'] = aadhaarNo;
+    data['aadhaarPhotoUrl'] = aadhaarPhotoUrl;
+    data['aadhaarPhotoUrlId'] = aadhaarPhotoUrlId;
+    data['admissionNo'] = admissionNo;
+    data['agentId'] = agentId;
+    data['alternateMobile'] = alternateMobile;
+    data['assignedToBusStop'] = assignedToBusStop;
     data['balanceAmount'] = balanceAmount;
+    data['branchCode'] = branchCode;
+    data['custom'] = custom;
+    data['fatherAnnualIncome'] = fatherAnnualIncome;
     data['fatherName'] = fatherName;
+    data['fatherOccupation'] = fatherOccupation;
+    data['fatherQualification'] = fatherQualification;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
     data['gaurdianFirstName'] = gaurdianFirstName;
     data['gaurdianId'] = gaurdianId;
     data['gaurdianLastName'] = gaurdianLastName;
     data['gaurdianMailId'] = gaurdianMailId;
     data['gaurdianMiddleName'] = gaurdianMiddleName;
     data['gaurdianMobile'] = gaurdianMobile;
-    data['alternateMobile'] = alternateMobile;
+    data['loginId'] = loginId;
+    data['motherAnnualIncome'] = motherAnnualIncome;
     data['motherName'] = motherName;
+    data['motherOccupation'] = motherOccupation;
+    data['motherQualification'] = motherQualification;
+    data['motherTongue'] = motherTongue;
+    data['otherPhoneNumbers'] = otherPhoneNumbers;
+    data['permanentResidence'] = permanentResidence;
+    data['previousSchoolRecords'] = previousSchoolRecords;
+    data['residenceForCommunication'] = residenceForCommunication;
     data['rollNumber'] = rollNumber;
-    data['admissionNo'] = admissionNo;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
-    data['branchCode'] = branchCode;
     data['schoolPhotoUrl'] = schoolPhotoUrl;
     data['sectionDescription'] = sectionDescription;
     data['sectionId'] = sectionId;
     data['sectionName'] = sectionName;
+    data['sex'] = sex;
+    data['status'] = status;
     data['studentDob'] = studentDob;
     data['studentFirstName'] = studentFirstName;
     data['studentId'] = studentId;
@@ -455,13 +582,7 @@ class StudentProfile {
     data['studentMiddleName'] = studentMiddleName;
     data['studentMobile'] = studentMobile;
     data['studentPhotoUrl'] = studentPhotoUrl;
-    data['franchiseId'] = franchiseId;
-    data['franchiseName'] = franchiseName;
-    data['isAssignedToBusStop'] = isAssignedToBusStop;
-    data['loginId'] = loginId;
-    data['agentId'] = agentId;
     data['studentStatus'] = studentStatus;
-    data['status'] = status;
     return data;
   }
 
@@ -485,6 +606,19 @@ class StudentProfile {
   double profileProgress() {
     List<bool> measures = [(aadhaarNo?.trim() ?? "").isEmpty];
     return 0.0;
+  }
+
+  bool isModified() {
+    Map<String, dynamic> newJson = toJson();
+    Map<String, dynamic> oldJson = origJson();
+
+    for (var key in newJson.keys) {
+      var aValue = newJson[key];
+      var bValue = oldJson[key];
+      print("618: $key $aValue $bValue");
+      if ("${aValue ?? ''}" != "${bValue ?? ''}") return true;
+    }
+    return false;
   }
 }
 
@@ -1125,140 +1259,129 @@ Future<GetStudentProfileResponse> getStudentProfile(GetStudentProfileRequest get
   return getStudentProfileResponse;
 }
 
-class CreateOrUpdateStudentProfileRequest {
-/*
-{
-  "agent": 0,
-  "balanceAmount": 0,
-  "fatherName": "string",
-  "gaurdianFirstName": "string",
-  "gaurdianId": 0,
-  "gaurdianLastName": "string",
-  "gaurdianMailId": "string",
-  "gaurdianMiddleName": "string",
-  "gaurdianMobile": "string",
-  "motherName": "string",
-  "rollNumber": "string",
-  "schoolId": 0,
-  "schoolName": "string",
-  "schoolPhotoUrl": "string",
-  "sectionDescription": "string",
-  "sectionId": 0,
-  "sectionName": "string",
-  "studentDob": "string",
-  "studentFirstName": "string",
-  "studentId": 0,
-  "studentLastName": "string",
-  "studentMailId": "string",
-  "studentMiddleName": "string",
-  "studentMobile": "string",
-  "studentPhotoUrl": "string"
-}
-*/
+class CreateOrUpdateStudentProfileRequest extends StudentProfile {
 
   int? agent;
-  int? balanceAmount;
-  String? fatherName;
-  String? gaurdianFirstName;
-  int? gaurdianId;
-  String? gaurdianLastName;
-  String? gaurdianMailId;
-  String? gaurdianMiddleName;
-  String? gaurdianMobile;
-  String? alternateMobile;
-  String? motherName;
-  String? rollNumber;
-  int? schoolId;
-  String? schoolName;
-  String? schoolPhotoUrl;
-  String? sectionDescription;
-  int? sectionId;
-  String? sectionName;
-  String? studentDob;
-  String? studentFirstName;
-  int? studentId;
-  String? studentLastName;
-  String? studentMailId;
-  String? studentMiddleName;
-  String? studentMobile;
-  String? studentPhotoUrl;
-  String? admissionNo;
-  Map<String, dynamic> __origJson = {};
 
   CreateOrUpdateStudentProfileRequest({
     this.agent,
-    this.balanceAmount,
-    this.fatherName,
-    this.gaurdianFirstName,
-    this.gaurdianId,
-    this.gaurdianLastName,
-    this.gaurdianMailId,
-    this.gaurdianMiddleName,
-    this.gaurdianMobile,
-    this.alternateMobile,
-    this.motherName,
-    this.rollNumber,
-    this.schoolId,
-    this.schoolName,
-    this.schoolPhotoUrl,
-    this.sectionDescription,
-    this.sectionId,
-    this.sectionName,
-    this.studentDob,
-    this.studentFirstName,
-    this.studentId,
-    this.studentLastName,
-    this.studentMailId,
-    this.studentMiddleName,
-    this.studentMobile,
-    this.studentPhotoUrl,
-    this.admissionNo,
+    super.balanceAmount,
+    super.fatherName,
+    super.gaurdianFirstName,
+    super.gaurdianId,
+    super.gaurdianLastName,
+    super.gaurdianMailId,
+    super.gaurdianMiddleName,
+    super.gaurdianMobile,
+    super.alternateMobile,
+    super.motherName,
+    super.rollNumber,
+    super.schoolId,
+    super.schoolName,
+    super.schoolPhotoUrl,
+    super.sectionDescription,
+    super.sectionId,
+    super.sectionName,
+    super.studentDob,
+    super.studentFirstName,
+    super.studentId,
+    super.studentLastName,
+    super.studentMailId,
+    super.studentMiddleName,
+    super.studentMobile,
+    super.studentPhotoUrl,
+    super.admissionNo,
   });
 
-  CreateOrUpdateStudentProfileRequest.fromJson(Map<String, dynamic> json) {
-    __origJson = json;
-    agent = json['agent']?.toInt();
-    balanceAmount = json['balanceAmount']?.toInt();
-    fatherName = json['fatherName']?.toString();
-    gaurdianFirstName = json['gaurdianFirstName']?.toString();
-    gaurdianId = json['gaurdianId']?.toInt();
-    gaurdianLastName = json['gaurdianLastName']?.toString();
-    gaurdianMailId = json['gaurdianMailId']?.toString();
-    gaurdianMiddleName = json['gaurdianMiddleName']?.toString();
-    gaurdianMobile = json['gaurdianMobile']?.toString();
-    alternateMobile = json['alternateMobile']?.toString();
-    motherName = json['motherName']?.toString();
-    rollNumber = json['rollNumber']?.toString();
-    schoolId = json['schoolId']?.toInt();
-    schoolName = json['schoolName']?.toString();
-    schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
-    sectionDescription = json['sectionDescription']?.toString();
-    sectionId = json['sectionId']?.toInt();
-    sectionName = json['sectionName']?.toString();
-    studentDob = json['studentDob']?.toString();
-    studentFirstName = json['studentFirstName']?.toString();
-    studentId = json['studentId']?.toInt();
-    studentLastName = json['studentLastName']?.toString();
-    studentMailId = json['studentMailId']?.toString();
-    studentMiddleName = json['studentMiddleName']?.toString();
-    studentMobile = json['studentMobile']?.toString();
-    studentPhotoUrl = json['studentPhotoUrl']?.toString();
-    admissionNo = json['admissionNo']?.toString();
+  CreateOrUpdateStudentProfileRequest.fromStudentProfile(this.agent, StudentProfile studentProfile) {
+    aadhaarNo = studentProfile.aadhaarNo;
+    aadhaarPhotoUrl = studentProfile.aadhaarPhotoUrl;
+    aadhaarPhotoUrlId = studentProfile.aadhaarPhotoUrlId;
+    admissionNo = studentProfile.admissionNo;
+    agentId = studentProfile.agentId;
+    alternateMobile = studentProfile.alternateMobile;
+    assignedToBusStop = studentProfile.assignedToBusStop;
+    balanceAmount = studentProfile.balanceAmount;
+    branchCode = studentProfile.branchCode;
+    custom = studentProfile.custom;
+    fatherAnnualIncome = studentProfile.fatherAnnualIncome;
+    fatherName = studentProfile.fatherName;
+    fatherOccupation = studentProfile.fatherOccupation;
+    fatherQualification = studentProfile.fatherQualification;
+    franchiseId = studentProfile.franchiseId;
+    franchiseName = studentProfile.franchiseName;
+    gaurdianFirstName = studentProfile.gaurdianFirstName;
+    gaurdianId = studentProfile.gaurdianId;
+    gaurdianLastName = studentProfile.gaurdianLastName;
+    gaurdianMailId = studentProfile.gaurdianMailId;
+    gaurdianMiddleName = studentProfile.gaurdianMiddleName;
+    gaurdianMobile = studentProfile.gaurdianMobile;
+    loginId = studentProfile.loginId;
+    motherAnnualIncome = studentProfile.motherAnnualIncome;
+    motherName = studentProfile.motherName;
+    motherOccupation = studentProfile.motherOccupation;
+    motherQualification = studentProfile.motherQualification;
+    motherTongue = studentProfile.motherTongue;
+    otherPhoneNumbers = studentProfile.otherPhoneNumbers;
+    permanentResidence = studentProfile.permanentResidence;
+    previousSchoolRecords = studentProfile.previousSchoolRecords;
+    residenceForCommunication = studentProfile.residenceForCommunication;
+    rollNumber = studentProfile.rollNumber;
+    schoolId = studentProfile.schoolId;
+    schoolName = studentProfile.schoolName;
+    schoolPhotoUrl = studentProfile.schoolPhotoUrl;
+    sectionDescription = studentProfile.sectionDescription;
+    sectionId = studentProfile.sectionId;
+    sectionName = studentProfile.sectionName;
+    sex = studentProfile.sex;
+    status = studentProfile.status;
+    studentDob = studentProfile.studentDob;
+    studentFirstName = studentProfile.studentFirstName;
+    studentId = studentProfile.studentId;
+    studentLastName = studentProfile.studentLastName;
+    studentMailId = studentProfile.studentMailId;
+    studentMiddleName = studentProfile.studentMiddleName;
+    studentMobile = studentProfile.studentMobile;
+    studentPhotoUrl = studentProfile.studentPhotoUrl;
+    studentStatus = studentProfile.studentStatus;
   }
 
+  @override
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
+    data['aadhaarNo'] = aadhaarNo;
+    data['aadhaarPhotoUrl'] = aadhaarPhotoUrl;
+    data['aadhaarPhotoUrlId'] = aadhaarPhotoUrlId;
+    data['admissionNo'] = admissionNo;
+    data['agentId'] = agentId;
+    data['alternateMobile'] = alternateMobile;
+    data['assignedToBusStop'] = assignedToBusStop;
     data['balanceAmount'] = balanceAmount;
+    data['branchCode'] = branchCode;
+    data['custom'] = custom;
+    data['fatherAnnualIncome'] = fatherAnnualIncome;
     data['fatherName'] = fatherName;
+    data['fatherOccupation'] = fatherOccupation;
+    data['fatherQualification'] = fatherQualification;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
     data['gaurdianFirstName'] = gaurdianFirstName;
     data['gaurdianId'] = gaurdianId;
     data['gaurdianLastName'] = gaurdianLastName;
     data['gaurdianMailId'] = gaurdianMailId;
     data['gaurdianMiddleName'] = gaurdianMiddleName;
     data['gaurdianMobile'] = gaurdianMobile;
-    data['alternateMobile'] = alternateMobile;
+    data['loginId'] = loginId;
+    data['motherAnnualIncome'] = motherAnnualIncome;
     data['motherName'] = motherName;
+    data['motherOccupation'] = motherOccupation;
+    data['motherQualification'] = motherQualification;
+    data['motherTongue'] = motherTongue;
+    data['otherPhoneNumbers'] = otherPhoneNumbers;
+    data['permanentResidence'] = permanentResidence;
+    data['previousSchoolRecords'] = previousSchoolRecords;
+    data['residenceForCommunication'] = residenceForCommunication;
     data['rollNumber'] = rollNumber;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
@@ -1266,6 +1389,8 @@ class CreateOrUpdateStudentProfileRequest {
     data['sectionDescription'] = sectionDescription;
     data['sectionId'] = sectionId;
     data['sectionName'] = sectionName;
+    data['sex'] = sex;
+    data['status'] = status;
     data['studentDob'] = studentDob;
     data['studentFirstName'] = studentFirstName;
     data['studentId'] = studentId;
@@ -1274,11 +1399,9 @@ class CreateOrUpdateStudentProfileRequest {
     data['studentMiddleName'] = studentMiddleName;
     data['studentMobile'] = studentMobile;
     data['studentPhotoUrl'] = studentPhotoUrl;
-    data['admissionNo'] = admissionNo;
+    data['studentStatus'] = studentStatus;
     return data;
   }
-
-  Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateOrUpdateStudentProfileResponse {

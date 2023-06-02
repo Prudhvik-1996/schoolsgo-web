@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget.dart';
+import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
 
 class StudentManagementScreen extends StatefulWidget {
   const StudentManagementScreen({
@@ -363,14 +364,14 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
           ? null
           : GestureDetector(
               onTap: () {
-                if (selectedSection == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Select a section to add student"),
-                    ),
-                  );
-                  return;
-                }
+                // if (selectedSection == null) {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     const SnackBar(
+                //       content: Text("Select a section to add student"),
+                //     ),
+                //   );
+                //   return;
+                // }
                 setState(() {
                   newStudent.rollNumber = ((int.tryParse((studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList()
                                         ..sort(
@@ -387,8 +388,17 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                       .toString();
                   newStudent.rollNumberController.text = newStudent.rollNumber ?? "";
                   selectedStudentId = null;
-                  _isAddNew = !_isAddNew;
+                  // _isAddNew = !_isAddNew;
                 });
+                // StudentCardWidgetV2
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return StudentCardWidgetV2(
+                    studentProfile: newStudent,
+                    sections: sectionsList,
+                    adminProfile: widget.adminProfile,
+                    students: studentProfiles,
+                  );
+                })).then((value) => _loadData());
               },
               child: _isAddNew
                   ? ClayButton(
