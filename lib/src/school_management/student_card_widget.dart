@@ -432,37 +432,37 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                 ),
               ),
             ),
-            // if (!widget.isEditMode)
-            //   const SizedBox(width: 10),
-            // if (!widget.isEditMode)
-            //   GestureDetector(
-            //   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
-            //     return StudentCardWidgetV2(
-            //           studentProfile: widget.studentProfile,
-            //           sections: widget.sections,
-            //           adminProfile: widget.adminProfile,
-            //           students: widget.students,
-            //         );
-            //   })),
-            //   child: ClayButton(
-            //     depth: 15,
-            //     surfaceColor: clayContainerColor(context),
-            //     parentColor: clayContainerColor(context),
-            //     spread: 2,
-            //     borderRadius: 100,
-            //     child: const SizedBox(
-            //       height: 25,
-            //       width: 25,
-            //       child: Padding(
-            //         padding: EdgeInsets.all(4),
-            //         child: FittedBox(
-            //           fit: BoxFit.scaleDown,
-            //           child: Icon(Icons.info),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            if (!widget.isEditMode)
+              const SizedBox(width: 10),
+            if (!widget.isEditMode)
+              GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return StudentCardWidgetV2(
+                      studentProfile: widget.studentProfile,
+                      sections: widget.sections,
+                      adminProfile: widget.adminProfile,
+                      students: widget.students,
+                    );
+              })),
+              child: ClayButton(
+                depth: 15,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 100,
+                child: const SizedBox(
+                  height: 25,
+                  width: 25,
+                  child: Padding(
+                    padding: EdgeInsets.all(4),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Icon(Icons.info_outline),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () => widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId),

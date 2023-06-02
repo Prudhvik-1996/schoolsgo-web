@@ -90,6 +90,7 @@ const String CREATE_OR_UPDATE_ONLINE_CLASS_ROOMS = "/online_class_room/createOrU
 const String UPDATE_OCR_AS_PER_TT = "/online_class_room/updateOcrAsPerTt";
 
 const List<String> WEEKS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+const List<String> CASTE_CATEGORIES = ["OC", "EWS", "BC A", "BC B", "BC C", "BC D", "BC E", "ST", "SC"];
 
 const HEADERS = <String, String>{
   "Access-Control-Allow-Origin": "*", // Required for CORS support to work
