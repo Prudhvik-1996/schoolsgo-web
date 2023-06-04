@@ -397,6 +397,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                     sections: sectionsList,
                     adminProfile: widget.adminProfile,
                     students: studentProfiles,
+                    isEditMode: true,
                   );
                 })).then((value) => _loadData());
               },

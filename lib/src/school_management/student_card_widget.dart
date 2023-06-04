@@ -73,7 +73,8 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
         !isGaurdianNameChanged &&
         !isPhoneNumberChanged &&
         !isAlternatePhoneNumberChanged &&
-        !isEmailChanged && !isAdmissionNoChanged) {
+        !isEmailChanged &&
+        !isAdmissionNoChanged) {
       widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId);
       return;
     }
@@ -330,7 +331,9 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                       : widget.studentProfile.alternatePhoneController.text.trim(),
                   gaurdianMailId:
                       widget.studentProfile.emailController.text.trim().isEmpty ? null : widget.studentProfile.emailController.text.trim(),
-                  admissionNo: widget.studentProfile.admissionNoController.text.trim().isEmpty ? null : widget.studentProfile.admissionNoController.text.trim(),
+                  admissionNo: widget.studentProfile.admissionNoController.text.trim().isEmpty
+                      ? null
+                      : widget.studentProfile.admissionNoController.text.trim(),
                 );
                 CreateOrUpdateStudentProfileResponse createOrUpdateStudentProfileResponse =
                     await createOrUpdateStudentProfile(createOrUpdateStudentProfileRequest);
@@ -432,40 +435,54 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                 ),
               ),
             ),
-            if (!widget.isEditMode)
-              const SizedBox(width: 10),
+            if (!widget.isEditMode) const SizedBox(width: 10),
             if (!widget.isEditMode)
               GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return StudentCardWidgetV2(
-                      studentProfile: widget.studentProfile,
-                      sections: widget.sections,
-                      adminProfile: widget.adminProfile,
-                      students: widget.students,
-                    );
-              })),
-              child: ClayButton(
-                depth: 15,
-                surfaceColor: clayContainerColor(context),
-                parentColor: clayContainerColor(context),
-                spread: 2,
-                borderRadius: 100,
-                child: const SizedBox(
-                  height: 25,
-                  width: 25,
-                  child: Padding(
-                    padding: EdgeInsets.all(4),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Icon(Icons.info_outline),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return StudentCardWidgetV2(
+                    studentProfile: widget.studentProfile,
+                    sections: widget.sections,
+                    adminProfile: widget.adminProfile,
+                    students: widget.students,
+                    isEditMode: false,
+                  );
+                })),
+                child: ClayButton(
+                  depth: 15,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 100,
+                  child: const SizedBox(
+                    height: 25,
+                    width: 25,
+                    child: Padding(
+                      padding: EdgeInsets.all(4),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Icon(Icons.info_outline),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
             const SizedBox(width: 10),
             GestureDetector(
-              onTap: () => widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId),
+              // onTap: () => widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return StudentCardWidgetV2(
+                      studentProfile: widget.studentProfile,
+                      sections: widget.sections,
+                      adminProfile: widget.adminProfile,
+                      students: widget.students,
+                      isEditMode: true,
+                    );
+                  },
+                ),
+              ),
               child: ClayButton(
                 depth: 15,
                 surfaceColor: clayContainerColor(context),
@@ -941,34 +958,38 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                 const SizedBox(width: 10),
                 if (widget.allowExpansion)
                   GestureDetector(
-                    onTap: () => widget.studentProfile.status == "active" ? widget.onStudentSelected(widget.studentProfile.studentId) : activateStudentAction(),
+                    onTap: () => widget.studentProfile.status == "active"
+                        ? widget.onStudentSelected(widget.studentProfile.studentId)
+                        : activateStudentAction(),
                     child: ClayButton(
                       depth: widget.studentProfile.status == "active" ? 15 : 50,
                       surfaceColor: widget.studentProfile.status == "active" ? clayContainerColor(context) : Colors.redAccent,
                       parentColor: widget.studentProfile.status == "active" ? clayContainerColor(context) : Colors.redAccent,
                       spread: 2,
                       borderRadius: 100,
-                      child: widget.studentProfile.status == "active" ? const SizedBox(
-                        height: 25,
-                        width: 25,
-                        child: Padding(
-                          padding: EdgeInsets.all(4),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Icon(Icons.keyboard_arrow_down),
-                          ),
-                        ),
-                      ) : const SizedBox(
-                        height: 25,
-                        width: 25,
-                        child: Padding(
-                          padding: EdgeInsets.all(4),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Icon(Icons.add, color: Colors.green),
-                          ),
-                        ),
-                      ),
+                      child: widget.studentProfile.status == "active"
+                          ? const SizedBox(
+                              height: 25,
+                              width: 25,
+                              child: Padding(
+                                padding: EdgeInsets.all(4),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Icon(Icons.keyboard_arrow_down),
+                                ),
+                              ),
+                            )
+                          : const SizedBox(
+                              height: 25,
+                              width: 25,
+                              child: Padding(
+                                padding: EdgeInsets.all(4),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Icon(Icons.add, color: Colors.green),
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                 if (widget.allowExpansion && widget.studentProfile.status == "active") const SizedBox(width: 10),

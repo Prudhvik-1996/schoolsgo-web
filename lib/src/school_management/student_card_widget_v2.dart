@@ -1,16 +1,27 @@
 import 'dart:convert';
+import 'dart:html';
 
+import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_receipt_screen.dart';
+import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
+import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/student_status.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/file_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StudentCardWidgetV2 extends StatefulWidget {
   const StudentCardWidgetV2({
@@ -19,12 +30,14 @@ class StudentCardWidgetV2 extends StatefulWidget {
     required this.students,
     required this.sections,
     required this.adminProfile,
+    required this.isEditMode,
   }) : super(key: key);
 
   final StudentProfile studentProfile;
   final List<StudentProfile> students;
   final List<Section> sections;
   final AdminProfile? adminProfile;
+  final bool isEditMode;
 
   @override
   State<StudentCardWidgetV2> createState() => _StudentCardWidgetV2State();
@@ -51,9 +64,17 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
 
   List<AdditionalMobile> additionalMobileNumbers = [AdditionalMobile("")];
 
+  bool _showFeeDetails = false;
+  StudentAnnualFeeBean? studentAnnualFeeBean;
+  List<FeeType> feeTypes = [];
+  List<FeeType> feeTypesForSelectedSection = [];
+  List<StudentWiseAnnualFeesBean> studentWiseAnnualFeesBeans = [];
+  List<SectionWiseAnnualFeesBean> sectionWiseAnnualFeeBeansList = [];
+
   @override
   void initState() {
     super.initState();
+    _isEditMode = widget.isEditMode;
     _loadData();
   }
 
@@ -61,8 +82,267 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
     setState(() {
       _isLoading = true;
       _isOtherLoading = false;
+      _showFeeDetails = false;
     });
+    if (widget.studentProfile.studentId != null && widget.studentProfile.sectionId != null) {
+      await loadSectionWiseStudentsFeeMap();
+    }
     setState(() => _isLoading = false);
+  }
+
+  loadSectionWiseStudentsFeeMap() async {
+    if (widget.studentProfile.studentId == null) return;
+    setState(() {
+      _isLoading = true;
+    });
+    GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
+      schoolId: widget.studentProfile.schoolId,
+    ));
+    if (getFeeTypesResponse.httpStatus != "OK" || getFeeTypesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
+      });
+    }
+
+    GetSectionWiseAnnualFeesResponse getSectionWiseAnnualFeesResponse = await getSectionWiseAnnualFees(GetSectionWiseAnnualFeesRequest(
+      schoolId: widget.studentProfile.schoolId,
+      sectionId: widget.studentProfile.sectionId,
+    ));
+    if (getSectionWiseAnnualFeesResponse.httpStatus != "OK" || getSectionWiseAnnualFeesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        sectionWiseAnnualFeeBeansList = (getSectionWiseAnnualFeesResponse.sectionWiseAnnualFeesBeanList ?? []).map((e) => e!).toList();
+      });
+    }
+    setState(() {
+      feeTypesForSelectedSection = [];
+      for (var eachFeeType in feeTypes) {
+        if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
+          if (sectionWiseAnnualFeeBeansList
+              .where((e) => e.sectionId == widget.studentProfile.sectionId)
+              .toList()
+              .map((e) => e.feeTypeId)
+              .contains(eachFeeType.feeTypeId)) {
+            feeTypesForSelectedSection.add(eachFeeType);
+          }
+        } else {
+          if (sectionWiseAnnualFeeBeansList
+              .where((e) => e.sectionId == widget.studentProfile.sectionId)
+              .toList()
+              .map((e) => e.feeTypeId)
+              .contains(eachFeeType.feeTypeId)) {
+            feeTypesForSelectedSection.add(eachFeeType);
+            (feeTypesForSelectedSection.last.customFeeTypesList ?? []).where((e) => e != null).map((e) => e!).toList().removeWhere(
+                (eachCustomFeeType) => (!sectionWiseAnnualFeeBeansList
+                    .where((e) => e.sectionId == widget.studentProfile.sectionId)
+                    .toList()
+                    .map((e) => e.customFeeTypeId)
+                    .contains(eachCustomFeeType.customFeeTypeId)));
+          }
+        }
+      }
+    });
+    GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = await getStudentWiseAnnualFees(GetStudentWiseAnnualFeesRequest(
+      schoolId: widget.studentProfile.schoolId,
+      sectionId: widget.studentProfile.sectionId,
+    ));
+    if (getStudentWiseAnnualFeesResponse.httpStatus != "OK" || getStudentWiseAnnualFeesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        studentWiseAnnualFeesBeans = getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList();
+      });
+      generateStudentMap();
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void generateStudentMap() {
+    setState(() {
+      StudentWiseAnnualFeesBean? eachAnnualFeeBean = studentWiseAnnualFeesBeans
+          .where((e) => e.studentId == widget.studentProfile.studentId)
+          .sorted((a, b) => ((int.tryParse(a.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))))
+          .firstOrNull;
+      studentAnnualFeeBean = StudentAnnualFeeBean(
+        studentId: eachAnnualFeeBean?.studentId,
+        rollNumber: eachAnnualFeeBean?.rollNumber,
+        studentName: eachAnnualFeeBean?.studentName,
+        totalFee: eachAnnualFeeBean?.actualFee,
+        totalFeePaid: eachAnnualFeeBean?.feePaid,
+        walletBalance: eachAnnualFeeBean?.studentWalletBalance,
+        sectionId: eachAnnualFeeBean?.sectionId,
+        sectionName: eachAnnualFeeBean?.sectionName,
+        status: eachAnnualFeeBean?.status,
+        studentBusFeeBean: eachAnnualFeeBean?.studentBusFeeBean ??
+            StudentBusFeeBean(
+              schoolId: widget.studentProfile.schoolId,
+              studentId: eachAnnualFeeBean?.studentId,
+            ),
+        studentAnnualFeeTypeBeans: feeTypesForSelectedSection
+            .map(
+              (eachFeeType) => StudentAnnualFeeTypeBean(
+                feeTypeId: eachFeeType.feeTypeId,
+                feeType: eachFeeType.feeType,
+                studentFeeMapId: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                    .map((e) => e!)
+                    .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                        eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                    .firstOrNull
+                    ?.studentFeeMapId,
+                sectionFeeMapId: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                    .map((e) => e!)
+                    .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                        eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                    .firstOrNull
+                    ?.sectionFeeMapId,
+                amount: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                    .map((e) => e!)
+                    .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                        eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                    .firstOrNull
+                    ?.amount,
+                amountPaid: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                    .map((e) => e!)
+                    .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                        eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                    .firstOrNull
+                    ?.amountPaid,
+                studentAnnualCustomFeeTypeBeans: (eachFeeType.customFeeTypesList ?? [])
+                    .where((eachCustomFeeType) => eachCustomFeeType != null)
+                    .map((eachCustomFeeType) => eachCustomFeeType!)
+                    .map(
+                      (eachCustomFeeType) => StudentAnnualCustomFeeTypeBean(
+                        customFeeTypeId: eachCustomFeeType.customFeeTypeId,
+                        customFeeType: eachCustomFeeType.customFeeType,
+                        studentFeeMapId: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                            .map((e) => e!)
+                            .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                            .firstOrNull
+                            ?.studentFeeMapId,
+                        sectionFeeMapId: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                            .map((e) => e!)
+                            .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                            .firstOrNull
+                            ?.sectionFeeMapId,
+                        amount: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                            .map((e) => e!)
+                            .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                            .firstOrNull
+                            ?.amount,
+                        amountPaid: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                            .map((e) => e!)
+                            .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                            .firstOrNull
+                            ?.amountPaid,
+                      ),
+                    )
+                    .toList(),
+              ),
+            )
+            .toList(),
+      );
+    });
+  }
+
+  Future<void> saveFeeChanges() async {
+    showDialog(
+      context: _scaffoldKey.currentContext!,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Fee Management'),
+          content: const Text("Are you sure to save changes?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("YES"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = true;
+                });
+                CreateOrUpdateStudentAnnualFeeMapRequest createOrUpdateStudentAnnualFeeMapRequest = CreateOrUpdateStudentAnnualFeeMapRequest(
+                  schoolId: widget.studentProfile.schoolId,
+                  agent: widget.adminProfile?.userId,
+                  studentAnnualFeeMapBeanList: (studentAnnualFeeBean?.studentAnnualFeeTypeBeans ?? [])
+                          .where((e) => (e.studentAnnualCustomFeeTypeBeans ?? []).isEmpty)
+                          .map((e) => StudentAnnualFeeMapUpdateBean(
+                                schoolId: widget.studentProfile.schoolId,
+                                studentId: widget.studentProfile.studentId,
+                                amount: e.amount,
+                                sectionFeeMapId: e.sectionFeeMapId,
+                                studentFeeMapId: e.studentFeeMapId,
+                              ))
+                          .toList() +
+                      (studentAnnualFeeBean?.studentAnnualFeeTypeBeans ?? [])
+                          .map((e) => e.studentAnnualCustomFeeTypeBeans ?? [])
+                          .expand((i) => i)
+                          .map((e) => StudentAnnualFeeMapUpdateBean(
+                                schoolId: widget.studentProfile.schoolId,
+                                studentId: widget.studentProfile.studentId,
+                                amount: e.amount,
+                                sectionFeeMapId: e.sectionFeeMapId,
+                                studentFeeMapId: e.studentFeeMapId,
+                              ))
+                          .toList(),
+                );
+                CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse =
+                    await createOrUpdateStudentAnnualFeeMap(createOrUpdateStudentAnnualFeeMapRequest);
+                if (createOrUpdateStudentAnnualFeeMapResponse.httpStatus == "OK" &&
+                    createOrUpdateStudentAnnualFeeMapResponse.responseStatus == "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Changes updated successfully"),
+                    ),
+                  );
+                  await _loadData();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong, Please try again later.."),
+                    ),
+                  );
+                }
+                setState(() {
+                  _isLoading = false;
+                });
+              },
+            ),
+            TextButton(
+              child: const Text("No"),
+              onPressed: () {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> saveChanges() async {
@@ -94,11 +374,12 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
       } else {
         widget.studentProfile.modifyAsPerJson(
             (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList().firstOrNull?.origJson() ?? {});
+        setState(() => _isEditMode = false);
+        await _loadData();
       }
       setState(() => _isLoading = false);
     }
     setState(() {
-      _isEditMode = true;
       _isLoading = false;
     });
   }
@@ -110,14 +391,24 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
       appBar: AppBar(
         title: const Text("Student Profile"),
         actions: [
-          if (!_isEditMode)
+          if (widget.studentProfile.sectionId != null && widget.studentProfile.studentId != null && !_isEditMode)
+            IconButton(
+                onPressed: () {
+                  if (!_showFeeDetails && studentAnnualFeeBean == null) {
+                    loadSectionWiseStudentsFeeMap();
+                  }
+                  setState(() => _showFeeDetails = !_showFeeDetails);
+                },
+                icon: _showFeeDetails ? const Icon(Icons.money_off) : const Icon(Icons.money)),
+          if (widget.studentProfile.sectionId != null && widget.studentProfile.studentId != null) const SizedBox(width: 10),
+          if (!_showFeeDetails && !_isEditMode)
             IconButton(
               onPressed: () {
                 setState(() => _isEditMode = true);
               },
               icon: const Icon(Icons.edit),
             ),
-          if (_isEditMode)
+          if (!_showFeeDetails && _isEditMode)
             IconButton(
               onPressed: () async {
                 setState(() {
@@ -175,71 +466,79 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                 width: 500,
               ),
             )
-          : AbsorbPointer(
-              absorbing: _isOtherLoading,
-              child: Stack(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: ListView(
-                      children: [
-                        Scrollbar(
-                          thumbVisibility: true,
-                          controller: _controller,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            controller: _controller,
-                            child: Container(
-                              margin: MediaQuery.of(context).orientation == Orientation.landscape
-                                  ? const EdgeInsets.fromLTRB(50, 8, 50, 8)
-                                  : const EdgeInsets.all(8),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                border: Border.all(),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  basicDetails(),
-                                  const SizedBox(height: 10),
-                                  Divider(
-                                    thickness: 2,
-                                    color: clayContainerTextColor(context),
+          : _showFeeDetails
+              ? ListView(
+                  children: [
+                    buildStudentWiseAnnualFeeMapCard(),
+                  ],
+                )
+              : AbsorbPointer(
+                  absorbing: _isOtherLoading,
+                  child: Stack(
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: ListView(
+                          children: [
+                            Scrollbar(
+                              thumbVisibility: true,
+                              controller: _controller,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                controller: _controller,
+                                child: Container(
+                                  margin: MediaQuery.of(context).orientation == Orientation.landscape
+                                      ? const EdgeInsets.fromLTRB(50, 8, 50, 8)
+                                      : const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  const SizedBox(height: 10),
-                                  parentDetails(),
-                                  const SizedBox(height: 10),
-                                  nationalityDetails(),
-                                  const SizedBox(height: 10),
-                                  addressDetails(),
-                                  const SizedBox(height: 10),
-                                  previousSchoolRecordDetails(),
-                                  const SizedBox(height: 10),
-                                  identificationMarksDetails(),
-                                  const SizedBox(height: 10),
-                                ],
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      basicDetails(),
+                                      const SizedBox(height: 10),
+                                      Divider(
+                                        thickness: 2,
+                                        color: clayContainerTextColor(context),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      parentDetails(),
+                                      const SizedBox(height: 10),
+                                      nationalityDetails(),
+                                      const SizedBox(height: 10),
+                                      addressDetails(),
+                                      const SizedBox(height: 10),
+                                      previousSchoolRecordDetails(),
+                                      const SizedBox(height: 10),
+                                      identificationMarksDetails(),
+                                      const SizedBox(height: 10),
+                                      studentStatusDetails(),
+                                      const SizedBox(height: 10),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                      if (_isOtherLoading)
+                        Center(
+                          child: Image.asset(
+                            'assets/images/eis_loader.gif',
+                            height: 500,
+                            width: 500,
                           ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                  if (_isOtherLoading)
-                    Center(
-                      child: Image.asset(
-                        'assets/images/eis_loader.gif',
-                        height: 500,
-                        width: 500,
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 
@@ -334,7 +633,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           ),
           child: GestureDetector(
             onTap: () async {
-              if (_isEditMode) return;
+              if (!_isEditMode) return;
               DateTime? _newDate = await showDatePicker(
                 context: context,
                 initialDate: convertYYYYMMDDFormatToDateTime(widget.studentProfile.studentDob),
@@ -371,7 +670,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           child: RadioListTile<String?>(
             value: "male",
             groupValue: widget.studentProfile.sex,
-            onChanged: (String? value) {
+            onChanged: !_isEditMode ? null : (String? value) {
               setState(() {
                 widget.studentProfile.sex = value;
               });
@@ -392,7 +691,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           child: RadioListTile<String?>(
             value: "female",
             groupValue: widget.studentProfile.sex,
-            onChanged: (String? value) {
+            onChanged: !_isEditMode ? null : (String? value) {
               setState(() {
                 widget.studentProfile.sex = value;
               });
@@ -440,12 +739,58 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
         border: Border.all(),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: widget.studentProfile.studentPhotoUrl == null
-          ? const FittedBox(fit: BoxFit.scaleDown, child: Text("Student\nPhoto"))
-          : Image.network(
-              widget.studentProfile.studentPhotoUrl!,
-              fit: BoxFit.scaleDown,
-            ),
+      child: GestureDetector(
+        onTap: () {
+          if (!_isEditMode) return;
+          try {
+            FileUploadInputElement uploadInput = FileUploadInputElement();
+            uploadInput.multiple = false;
+            uploadInput.draggable = true;
+            uploadInput.accept = '.png,.jpg,.jpeg';
+            uploadInput.click();
+            uploadInput.onChange.listen(
+              (changeEvent) async {
+                final files = uploadInput.files!;
+                for (File file in files) {
+                  final reader = FileReader();
+                  reader.readAsDataUrl(file);
+                  reader.onLoadEnd.listen(
+                    (loadEndEvent) async {
+                      debugPrint("File uploaded: " + file.name);
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      try {
+                        UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
+                        setState(() => widget.studentProfile.studentPhotoUrl = uploadFileResponse.mediaBean!.mediaUrl!);
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                          ),
+                        );
+                      }
+                      setState(() {
+                        _isLoading = false;
+                      });
+                    },
+                  );
+                }
+              },
+            );
+          } catch (e) {
+            const SnackBar(
+              content: Text("Something went wrong..\nPlease try again later"),
+            );
+          }
+        },
+        child: widget.studentProfile.studentPhotoUrl == null
+            ? const FittedBox(fit: BoxFit.scaleDown, child: Text("Student\nPhoto"))
+            : Image.network(
+                widget.studentProfile.studentPhotoUrl!,
+                fit: BoxFit.scaleDown,
+              ),
+      ),
     );
   }
 
@@ -566,8 +911,10 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
         children: [
           headerWidget("Parent Details"),
           const SizedBox(height: 20),
-          selectSiblingWidget(),
-          const SizedBox(height: 10),
+          if (_isEditMode)
+            selectSiblingWidget(),
+          if (_isEditMode)
+            const SizedBox(height: 10),
           ...fatherDetailsRows(),
           const SizedBox(height: 10),
           ...motherDetailsRows(),
@@ -1072,7 +1419,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             child: DropdownButton<String>(
               hint: const Center(child: Text("Select Category")),
               value: CASTE_CATEGORIES.where((e) => e == widget.studentProfile.category).firstOrNull,
-              onChanged: (String? category) {
+              onChanged: !_isEditMode ? null : (String? category) {
                 setState(() {
                   widget.studentProfile.category = category;
                 });
@@ -1183,11 +1530,79 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
         const SizedBox(width: 10),
         detailHeaderWidget("Aadhaar Document"),
         const SizedBox(width: 10),
-        IconButton(
-          icon: const Icon(Icons.upload_file),
-          onPressed: () {
-            //  TODO
-          },
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (widget.studentProfile.aadhaarPhotoUrl != null)
+              InkWell(
+                onTap: () async {
+                  var mediaUri = Uri.parse(widget.studentProfile.aadhaarPhotoUrl!);
+                  if (await canLaunchUrl(mediaUri)) {
+                    await launchUrl(mediaUri, webOnlyWindowName: "_blank");
+                  } else {
+                    throw 'Could not launch $mediaUri';
+                  }
+                },
+                child: const Text(
+                  "Aadhaar Copy",
+                  style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                ),
+              ),
+            if (widget.studentProfile.aadhaarPhotoUrl != null) const SizedBox(width: 10),
+            IconButton(
+              icon: const Icon(Icons.upload_file),
+              onPressed: () {
+                if (!_isEditMode) return;
+                try {
+                  FileUploadInputElement uploadInput = FileUploadInputElement();
+                  uploadInput.multiple = false;
+                  uploadInput.draggable = true;
+                  uploadInput.accept = '.png,.jpg,.jpeg,.PNG,.JPG,.JPEG,.pdf';
+                  uploadInput.click();
+                  uploadInput.onChange.listen(
+                    (changeEvent) async {
+                      final files = uploadInput.files!;
+                      for (File file in files) {
+                        final reader = FileReader();
+                        reader.readAsDataUrl(file);
+                        reader.onLoadEnd.listen(
+                          (loadEndEvent) async {
+                            debugPrint("File uploaded: " + file.name);
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            try {
+                              UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
+                              print("1276: ${uploadFileResponse.mediaBean?.mediaId}");
+                              setState(() {
+                                widget.studentProfile.aadhaarPhotoUrlId = uploadFileResponse.mediaBean!.mediaId!;
+                                widget.studentProfile.aadhaarPhotoUrl = uploadFileResponse.mediaBean!.mediaUrl!;
+                              });
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+                                ),
+                              );
+                            }
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          },
+                        );
+                      }
+                    },
+                  );
+                } catch (e) {
+                  const SnackBar(
+                    content: Text("Something went wrong..\nPlease try again later"),
+                  );
+                }
+              },
+            ),
+          ],
         ),
         const SizedBox(width: 10),
       ],
@@ -1373,10 +1788,565 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
     );
   }
 
-  customDetails() {
-    /**
-     * key value pairs, value being text field
-     */
+  Widget studentStatusDetails() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          headerWidget("Student Status"),
+          const SizedBox(height: 20),
+          studentStatusRow(),
+        ],
+      ),
+    );
+  }
+
+  Widget studentStatusRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(width: 10),
+        detailHeaderWidget("Student Status"),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 150,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: DropdownButton<StudentStatus>(
+              hint: const Center(child: Text("Select Category")),
+              value: StudentStatus.values.where((e) => e.name == widget.studentProfile.studentStatus).firstOrNull,
+              onChanged: !_isEditMode ? null : (StudentStatus? status) {
+                setState(() {
+                  widget.studentProfile.studentStatus = status?.name;
+                });
+              },
+              items: StudentStatus.values
+                  .map(
+                    (e) => DropdownMenuItem<StudentStatus>(
+                  value: e,
+                  child: SizedBox(
+                    width: 75,
+                    height: 50,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
+                          e.description,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+                  .toList(),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  }
+
+  Widget buildStudentWiseAnnualFeeMapCard() {
+    var editingStudentId = widget.studentProfile.studentId;
+    var studentAnnualFeeBeanK = studentAnnualFeeBean!;
+    List<Widget> rows = [];
+    rows.add(
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              "${studentAnnualFeeBeanK.rollNumber ?? "-"}. ${studentAnnualFeeBeanK.studentName}",
+              style: const TextStyle(
+                fontSize: 18,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          if (editingStudentId != null && editingStudentId == studentAnnualFeeBeanK.studentId)
+            Container(
+              margin: const EdgeInsets.all(8),
+              child: GestureDetector(
+                onTap: () async {
+                  await saveFeeChanges();
+                },
+                child: ClayButton(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 1,
+                  borderRadius: 100,
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    child: const Icon(Icons.check),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+    rows.add(
+      const SizedBox(
+        height: 15,
+      ),
+    );
+    List<Widget> feeStats = [];
+    for (StudentAnnualFeeTypeBean eachStudentAnnualFeeTypeBean in (studentAnnualFeeBeanK.studentAnnualFeeTypeBeans ?? [])) {
+      feeStats.add(
+        (eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0) &&
+                ((eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty ||
+                    ((eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).map((e) => e.amount ?? 0).reduce((a, b) => a + b)) == 0) &&
+                editingStudentId != studentAnnualFeeBeanK.studentId
+            ? Container()
+            : Row(
+                children: [
+                  Expanded(
+                    child: Text(eachStudentAnnualFeeTypeBean.feeType ?? "-"),
+                  ),
+                  (editingStudentId != null && editingStudentId == studentAnnualFeeBeanK.studentId)
+                      ? ((eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isNotEmpty)
+                          ? Container()
+                          : SizedBox(
+                              width: 60,
+                              child: TextField(
+                                controller: eachStudentAnnualFeeTypeBean.amountController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  border: UnderlineInputBorder(),
+                                  labelText: 'Amount',
+                                  hintText: 'Amount',
+                                  contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                ),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                                  TextInputFormatter.withFunction((oldValue, newValue) {
+                                    try {
+                                      final text = newValue.text;
+                                      if (text.isNotEmpty) double.parse(text);
+                                      return newValue;
+                                    } catch (e) {
+                                      debugPrintStack();
+                                    }
+                                    return oldValue;
+                                  }),
+                                ],
+                                onChanged: (String e) {
+                                  setState(() {
+                                    eachStudentAnnualFeeTypeBean.amount = (double.parse(e) * 100).round();
+                                  });
+                                },
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                ),
+                                autofocus: true,
+                              ),
+                            )
+                      : eachStudentAnnualFeeTypeBean.amount == null || eachStudentAnnualFeeTypeBean.amount == 0
+                          ? Container()
+                          : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualFeeTypeBean.amount! / 100)}"),
+                ],
+              ),
+      );
+      feeStats.add(
+        const SizedBox(
+          height: 15,
+        ),
+      );
+      for (StudentAnnualCustomFeeTypeBean eachStudentAnnualCustomFeeTypeBean
+          in (eachStudentAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])) {
+        if ((editingStudentId != studentAnnualFeeBeanK.studentId) && (eachStudentAnnualCustomFeeTypeBean.amount ?? 0) == 0) {
+          continue;
+        }
+        feeStats.add(
+          Row(
+            children: [
+              const CustomVerticalDivider(),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Text(eachStudentAnnualCustomFeeTypeBean.customFeeType ?? "-"),
+              ),
+              (editingStudentId != null && editingStudentId == studentAnnualFeeBeanK.studentId)
+                  ? SizedBox(
+                      width: 60,
+                      child: TextField(
+                        controller: eachStudentAnnualCustomFeeTypeBean.amountController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          border: UnderlineInputBorder(),
+                          labelText: 'Amount',
+                          hintText: 'Amount',
+                          contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            try {
+                              final text = newValue.text;
+                              if (text.isNotEmpty) double.parse(text);
+                              return newValue;
+                            } catch (e) {
+                              debugPrintStack();
+                            }
+                            return oldValue;
+                          }),
+                        ],
+                        onChanged: (String e) {
+                          setState(() {
+                            eachStudentAnnualCustomFeeTypeBean.amount = (double.parse(e) * 100).round();
+                          });
+                        },
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
+                        autofocus: true,
+                      ),
+                    )
+                  : eachStudentAnnualCustomFeeTypeBean.amount == null || eachStudentAnnualCustomFeeTypeBean.amount == 0
+                      ? Container()
+                      : Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(eachStudentAnnualCustomFeeTypeBean.amount! / 100)}"),
+            ],
+          ),
+        );
+        feeStats.add(
+          const SizedBox(
+            height: 15,
+          ),
+        );
+      }
+    }
+
+    if (studentAnnualFeeBeanK.studentBusFeeBean != null &&
+        (studentAnnualFeeBeanK.studentBusFeeBean?.fare ?? 0) != 0 &&
+        (editingStudentId != studentAnnualFeeBeanK.studentId)) {
+      feeStats.add(Row(
+        children: [
+          const Expanded(child: Text("Bus Fee")),
+          const SizedBox(
+            width: 10,
+          ),
+          Text(
+            studentAnnualFeeBeanK.studentBusFeeBean?.fare == null
+                ? "-"
+                : INR_SYMBOL + " " + doubleToStringAsFixedForINR(studentAnnualFeeBeanK.studentBusFeeBean!.fare! / 100),
+          ),
+        ],
+      ));
+      feeStats.add(
+        const SizedBox(
+          height: 15,
+        ),
+      );
+    } else if (editingStudentId != null && editingStudentId == studentAnnualFeeBeanK.studentId) {
+      feeStats.add(
+        Row(
+          children: [
+            const SizedBox(
+              width: 10,
+            ),
+            const Expanded(
+              child: Text("Bus Fee"),
+            ),
+            SizedBox(
+              width: 60,
+              child: TextField(
+                controller: studentAnnualFeeBeanK.studentBusFeeBean!.fareController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  border: UnderlineInputBorder(),
+                  labelText: 'Amount',
+                  hintText: 'Amount',
+                  contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                  TextInputFormatter.withFunction((oldValue, newValue) {
+                    try {
+                      final text = newValue.text;
+                      if (text.isNotEmpty) double.parse(text);
+                      return newValue;
+                    } catch (e) {
+                      debugPrintStack();
+                    }
+                    return oldValue;
+                  }),
+                ],
+                style: const TextStyle(
+                  fontSize: 12,
+                ),
+                autofocus: true,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    feeStats.add(
+      const Divider(
+        thickness: 1,
+      ),
+    );
+
+    feeStats.add(
+      const SizedBox(
+        height: 7.5,
+      ),
+    );
+
+    List<int> feeTypesIdsToBeConsideredForDiscount = sectionWiseAnnualFeeBeansList
+        .where((e) => e.sectionId == studentAnnualFeeBeanK.sectionId)
+        .map((e) => e.feeTypeId == null || e.feeTypeId == -1 || e.amount == null || e.amount == 0 ? null : e.feeTypeId)
+        .where((e) => e != null)
+        .map((e) => e!)
+        .toSet()
+        .toList();
+    int actualFee = sectionWiseAnnualFeeBeansList
+        .where((e) => e.sectionId == studentAnnualFeeBeanK.sectionId)
+        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
+        .map((e) => e.amount ?? 0)
+        .reduce((a, b) => a + b);
+    int feeAfterDiscount = (studentAnnualFeeBeanK.studentAnnualFeeTypeBeans ?? [])
+        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
+        .map((e) => e.amount ?? 0)
+        .reduce((a, b) => a + b);
+    int discount = (actualFee - feeAfterDiscount);
+    if (discount > 0) {
+      feeStats.add(
+        Row(
+          children: [
+            const Expanded(
+              child: Text("Discount:"),
+            ),
+            Text(
+              "$INR_SYMBOL ${doubleToStringAsFixedForINR(discount / 100)}",
+              textAlign: TextAlign.end,
+              style: const TextStyle(
+                color: Colors.blue,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    feeStats.add(
+      Row(
+        children: [
+          const Expanded(
+            child: Text("Total:"),
+          ),
+          Text(
+            studentAnnualFeeBeanK.totalFee == null ? "-" : "$INR_SYMBOL ${doubleToStringAsFixedForINR((studentAnnualFeeBeanK.totalFee ?? 0) / 100)}",
+            textAlign: TextAlign.end,
+          ),
+        ],
+      ),
+    );
+    feeStats.add(
+      Row(
+        children: [
+          const Expanded(
+            child: Text("Total Fee Paid:"),
+          ),
+          Text(
+            studentAnnualFeeBeanK.totalFeePaid == null
+                ? "-"
+                : "$INR_SYMBOL ${doubleToStringAsFixedForINR((studentAnnualFeeBeanK.totalFeePaid ?? 0) / 100)}",
+            textAlign: TextAlign.end,
+            style: const TextStyle(
+              color: Colors.green,
+            ),
+          ),
+        ],
+      ),
+    );
+    // feeStats.add(
+    //   Row(
+    //     children: [
+    //       const Expanded(
+    //         child: Text(
+    //           "Wallet Balance:",
+    //         ),
+    //       ),
+    //       Text(
+    //         "$INR_SYMBOL ${((studentWiseAnnualFeesBean.walletBalance ?? 0) / 100).toStringAsFixed(2)}",
+    //         textAlign: TextAlign.end,
+    //         style: const TextStyle(
+    //           color: Colors.blue,
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+    feeStats.add(
+      Row(
+        children: [
+          const Expanded(
+            child: Text(
+              "Fee to be paid:",
+            ),
+          ),
+          Text(
+            "$INR_SYMBOL ${doubleToStringAsFixedForINR(((studentAnnualFeeBeanK.totalFee ?? 0) - (studentAnnualFeeBeanK.totalFeePaid ?? 0) - (studentAnnualFeeBeanK.walletBalance ?? 0)) / 100)}",
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              color:
+                  ((studentAnnualFeeBeanK.totalFee ?? 0) - (studentAnnualFeeBeanK.totalFeePaid ?? 0) - (studentAnnualFeeBeanK.walletBalance ?? 0)) ==
+                          0
+                      ? null
+                      : const Color(0xffff5733),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: rows +
+                [
+                  Container(
+                    margin: const EdgeInsets.all(4),
+                    child: ClayContainer(
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 1,
+                      borderRadius: 10,
+                      depth: 40,
+                      emboss: true,
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          children: feeStats,
+                        ),
+                      ),
+                    ),
+                  ),
+                ] +
+                [
+                  const SizedBox(
+                    height: 7.5,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.all(8),
+                          child: GestureDetector(
+                            onTap: () async {
+                              StudentProfile? studentProfile =
+                                  ((await getStudentProfile(GetStudentProfileRequest(studentId: studentAnnualFeeBeanK.studentId))).studentProfiles ??
+                                          [])
+                                      .firstOrNull;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    if (studentProfile != null) {
+                                      return StudentFeeScreenV3(
+                                        studentProfile: studentProfile,
+                                        adminProfile: widget.adminProfile,
+                                      );
+                                    } else {
+                                      return AdminStudentWiseFeeReceiptsScreen(
+                                        studentAnnualFeeBean: studentAnnualFeeBeanK,
+                                        adminProfile: widget.adminProfile!,
+                                      );
+                                    }
+                                  },
+                                ),
+                              ).then((value) => _loadData());
+                            },
+                            child: ClayButton(
+                              depth: 40,
+                              surfaceColor: clayContainerColor(context),
+                              parentColor: clayContainerColor(context),
+                              spread: 1,
+                              borderRadius: 5,
+                              child: Center(
+                                child: Container(
+                                  margin: const EdgeInsets.all(10),
+                                  child: const Text(
+                                    "Receipts",
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ), // Expanded(
+                      //   child: ((studentWiseAnnualFeesBean.totalFee ?? 0) -
+                      //               (studentWiseAnnualFeesBean.totalFeePaid ?? 0) -
+                      //               (studentWiseAnnualFeesBean.walletBalance ?? 0)) ==
+                      //           0
+                      //       ? const Text("")
+                      //       : Container(
+                      //           margin: const EdgeInsets.all(8),
+                      //           child: GestureDetector(
+                      //             onTap: () {
+                      //               Navigator.push(
+                      //                 context,
+                      //                 MaterialPageRoute(
+                      //                   builder: (context) {
+                      //                     return AdminPayStudentFeeScreen(
+                      //                       studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
+                      //                       adminProfile: widget.adminProfile,
+                      //                     );
+                      //                   },
+                      //                 ),
+                      //               );
+                      //             },
+                      //             child: ClayButton(
+                      //               depth: 40,
+                      //               surfaceColor: clayContainerColor(context),
+                      //               parentColor: clayContainerColor(context),
+                      //               spread: 1,
+                      //               borderRadius: 5,
+                      //               child: Center(
+                      //                 child: Container(
+                      //                   margin: const EdgeInsets.all(10),
+                      //                   child: const Text(
+                      //                     "Pay Fee",
+                      //                     style: TextStyle(
+                      //                       color: Colors.blue,
+                      //                     ),
+                      //                   ),
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ),
+                      // ),
+                    ],
+                  )
+                ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
