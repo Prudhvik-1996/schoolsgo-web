@@ -149,11 +149,26 @@ class PlannerTimeSlot {
     return DateTime(date.year, date.month, date.day, timeOfDay.hour, timeOfDay.minute, 0);
   }
 
-  CalendarEventData<PlannerTimeSlot> toCalenderEventData() => CalendarEventData(
+  String dateTimeStringEq() {
+    return '${getDate() == null ? "-" : convertDateTimeToDDMMYYYYFormat(getDate()!)}\n${getStartTime() == null ? "-" : timeOfDayToString(getStartTime()!)} - ${getEndTime() == null ? "-" : timeOfDayToString(getEndTime()!)}';
+  }
+
+  String timeStringEq() {
+    return '${getStartTime() == null ? "-" : timeOfDayToString(getStartTime()!)} - ${getEndTime() == null ? "-" : timeOfDayToString(getEndTime()!)}';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is PlannerTimeSlot && runtimeType == other.runtimeType && dateTimeStringEq() == other.dateTimeStringEq();
+
+  @override
+  int get hashCode => dateTimeStringEq().hashCode;
+
+  CalendarEventData<PlannerTimeSlot> toCalenderEventData({String? title, String? description}) => CalendarEventData(
         date: getDate() ?? DateTime.now(),
         event: this,
-        title: "Project meeting",
-        description: "Today is project meeting.",
+        title: title ?? "-",
+        description: description ?? "-",
         startTime: getStartTimeInDate(),
         endTime: getEndTimeInDate(),
       );

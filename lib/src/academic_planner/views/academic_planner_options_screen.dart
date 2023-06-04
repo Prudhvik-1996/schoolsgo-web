@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_date_wise_calender_view.dart';
+import 'package:schoolsgo_web/src/academic_planner/views/tds_planner.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -92,6 +93,13 @@ class _AdminAcademicPlannerOptionsScreenState extends State<AdminAcademicPlanner
         padding: EdgeInsets.zero,
         primary: false,
         children: <Widget>[
+          _getAcademicPlannerOption(
+            "Planner",
+            null,
+            TdsPlanner(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
           _getAcademicPlannerOption(
             "Calender View",
             null,

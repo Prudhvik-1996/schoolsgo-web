@@ -173,3 +173,5 @@ const String GET_FEE_SUMMARY_REPORT = "/reports/getFeesSummaryReport";
 const String GET_BUS_WISE_FEES_SUMMARY_REPORT = "/reports/getBusWiseFeesSummaryReport";
 
 const String GET_ACADEMIC_PLANNER_TIME_SLOTS = "/academic_planner/getPlannerTimeSlots";
+const String GET_ACADEMIC_PLANNER = "/academic_planner/getPlanner";
+const String CREATE_OR_UPDATE_ACADEMIC_PLANNER = "/academic_planner/createOrUpdatePlanner";

@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:calendar_view/calendar_view.dart';
 import 'package:clay_containers/clay_containers.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -43,8 +46,11 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
   DateTime _selectedDate = DateTime.now();
 
   List<TeacherDealingSection> _tdsList = [];
+  TeacherDealingSection? selectedTds;
 
   List<PlannerTimeSlot> _plannerTimeSlots = [];
+
+  Map<int, List<PlannedBeanForTds>> tdsWisePlannerBeans = {};
 
   @override
   void initState() {
@@ -172,6 +178,58 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
     });
   }
 
+  void updateSlotsForAllBeans(TeacherDealingSection tds) {
+    if ((tdsWisePlannerBeans[tds.tdsId] ?? []).isEmpty) return;
+    List<PlannerTimeSlot> plannerTimeSlotsDup = [..._plannerTimeSlots.where((e) => e.tdsId == tds.tdsId)];
+    for (var plannerBean in tdsWisePlannerBeans[tds.tdsId]!) {
+      if ((plannerBean.noOfSlots ?? 0) != 0) {
+        plannerBean.plannerSlots = plannerTimeSlotsDup.sublist(0, plannerBean.noOfSlots!);
+        plannerTimeSlotsDup.removeRange(0, plannerBean.noOfSlots!);
+      }
+    }
+  }
+
+  Future<void> _loadPlannerForTds(TeacherDealingSection tds) async {
+    setState(() => _isLoading = true);
+    GetPlannerResponse getPlannerResponse = await getPlanner(GetPlannerRequest(
+      tdsId: tds.tdsId,
+      teacherId: tds.teacherId,
+      subjectId: tds.subjectId,
+      sectionId: tds.sectionId,
+      schoolId: widget.adminProfile.schoolId,
+      // academicYearId: TODO
+    ));
+    if (getPlannerResponse.httpStatus == "OK" && getPlannerResponse.responseStatus == "success") {
+      setState(() {
+        getPlannerResponse.plannerBeans!.map((e) => e!).map((e) {
+          int? tdsId = e.tdsId;
+          String rawJsonListString = e.plannerBeanJsonString ?? "[]";
+          rawJsonListString = rawJsonListString.replaceAll('"[', '[').replaceAll(']"', ']').replaceAll('\\', '');
+          List<dynamic> rawJsonList = jsonDecode(rawJsonListString);
+          List<PlannedBeanForTds> x = [];
+          for (var json in rawJsonList) {
+            x.add(PlannedBeanForTds.fromJson(json));
+          }
+          return MapEntry(tdsId, x);
+        }).forEach((entry) {
+          int? tdsId = entry.key;
+          List<PlannedBeanForTds> list = entry.value;
+          if (tdsId != null) {
+            tdsWisePlannerBeans[tdsId] = list.whereNotNull().toList();
+          }
+        });
+      });
+      updateSlotsForAllBeans(tds);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    }
+    setState(() => _isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -193,49 +251,57 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
             )
           : Column(
               children: [
-                Container(
-                  child: MediaQuery.of(context).orientation == Orientation.landscape
-                      ? Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Expanded(child: _sectionPicker()),
-                            if (!_isSectionPickerOpen) Expanded(child: _teacherPicker()),
-                            if (!_isSectionPickerOpen)
-                              const SizedBox(
-                                width: 10,
-                              ),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            Row(
-                              children: [
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Expanded(
-                                  child: _sectionPicker(),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const SizedBox(
-                                  width: 25,
-                                ),
-                                Expanded(
-                                  child: _teacherPicker(),
-                                ),
-                                const SizedBox(
-                                  width: 25,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                // Container(
+                //   child: MediaQuery.of(context).orientation == Orientation.landscape
+                //       ? Row(
+                //           mainAxisSize: MainAxisSize.min,
+                //           children: [
+                //             Expanded(child: _sectionPicker()),
+                //             if (!_isSectionPickerOpen) Expanded(child: _teacherPicker()),
+                //             if (!_isSectionPickerOpen)
+                //               const SizedBox(
+                //                 width: 10,
+                //               ),
+                //           ],
+                //         )
+                //       : Column(
+                //           children: [
+                //             Row(
+                //               children: [
+                //                 const SizedBox(
+                //                   width: 5,
+                //                 ),
+                //                 Expanded(
+                //                   child: _sectionPicker(),
+                //                 ),
+                //                 const SizedBox(
+                //                   width: 5,
+                //                 ),
+                //               ],
+                //             ),
+                //             Row(
+                //               children: [
+                //                 const SizedBox(
+                //                   width: 25,
+                //                 ),
+                //                 Expanded(
+                //                   child: _teacherPicker(),
+                //                 ),
+                //                 const SizedBox(
+                //                   width: 25,
+                //                 ),
+                //               ],
+                //             ),
+                //           ],
+                //         ),
+                // ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(child: _tdsDropDown()),
+                    ],
+                  ),
                 ),
                 _showCalenderWidget()
                     ? Expanded(
@@ -286,21 +352,49 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
                 .where((e) =>
                     (_selectedSection == null || e.sectionId == _selectedSection?.sectionId) &&
                     (_selectedTeacher == null || e.teacherId == _selectedTeacher?.teacherId) &&
+                    (selectedTds?.tdsId == e.tdsId) &&
                     (convertDateTimeToYYYYMMDDFormat(_selectedDate) == e.date))
-                .map((e) => Card(
-                      child: Text("${e.toJson()}"),
-                    ))
-                .toList(),
+                .map((e) {
+              return Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("${e.timeStringEq()}\n${combineDataForDate(e)}".trim()),
+                ),
+              );
+            }).toList(),
           ),
         )
       ],
     );
   }
 
+  String combineDataForDate(PlannerTimeSlot e) {
+    for (PlannedBeanForTds plannedBean in tdsWisePlannerBeans[selectedTds!.tdsId!] ?? []) {
+      for (PlannerTimeSlot timeSlot in plannedBean.plannerSlots!) {
+        if (timeSlot == e) {
+          return ("${plannedBean.title}, ${plannedBean.description}, ${plannedBean.approvalStatus}");
+        }
+      }
+    }
+    return "";
+  }
+
+  PlannedBeanForTds? plannedBeanForTdsForDate(PlannerTimeSlot e) {
+    for (PlannedBeanForTds plannedBean in tdsWisePlannerBeans[selectedTds!.tdsId!] ?? []) {
+      for (PlannerTimeSlot timeSlot in plannedBean.plannerSlots!) {
+        if (timeSlot == e) {
+          return plannedBean;
+        }
+      }
+    }
+    return null;
+  }
+
   Widget calenderWidget() {
     Iterable<PlannerTimeSlot> _filteredPlannerSlots = _plannerTimeSlots.where((e) =>
         (_selectedSection == null || e.sectionId == _selectedSection?.sectionId) &&
-        (_selectedTeacher == null || e.teacherId == _selectedTeacher?.teacherId));
+        (_selectedTeacher == null || e.teacherId == _selectedTeacher?.teacherId) &&
+        selectedTds?.tdsId == e.tdsId);
     return Container(
       color: clayContainerColor(context),
       child: CalendarControllerProvider<PlannerTimeSlot>(
@@ -351,11 +445,17 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
                 .where((e) =>
                     (_selectedSection == null || e.sectionId == _selectedSection?.sectionId) &&
                     (_selectedTeacher == null || e.teacherId == _selectedTeacher?.teacherId) &&
-                    (convertDateTimeToYYYYMMDDFormat(date) == e.date))
+                    (convertDateTimeToYYYYMMDDFormat(date) == e.date) &&
+                    selectedTds?.tdsId == e.tdsId)
                 .map(
-                  (e) => e.toCalenderEventData(),
-                )
-                .toList(),
+              (e) {
+                PlannedBeanForTds? x = plannedBeanForTdsForDate(e);
+                return e.toCalenderEventData(
+                  title: x?.title,
+                  description: x?.description,
+                );
+              },
+            ).toList(),
             onTileTap: (CalendarEventData<PlannerTimeSlot> event, DateTime date) {
               setState(() {
                 _selectedDate = date;
@@ -398,6 +498,7 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
   }
 
   bool _showCalenderWidget() {
+    if (selectedTds != null) return true;
     if (_selectedSection == null && _selectedTeacher == null) return false;
     if (_selectedSection != null &&
         _selectedTeacher != null &&
@@ -531,20 +632,6 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
             }
             _isSectionPickerOpen = false;
           });
-          // if (!_plannerTimeSlots
-          //     .where((e) =>
-          //         (_selectedSection == null || e.sectionId == _selectedSection?.sectionId) &&
-          //         (_selectedTeacher == null || e.teacherId == _selectedTeacher?.teacherId))
-          //     .any((e) => e.getDate() == _selectedDate)) {
-          //   _selectedDate = _plannerTimeSlots
-          //       .where((e) =>
-          //           (_selectedSection == null || e.sectionId == _selectedSection?.sectionId) &&
-          //           (_selectedTeacher == null || e.teacherId == _selectedTeacher?.teacherId))
-          //       .sorted((a, b) => a.getStartTimeInDate().compareTo(b.getStartTimeInDate()))
-          //       .first
-          //       .getStartTimeInDate();
-          // }
-          //  TODO
         },
         child: ClayButton(
           depth: 40,
@@ -653,6 +740,90 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _tdsDropDown() {
+    return ClayButton(
+      depth: 40,
+      parentColor: clayContainerColor(context),
+      surfaceColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      height: 60,
+      width: 60,
+      child: DropdownSearch<TeacherDealingSection>(
+        enabled: true,
+        mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+        selectedItem: selectedTds,
+        items: _tdsList.where((e) => e.status == 'active').toList(),
+        itemAsString: (TeacherDealingSection? tds) {
+          return tds == null ? "" : "${tds.sectionName ?? "-"}\n${tds.subjectName ?? "-"}\n${tds.teacherName ?? "-"}";
+        },
+        showSearchBox: true,
+        dropdownBuilder: (BuildContext context, TeacherDealingSection? tds) {
+          return _buildTeacherDealingSectionWidget(tds);
+        },
+        onChanged: (TeacherDealingSection? tds) {
+          if (_isLoading) return;
+          setState(() {
+            selectedTds = tds;
+          });
+          if (tds != null) {
+            _loadPlannerForTds(tds);
+          } else {
+            setState(() {
+              tdsWisePlannerBeans.clear();
+            });
+          }
+        },
+        showClearButton: true,
+        compareFn: (item, selectedItem) => item?.teacherId == selectedItem?.teacherId,
+        dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+        filterFn: (TeacherDealingSection? tds, String? key) {
+          return (tds == null ? "" : "${tds.sectionName ?? "-"}${tds.subjectName ?? "-"}${tds.teacherName ?? "-"}")
+              .toLowerCase()
+              .contains(key!.toLowerCase());
+        },
+      ),
+    );
+  }
+
+  Widget _buildTeacherDealingSectionWidget(TeacherDealingSection? e) {
+    Teacher? teacher = e == null ? null : _teachersList.where((et) => et.teacherId == e.teacherId).firstOrNull;
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 50,
+            padding: const EdgeInsets.all(5),
+            child: teacher?.teacherPhotoUrl == null
+                ? Image.asset(
+                    "assets/images/avatar.png",
+                    fit: BoxFit.contain,
+                  )
+                : Image.network(
+                    teacher!.teacherPhotoUrl!,
+                    fit: BoxFit.contain,
+                  ),
+          ),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                e == null ? "Select" : "${e.sectionName ?? "-"}\n${e.subjectName ?? "-"}\n${e.teacherName ?? "-"}",
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
