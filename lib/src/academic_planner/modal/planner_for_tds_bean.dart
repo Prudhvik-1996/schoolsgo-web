@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_comment_bean.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
-import 'package:collection/collection.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -36,6 +36,7 @@ class PlannedBeanForTds {
   String? approvalStatus;
   List<PlannerCommentBean?>? comments;
   List<PlannerTimeSlot>? plannerSlots;
+  final ScrollController slotsController = ScrollController();
   Map<String, dynamic> __origJson = {};
 
   bool isEditMode = false;
@@ -48,6 +49,7 @@ class PlannedBeanForTds {
     this.plannerSlots,
     this.comments,
   });
+
   PlannedBeanForTds.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     title = json[_jsonKeyPlannedBeanForTdsTitle]?.toString();
@@ -65,6 +67,7 @@ class PlannedBeanForTds {
   }
 
   get startDate => plannerSlots?.firstOrNull?.date;
+
   get endDate => plannerSlots?.lastOrNull?.date;
 
   Map<String, dynamic> toJson() {
@@ -91,6 +94,7 @@ class PlannedBeanForTds {
     // }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -122,6 +126,7 @@ class GetPlannerRequest {
     this.tdsId,
     this.teacherId,
   });
+
   GetPlannerRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     academicYearId = json['academicYearId']?.toInt();
@@ -131,6 +136,7 @@ class GetPlannerRequest {
     tdsId = json['tdsId']?.toInt();
     teacherId = json['teacherId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearId'] = academicYearId;
@@ -141,6 +147,7 @@ class GetPlannerRequest {
     data['teacherId'] = teacherId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -169,6 +176,7 @@ class PlannerBean {
     this.tdsId,
     this.teacherId,
   });
+
   PlannerBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     plannerBeanJsonString = json['plannerBeanJsonString']?.toString();
@@ -177,6 +185,7 @@ class PlannerBean {
     tdsId = json['tdsId']?.toInt();
     teacherId = json['teacherId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['plannerBeanJsonString'] = plannerBeanJsonString;
@@ -186,6 +195,7 @@ class PlannerBean {
     data['teacherId'] = teacherId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -222,6 +232,7 @@ class GetPlannerResponse {
     this.plannerBeans,
     this.responseStatus,
   });
+
   GetPlannerResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -237,6 +248,7 @@ class GetPlannerResponse {
     }
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -253,6 +265,7 @@ class GetPlannerResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -301,6 +314,7 @@ class CreateOrUpdatePlannerRequest {
     this.tdsId,
     this.teacherId,
   });
+
   CreateOrUpdatePlannerRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -311,6 +325,7 @@ class CreateOrUpdatePlannerRequest {
     tdsId = json['tdsId']?.toInt();
     teacherId = json['teacherId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -322,6 +337,7 @@ class CreateOrUpdatePlannerRequest {
     data['teacherId'] = teacherId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -347,6 +363,7 @@ class CreateOrUpdatePlannerResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdatePlannerResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -354,6 +371,7 @@ class CreateOrUpdatePlannerResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -362,6 +380,7 @@ class CreateOrUpdatePlannerResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

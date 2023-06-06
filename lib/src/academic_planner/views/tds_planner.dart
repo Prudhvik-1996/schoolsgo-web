@@ -20,7 +20,6 @@ class _TdsPlannerState extends State<TdsPlanner> {
   bool _isLoading = false;
   List<TeacherDealingSection> _tdsList = [];
 
-
   @override
   void initState() {
     super.initState();
@@ -59,35 +58,44 @@ class _TdsPlannerState extends State<TdsPlanner> {
       appBar: AppBar(
         title: const Text("Planner"),
       ),
-      body: ListView(
-        children: _tdsList.where((e) => e.status == 'active')
-            .map((e) => Container(
-                  margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return PlannerCreationScreen(
-                            adminProfile: widget.adminProfile,
-                            tds: e,
-                          );
-                        },
-                      ),
-                    ),
-                    child: Card(
-                      color: clayContainerColor(context),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text("Section: ${e.sectionName}\n"
-                            "Subject: ${e.subjectName}\n"
-                            "Teacher: ${e.teacherName}"),
-                      ),
-                    ),
-                  ),
-                ))
-            .toList(),
-      ),
+      body: _isLoading
+          ? Center(
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
+            )
+          : ListView(
+              children: _tdsList
+                  .where((e) => e.status == 'active')
+                  .map((e) => Container(
+                        margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return PlannerCreationScreen(
+                                  adminProfile: widget.adminProfile,
+                                  tds: e,
+                                );
+                              },
+                            ),
+                          ),
+                          child: Card(
+                            color: clayContainerColor(context),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text("Section: ${e.sectionName}\n"
+                                  "Subject: ${e.subjectName}\n"
+                                  "Teacher: ${e.teacherName}"),
+                            ),
+                          ),
+                        ),
+                      ))
+                  .toList(),
+            ),
     );
   }
 }

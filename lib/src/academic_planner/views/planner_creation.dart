@@ -5,11 +5,13 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
+import 'package:schoolsgo_web/src/common_components/local_clean_calender/flutter_clean_calendar.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlannerCreationScreen extends StatefulWidget {
@@ -36,6 +38,13 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
   int? currentlyEditedIndex;
 
   List<String> approvalStatusOptions = ["Pending", "Approved", "Revise"];
+  DateTime selectedDate = DateTime.now();
+
+  ItemScrollController _plannerListController = ItemScrollController();
+  Map<DateTime, List<CleanCalendarEvent>> eventMap = {};
+
+  bool showCalenderInPortrait = false;
+  final GlobalKey<CalendarState> calenderKey = GlobalKey<CalendarState>();
 
   @override
   void initState() {
@@ -139,6 +148,7 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
       return;
     }
     setState(() => _isLoading = false);
+    refreshScroll();
   }
 
   Future<void> saveChanges() async {
@@ -158,6 +168,8 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
           content: Text("Your updates are successful.."),
         ),
       );
+      await _loadData();
+      setState(() => _isEditMode = false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -177,6 +189,44 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
         plannerTimeSlotsDup.removeRange(0, plannerBean.noOfSlots!);
       }
     }
+    for (PlannedBeanForTds plannerBean in plannerBeans) {
+      for (PlannerTimeSlot plannerSlot in (plannerBean.plannerSlots ?? [])) {
+        if (!eventMap.containsKey(convertYYYYMMDDFormatToDateTime(plannerSlot.date))) {
+          eventMap[convertYYYYMMDDFormatToDateTime(plannerSlot.date)] = [];
+        }
+        eventMap[convertYYYYMMDDFormatToDateTime(plannerSlot.date)]!.add(CleanCalendarEvent(
+          plannerBean.title ?? "-",
+          description: plannerBean.description ?? "-",
+          startTime: plannerSlot.getStartTimeInDate(),
+          endTime: plannerSlot.getEndTimeInDate(),
+          color: Colors.indigo,
+          isDone: plannerBean.approvalStatus == "Approved",
+        ));
+      }
+    }
+    setState(() => {});
+  }
+
+  void refreshScroll({int? slotPositionIndex}) {
+    int newIndex = plannerBeans.indexWhere((e) => (e.plannerSlots ?? [])
+        .map((e) => e.getDate())
+        .whereNotNull()
+        .map((e) => convertDateTimeToDDMMYYYYFormat(e))
+        .contains(convertDateTimeToDDMMYYYYFormat(selectedDate)));
+    print("190: $newIndex");
+    if (newIndex == -1) return;
+    _plannerListController.scrollTo(
+      index: newIndex,
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.bounceInOut,
+    );
+    slotPositionIndex ??= (plannerBeans[newIndex].plannerSlots ?? []).indexWhere((e) => e.date == convertDateTimeToYYYYMMDDFormat(selectedDate));
+    if (slotPositionIndex < 0) return;
+    plannerBeans[newIndex].slotsController.animateTo(
+          slotPositionIndex * 180,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+        );
   }
 
   @override
@@ -185,7 +235,11 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
       appBar: AppBar(
         title: Text("${widget.tds.sectionName} - ${widget.tds.subjectName} - ${widget.tds.teacherName}"),
         actions: [
-          if (_isEditMode)
+          if (MediaQuery.of(context).orientation == Orientation.portrait)
+            IconButton(
+                onPressed: () => setState(() => showCalenderInPortrait = !showCalenderInPortrait),
+                icon: showCalenderInPortrait ? const Icon(Icons.splitscreen) : const Icon(Icons.calendar_month)),
+          if (_isEditMode && !plannerBeans.map((e) => e.isEditMode).contains(true))
             IconButton(
               onPressed: () => saveChanges(),
               icon: const Icon(Icons.check),
@@ -209,180 +263,33 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
                 width: 500,
               ),
             )
-          : ListView.builder(
-              itemCount: plannerBeans.length,
-              itemBuilder: (context, index) {
-                final plannerBean = plannerBeans[index];
-                final slots = plannerBean.noOfSlots ?? 0;
-                final assignedSlots = plannerBean.plannerSlots?.take(slots).toList() ?? [];
-                ScrollController _controller = ScrollController();
-                return Container(
-                  margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  child: ClayContainer(
-                    depth: 40,
-                    surfaceColor: clayContainerColor(context),
-                    parentColor: clayContainerColor(context),
-                    spread: 1,
-                    borderRadius: 10,
-                    emboss: true,
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            title: plannerBean.isEditMode
-                                ? TextFormField(
-                                    initialValue: plannerBean.title,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Title',
-                                      hintText: 'Enter title',
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        plannerBean.title = value;
-                                      });
-                                    },
-                                  )
-                                : Text(
-                                    '${plannerBean.title} (${plannerBean.startDate} - ${plannerBean.endDate})',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                plannerBean.isEditMode
-                                    ? TextFormField(
-                                        initialValue: plannerBean.description,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Description',
-                                          hintText: 'Enter description',
-                                        ),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            plannerBean.description = value;
-                                          });
-                                        },
-                                      )
-                                    : Text('Description: ${plannerBean.description}'),
-                                plannerBean.isEditMode
-                                    ? TextFormField(
-                                        initialValue: plannerBean.noOfSlots?.toString(),
-                                        decoration: const InputDecoration(
-                                          labelText: 'No. of Slots',
-                                          hintText: 'Enter number of slots',
-                                        ),
-                                        onChanged: (value) {
-                                          final newSlots = int.tryParse(value);
-                                          if (newSlots != null) {
-                                            setState(() {
-                                              plannerBean.noOfSlots = newSlots;
-                                              updateSlotsForAllBeans();
-                                            });
-                                          }
-                                        },
-                                      )
-                                    : Text('No. of Slots: ${plannerBean.noOfSlots}'),
-                                plannerBean.isEditMode
-                                    ? DropdownButtonFormField<String>(
-                                        value: plannerBean.approvalStatus,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Approval Status',
-                                        ),
-                                        items: approvalStatusOptions.map((String status) {
-                                          return DropdownMenuItem<String>(
-                                            value: status,
-                                            child: Text(status),
-                                          );
-                                        }).toList(),
-                                        onChanged: (String? value) {
-                                          setState(() {
-                                            plannerBean.approvalStatus = value;
-                                          });
-                                        },
-                                      )
-                                    : Text('Approval Status: ${plannerBean.approvalStatus}'),
-                              ],
-                            ),
-                            trailing: !_isEditMode
-                                ? null
-                                : Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (currentlyEditedIndex == null)
-                                        IconButton(
-                                          icon: const Icon(Icons.edit),
-                                          onPressed: () {
-                                            setState(() {
-                                              currentlyEditedIndex = index;
-                                              plannerBean.isEditMode = true;
-                                            });
-                                          },
-                                        ),
-                                      if (currentlyEditedIndex == index)
-                                        IconButton(
-                                          icon: const Icon(Icons.check),
-                                          onPressed: () {
-                                            setState(() {
-                                              currentlyEditedIndex = null;
-                                              plannerBean.isEditMode = false;
-                                            });
-                                          },
-                                        ),
-                                      if (!plannerBean.isEditMode && currentlyEditedIndex == null)
-                                        IconButton(
-                                          icon: const Icon(Icons.call_split),
-                                          onPressed: () {
-                                            splitSlots(plannerBean);
-                                          },
-                                        ),
-                                      if (!plannerBean.isEditMode && currentlyEditedIndex == null)
-                                        IconButton(
-                                          icon: const Icon(Icons.add),
-                                          onPressed: () {
-                                            addRowAbove(plannerBean);
-                                          },
-                                        ),
-                                    ],
-                                  ),
-                          ),
-                          SizedBox(
-                            height: 100,
-                            child: Scrollbar(
-                              thumbVisibility: true,
-                              thickness: 8.0,
-                              controller: _controller,
-                              child: SingleChildScrollView(
-                                controller: _controller,
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: assignedSlots
-                                      .map(
-                                        (e) => SizedBox(
-                                          width: 180,
-                                          child: Card(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                '${e.getDate() == null ? "-" : convertDateTimeToDDMMYYYYFormat(e.getDate()!)}\n${e.getStartTime() == null ? "-" : timeOfDayToString(e.getStartTime()!)} - ${e.getEndTime() == null ? "-" : timeOfDayToString(e.getEndTime()!)}',
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+          : MediaQuery.of(context).orientation == Orientation.landscape
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 400,
+                      child: plannerCreationListWidget(),
+                    ),
+                    SizedBox(
+                      width: 400,
+                      child: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: calenderWidget(),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  ],
+                )
+              : showCalenderInPortrait
+                  ? SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: calenderWidget(),
+                      ),
+                    )
+                  : plannerCreationListWidget(),
       floatingActionButton: _isLoading || !_isEditMode
           ? null
           : FloatingActionButton(
@@ -394,6 +301,221 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
               },
               child: const Icon(Icons.add),
             ),
+    );
+  }
+
+  Widget calenderWidget() {
+    return Calendar(
+      key: calenderKey,
+      initialDate: selectedDate,
+      startOnMonday: true,
+      weekDays: const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      events: eventMap,
+      isExpandable: true,
+      eventDoneColor: Colors.green,
+      selectedColor: Colors.pink,
+      todayColor: Colors.blue,
+      eventColor: Colors.grey,
+      locale: 'en_IN',
+      todayButtonText: 'Today',
+      isExpanded: true,
+      expandableDateFormat: 'EEEE, dd. MMMM yyyy',
+      dayOfWeekStyle: TextStyle(color: clayContainerTextColor(context), fontWeight: FontWeight.w800, fontSize: 11),
+      onDateSelected: (DateTime? newDate) {
+        if (newDate == null) return;
+        setState(() => selectedDate = newDate);
+        refreshScroll();
+      },
+      onEventSelected: (CleanCalendarEvent? event) {
+        if (event == null) return;
+        refreshScroll(slotPositionIndex: eventMap[selectedDate]?.indexWhere((e) => e == event) ?? -1);
+      },
+      selectedDate: selectedDate,
+      hideTodayIcon: true,
+    );
+  }
+
+  Widget plannerCreationListWidget() {
+    return ScrollablePositionedList.builder(
+      itemScrollController: _plannerListController,
+      itemCount: plannerBeans.length,
+      itemBuilder: (context, index) {
+        final plannerBean = plannerBeans[index];
+        final slots = plannerBean.noOfSlots ?? 0;
+        final assignedSlots = plannerBean.plannerSlots?.take(slots).toList() ?? [];
+        return Container(
+          margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+          child: ClayContainer(
+            depth: 40,
+            surfaceColor: clayContainerColor(context),
+            parentColor: clayContainerColor(context),
+            spread: 1,
+            borderRadius: 10,
+            emboss: true,
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: plannerBean.isEditMode
+                        ? TextFormField(
+                            initialValue: plannerBean.title,
+                            decoration: const InputDecoration(
+                              labelText: 'Title',
+                              hintText: 'Enter title',
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                plannerBean.title = value;
+                              });
+                            },
+                          )
+                        : Text(
+                            '${plannerBean.title} (${plannerBean.startDate} - ${plannerBean.endDate})',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        plannerBean.isEditMode
+                            ? TextFormField(
+                                initialValue: plannerBean.description,
+                                decoration: const InputDecoration(
+                                  labelText: 'Description',
+                                  hintText: 'Enter description',
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    plannerBean.description = value;
+                                  });
+                                },
+                              )
+                            : Text('Description: ${plannerBean.description}'),
+                        plannerBean.isEditMode
+                            ? TextFormField(
+                                initialValue: plannerBean.noOfSlots?.toString(),
+                                decoration: const InputDecoration(
+                                  labelText: 'No. of Slots',
+                                  hintText: 'Enter number of slots',
+                                ),
+                                onChanged: (value) {
+                                  final newSlots = int.tryParse(value);
+                                  if (newSlots != null) {
+                                    setState(() {
+                                      plannerBean.noOfSlots = newSlots;
+                                      updateSlotsForAllBeans();
+                                    });
+                                  }
+                                },
+                              )
+                            : Text('No. of Slots: ${plannerBean.noOfSlots}'),
+                        plannerBean.isEditMode
+                            ? DropdownButtonFormField<String>(
+                                value: plannerBean.approvalStatus,
+                                decoration: const InputDecoration(
+                                  labelText: 'Approval Status',
+                                ),
+                                items: approvalStatusOptions.map((String status) {
+                                  return DropdownMenuItem<String>(
+                                    value: status,
+                                    child: Text(status),
+                                  );
+                                }).toList(),
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    plannerBean.approvalStatus = value;
+                                  });
+                                },
+                              )
+                            : Text('Approval Status: ${plannerBean.approvalStatus}'),
+                      ],
+                    ),
+                    trailing: !_isEditMode
+                        ? null
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (currentlyEditedIndex == null)
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    setState(() {
+                                      currentlyEditedIndex = index;
+                                      plannerBean.isEditMode = true;
+                                    });
+                                  },
+                                ),
+                              if (currentlyEditedIndex == index)
+                                IconButton(
+                                  icon: const Icon(Icons.check),
+                                  onPressed: () {
+                                    setState(() {
+                                      currentlyEditedIndex = null;
+                                      plannerBean.isEditMode = false;
+                                    });
+                                  },
+                                ),
+                              if (!plannerBean.isEditMode && currentlyEditedIndex == null)
+                                IconButton(
+                                  icon: const Icon(Icons.call_split),
+                                  onPressed: () {
+                                    splitSlots(plannerBean);
+                                  },
+                                ),
+                              if (!plannerBean.isEditMode && currentlyEditedIndex == null)
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    addRowAbove(plannerBean);
+                                  },
+                                ),
+                            ],
+                          ),
+                  ),
+                  SizedBox(
+                    height: 100,
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      thickness: 8.0,
+                      controller: plannerBean.slotsController,
+                      child: SingleChildScrollView(
+                        controller: plannerBean.slotsController,
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: assignedSlots
+                              .map(
+                                (e) => SizedBox(
+                                  width: 180,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() => selectedDate = convertYYYYMMDDFormatToDateTime(e.date));
+                                      refreshScroll();
+                                    },
+                                    child: Card(
+                                      color: e.date == convertDateTimeToYYYYMMDDFormat(selectedDate) ? Colors.blue : null,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          '${e.getDate() == null ? "-" : convertDateTimeToDDMMYYYYFormat(e.getDate()!)}\n${e.getStartTime() == null ? "-" : timeOfDayToString(e.getStartTime()!)} - ${e.getEndTime() == null ? "-" : timeOfDayToString(e.getEndTime()!)}',
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

@@ -118,6 +118,8 @@ class TeacherDealingSection {
   int? sectionId;
   String? sectionName;
   String? status;
+  String? validFrom;
+  String? validThrough;
   int? subjectId;
   String? subjectName;
   int? tdsId;
@@ -134,6 +136,8 @@ class TeacherDealingSection {
     this.sectionId,
     this.sectionName,
     this.status,
+    this.validFrom,
+    this.validThrough,
     this.subjectId,
     this.subjectName,
     this.tdsId,
@@ -148,6 +152,8 @@ class TeacherDealingSection {
     sectionId = int.tryParse(json['sectionId']?.toString() ?? '');
     sectionName = json['sectionName']?.toString();
     status = json['status']?.toString();
+    validFrom = json['validFrom']?.toString();
+    validThrough = json['validThrough']?.toString();
     subjectId = int.tryParse(json['subjectId']?.toString() ?? '');
     subjectName = json['subjectName']?.toString();
     tdsId = int.tryParse(json['tdsId']?.toString() ?? '');
@@ -162,6 +168,8 @@ class TeacherDealingSection {
     data['sectionId'] = sectionId;
     data['sectionName'] = sectionName;
     data['status'] = status;
+    data['validFrom'] = validFrom;
+    data['validThrough'] = validThrough;
     data['subjectId'] = subjectId;
     data['subjectName'] = subjectName;
     data['tdsId'] = tdsId;
