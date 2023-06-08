@@ -450,6 +450,30 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
                                 IconButton(
                                   icon: const Icon(Icons.check),
                                   onPressed: () {
+                                    if ((plannerBean.title?.trim() ?? "") == "") {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Title cannot be empty.."),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    if ((plannerBean.description?.trim() ?? "") == "") {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Description cannot be empty.."),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    if (plannerBean.noOfSlots == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Number of slots cannot be empty.."),
+                                        ),
+                                      );
+                                      return;
+                                    }
                                     setState(() {
                                       currentlyEditedIndex = null;
                                       plannerBean.isEditMode = false;

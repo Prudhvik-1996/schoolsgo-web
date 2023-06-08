@@ -179,6 +179,7 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
             return MapEntry(tdsId, x);
           }).forEach((entry) {
             int? tdsId = entry.key;
+            print("182: ${entry.key} :: ${entry.value}");
             List<PlannedBeanForTds> list = entry.value;
             if (tdsId != null) {
               tdsWisePlannerBeans[tdsId] = list.whereNotNull().toList();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.dart';
+import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -25,12 +26,17 @@ class _EventsFinishingTodayScreenState extends State<EventsFinishingTodayScreen>
     return widget.tdsWisePlannerBeans.map((tdsId, plannerBeans) {
       List<PlannedBeanForTds> x = [];
       for (PlannedBeanForTds eachPlannerBean in plannerBeans) {
-        if (eachPlannerBean.plannerSlots?.last.date == convertDateTimeToYYYYMMDDFormat(widget.date)) {
+        List<PlannerTimeSlot> plannerSlots = (eachPlannerBean.plannerSlots ?? []);
+        plannerSlots.sort((a1, a2) => convertYYYYMMDDFormatToDateTime(a1.date).compareTo(convertYYYYMMDDFormatToDateTime(a2.date)));
+        PlannerTimeSlot? lastSlot = plannerSlots.isNotEmpty ? plannerSlots.last : null;
+        if (lastSlot != null && lastSlot.date == convertDateTimeToYYYYMMDDFormat(widget.date)) {
+          print("33: $eachPlannerBean :: ${lastSlot.date} ${convertDateTimeToYYYYMMDDFormat(widget.date)}");
           x.add(eachPlannerBean);
         }
       }
       return MapEntry(tdsId, x);
-    });
+    })
+      ..removeWhere((key, value) => value.isEmpty);
   }
 
   @override
