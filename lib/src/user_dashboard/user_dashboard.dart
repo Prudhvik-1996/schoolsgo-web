@@ -1,4 +1,5 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
@@ -41,6 +42,7 @@ class _UserDashboardState extends State<UserDashboard> {
   List<AdminProfile> _adminProfiles = [];
   List<OtherUserRoleProfile> _otherRoleProfile = [];
   List<MegaAdminProfile> _megaAdminProfiles = [];
+  List<List<MegaAdminProfile>> _groupedMegaAdminsLists = [];
 
   String? fourDigitPin;
 
@@ -78,10 +80,7 @@ class _UserDashboardState extends State<UserDashboard> {
         _studentProfiles = loggedInWithEmail ? (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList() : [];
         _teacherProfiles = loggedInWithEmail
             ? (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList()
-            : (getUserRolesResponse.teacherProfiles ?? [])
-                .map((e) => e!)
-                // .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
-                .toList();
+            : (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
         _adminProfiles = loggedInWithEmail
             ? (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).toList()
             : (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
@@ -89,14 +88,18 @@ class _UserDashboardState extends State<UserDashboard> {
             ? (getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e!).toList()
             : (getUserRolesResponse.otherUserRoleProfiles ?? [])
                 .map((e) => e!)
-                // .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
+                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
                 .toList();
         _megaAdminProfiles = loggedInWithEmail
             ? (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList()
             : (getUserRolesResponse.megaAdminProfiles ?? [])
                 .map((e) => e!)
-                // .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
+                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
                 .toList();
+        _groupedMegaAdminsLists = groupBy(
+          _megaAdminProfiles,
+          (MegaAdminProfile profile) => profile.franchiseId,
+        ).values.toList();
       });
     }
 
@@ -341,18 +344,20 @@ class _UserDashboardState extends State<UserDashboard> {
             : ListView(
                 children: [buildUserDetailsWidget(_userDetails)] +
                     [
-                      _megaAdminProfiles.isNotEmpty
-                          ? buildRoleButton(
-                              context,
-                              "Mega Admin",
-                              ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
-                                  .split(" ")
-                                  .where((i) => i != "")
-                                  .join(" "),
-                              "Franchise: " + (_megaAdminProfiles[0].franchiseName ?? "-").capitalize(),
-                              _megaAdminProfiles,
-                            )
-                          : Container()
+                      ..._groupedMegaAdminsLists
+                          .map((List<MegaAdminProfile> megaAdmins) => megaAdmins.isEmpty
+                              ? Container()
+                              : buildRoleButton(
+                                  context,
+                                  "Mega Admin",
+                                  ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
+                                      .split(" ")
+                                      .where((i) => i != "")
+                                      .join(" "),
+                                  "Franchise: " + (megaAdmins.firstOrNull?.franchiseName ?? "-").capitalize(),
+                                  megaAdmins,
+                                ))
+                          .toList(),
                     ] +
                     _adminProfiles
                         .map(
