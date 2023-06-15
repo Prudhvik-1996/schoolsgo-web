@@ -8,7 +8,6 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
-import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
@@ -79,7 +78,10 @@ class _UserDashboardState extends State<UserDashboard> {
         _studentProfiles = loggedInWithEmail ? (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList() : [];
         _teacherProfiles = loggedInWithEmail
             ? (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList()
-            : (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
+            : (getUserRolesResponse.teacherProfiles ?? [])
+                .map((e) => e!)
+                // .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
+                .toList();
         _adminProfiles = loggedInWithEmail
             ? (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).toList()
             : (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
@@ -87,13 +89,13 @@ class _UserDashboardState extends State<UserDashboard> {
             ? (getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e!).toList()
             : (getUserRolesResponse.otherUserRoleProfiles ?? [])
                 .map((e) => e!)
-                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
+                // .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
                 .toList();
         _megaAdminProfiles = loggedInWithEmail
             ? (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList()
             : (getUserRolesResponse.megaAdminProfiles ?? [])
                 .map((e) => e!)
-                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
+                // .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
                 .toList();
       });
     }
