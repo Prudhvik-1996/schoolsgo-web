@@ -25,6 +25,7 @@ Future<void> printReceipts(
   bool isTermWise, {
   bool isAdminCopySelected = false,
   bool isStudentCopySelected = true,
+  bool download = false,
 }) async {
   final pdf = pw.Document();
   final font = await PdfGoogleFonts.merriweatherRegular();
@@ -131,7 +132,10 @@ Future<void> printReceipts(
   final blob = html.Blob([x], 'application/pdf');
   final url = html.Url.createObjectUrlFromBlob(blob);
   html.AnchorElement anchorElement = html.AnchorElement(href: url);
-  anchorElement.download = "Receipts.pdf";
+  anchorElement.target = '_blank';
+  if (download) {
+    anchorElement.download = "Receipts.pdf";
+  }
   anchorElement.click();
 }
 
