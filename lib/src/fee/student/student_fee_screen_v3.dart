@@ -297,7 +297,7 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text("Proceed to download"),
+              child: const Text("Proceed to print"),
               onPressed: () async {
                 if (!isAdminCopySelected && !isStudentCopySelected) {
                   ScaffoldMessenger.of(context).showSnackBar(
