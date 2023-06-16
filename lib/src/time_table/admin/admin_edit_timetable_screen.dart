@@ -334,127 +334,178 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
     );
   }
 
-  DropdownButton<TeacherDealingSection> buildDropdownButtonToPickTDS(Section section, SectionWiseTimeSlotBean timeSlotToBeEdited) {
-    print("338: $section");
-    print("339: $timeSlotToBeEdited");
-    return DropdownButton(
+  DropdownButton<TeacherDealingSection> buildDropdownButtonToPickTDS(
+    Section section,
+    SectionWiseTimeSlotBean timeSlotToBeEdited,
+  ) {
+    return DropdownButton<TeacherDealingSection>(
       underline: Container(),
       isExpanded: true,
-      items: (_tdsList.where((e1) => e1.sectionId == section.sectionId).toList() + [TeacherDealingSection()])
-          .map(
-            (e1) => DropdownMenuItem<TeacherDealingSection>(
-              value: e1,
-              child: Container(
-                width: double.infinity,
-                height: 35,
-                padding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
-                margin: const EdgeInsets.fromLTRB(0, 1, 0, 1),
-                child: ClayContainer(
-                  depth: 40,
-                  color: clayContainerColor(context),
-                  spread: 2,
-                  borderRadius: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 12,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            (e1.subjectName ?? "-").capitalize(),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 12,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            (e1.teacherName ?? "-").capitalize(),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
-          .toList(),
+      items: buildDropdownItems(section, timeSlotToBeEdited),
       onChanged: (TeacherDealingSection? selectedTds) async {
         if (selectedTds?.tdsId == null) {
-          setState(() {
-            timeSlotToBeEdited.teacherId = null;
-            timeSlotToBeEdited.subjectId = null;
-            timeSlotToBeEdited.teacherName = null;
-            timeSlotToBeEdited.subjectName = null;
-            timeSlotToBeEdited.agent = widget.adminProfile.agent;
-            timeSlotToBeEdited.tdsId = null;
-            timeSlotToBeEdited.isEdited = true;
-          });
+          resetTimeSlotToBeEdited(timeSlotToBeEdited);
         } else {
-          String? errorMessage;
-          _sectionWiseTimeSlots
-              .where((e) => e.sectionId != section.sectionId)
-              .where((e) => e.teacherId == selectedTds!.teacherId)
-              .forEach((eachTimeSlot) async {
-            if (eachTimeSlot.tdsId == null) {
-              return;
-            }
-            int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.startTime!, eachTimeSlot.weekId!);
-            int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.endTime!, eachTimeSlot.weekId!);
-            int startTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
-            int endTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
-            if (startTimeForTimeSlotToBeEdited == eachTimeSlotStartTime &&
-                endTimeForTimeSlotToBeEdited == eachTimeSlotEndTime &&
-                selectedTds != null &&
-                eachTimeSlot.subjectId == selectedTds.subjectId) {
-              await alertUserOnMerge(
-                  "Merging Teacher ${selectedTds.teacherName}, with ${eachTimeSlot.sectionName} on subject ${eachTimeSlot.subjectName}");
-              return;
-            } else if (selectedTds != null &&
-                eachTimeSlot.subjectId != selectedTds.subjectId &&
-                ((startTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited < eachTimeSlotEndTime) ||
-                    (endTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited < eachTimeSlotEndTime))) {
-              errorMessage =
-                  "Teacher ${selectedTds.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
-            }
-          });
-
+          final newlySelectedTds = selectedTds!;
+          final errorMessage = await checkTimeSlotConflicts(timeSlotToBeEdited, newlySelectedTds);
           if (errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(errorMessage!),
-              ),
-            );
+            showErrorMessage(errorMessage);
             return;
           }
-
           setState(() {
-            timeSlotToBeEdited.sectionId = selectedTds!.sectionId;
-            timeSlotToBeEdited.teacherId = selectedTds.teacherId;
-            timeSlotToBeEdited.subjectId = selectedTds.subjectId;
-            timeSlotToBeEdited.sectionName = selectedTds.sectionName;
-            timeSlotToBeEdited.teacherName = selectedTds.teacherName;
-            timeSlotToBeEdited.subjectName = selectedTds.subjectName;
-            timeSlotToBeEdited.agent = widget.adminProfile.agent;
-            timeSlotToBeEdited.tdsId = selectedTds.tdsId;
-            timeSlotToBeEdited.isEdited = true;
+            setTimeSlotToBeEdited(timeSlotToBeEdited, newlySelectedTds);
           });
         }
       },
-      value: timeSlotToBeEdited.tdsId == null ? null : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first,
+      value: getTimeSlotValue(timeSlotToBeEdited),
     );
   }
 
+  List<DropdownMenuItem<TeacherDealingSection>> buildDropdownItems(
+    Section section,
+    SectionWiseTimeSlotBean timeSlotToBeEdited,
+  ) {
+    return (_tdsList.where((e1) => e1.sectionId == section.sectionId).toList() + [TeacherDealingSection()])
+        .map((e1) => DropdownMenuItem<TeacherDealingSection>(
+              value: e1,
+              child: buildTdsWidget(e1, timeSlotToBeEdited),
+            ))
+        .toList();
+  }
+
+  Container buildTdsWidget(
+    TeacherDealingSection e1,
+    SectionWiseTimeSlotBean timeSlotToBeEdited,
+  ) {
+    return Container(
+      width: double.infinity,
+      height: 35,
+      padding: const EdgeInsets.all(1),
+      margin: const EdgeInsets.symmetric(vertical: 1),
+      child: ClayContainer(
+        depth: 40,
+        parentColor: clayContainerColor(context),
+        surfaceColor: isTeacherOccupiedElseWhere(e1, timeSlotToBeEdited),
+        spread: 2,
+        borderRadius: 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildFittedText(e1.subjectName ?? "-"),
+            buildFittedText(e1.teacherName ?? "-"),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color? isTeacherOccupiedElseWhere(
+    TeacherDealingSection tdsToCheck,
+    SectionWiseTimeSlotBean timeSlotToBeEdited,
+  ) {
+    for (var eachTimeSlot in _sectionWiseTimeSlots.where((e) => e.sectionId != tdsToCheck.sectionId && e.teacherId == tdsToCheck.teacherId)) {
+      if (eachTimeSlot.tdsId == null) {
+        return clayContainerColor(context);
+      }
+      int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.startTime!, eachTimeSlot.weekId!);
+      int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.endTime!, eachTimeSlot.weekId!);
+      int startTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
+      int endTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
+      if (startTimeForTimeSlotToBeEdited == eachTimeSlotStartTime &&
+          endTimeForTimeSlotToBeEdited == eachTimeSlotEndTime &&
+          eachTimeSlot.subjectId == tdsToCheck.subjectId) {
+        return Colors.red[400];
+      } else if (eachTimeSlot.subjectId != tdsToCheck.subjectId &&
+          ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
+              (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
+        return Colors.red;
+      }
+    }
+    return Colors.blue;
+  }
+
+  Widget buildFittedText(String text) {
+    return SizedBox(
+      height: 12,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          text.capitalize(),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  void resetTimeSlotToBeEdited(SectionWiseTimeSlotBean timeSlotToBeEdited) {
+    setState(() {
+      timeSlotToBeEdited.teacherId = null;
+      timeSlotToBeEdited.subjectId = null;
+      timeSlotToBeEdited.teacherName = null;
+      timeSlotToBeEdited.subjectName = null;
+      timeSlotToBeEdited.agent = widget.adminProfile.agent;
+      timeSlotToBeEdited.tdsId = null;
+      timeSlotToBeEdited.isEdited = true;
+    });
+  }
+
+  Future<String?> checkTimeSlotConflicts(SectionWiseTimeSlotBean timeSlotToBeEdited, TeacherDealingSection selectedTds) async {
+    String? errorMessage;
+    for (var eachTimeSlot
+        in _sectionWiseTimeSlots.where((e) => e.sectionId != selectedTds.sectionId).where((e) => e.teacherId == selectedTds.teacherId)) {
+      if (eachTimeSlot.tdsId == null) {
+        continue;
+      }
+      int eachTimeSlotStartTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.startTime!, eachTimeSlot.weekId!);
+      int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.endTime!, eachTimeSlot.weekId!);
+      int startTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
+      int endTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
+      if (startTimeForTimeSlotToBeEdited == eachTimeSlotStartTime &&
+          endTimeForTimeSlotToBeEdited == eachTimeSlotEndTime &&
+          eachTimeSlot.subjectId == selectedTds.subjectId) {
+        final warningMessage = "Merging Teacher ${selectedTds.teacherName}, with ${eachTimeSlot.sectionName} on subject ${eachTimeSlot.subjectName}";
+        bool proceedMerging = await alertUserOnMerge(warningMessage);
+        errorMessage = proceedMerging == false ? "Aborting merge" : null;
+      } else if (eachTimeSlot.subjectId != selectedTds.subjectId &&
+          ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
+              (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
+        errorMessage =
+            "Teacher ${selectedTds.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
+      }
+    }
+    return errorMessage;
+  }
+
+  void showErrorMessage(String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+      ),
+    );
+  }
+
+  void setTimeSlotToBeEdited(SectionWiseTimeSlotBean timeSlotToBeEdited, TeacherDealingSection selectedTds) {
+    timeSlotToBeEdited.sectionId = selectedTds.sectionId;
+    timeSlotToBeEdited.teacherId = selectedTds.teacherId;
+    timeSlotToBeEdited.subjectId = selectedTds.subjectId;
+    timeSlotToBeEdited.sectionName = selectedTds.sectionName;
+    timeSlotToBeEdited.teacherName = selectedTds.teacherName;
+    timeSlotToBeEdited.subjectName = selectedTds.subjectName;
+    timeSlotToBeEdited.agent = widget.adminProfile.agent;
+    timeSlotToBeEdited.tdsId = selectedTds.tdsId;
+    timeSlotToBeEdited.isEdited = true;
+  }
+
+  TeacherDealingSection? getTimeSlotValue(SectionWiseTimeSlotBean timeSlotToBeEdited) {
+    return timeSlotToBeEdited.tdsId == null ? null : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first;
+  }
+
   Future<bool> alertUserOnMerge(String warningMessage) async {
-    late bool _proceed;
+    bool? _proceed;
     await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Time Table'),
@@ -470,11 +521,21 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
                 });
               },
             ),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() {
+                  _proceed = false;
+                });
+              },
+            ),
           ],
         );
       },
     );
-    return _proceed;
+    return _proceed ?? false;
   }
 
   Widget buildSectionWiseTimeSlotsForAllSelectedSections() {
@@ -816,8 +877,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
                     SliverToBoxAdapter(
                       child: Column(
                         children: [
-                          _sectionPicker(),
-                          // _moreOptions(),
+                          _sectionPicker(), // _moreOptions(),
                         ],
                       ),
                     ),
@@ -861,8 +921,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
               width: 0.5,
             ),
             color: Colors.blue[200],
-          ),
-          // height: 1000,
+          ), // height: 1000,
           // width: 1000,
           child: Column(
               children: [
