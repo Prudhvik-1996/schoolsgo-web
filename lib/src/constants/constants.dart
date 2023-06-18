@@ -175,3 +175,7 @@ const String GET_BUS_WISE_FEES_SUMMARY_REPORT = "/reports/getBusWiseFeesSummaryR
 const String GET_ACADEMIC_PLANNER_TIME_SLOTS = "/academic_planner/getPlannerTimeSlots";
 const String GET_ACADEMIC_PLANNER = "/academic_planner/getPlanner";
 const String CREATE_OR_UPDATE_ACADEMIC_PLANNER = "/academic_planner/createOrUpdatePlanner";
+
+const String GET_TASKS = "/task_manager/getTasks";
+const String CREATE_OR_UPDATE_TASK_COMMENT = "/task_manager/createOrUpdateTaskComment";
+const String CREATE_OR_UPDATE_TASK = "/task_manager/createOrUpdateTask";

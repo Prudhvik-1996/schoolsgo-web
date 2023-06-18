@@ -464,6 +464,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
+        title: "Task Management",
+        routeName: "/task_management",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",
         routeName: "/demo",
         argument: adminProfile,

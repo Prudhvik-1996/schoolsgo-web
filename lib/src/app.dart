@@ -37,6 +37,7 @@ import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
+import 'package:schoolsgo_web/src/task_manager/task_manager_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_dashboard/admin_dashboard.dart';
@@ -807,6 +808,15 @@ class _MyAppState extends State<MyApp> {
             try {
               var argument = (routeSettings.arguments as AdminProfile);
               return AdminAcademicPlannerOptionsScreen(
+                adminProfile: argument,
+              );
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case TaskManagerScreen.routeName:
+            try {
+              var argument = (routeSettings.arguments as AdminProfile);
+              return TaskManagerScreen(
                 adminProfile: argument,
               );
             } catch (e) {
