@@ -470,7 +470,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                     students: widget.students,
                     isEditMode: false,
                   );
-                })),
+                })).then((_) => widget.loadAllData()),
                 child: ClayButton(
                   depth: 15,
                   surfaceColor: clayContainerColor(context),
@@ -493,20 +493,15 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
             const SizedBox(width: 10),
             GestureDetector(
               // onTap: () => widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return StudentCardWidgetV2(
-                      studentProfile: widget.studentProfile,
-                      sections: widget.sections,
-                      adminProfile: widget.adminProfile,
-                      students: widget.students,
-                      isEditMode: true,
-                    );
-                  },
-                ),
-              ),
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return StudentCardWidgetV2(
+                  studentProfile: widget.studentProfile,
+                  sections: widget.sections,
+                  adminProfile: widget.adminProfile,
+                  students: widget.students,
+                  isEditMode: true,
+                );
+              })).then((_) => widget.loadAllData()),
               child: ClayButton(
                 depth: 15,
                 surfaceColor: clayContainerColor(context),

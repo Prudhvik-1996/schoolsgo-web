@@ -79,10 +79,12 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
   }
 
   Future<void> _loadData() async {
+    print("82: ${widget.studentProfile.otherPhoneNumbers}");
     setState(() {
       _isLoading = true;
       _isOtherLoading = false;
       _showFeeDetails = false;
+      additionalMobileNumbers = (widget.studentProfile.otherPhoneNumbers ?? "").split(",").map((e) => AdditionalMobile(e)).toList();
     });
     if (widget.studentProfile.studentId != null && widget.studentProfile.sectionId != null) {
       await loadSectionWiseStudentsFeeMap();
@@ -347,6 +349,14 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
 
   Future<void> saveChanges() async {
     setState(() => _isLoading = true);
+    if ((widget.studentProfile.studentFirstName?.trim() ?? "") == "" || widget.studentProfile.sectionId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Student name and Section name are both mandatory.."),
+        ),
+      );
+      return;
+    }
     CreateOrUpdateStudentProfileRequest createOrUpdateStudentProfileRequest =
         CreateOrUpdateStudentProfileRequest.fromStudentProfile(widget.adminProfile?.userId, widget.studentProfile);
     CreateOrUpdateStudentProfileResponse createOrUpdateStudentProfileResponse =
@@ -413,6 +423,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
               onPressed: () async {
                 setState(() {
                   widget.studentProfile.fromControllers();
+                  widget.studentProfile.otherPhoneNumbers = additionalMobileNumbers.map((e) => e.controller.text).join(",");
                 });
                 if (widget.studentProfile.isModified()) {
                   showDialog(
@@ -542,11 +553,15 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
     );
   }
 
-  Widget detailHeaderWidget(String headerText) {
+  Widget detailHeaderWidget(String headerText, {bool isMandatory = false}) {
     return SizedBox(
       width: 200,
-      child: Text(
-        headerText,
+      child: RichText(
+        text: TextSpan(
+          text: headerText,
+          style: TextStyle(color: isDarkTheme(context) ? Colors.white : Colors.black),
+          children: isMandatory ? [const TextSpan(text: "*", style: TextStyle(color: Colors.red))] : null,
+        ),
         overflow: TextOverflow.clip,
         maxLines: 2,
       ),
@@ -653,6 +668,31 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           ),
         ),
         const SizedBox(width: 10),
+        if (_isEditMode)
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                widget.studentProfile.studentDob = null;
+              });
+            },
+            child: ClayButton(
+              color: clayContainerColor(context),
+              height: 30,
+              width: 30,
+              borderRadius: 50,
+              spread: 2,
+              child: const Padding(
+                padding: EdgeInsets.all(8),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -670,11 +710,13 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           child: RadioListTile<String?>(
             value: "male",
             groupValue: widget.studentProfile.sex,
-            onChanged: !_isEditMode ? null : (String? value) {
-              setState(() {
-                widget.studentProfile.sex = value;
-              });
-            },
+            onChanged: !_isEditMode
+                ? null
+                : (String? value) {
+                    setState(() {
+                      widget.studentProfile.sex = value;
+                    });
+                  },
             title: const SizedBox(
               width: 80,
               child: FittedBox(
@@ -691,11 +733,13 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           child: RadioListTile<String?>(
             value: "female",
             groupValue: widget.studentProfile.sex,
-            onChanged: !_isEditMode ? null : (String? value) {
-              setState(() {
-                widget.studentProfile.sex = value;
-              });
-            },
+            onChanged: !_isEditMode
+                ? null
+                : (String? value) {
+                    setState(() {
+                      widget.studentProfile.sex = value;
+                    });
+                  },
             title: const SizedBox(
               width: 80,
               child: FittedBox(
@@ -717,7 +761,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(width: 10),
-        detailHeaderWidget("Student Name"),
+        detailHeaderWidget("Student Name", isMandatory: true),
         const SizedBox(width: 10),
         SizedBox(
           width: 300,
@@ -800,7 +844,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(width: 10),
-        detailHeaderWidget("Section"),
+        detailHeaderWidget("Section", isMandatory: true),
         const SizedBox(width: 10),
         SizedBox(
           width: 100,
@@ -911,10 +955,8 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
         children: [
           headerWidget("Parent Details"),
           const SizedBox(height: 20),
-          if (_isEditMode)
-            selectSiblingWidget(),
-          if (_isEditMode)
-            const SizedBox(height: 10),
+          if (_isEditMode) selectSiblingWidget(),
+          if (_isEditMode) const SizedBox(height: 10),
           ...fatherDetailsRows(),
           const SizedBox(height: 10),
           ...motherDetailsRows(),
@@ -928,13 +970,20 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
               const SizedBox(width: 10),
               detailHeaderWidget("Additional Mobiles"),
               const SizedBox(width: 10),
-              Column(
-                children: [
-                  ...additionalMobileNumbersRows(),
-                  const SizedBox(height: 10),
-                  addNewMobileNumberRow(),
-                ],
-              ),
+              if (_isEditMode)
+                Column(
+                  children: [
+                    ...additionalMobileNumbersRows(),
+                    const SizedBox(height: 10),
+                    if (!additionalMobileNumbers.map((e) => e.controller.text.trim()).contains("")) addNewMobileNumberRow(),
+                  ],
+                ),
+              if (!_isEditMode)
+                Column(
+                  children: [
+                    ...additionalMobileNumbers.map((e) => Padding(padding: const EdgeInsets.fromLTRB(0, 8, 0, 8), child: Text(e.controller.text)))
+                  ],
+                ),
             ],
           ),
           const SizedBox(height: 10),
@@ -987,6 +1036,10 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                       controller: e.controller,
                       keyboardType: TextInputType.phone,
                       textAlign: TextAlign.left,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                      onChanged: (_) => setState(() => _),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -1093,6 +1146,9 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             controller: widget.studentProfile.phoneController,
             keyboardType: TextInputType.phone,
             textAlign: TextAlign.left,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(10),
+            ],
           ),
         ),
         const SizedBox(width: 10),
@@ -1293,17 +1349,24 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                 enabled: true,
                 mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
                 selectedItem: sibling,
-                items: widget.students,
+                items: widget.students
+                  ..sort((a, b) => (a.sectionId ?? 0).compareTo(b.sectionId ?? 0) == 0
+                      ? (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0)
+                      : (a.sectionId ?? 0).compareTo(b.sectionId ?? 0)),
                 itemAsString: (StudentProfile? e) {
-                  return e == null
-                      ? "-"
-                      : "${e.rollNumber ?? " - "}. ${e.studentFirstName ?? " - "} [${e.sectionName ?? " - "}] [${e.admissionNo ?? " - "}]";
+                  String rollNumber = e?.rollNumber == null ? "" : "${e!.rollNumber}. ";
+                  String studentName = (e?.studentFirstName ?? "-") + " ";
+                  String sectionName = e?.sectionName == null ? "" : "[${e!.sectionName}]";
+                  String admissionNumber = e?.admissionNo == null ? "" : "[${e!.admissionNo}]";
+                  return e == null ? "-" : rollNumber + studentName + sectionName + admissionNumber;
                 },
                 showSearchBox: true,
                 dropdownBuilder: (BuildContext context, StudentProfile? e) {
-                  return Text(e == null
-                      ? "-"
-                      : "${e.rollNumber ?? " - "}. ${e.studentFirstName ?? " - "} [${e.sectionName ?? " - "}] [${e.admissionNo ?? " - "}]");
+                  String rollNumber = e?.rollNumber == null ? "" : "${e!.rollNumber}. ";
+                  String studentName = (e?.studentFirstName ?? "-") + " ";
+                  String sectionName = e?.sectionName == null ? "" : "[${e!.sectionName}]";
+                  String admissionNumber = e?.admissionNo == null ? "" : "[${e!.admissionNo}]";
+                  return Text(e == null ? "-" : rollNumber + studentName + sectionName + admissionNumber);
                 },
                 onChanged: (StudentProfile? selectedSibling) {
                   if (_isLoading) return;
@@ -1419,11 +1482,13 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             child: DropdownButton<String>(
               hint: const Center(child: Text("Select Category")),
               value: CASTE_CATEGORIES.where((e) => e == widget.studentProfile.category).firstOrNull,
-              onChanged: !_isEditMode ? null : (String? category) {
-                setState(() {
-                  widget.studentProfile.category = category;
-                });
-              },
+              onChanged: !_isEditMode
+                  ? null
+                  : (String? category) {
+                      setState(() {
+                        widget.studentProfile.category = category;
+                      });
+                    },
               items: CASTE_CATEGORIES
                   .map(
                     (e) => DropdownMenuItem<String>(
@@ -1660,7 +1725,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(width: 10),
-        detailHeaderWidget("Address For Communication"),
+        detailHeaderWidget("Resident Address"),
         const SizedBox(width: 10),
         SizedBox(
           width: 300,
@@ -1671,13 +1736,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             controller: widget.studentProfile.addressForCommunicationController,
             keyboardType: TextInputType.multiline,
             textAlign: TextAlign.left,
-            onChanged: (String? value) {
-              if ((value ?? "").trim().isNotEmpty) {
-                setState(() {
-                  widget.studentProfile.permanentAddressController.text = value ?? "";
-                });
-              }
-            },
+            onChanged: (_) => setState(() => _),
           ),
         ),
         const SizedBox(width: 10),
@@ -1691,7 +1750,35 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(width: 10),
-        detailHeaderWidget("Permanent Address"),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            detailHeaderWidget("Permanent Address"),
+            const SizedBox(height: 10),
+            if (_isEditMode)
+              SizedBox(
+                width: 180,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                      value: widget.studentProfile.permanentAddressController.text == widget.studentProfile.addressForCommunicationController.text,
+                      onChanged: (bool? isAddressSame) {
+                        if (isAddressSame ?? false) {
+                          setState(() {
+                            widget.studentProfile.permanentAddressController.text = widget.studentProfile.addressForCommunicationController.text;
+                          });
+                        }
+                      },
+                    ),
+                    const Expanded(child: Text("Same as Resident Address")),
+                  ],
+                ),
+              ),
+          ],
+        ),
         const SizedBox(width: 10),
         SizedBox(
           width: 300,
@@ -1702,6 +1789,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             controller: widget.studentProfile.permanentAddressController,
             keyboardType: TextInputType.multiline,
             textAlign: TextAlign.left,
+            onChanged: (_) => setState(() => _),
           ),
         ),
         const SizedBox(width: 10),
@@ -1745,6 +1833,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
     for (var v in v) {
       arr0.add(v.toJson());
     }
+    print("1777: ${jsonEncode(arr0)}");
     setState(() => widget.studentProfile.previousSchoolRecords = jsonEncode(arr0));
   }
 
@@ -1819,34 +1908,36 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             child: DropdownButton<StudentStatus>(
               hint: const Center(child: Text("Select Category")),
               value: StudentStatus.values.where((e) => e.name == widget.studentProfile.studentStatus).firstOrNull,
-              onChanged: !_isEditMode ? null : (StudentStatus? status) {
-                setState(() {
-                  widget.studentProfile.studentStatus = status?.name;
-                });
-              },
+              onChanged: !_isEditMode
+                  ? null
+                  : (StudentStatus? status) {
+                      setState(() {
+                        widget.studentProfile.studentStatus = status?.name;
+                      });
+                    },
               items: StudentStatus.values
                   .map(
                     (e) => DropdownMenuItem<StudentStatus>(
-                  value: e,
-                  child: SizedBox(
-                    width: 75,
-                    height: 50,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text(
-                          e.description,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
+                      value: e,
+                      child: SizedBox(
+                        width: 75,
+                        height: 50,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(
+                              e.description,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              )
+                  )
                   .toList(),
             ),
           ),
@@ -2410,22 +2501,22 @@ class _SchoolRecordsTableState extends State<SchoolRecordsTable> {
   void addRecord() {
     setState(() {
       widget.records.add(PreviousSchoolRecord('', '', ''));
+      widget.setPreviousSchoolRecords(widget.records);
     });
-    widget.setPreviousSchoolRecords(widget.records);
   }
 
   void deleteRecord(int index) {
     setState(() {
       widget.records.removeAt(index);
+      widget.setPreviousSchoolRecords(widget.records);
     });
-    widget.setPreviousSchoolRecords(widget.records);
   }
 
   void updateRecord(int index, PreviousSchoolRecord record) {
     setState(() {
       widget.records[index] = record;
+      widget.setPreviousSchoolRecords(widget.records);
     });
-    widget.setPreviousSchoolRecords(widget.records);
   }
 
   @override
@@ -2454,21 +2545,30 @@ class _SchoolRecordsTableState extends State<SchoolRecordsTable> {
                         TextFormField(
                           enabled: widget.isEditMode,
                           initialValue: widget.records[index].schoolName,
-                          onChanged: (value) => widget.records[index].schoolName = value,
+                          onChanged: (value) => setState(() {
+                            widget.records[index].schoolName = value;
+                            widget.setPreviousSchoolRecords(widget.records);
+                          }),
                         ),
                       ),
                       DataCell(
                         TextFormField(
                           enabled: widget.isEditMode,
                           initialValue: widget.records[index].yearsOfStudy,
-                          onChanged: (value) => widget.records[index].yearsOfStudy = value,
+                          onChanged: (value) => setState(() {
+                            widget.records[index].yearsOfStudy = value;
+                            widget.setPreviousSchoolRecords(widget.records);
+                          }),
                         ),
                       ),
                       DataCell(
                         TextFormField(
                           enabled: widget.isEditMode,
                           initialValue: widget.records[index].classPassed,
-                          onChanged: (value) => widget.records[index].classPassed = value,
+                          onChanged: (value) => setState(() {
+                            widget.records[index].classPassed = value;
+                            widget.setPreviousSchoolRecords(widget.records);
+                          }),
                         ),
                       ),
                       if (widget.isEditMode)
@@ -2485,7 +2585,11 @@ class _SchoolRecordsTableState extends State<SchoolRecordsTable> {
           ),
         ),
         const SizedBox(height: 10),
-        if (widget.isEditMode)
+        if (widget.isEditMode &&
+            !(widget.records.isNotEmpty &&
+                (widget.records.last.schoolName?.trim() ?? "") == "" &&
+                (widget.records.last.yearsOfStudy?.trim() ?? "") == "" &&
+                (widget.records.last.classPassed?.trim() ?? "") == ""))
           GestureDetector(
             onTap: addRecord,
             child: ClayButton(
