@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -474,10 +473,12 @@ class StudentFeeReceipt {
   String? studentName;
   String? transactionDate;
   int? transactionId;
+  String? comments;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController newReceiptNumberController = TextEditingController();
   TextEditingController reasonToDeleteTextController = TextEditingController();
+  TextEditingController commentsController = TextEditingController();
 
   StudentFeeReceipt({
     this.busFeePaid,
@@ -491,6 +492,7 @@ class StudentFeeReceipt {
     this.studentName,
     this.transactionDate,
     this.transactionId,
+    this.comments,
   }) {
     newReceiptNumberController.text = "${receiptNumber ?? ""}";
   }
@@ -516,6 +518,7 @@ class StudentFeeReceipt {
     studentName = json['studentName']?.toString();
     transactionDate = json['transactionDate']?.toString();
     transactionId = json['transactionId']?.toInt();
+    comments = json['comments']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -538,6 +541,7 @@ class StudentFeeReceipt {
     data['studentName'] = studentName;
     data['transactionDate'] = transactionDate;
     data['transactionId'] = transactionId;
+    data['comments'] = comments;
     return data;
   }
 
@@ -625,6 +629,8 @@ class StudentFeeReceipt {
                       margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                       child: receiptTotalWidget(),
                     ),
+                    if (!isEditMode && comments != null) const SizedBox(height: 10),
+                    commentsWidget(),
                     const SizedBox(height: 10),
                   ],
                 ),
@@ -643,6 +649,23 @@ class StudentFeeReceipt {
       ),
     );
   }
+
+  Widget commentsWidget() => !isEditMode && comments == null
+      ? Container()
+      : Row(
+          children: [
+            const SizedBox(width: 10),
+            Expanded(
+              child: !isEditMode
+                  ? SelectableText("Comments: ${comments ?? "-"}")
+                  : TextFormField(
+                      initialValue: comments,
+                      onChanged: (String newValue) => comments = newValue,
+                    ),
+            ),
+            const SizedBox(width: 10),
+          ],
+        ); // TODO
 
   int getTotalAmountForReceipt() {
     int busFee = busFeePaid ?? 0;
@@ -838,10 +861,12 @@ class StudentFeeReceipt {
     isLoading = true;
     if (setState != null) setState(() {});
     if (receiptNumber != StudentFeeReceipt.fromJson(origJson()).receiptNumber ||
-        transactionDate != StudentFeeReceipt.fromJson(origJson()).transactionDate) {
+        transactionDate != StudentFeeReceipt.fromJson(origJson()).transactionDate ||
+        comments != StudentFeeReceipt.fromJson(origJson()).comments) {
       UpdateReceiptResponse updateReceiptResponse = await updateReceipt(UpdateReceiptRequest(
         transactionId: transactionId,
         receiptId: receiptNumber,
+        comments: comments,
         date: transactionDate,
         agent: adminId,
         schoolId: schoolId,
@@ -1240,6 +1265,7 @@ class NewReceipt {
   List<NewReceiptSubBean?>? subBeans;
   int? busFeePaidAmount;
   String? modeOfPayment;
+  String? comments;
   Map<String, dynamic> __origJson = {};
 
   String status = "inactive";
@@ -1248,6 +1274,8 @@ class NewReceipt {
 
   bool isBusChecked = false;
   TextEditingController busFeePayingController = TextEditingController();
+
+  TextEditingController commentsController = TextEditingController();
 
   NewReceipt({
     this.agentId,
@@ -1259,9 +1287,11 @@ class NewReceipt {
     this.subBeans,
     this.busFeePaidAmount,
     this.modeOfPayment,
+    this.comments,
   }) {
     receiptNumberController.text = "${receiptNumber ?? ""}";
     busFeePayingController.text = "${busFeePaidAmount ?? ""}";
+    commentsController.text = comments ?? "";
   }
 
   NewReceipt.fromJson(Map<String, dynamic> json) {
@@ -1283,6 +1313,7 @@ class NewReceipt {
     }
     busFeePaidAmount = json['busFeePaidAmount']?.toInt();
     modeOfPayment = json['modeOfPayment']?.toString();
+    comments = json['comments']?.toString();
   }
 
   TextEditingController receiptNumberController = TextEditingController();
@@ -1305,6 +1336,7 @@ class NewReceipt {
     }
     data['busFeePaidAmount'] = busFeePaidAmount;
     data['modeOfPayment'] = modeOfPayment;
+    data['comments'] = comments;
     return data;
   }
 

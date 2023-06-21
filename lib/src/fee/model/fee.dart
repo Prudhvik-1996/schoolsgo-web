@@ -4046,6 +4046,7 @@ class NewReceiptBean {
   List<NewReceiptBeanSubBean?>? subBeans;
   int? busFeePaidAmount;
   String? modeOfPayment;
+  String? comments;
   Map<String, dynamic> __origJson = {};
 
   NewReceiptBean({
@@ -4058,6 +4059,7 @@ class NewReceiptBean {
     this.subBeans,
     this.busFeePaidAmount,
     this.modeOfPayment,
+    this.comments,
   });
 
   NewReceiptBean.fromJson(Map<String, dynamic> json) {
@@ -4078,6 +4080,7 @@ class NewReceiptBean {
     }
     busFeePaidAmount = json['busFeePaidAmount']?.toInt();
     modeOfPayment = json['modeOfPayment']?.toString();
+    comments = json['comments']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -4098,6 +4101,7 @@ class NewReceiptBean {
     }
     data['busFeePaidAmount'] = busFeePaidAmount;
     data['modeOfPayment'] = modeOfPayment;
+    data['comments'] = comments;
     return data;
   }
 
@@ -4796,6 +4800,7 @@ class UpdateReceiptRequest {
   int? agent;
   String? date;
   int? receiptId;
+  String? comments;
   int? schoolId;
   int? transactionId;
   Map<String, dynamic> __origJson = {};
@@ -4804,6 +4809,7 @@ class UpdateReceiptRequest {
     this.agent,
     this.date,
     this.receiptId,
+    this.comments,
     this.schoolId,
     this.transactionId,
   });
@@ -4813,6 +4819,7 @@ class UpdateReceiptRequest {
     agent = json['agent']?.toInt();
     date = json['date']?.toString();
     receiptId = json['receiptId']?.toInt();
+    comments = json['comments']?.toString();
     schoolId = json['schoolId']?.toInt();
     transactionId = json['transactionId']?.toInt();
   }
@@ -4822,6 +4829,7 @@ class UpdateReceiptRequest {
     data['agent'] = agent;
     data['date'] = date;
     data['receiptId'] = receiptId;
+    data['comments'] = comments;
     data['schoolId'] = schoolId;
     data['transactionId'] = transactionId;
     return data;

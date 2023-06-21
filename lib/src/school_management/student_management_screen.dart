@@ -393,7 +393,9 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                 // StudentCardWidgetV2
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return StudentCardWidgetV2(
-                    studentProfile: newStudent,
+                    studentProfile: newStudent
+                      ..sectionId = selectedSection?.sectionId
+                      ..sectionName = selectedSection?.sectionName,
                     sections: sectionsList,
                     adminProfile: widget.adminProfile,
                     students: studentProfiles,

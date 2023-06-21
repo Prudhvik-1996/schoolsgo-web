@@ -20,8 +20,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
-import 'admin_student_fee_management_screen.dart';
-
 class NewStudentFeeReceiptWidget extends StatefulWidget {
   const NewStudentFeeReceiptWidget({
     Key? key,
@@ -193,7 +191,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
               .toList();
         }
       });
-      widget.setState(() {});
+      setSuperState();
     }
     setState(() {
       _isLoading = false;
@@ -275,6 +273,8 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                     ],
                   ),
                   const SizedBox(height: 20),
+                  _guardianNameWidget(),
+                  const SizedBox(height: 20),
                   ...feeToBePaidBeans(),
                   const SizedBox(height: 10),
                   if (widget.newReceipt.studentId != null &&
@@ -285,7 +285,10 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                       ((widget.newReceipt.studentAnnualFeeBean?.studentBusFeeBean?.fare ?? 0) >
                           (widget.newReceipt.studentAnnualFeeBean?.studentBusFeeBean?.feePaid ?? 0)))
                     const SizedBox(height: 10),
+                  if (widget.newReceipt.studentId != null) const SizedBox(height: 20),
                   if (widget.newReceipt.studentId != null) totalFeePayingWidget(),
+                  if (widget.newReceipt.studentId != null) const SizedBox(height: 20),
+                  _commentsWidget(),
                   if (widget.newReceipt.studentId != null)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -314,18 +317,60 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
     );
   }
 
+  Widget _commentsWidget() {
+    if (widget.newReceipt.studentId == null) return Container();
+    return Row(
+      children: [
+        const SizedBox(width: 10),
+        const Text("Comments:"),
+        const SizedBox(width: 10),
+        Expanded(
+          child: TextFormField(
+            controller: widget.newReceipt.commentsController,
+            onChanged: (String? newValue) {
+              setState(() => widget.newReceipt.comments = newValue);
+              setSuperState();
+            },
+          ),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  }
+
+  Widget _guardianNameWidget() {
+    if (widget.newReceipt.studentId == null) return Container();
+    String parentName = widget.studentProfiles.where((e) => e.studentId == widget.newReceipt.studentId).firstOrNull?.gaurdianFirstName?.trim() ?? "";
+    if (parentName == "") return Container();
+    return Row(
+      children: [
+        const SizedBox(width: 10),
+        const Text("Parent Name:", style: TextStyle(color: Colors.blue)),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: Text(parentName),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  }
+
   Widget totalFeePayingWidget() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
+        const SizedBox(width: 10),
         const Expanded(
           child: Text("Total Fee Paying:"),
         ),
+        const SizedBox(width: 10),
         Text(
           "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeePaying() / 100)} /-",
-        )
+        ),
+        const SizedBox(width: 10),
       ],
     );
   }
@@ -360,7 +405,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                 ))
             .toList();
         widget.newReceipt.status = "active";
-        widget.setState(() {});
+        setSuperState();
       },
       child: ClayButton(
         surfaceColor: clayContainerColor(context),
@@ -373,6 +418,8 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
       ),
     );
   }
+
+  setSuperState() => widget.setState(() {});
 
   Widget buildBusFeePayableWidget() {
     return Row(
@@ -629,7 +676,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                     onPressed: () {
                       Navigator.pop(context);
                       setState(() => widget.newReceipt.status = "deleted");
-                      widget.setState(() {});
+                      setSuperState();
                     },
                     child: const Text("YES"),
                   ),

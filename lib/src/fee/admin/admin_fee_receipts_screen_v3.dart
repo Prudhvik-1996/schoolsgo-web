@@ -578,6 +578,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                   .toList(),
               busFeePaidAmount: eachNewReceipt.busFeePaidAmount,
               modeOfPayment: eachNewReceipt.modeOfPayment,
+              comments: eachNewReceipt.comments,
             ))
         .toList();
     if (newReceiptsToBePaid.isEmpty) {
