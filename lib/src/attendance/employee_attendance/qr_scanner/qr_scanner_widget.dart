@@ -42,7 +42,7 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
       agent: widget.employeeAttendanceBean.employeeId,
       status: "active",
       attendanceId: null,
-      clockedIn: true,
+      clockedIn: scannedClockInMode,
       clockedTime: scannedMillis,
       comment: null,
       employeeId: widget.employeeAttendanceBean.employeeId,
@@ -193,6 +193,15 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
   int? get scannedMillis {
     try {
       return int.parse((scannedQrCodeData?.split("|") ?? [])[1]);
+    } on Exception catch (e, st) {
+      debugPrintStack(stackTrace: st);
+      return null;
+    }
+  }
+
+  bool? get scannedClockInMode {
+    try {
+      return (scannedQrCodeData?.split("|") ?? [])[2] == "true";
     } on Exception catch (e, st) {
       debugPrintStack(stackTrace: st);
       return null;

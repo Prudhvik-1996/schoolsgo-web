@@ -111,11 +111,15 @@ class DateWiseEmployeeAttendanceDetailsBean {
 class DateWiseEmployeeAttendanceBean {
   String? date;
   List<DateWiseEmployeeAttendanceDetailsBean?>? dateWiseEmployeeAttendanceDetailsBeans;
+  int? employeeId;
+  String? isPresent;
   Map<String, dynamic> __origJson = {};
 
   DateWiseEmployeeAttendanceBean({
     this.date,
     this.dateWiseEmployeeAttendanceDetailsBeans,
+    this.employeeId,
+    this.isPresent,
   });
 
   DateWiseEmployeeAttendanceBean.fromJson(Map<String, dynamic> json) {
@@ -129,6 +133,8 @@ class DateWiseEmployeeAttendanceBean {
       });
       dateWiseEmployeeAttendanceDetailsBeans = arr0;
     }
+    employeeId = json['employeeId']?.toInt();
+    isPresent = json['isPresent']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -142,6 +148,8 @@ class DateWiseEmployeeAttendanceBean {
       });
       data['dateWiseEmployeeAttendanceDetailsBeans'] = arr0;
     }
+    data['employeeId'] = employeeId;
+    data['isPresent'] = isPresent;
     return data;
   }
 

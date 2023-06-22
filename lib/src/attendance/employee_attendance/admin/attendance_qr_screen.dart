@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_widget.dart';
 import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/employee_wise_attendance_detail_widget.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/employee_wise_daily_attendance_stats_screen.dart';
 import 'package:schoolsgo_web/src/attendance/employee_attendance/model/employee_attendance.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -21,8 +22,6 @@ class EmployeeAttendanceQRScreen extends StatefulWidget {
 
 class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen> {
   bool isLoading = true;
-  Timer? _timer;
-  final int _refreshInterval = 10;
 
   bool showEmployees = false;
   bool showOnlyAbsentees = false;
@@ -31,14 +30,7 @@ class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen>
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: _refreshInterval), (_) => _loadData());
     _loadData();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -62,6 +54,18 @@ class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen>
     setState(() => isLoading = false);
   }
 
+  handleMoreOptions(choice) {
+    switch (choice) {
+      case "Date wise Stats":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return EmployeeWiseDailyAttendanceStatsScreen(
+            adminProfile: widget.adminProfile,
+            employees: employeeAttendanceBeanList,
+          );
+        })).then((_) => _loadData());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +87,19 @@ class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen>
                 icon: !showOnlyAbsentees ? const Icon(Icons.filter_alt) : const Icon(Icons.filter_alt_off),
               ),
             ),
+          PopupMenuButton<String>(
+            onSelected: (String choice) async => await handleMoreOptions(choice),
+            itemBuilder: (BuildContext context) {
+              return {
+                "Date wise Stats",
+              }.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
         ],
       ),
       body: isLoading
@@ -95,9 +112,7 @@ class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen>
             )
           : !showEmployees
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: ListView(
                     children: [
                       const SizedBox(height: 20),
                       AttendanceQRWidget(adminProfile: widget.adminProfile),
@@ -108,37 +123,38 @@ class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen>
                   ),
                 )
               : MediaQuery.of(context).orientation == Orientation.portrait
-                  ? Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                  ? ListView(
                       children: [
                         const SizedBox(height: 20),
                         AttendanceQRWidget(adminProfile: widget.adminProfile),
                         const SizedBox(height: 20),
                         descriptionWidget(),
                         const SizedBox(height: 20),
-                        Expanded(
-                          child: employeeAttendanceListWidget(),
-                        ),
+                        ...employeeAttendanceListWidget(),
                       ],
                     )
                   : Row(
                       children: [
                         const SizedBox(width: 20),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 20),
-                            Expanded(child: AttendanceQRWidget(adminProfile: widget.adminProfile)),
-                            const SizedBox(height: 20),
-                            descriptionWidget(),
-                            const SizedBox(height: 20),
-                          ],
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 3,
+                          child: ListView(
+                            children: [
+                              const SizedBox(height: 20),
+                              AttendanceQRWidget(adminProfile: widget.adminProfile),
+                              const SizedBox(height: 20),
+                              descriptionWidget(),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 20),
                         Expanded(
-                          child: employeeAttendanceListWidget(),
+                          child: ListView(
+                            children: [
+                              ...employeeAttendanceListWidget(),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 20),
                       ],
@@ -146,23 +162,19 @@ class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen>
     );
   }
 
-  ListView employeeAttendanceListWidget() {
-    return ListView(
-      children: [
-        ...employeeAttendanceBeanList
-            .where((e) =>
-                (showOnlyAbsentees &&
-                    (e.dateWiseEmployeeAttendanceBeanList ?? []).where((e) => e?.date == convertDateTimeToYYYYMMDDFormat(DateTime.now())).isEmpty) ||
-                !showOnlyAbsentees)
-            .map(
-              (e) => EmployeeWiseAttendanceDetailWidget(
-                employeeAttendanceBean: e,
-                selectedDate: DateTime.now(),
-                loadData: () => _loadData(),
-              ),
-            ),
-      ],
-    );
+  Iterable<Widget> employeeAttendanceListWidget() {
+    return employeeAttendanceBeanList
+        .where((e) =>
+            (showOnlyAbsentees &&
+                (e.dateWiseEmployeeAttendanceBeanList ?? []).where((e) => e?.date == convertDateTimeToYYYYMMDDFormat(DateTime.now())).isEmpty) ||
+            !showOnlyAbsentees)
+        .map(
+          (e) => EmployeeWiseAttendanceDetailWidget(
+            employeeAttendanceBean: e,
+            selectedDate: DateTime.now(),
+            loadData: () => _loadData(),
+          ),
+        );
   }
 
   Widget descriptionWidget() {
