@@ -1,30 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
+import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_screen.dart';
+import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/school_management/employees_management_screen.dart';
-import 'package:schoolsgo_web/src/school_management/student_management_screen.dart';
-import 'package:schoolsgo_web/src/school_management/student_section_migration_screen.dart';
 
-class SchoolManagementOptionsScreen extends StatefulWidget {
-  const SchoolManagementOptionsScreen({
+class TeacherAttendanceOptionsScreen extends StatefulWidget {
+  const TeacherAttendanceOptionsScreen({
     Key? key,
-    required this.adminProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
-
-  static const routeName = "/school_management";
+  final TeacherProfile teacherProfile;
 
   @override
-  State<SchoolManagementOptionsScreen> createState() => _SchoolManagementOptionsScreenState();
+  State<TeacherAttendanceOptionsScreen> createState() => _TeacherAttendanceOptionsScreenState();
 }
 
-class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsScreen> {
-
-  Widget _getStudentManagementOption(String title, String? description, StatefulWidget nextWidget) {
+class _TeacherAttendanceOptionsScreenState extends State<TeacherAttendanceOptionsScreen> {
+  Widget _getAttendanceOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -88,43 +83,33 @@ class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsS
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("School Management"),
+        title: const Text("Attendance"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
+      drawer: TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile,
       ),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        primary: false,
+      body: Stack(
         children: <Widget>[
-          _getStudentManagementOption(
-            "Student Management",
-            null,
-            StudentManagementScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getStudentManagementOption(
-            "Student Section Migration",
-            null,
-            StudentSectionMigrationScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getStudentManagementOption(
-            "Employees Management",
-            null,
-            EmployeesManagementScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getStudentManagementOption(
-            "Employees Attendance",
-            null,
-            EmployeeAttendanceQRScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
+          ListView(
+            padding: EdgeInsets.zero,
+            primary: false,
+            children: <Widget>[
+              _getAttendanceOption(
+                "Student Attendance",
+                null,
+                TeacherAttendanceTimeslots(
+                  teacherProfile: widget.teacherProfile,
+                ),
+              ),
+              _getAttendanceOption(
+                "Employee Attendance",
+                null,
+                TeacherAttendanceScreen(
+                  teacherProfile: widget.teacherProfile,
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );

@@ -110,6 +110,8 @@ dependencies:
   excel: ^2.0.0
 #  syncfusion_flutter_calendar: ^20.4.54
 
+  mobile_scanner: ^1.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

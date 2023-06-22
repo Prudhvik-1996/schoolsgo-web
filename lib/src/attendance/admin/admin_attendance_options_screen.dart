@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -34,8 +35,7 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
           spread: 1,
           borderRadius: 10,
           child: Container(
-            padding: const EdgeInsets.all(10),
-            // margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10), // margin: const EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -104,6 +104,13 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
                 "Mark Attendance",
                 null,
                 AdminMarkStudentAttendanceScreen(
+                  adminProfile: widget.adminProfile,
+                ),
+              ),
+              _getAttendanceOption(
+                "Employees Attendance",
+                null,
+                EmployeeAttendanceQRScreen(
                   adminProfile: widget.adminProfile,
                 ),
               ),
