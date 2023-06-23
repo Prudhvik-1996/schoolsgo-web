@@ -36,8 +36,8 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
 
   Future<void> clockAttendance() async {
     setState(() => updatingAttendance = true);
-    CreateOrUpdateEmployeeAttendanceResponse createOrUpdateEmployeeAttendanceResponse =
-        await createOrUpdateEmployeeAttendance(CreateOrUpdateEmployeeAttendanceRequest(
+    CreateOrUpdateEmployeeAttendanceClockResponse createOrUpdateEmployeeAttendanceClockResponse =
+        await createOrUpdateEmployeeAttendanceClock(CreateOrUpdateEmployeeAttendanceClockRequest(
       schoolId: widget.employeeAttendanceBean.schoolId,
       agent: widget.employeeAttendanceBean.employeeId,
       status: "active",
@@ -49,7 +49,8 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
       latitude: null,
       longitude: null,
     ));
-    if (createOrUpdateEmployeeAttendanceResponse.httpStatus != "OK" || createOrUpdateEmployeeAttendanceResponse.responseStatus != "success") {
+    if (createOrUpdateEmployeeAttendanceClockResponse.httpStatus != "OK" ||
+        createOrUpdateEmployeeAttendanceClockResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong! Try again later.."),

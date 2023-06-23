@@ -21,28 +21,158 @@ class EmployeeWiseDailyAttendanceStatsScreen extends StatefulWidget {
 }
 
 class _EmployeeWiseDailyAttendanceStatsScreenState extends State<EmployeeWiseDailyAttendanceStatsScreen> {
-  DateTime selectedDate = DateTime.now();
+  late DateTime selectedDate;
+
+  bool isEditMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setNewDate(DateTime.now());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Date wise stats"),
+        actions: [
+          IconButton(onPressed: () => setState(() => isEditMode = !isEditMode), icon: isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit)),
+        ],
       ),
       body: ListView(
         children: [
           const SizedBox(width: 20),
           datePickerRow(),
           const SizedBox(width: 20),
+          if (isEditMode) const SizedBox(width: 20),
+          if (isEditMode) editModeInstructionsWidget(),
           EmployeeWiseStatsForDateTable(
             selectedDate: selectedDate,
             employees: widget.employees,
             context: context,
+            isEditMode: isEditMode,
+            attendanceMarkerWidget: attendanceMarkerWidget,
           ),
         ],
       ),
     );
   }
+
+  Widget attendanceMarkerWidget(String attendanceStatus, DateWiseEmployeeAttendanceBean employeeAttendanceBean) {
+    return GestureDetector(
+      onTap: () {
+        print("59: ${employeeAttendanceBean.isPresent} == $attendanceStatus");
+        if (employeeAttendanceBean.isPresent == attendanceStatus) {
+          employeeAttendanceBean.isPresent = "-";
+        }
+        switch (attendanceStatus) {
+          case "P":
+            setState(() => employeeAttendanceBean.isPresent = "P");
+            return;
+          case "A":
+            setState(() => employeeAttendanceBean.isPresent = "A");
+            return;
+          case "H":
+            setState(() => employeeAttendanceBean.isPresent = "H");
+            return;
+          case "L":
+            setState(() => employeeAttendanceBean.isPresent = "L");
+            return;
+          default:
+            setState(() => employeeAttendanceBean.isPresent = "-");
+            return;
+        }
+      },
+      child: ClayButton(
+        depth: 40,
+        surfaceColor: employeeAttendanceBean.isPresent == attendanceStatus ? Colors.grey : clayContainerColor(context),
+        parentColor: employeeAttendanceBean.isPresent == attendanceStatus ? Colors.grey : clayContainerColor(context),
+        spread: 1,
+        borderRadius: 100,
+        child: Container(
+          margin: const EdgeInsets.all(3),
+          child: SizedBox(
+            height: 12,
+            width: 12,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: attendanceStatusIconWidget(attendanceStatus),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget editModeInstructionsWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(width: 10),
+        attendanceStatusWidget("P"),
+        const SizedBox(width: 10),
+        attendanceStatusWidget("A"),
+        const SizedBox(width: 10),
+        attendanceStatusWidget("H"),
+        const SizedBox(width: 10),
+        attendanceStatusWidget("L"),
+        const SizedBox(width: 10),
+        attendanceStatusWidget("-"),
+        const SizedBox(width: 10),
+      ],
+    );
+  }
+
+  Widget attendanceStatusWidget(String attendanceStatus) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 5),
+        attendanceStatusIconWidget(attendanceStatus),
+        const SizedBox(height: 5),
+        attendanceStatusDescription(attendanceStatus),
+        const SizedBox(height: 5),
+      ],
+    );
+  }
+
+  Widget attendanceStatusIconWidget(String? status) {
+    switch (status) {
+      case "P":
+        return const Icon(Icons.check, color: Colors.green);
+      case "A":
+        return const Icon(Icons.clear, color: Colors.red);
+      case "H":
+        return const Icon(Icons.check, color: Colors.blue);
+      case "L":
+        return const Icon(Icons.clear, color: Colors.blue);
+      default:
+        return const Center(child: Text("-"));
+    }
+  }
+
+  Widget attendanceStatusDescription(String? status) {
+    switch (status) {
+      case "P":
+        return paddedText("Present");
+      case "A":
+        return paddedText("Absent");
+      case "H":
+        return paddedText("Half day");
+      case "L":
+        return paddedText("Leave");
+      default:
+        return paddedText("Not Marked");
+    }
+  }
+
+  Widget paddedText(String? value) => Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: Text(value ?? "-", style: const TextStyle(fontSize: 9)),
+      );
 
   Widget datePickerRow() {
     return Row(
@@ -60,12 +190,33 @@ class _EmployeeWiseDailyAttendanceStatsScreenState extends State<EmployeeWiseDai
     );
   }
 
+  void setNewDate(DateTime _newDate) {
+    setState(() {
+      selectedDate = _newDate;
+    });
+    widget.employees.forEach((employee) {
+      if (employee.dateWiseEmployeeAttendanceBeanList?.where((e) => e?.date == convertDateTimeToYYYYMMDDFormat(selectedDate)).firstOrNull != null) {
+        return;
+      } else {
+        setState(() {
+          employee.dateWiseEmployeeAttendanceBeanList ??= [];
+          employee.dateWiseEmployeeAttendanceBeanList!.add(DateWiseEmployeeAttendanceBean(
+            employeeId: employee.employeeId,
+            date: convertDateTimeToYYYYMMDDFormat(selectedDate),
+            isPresent: "-",
+          ));
+        });
+      }
+    });
+  }
+
   Widget getDatePickerWidget() {
     return Container(
       margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
       child: GestureDetector(
         onTap: () async {
+          if (isEditMode) return;
           DateTime? _newDate = await showDatePicker(
             context: context,
             initialDate: selectedDate,
@@ -74,9 +225,7 @@ class _EmployeeWiseDailyAttendanceStatsScreenState extends State<EmployeeWiseDai
             helpText: "Select a date",
           );
           if (_newDate == null) return;
-          setState(() {
-            selectedDate = _newDate;
-          });
+          setNewDate(_newDate);
         },
         child: ClayButton(
           depth: 40,
@@ -126,10 +275,9 @@ class _EmployeeWiseDailyAttendanceStatsScreenState extends State<EmployeeWiseDai
         message: "Previous Day",
         child: GestureDetector(
           onTap: () {
+            if (isEditMode) return;
             if (selectedDate.millisecondsSinceEpoch == DateTime.now().subtract(const Duration(days: 364)).millisecondsSinceEpoch) return;
-            setState(() {
-              selectedDate = selectedDate.subtract(const Duration(days: 1));
-            });
+            setNewDate(selectedDate.subtract(const Duration(days: 1)));
           },
           child: ClayButton(
             color: clayContainerColor(context),
@@ -151,10 +299,9 @@ class _EmployeeWiseDailyAttendanceStatsScreenState extends State<EmployeeWiseDai
         message: "Next Day",
         child: GestureDetector(
           onTap: () {
+            if (isEditMode) return;
             if (convertDateTimeToYYYYMMDDFormat(selectedDate) == convertDateTimeToYYYYMMDDFormat(null)) return;
-            setState(() {
-              selectedDate = selectedDate.add(const Duration(days: 1));
-            });
+            setNewDate(selectedDate.add(const Duration(days: 1)));
           },
           child: ClayButton(
             color: clayContainerColor(context),
@@ -171,16 +318,59 @@ class _EmployeeWiseDailyAttendanceStatsScreenState extends State<EmployeeWiseDai
 }
 
 class EmployeeWiseStatsForDateTable extends StatelessWidget {
-  const EmployeeWiseStatsForDateTable({
-    Key? key,
-    required this.employees,
-    required this.selectedDate,
-    required this.context,
-  }) : super(key: key);
+  const EmployeeWiseStatsForDateTable(
+      {Key? key,
+      required this.employees,
+      required this.selectedDate,
+      required this.context,
+      required this.isEditMode,
+      required this.attendanceMarkerWidget})
+      : super(key: key);
 
   final List<EmployeeAttendanceBean> employees;
   final DateTime selectedDate;
   final BuildContext context;
+  final bool isEditMode;
+  final Function attendanceMarkerWidget;
+
+  Widget attendanceControls(DateWiseEmployeeAttendanceBean dateWiseEmployeeAttendanceBean) {
+    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              attendanceMarkerWidget("P", dateWiseEmployeeAttendanceBean),
+              attendanceMarkerWidget("A", dateWiseEmployeeAttendanceBean),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              attendanceMarkerWidget("H", dateWiseEmployeeAttendanceBean),
+              attendanceMarkerWidget("L", dateWiseEmployeeAttendanceBean),
+            ],
+          ),
+        ],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          attendanceMarkerWidget("P", dateWiseEmployeeAttendanceBean),
+          attendanceMarkerWidget("A", dateWiseEmployeeAttendanceBean),
+          attendanceMarkerWidget("H", dateWiseEmployeeAttendanceBean),
+          attendanceMarkerWidget("L", dateWiseEmployeeAttendanceBean),
+        ],
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -197,14 +387,14 @@ class EmployeeWiseStatsForDateTable extends StatelessWidget {
             ),
             verticalDivider(),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: MediaQuery.of(context).orientation == Orientation.landscape
                   ? paddedText("Attendance")
                   : const Center(child: Icon(Icons.paste_rounded)),
             ),
             verticalDivider(),
             Expanded(
-              flex: 6,
+              flex: 5,
               child: paddedText("Clocks"),
             ),
             verticalDivider(),
@@ -213,8 +403,10 @@ class EmployeeWiseStatsForDateTable extends StatelessWidget {
         divider(),
         ...employees.map((employee) {
           ScrollController clocksController = ScrollController();
-          DateWiseEmployeeAttendanceBean? dateWiseBean =
-              employee.dateWiseEmployeeAttendanceBeanList?.where((e) => e?.date == convertDateTimeToYYYYMMDDFormat(selectedDate)).firstOrNull;
+          DateWiseEmployeeAttendanceBean dateWiseBean = employee.dateWiseEmployeeAttendanceBeanList
+                  ?.where((e) => e?.date == convertDateTimeToYYYYMMDDFormat(selectedDate))
+                  .firstOrNull ??
+              DateWiseEmployeeAttendanceBean(employeeId: employee.employeeId, date: convertDateTimeToYYYYMMDDFormat(selectedDate), isPresent: "-");
           return Column(
             children: [
               Row(
@@ -226,12 +418,12 @@ class EmployeeWiseStatsForDateTable extends StatelessWidget {
                   ),
                   verticalDivider(),
                   Expanded(
-                    flex: 1,
-                    child: attendanceStatus(dateWiseBean?.isPresent),
+                    flex: 2,
+                    child: isEditMode ? attendanceControls(dateWiseBean) : attendanceStatus(dateWiseBean.isPresent),
                   ),
                   verticalDivider(),
                   Expanded(
-                    flex: 6,
+                    flex: 5,
                     child: Scrollbar(
                       thumbVisibility: true,
                       thickness: 8.0,
@@ -241,7 +433,7 @@ class EmployeeWiseStatsForDateTable extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
-                            for (int index = 0; index < (dateWiseBean?.dateWiseEmployeeAttendanceDetailsBeans?.length ?? 0); index++)
+                            for (int index = 0; index < (dateWiseBean.dateWiseEmployeeAttendanceDetailsBeans?.length ?? 0); index++)
                               clockedWidget(dateWiseBean, index),
                           ],
                         ),

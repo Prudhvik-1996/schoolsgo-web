@@ -320,7 +320,7 @@ Future<GetEmployeeAttendanceResponse> getEmployeeAttendance(GetEmployeeAttendanc
   return getEmployeeAttendanceResponse;
 }
 
-class CreateOrUpdateEmployeeAttendanceRequest {
+class CreateOrUpdateEmployeeAttendanceClockRequest {
   int? agent;
   int? attendanceId;
   bool? clockedIn;
@@ -333,7 +333,7 @@ class CreateOrUpdateEmployeeAttendanceRequest {
   String? status;
   Map<String, dynamic> __origJson = {};
 
-  CreateOrUpdateEmployeeAttendanceRequest({
+  CreateOrUpdateEmployeeAttendanceClockRequest({
     this.agent,
     this.attendanceId,
     this.clockedIn,
@@ -346,7 +346,7 @@ class CreateOrUpdateEmployeeAttendanceRequest {
     this.status,
   });
 
-  CreateOrUpdateEmployeeAttendanceRequest.fromJson(Map<String, dynamic> json) {
+  CreateOrUpdateEmployeeAttendanceClockRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
     attendanceId = json['attendanceId']?.toInt();
@@ -378,7 +378,7 @@ class CreateOrUpdateEmployeeAttendanceRequest {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-class CreateOrUpdateEmployeeAttendanceResponse {
+class CreateOrUpdateEmployeeAttendanceClockResponse {
   int? attendanceId;
   String? errorCode;
   String? errorMessage;
@@ -386,7 +386,7 @@ class CreateOrUpdateEmployeeAttendanceResponse {
   String? responseStatus;
   Map<String, dynamic> __origJson = {};
 
-  CreateOrUpdateEmployeeAttendanceResponse({
+  CreateOrUpdateEmployeeAttendanceClockResponse({
     this.attendanceId,
     this.errorCode,
     this.errorMessage,
@@ -394,7 +394,7 @@ class CreateOrUpdateEmployeeAttendanceResponse {
     this.responseStatus,
   });
 
-  CreateOrUpdateEmployeeAttendanceResponse.fromJson(Map<String, dynamic> json) {
+  CreateOrUpdateEmployeeAttendanceClockResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     attendanceId = json['attendanceId']?.toInt();
     errorCode = json['errorCode']?.toString();
@@ -416,17 +416,17 @@ class CreateOrUpdateEmployeeAttendanceResponse {
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateEmployeeAttendanceResponse> createOrUpdateEmployeeAttendance(
-    CreateOrUpdateEmployeeAttendanceRequest createOrUpdateEmployeeAttendanceRequest) async {
-  debugPrint("Raising request to createOrUpdateEmployeeAttendance with request ${jsonEncode(createOrUpdateEmployeeAttendanceRequest.toJson())}");
+Future<CreateOrUpdateEmployeeAttendanceClockResponse> createOrUpdateEmployeeAttendanceClock(
+    CreateOrUpdateEmployeeAttendanceClockRequest createOrUpdateEmployeeAttendanceRequest) async {
+  debugPrint("Raising request to createOrUpdateEmployeeAttendanceClock with request ${jsonEncode(createOrUpdateEmployeeAttendanceRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EMPLOYEE_ATTENDANCE;
 
-  CreateOrUpdateEmployeeAttendanceResponse createOrUpdateEmployeeAttendanceResponse = await HttpUtils.post(
+  CreateOrUpdateEmployeeAttendanceClockResponse createOrUpdateEmployeeAttendanceClockResponse = await HttpUtils.post(
     _url,
     createOrUpdateEmployeeAttendanceRequest.toJson(),
-    CreateOrUpdateEmployeeAttendanceResponse.fromJson,
+    CreateOrUpdateEmployeeAttendanceClockResponse.fromJson,
   );
 
-  debugPrint("createOrUpdateEmployeeAttendanceResponse ${createOrUpdateEmployeeAttendanceResponse.toJson()}");
-  return createOrUpdateEmployeeAttendanceResponse;
+  debugPrint("createOrUpdateEmployeeAttendanceClockResponse ${createOrUpdateEmployeeAttendanceClockResponse.toJson()}");
+  return createOrUpdateEmployeeAttendanceClockResponse;
 }

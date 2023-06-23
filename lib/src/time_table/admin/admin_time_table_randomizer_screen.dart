@@ -963,8 +963,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
                     SliverToBoxAdapter(
                       child: Column(
                         children: [
-                          _sectionPicker(),
-                          // _moreOptions(),
+                          _sectionPicker(), // _moreOptions(),
                         ],
                       ),
                     ),
@@ -1021,8 +1020,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
               width: 0.5,
             ),
             color: Colors.blue[200],
-          ),
-          // height: 1000,
+          ), // height: 1000,
           // width: 1000,
           child: Column(
               children: [
@@ -1165,6 +1163,29 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
       });
       return;
     }
+    List<TdsDailyLimitBeans> dummyTdsDailyLimit =
+        _tdsDailyLimit.map((e) => TdsDailyLimitBeans(dailyLimit: e.dailyLimit, tds: e.tds, weekId: e.weekId)).map((edlb) {
+      if (edlb.dailyLimit == null) return edlb;
+      edlb.dailyLimit = max(
+          0,
+          edlb.dailyLimit! -
+              _sectionWiseTimeSlots
+                  .where((ets) => ets.tdsId == edlb.tds?.tdsId)
+                  .where((ets) => ets.weekId == edlb.weekId)
+                  .map((ets) => ets.isPinned ?? false)
+                  .where((e) => e)
+                  .length);
+      return edlb;
+    }).toList();
+    List<TdsWeeklyLimitBeans> dummyTdsWeeklyLimit =
+        _tdsWeeklyLimit.map((e) => TdsWeeklyLimitBeans(weeklyLimit: e.weeklyLimit, tds: e.tds)).map((ewlb) {
+      if (ewlb.weeklyLimit == null) return ewlb;
+      ewlb.weeklyLimit = max(
+          0,
+          ewlb.weeklyLimit! -
+              _sectionWiseTimeSlots.where((ets) => ets.tdsId == ewlb.tds?.tdsId).map((ets) => ets.isPinned ?? false).where((e) => e).length);
+      return ewlb;
+    }).toList();
     RandomizeSectionWiseTimeSlotsRequest randomizeSectionWiseTimeSlotsRequest = RandomizeSectionWiseTimeSlotsRequest(
       tdsList: _tdsList,
       agent: widget.adminProfile.userId,
@@ -1186,8 +1207,8 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
             ),
           )
           .toList(),
-      tdsDailyLimitBeans: _tdsDailyLimit,
-      tdsWeeklyLimitBeans: _tdsWeeklyLimit,
+      tdsDailyLimitBeans: dummyTdsDailyLimit,
+      tdsWeeklyLimitBeans: dummyTdsWeeklyLimit,
       sectionWiseTimeSlotBeanList: _sectionWiseTimeSlots,
     );
 

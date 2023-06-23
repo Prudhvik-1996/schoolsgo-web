@@ -181,4 +181,4 @@ const String CREATE_OR_UPDATE_TASK_COMMENT = "/task_manager/createOrUpdateTaskCo
 const String CREATE_OR_UPDATE_TASK = "/task_manager/createOrUpdateTask";
 
 const String GET_EMPLOYEE_ATTENDANCE = "/attendance/getEmployeeAttendance";
-const String CREATE_OR_UPDATE_EMPLOYEE_ATTENDANCE = "/attendance/createOrUpdateEmployeeAttendance";
+const String CREATE_OR_UPDATE_EMPLOYEE_ATTENDANCE = "/attendance/createOrUpdateEmployeeAttendanceClock";

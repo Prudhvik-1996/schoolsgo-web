@@ -68,7 +68,36 @@ class _SettingsViewState extends State<SettingsView> {
                 const Divider(),
               ],
             ),
-      bottomSheet: fcmToken == null ? null : _buildFcmTokenSection(),
+      bottomSheet: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 10),
+          currentVersion(),
+          const SizedBox(height: 10),
+          if (fcmToken != null) _buildFcmTokenSection(),
+          if (fcmToken != null) const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+  Widget currentVersion() {
+    return Row(
+      children: const [
+        SizedBox(
+          width: 15,
+        ),
+        Expanded(child: Text("App version")),
+        SizedBox(
+          width: 15,
+        ),
+        Text("2.5.12"),
+        SizedBox(
+          width: 15,
+        ),
+      ],
     );
   }
 
