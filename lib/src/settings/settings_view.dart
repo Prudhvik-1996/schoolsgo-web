@@ -85,8 +85,8 @@ class _SettingsViewState extends State<SettingsView> {
           const SizedBox(height: 10),
           currentVersion(),
           const SizedBox(height: 10),
-          if (fcmToken != null) _buildFcmTokenSection(),
-          if (fcmToken != null) const SizedBox(height: 10),
+          // if (fcmToken != null) _buildFcmTokenSection(),
+          // if (fcmToken != null) const SizedBox(height: 10),
         ],
       ),
     );
@@ -106,11 +106,10 @@ class _SettingsViewState extends State<SettingsView> {
         const SizedBox(
           width: 15,
         ),
-        if (currentAppVersion == null || latestAppVersion?.versionName != currentAppVersion)
-          TextButton(
-            child: const Text("Update"),
-            onPressed: updateApp,
-          ),
+        TextButton(
+          child: Text((currentAppVersion == null || latestAppVersion?.versionName != currentAppVersion) ? "Update" : "Restart"),
+          onPressed: updateApp,
+        ),
         const SizedBox(
           width: 15,
         ),
