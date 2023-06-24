@@ -257,6 +257,28 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
                               Text(
                                 week,
                               ),
+                              InkWell(
+                                onTap: () {
+                                  HapticFeedback.vibrate();
+                                  bool isAllPinned = !sectionWiseTimeSlotsForWeek.map((e) => e.isPinned ?? false).contains(false);
+                                  if (isAllPinned) {
+                                    setState(() => sectionWiseTimeSlotsForWeek.forEach((e) => e.isPinned = false));
+                                  } else {
+                                    setState(() => sectionWiseTimeSlotsForWeek.forEach((e) => e.isPinned = true));
+                                  }
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(10),
+                                  child: RotationTransition(
+                                    turns: const AlwaysStoppedAnimation(45 / 360),
+                                    child: Icon(
+                                      Icons.push_pin,
+                                      size: 16,
+                                      color: !sectionWiseTimeSlotsForWeek.map((e) => e.isPinned ?? false).contains(false) ? Colors.blue : Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),

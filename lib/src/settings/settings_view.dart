@@ -93,7 +93,7 @@ class _SettingsViewState extends State<SettingsView> {
         SizedBox(
           width: 15,
         ),
-        Text("2.5.12"),
+        Text("2.5.13"),
         SizedBox(
           width: 15,
         ),
