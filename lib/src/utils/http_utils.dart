@@ -29,6 +29,26 @@ class HttpUtils {
     }
   }
 
+  static Future get(
+    String url,
+    Function targetResponseMapper,
+  ) async {
+    if (shouldEncryptDataForUrl.contains(url)) {
+      debugPrint("Encrypting data");
+      http.Response httpResponse = await http.get(
+        Uri.parse(url),
+        headers: const {"Content-type": "application/json", "encrypt": "encrypted"},
+      );
+      return targetResponseMapper(json.decode(String.fromCharCodes(base64.decode(httpResponse.body.replaceAll("\"", "")))));
+    } else {
+      http.Response httpResponse = await http.get(
+        Uri.parse(url),
+        headers: const {"Content-type": "application/json"},
+      );
+      return targetResponseMapper(json.decode(httpResponse.body));
+    }
+  }
+
   static Future<List<int>> postToDownloadFile(
     String url,
     Map body,

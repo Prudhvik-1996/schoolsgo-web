@@ -34,6 +34,7 @@ import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_scre
 import 'package:schoolsgo_web/src/payslips/admin/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
 import 'package:schoolsgo_web/src/school_management/school_management_options_screen.dart';
+import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_screen.dart';
@@ -122,7 +123,14 @@ class _MyAppState extends State<MyApp> {
       _isLoading = true;
     });
     networkStatus = await NetworkStatusService().getInitialStatus();
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String currAppVersion = prefs.getString('CURRENT_APP_VERSION') ?? "v2.5.12";
+    AppVersion? latestAppVersion = await getAppVersion(null);
+    if (latestAppVersion?.versionName != null) {
+      prefs.setString('CURRENT_APP_VERSION', latestAppVersion!.versionName!);
+    }
     bool boolValue = prefs.getBool('IS_USER_LOGGED_IN') ?? false;
     setState(() {
       loggedInStudentId = prefs.getInt('LOGGED_IN_STUDENT_ID');

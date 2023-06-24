@@ -182,3 +182,6 @@ const String CREATE_OR_UPDATE_TASK = "/task_manager/createOrUpdateTask";
 
 const String GET_EMPLOYEE_ATTENDANCE = "/attendance/getEmployeeAttendance";
 const String CREATE_OR_UPDATE_EMPLOYEE_ATTENDANCE = "/attendance/createOrUpdateEmployeeAttendanceClock";
+
+const String GET_APP_VERSION_URL = "/commons/latestAppVersion?appName=EpsilonDiary";
+String getAppVersionUrl(String? versionName) => GET_APP_VERSION_URL + (versionName == null ? "" : "&versionName=$versionName");

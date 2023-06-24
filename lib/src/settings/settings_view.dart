@@ -1,8 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
+import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_controller.dart';
@@ -27,6 +29,10 @@ class _SettingsViewState extends State<SettingsView> {
   String? fcmToken;
   int? loggedInUserId;
 
+  String? currentAppVersion;
+
+  AppVersion? latestAppVersion;
+
   @override
   void initState() {
     _loadData();
@@ -39,6 +45,9 @@ class _SettingsViewState extends State<SettingsView> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     loggedInUserId = prefs.getInt('LOGGED_IN_USER_ID');
     fcmToken = prefs.getString('USER_FCM_TOKEN');
+    currentAppVersion = prefs.getString('CURRENT_APP_VERSION');
+
+    latestAppVersion = await getAppVersion(null);
 
     setState(() => _isLoading = false);
   }
@@ -85,20 +94,37 @@ class _SettingsViewState extends State<SettingsView> {
 
   Widget currentVersion() {
     return Row(
-      children: const [
-        SizedBox(
+      children: [
+        const SizedBox(
           width: 15,
         ),
-        Expanded(child: Text("App version")),
-        SizedBox(
+        const Expanded(child: Text("App version")),
+        const SizedBox(
           width: 15,
         ),
-        Text("2.5.13"),
-        SizedBox(
+        const Text("2.5.13"),
+        const SizedBox(
+          width: 15,
+        ),
+        if (currentAppVersion == null || latestAppVersion?.versionName != currentAppVersion)
+          TextButton(
+            child: const Text("Update"),
+            onPressed: updateApp,
+          ),
+        const SizedBox(
           width: 15,
         ),
       ],
     );
+  }
+
+  Future<void> updateApp() async {
+    if (latestAppVersion?.versionName == null) return;
+    setState(() => _isLoading = true);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('CURRENT_APP_VERSION', latestAppVersion!.versionName!);
+    setState(() => _isLoading = false);
+    Restart.restartApp(webOrigin: "/");
   }
 
   // Builds the dropdown for selecting the theme mode
