@@ -3,7 +3,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/time_table/admin/admin_teacher_dealing_sections_screen.dart';
+import 'package:schoolsgo_web/src/time_table/admin/admin_teacher_dealing_sections_v2.dart';
 
 import 'admin_all_teachers_preview_time_table_screens.dart';
 import 'admin_edit_timetable_screen.dart';
@@ -119,7 +119,7 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
               : _getTimeTableOption(
                   "Teacher Dealing Sections",
                   null,
-                  AdminTeacherDealingSectionsScreen(
+                  AdminTeacherDealingSectionsV2(
                     adminProfile: widget.adminProfile,
                   ),
                 ),

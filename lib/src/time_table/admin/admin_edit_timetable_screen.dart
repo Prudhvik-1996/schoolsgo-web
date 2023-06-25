@@ -384,8 +384,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
       margin: const EdgeInsets.symmetric(vertical: 1),
       child: ClayContainer(
         depth: 40,
-        parentColor: clayContainerColor(context),
-        surfaceColor: isTeacherOccupiedElseWhere(e1, timeSlotToBeEdited),
+        parentColor: isTeacherOccupiedElseWhere(e1, timeSlotToBeEdited),
+        surfaceColor: clayContainerColor(context),
         spread: 2,
         borderRadius: 2,
         child: Column(
@@ -415,10 +415,10 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
       if (startTimeForTimeSlotToBeEdited == eachTimeSlotStartTime &&
           endTimeForTimeSlotToBeEdited == eachTimeSlotEndTime &&
           eachTimeSlot.subjectId == tdsToCheck.subjectId) {
-        return Colors.red[400];
+        return Colors.amber;
       } else if (eachTimeSlot.subjectId != tdsToCheck.subjectId &&
-          ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
-              (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
+          ((startTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited < eachTimeSlotEndTime) ||
+              (endTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited < eachTimeSlotEndTime))) {
         return Colors.red;
       }
     }
@@ -461,6 +461,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
       int eachTimeSlotEndTime = getSecondsEquivalentOfTimeFromWHHMMSS(eachTimeSlot.endTime!, eachTimeSlot.weekId!);
       int startTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.startTime!, timeSlotToBeEdited.weekId!);
       int endTimeForTimeSlotToBeEdited = getSecondsEquivalentOfTimeFromWHHMMSS(timeSlotToBeEdited.endTime!, timeSlotToBeEdited.weekId!);
+
       if (startTimeForTimeSlotToBeEdited == eachTimeSlotStartTime &&
           endTimeForTimeSlotToBeEdited == eachTimeSlotEndTime &&
           eachTimeSlot.subjectId == selectedTds.subjectId) {
@@ -468,8 +469,8 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
         bool proceedMerging = await alertUserOnMerge(warningMessage);
         errorMessage = proceedMerging == false ? "Aborting merge" : null;
       } else if (eachTimeSlot.subjectId != selectedTds.subjectId &&
-          ((startTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime) ||
-              (endTimeForTimeSlotToBeEdited >= eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited <= eachTimeSlotEndTime))) {
+          ((startTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && startTimeForTimeSlotToBeEdited < eachTimeSlotEndTime) ||
+              (endTimeForTimeSlotToBeEdited > eachTimeSlotStartTime && endTimeForTimeSlotToBeEdited < eachTimeSlotEndTime))) {
         errorMessage =
             "Teacher ${selectedTds.teacherName}, is occupied with Section ${eachTimeSlot.sectionName} and Subject ${eachTimeSlot.subjectName}";
       }
