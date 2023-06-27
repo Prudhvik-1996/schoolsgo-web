@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -51,6 +52,10 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
 
   List<StudentFeeReceipt> filteredReceipts = [];
   final ScrollController _controller = ScrollController();
+
+  List<FeeType> feeTypes = [];
+  Map<String, int> feeTypePaymentMap = {};
+  Map<String, Map<String, int>> customFeeTypePaymentMap = {};
 
   @override
   void initState() {
@@ -90,6 +95,47 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       sections = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
       selectedSectionsList = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
     }
+
+    GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getFeeTypesResponse.httpStatus != "OK" || getFeeTypesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
+      });
+    }
+    feeTypePaymentMap = <String, int>{};
+    for (FeeType feeType in feeTypes) {
+      if ((feeType.customFeeTypesList ?? []).isEmpty) {
+        feeTypePaymentMap["${feeType.feeType}"] = widget.studentFeeReceipts
+            .map((e) => e.feeTypes ?? [])
+            .expand((i) => i)
+            .where((e) => e?.feeTypeId == feeType.feeTypeId && (feeType.customFeeTypesList ?? []).isEmpty)
+            .map((e) => e?.amountPaidForTheReceipt ?? 0)
+            .reduce((a, b) => a + b);
+      }
+    }
+    customFeeTypePaymentMap = <String, Map<String, int>>{};
+    for (CustomFeeType customFeeType in feeTypes.map((e) => e.customFeeTypesList ?? []).expand((i) => i).whereNotNull()) {
+      customFeeTypePaymentMap["${customFeeType.feeType}"] ??= {};
+      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] ??= 0;
+      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] = widget.studentFeeReceipts
+          .map((e) => e.feeTypes ?? [])
+          .expand((i) => i)
+          .where((e) => e?.feeTypeId == customFeeType.feeTypeId)
+          .map((e) => e?.customFeeTypes ?? [])
+          .expand((i) => i)
+          .where((e) => e?.customFeeTypeId == customFeeType.customFeeTypeId)
+          .map((e) => e?.amountPaidForTheReceipt ?? 0)
+          .fold(0, (a, b) => a + b);
+    }
+
     setState(() => _isLoading = false);
   }
 
@@ -163,6 +209,27 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       sheet.setColAutoFit(i);
     }
 
+    sheet.appendRow(["Fee Type", "Amount"]);
+    rowIndex++;
+    for (var e in feeTypePaymentMap.entries) {
+      sheet.appendRow([
+        e.key,
+        doubleToStringAsFixedForINR(e.value / 100),
+      ]);
+    }
+    for (var feeTypeMap in customFeeTypePaymentMap.entries) {
+      for (var customFeeTypeMap in feeTypeMap.value.entries) {
+        sheet.appendRow([
+          feeTypeMap.key + ": " + customFeeTypeMap.key,
+          doubleToStringAsFixedForINR(customFeeTypeMap.value / 100),
+        ]);
+      }
+    }
+    sheet.appendRow([
+      "Bus",
+      doubleToStringAsFixedForINR((widget.studentFeeReceipts.map((e) => e.busFeePaid ?? 0).fold(0, (int a, int b) => a + b)) / 100),
+    ]);
+
     sheet.appendRow(["Mode Of Payment", "Amount"]);
     rowIndex++;
     final paymentMap = <ModeOfPayment, int>{};
@@ -220,16 +287,16 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                   ),
                 ),
                 const SizedBox(width: 10),
-                Tooltip(
-                  message: "Section Filter",
-                  child: IconButton(
-                    onPressed: () {
-                      setState(() => _showSectionPicker = !_showSectionPicker);
-                    },
-                    icon: const Icon(Icons.filter_alt_sharp),
-                  ),
-                ),
-                const SizedBox(width: 10),
+                // Tooltip(
+                //   message: "Section Filter",
+                //   child: IconButton(
+                //     onPressed: () {
+                //       setState(() => _showSectionPicker = !_showSectionPicker);
+                //     },
+                //     icon: const Icon(Icons.filter_alt_sharp),
+                //   ),
+                // ),
+                // const SizedBox(width: 10),
               ],
       ),
       drawer: AdminAppDrawer(
@@ -304,11 +371,11 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
   }
 
   Widget _totalFeeCollected(List<StudentFeeReceipt> studentFeeReceipts) {
-    final paymentMap = <ModeOfPayment, int>{};
+    final modeOfPaymentMap = <ModeOfPayment, int>{};
     for (final receipt in studentFeeReceipts) {
       final modeOfPayment = ModeOfPaymentExt.fromString(receipt.modeOfPayment);
       final totalAmount = receipt.getTotalAmountForReceipt();
-      paymentMap[modeOfPayment] = (paymentMap[modeOfPayment] ?? 0) + totalAmount;
+      modeOfPaymentMap[modeOfPayment] = (modeOfPaymentMap[modeOfPayment] ?? 0) + totalAmount;
     }
     return Container(
       margin: const EdgeInsets.all(10),
@@ -339,7 +406,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                               child: Text(
                                 MediaQuery.of(context).orientation == Orientation.portrait
                                     ? convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(widget.selectedDate)).replaceAll("\n", " ")
-                                    : convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(widget.selectedDate)),
+                                    : convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(widget.selectedDate)).replaceAll("\n", " "),
                                 style: GoogleFonts.archivoBlack(
                                   textStyle: const TextStyle(
                                     fontSize: 24,
@@ -350,36 +417,32 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                           ],
                         ),
                         const SizedBox(height: 20),
-                        ...paymentMap.entries.map((e) => Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    "${e.key.description}:",
-                                  ),
-                                ),
-                                Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(e.value / 100)} /-"),
-                              ],
-                            )),
+                        ...feeTypeWiseWidgets(),
                         Divider(
                           thickness: MediaQuery.of(context).orientation == Orientation.landscape ? 2 : 1,
                           color: clayContainerTextColor(context),
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Expanded(
-                              child: Text(
-                                "Total:",
+                        ...modeOfPaymentWiseWidgets(modeOfPaymentMap),
+                        Divider(
+                          thickness: MediaQuery.of(context).orientation == Orientation.landscape ? 2 : 1,
+                          color: clayContainerTextColor(context),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Expanded(
+                                child: Text(
+                                  "Total:",
+                                ),
                               ),
-                            ),
-                            Text(
-                                "$INR_SYMBOL ${doubleToStringAsFixedForINR(studentFeeReceipts.map((e) => e.getTotalAmountForReceipt()).sum / 100)} /-"),
-                          ],
+                              Text(
+                                  "$INR_SYMBOL ${doubleToStringAsFixedForINR(studentFeeReceipts.map((e) => e.getTotalAmountForReceipt()).sum / 100)} /-"),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -408,6 +471,87 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       ),
     );
   }
+
+  Iterable<Widget> feeTypeWiseWidgets() => [
+        ...feeTypePaymentMap.entries.map((e) => Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      e.key,
+                    ),
+                  ),
+                  Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(e.value / 100)} /-"),
+                ],
+              ),
+            )),
+        ...customFeeTypePaymentMap.entries.map((feeTypeMap) => Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    feeTypeMap.key,
+                  ),
+                  ...feeTypeMap.value.entries.map((MapEntry<String, int> customFeeTypeMap) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(width: 20),
+                          Expanded(child: Text(customFeeTypeMap.key)),
+                          Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(customFeeTypeMap.value / 100)} /-"),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            )),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Expanded(
+                child: Text(
+                  "Bus",
+                ),
+              ),
+              Text(
+                  "$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.studentFeeReceipts.map((e) => e.busFeePaid ?? 0).fold(0, (int a, int b) => a + b)) / 100)} /-"),
+            ],
+          ),
+        )
+      ];
+
+  Iterable<Widget> modeOfPaymentWiseWidgets(Map<ModeOfPayment, int> paymentMap) => paymentMap.entries.map((e) => Padding(
+        padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                "${e.key.description}:",
+              ),
+            ),
+            Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(e.value / 100)} /-"),
+          ],
+        ),
+      ));
 
   Widget _modeOfPaymentPieChartWidget() {
     return SizedBox(
