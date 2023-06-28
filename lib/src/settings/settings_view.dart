@@ -121,7 +121,7 @@ class _SettingsViewState extends State<SettingsView> {
     if (latestAppVersion?.versionName == null) return;
     setState(() => _isLoading = true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('CURRENT_APP_VERSION', latestAppVersion!.versionName!);
+    await prefs.setString('CURRENT_APP_VERSION', latestAppVersion!.versionName!);
     setState(() => _isLoading = false);
     Restart.restartApp(webOrigin: "/");
   }

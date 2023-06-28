@@ -129,7 +129,7 @@ class _MyAppState extends State<MyApp> {
     String currAppVersion = prefs.getString('CURRENT_APP_VERSION') ?? "v2.5.12";
     AppVersion? latestAppVersion = await getAppVersion(null);
     if (latestAppVersion?.versionName != null) {
-      prefs.setString('CURRENT_APP_VERSION', latestAppVersion!.versionName!);
+      await prefs.setString('CURRENT_APP_VERSION', latestAppVersion!.versionName!);
     }
     bool boolValue = prefs.getBool('IS_USER_LOGGED_IN') ?? false;
     setState(() {
