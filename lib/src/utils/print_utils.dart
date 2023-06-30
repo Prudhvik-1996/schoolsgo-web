@@ -59,10 +59,10 @@ Future<void> printReceipts(
               height: 10,
             ),
             studentNameWidget(studentProfiles.where((e) => e.studentId == eachTransaction.studentId).first, font),
-            if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.fatherName != null)
-              pw.SizedBox(
-                height: 10,
-              ),
+            // if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.fatherName != null)
+            //   pw.SizedBox(
+            //     height: 10,
+            //   ),
             if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.gaurdianFirstName != null)
               pw.SizedBox(
                 height: 10,
@@ -113,10 +113,10 @@ Future<void> printReceipts(
         build: (context) {
           return [
             pw.Container(
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(width: 2),
-                borderRadius: pw.BorderRadius.circular(10),
-              ),
+                decoration: pw.BoxDecoration(
+                  border: pw.Border.all(width: 2),
+                  borderRadius: pw.BorderRadius.circular(10),
+                ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 mainAxisAlignment: pw.MainAxisAlignment.start,
@@ -125,6 +125,11 @@ Future<void> printReceipts(
             ),
           ];
         },
+        // footer: (_) => pw.Row(
+        //   children: [
+        //     signatureWidget(font),
+        //   ],
+        // ),
       ));
     });
   }
@@ -234,7 +239,8 @@ pw.Widget modeOfPaymentWidget(StudentFeeReceipt eachTransaction, pw.Font font) {
 
 pw.Table transactionsTableWidget(pw.Font font, StudentFeeReceipt eachTransaction, bool isTermWise) {
   List<pw.TableRow> childTransactionsWidgets = childTransactionsPdfWidgets(eachTransaction, font, isTermWise);
-  if (childTransactionsWidgets.length < 4) {
+  int txnsLength = (eachTransaction.feeTypes ?? []).length + (eachTransaction.feeTypes ?? []).map((e) => e?.customFeeTypes ?? []).length;
+  if (txnsLength < 4) {
     for (int i = 0; i <= 4 - childTransactionsWidgets.length; i++) {
       childTransactionsWidgets.add(pw.TableRow(
         children: [
@@ -352,7 +358,7 @@ pw.Row studentNameWidget(StudentProfile studentProfile, pw.Font font) {
         ),
       ),
       pw.SizedBox(
-        height: 10,
+        width: 10,
       ),
       if (studentProfile.admissionNo != null)
         pw.Text(
@@ -490,7 +496,7 @@ List<pw.TableRow> childTransactionsPdfWidgets(StudentFeeReceipt receipt, pw.Font
                 child: paddedText(eachCustomFeeType.customFeeType ?? "-", font, padding: const pw.EdgeInsets.fromLTRB(8, 6, 6, 6)),
               ),
               !isTermWise || (eachCustomFeeType.termWiseFeeComponents ?? []).isEmpty
-                  ? paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachFeeType.amountPaidForTheReceipt ?? 0) / 100.0)} /-", font,
+                  ? paddedText("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachCustomFeeType.amountPaidForTheReceipt ?? 0) / 100.0)} /-", font,
                       align: pw.TextAlign.right)
                   : paddedText("", font),
             ],
