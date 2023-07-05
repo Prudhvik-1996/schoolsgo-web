@@ -84,14 +84,6 @@ class PlannedBeanForTds {
       }
       data[_jsonKeyPlannerCommentBean] = arr0;
     }
-    // if (plannerSlots != null) {
-    //   final v = plannerSlots;
-    //   final arr0 = [];
-    //   for (var v in v!) {
-    //     arr0.add(v.toJson());
-    //   }
-    //   data['plannerSlots'] = arr0;
-    // }
     return data;
   }
 

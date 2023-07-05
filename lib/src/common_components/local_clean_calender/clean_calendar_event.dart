@@ -9,7 +9,8 @@ class CleanCalendarEvent {
   DateTime endTime;
   Color color;
   bool isAllDay;
-  bool isDone;
+  bool isApproved;
+  bool isLastDate;
   TeacherDealingSection? tds;
 
   CleanCalendarEvent(
@@ -20,7 +21,8 @@ class CleanCalendarEvent {
     required this.endTime,
     this.color = Colors.blue,
     this.isAllDay = false,
-    this.isDone = false,
+    this.isApproved = false,
+    this.isLastDate = false,
     this.tds,
   });
 }

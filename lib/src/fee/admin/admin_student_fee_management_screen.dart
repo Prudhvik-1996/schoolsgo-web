@@ -716,6 +716,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         .map((e) => e.amount ?? 0)
         .reduce((a, b) => a + b);
     int discount = (actualFee - feeAfterDiscount);
+    // TODO: add bus fee discount as well
     if (discount > 0) {
       feeStats.add(
         Row(

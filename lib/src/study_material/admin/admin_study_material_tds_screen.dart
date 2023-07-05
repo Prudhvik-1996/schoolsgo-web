@@ -14,7 +14,10 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'admin_study_material_screen.dart';
 
 class AdminStudyMaterialTDSScreen extends StatefulWidget {
-  const AdminStudyMaterialTDSScreen({Key? key, required this.adminProfile}) : super(key: key);
+  const AdminStudyMaterialTDSScreen({
+    Key? key,
+    required this.adminProfile,
+  }) : super(key: key);
 
   final AdminProfile adminProfile;
 
@@ -203,79 +206,6 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
           .toList(),
     );
   }
-
-  // Widget _selectSection() {
-  //   return Container(
-  //     margin: const EdgeInsets.fromLTRB(25, 10, 25, 15),
-  //     child: ClayContainer(
-  //       depth: 20,
-  //       color: clayContainerColor(context),
-  //       spread: 5,
-  //       borderRadius: 10,
-  //       child: _sectionsList.length != 1 && _selectedSection != null
-  //           ? Row(
-  //               mainAxisSize: MainAxisSize.min,
-  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //               children: [
-  //                 Expanded(child: dropdownButtonForSection()),
-  //                 Container(
-  //                   margin: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-  //                   child: InkWell(
-  //                     onTap: () {
-  //                       setState(() {
-  //                         _selectedSection = null;
-  //                       });
-  //                       _applyFilters();
-  //                     },
-  //                     child: const Icon(Icons.close),
-  //                   ),
-  //                 ),
-  //               ],
-  //             )
-  //           : dropdownButtonForSection(),
-  //     ),
-  //   );
-  // }
-  //
-  // DropdownButton<Section> dropdownButtonForSection() {
-  //   return DropdownButton(
-  //     hint: const Center(child: Text("Select Section")),
-  //     underline: Container(),
-  //     isExpanded: true,
-  //     value: _selectedSection,
-  //     onChanged: (Section? section) {
-  //       setState(() {
-  //         _selectedSection = section!;
-  //       });
-  //       _applyFilters();
-  //     },
-  //     items: _sectionsList
-  //         .where((section) => _filteredTdsList
-  //             .map((tds) => tds.sectionId)
-  //             .contains(section.sectionId))
-  //         .map(
-  //           (e) => DropdownMenuItem<Section>(
-  //             value: e,
-  //             child: SizedBox(
-  //               width: MediaQuery.of(context).size.width,
-  //               height: 40,
-  //               child: Center(
-  //                 child: FittedBox(
-  //                   fit: BoxFit.scaleDown,
-  //                   child: Text(
-  //                     e.sectionName ?? "-",
-  //                     style: const TextStyle(
-  //                       fontSize: 14,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         )
-  //         .toList(),
-  //   );
-  // }
 
   Widget _selectSectionExpanded() {
     return Container(
@@ -566,8 +496,7 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
                 margin: const EdgeInsets.all(15),
                 child: Center(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    // physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSize: MainAxisSize.min, // physics: const NeverScrollableScrollPhysics(),
                     // shrinkWrap: true,
                     children: [
                       // Text("Section: ${tds.sectionName}"),
@@ -679,20 +608,16 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
             )
           : ListView(
               children: <Widget>[
-                    // Row(
-                    //   children: [
-                    //     Expanded(child: _selectTeacher()),
-                    //     Expanded(child: _selectSection()),
-                    //   ],
-                    // ),
                     MediaQuery.of(context).orientation == Orientation.landscape
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              if (!_isSectionPickerOpen) const SizedBox(width: 10),
                               Expanded(child: _sectionPicker()),
+                              if (!_isSectionPickerOpen) const SizedBox(width: 10),
                               if (!_isSectionPickerOpen) Expanded(child: _selectTeacher()),
-                              if (!_isSectionPickerOpen) Expanded(child: Container()),
+                              if (!_isSectionPickerOpen) const SizedBox(width: 10),
                             ],
                           )
                         : Column(

@@ -179,7 +179,7 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
             return MapEntry(tdsId, x);
           }).forEach((entry) {
             int? tdsId = entry.key;
-            print("182: ${entry.key} :: ${entry.value}");
+            // print("182: ${entry.key} :: ${entry.value}");
             List<PlannedBeanForTds> list = entry.value;
             if (tdsId != null) {
               tdsWisePlannerBeans[tdsId] = list.whereNotNull().toList();
@@ -218,7 +218,7 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
       if (plannerBeans.isEmpty) return;
       List<PlannerTimeSlot> plannerTimeSlotsDup = [...plannerTimeSlots.where((e) => e.tdsId == tdsId)];
       for (var plannerBean in plannerBeans) {
-        if ((plannerBean.noOfSlots ?? 0) != 0) {
+        if ((plannerBean.noOfSlots ?? 0) != 0 && plannerTimeSlotsDup.isNotEmpty) {
           plannerBean.plannerSlots = plannerTimeSlotsDup.sublist(0, plannerBean.noOfSlots!);
           plannerTimeSlotsDup.removeRange(0, plannerBean.noOfSlots!);
         }
@@ -234,7 +234,7 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
             startTime: plannerSlot.getStartTimeInDate(),
             endTime: plannerSlot.getEndTimeInDate(),
             color: colors[i],
-            isDone: plannerBean.approvalStatus == "Approved",
+            isApproved: plannerBean.approvalStatus == "Approved",
             tds: tds,
           ));
         }

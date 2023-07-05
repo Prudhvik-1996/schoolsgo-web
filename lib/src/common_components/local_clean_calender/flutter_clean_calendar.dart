@@ -427,7 +427,15 @@ class CalendarState extends State<Calendar> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [Text(event.summary, style: Theme.of(context).textTheme.subtitle2), Text(event.description)],
+                                  children: [
+                                    Text(event.summary, style: Theme.of(context).textTheme.subtitle2),
+                                    Text(
+                                      event.description,
+                                      style: TextStyle(
+                                        color: event.isLastDate ? Colors.green : null,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -439,8 +447,9 @@ class CalendarState extends State<Calendar> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(start, style: Theme.of(context).textTheme.bodyText1),
-                                    Text(end, style: Theme.of(context).textTheme.bodyText1),
+                                    timeChip(start),
+                                    const SizedBox(height: 10),
+                                    timeChip(end),
                                   ],
                                 ),
                               ),
@@ -459,6 +468,20 @@ class CalendarState extends State<Calendar> {
       // eventLiostBuilder is not null
       return widget.eventListBuilder!(context, _selectedEvents!);
     }
+  }
+
+  FittedBox timeChip(String time) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: Colors.grey,
+        ),
+        padding: const EdgeInsets.all(4.0),
+        child: Text(time, style: Theme.of(context).textTheme.bodyText1),
+      ),
+    );
   }
 
   @override

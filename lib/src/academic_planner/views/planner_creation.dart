@@ -40,7 +40,7 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
   List<String> approvalStatusOptions = ["Pending", "Approved", "Revise"];
   DateTime selectedDate = DateTime.now();
 
-  ItemScrollController _plannerListController = ItemScrollController();
+  final ItemScrollController _plannerListController = ItemScrollController();
   Map<DateTime, List<CleanCalendarEvent>> eventMap = {};
 
   bool showCalenderInPortrait = false;
@@ -107,7 +107,7 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
         subjectId: widget.tds.subjectId,
         sectionId: widget.tds.sectionId,
         schoolId: widget.adminProfile.schoolId,
-        // academicYearId: TODO
+        academicYearId: selectedAcademicYearId,
       ));
       if (getPlannerResponse.httpStatus == "OK" && getPlannerResponse.responseStatus == "success") {
         setState(() {
@@ -200,7 +200,7 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
           startTime: plannerSlot.getStartTimeInDate(),
           endTime: plannerSlot.getEndTimeInDate(),
           color: Colors.indigo,
-          isDone: plannerBean.approvalStatus == "Approved",
+          isApproved: plannerBean.approvalStatus == "Approved",
         ));
       }
     }
