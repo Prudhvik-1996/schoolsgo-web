@@ -574,7 +574,7 @@ class _TdsPlannerState extends State<TdsPlanner> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Study Material"),
+        title: const Text("Academic Planner"),
         actions: [
           buildRoleButtonForAppBar(
             context,
@@ -603,7 +603,7 @@ class _TdsPlannerState extends State<TdsPlanner> {
                               Expanded(child: _sectionPicker()),
                               if (!_isSectionPickerOpen) const SizedBox(width: 10),
                               if (!_isSectionPickerOpen) Expanded(child: _teacherPicker()),
-                              if (!_isSectionPickerOpen) const SizedBox(width: 10),
+                              if (!_isSectionPickerOpen) const SizedBox(width: 30),
                             ],
                           )
                         : Column(

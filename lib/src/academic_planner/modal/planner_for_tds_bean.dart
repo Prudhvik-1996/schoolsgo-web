@@ -36,8 +36,10 @@ class PlannedBeanForTds {
   String? approvalStatus;
   List<PlannerCommentBean?>? comments;
   List<PlannerTimeSlot>? plannerSlots;
-  final ScrollController slotsController = ScrollController();
+  late ScrollController slotsController;
   Map<String, dynamic> __origJson = {};
+
+  bool isExpanded = false;
 
   bool isEditMode = false;
 
@@ -48,7 +50,24 @@ class PlannedBeanForTds {
     this.approvalStatus,
     this.plannerSlots,
     this.comments,
-  });
+  }) {
+    slotsController = ScrollController();
+  }
+
+  PlannedBeanForTds? splitBean() {
+    if ((noOfSlots ?? 0) <= 1) return null;
+    int newSlots = ((noOfSlots!) / 2).ceil();
+    noOfSlots = noOfSlots! - newSlots;
+    plannerSlots = [];
+    slotsController = ScrollController();
+    return PlannedBeanForTds(
+      title: title,
+      description: description,
+      noOfSlots: newSlots,
+      approvalStatus: approvalStatus,
+      plannerSlots: [],
+    )..slotsController = ScrollController();
+  }
 
   PlannedBeanForTds.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -64,6 +83,7 @@ class PlannedBeanForTds {
       });
       comments = arr0;
     }
+    slotsController = ScrollController();
   }
 
   get startDate => plannerSlots?.firstOrNull?.date;

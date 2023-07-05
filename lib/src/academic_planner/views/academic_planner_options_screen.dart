@@ -85,7 +85,7 @@ class _AdminAcademicPlannerOptionsScreenState extends State<AdminAcademicPlanner
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("AcademicPlanner"),
+        title: const Text("Academic Planner"),
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
