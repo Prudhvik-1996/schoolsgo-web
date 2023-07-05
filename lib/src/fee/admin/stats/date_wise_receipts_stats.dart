@@ -79,7 +79,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
         ),
       );
     } else {
-      studentProfiles = (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList();
+      setState(() => studentProfiles = (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList());
     }
 
     GetSectionsResponse getSectionsResponse = await getSections(GetSectionsRequest(
@@ -92,8 +92,10 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
         ),
       );
     } else {
-      sections = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
-      selectedSectionsList = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
+      setState(() {
+        sections = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
+        selectedSectionsList = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
+      });
     }
 
     GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
@@ -110,31 +112,33 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
         feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
       });
     }
-    feeTypePaymentMap = <String, int>{};
-    for (FeeType feeType in feeTypes) {
-      if ((feeType.customFeeTypesList ?? []).isEmpty) {
-        feeTypePaymentMap["${feeType.feeType}"] = widget.studentFeeReceipts
+    setState(() {
+      feeTypePaymentMap = <String, int>{};
+      for (FeeType feeType in feeTypes) {
+        if ((feeType.customFeeTypesList ?? []).isEmpty) {
+          feeTypePaymentMap["${feeType.feeType}"] = widget.studentFeeReceipts
+              .map((e) => e.feeTypes ?? [])
+              .expand((i) => i)
+              .where((e) => e?.feeTypeId == feeType.feeTypeId && (feeType.customFeeTypesList ?? []).isEmpty)
+              .map((e) => e?.amountPaidForTheReceipt ?? 0)
+              .fold(0, (a, b) => a + b);
+        }
+      }
+      customFeeTypePaymentMap = <String, Map<String, int>>{};
+      for (CustomFeeType customFeeType in feeTypes.map((e) => e.customFeeTypesList ?? []).expand((i) => i).whereNotNull()) {
+        customFeeTypePaymentMap["${customFeeType.feeType}"] ??= {};
+        customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] ??= 0;
+        customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] = widget.studentFeeReceipts
             .map((e) => e.feeTypes ?? [])
             .expand((i) => i)
-            .where((e) => e?.feeTypeId == feeType.feeTypeId && (feeType.customFeeTypesList ?? []).isEmpty)
+            .where((e) => e?.feeTypeId == customFeeType.feeTypeId)
+            .map((e) => e?.customFeeTypes ?? [])
+            .expand((i) => i)
+            .where((e) => e?.customFeeTypeId == customFeeType.customFeeTypeId)
             .map((e) => e?.amountPaidForTheReceipt ?? 0)
-            .reduce((a, b) => a + b);
+            .fold(0, (a, b) => a + b);
       }
-    }
-    customFeeTypePaymentMap = <String, Map<String, int>>{};
-    for (CustomFeeType customFeeType in feeTypes.map((e) => e.customFeeTypesList ?? []).expand((i) => i).whereNotNull()) {
-      customFeeTypePaymentMap["${customFeeType.feeType}"] ??= {};
-      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] ??= 0;
-      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] = widget.studentFeeReceipts
-          .map((e) => e.feeTypes ?? [])
-          .expand((i) => i)
-          .where((e) => e?.feeTypeId == customFeeType.feeTypeId)
-          .map((e) => e?.customFeeTypes ?? [])
-          .expand((i) => i)
-          .where((e) => e?.customFeeTypeId == customFeeType.customFeeTypeId)
-          .map((e) => e?.amountPaidForTheReceipt ?? 0)
-          .fold(0, (a, b) => a + b);
-    }
+    });
 
     setState(() => _isLoading = false);
   }
@@ -287,16 +291,6 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                   ),
                 ),
                 const SizedBox(width: 10),
-                // Tooltip(
-                //   message: "Section Filter",
-                //   child: IconButton(
-                //     onPressed: () {
-                //       setState(() => _showSectionPicker = !_showSectionPicker);
-                //     },
-                //     icon: const Icon(Icons.filter_alt_sharp),
-                //   ),
-                // ),
-                // const SizedBox(width: 10),
               ],
       ),
       drawer: AdminAppDrawer(
