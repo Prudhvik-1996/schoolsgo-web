@@ -513,9 +513,9 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
           }
           final PlannedBeanForTds removedItem = plannerBeans.removeAt(oldIndex);
           plannerBeans.insert(newIndex, removedItem);
-          setState(() => _isLoading = false);
         });
         await updateSlotsForAllBeans();
+        setState(() => _isLoading = false);
       },
       children: [for (int i = 0; i < plannerBeans.length; i++) eachPlanWidget(i)],
     );
@@ -534,6 +534,7 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
       updateEditingIndex: (int? newIndexToEdit) => setState(() => currentlyEditedIndex = newIndexToEdit),
       canSubmit: canSubmit,
       splitSlots: splitSlots,
+      isRearrangeMode: _isRearrangeMode,
     );
   }
 

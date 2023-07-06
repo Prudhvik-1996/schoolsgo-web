@@ -20,6 +20,7 @@ class EachPlanWidget extends StatefulWidget {
     required this.updateEditingIndex,
     required this.canSubmit,
     required this.splitSlots,
+    required this.isRearrangeMode,
   }) : super(key: key);
 
   final int index;
@@ -32,6 +33,7 @@ class EachPlanWidget extends StatefulWidget {
   final Function updateEditingIndex;
   final Function canSubmit;
   final Function splitSlots;
+  final bool isRearrangeMode;
 
   @override
   State<EachPlanWidget> createState() => _EachPlanWidgetState();
@@ -63,135 +65,16 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                title: plannerBean.isEditMode
-                    ? TextFormField(
-                        initialValue: plannerBean.title,
-                        decoration: const InputDecoration(
-                          labelText: 'Title',
-                          hintText: 'Enter title',
-                        ),
-                        onChanged: (value) {
-                          widget.superSetState(() {
-                            plannerBean.title = value;
-                          });
-                        },
-                      )
-                    : Text(
-                        '${plannerBean.title} (${convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(plannerBean.startDate))} - ${convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(plannerBean.endDate))})',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                title: buildTitleWidget(),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    plannerBean.isEditMode
-                        ? TextFormField(
-                            initialValue: plannerBean.description,
-                            decoration: const InputDecoration(
-                              labelText: 'Description',
-                              hintText: 'Enter description',
-                            ),
-                            onChanged: (value) {
-                              widget.superSetState(() {
-                                plannerBean.description = value;
-                              });
-                            },
-                          )
-                        : Text('Description: ${plannerBean.description}'),
-                    plannerBean.isEditMode
-                        ? TextFormField(
-                            initialValue: plannerBean.noOfSlots?.toString(),
-                            decoration: const InputDecoration(
-                              labelText: 'No. of Slots',
-                              hintText: 'Enter number of slots',
-                            ),
-                            onChanged: (value) {
-                              final newSlots = int.tryParse(value);
-                              if (newSlots != null) {
-                                widget.superSetState(() {
-                                  plannerBean.noOfSlots = newSlots;
-                                  widget.updateSlotsForAllBeans();
-                                });
-                              }
-                            },
-                          )
-                        : Text('No. of Slots: ${plannerBean.noOfSlots}'),
-                    plannerBean.isEditMode
-                        ? DropdownButtonFormField<String>(
-                            value: plannerBean.approvalStatus,
-                            decoration: const InputDecoration(
-                              labelText: 'Approval Status',
-                            ),
-                            items: widget.approvalStatusOptions.map((String status) {
-                              return DropdownMenuItem<String>(
-                                value: status,
-                                child: Text(status),
-                              );
-                            }).toList(),
-                            onChanged: (String? value) {
-                              widget.superSetState(() {
-                                plannerBean.approvalStatus = value;
-                              });
-                            },
-                          )
-                        : Text('Approval Status: ${plannerBean.approvalStatus}'),
+                    buildDescriptionWidget(),
+                    buildNoOfSlotsWidget(),
+                    buildApprovalStatusWidget(),
                   ],
                 ),
-                trailing: !widget.isEditMode
-                    ? null
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.currentlyEditedIndex == null)
-                            plannerIconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                widget.superSetState(() {
-                                  widget.updateEditingIndex(widget.index);
-                                  plannerBean.isEditMode = true;
-                                });
-                              },
-                              toolTip: "Edit",
-                            ),
-                          if (widget.currentlyEditedIndex == widget.index)
-                            plannerIconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {
-                                  if (widget.currentlyEditedIndex != null) {
-                                    widget.superSetState(() {
-                                      widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
-                                      widget.updateEditingIndex(null);
-                                    });
-                                  }
-                                },
-                                toolTip: "Delete"),
-                          if (!plannerBean.isEditMode && widget.currentlyEditedIndex == null)
-                            plannerIconButton(
-                              icon: const Icon(Icons.call_split),
-                              onPressed: () {
-                                widget.splitSlots(widget.index);
-                              },
-                              toolTip: "Split",
-                            ),
-                          if (widget.currentlyEditedIndex == widget.index)
-                            plannerIconButton(
-                              icon: const Icon(Icons.check),
-                              onPressed: () {
-                                String? errorMessage = widget.canSubmit(plannerBean);
-                                if (errorMessage != null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(errorMessage)),
-                                  );
-                                  return;
-                                }
-                                widget.superSetState(() {
-                                  widget.updateEditingIndex(null);
-                                  plannerBean.isEditMode = false;
-                                });
-                              },
-                              toolTip: "Done",
-                            ),
-                        ],
-                      ),
+                trailing: buildEditOptionsWidget(context),
               ),
               buildSlotsView(),
             ],
@@ -199,6 +82,146 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
         ),
       ),
     );
+  }
+
+  Row? buildEditOptionsWidget(BuildContext context) {
+    if (widget.isRearrangeMode) return null;
+    return !widget.isEditMode
+        ? null
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.currentlyEditedIndex == null)
+                plannerIconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    widget.superSetState(() {
+                      widget.updateEditingIndex(widget.index);
+                      plannerBean.isEditMode = true;
+                    });
+                  },
+                  toolTip: "Edit",
+                ),
+              if (widget.currentlyEditedIndex == widget.index)
+                plannerIconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      if (widget.currentlyEditedIndex != null) {
+                        widget.superSetState(() {
+                          widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
+                          widget.updateEditingIndex(null);
+                        });
+                      }
+                    },
+                    toolTip: "Delete"),
+              if (!plannerBean.isEditMode && widget.currentlyEditedIndex == null)
+                plannerIconButton(
+                  icon: const Icon(Icons.call_split),
+                  onPressed: () {
+                    widget.splitSlots(widget.index);
+                  },
+                  toolTip: "Split",
+                ),
+              if (widget.currentlyEditedIndex == widget.index)
+                plannerIconButton(
+                  icon: const Icon(Icons.check),
+                  onPressed: () {
+                    String? errorMessage = widget.canSubmit(plannerBean);
+                    if (errorMessage != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(errorMessage)),
+                      );
+                      return;
+                    }
+                    widget.superSetState(() {
+                      widget.updateEditingIndex(null);
+                      plannerBean.isEditMode = false;
+                    });
+                  },
+                  toolTip: "Done",
+                ),
+            ],
+          );
+  }
+
+  Widget buildApprovalStatusWidget() {
+    return plannerBean.isEditMode
+        ? DropdownButtonFormField<String>(
+            value: plannerBean.approvalStatus,
+            decoration: const InputDecoration(
+              labelText: 'Approval Status',
+            ),
+            items: widget.approvalStatusOptions.map((String status) {
+              return DropdownMenuItem<String>(
+                value: status,
+                child: Text(status),
+              );
+            }).toList(),
+            onChanged: (String? value) {
+              widget.superSetState(() {
+                plannerBean.approvalStatus = value;
+              });
+            },
+          )
+        : Text('Approval Status: ${plannerBean.approvalStatus}');
+  }
+
+  Widget buildNoOfSlotsWidget() {
+    return plannerBean.isEditMode
+        ? TextFormField(
+            initialValue: plannerBean.noOfSlots?.toString(),
+            decoration: const InputDecoration(
+              labelText: 'No. of Slots',
+              hintText: 'Enter number of slots',
+            ),
+            onChanged: (value) {
+              final newSlots = int.tryParse(value);
+              if (newSlots != null) {
+                widget.superSetState(() {
+                  plannerBean.noOfSlots = newSlots;
+                  widget.updateSlotsForAllBeans();
+                });
+              }
+            },
+          )
+        : Text('No. of Slots: ${plannerBean.noOfSlots}');
+  }
+
+  Widget buildDescriptionWidget() {
+    return plannerBean.isEditMode
+        ? TextFormField(
+            initialValue: plannerBean.description,
+            decoration: const InputDecoration(
+              labelText: 'Description',
+              hintText: 'Enter description',
+            ),
+            onChanged: (value) {
+              widget.superSetState(() {
+                plannerBean.description = value;
+              });
+            },
+          )
+        : Text('Description: ${plannerBean.description}');
+  }
+
+  Widget buildTitleWidget() {
+    return plannerBean.isEditMode
+        ? TextFormField(
+            initialValue: plannerBean.title,
+            decoration: const InputDecoration(
+              labelText: 'Title',
+              hintText: 'Enter title',
+            ),
+            onChanged: (value) {
+              widget.superSetState(() {
+                plannerBean.title = value;
+              });
+            },
+          )
+        : Text(
+            '${plannerBean.title} (${convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(plannerBean.startDate))} - ${convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(plannerBean.endDate))})',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          );
   }
 
   Widget buildSlotsView() {
