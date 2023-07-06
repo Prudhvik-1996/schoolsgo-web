@@ -336,27 +336,33 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
                         plannerBeans.add(PlannedBeanForTds(approvalStatus: "Approved")..isEditMode = true);
                         currentlyEditedIndex = plannerBeans.length - 1;
                       });
-                      if (!_isRearrangeMode) {
-                        _plannerListController.scrollTo(
-                          index: plannerBeans.length - 1,
-                          duration: const Duration(milliseconds: 100),
-                          curve: Curves.bounceInOut,
-                        );
-                      } else {
-                        reorderablePlannerListController.animateTo(
-                          reorderablePlannerListController.position.maxScrollExtent,
-                          duration: const Duration(seconds: 2),
-                          curve: Curves.fastOutSlowIn,
-                        );
+                    },
+                    postAction: () {
+                      try {
+                        if (plannerBeans.length > 2) {
+                          if (!_isRearrangeMode) {
+                            _plannerListController.scrollTo(
+                              index: plannerBeans.length - 1,
+                              duration: const Duration(milliseconds: 100),
+                              curve: Curves.bounceInOut,
+                            );
+                          } else {
+                            reorderablePlannerListController.animateTo(
+                              reorderablePlannerListController.position.maxScrollExtent,
+                              duration: const Duration(seconds: 2),
+                              curve: Curves.fastOutSlowIn,
+                            );
+                          }
+                        }
+                      } on Exception catch (_, e) {
+                        debugPrintStack(stackTrace: e);
                       }
                     },
                     color: Colors.blue[300],
                   ),
-                if (!(_isLoading || !_isEditMode || plannerBeans.map((e) => e.isEditMode).contains(true) || _isRearrangeMode))
-                  const SizedBox(height: 20),
-                if (_isEditMode && !plannerBeans.map((e) => e.isEditMode).contains(true))
-                  fab(const Icon(Icons.reorder), _isRearrangeMode ? "Done" : "Rearrange", () => setState(() => _isRearrangeMode = !_isRearrangeMode), color: Colors.amber[300]),
-                if (_isEditMode && !plannerBeans.map((e) => e.isEditMode).contains(true)) const SizedBox(height: 20),
+                if (_isEditMode && plannerBeans.isNotEmpty && !plannerBeans.map((e) => e.isEditMode).contains(true))
+                  fab(const Icon(Icons.reorder), _isRearrangeMode ? "Done" : "Rearrange", () => setState(() => _isRearrangeMode = !_isRearrangeMode),
+                      color: Colors.amber[300]),
                 if (!_isRearrangeMode && _isEditMode && !plannerBeans.map((e) => e.isEditMode).contains(true))
                   fab(
                     const Icon(Icons.save),
@@ -376,28 +382,40 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
     );
   }
 
-  Widget fab(Icon icon, String text, Function() action, {Color? color}) {
-    return GestureDetector(
-      onTap: action,
-      child: ClayButton(
-        surfaceColor: color ?? clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        borderRadius: 20,
-        child: Container(
-          width: 100,
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              icon,
-              Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(text),
+  Widget fab(Icon icon, String text, Function() action, {Function()? postAction, Color? color}) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: GestureDetector(
+        onTap: () {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            await action();
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (postAction != null) {
+              await postAction();
+            }
+          });
+        },
+        child: ClayButton(
+          surfaceColor: color ?? clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 20,
+          child: Container(
+            width: 100,
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                icon,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(text),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

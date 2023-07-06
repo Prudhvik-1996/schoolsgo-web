@@ -154,17 +154,16 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
                             ),
                           if (widget.currentlyEditedIndex == widget.index)
                             plannerIconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                if (widget.currentlyEditedIndex != null) {
-                                  widget.superSetState(() {
-                                    widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
-                                    widget.updateEditingIndex(null);
-                                  });
-                                }
-                              },
-                              toolTip: "Delete"
-                            ),
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  if (widget.currentlyEditedIndex != null) {
+                                    widget.superSetState(() {
+                                      widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
+                                      widget.updateEditingIndex(null);
+                                    });
+                                  }
+                                },
+                                toolTip: "Delete"),
                           if (!plannerBean.isEditMode && widget.currentlyEditedIndex == null)
                             plannerIconButton(
                               icon: const Icon(Icons.call_split),
@@ -194,26 +193,33 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
                         ],
                       ),
               ),
-              if (!plannerBean.isExpanded && !plannerBean.isEditMode)
-                Row(
-                  children: [
-                    Expanded(child: timeslotsScrollView(plannerBean)),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_drop_down),
-                      onPressed: () {
-                        widget.superSetState(() {
-                          plannerBean.isExpanded = true;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              if (plannerBean.isExpanded || plannerBean.isEditMode) timeslotsGridView(plannerBean),
+              buildSlotsView(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget buildSlotsView() {
+    if ((plannerBean.plannerSlots ?? []).isEmpty) return Container();
+    if (!plannerBean.isExpanded && !plannerBean.isEditMode) {
+      return Row(
+        children: [
+          Expanded(child: timeslotsScrollView(plannerBean)),
+          IconButton(
+            icon: const Icon(Icons.arrow_drop_down),
+            onPressed: () {
+              widget.superSetState(() {
+                plannerBean.isExpanded = true;
+              });
+            },
+          ),
+        ],
+      );
+    }
+    if (plannerBean.isExpanded || plannerBean.isEditMode) return timeslotsGridView(plannerBean);
+    return Container();
   }
 
   Widget plannerIconButton({Widget? icon, Function()? onPressed, String? toolTip}) {
