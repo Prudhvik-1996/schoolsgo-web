@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
-import 'package:schoolsgo_web/src/academic_planner/views/each_plan_widget.dart';
+import 'package:schoolsgo_web/src/academic_planner/views/support_components/each_plan_widget.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/local_clean_calender/flutter_clean_calendar.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -159,7 +159,7 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
       context: _scaffoldKey.currentContext!,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Fee Management'),
+          title: const Text('Academic Planner'),
           content: const Text("Are you sure to save changes?"),
           actions: <Widget>[
             TextButton(

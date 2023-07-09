@@ -30,9 +30,9 @@ class EachPlanWidget extends StatefulWidget {
   final List<String> approvalStatusOptions;
   final bool isEditMode;
   final int? currentlyEditedIndex;
-  final Function updateEditingIndex;
+  final Function? updateEditingIndex;
   final Function canSubmit;
-  final Function splitSlots;
+  final Function? splitSlots;
   final bool isRearrangeMode;
 
   @override
@@ -70,7 +70,9 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildDescriptionWidget(),
+                    const SizedBox(height: 10),
                     buildNoOfSlotsWidget(),
+                    const SizedBox(height: 10),
                     buildApprovalStatusWidget(),
                   ],
                 ),
@@ -91,14 +93,16 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
         : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.currentlyEditedIndex == null)
+              if (widget.currentlyEditedIndex == null && widget.updateEditingIndex != null)
                 plannerIconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () {
-                    widget.superSetState(() {
-                      widget.updateEditingIndex(widget.index);
-                      plannerBean.isEditMode = true;
-                    });
+                    if (widget.updateEditingIndex != null) {
+                      widget.superSetState(() {
+                        widget.updateEditingIndex!(widget.index);
+                        plannerBean.isEditMode = true;
+                      });
+                    }
                   },
                   toolTip: "Edit",
                 ),
@@ -106,19 +110,23 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
                 plannerIconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      if (widget.currentlyEditedIndex != null) {
-                        widget.superSetState(() {
-                          widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
-                          widget.updateEditingIndex(null);
-                        });
+                      if (widget.updateEditingIndex != null) {
+                        if (widget.currentlyEditedIndex != null) {
+                          widget.superSetState(() {
+                            widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
+                            widget.updateEditingIndex!(null);
+                          });
+                        }
                       }
                     },
                     toolTip: "Delete"),
-              if (!plannerBean.isEditMode && widget.currentlyEditedIndex == null)
+              if (!plannerBean.isEditMode && widget.currentlyEditedIndex == null && widget.splitSlots != null)
                 plannerIconButton(
                   icon: const Icon(Icons.call_split),
                   onPressed: () {
-                    widget.splitSlots(widget.index);
+                    if (widget.splitSlots != null) {
+                      widget.splitSlots!(widget.index);
+                    }
                   },
                   toolTip: "Split",
                 ),
@@ -133,10 +141,12 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
                       );
                       return;
                     }
-                    widget.superSetState(() {
-                      widget.updateEditingIndex(null);
-                      plannerBean.isEditMode = false;
-                    });
+                    if (widget.updateEditingIndex != null) {
+                      widget.superSetState(() {
+                        widget.updateEditingIndex!(null);
+                        plannerBean.isEditMode = false;
+                      });
+                    }
                   },
                   toolTip: "Done",
                 ),
@@ -167,7 +177,7 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
   }
 
   Widget buildNoOfSlotsWidget() {
-    return plannerBean.isEditMode
+    return plannerBean.isEditMode || widget.isRearrangeMode
         ? TextFormField(
             initialValue: plannerBean.noOfSlots?.toString(),
             decoration: const InputDecoration(

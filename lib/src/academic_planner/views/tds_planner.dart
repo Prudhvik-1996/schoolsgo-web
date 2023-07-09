@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/academic_planner/views/master_planner/master_planner_screen.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/planner_creation.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -570,6 +571,20 @@ class _TdsPlannerState extends State<TdsPlanner> {
     return rows;
   }
 
+  void handleMoreOptions(String value) {
+    switch (value) {
+      case "Master Planner":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return MasterPlannerScreen(
+            adminProfile: widget.adminProfile,
+          );
+        }));
+        return;
+      default:
+        return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -579,6 +594,17 @@ class _TdsPlannerState extends State<TdsPlanner> {
           buildRoleButtonForAppBar(
             context,
             widget.adminProfile,
+          ),
+          PopupMenuButton<String>(
+            onSelected: handleMoreOptions,
+            itemBuilder: (BuildContext context) {
+              return {'Master Planner'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
           ),
         ],
       ),

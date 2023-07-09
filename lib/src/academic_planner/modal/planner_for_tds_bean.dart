@@ -108,6 +108,11 @@ class PlannedBeanForTds {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  @override
+  String toString() {
+    return 'PlannedBeanForTds{title: $title, description: $description}';
+  }
 }
 
 class GetPlannerRequest {
