@@ -760,18 +760,19 @@ class _AdminManageOnlineClassRoomsScreenState extends State<AdminManageOnlineCla
           //       _buildOnlineClassRoomWidgetsForAllSections(),
           //     ],
           //   ),
-          : Stack(
-              children: [
-                Opacity(
-                  opacity: 1,
-                  child: _createNewCustomOcrWidget(),
-                ),
-                Opacity(
-                  opacity: _isEditMode ? 0.4 : 1,
-                  child: _manageOCRsWidget(),
-                ),
-              ],
-            ),
+          : _manageOCRsWidget(),
+      // : Stack(
+      //         children: [
+      //           Opacity(
+      //             opacity: 1,
+      //             child: _createNewCustomOcrWidget(),
+      //           ),
+      //           Opacity(
+      //             opacity: _isEditMode ? 0.4 : 1,
+      //             child: _manageOCRsWidget(),
+      //           ),
+      //         ],
+      //       ),
       floatingActionButton: _isLoading || widget.adminProfile.isMegaAdmin
           ? Container()
           : MouseRegion(
