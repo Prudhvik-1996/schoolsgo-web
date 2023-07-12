@@ -313,7 +313,7 @@ class _TeacherStudyMaterialScreenState extends State<TeacherStudyMaterialScreen>
 
                 CreateOrUpdateStudyMaterialRequest createOrUpdateStudyMaterialRequest = CreateOrUpdateStudyMaterialRequest(
                   description: studyMaterial.description,
-                  studyMaterialType: studyMaterial.studyMaterialType,
+                  studyMaterialType: studyMaterial.studyMaterialType?.replaceAll(" ", "_"),
                   status: studyMaterial.status,
                   agentId: widget.teacherProfile.teacherId,
                   tdsId: widget.tds.tdsId,
