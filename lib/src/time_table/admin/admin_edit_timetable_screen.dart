@@ -13,6 +13,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 import 'admin_edit_section_wise_time_slots.dart';
@@ -499,7 +500,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
   }
 
   TeacherDealingSection? getTimeSlotValue(SectionWiseTimeSlotBean timeSlotToBeEdited) {
-    return timeSlotToBeEdited.tdsId == null ? null : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).first;
+    return timeSlotToBeEdited.tdsId == null ? null : _tdsList.where((e1) => e1.tdsId == timeSlotToBeEdited.tdsId).toList().firstOrNull();
   }
 
   Future<bool> alertUserOnMerge(String warningMessage) async {
