@@ -108,18 +108,19 @@ class _EachPlanWidgetState extends State<EachPlanWidget> {
                 ),
               if (widget.currentlyEditedIndex == widget.index)
                 plannerIconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      if (widget.updateEditingIndex != null) {
-                        if (widget.currentlyEditedIndex != null) {
-                          widget.superSetState(() {
-                            widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
-                            widget.updateEditingIndex!(null);
-                          });
-                        }
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    if (widget.updateEditingIndex != null) {
+                      if (widget.currentlyEditedIndex != null) {
+                        widget.superSetState(() {
+                          widget.plannerBeans.removeAt(widget.currentlyEditedIndex!);
+                          widget.updateEditingIndex!(null);
+                        });
                       }
-                    },
-                    toolTip: "Delete"),
+                    }
+                  },
+                  toolTip: "Delete",
+                ),
               if (!plannerBean.isEditMode && widget.currentlyEditedIndex == null && widget.splitSlots != null)
                 plannerIconButton(
                   icon: const Icon(Icons.call_split),

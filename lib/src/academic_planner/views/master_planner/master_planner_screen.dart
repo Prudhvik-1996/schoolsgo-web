@@ -6,6 +6,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.dart';
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
+import 'package:schoolsgo_web/src/academic_planner/views/master_planner/master_planner_creation_screen.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/master_planner/planner_list_for_each_tds.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/local_clean_calender/flutter_clean_calendar.dart';
@@ -246,7 +247,7 @@ class _MasterPlannerScreenState extends State<MasterPlannerScreen> {
 
   Future<void> _saveChangesAlert() async {
     tdsWisePlannerBeans.forEach((tdsId, plannerBeans) {
-      plannerBeans.forEach((plannerBean) {
+      for (PlannedBeanForTds plannerBean in plannerBeans) {
         String? errorMessage = canSubmit(plannerBean);
         if (errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -254,9 +255,9 @@ class _MasterPlannerScreenState extends State<MasterPlannerScreen> {
               content: Text(errorMessage),
             ),
           );
-          return;
+          continue;
         }
-      });
+      }
     });
     showDialog(
       context: _scaffoldKey.currentContext!,
@@ -521,6 +522,7 @@ class _MasterPlannerScreenState extends State<MasterPlannerScreen> {
                     _applyFilters();
                   },
                 ),
+                const SizedBox(width: 10),
               ],
             )
           : InkWell(
@@ -678,12 +680,42 @@ class _MasterPlannerScreenState extends State<MasterPlannerScreen> {
     );
   }
 
+  void handleMoreOptions(String value) {
+    switch (value) {
+      case "Planner Creation":
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return MasterPlannerCreationScreen(
+            adminProfile: widget.adminProfile,
+            sections: _sectionsList,
+            tdsList: _tdsList,
+          );
+        })).then((_) => _loadData());
+        return;
+      default:
+        return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Master Planner"),
+        actions: [
+          if (!_isLoading && !_isEditMode)
+            PopupMenuButton<String>(
+              onSelected: handleMoreOptions,
+              itemBuilder: (BuildContext context) {
+                return {'Planner Creation'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+        ],
       ),
       body: _isLoading
           ? Center(

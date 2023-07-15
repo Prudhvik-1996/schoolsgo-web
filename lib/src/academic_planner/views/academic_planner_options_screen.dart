@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_date_wise_calender_view.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/planner_view_for_all_tds_screen.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/tds_planner.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -11,9 +10,11 @@ class AdminAcademicPlannerOptionsScreen extends StatefulWidget {
   const AdminAcademicPlannerOptionsScreen({
     Key? key,
     required this.adminProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
   static const routeName = "/academic_planner";
 
   @override
@@ -87,9 +88,11 @@ class _AdminAcademicPlannerOptionsScreenState extends State<AdminAcademicPlanner
       appBar: AppBar(
         title: const Text("Academic Planner"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: widget.adminProfile != null
+          ? AdminAppDrawer(
+              adminProfile: widget.adminProfile!,
+            )
+          : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,
@@ -99,6 +102,7 @@ class _AdminAcademicPlannerOptionsScreenState extends State<AdminAcademicPlanner
             null,
             TdsPlanner(
               adminProfile: widget.adminProfile,
+              teacherProfile: widget.teacherProfile,
             ),
           ),
           // _getAcademicPlannerOption(
@@ -113,6 +117,7 @@ class _AdminAcademicPlannerOptionsScreenState extends State<AdminAcademicPlanner
             null,
             PlannerViewForAllTdsScreen(
               adminProfile: widget.adminProfile,
+              teacherProfile: widget.teacherProfile,
             ),
           ),
         ],

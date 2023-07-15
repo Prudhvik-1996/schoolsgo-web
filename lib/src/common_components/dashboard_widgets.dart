@@ -246,6 +246,12 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
       //   argument: teacherProfile,
       // ),
       DashboardWidget(
+        image: SvgPicture.asset("assets/images/academic_planner.svg"),
+        title: "Academic Planner",
+        routeName: "/academic_planner",
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Demo",
         routeName: "/demo",
@@ -457,19 +463,19 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         argument: adminProfile,
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/demo.svg"),
-        title: "Academin Planner",
+        image: SvgPicture.asset("assets/images/academic_planner.svg"),
+        title: "Academic Planner",
         routeName: "/academic_planner",
         argument: adminProfile,
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/demo.svg"),
+        image: SvgPicture.asset("assets/images/hostel_management.svg"),
         title: "Hostels",
         routeName: "/hostels",
         argument: adminProfile,
       ),
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/demo.svg"),
+        image: SvgPicture.asset("assets/images/task_management.svg"),
         title: "Task Management",
         routeName: "/task_management",
         argument: adminProfile,

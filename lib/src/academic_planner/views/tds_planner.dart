@@ -16,9 +16,11 @@ class TdsPlanner extends StatefulWidget {
   const TdsPlanner({
     Key? key,
     required this.adminProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
 
   @override
   State<TdsPlanner> createState() => _TdsPlannerState();
@@ -50,7 +52,8 @@ class _TdsPlannerState extends State<TdsPlanner> {
     });
 
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      teacherId: widget.teacherProfile?.teacherId,
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
@@ -60,7 +63,8 @@ class _TdsPlannerState extends State<TdsPlanner> {
     }
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      teacherId: widget.teacherProfile?.teacherId,
     );
     GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
@@ -76,7 +80,7 @@ class _TdsPlannerState extends State<TdsPlanner> {
     }
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -135,14 +139,14 @@ class _TdsPlannerState extends State<TdsPlanner> {
       borderRadius: 10,
       height: 60,
       child: DropdownSearch<Teacher>(
-        clearButton: IconButton(
+        clearButton: widget.adminProfile != null ? IconButton(
           onPressed: () {
             setState(() => _selectedTeacher = null);
             _applyFilters();
           },
           icon: const Icon(Icons.clear),
-        ),
-        enabled: true,
+        ) : Container(),
+        enabled: widget.adminProfile != null,
         mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
         selectedItem: _selectedTeacher,
         items: _teachersList,
@@ -273,15 +277,17 @@ class _TdsPlannerState extends State<TdsPlanner> {
                     ),
                   ),
                 ),
-                InkWell(
-                  child: const Icon(Icons.close),
-                  onTap: () {
-                    setState(() {
-                      _selectedSection = null;
-                    });
-                    _applyFilters();
-                  },
-                ),
+                const SizedBox(width: 10),
+                  InkWell(
+                    child: const Icon(Icons.close),
+                    onTap: () {
+                      setState(() {
+                        _selectedSection = null;
+                      });
+                      _applyFilters();
+                    },
+                  ),
+                const SizedBox(width: 10),
               ],
             )
           : InkWell(
@@ -400,6 +406,7 @@ class _TdsPlannerState extends State<TdsPlanner> {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return PlannerCreationScreen(
               adminProfile: widget.adminProfile,
+              teacherProfile: widget.teacherProfile,
               tds: tds,
             );
           }));
@@ -538,6 +545,7 @@ class _TdsPlannerState extends State<TdsPlanner> {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return PlannerCreationScreen(
               adminProfile: widget.adminProfile,
+              teacherProfile: widget.teacherProfile,
               tds: tds,
             );
           }));
@@ -576,7 +584,7 @@ class _TdsPlannerState extends State<TdsPlanner> {
       case "Master Planner":
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return MasterPlannerScreen(
-            adminProfile: widget.adminProfile,
+            adminProfile: widget.adminProfile!,
           );
         }));
         return;
@@ -591,24 +599,32 @@ class _TdsPlannerState extends State<TdsPlanner> {
       appBar: AppBar(
         title: const Text("Academic Planner"),
         actions: [
-          buildRoleButtonForAppBar(
-            context,
-            widget.adminProfile,
-          ),
-          PopupMenuButton<String>(
-            onSelected: handleMoreOptions,
-            itemBuilder: (BuildContext context) {
-              return {'Master Planner'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          ),
+          if (widget.adminProfile != null)
+            buildRoleButtonForAppBar(
+              context,
+              widget.adminProfile!,
+            )
+          else
+            buildRoleButtonForAppBar(
+              context,
+              widget.teacherProfile!,
+            ),
+          if (!_isLoading && widget.adminProfile != null)
+            PopupMenuButton<String>(
+              onSelected: handleMoreOptions,
+              itemBuilder: (BuildContext context) {
+                return {'Master Planner'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
         ],
       ),
-      drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
+      drawer:
+          widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: _isLoading
           ? Center(
               child: Image.asset(

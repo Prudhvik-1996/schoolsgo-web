@@ -23,9 +23,11 @@ class PlannerViewForAllTdsScreen extends StatefulWidget {
   const PlannerViewForAllTdsScreen({
     Key? key,
     required this.adminProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
 
   @override
   State<PlannerViewForAllTdsScreen> createState() => _PlannerViewForAllTdsScreenState();
@@ -62,7 +64,8 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
     });
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      teacherId: widget.teacherProfile?.teacherId,
     );
     GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
@@ -85,7 +88,7 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
     }
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
@@ -102,7 +105,8 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
     }
 
     GetTeacherDealingSectionsRequest getTeacherDealingSectionsRequest = GetTeacherDealingSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      teacherId: widget.teacherProfile?.teacherId,
     );
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(getTeacherDealingSectionsRequest);
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
@@ -121,7 +125,9 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
     GetSchoolWiseAcademicYearsResponse response = await getSchoolWiseAcademicYears(
-      GetSchoolWiseAcademicYearsRequest(schoolId: widget.adminProfile.schoolId),
+      GetSchoolWiseAcademicYearsRequest(
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      ),
     );
 
     if (response.httpStatus == "OK" && response.responseStatus == "success") {
@@ -144,7 +150,8 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
         }
       }
       GetPlannerTimeSlotsRequest getPlannerTimeSlotsRequest = GetPlannerTimeSlotsRequest(
-        schoolId: widget.adminProfile.schoolId,
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+        teacherId: widget.teacherProfile?.teacherId,
         startDate: startDate,
         endDate: endDate,
       );
@@ -162,7 +169,7 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
         return;
       }
       GetPlannerResponse getPlannerResponse = await getPlanner(GetPlannerRequest(
-        schoolId: widget.adminProfile.schoolId,
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId, teacherId: widget.teacherProfile?.teacherId,
         // academicYearId: TODO
       ));
       if (getPlannerResponse.httpStatus == "OK" && getPlannerResponse.responseStatus == "success") {
@@ -396,13 +403,13 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
       height: 60,
       width: 60,
       child: DropdownSearch<Teacher>(
-        clearButton: IconButton(
+        clearButton: widget.adminProfile != null ? IconButton(
           onPressed: () {
             setState(() => _selectedTeacher = null);
           },
           icon: const Icon(Icons.clear),
-        ),
-        enabled: true,
+        ) : Container(),
+        enabled: widget.adminProfile != null,
         mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
         selectedItem: _selectedTeacher,
         items: _teachersList,

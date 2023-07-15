@@ -19,10 +19,12 @@ class PlannerCreationScreen extends StatefulWidget {
   const PlannerCreationScreen({
     Key? key,
     required this.adminProfile,
+    required this.teacherProfile,
     required this.tds,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
   final TeacherDealingSection tds;
 
   @override
@@ -64,7 +66,9 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
     GetSchoolWiseAcademicYearsResponse response = await getSchoolWiseAcademicYears(
-      GetSchoolWiseAcademicYearsRequest(schoolId: widget.adminProfile.schoolId),
+      GetSchoolWiseAcademicYearsRequest(
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      ),
     );
 
     if (response.httpStatus == "OK" && response.responseStatus == "success") {
@@ -87,7 +91,8 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
         }
       }
       GetPlannerTimeSlotsRequest getPlannerTimeSlotsRequest = GetPlannerTimeSlotsRequest(
-        schoolId: widget.adminProfile.schoolId,
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+        teacherId: widget.teacherProfile?.teacherId,
         startDate: startDate,
         endDate: endDate,
         tdsId: widget.tds.tdsId,
@@ -110,7 +115,7 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
         teacherId: widget.tds.teacherId,
         subjectId: widget.tds.subjectId,
         sectionId: widget.tds.sectionId,
-        schoolId: widget.adminProfile.schoolId,
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
         academicYearId: selectedAcademicYearId,
       ));
       if (getPlannerResponse.httpStatus == "OK" && getPlannerResponse.responseStatus == "success") {
@@ -172,8 +177,8 @@ class _PlannerCreationScreenState extends State<PlannerCreationScreen> {
                   teacherId: widget.tds.teacherId,
                   subjectId: widget.tds.subjectId,
                   sectionId: widget.tds.sectionId,
-                  schoolId: widget.adminProfile.schoolId,
-                  agent: widget.adminProfile.userId,
+                  schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+                  agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
                   plannerBeanJsonString: jsonEncode("[" + plannerBeans.map((e) => jsonEncode(e.toJson())).join(",") + "]"),
                 ));
                 if (createOrUpdatePlannerResponse.httpStatus == "OK" && createOrUpdatePlannerResponse.responseStatus == "success") {

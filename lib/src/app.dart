@@ -5,7 +5,6 @@ import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_option
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/attendance_options_screen.dart';
-import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_options_screen.dart';
 import 'package:schoolsgo_web/src/bus/student/student_bus_screen.dart';
 import 'package:schoolsgo_web/src/chat_room/student/student_chat_room.dart';
@@ -815,12 +814,27 @@ class _MyAppState extends State<MyApp> {
               return const E404NotFoundScreen();
             }
           case AdminAcademicPlannerOptionsScreen.routeName:
-            try {
-              var argument = (routeSettings.arguments as AdminProfile);
-              return AdminAcademicPlannerOptionsScreen(
-                adminProfile: argument,
-              );
-            } catch (e) {
+            if (routeSettings.arguments is AdminProfile) {
+              try {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return AdminAcademicPlannerOptionsScreen(
+                  adminProfile: argument,
+                  teacherProfile: null,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if (routeSettings.arguments is TeacherProfile) {
+              try {
+                var argument = (routeSettings.arguments as TeacherProfile);
+                return AdminAcademicPlannerOptionsScreen(
+                  adminProfile: null,
+                  teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else {
               return const E404NotFoundScreen();
             }
           case AdminHostelOptionsScreen.routeName:
