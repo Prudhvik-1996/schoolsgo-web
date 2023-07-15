@@ -120,12 +120,12 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         routeName: "/suggestion_box",
         argument: studentProfile,
       ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/chat_room.svg"),
-        title: "Chat Room",
-        routeName: StudentChatRoom.routeName,
-        argument: studentProfile,
-      ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/chat_room.svg"),
+      //   title: "Chat Room",
+      //   routeName: StudentChatRoom.routeName,
+      //   argument: studentProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/fee.svg"),
         title: "Fee",
@@ -232,13 +232,13 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         routeName: "/onlineclassroom",
         argument: teacherProfile,
       ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/chat_room.svg"),
-        title: "Chat Room",
-        routeName: StudentChatRoom.routeName,
-        argument: teacherProfile,
-      ),
-      // We shall implement based on suggestions
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/chat_room.svg"),
+      //   title: "Chat Room",
+      //   routeName: StudentChatRoom.routeName,
+      //   argument: teacherProfile,
+      // ),
+      // TODO We shall implement based on suggestions
       // DashboardWidget(
       //   image: SvgPicture.asset("assets/images/feedback.svg"),
       //   title: "Feedback",
@@ -460,6 +460,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         image: SvgPicture.asset("assets/images/demo.svg"),
         title: "Academin Planner",
         routeName: "/academic_planner",
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/demo.svg"),
+        title: "Hostels",
+        routeName: "/hostels",
         argument: adminProfile,
       ),
       DashboardWidget(

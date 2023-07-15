@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
     clientId: "480997552358-t9ir5mnb6t91gcemhdmdivh3a1uo3208.apps.googleusercontent.com",
   );
 
-  String? token = DateTime.now().millisecondsSinceEpoch.toString();
+  String? token;
 
   TextEditingController emailEditingController = TextEditingController();
   TextEditingController loginIdEditingController = TextEditingController();
@@ -198,28 +198,33 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Theme.of(context).primaryColor != Colors.blue ? const Color(0xFF2c2c2c) : const Color(0xFFFFFFFF),
-      restorationId: "LoginScreen",
-      appBar: AppBar(
-        elevation: 0.0,
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: Theme.of(context).primaryColor != Colors.blue ? const Color(0xFF2c2c2c) : const Color(0xFFFFFFFF),
-        iconTheme:
-            Theme.of(context).primaryColor == Colors.blue ? const IconThemeData(color: Colors.black) : const IconThemeData(color: Colors.white),
+        restorationId: "LoginScreen",
+        appBar: AppBar(
+          elevation: 0.0,
+          backgroundColor: Theme.of(context).primaryColor != Colors.blue ? const Color(0xFF2c2c2c) : const Color(0xFFFFFFFF),
+          iconTheme:
+              Theme.of(context).primaryColor == Colors.blue ? const IconThemeData(color: Colors.black) : const IconThemeData(color: Colors.white),
+        ),
+        drawer: const DefaultAppDrawer(),
+        body: _isLoading
+            ? Center(
+                child: Image.asset(
+                  'assets/images/eis_loader.gif',
+                  height: 500,
+                  width: 500,
+                ),
+              )
+            : (MediaQuery.of(context).orientation == Orientation.landscape)
+                ? buildLandscapeScreen()
+                : buildPortraitScreen(),
       ),
-      drawer: const DefaultAppDrawer(),
-      body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
-          : (MediaQuery.of(context).orientation == Orientation.landscape)
-              ? buildLandscapeScreen()
-              : buildPortraitScreen(),
     );
   }
 
@@ -791,7 +796,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (text.length > 6) return oldValue;
                 if (text.isNotEmpty) int.parse(text);
                 return newValue;
-              } catch (e) {}
+              } catch (_, e) {
+                debugPrintStack(stackTrace: e);
+              }
               return oldValue;
             }),
           ],

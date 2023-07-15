@@ -273,151 +273,156 @@ class _UserDashboardState extends State<UserDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      restorationId: 'UserDashboard',
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: const Text("Epsilon Diary"),
-        actions: [
-          InkWell(
-            onTap: () {
-              showDialog(
-                context: _scaffoldKey.currentContext!,
-                builder: (dialogueContext) {
-                  return AlertDialog(
-                    title: const Text('Epsilon Diary'),
-                    content: const Text("Are you sure you want to logout?"),
-                    actions: <Widget>[
-                      TextButton(
-                        child: const Text("Yes"),
-                        onPressed: () async {
-                          Navigator.of(context).pop();
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                          int? userId = prefs.getInt('LOGGED_IN_USER_ID');
-                          String? fcmToken = prefs.getString('USER_FCM_TOKEN');
-                          await doLogout(DoLogoutRequest(
-                            userId: userId,
-                            fcmToken: fcmToken,
-                          ));
-                          await prefs.clear();
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            SplashScreen.routeName,
-                            (route) => route.isFirst,
-                            arguments: true,
-                          );
-                          await Restart.restartApp(webOrigin: null);
-                        },
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("No"),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              child: const Icon(
-                Icons.logout,
-                color: Colors.white,
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        restorationId: 'UserDashboard',
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: const Text("Epsilon Diary"),
+          actions: [
+            InkWell(
+              onTap: () {
+                showDialog(
+                  context: _scaffoldKey.currentContext!,
+                  builder: (dialogueContext) {
+                    return AlertDialog(
+                      title: const Text('Epsilon Diary'),
+                      content: const Text("Are you sure you want to logout?"),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text("Yes"),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            int? userId = prefs.getInt('LOGGED_IN_USER_ID');
+                            String? fcmToken = prefs.getString('USER_FCM_TOKEN');
+                            await doLogout(DoLogoutRequest(
+                              userId: userId,
+                              fcmToken: fcmToken,
+                            ));
+                            await prefs.clear();
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              SplashScreen.routeName,
+                              (route) => route.isFirst,
+                              arguments: true,
+                            );
+                            await Restart.restartApp(webOrigin: null);
+                          },
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text("No"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                child: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-      drawer: const DefaultAppDrawer(),
-      body: SafeArea(
-        child: _isLoading
-            ? Center(
-                child: Image.asset(
-                  'assets/images/eis_loader.gif',
-                  height: 500,
-                  width: 500,
+          ],
+        ),
+        drawer: const DefaultAppDrawer(),
+        body: SafeArea(
+          child: _isLoading
+              ? Center(
+                  child: Image.asset(
+                    'assets/images/eis_loader.gif',
+                    height: 500,
+                    width: 500,
+                  ),
+                )
+              : ListView(
+                  children: [buildUserDetailsWidget(_userDetails)] +
+                      [
+                        ..._groupedMegaAdminsLists
+                            .map((List<MegaAdminProfile> megaAdmins) => megaAdmins.isEmpty
+                                ? Container()
+                                : buildRoleButton(
+                                    context,
+                                    "Mega Admin",
+                                    ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
+                                        .split(" ")
+                                        .where((i) => i != "")
+                                        .join(" "),
+                                    "Franchise: " + (megaAdmins.firstOrNull?.franchiseName ?? "-").capitalize(),
+                                    megaAdmins,
+                                  ))
+                            .toList(),
+                      ] +
+                      _adminProfiles
+                          .map(
+                            (e) => buildRoleButton(
+                              context,
+                              "Admin",
+                              ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
+                                  .split(" ")
+                                  .where((i) => i != "")
+                                  .join(" "),
+                              e.schoolName ?? '',
+                              e,
+                            ),
+                          )
+                          .toList() +
+                      _studentProfiles
+                          .map(
+                            (e) => buildRoleButton(
+                              context,
+                              "Student",
+                              ((e.studentFirstName ?? "" ' ') + (e.studentMiddleName ?? "" ' ') + (e.studentLastName ?? "" ' '))
+                                  .split(" ")
+                                  .where((i) => i != "")
+                                  .join(" "),
+                              e.schoolName ?? '',
+                              e,
+                            ),
+                          )
+                          .toList() +
+                      _teacherProfiles
+                          .map(
+                            (e) => buildRoleButton(
+                              context,
+                              "Teacher",
+                              ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
+                                  .split(" ")
+                                  .where((i) => i != "")
+                                  .join(" "),
+                              e.schoolName ?? '',
+                              e,
+                            ),
+                          )
+                          .toList() +
+                      _otherRoleProfile
+                          .map(
+                            (e) => buildRoleButton(
+                              context,
+                              (e.roleName ?? "-").capitalize(),
+                              (e.userName ?? "-"),
+                              e.schoolName ?? '',
+                              e,
+                            ),
+                          )
+                          .toList() +
+                      [
+                        const SizedBox(
+                          height: 100,
+                        ),
+                      ],
                 ),
-              )
-            : ListView(
-                children: [buildUserDetailsWidget(_userDetails)] +
-                    [
-                      ..._groupedMegaAdminsLists
-                          .map((List<MegaAdminProfile> megaAdmins) => megaAdmins.isEmpty
-                              ? Container()
-                              : buildRoleButton(
-                                  context,
-                                  "Mega Admin",
-                                  ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
-                                      .split(" ")
-                                      .where((i) => i != "")
-                                      .join(" "),
-                                  "Franchise: " + (megaAdmins.firstOrNull?.franchiseName ?? "-").capitalize(),
-                                  megaAdmins,
-                                ))
-                          .toList(),
-                    ] +
-                    _adminProfiles
-                        .map(
-                          (e) => buildRoleButton(
-                            context,
-                            "Admin",
-                            ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
-                                .split(" ")
-                                .where((i) => i != "")
-                                .join(" "),
-                            e.schoolName ?? '',
-                            e,
-                          ),
-                        )
-                        .toList() +
-                    _studentProfiles
-                        .map(
-                          (e) => buildRoleButton(
-                            context,
-                            "Student",
-                            ((e.studentFirstName ?? "" ' ') + (e.studentMiddleName ?? "" ' ') + (e.studentLastName ?? "" ' '))
-                                .split(" ")
-                                .where((i) => i != "")
-                                .join(" "),
-                            e.schoolName ?? '',
-                            e,
-                          ),
-                        )
-                        .toList() +
-                    _teacherProfiles
-                        .map(
-                          (e) => buildRoleButton(
-                            context,
-                            "Teacher",
-                            ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
-                                .split(" ")
-                                .where((i) => i != "")
-                                .join(" "),
-                            e.schoolName ?? '',
-                            e,
-                          ),
-                        )
-                        .toList() +
-                    _otherRoleProfile
-                        .map(
-                          (e) => buildRoleButton(
-                            context,
-                            (e.roleName ?? "-").capitalize(),
-                            (e.userName ?? "-"),
-                            e.schoolName ?? '',
-                            e,
-                          ),
-                        )
-                        .toList() +
-                    [
-                      const SizedBox(
-                        height: 100,
-                      ),
-                    ],
-              ),
+        ),
       ),
     );
   }
