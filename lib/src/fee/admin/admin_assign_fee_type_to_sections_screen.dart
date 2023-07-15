@@ -180,10 +180,12 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                   schoolId: widget.adminProfile.schoolId,
                   agent: widget.adminProfile.userId,
                   sectionWiseFeesBeanList: (actualSectionWiseAnnualFeeBeanMap[section]?.feeTypes ?? [])
-                      .where((e) => e.sectionWiseFeesStatus != null)
+                      .where((e) => e.sectionWiseFeesStatus != null || (e.sectionWiseAnnualCustomFeeTypeBeans ?? []).isNotEmpty)
                       .map((SectionWiseAnnualFeeTypeBean eachFeeType) {
+                        debugPrint("185: $eachFeeType");
                         List<SectionWiseAnnualFeesBean> list = [];
                         if ((eachFeeType.sectionWiseAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+                          debugPrint("188: adding fee type");
                           list.add(
                             SectionWiseAnnualFeesBean(
                               sectionId: toBeEdited!.sectionId,
@@ -196,6 +198,8 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                           );
                         } else {
                           for (SectionWiseAnnualCustomFeeTypeBean eachCustomFeeType in (eachFeeType.sectionWiseAnnualCustomFeeTypeBeans ?? [])) {
+                            if (eachCustomFeeType.sectionWiseFeesStatus == null) continue;
+                            debugPrint("201: adding each custom fee type");
                             list.add(
                               SectionWiseAnnualFeesBean(
                                 sectionId: toBeEdited!.sectionId,

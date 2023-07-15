@@ -85,8 +85,8 @@ class _SettingsViewState extends State<SettingsView> {
           const SizedBox(height: 10),
           currentVersion(),
           const SizedBox(height: 10),
-          // if (fcmToken != null) _buildFcmTokenSection(),
-          // if (fcmToken != null) const SizedBox(height: 10),
+          if (fcmToken != null) _buildFcmTokenSection(),
+          if (fcmToken != null) const SizedBox(height: 10),
         ],
       ),
     );
