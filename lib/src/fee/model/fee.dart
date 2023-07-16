@@ -869,6 +869,7 @@ class StudentAnnualFeeMapBean {
 */
 
   int? amount;
+  int? discount;
   int? amountPaid;
   String? comments;
   String? customFeeType;
@@ -889,6 +890,7 @@ class StudentAnnualFeeMapBean {
 
   StudentAnnualFeeMapBean({
     this.amount,
+    this.discount,
     this.amountPaid,
     this.comments,
     this.customFeeType,
@@ -910,6 +912,7 @@ class StudentAnnualFeeMapBean {
   StudentAnnualFeeMapBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
+    discount = json['discount']?.toInt();
     amountPaid = json['amountPaid']?.toInt();
     comments = json['comments']?.toString();
     customFeeType = json['customFeeType']?.toString();
@@ -931,6 +934,7 @@ class StudentAnnualFeeMapBean {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
+    data['discount'] = discount;
     data['amountPaid'] = amountPaid;
     data['comments'] = comments;
     data['customFeeType'] = customFeeType;
@@ -1381,6 +1385,7 @@ class StudentAnnualFeeMapUpdateBean {
 */
 
   int? amount;
+  int? discount;
   int? schoolId;
   int? sectionFeeMapId;
   int? studentFeeMapId;
@@ -1389,6 +1394,7 @@ class StudentAnnualFeeMapUpdateBean {
 
   StudentAnnualFeeMapUpdateBean({
     this.amount,
+    this.discount,
     this.schoolId,
     this.sectionFeeMapId,
     this.studentFeeMapId,
@@ -1398,6 +1404,7 @@ class StudentAnnualFeeMapUpdateBean {
   StudentAnnualFeeMapUpdateBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
+    discount = json['discount']?.toInt();
     schoolId = json['schoolId']?.toInt();
     sectionFeeMapId = json['sectionFeeMapId']?.toInt();
     studentFeeMapId = json['studentFeeMapId']?.toInt();
@@ -1407,6 +1414,7 @@ class StudentAnnualFeeMapUpdateBean {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
+    data['discount'] = discount;
     data['schoolId'] = schoolId;
     data['sectionFeeMapId'] = sectionFeeMapId;
     data['studentFeeMapId'] = studentFeeMapId;

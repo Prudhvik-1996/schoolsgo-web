@@ -236,6 +236,13 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
                                   eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                               .firstOrNull
                               ?.amount,
+                          discount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                              .map((e) => e!)
+                              .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                  eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                  eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                              .firstOrNull
+                              ?.discount,
                           amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                               .map((e) => e!)
                               .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>

@@ -150,6 +150,12 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
                             eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                         .firstOrNull
                         ?.amount,
+                    discount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.discount,
                     amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                         .map((e) => e!)
                         .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -184,6 +190,13 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
                                     eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                                 .firstOrNull
                                 ?.amount,
+                            discount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.discount,
                             amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                                 .map((e) => e!)
                                 .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>

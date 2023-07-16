@@ -169,6 +169,12 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                             eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                         .firstOrNull
                         ?.amount,
+                    discount: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.discount,
                     amountPaid: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
                         .map((e) => e!)
                         .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -203,6 +209,13 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                                     eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                                 .firstOrNull
                                 ?.amount,
+                            discount: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.discount,
                             amountPaid: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
                                 .map((e) => e!)
                                 .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>

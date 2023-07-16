@@ -218,6 +218,12 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                         eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                     .firstOrNull
                     ?.amount,
+                discount: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                    .map((e) => e!)
+                    .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                        eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                    .firstOrNull
+                    ?.discount,
                 amountPaid: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
                     .map((e) => e!)
                     .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -252,6 +258,13 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                                 eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                             .firstOrNull
                             ?.amount,
+                        discount: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                            .map((e) => e!)
+                            .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                            .firstOrNull
+                            ?.discount,
                         amountPaid: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
                             .map((e) => e!)
                             .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -294,6 +307,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                                 schoolId: widget.studentProfile.schoolId,
                                 studentId: widget.studentProfile.studentId,
                                 amount: e.amount,
+                                discount: e.discount,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
@@ -305,6 +319,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                                 schoolId: widget.studentProfile.schoolId,
                                 studentId: widget.studentProfile.studentId,
                                 amount: e.amount,
+                                discount: e.discount,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
@@ -2104,25 +2119,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
         height: 7.5,
       ),
     );
-
-    List<int> feeTypesIdsToBeConsideredForDiscount = sectionWiseAnnualFeeBeansList
-        .where((e) => e.sectionId == studentAnnualFeeBeanK.sectionId)
-        .map((e) => e.feeTypeId == null || e.feeTypeId == -1 || e.amount == null || e.amount == 0 ? null : e.feeTypeId)
-        .where((e) => e != null)
-        .map((e) => e!)
-        .toSet()
-        .toList();
-    int actualFee = sectionWiseAnnualFeeBeansList
-        .where((e) => e.sectionId == studentAnnualFeeBeanK.sectionId)
-        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
-        .map((e) => e.amount ?? 0)
-        .reduce((a, b) => a + b);
-    int feeAfterDiscount = (studentAnnualFeeBeanK.studentAnnualFeeTypeBeans ?? [])
-        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
-        .map((e) => e.amount ?? 0)
-        .reduce((a, b) => a + b);
-    int discount = (actualFee - feeAfterDiscount);
-    if (discount > 0) {
+    if (studentAnnualFeeBeanK.discount > 0) {
       feeStats.add(
         Row(
           children: [
@@ -2130,7 +2127,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
               child: Text("Discount:"),
             ),
             Text(
-              "$INR_SYMBOL ${doubleToStringAsFixedForINR(discount / 100)}",
+              "$INR_SYMBOL ${doubleToStringAsFixedForINR(studentAnnualFeeBeanK.discount / 100)}",
               textAlign: TextAlign.end,
               style: const TextStyle(
                 color: Colors.blue,

@@ -205,6 +205,12 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                             eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                         .firstOrNull
                         ?.amount,
+                    discount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                    eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.discount,
                     amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                         .map((e) => e!)
                         .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -239,6 +245,13 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                     eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                                 .firstOrNull
                                 ?.amount,
+                            discount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.discount,
                             amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                                 .map((e) => e!)
                                 .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -290,6 +303,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 schoolId: widget.adminProfile.schoolId,
                                 studentId: studentId,
                                 amount: e.amount,
+                                discount: e.discount,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
@@ -304,6 +318,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 schoolId: widget.adminProfile.schoolId,
                                 studentId: studentId,
                                 amount: e.amount,
+                                discount: e.discount,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
@@ -420,6 +435,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
               margin: const EdgeInsets.all(8),
               child: GestureDetector(
                 onTap: () {
+                  // TODO navigate to new screen
                   setState(() {
                     editingStudentId = studentWiseAnnualFeesBean.studentId;
                   });
@@ -536,7 +552,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 ],
                                 onChanged: (String e) {
                                   setState(() {
-                                    eachStudentAnnualFeeTypeBean.amount = (double.parse(e) * 100).round();
+                                    eachStudentAnnualFeeTypeBean.amount = (double.parse(e) * 100).round(); // TODO
                                   });
                                 },
                                 style: const TextStyle(
@@ -698,26 +714,8 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         height: 7.5,
       ),
     );
-
-    List<int> feeTypesIdsToBeConsideredForDiscount = sectionWiseAnnualFeeBeansList
-        .where((e) => e.sectionId == studentWiseAnnualFeesBean.sectionId)
-        .map((e) => e.feeTypeId == null || e.feeTypeId == -1 || e.amount == null || e.amount == 0 ? null : e.feeTypeId)
-        .where((e) => e != null)
-        .map((e) => e!)
-        .toSet()
-        .toList();
-    int actualFee = sectionWiseAnnualFeeBeansList
-        .where((e) => e.sectionId == studentWiseAnnualFeesBean.sectionId)
-        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
-        .map((e) => e.amount ?? 0)
-        .reduce((a, b) => a + b);
-    int feeAfterDiscount = (studentWiseAnnualFeesBean.studentAnnualFeeTypeBeans ?? [])
-        .where((e) => feeTypesIdsToBeConsideredForDiscount.contains(e.feeTypeId))
-        .map((e) => e.amount ?? 0)
-        .reduce((a, b) => a + b);
-    int discount = (actualFee - feeAfterDiscount);
     // TODO: add bus fee discount as well
-    if (discount > 0) {
+    if (studentWiseAnnualFeesBean.discount > 0) {
       feeStats.add(
         Row(
           children: [
@@ -725,7 +723,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
               child: Text("Discount:"),
             ),
             Text(
-              "$INR_SYMBOL ${doubleToStringAsFixedForINR(discount / 100)}",
+              "$INR_SYMBOL ${doubleToStringAsFixedForINR(studentWiseAnnualFeesBean.discount / 100)}",
               textAlign: TextAlign.end,
               style: const TextStyle(
                 color: Colors.blue,

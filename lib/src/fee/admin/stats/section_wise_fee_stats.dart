@@ -217,7 +217,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
                 ),
               )
               .toList(),
-        )..computeDiscount(sectionWiseAnnualFeeBeansList),
+        ),
       );
     }
     studentAnnualFeeBeans = studentAnnualFeeBeans.where((e) => e.status != "inactive").toList();
