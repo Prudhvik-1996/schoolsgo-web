@@ -359,6 +359,7 @@ class _EditStudentFeeScreenState extends State<EditStudentFeeScreen> {
           try {
             final text = newValue.text;
             if (text.isNotEmpty) double.parse(text);
+            // TODO if this newValue is > actual amount => do not allow
             return newValue;
           } catch (e) {
             debugPrintStack();
@@ -372,7 +373,7 @@ class _EditStudentFeeScreenState extends State<EditStudentFeeScreen> {
   Widget feeTypeAmountWidget(StudentAnnualFeeTypeBean eachFeeType) {
     // return Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(((eachFeeType.amount ?? 0) + (eachFeeType.discount ?? 0)) / 100)}");
     return TextFormField(
-      initialValue: "${(((eachFeeType.amount ?? 0) + (eachFeeType.discount ?? 0)) / 100)}",
+      initialValue: "${((eachFeeType.actualAmount ?? 0) / 100)}",
       decoration: const InputDecoration(
         border: UnderlineInputBorder(),
         focusedBorder: OutlineInputBorder(
@@ -444,7 +445,7 @@ class _EditStudentFeeScreenState extends State<EditStudentFeeScreen> {
   Widget customFeeTypeAmountWidget(StudentAnnualCustomFeeTypeBean eachCustomFeeType) {
     // return Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(((eachCustomFeeType.amount ?? 0) + (eachCustomFeeType.discount ?? 0)) / 100)}");
     return TextFormField(
-      initialValue: "${(((eachCustomFeeType.amount ?? 0) + (eachCustomFeeType.discount ?? 0)) / 100)}",
+      initialValue: "${((eachCustomFeeType.actualAmount ?? 0) / 100)}",
       decoration: const InputDecoration(
         border: UnderlineInputBorder(),
         focusedBorder: OutlineInputBorder(

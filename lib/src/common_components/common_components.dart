@@ -31,18 +31,19 @@ class DefaultAppDrawer extends Drawer {
                   alignment: Alignment.topLeft,
                   child: Row(
                     children: [
-                      InkWell(
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
+                      // InkWell(
+                      //   child: const Icon(
+                      //     Icons.arrow_back,
+                      //     color: Colors.white,
+                      //   ),
+                      //   onTap: () {
+                      //     Navigator.pop(context);
+                      //     if (Navigator.canPop(context)) {
+                      //       Navigator.pop(context);
+                      //     }
+                      //   },
+                      // ),
+                      const Expanded(child: Text("")),
                       InkWell(
                         child: const Icon(
                           Icons.clear,
