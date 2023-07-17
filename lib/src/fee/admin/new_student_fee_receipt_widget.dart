@@ -152,6 +152,13 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                                   eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                               .firstOrNull
                               ?.discount,
+                          comments: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                              .map((e) => e!)
+                              .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                  eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                  eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                              .firstOrNull
+                              ?.comments,
                           amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                               .map((e) => e!)
                               .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>

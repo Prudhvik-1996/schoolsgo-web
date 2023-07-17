@@ -46,6 +46,7 @@ class StudentAnnualFeeTypeBean {
   String? feeType;
   int? amount;
   int? discount;
+  String? comments;
   int? amountPaid;
   int? studentFeeMapId;
   int? sectionFeeMapId;
@@ -54,11 +55,14 @@ class StudentAnnualFeeTypeBean {
   TextEditingController amountController = TextEditingController();
   TextEditingController discountController = TextEditingController();
 
+  int? actualAmount;
+
   StudentAnnualFeeTypeBean({
     this.feeTypeId,
     this.feeType,
     this.amount,
     this.discount,
+    this.comments,
     this.amountPaid,
     this.studentFeeMapId,
     this.sectionFeeMapId,
@@ -79,6 +83,7 @@ class StudentAnnualCustomFeeTypeBean {
   String? customFeeType;
   int? amount;
   int? discount;
+  String? comments;
   int? amountPaid;
   int? sectionFeeMapId;
   int? studentFeeMapId;
@@ -86,11 +91,14 @@ class StudentAnnualCustomFeeTypeBean {
   TextEditingController amountController = TextEditingController();
   TextEditingController discountController = TextEditingController();
 
+  int? actualAmount;
+
   StudentAnnualCustomFeeTypeBean({
     this.customFeeTypeId,
     this.customFeeType,
     this.amount,
     this.discount,
+    this.comments,
     this.amountPaid,
     this.sectionFeeMapId,
     this.studentFeeMapId,

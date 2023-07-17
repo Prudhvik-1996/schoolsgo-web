@@ -224,6 +224,12 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                         eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                     .firstOrNull
                     ?.discount,
+                comments: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
+                    .map((e) => e!)
+                    .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                        eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                    .firstOrNull
+                    ?.comments,
                 amountPaid: (eachAnnualFeeBean?.studentAnnualFeeMapBeanList ?? [])
                     .map((e) => e!)
                     .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -308,6 +314,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                                 studentId: widget.studentProfile.studentId,
                                 amount: e.amount,
                                 discount: e.discount,
+                                comments: e.comments,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
@@ -320,6 +327,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                                 studentId: widget.studentProfile.studentId,
                                 amount: e.amount,
                                 discount: e.discount,
+                                comments: e.comments,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))

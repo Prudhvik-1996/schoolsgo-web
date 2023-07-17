@@ -175,6 +175,12 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                             eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                         .firstOrNull
                         ?.discount,
+                    comments: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.comments,
                     amountPaid: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
                         .map((e) => e!)
                         .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -216,6 +222,13 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                                     eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                                 .firstOrNull
                                 ?.discount,
+                            comments: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.comments,
                             amountPaid: (annualFeesBean.studentAnnualFeeMapBeanList ?? [])
                                 .map((e) => e!)
                                 .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>

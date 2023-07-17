@@ -1386,6 +1386,7 @@ class StudentAnnualFeeMapUpdateBean {
 
   int? amount;
   int? discount;
+  String? comments;
   int? schoolId;
   int? sectionFeeMapId;
   int? studentFeeMapId;
@@ -1395,6 +1396,7 @@ class StudentAnnualFeeMapUpdateBean {
   StudentAnnualFeeMapUpdateBean({
     this.amount,
     this.discount,
+    this.comments,
     this.schoolId,
     this.sectionFeeMapId,
     this.studentFeeMapId,
@@ -1405,6 +1407,7 @@ class StudentAnnualFeeMapUpdateBean {
     __origJson = json;
     amount = json['amount']?.toInt();
     discount = json['discount']?.toInt();
+    comments = json['comments']?.toString();
     schoolId = json['schoolId']?.toInt();
     sectionFeeMapId = json['sectionFeeMapId']?.toInt();
     studentFeeMapId = json['studentFeeMapId']?.toInt();
@@ -1415,6 +1418,7 @@ class StudentAnnualFeeMapUpdateBean {
     final data = <String, dynamic>{};
     data['amount'] = amount;
     data['discount'] = discount;
+    data['comments'] = comments;
     data['schoolId'] = schoolId;
     data['sectionFeeMapId'] = sectionFeeMapId;
     data['studentFeeMapId'] = studentFeeMapId;

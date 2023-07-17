@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_receipt_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/edit_student_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
@@ -208,9 +209,15 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                     discount: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                         .map((e) => e!)
                         .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
-                    eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                         .firstOrNull
                         ?.discount,
+                    comments: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.comments,
                     amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                         .map((e) => e!)
                         .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -252,6 +259,13 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                     eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                                 .firstOrNull
                                 ?.discount,
+                            comments: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.comments,
                             amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                                 .map((e) => e!)
                                 .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -304,6 +318,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 studentId: studentId,
                                 amount: e.amount,
                                 discount: e.discount,
+                                comments: e.comments,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
@@ -319,6 +334,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                                 studentId: studentId,
                                 amount: e.amount,
                                 discount: e.discount,
+                                comments: e.comments,
                                 sectionFeeMapId: e.sectionFeeMapId,
                                 studentFeeMapId: e.studentFeeMapId,
                               ))
@@ -436,9 +452,20 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
               child: GestureDetector(
                 onTap: () {
                   // TODO navigate to new screen
-                  setState(() {
-                    editingStudentId = studentWiseAnnualFeesBean.studentId;
-                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return EditStudentFeeScreen(
+                          adminProfile: widget.adminProfile,
+                          studentWiseAnnualFeesBean: studentWiseAnnualFeesBean,
+                        );
+                      },
+                    ),
+                  ).then((value) => _loadData());
+                  // setState(() {
+                  //   editingStudentId = studentWiseAnnualFeesBean.studentId;
+                  // });
                 },
                 child: ClayButton(
                   depth: 40,

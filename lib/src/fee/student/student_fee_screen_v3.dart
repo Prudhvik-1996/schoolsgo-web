@@ -156,6 +156,12 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
                             eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
                         .firstOrNull
                         ?.discount,
+                    comments: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                        .map((e) => e!)
+                        .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                            eachStudentAnnualFeeMapBean.feeTypeId == eachFeeType.feeTypeId && eachStudentAnnualFeeMapBean.customFeeTypeId == null)
+                        .firstOrNull
+                        ?.comments,
                     amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                         .map((e) => e!)
                         .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
@@ -197,6 +203,13 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
                                     eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
                                 .firstOrNull
                                 ?.discount,
+                            comments: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
+                                .map((e) => e!)
+                                .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
+                                    eachStudentAnnualFeeMapBean.feeTypeId == eachCustomFeeType.feeTypeId &&
+                                    eachStudentAnnualFeeMapBean.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                                .firstOrNull
+                                ?.comments,
                             amountPaid: (eachAnnualFeeBean.studentAnnualFeeMapBeanList ?? [])
                                 .map((e) => e!)
                                 .where((StudentAnnualFeeMapBean eachStudentAnnualFeeMapBean) =>
