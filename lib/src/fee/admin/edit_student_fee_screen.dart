@@ -243,7 +243,7 @@ class _EditStudentFeeScreenState extends State<EditStudentFeeScreen> {
         }
       }
     }
-    if (studentWiseAnnualFeesBean.studentBusFeeBean != null && (studentWiseAnnualFeesBean.studentBusFeeBean?.fare ?? 0) != 0) {
+    if (studentWiseAnnualFeesBean.studentBusFeeBean != null && (studentWiseAnnualFeesBean.studentBusFeeBean?.fare) != null) {
       rows.add(
         busFeeDataRow(),
       );
