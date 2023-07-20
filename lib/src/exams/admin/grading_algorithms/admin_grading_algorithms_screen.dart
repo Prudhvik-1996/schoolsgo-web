@@ -6,7 +6,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/decimal_text_input_formatter.dart';
 import 'package:schoolsgo_web/src/common_components/number_range_input_formatter.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/model/admin_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
 class AdminGradingAlgorithmsScreen extends StatefulWidget {
@@ -28,8 +28,6 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
 
   List<MarkingAlgorithmBean> _markingAlgorithmBeans = [];
   late MarkingAlgorithmBean _newMarkingAlgorithm;
-
-  List<AdminExamBean> _exams = [];
 
   @override
   void initState() {
@@ -69,21 +67,6 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
           content: Text("Something went wrong! Try again later.."),
         ),
       );
-    }
-
-    GetAdminExamsResponse getAdminExamsResponse = await getAdminExams(GetAdminExamsRequest(
-      schoolId: widget.adminProfile.schoolId,
-    ));
-    if (getAdminExamsResponse.httpStatus != "OK" || getAdminExamsResponse.responseStatus != "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-    } else {
-      setState(() {
-        _exams = getAdminExamsResponse.adminExamBeanList!.map((e) => e!).toList();
-      });
     }
 
     setState(() {
@@ -387,23 +370,6 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                               actions: [
                                 TextButton(
                                   onPressed: () async {
-                                    List<String> alreadyAppliedExams = _exams
-                                        .map((e) => e.examSectionMapBeanList ?? [])
-                                        .expand((i) => i)
-                                        .where((e) => e!.markingAlgorithmId == eachMarkingAlgorithmBean.markingAlgorithmId)
-                                        .map((e) => e!.examName ?? "-")
-                                        .toSet()
-                                        .toList();
-                                    if (alreadyAppliedExams.isNotEmpty) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                              "Algorithm cannot be deleted as it has already been applied to the following exams\n${alreadyAppliedExams.join(", ")}"),
-                                        ),
-                                      );
-                                      Navigator.pop(context);
-                                      return;
-                                    }
                                     Navigator.pop(context);
                                     setState(() {
                                       _isLoading = true;

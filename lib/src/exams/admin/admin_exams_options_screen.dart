@@ -3,12 +3,10 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_create_or_manage_exams_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_results_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
-class AdminExamsScreen extends StatefulWidget {
-  const AdminExamsScreen({
+class AdminExamOptionsScreen extends StatefulWidget {
+  const AdminExamOptionsScreen({
     Key? key,
     required this.adminProfile,
   }) : super(key: key);
@@ -17,20 +15,20 @@ class AdminExamsScreen extends StatefulWidget {
   static const routeName = "/exams";
 
   @override
-  _AdminExamsScreenState createState() => _AdminExamsScreenState();
+  State<AdminExamOptionsScreen> createState() => _AdminExamOptionsScreenState();
 }
 
-class _AdminExamsScreenState extends State<AdminExamsScreen> {
+class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
   Widget _getExamsOption(String title, String? description, StatefulWidget nextWidget) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return nextWidget;
-          }));
-        },
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return nextWidget;
+        }));
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
         child: ClayButton(
           depth: 40,
           surfaceColor: clayContainerColor(context),
@@ -38,8 +36,7 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
           spread: 1,
           borderRadius: 10,
           child: Container(
-            padding: const EdgeInsets.all(10),
-            // margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10), // margin: const EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -92,23 +89,11 @@ class _AdminExamsScreenState extends State<AdminExamsScreen> {
         adminProfile: widget.adminProfile,
       ),
       body: ListView(
-        children: [
+        padding: EdgeInsets.zero,
+        primary: false,
+        children: <Widget>[
           _getExamsOption(
-            "Manage Exams",
-            null,
-            AdminCreateOrManageExamsScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getExamsOption(
-            "Publish Results",
-            null,
-            AdminPublishResultsScreen(
-              adminProfile: widget.adminProfile,
-            ),
-          ),
-          _getExamsOption(
-            "Grading Algorithms",
+            "Manage Marking Algorithm",
             null,
             AdminGradingAlgorithmsScreen(
               adminProfile: widget.adminProfile,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
-import 'package:schoolsgo_web/src/chat_room/student/student_chat_room.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
+import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -72,24 +72,6 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
           routeName: StudentAttendanceViewScreen.routeName,
           argument: studentProfile,
           description: "Student Attendance"),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/exams.svg"),
-        title: "Exam",
-        routeName: "/exams",
-        argument: studentProfile,
-        subWidgets: [
-          DashboardWidget(
-            title: "Exam Time Table",
-            routeName: "/exam_time_table",
-            argument: studentProfile,
-          ),
-          DashboardWidget(
-            title: "Exam Marks",
-            routeName: "/exam_marks",
-            argument: studentProfile,
-          ),
-        ],
-      ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/study_material.svg"),
         title: "Study Material",
@@ -195,24 +177,6 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         title: "Attendance",
         routeName: StudentAttendanceViewScreen.routeName,
         argument: teacherProfile,
-      ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/exams.svg"),
-        title: "Exam",
-        routeName: "/exams",
-        argument: teacherProfile,
-        subWidgets: [
-          DashboardWidget(
-            title: "Manage Exams",
-            routeName: "/manage_exams",
-            argument: teacherProfile,
-          ),
-          DashboardWidget(
-            title: "Publish Results",
-            routeName: "/publish_results",
-            argument: teacherProfile,
-          ),
-        ],
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/study_material.svg"),
@@ -343,26 +307,9 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/exams.svg"),
-        title: "Exam",
-        routeName: "/exams",
+        title: "Exams",
+        routeName: AdminExamOptionsScreen.routeName,
         argument: adminProfile,
-        subWidgets: [
-          DashboardWidget(
-            title: "Manage Exams",
-            routeName: "/manage_exams",
-            argument: adminProfile,
-          ),
-          DashboardWidget(
-            title: "Publish Results",
-            routeName: "/publish_results",
-            argument: adminProfile,
-          ),
-          DashboardWidget(
-            title: "Grading Algorithms",
-            routeName: "/grading_algorithms",
-            argument: adminProfile,
-          ),
-        ],
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/study_material.svg"),

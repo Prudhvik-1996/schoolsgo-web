@@ -100,14 +100,8 @@ const HEADERS = <String, String>{
   "Content-type": "application/json",
 };
 
-const String GET_EXAMS = "/exams/getExams";
 const String GET_MARKING_ALGORITHMS = "/exams/getMarkingAlgorithms";
-const String GET_ADMIN_EXAMS = "/exams/getAdminExamDetails";
-const String CREATE_OR_UPDATE_ADMIN_EXAMS = "/exams/createOrUpdateExam";
 const String CREATE_OR_UPDATE_MARKING_ALGORITHM = "/exams/createOrUpdateMarkingAlgorithm";
-const String GET_STUDENT_EXAM_MARKS = "/exams/getStudentExamMarksDetails";
-const String GET_STUDENT_EXAM_BYTES = "/exams/getStudentExamBytes";
-const String CREATE_OR_UPDATE_EXAM_MARKS = "/exams/createOrUpdateStudentExamMarks";
 
 const String GET_FEE_TYPES = "/fee/getFeeTypes";
 const String CREATE_OR_UPDATE_FEE_TYPES = "/fee/createOrUpdateFeeTypes";

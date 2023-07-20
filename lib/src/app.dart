@@ -16,12 +16,8 @@ import 'package:schoolsgo_web/src/common_components/network_status/constants/net
 import 'package:schoolsgo_web/src/common_components/network_status/service/network_status_service.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/admin_exams_screen.dart';
+import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/manage_exams/admin_create_or_manage_exams_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/publish_results/admin_publish_results_screen.dart';
-import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
-import 'package:schoolsgo_web/src/exams/teacher/teacher_exam_tds_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
@@ -855,54 +851,11 @@ class _MyAppState extends State<MyApp> {
             } catch (e) {
               return const E404NotFoundScreen();
             }
-          case AdminExamsScreen.routeName:
-            if (routeSettings.arguments is StudentProfile) {
-              try {
-                var argument = (routeSettings.arguments as StudentProfile);
-                return StudentExamsScreen(
-                  studentProfile: argument,
-                );
-              } catch (e) {
-                return const E404NotFoundScreen();
-              }
-            } else if (routeSettings.arguments is TeacherProfile) {
-              var argument = routeSettings.arguments as TeacherProfile;
-              return TeacherExamTdsScreen(
-                teacherProfile: argument,
-              );
-            } else {
-              try {
-                var adminProfile = routeSettings.arguments! as AdminProfile;
-                return AdminExamsScreen(
-                  adminProfile: adminProfile,
-                );
-              } catch (e) {
-                return const E404NotFoundScreen();
-              }
-            }
-          case AdminCreateOrManageExamsScreen.routeName:
+          case AdminExamOptionsScreen.routeName:
             try {
-              var adminProfile = routeSettings.arguments! as AdminProfile;
-              return AdminCreateOrManageExamsScreen(
-                adminProfile: adminProfile,
-              );
-            } catch (e) {
-              return const E404NotFoundScreen();
-            }
-          case AdminPublishResultsScreen.routeName:
-            try {
-              var adminProfile = routeSettings.arguments! as AdminProfile;
-              return AdminPublishResultsScreen(
-                adminProfile: adminProfile,
-              );
-            } catch (e) {
-              return const E404NotFoundScreen();
-            }
-          case AdminGradingAlgorithmsScreen.routeName:
-            try {
-              var adminProfile = routeSettings.arguments! as AdminProfile;
-              return AdminGradingAlgorithmsScreen(
-                adminProfile: adminProfile,
+              var argument = (routeSettings.arguments as AdminProfile);
+              return AdminExamOptionsScreen(
+                adminProfile: argument,
               );
             } catch (e) {
               return const E404NotFoundScreen();
