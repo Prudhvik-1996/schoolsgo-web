@@ -3,7 +3,9 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
+import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/topic_wise_exams_tds_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminExamOptionsScreen extends StatefulWidget {
   const AdminExamOptionsScreen({
@@ -19,6 +21,22 @@ class AdminExamOptionsScreen extends StatefulWidget {
 }
 
 class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
+  late int selectedAcademicYearId;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _isLoading = true);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID')!;
+    setState(() => _isLoading = false);
+  }
+
   Widget _getExamsOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
@@ -88,19 +106,36 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        primary: false,
-        children: <Widget>[
-          _getExamsOption(
-            "Manage Marking Algorithm",
-            null,
-            AdminGradingAlgorithmsScreen(
-              adminProfile: widget.adminProfile,
+      body: _isLoading
+          ? Center(
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
+            )
+          : ListView(
+              padding: EdgeInsets.zero,
+              primary: false,
+              children: <Widget>[
+                _getExamsOption(
+                  "Manage Marking Algorithm",
+                  null,
+                  AdminGradingAlgorithmsScreen(
+                    adminProfile: widget.adminProfile,
+                  ),
+                ),
+                _getExamsOption(
+                  "Topic Wise Exams",
+                  null,
+                  TopicWiseExamsTdsScreen(
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: null,
+                      selectedAcademicYearId: selectedAcademicYearId,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

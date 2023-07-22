@@ -111,6 +111,7 @@ dependencies:
 #  syncfusion_flutter_calendar: ^20.4.54
 
   mobile_scanner: ^1.0.0
+  table_sticky_headers: ^2.0.5
 
 dev_dependencies:
   flutter_test:

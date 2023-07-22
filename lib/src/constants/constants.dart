@@ -181,3 +181,9 @@ const String GET_APP_VERSION_URL = "/commons/latestAppVersion?appName=EpsilonDia
 String getAppVersionUrl(String? versionName) => GET_APP_VERSION_URL + (versionName == null ? "" : "&versionName=$versionName");
 
 const String GET_HOSTELS = "/hostel/getHostels";
+
+const String GET_EXAM_TOPICS = "/exams/getExamTopics";
+const String CREATE_OR_UPDATE_EXAM_TOPICS = "/exams/createOrUpdateExamTopics";
+const String GET_TOPICS_WISE_EXAMS = "/exams/getTopicWiseExams";
+const String CREATE_OR_UPDATE_TOPICS_WISE_EXAMS = "/exams/createOrUpdateTopicWiseExam";
+const String CREATE_OR_UPDATE_EXAM_MARKS = "/exams/createOrUpdateExamMarks";
