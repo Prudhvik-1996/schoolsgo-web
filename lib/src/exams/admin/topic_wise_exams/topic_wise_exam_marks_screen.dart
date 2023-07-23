@@ -42,6 +42,7 @@ class TopicWiseExamMarksScreen extends StatefulWidget {
 class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
   bool _isLoading = true;
   bool _isEditMode = false;
+  bool _showInfo = true;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<StudentProfile> studentsList = [];
@@ -109,6 +110,10 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
         title: Text("${widget.tds.sectionName} - ${widget.tds.subjectName} - ${widget.tds.teacherName}"),
         actions: [
           IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () => setState(() => _showInfo = !_showInfo),
+          ),
+          IconButton(
             icon: _isEditMode ? const Icon(Icons.save) : const Icon(Icons.edit),
             onPressed: () async {
               if (_isEditMode) {
@@ -117,7 +122,7 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
                 setState(() => _isEditMode = true);
               }
             },
-          )
+          ),
         ],
       ),
       body: _isLoading
@@ -132,7 +137,7 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                topicWiseExamHeaderWidget(),
+                if (_showInfo) topicWiseExamHeaderWidget(),
                 Expanded(child: stickyHeaderTable()),
               ],
             ),
@@ -154,8 +159,7 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
                 setState(() {
                   _isLoading = true;
                 });
-                CreateOrUpdateExamMarksResponse createOrUpdateExamMarksResponse =
-                    await createOrUpdateExamMarks(CreateOrUpdateExamMarksRequest(
+                CreateOrUpdateExamMarksResponse createOrUpdateExamMarksResponse = await createOrUpdateExamMarks(CreateOrUpdateExamMarksRequest(
                   agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
                   examMarks: examMarks.where((e) => !const DeepCollectionEquality().equals(e.origJson(), e.toJson())).toList(),
                   schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
@@ -199,7 +203,7 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
   }
 
   Widget stickyHeaderTable() {
-    List<String> columnNames = ["Marks Obtained", "Comments", "Media"];
+    List<String> columnNames = ["Marks Obtained", "Comments", "Attachments"];
     double marksObtainedCellWidth = 150;
     double commentsCellWidth = 400;
     double mediaCellWidth = 500;
@@ -308,7 +312,7 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
             children: const [
               Expanded(
                 child: Text(
-                  "Media",
+                  "Attachments",
                   style: TextStyle(fontSize: 12),
                 ),
               ),
