@@ -129,7 +129,7 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
       child: ClayContainer(
         depth: 20,
         color: clayContainerColor(context),
-        spread: 5,
+        spread: 1,
         borderRadius: 10,
         child: _teachersList.length != 1 && _selectedTeacher != null
             ? Row(
@@ -250,7 +250,7 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
     return ClayContainer(
       depth: 20,
       color: clayContainerColor(context),
-      spread: 5,
+      spread: 1,
       borderRadius: 10,
       child: _selectedSection != null
           ? Row(
@@ -353,16 +353,13 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
       child: Container(
         margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
         child: _isSectionPickerOpen
-            ? Container(
-                margin: const EdgeInsets.all(25),
-                child: ClayContainer(
-                  depth: 40,
-                  color: clayContainerColor(context),
-                  spread: 2,
-                  borderRadius: 10,
-                  child: _selectSectionExpanded(),
-                ),
-              )
+            ? ClayContainer(
+              depth: 40,
+              color: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 10,
+              child: _selectSectionExpanded(),
+            )
             : _selectSectionCollapsed(),
       ),
     );
@@ -608,6 +605,7 @@ class _AdminStudyMaterialTdsScreenState extends State<AdminStudyMaterialTDSScree
             )
           : ListView(
               children: <Widget>[
+                    const SizedBox(height: 20),
                     MediaQuery.of(context).orientation == Orientation.landscape
                         ? Row(
                             mainAxisSize: MainAxisSize.min,

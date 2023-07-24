@@ -2,9 +2,9 @@ import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/model/exam_topics.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/model/topic_wise_exams.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/topic_wise_exam_marks_screen.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/exam_topics.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -528,6 +528,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
           width: 30,
           borderRadius: 50,
           surfaceColor: clayContainerColor(context),
+          spread: 1,
           child: _isExpanded ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down),
         ),
       ),

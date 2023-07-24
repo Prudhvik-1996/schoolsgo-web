@@ -4,11 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/model/topic_wise_exams.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
@@ -207,7 +206,7 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
     double marksObtainedCellWidth = 150;
     double commentsCellWidth = 400;
     double mediaCellWidth = 500;
-    double legendCellWidth = 300;
+    double legendCellWidth = MediaQuery.of(context).orientation == Orientation.landscape ? 300 : 150;
     double defaultCellHeight = 80;
     return Container(
       margin: const EdgeInsets.all(15),

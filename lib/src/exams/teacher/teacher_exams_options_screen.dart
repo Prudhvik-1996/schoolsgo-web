@@ -3,25 +3,24 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exams_tds_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AdminExamOptionsScreen extends StatefulWidget {
-  const AdminExamOptionsScreen({
+class TeacherExamOptionsScreen extends StatefulWidget {
+  const TeacherExamOptionsScreen({
     Key? key,
-    required this.adminProfile,
+    required this.teacherProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final TeacherProfile teacherProfile;
   static const routeName = "/exams";
 
   @override
-  State<AdminExamOptionsScreen> createState() => _AdminExamOptionsScreenState();
+  State<TeacherExamOptionsScreen> createState() => _TeacherExamOptionsScreenState();
 }
 
-class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
+class _TeacherExamOptionsScreenState extends State<TeacherExamOptionsScreen> {
   late int selectedAcademicYearId;
   bool _isLoading = true;
 
@@ -104,48 +103,41 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
       appBar: AppBar(
         title: const Text("Exams"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
+      drawer: TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
           ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+        child: Image.asset(
+          'assets/images/eis_loader.gif',
+          height: 500,
+          width: 500,
+        ),
+      )
           : ListView(
-              padding: EdgeInsets.zero,
-              primary: false,
-              children: <Widget>[
-                _getExamsOption(
-                  "Topic Wise Exams",
-                  null,
-                  TopicWiseExamsTdsScreen(
-                    adminProfile: widget.adminProfile,
-                    teacherProfile: null,
-                    selectedAcademicYearId: selectedAcademicYearId,
-                  ),
-                ),
-                _getExamsOption(
-                  "Custom Exams",
-                  null,
-                  CustomExamsScreen(
-                    adminProfile: widget.adminProfile,
-                    teacherProfile: null,
-                    selectedAcademicYearId: selectedAcademicYearId,
-                  ),
-                ),
-                _getExamsOption(
-                  "Manage Marking Algorithm",
-                  null,
-                  AdminGradingAlgorithmsScreen(
-                    adminProfile: widget.adminProfile,
-                  ),
-                ),
-              ],
+        padding: EdgeInsets.zero,
+        primary: false,
+        children: <Widget>[
+          _getExamsOption(
+            "Topic Wise Exams",
+            null,
+            TopicWiseExamsTdsScreen(
+              adminProfile: null,
+              teacherProfile: widget.teacherProfile,
+              selectedAcademicYearId: selectedAcademicYearId,
             ),
+          ),
+          _getExamsOption(
+            "Custom Exams",
+            null,
+            CustomExamsScreen(
+              adminProfile: null,
+              teacherProfile: widget.teacherProfile,
+              selectedAcademicYearId: selectedAcademicYearId,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/topic_wise_exams_screen.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exams_screen.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -634,7 +634,7 @@ class _TopicWiseExamsTdsScreenState extends State<TopicWiseExamsTdsScreen> {
             )
           : ListView(
               children: <Widget>[
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
                     MediaQuery.of(context).orientation == Orientation.landscape
                         ? Row(
                             mainAxisSize: MainAxisSize.min,

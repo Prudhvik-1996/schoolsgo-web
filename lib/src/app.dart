@@ -17,7 +17,7 @@ import 'package:schoolsgo_web/src/common_components/network_status/service/netwo
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
+import 'package:schoolsgo_web/src/exams/teacher/teacher_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
@@ -852,12 +852,25 @@ class _MyAppState extends State<MyApp> {
               return const E404NotFoundScreen();
             }
           case AdminExamOptionsScreen.routeName:
-            try {
-              var argument = (routeSettings.arguments as AdminProfile);
-              return AdminExamOptionsScreen(
-                adminProfile: argument,
-              );
-            } catch (e) {
+            if (routeSettings.arguments is AdminProfile) {
+              try {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return AdminExamOptionsScreen(
+                  adminProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if (routeSettings.arguments is TeacherProfile) {
+              try {
+                var argument = (routeSettings.arguments as TeacherProfile);
+                return TeacherExamOptionsScreen(
+                  teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else {
               return const E404NotFoundScreen();
             }
           case StudentDemoScreen.routeName:

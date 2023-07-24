@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/model/exam_topics.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/model/topic_wise_exams.dart';
-import 'package:schoolsgo_web/src/exams/admin/topic_wise_exams/views/exam_topic_widget.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/exam_topics.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/exam_topic_widget.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 

@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
+import 'package:schoolsgo_web/src/exams/teacher/teacher_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -176,6 +177,12 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         image: SvgPicture.asset("assets/images/attendance.svg"),
         title: "Attendance",
         routeName: StudentAttendanceViewScreen.routeName,
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/exams.svg"),
+        title: "Exams",
+        routeName: TeacherExamOptionsScreen.routeName,
         argument: teacherProfile,
       ),
       DashboardWidget(
