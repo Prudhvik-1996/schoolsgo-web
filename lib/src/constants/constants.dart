@@ -189,3 +189,4 @@ const String CREATE_OR_UPDATE_TOPICS_WISE_EXAMS = "/exams/createOrUpdateTopicWis
 const String CREATE_OR_UPDATE_EXAM_MARKS = "/exams/createOrUpdateExamMarks";
 const String GET_CUSTOM_EXAMS = "/exams/getCustomExams";
 const String CREATE_OR_UPDATE_CUSTOM_EXAMS = "/exams/createOrUpdateCustomExam";
+const String GET_STUDENT_WISE_EXAMS = "/exams/getStudentWiseExams";

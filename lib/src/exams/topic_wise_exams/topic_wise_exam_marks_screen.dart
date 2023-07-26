@@ -1,3 +1,4 @@
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -404,49 +405,87 @@ class _TopicWiseExamMarksScreenState extends State<TopicWiseExamMarksScreen> {
             _handleArrowKeyNavigation(event, rowIndex, 0);
           }
         },
-        child: TextFormField(
-          focusNode: focusNode,
-          initialValue: "${eachStudentExamMarks.marksObtained ?? ""}",
-          decoration: const InputDecoration(
-            border: UnderlineInputBorder(),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              borderSide: BorderSide(color: Colors.blue),
+        child: Stack(
+          children: [
+            TextFormField(
+              enabled: eachStudentExamMarks.isAbsent != 'N',
+              focusNode: focusNode,
+              initialValue: "${eachStudentExamMarks.marksObtained ?? ""}",
+              decoration: const InputDecoration(
+                border: UnderlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  try {
+                    final text = newValue.text;
+                    if (text.isEmpty || (double.tryParse(text) != null && double.parse(text) <= (widget.topicWiseExam.maxMarks ?? 0))) {
+                      return newValue;
+                    }
+                    return oldValue;
+                  } catch (e) {
+                    debugPrintStack();
+                  }
+                  return oldValue;
+                }),
+              ],
+              onChanged: (String? newText) => setState(() {
+                if ((newText ?? "").trim().isEmpty) {
+                  eachStudentExamMarks.marksObtained = null;
+                }
+                double? newMarks = double.tryParse(newText ?? "");
+                if (newMarks != null) {
+                  eachStudentExamMarks.marksObtained = newMarks;
+                }
+              }),
+              maxLines: null,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.start,
             ),
-            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-          ),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            TextInputFormatter.withFunction((oldValue, newValue) {
-              try {
-                final text = newValue.text;
-                if (text.isEmpty || (double.tryParse(text) != null && double.parse(text) <= (widget.topicWiseExam.maxMarks ?? 0))) return newValue;
-                return oldValue;
-              } catch (e) {
-                debugPrintStack();
-              }
-              return oldValue;
-            }),
+            Align(
+              alignment: Alignment.topRight,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    eachStudentExamMarks.isAbsent = eachStudentExamMarks.isAbsent == null || eachStudentExamMarks.isAbsent == 'P' ? 'N' : 'P';
+                  });
+                },
+                child: Tooltip(
+                  message: eachStudentExamMarks.isAbsent == 'N' ? "Mark Present" : "Mark Absent",
+                  child: ClayButton(
+                    depth: 40,
+                    surfaceColor: eachStudentExamMarks.isAbsent == 'N' ? Colors.blue : Colors.grey,
+                    parentColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 10,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      width: 15,
+                      height: 15,
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(eachStudentExamMarks.isAbsent == 'N' ? "P" : "A"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
           ],
-          onChanged: (String? newText) => setState(() {
-            if ((newText ?? "").trim().isEmpty) {
-              eachStudentExamMarks.marksObtained = null;
-            }
-            double? newMarks = double.tryParse(newText ?? "");
-            if (newMarks != null) {
-              eachStudentExamMarks.marksObtained = newMarks;
-            }
-          }),
-          maxLines: null,
-          style: const TextStyle(
-            fontSize: 16,
-          ),
-          textAlign: TextAlign.start,
         ),
       );
     }
     return Center(
-      child: Text("${eachStudentExamMarks.marksObtained ?? ""}"),
+      child: Text(eachStudentExamMarks.isAbsent == 'N' ? "Absent" : "${eachStudentExamMarks.marksObtained ?? ""}"),
     );
   }
 

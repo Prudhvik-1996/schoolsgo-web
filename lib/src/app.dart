@@ -17,6 +17,7 @@ import 'package:schoolsgo_web/src/common_components/network_status/service/netwo
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
+import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/teacher/teacher_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
@@ -866,6 +867,15 @@ class _MyAppState extends State<MyApp> {
                 var argument = (routeSettings.arguments as TeacherProfile);
                 return TeacherExamOptionsScreen(
                   teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if (routeSettings.arguments is StudentProfile) {
+              try {
+                var argument = (routeSettings.arguments as StudentProfile);
+                return StudentExamsScreen(
+                  studentProfile: argument,
                 );
               } catch (e) {
                 return const E404NotFoundScreen();

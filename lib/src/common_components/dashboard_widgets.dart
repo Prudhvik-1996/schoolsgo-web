@@ -72,13 +72,20 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
           title: "Attendance",
           routeName: StudentAttendanceViewScreen.routeName,
           argument: studentProfile,
-          description: "Student Attendance"),
+          description: "Student Attendance",
+      ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/study_material.svg"),
         title: "Study Material",
         routeName: "/study_material",
         argument: studentProfile,
       ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/exams.svg"),
+      //   title: "Exams",
+      //   routeName: "/exams",
+      //   argument: studentProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/events.svg"),
         title: "Events",

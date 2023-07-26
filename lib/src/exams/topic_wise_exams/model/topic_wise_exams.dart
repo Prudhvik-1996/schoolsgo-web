@@ -191,10 +191,10 @@ class TopicWiseExam {
 
   Map<String, dynamic> origJson() => __origJson;
 
-  double? get classAverage => (studentExamMarksList ?? []).where((e) => e?.marksObtained != null).isEmpty
+  double? get classAverage => (studentExamMarksList ?? []).where((e) => e?.marksObtained != null && e?.isAbsent != 'N').isEmpty
       ? null
       : (((studentExamMarksList ?? [])
-                          .where((e) => e?.marksObtained != null)
+                          .where((e) => e?.marksObtained != null && e?.isAbsent != 'N')
                           .map((e) => e?.marksObtained ?? 0.0)
                           .fold<double>(0.0, (double a, double b) => a + b) /
                       (studentExamMarksList ?? []).where((e) => e?.marksObtained != null).length) *

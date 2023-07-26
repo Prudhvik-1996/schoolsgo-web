@@ -95,6 +95,7 @@ class StudentExamMarks {
   int? examSectionSubjectMapId;
   int? marksId;
   double? marksObtained;
+  String? isAbsent;
   List<StudentExamMediaBean?>? studentExamMediaBeans;
   int? studentId;
   Map<String, dynamic> __origJson = {};
@@ -108,6 +109,7 @@ class StudentExamMarks {
     this.examSectionSubjectMapId,
     this.marksId,
     this.marksObtained,
+    this.isAbsent,
     this.studentExamMediaBeans,
     this.studentId,
   });
@@ -119,6 +121,7 @@ class StudentExamMarks {
     examSectionSubjectMapId = json['examSectionSubjectMapId']?.toInt();
     marksId = json['marksId']?.toInt();
     marksObtained = json['marksObtained']?.toDouble();
+    isAbsent = json['isAbsent']?.toString();
     if (json['studentExamMediaBeans'] != null) {
       final v = json['studentExamMediaBeans'];
       final arr0 = <StudentExamMediaBean>[];
@@ -137,6 +140,7 @@ class StudentExamMarks {
     data['examSectionSubjectMapId'] = examSectionSubjectMapId;
     data['marksId'] = marksId;
     data['marksObtained'] = marksObtained;
+    data['isAbsent'] = isAbsent;
     if (studentExamMediaBeans != null) {
       final v = studentExamMediaBeans;
       final arr0 = [];

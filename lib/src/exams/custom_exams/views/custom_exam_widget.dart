@@ -111,6 +111,7 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
                     "Section",
                     "Subject",
                     "Teacher",
+                    "Avg Marks",
                     "Max Marks",
                     "Date",
                     "Start Time",
@@ -144,6 +145,9 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
                               tdsList.firstWhere((e) => e.teacherId == eachExamSectionSubjectMap.authorisedAgent).teacherName ?? "-",
                             ),
                             isCenter: false,
+                          ),
+                          dataCellWidget(
+                            Text("${eachExamSectionSubjectMap.classAverage ?? " - "}"),
                           ),
                           dataCellWidget(
                             Text("${eachExamSectionSubjectMap.maxMarks ?? " - "}"),
