@@ -40,6 +40,7 @@ class _EditStudentFeeScreenState extends State<EditStudentFeeScreen> {
   }
 
   Future<void> _saveChanges() async {
+    setState(() => _isLoading = true);
     CreateOrUpdateStudentAnnualFeeMapRequest createOrUpdateStudentAnnualFeeMapRequest = CreateOrUpdateStudentAnnualFeeMapRequest(
       schoolId: widget.adminProfile.schoolId,
       agent: widget.adminProfile.userId,
@@ -101,6 +102,8 @@ class _EditStudentFeeScreenState extends State<EditStudentFeeScreen> {
         ),
       );
     }
+    setState(() => _isLoading = false);
+    Navigator.of(context).pop();
   }
 
   @override

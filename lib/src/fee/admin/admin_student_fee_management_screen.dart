@@ -438,7 +438,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       Row(
         children: [
           Expanded(
-            child: Text(
+            child: SelectableText(
               "${studentWiseAnnualFeesBean.rollNumber ?? "-"}. ${studentWiseAnnualFeesBean.studentName}",
               style: const TextStyle(
                 fontSize: 18,
