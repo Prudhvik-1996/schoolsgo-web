@@ -20,11 +20,13 @@ class GetSubjectsRequest {
     this.schoolId,
     this.subjectId,
   });
+
   GetSubjectsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     subjectId = int.tryParse(json["subjectId"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["schoolId"] = schoolId;
@@ -50,6 +52,7 @@ class Subject {
   int? schoolId;
   String? subjectName;
   String? description;
+  int? seqOrder;
   String? agent;
   Map<String, dynamic> __origJson = {};
 
@@ -58,22 +61,27 @@ class Subject {
     this.schoolId,
     this.subjectName,
     this.description,
+    this.seqOrder,
     this.agent,
   });
+
   Subject.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     subjectId = int.tryParse(json["subjectId"]?.toString() ?? '');
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     subjectName = json["subjectName"]?.toString();
     description = json["description"]?.toString();
+    seqOrder = int.tryParse(json["seqOrder"]?.toString() ?? '');
     agent = json["agent"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["subjectId"] = subjectId;
     data["schoolId"] = schoolId;
     data["subjectName"] = subjectName;
     data["description"] = description;
+    data["seqOrder"] = seqOrder;
     data["agent"] = agent;
     return data;
   }
@@ -131,6 +139,7 @@ class GetSubjectsResponse {
     this.responseStatus,
     this.subjects,
   });
+
   GetSubjectsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json["errorCode"]?.toString();
@@ -146,6 +155,7 @@ class GetSubjectsResponse {
       subjects = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;

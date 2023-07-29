@@ -230,6 +230,36 @@ class CustomExam {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  double? get average {
+    double totalMarksObtained = (examSectionSubjectMapList ?? [])
+        .map((e) => (e?.studentExamMarksList ?? []).map((e) => e?.isAbsent != "N" ? null : e?.marksObtained))
+        .expand((i) => i)
+        .where((e) => e != null)
+        .map((e) => e!)
+        .fold<double>(0.0, (double a, double b) => a + b);
+    double totalMaxMarks = (examSectionSubjectMapList ?? [])
+        .map((e) => e?.maxMarks)
+        .where((e) => e != null)
+        .map((e) => e!)
+        .fold<double>(0.0, (double a, double b) => a + b);
+    return totalMaxMarks == 0 ? null : ((totalMarksObtained * 100 / totalMaxMarks) * 100).toInt() / 100.0;
+  }
+
+  double? getPercentage(int studentId) {
+    double totalMarksObtained = (examSectionSubjectMapList ?? [])
+        .map((e) => (e?.studentExamMarksList ?? []).where((e) => e?.studentId == studentId).map((e) => e?.isAbsent == "Y" ? null : e?.marksObtained))
+        .expand((i) => i)
+        .where((e) => e != null)
+        .map((e) => e!)
+        .fold<double>(0.0, (double a, double b) => a + b);
+    double totalMaxMarks = (examSectionSubjectMapList ?? [])
+        .map((e) => e?.maxMarks)
+        .where((e) => e != null)
+        .map((e) => e!)
+        .fold<double>(0.0, (double a, double b) => a + b);
+    return totalMaxMarks == 0 ? null : double.parse(((totalMarksObtained / totalMaxMarks) * 100).toStringAsFixed(2));
+  }
 }
 
 class GetCustomExamsResponse {

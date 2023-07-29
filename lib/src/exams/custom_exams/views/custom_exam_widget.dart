@@ -24,6 +24,7 @@ class CustomExamWidget extends StatefulWidget {
     required this.studentsList,
     required this.loadData,
     required this.editingEnabled,
+    required this.selectedSection,
   }) : super(key: key);
 
   final AdminProfile? adminProfile;
@@ -36,6 +37,7 @@ class CustomExamWidget extends StatefulWidget {
   final List<StudentProfile> studentsList;
   final Future<void> Function() loadData;
   final bool editingEnabled;
+  final Section? selectedSection;
 
   @override
   State<CustomExamWidget> createState() => _CustomExamWidgetState();
@@ -118,46 +120,46 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
                     "End Time",
                   ].map((e) => DataColumn(label: Center(child: Text(e)))).toList(),
                   rows: [
-                    ...examSectionSubjectMapList.map(
-                      (eachExamSectionSubjectMap) => DataRow(
-                        onSelectChanged: (bool? selected) {
-                          if (selected ?? false) {
-                            goToMarksScreen(eachExamSectionSubjectMap);
-                          }
-                        },
-                        cells: [
-                          dataCellWidget(
-                            InkWell(
-                              onTap: () => goToMarksScreen(eachExamSectionSubjectMap),
-                              child: Text(
-                                widget.sectionsList.firstWhere((e) => e.sectionId == eachExamSectionSubjectMap.sectionId).sectionName ?? "-",
+                    ...examSectionSubjectMapList.where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId).map(
+                          (eachExamSectionSubjectMap) => DataRow(
+                            onSelectChanged: (bool? selected) {
+                              if (selected ?? false) {
+                                goToMarksScreen(eachExamSectionSubjectMap);
+                              }
+                            },
+                            cells: [
+                              dataCellWidget(
+                                InkWell(
+                                  onTap: () => goToMarksScreen(eachExamSectionSubjectMap),
+                                  child: Text(
+                                    widget.sectionsList.firstWhere((e) => e.sectionId == eachExamSectionSubjectMap.sectionId).sectionName ?? "-",
+                                  ),
+                                ),
                               ),
-                            ),
+                              dataCellWidget(
+                                Text(
+                                  tdsList.firstWhere((e) => e.subjectId == eachExamSectionSubjectMap.subjectId).subjectName ?? "-",
+                                ),
+                                isCenter: false,
+                              ),
+                              dataCellWidget(
+                                Text(
+                                  tdsList.firstWhere((e) => e.teacherId == eachExamSectionSubjectMap.authorisedAgent).teacherName ?? "-",
+                                ),
+                                isCenter: false,
+                              ),
+                              dataCellWidget(
+                                Text("${eachExamSectionSubjectMap.classAverage ?? " - "}"),
+                              ),
+                              dataCellWidget(
+                                Text("${eachExamSectionSubjectMap.maxMarks ?? " - "}"),
+                              ),
+                              dataCellWidget(Text(eachExamSectionSubjectMap.examDate)),
+                              dataCellWidget(Text(eachExamSectionSubjectMap.startTimeSlot)),
+                              dataCellWidget(Text(eachExamSectionSubjectMap.endTimeSlot)),
+                            ],
                           ),
-                          dataCellWidget(
-                            Text(
-                              tdsList.firstWhere((e) => e.subjectId == eachExamSectionSubjectMap.subjectId).subjectName ?? "-",
-                            ),
-                            isCenter: false,
-                          ),
-                          dataCellWidget(
-                            Text(
-                              tdsList.firstWhere((e) => e.teacherId == eachExamSectionSubjectMap.authorisedAgent).teacherName ?? "-",
-                            ),
-                            isCenter: false,
-                          ),
-                          dataCellWidget(
-                            Text("${eachExamSectionSubjectMap.classAverage ?? " - "}"),
-                          ),
-                          dataCellWidget(
-                            Text("${eachExamSectionSubjectMap.maxMarks ?? " - "}"),
-                          ),
-                          dataCellWidget(Text(eachExamSectionSubjectMap.examDate)),
-                          dataCellWidget(Text(eachExamSectionSubjectMap.startTimeSlot)),
-                          dataCellWidget(Text(eachExamSectionSubjectMap.endTimeSlot)),
-                        ],
-                      ),
-                    )
+                        ),
                   ],
                 ),
               ),

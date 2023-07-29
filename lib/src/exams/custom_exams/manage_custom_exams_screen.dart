@@ -107,6 +107,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
                         studentsList: widget.studentsList,
                         loadData: _loadData,
                         editingEnabled: true,
+                        selectedSection: null,
                       ),
                     )
                   ],

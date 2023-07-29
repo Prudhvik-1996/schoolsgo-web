@@ -95,7 +95,16 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       );
     } else {
       setState(() {
-        adminExpenses = getAdminExpensesResponse.adminExpenseBeanList!.map((e) => e!).toList();
+        adminExpenses = getAdminExpensesResponse.adminExpenseBeanList!.map((e) => e!).toList()
+          ..sort((b, a) {
+            if (a.transactionTime != null && b.transactionTime != null) {
+              return a.transactionTime!.compareTo(b.transactionTime!);
+            }
+            if (a.adminExpenseId != null && b.adminExpenseId != null) {
+              return a.adminExpenseId!.compareTo(b.adminExpenseId!);
+            }
+            return 0;
+          });
       });
       _loadExpenseTypes();
     }
@@ -420,17 +429,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Expanded(
-                    child: Text(""),
-                  ),
-                  Text(
-                    eachExpense.transactionTime == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachExpense.transactionTime!),
-                  ),
-                ],
-              ),
+              buildTransactionTimeWidget(eachExpense),
               const SizedBox(
                 height: 10,
               ),
@@ -549,17 +548,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Expanded(
-                    child: Text(""),
-                  ),
-                  Text(
-                    eachExpense.transactionTime == null ? "-" : convertEpochToDDMMYYYYHHMMAA(eachExpense.transactionTime!),
-                  ),
-                ],
-              ),
+              buildTransactionTimeWidget(eachExpense),
               const SizedBox(
                 height: 10,
               ),
@@ -567,6 +556,49 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           ),
         ),
       ),
+    );
+  }
+
+  Row buildTransactionTimeWidget(AdminExpenseBean eachExpense) {
+    String txnDate = eachExpense.transactionTime == null
+        ? "-"
+        : convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime!)))
+            .replaceAll("\n", " ");
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Expanded(
+          child: Text(""),
+        ),
+        if (isEditMode && eachExpense.isEditMode)
+          InkWell(
+            onTap: () async {
+              DateTime? _newDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime.now().subtract(const Duration(days: 364)),
+                lastDate: DateTime.now().add(const Duration(days: 365)),
+                helpText: "Select a date",
+              );
+              if (_newDate == null) return;
+              setState(() {
+                eachExpense.transactionTime = _newDate.millisecondsSinceEpoch;
+              });
+            },
+            child: ClayButton(
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              borderRadius: 10,
+              spread: 1,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(txnDate),
+              ),
+            ),
+          )
+        else
+          Text(txnDate),
+      ],
     );
   }
 

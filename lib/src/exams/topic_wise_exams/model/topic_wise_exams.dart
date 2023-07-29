@@ -202,6 +202,18 @@ class TopicWiseExam {
               .toInt() /
           100.0;
 
+  double? percentage(int studentId) =>
+      (studentExamMarksList ?? []).where((e) => e?.studentId == studentId && e?.marksObtained != null && e?.isAbsent != 'N').isEmpty ||
+              maxMarks == null
+          ? null
+          : double.parse((((studentExamMarksList ?? [])
+                          .where((e) => e?.studentId == studentId && e?.marksObtained != null && e?.isAbsent != 'N')
+                          .map((e) => e?.marksObtained ?? 0.0)
+                          .fold<double>(0.0, (double a, double b) => a + b) /
+                      maxMarks!) *
+                  100)
+              .toStringAsFixed(2));
+
   String get examDate => date == null ? "-" : convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(date));
 
   String get examTimeSlot =>

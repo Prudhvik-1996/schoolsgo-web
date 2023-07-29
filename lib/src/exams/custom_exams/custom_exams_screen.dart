@@ -5,7 +5,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/manage_custom_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_widget.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_view_widget.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -351,7 +351,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                               .map(
                                 (customExam) => Container(
                                   margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: CustomExamWidget(
+                                  child: CustomExamViewWidget(
                                     adminProfile: widget.adminProfile,
                                     teacherProfile: widget.teacherProfile,
                                     selectedAcademicYearId: widget.selectedAcademicYearId,
@@ -361,7 +361,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                                     customExam: customExam,
                                     studentsList: studentsList,
                                     loadData: _loadData,
-                                    editingEnabled: false,
+                                    selectedSection: _selectedSection,
                                   ),
                                 ),
                               ),
