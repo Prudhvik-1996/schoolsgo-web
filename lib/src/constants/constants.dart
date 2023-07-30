@@ -190,3 +190,5 @@ const String CREATE_OR_UPDATE_EXAM_MARKS = "/exams/createOrUpdateExamMarks";
 const String GET_CUSTOM_EXAMS = "/exams/getCustomExams";
 const String CREATE_OR_UPDATE_CUSTOM_EXAMS = "/exams/createOrUpdateCustomExam";
 const String GET_STUDENT_WISE_EXAMS = "/exams/getStudentWiseExams";
+const String GET_FA_EXAMS = "/exams/getFAExams";
+const String CREATE_OR_UPDATE_FA_EXAMS = "/exams/createOrUpdateFAExam";

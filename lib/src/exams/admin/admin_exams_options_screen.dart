@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exams_tds_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -132,6 +133,15 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
                   "Custom Exams",
                   null,
                   CustomExamsScreen(
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: null,
+                    selectedAcademicYearId: selectedAcademicYearId,
+                  ),
+                ),
+                _getExamsOption(
+                  "FA Exams",
+                  null,
+                  FAExamsScreen(
                     adminProfile: widget.adminProfile,
                     teacherProfile: null,
                     selectedAcademicYearId: selectedAcademicYearId,

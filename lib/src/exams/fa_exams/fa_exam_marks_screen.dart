@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -17,20 +17,21 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 
-class CustomExamMarksScreen extends StatefulWidget {
-  const CustomExamMarksScreen({
-    Key? key,
+class FAExamMarksScreen extends StatefulWidget {
+  const FAExamMarksScreen({
+    super.key,
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
     required this.sectionsList,
     required this.teachersList,
     required this.tds,
+    required this.faExam,
+    required this.faInternalExam,
     required this.studentsList,
-    required this.customExam,
     required this.examSectionSubjectMap,
     required this.loadData,
-  }) : super(key: key);
+  });
 
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
@@ -38,16 +39,17 @@ class CustomExamMarksScreen extends StatefulWidget {
   final List<Section> sectionsList;
   final List<Teacher> teachersList;
   final TeacherDealingSection tds;
+  final FAExam faExam;
+  final FaInternalExam faInternalExam;
   final List<StudentProfile> studentsList;
-  final CustomExam customExam;
   final ExamSectionSubjectMap examSectionSubjectMap;
   final Future<void> Function() loadData;
 
   @override
-  State<CustomExamMarksScreen> createState() => _CustomExamMarksScreenState();
+  State<FAExamMarksScreen> createState() => _FAExamMarksScreenState();
 }
 
-class _CustomExamMarksScreenState extends State<CustomExamMarksScreen> {
+class _FAExamMarksScreenState extends State<FAExamMarksScreen> {
   bool _isLoading = true;
   bool _isEditMode = false;
   bool _showInfo = true;
@@ -160,7 +162,7 @@ class _CustomExamMarksScreenState extends State<CustomExamMarksScreen> {
       context: scaffoldKey.currentContext!,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(widget.customExam.customExamName ?? "-"),
+          title: Text("${widget.faExam.faExamName ?? " - "} - ${widget.faInternalExam.faInternalExamName ?? " - "}"),
           content: const Text("Are you sure to save changes?"),
           actions: <Widget>[
             TextButton(
@@ -547,7 +549,7 @@ class _CustomExamMarksScreenState extends State<CustomExamMarksScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      widget.customExam.customExamName ?? "-",
+                      "${widget.faExam.faExamName ?? " - "} - ${widget.faInternalExam.faInternalExamName ?? " - "}",
                       style: const TextStyle(fontSize: 24),
                     ),
                   ),
