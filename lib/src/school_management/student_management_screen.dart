@@ -1,5 +1,7 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -28,6 +30,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
   Section? selectedSection;
   bool isSectionPickerOpen = false;
 
+  bool showSearchBar = false;
   int? selectedStudentId;
   int? editingStudentId;
 
@@ -47,6 +50,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
+      showSearchBar = false;
       newStudent = StudentProfile(
         agentId: widget.adminProfile.userId,
         schoolId: widget.adminProfile.schoolId,
@@ -280,6 +284,12 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
       key: scaffoldKey,
       appBar: AppBar(
         title: const Text("Student Management"),
+        actions: (MediaQuery.of(context).orientation == Orientation.landscape)
+            ? [
+                if (!_isLoading && !showSearchBar) IconButton(onPressed: () => setState(() => showSearchBar = true), icon: const Icon(Icons.search)),
+                if (!_isLoading && showSearchBar) _studentSearchableDropDown(),
+              ]
+            : [],
       ),
       body: _isLoading
           ? Center(
@@ -360,70 +370,167 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                       ],
               ],
             ),
-      floatingActionButton: _isLoading || editingStudentId != null || _isAddNew
-          ? null
-          : GestureDetector(
-              onTap: () {
-                // if (selectedSection == null) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     const SnackBar(
-                //       content: Text("Select a section to add student"),
-                //     ),
-                //   );
-                //   return;
-                // }
-                setState(() {
-                  newStudent.rollNumber = ((int.tryParse((studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList()
-                                        ..sort(
-                                          (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
-                                              ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
-                                              : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
-                                        ))
-                                      .reversed
-                                      .firstOrNull
-                                      ?.rollNumber ??
-                                  "") ??
-                              0) +
-                          1)
-                      .toString();
-                  newStudent.rollNumberController.text = newStudent.rollNumber ?? "";
-                  selectedStudentId = null;
-                  // _isAddNew = !_isAddNew;
-                });
-                // StudentCardWidgetV2
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return StudentCardWidgetV2(
-                    studentProfile: newStudent
-                      ..sectionId = selectedSection?.sectionId
-                      ..sectionName = selectedSection?.sectionName,
-                    sections: sectionsList,
-                    adminProfile: widget.adminProfile,
-                    students: studentProfiles,
-                    isEditMode: true,
-                  );
-                })).then((value) => _loadData());
-              },
-              child: _isAddNew
-                  ? ClayButton(
-                      color: clayContainerColor(context),
-                      height: 50,
-                      width: 50,
-                      borderRadius: 100,
-                      spread: 4,
-                      child: const Icon(
-                        Icons.check,
-                      ),
-                    )
-                  : ClayButton(
-                      color: clayContainerColor(context),
-                      height: 50,
-                      width: 50,
-                      borderRadius: 100,
-                      spread: 4,
-                      child: const Icon(
-                        Icons.add,
-                      ),
-                    ),
+      floatingActionButton: _isLoading || editingStudentId != null || _isAddNew ? null : fab(context),
+    );
+  }
+
+  Widget _studentSearchableDropDown() {
+    return Container(
+      width: 300,
+      margin: const EdgeInsets.fromLTRB(10, 4, 10, 4),
+      color: clayContainerColor(context),
+      child: InputDecorator(
+        isFocused: true,
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(5, 0, 5, 0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          label: Text(
+            "Student",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+        child: DropdownSearch<StudentProfile>(
+          mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+          selectedItem: null,
+          items: studentProfiles,
+          itemAsString: (StudentProfile? student) {
+            return student == null
+                ? ""
+                : [
+                      ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
+                      student.studentFirstName ?? "",
+                      student.studentMiddleName ?? "",
+                      student.studentLastName ?? ""
+                    ].where((e) => e != "").join(" ").trim() +
+                    " - ${student.sectionName}";
+          },
+          showSearchBox: true,
+          dropdownBuilder: (BuildContext context, StudentProfile? student) {
+            return buildStudentWidget(student ?? StudentProfile());
+          },
+          onChanged: (StudentProfile? student) {
+            if (student != null) {
+              setState(() {
+                selectedSection = sectionsList.where((e) => e.sectionId == student.sectionId).firstOrNull;
+              });
+            }
+          },
+          showClearButton: true,
+          clearButton: Center(
+            child: IconButton(
+              onPressed: () => setState(() => showSearchBar = false),
+              icon: const Icon(Icons.clear),
+            ),
+          ),
+          compareFn: (item, selectedItem) => item?.studentId == selectedItem?.studentId,
+          dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+          filterFn: (StudentProfile? student, String? key) {
+            return ([
+                      ((student?.rollNumber ?? "") == "" ? "" : student!.rollNumber! + "."),
+                      student?.studentFirstName ?? "",
+                      student?.studentMiddleName ?? "",
+                      student?.studentLastName ?? ""
+                    ].where((e) => e != "").join(" ") +
+                    " - ${student?.sectionName ?? ""}")
+                .toLowerCase()
+                .trim()
+                .contains(key!.toLowerCase());
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildStudentWidget(StudentProfile e) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 40,
+      child: Center(
+        child: AutoSizeText(
+          ((e.rollNumber ?? "") == "" ? "" : e.rollNumber! + ". ") +
+              ([e.studentFirstName ?? "", e.studentMiddleName ?? "", e.studentLastName ?? ""].where((e) => e != "").join(" ") +
+                      " - ${e.sectionName ?? ""}")
+                  .trim(),
+          style: const TextStyle(
+            fontSize: 14,
+          ),
+          overflow: TextOverflow.visible,
+          maxLines: 1,
+          minFontSize: 12,
+        ),
+      ),
+    );
+  }
+
+  GestureDetector fab(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // if (selectedSection == null) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(
+        //       content: Text("Select a section to add student"),
+        //     ),
+        //   );
+        //   return;
+        // }
+        setState(() {
+          newStudent.rollNumber = ((int.tryParse((studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList()
+                                ..sort(
+                                  (a, b) => (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0) == 0
+                                      ? (a.studentFirstName ?? "-").compareTo(b.studentFirstName ?? "-")
+                                      : (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0),
+                                ))
+                              .reversed
+                              .firstOrNull
+                              ?.rollNumber ??
+                          "") ??
+                      0) +
+                  1)
+              .toString();
+          newStudent.rollNumberController.text = newStudent.rollNumber ?? "";
+          selectedStudentId = null;
+          // _isAddNew = !_isAddNew;
+        });
+        // StudentCardWidgetV2
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return StudentCardWidgetV2(
+            studentProfile: newStudent
+              ..sectionId = selectedSection?.sectionId
+              ..sectionName = selectedSection?.sectionName,
+            sections: sectionsList,
+            adminProfile: widget.adminProfile,
+            students: studentProfiles,
+            isEditMode: true,
+          );
+        })).then((value) => _loadData());
+      },
+      child: _isAddNew
+          ? ClayButton(
+              color: clayContainerColor(context),
+              height: 50,
+              width: 50,
+              borderRadius: 100,
+              spread: 4,
+              child: const Icon(
+                Icons.check,
+              ),
+            )
+          : ClayButton(
+              color: clayContainerColor(context),
+              height: 50,
+              width: 50,
+              borderRadius: 100,
+              spread: 4,
+              child: const Icon(
+                Icons.add,
+              ),
             ),
     );
   }
