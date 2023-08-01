@@ -178,18 +178,8 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 1));
     rowIndex++;
 
-    sheet.appendRow(["Sections: ${selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}"]);
-    // Apply formatting to the sections cell
-    CellStyle sectionsStyle = CellStyle(
-      bold: false,
-      fontSize: 10,
-    );
-    sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2)).cellStyle = sectionsStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 2), CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 2));
-    rowIndex++;
-
     // Define the headers for the columns
-    sheet.appendRow(['Receipt Number', 'Admission Number', 'Class', 'Roll Number', 'Student Name', 'Amount Paid', 'Mode Of Payment', 'Details']);
+    sheet.appendRow(['Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Amount Paid', 'Mode Of Payment', 'Details']);
     for (int i = 0; i <= 7; i++) {
       sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
         backgroundColorHex: 'FF000000',
@@ -217,11 +207,6 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     // Deleting default sheet
     if (excel.getDefaultSheet() != null) {
       excel.delete(excel.getDefaultSheet()!);
-    }
-
-    // Auto fit the columns
-    for (var i = 1; i < sheet.maxCols; i++) {
-      sheet.setColAutoFit(i);
     }
 
     sheet.appendRow([""]);
@@ -292,6 +277,11 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       );
     }
     rowIndex++;
+
+    // Auto fit the columns
+    for (var i = 1; i < sheet.maxCols; i++) {
+      sheet.setColAutoFit(i);
+    }
 
     // Generate the Excel file as bytes
     var excelBytes = excel.encode();
