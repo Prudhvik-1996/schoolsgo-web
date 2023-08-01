@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -42,6 +43,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   List<StudentFeeReceipt> filteredStudentFeeReceipts = [];
   final ItemScrollController _itemScrollController = ItemScrollController();
 
+  List<RouteStopWiseStudent> routeStopWiseStudents = [];
+
   bool isSearchBarSelected = false;
 
   bool isTermWise = false;
@@ -79,6 +82,25 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
         ),
       ];
     });
+    GetBusRouteDetailsResponse getBusRouteDetailsResponse = await getBusRouteDetails(GetBusRouteDetailsRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getBusRouteDetailsResponse.httpStatus != "OK" || getBusRouteDetailsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        routeStopWiseStudents = (getBusRouteDetailsResponse.busRouteInfoBeanList?.map((e) => e!).toList() ?? [])
+            .map((e) => (e.busRouteStopsList ?? []).whereNotNull())
+            .expand((i) => i)
+            .map((e) => (e.students ?? []).whereNotNull())
+            .expand((i) => i)
+            .toList();
+      });
+    }
     await loadReceipts();
     setState(() {
       newReceipts[newReceipts.length - 1].receiptNumber = getNewReceiptNumber();
@@ -221,6 +243,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
           adminProfile: widget.adminProfile,
           studentFeeReceipts: studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).toList(),
           selectedDate: DateTime.now(),
+          routeStopWiseStudents: routeStopWiseStudents,
         );
       }));
     } else if (choice == "Go to date") {
@@ -234,6 +257,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
         return DateWiseReceiptStats(
           adminProfile: widget.adminProfile,
           studentFeeReceipts: studentFeeReceipts,
+          routeStopWiseStudents: routeStopWiseStudents,
         );
       }));
     } else if (choice == "Section wise Stats") {
@@ -475,6 +499,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                                   : (int? transactionId) async {
                                       makePdf(transactionId: transactionId);
                                     },
+                              routeStopWiseStudent:
+                                  routeStopWiseStudents.where((e) => e.studentId == filteredStudentFeeReceipts[index].studentId).firstOrNull,
                             );
                           },
                         ),

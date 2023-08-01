@@ -258,8 +258,11 @@ class _EditStudentFeeScreenState extends State<EditStudentFeeScreen> {
       cells: [
         const DataCell(Text("Bus Fee")),
         DataCell(
-          Text(
-            "${studentWiseAnnualFeesBean.studentBusFeeBean?.stopName ?? " - "}\n${studentWiseAnnualFeesBean.studentBusFeeBean?.routeName ?? " - "}",
+          Center(
+            child: Text(
+              "${studentWiseAnnualFeesBean.studentBusFeeBean?.stopName ?? " - "}\n${studentWiseAnnualFeesBean.studentBusFeeBean?.routeName ?? " - "}",
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
         DataCell(

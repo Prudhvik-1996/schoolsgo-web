@@ -4,6 +4,7 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -557,6 +558,7 @@ class StudentFeeReceipt {
     Function? setState,
     Function? reload,
     Function(int?)? makePdf,
+    RouteStopWiseStudent? routeStopWiseStudent,
   }) {
     return Container(
       margin: MediaQuery.of(context).orientation == Orientation.landscape
@@ -623,7 +625,7 @@ class StudentFeeReceipt {
                     const SizedBox(height: 10),
                     if ((feeTypes ?? []).isNotEmpty) ...feeTypes!.map((e) => e == null ? Container() : e.widget(context, isTermWise)),
                     const SizedBox(height: 10),
-                    if ((busFeePaid ?? 0) != 0) busFeePaidWidget(),
+                    if ((busFeePaid ?? 0) != 0) busFeePaidWidget(routeStopWiseStudent),
                     if ((busFeePaid ?? 0) != 0) const SizedBox(height: 10),
                     Container(
                       margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
@@ -695,18 +697,27 @@ class StudentFeeReceipt {
     );
   }
 
-  Row busFeePaidWidget() {
+  Row busFeePaidWidget(RouteStopWiseStudent? routeStopWiseStudent) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(width: 10),
-        const Expanded(
-          child: Text("Bus Fee"),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Bus Fee"),
+              if (routeStopWiseStudent != null) const SizedBox(height: 5),
+              if (routeStopWiseStudent != null) Text("[${routeStopWiseStudent.busStopName ?? " - "} - ${routeStopWiseStudent.routeName ?? " - "}]")
+            ],
+          ),
         ),
         const SizedBox(width: 5),
-        Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((busFeePaid ?? 0) / 100.0)} /-"),
+        Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((busFeePaid ?? 0) / 100.0)} /-"), // TODO
         const SizedBox(width: 10),
       ],
     );

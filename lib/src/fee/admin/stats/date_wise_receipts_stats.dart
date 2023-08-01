@@ -10,6 +10,7 @@ import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
@@ -29,11 +30,13 @@ class DateWiseReceiptsStatsWidget extends StatefulWidget {
     required this.adminProfile,
     required this.studentFeeReceipts,
     required this.selectedDate,
+    required this.routeStopWiseStudents,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
   final List<StudentFeeReceipt> studentFeeReceipts;
   final DateTime selectedDate;
+  final List<RouteStopWiseStudent> routeStopWiseStudents;
 
   @override
   State<DateWiseReceiptsStatsWidget> createState() => _DateWiseReceiptsStatsWidgetState();
@@ -386,7 +389,18 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                       DataCell(Text(studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.admissionNo ?? "-")),
                       DataCell(Text("${receipt.sectionName}")),
                       DataCell(Text(studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.rollNumber ?? "-")),
-                      DataCell(Text("${receipt.studentName}")),
+                      DataCell(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text("${receipt.studentName}"),
+                            const SizedBox(width: 5),
+                            buildBusFeeTooltip(widget.routeStopWiseStudents.where((e) => e.studentId == receipt.studentId).firstOrNull),
+                          ],
+                        ),
+                      ),
                       DataCell(Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(receipt.getTotalAmountForReceipt() / 100)} /-")),
                       DataCell(Text(ModeOfPaymentExt.fromString(receipt.modeOfPayment).description)),
                       DataCell(Text(getReceiptDescription(receipt).split("\n\n").join(", "))),
@@ -852,6 +866,25 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     }
 
     return [...feeTypeWiseDescriptions, ...customFeeTypeWiseDescriptions, ...busFeeTypeWiseDescriptions].join("\n\n");
+  }
+
+  Widget buildBusFeeTooltip(RouteStopWiseStudent? routeStopWiseStudents) {
+    if (routeStopWiseStudents == null) return Container();
+    return Tooltip(
+      message: "Stop: ${routeStopWiseStudents.busStopName}\n"
+          "Route: ${routeStopWiseStudents.routeName}",
+      child: const SizedBox(
+        height: 15,
+        width: 15,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Icon(
+            Icons.directions_bus_outlined,
+            color: Colors.yellow,
+          ),
+        ),
+      ),
+    );
   }
 }
 

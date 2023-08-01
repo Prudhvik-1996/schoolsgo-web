@@ -4,6 +4,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -19,10 +20,12 @@ class DateWiseReceiptStats extends StatefulWidget {
     Key? key,
     required this.adminProfile,
     required this.studentFeeReceipts,
+    required this.routeStopWiseStudents,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
   final List<StudentFeeReceipt> studentFeeReceipts;
+  final List<RouteStopWiseStudent> routeStopWiseStudents;
 
   @override
   State<DateWiseReceiptStats> createState() => _DateWiseReceiptStatsState();
@@ -206,6 +209,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
                 adminProfile: widget.adminProfile,
                 studentFeeReceipts: widget.studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(date)).toList(),
                 selectedDate: date,
+                routeStopWiseStudents: widget.routeStopWiseStudents,
               );
             }));
           },

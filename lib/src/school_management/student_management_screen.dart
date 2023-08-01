@@ -283,7 +283,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: const Text("Student Management"),
+        title: selectedSection == null ? const Text("Student Management") : Text(selectedSection?.sectionName ?? "-"),
         actions: (MediaQuery.of(context).orientation == Orientation.landscape)
             ? [
                 if (!_isLoading && !showSearchBar) IconButton(onPressed: () => setState(() => showSearchBar = true), icon: const Icon(Icons.search)),
@@ -378,72 +378,68 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
     return Container(
       width: 300,
       margin: const EdgeInsets.fromLTRB(10, 4, 10, 4),
-      color: clayContainerColor(context),
-      child: InputDecorator(
-        isFocused: true,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(5, 0, 5, 0),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.grey),
-          ),
-          label: Text(
-            "Student",
-            style: TextStyle(color: Colors.grey),
-          ),
-        ),
-        child: DropdownSearch<StudentProfile>(
-          mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
-          selectedItem: null,
-          items: studentProfiles,
-          itemAsString: (StudentProfile? student) {
-            return student == null
-                ? ""
-                : [
-                      ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
-                      student.studentFirstName ?? "",
-                      student.studentMiddleName ?? "",
-                      student.studentLastName ?? ""
-                    ].where((e) => e != "").join(" ").trim() +
-                    " - ${student.sectionName}";
-          },
-          showSearchBox: true,
-          dropdownBuilder: (BuildContext context, StudentProfile? student) {
-            return buildStudentWidget(student ?? StudentProfile());
-          },
-          onChanged: (StudentProfile? student) {
-            if (student != null) {
-              setState(() {
-                selectedSection = sectionsList.where((e) => e.sectionId == student.sectionId).firstOrNull;
-              });
-            }
-          },
-          showClearButton: true,
-          clearButton: Center(
-            child: IconButton(
-              onPressed: () => setState(() => showSearchBar = false),
-              icon: const Icon(Icons.clear),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: DropdownSearch<StudentProfile>(
+              mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+              selectedItem: null,
+              items: studentProfiles,
+              itemAsString: (StudentProfile? student) {
+                return student == null
+                    ? ""
+                    : [
+                          ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
+                          student.studentFirstName ?? "",
+                          student.studentMiddleName ?? "",
+                          student.studentLastName ?? ""
+                        ].where((e) => e != "").join(" ").trim() +
+                        " - ${student.sectionName}";
+              },
+              showSearchBox: true,
+              dropdownBuilder: (BuildContext context, StudentProfile? student) {
+                return buildStudentWidget(student ?? StudentProfile());
+              },
+              onChanged: (StudentProfile? student) {
+                if (student != null) {
+                  setState(() {
+                    selectedSection = sectionsList.where((e) => e.sectionId == student.sectionId).firstOrNull;
+                  });
+                  //  TODO scroll down to student
+                }
+              },
+              compareFn: (item, selectedItem) => item?.studentId == selectedItem?.studentId,
+              dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+              filterFn: (StudentProfile? student, String? key) {
+                return ([
+                          ((student?.rollNumber ?? "") == "" ? "" : student!.rollNumber! + "."),
+                          student?.studentFirstName ?? "",
+                          student?.studentMiddleName ?? "",
+                          student?.studentLastName ?? ""
+                        ].where((e) => e != "").join(" ") +
+                        " - ${student?.sectionName ?? ""}")
+                    .toLowerCase()
+                    .trim()
+                    .contains(key!.toLowerCase());
+              },
             ),
           ),
-          compareFn: (item, selectedItem) => item?.studentId == selectedItem?.studentId,
-          dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
-          filterFn: (StudentProfile? student, String? key) {
-            return ([
-                      ((student?.rollNumber ?? "") == "" ? "" : student!.rollNumber! + "."),
-                      student?.studentFirstName ?? "",
-                      student?.studentMiddleName ?? "",
-                      student?.studentLastName ?? ""
-                    ].where((e) => e != "").join(" ") +
-                    " - ${student?.sectionName ?? ""}")
-                .toLowerCase()
-                .trim()
-                .contains(key!.toLowerCase());
-          },
-        ),
+          InkWell(
+            child: const SizedBox(
+              height: 15,
+              width: 15,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Icon(Icons.clear),
+              ),
+            ),
+            onTap: () => setState(() => showSearchBar = false),
+          )
+        ],
       ),
     );
   }

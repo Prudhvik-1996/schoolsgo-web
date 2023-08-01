@@ -669,10 +669,19 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
         (editingStudentId != studentWiseAnnualFeesBean.studentId)) {
       feeStats.add(Row(
         children: [
-          const Expanded(child: Text("Bus Fee")),
-          const SizedBox(
-            width: 10,
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text("Bus Fee"),
+                const SizedBox(width: 10),
+                buildBusFeeTooltip(studentWiseAnnualFeesBean),
+              ],
+            ),
           ),
+          const SizedBox(width: 10),
           Text(
             studentWiseAnnualFeesBean.studentBusFeeBean?.fare == null
                 ? "-"
@@ -692,8 +701,17 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             const SizedBox(
               width: 10,
             ),
-            const Expanded(
-              child: Text("Bus Fee"),
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text("Bus Fee"),
+                  const SizedBox(width: 10),
+                  buildBusFeeTooltip(studentWiseAnnualFeesBean),
+                ],
+              ),
             ),
             SizedBox(
               width: 60,
@@ -967,6 +985,26 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                     ],
                   )
                 ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Tooltip buildBusFeeTooltip(StudentAnnualFeeBean studentWiseAnnualFeesBean) {
+    return Tooltip(
+      message: studentWiseAnnualFeesBean.studentBusFeeBean?.routeName == null || studentWiseAnnualFeesBean.studentBusFeeBean?.stopName == null
+          ? ""
+          : "Stop: ${studentWiseAnnualFeesBean.studentBusFeeBean!.stopName}\n"
+              "Route: ${studentWiseAnnualFeesBean.studentBusFeeBean!.routeName}",
+      child: const SizedBox(
+        height: 15,
+        width: 15,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Icon(
+            Icons.directions_bus_outlined,
+            color: Colors.yellow,
           ),
         ),
       ),
