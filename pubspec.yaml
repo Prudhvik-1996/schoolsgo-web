@@ -112,6 +112,7 @@ dependencies:
 
   mobile_scanner: ^1.0.0
   table_sticky_headers: ^2.0.5
+  flutter_sticky_header: ^0.6.5
 
 dev_dependencies:
   flutter_test:

@@ -38,6 +38,7 @@ class ManageFAExamsScreen extends StatefulWidget {
 }
 
 class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
 
   List<FAExam> faExams = [];
@@ -69,6 +70,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Manage FA Exams"),
         actions: [
@@ -100,6 +102,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
                   children: [
                     ...faExams.map(
                       (faExam) => FAExamWidget(
+                        scaffoldKey: _scaffoldKey,
                         adminProfile: widget.adminProfile,
                         teacherProfile: widget.teacherProfile,
                         selectedAcademicYearId: widget.selectedAcademicYearId,

@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/fa_cumulative_exam_marks_screen.dart';
@@ -12,6 +13,8 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
+import 'package:schoolsgo_web/src/utils/excel_utils.dart';
+import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
 class FAExamWidget extends StatefulWidget {
   const FAExamWidget({
@@ -28,6 +31,7 @@ class FAExamWidget extends StatefulWidget {
     required this.loadData,
     required this.editingEnabled,
     required this.selectedSection,
+    required this.scaffoldKey,
   });
 
   final AdminProfile? adminProfile;
@@ -42,6 +46,7 @@ class FAExamWidget extends StatefulWidget {
   final Future<void> Function() loadData;
   final bool editingEnabled;
   final Section? selectedSection;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
   @override
   State<FAExamWidget> createState() => _FAExamWidgetState();
@@ -57,9 +62,26 @@ class _FAExamWidgetState extends State<FAExamWidget> {
   @override
   void initState() {
     super.initState();
-    internals = (widget.faExam.faInternalExams ?? []).map((e) => e!).toList();
-    examSectionSubjectMapList = internals.map((e) => (e.examSectionSubjectMapList ?? [])).expand((i) => i).map((e) => e!).toList();
-    tdsList = widget.tdsList.where((e) => e.status == 'active').toList();
+    internals = (widget.faExam.faInternalExams ?? [])
+        .map((e) => e!)
+        .where((e) =>
+            widget.selectedSection == null ||
+            (e.examSectionSubjectMapList ?? []).map((e) => e?.sectionId).contains(widget.selectedSection?.sectionId))
+        .where((e) =>
+            widget.teacherProfile == null ||
+            (e.examSectionSubjectMapList ?? []).map((e) => e?.authorisedAgent).contains(widget.teacherProfile?.teacherId))
+        .toList();
+    examSectionSubjectMapList = internals
+        .map((e) => (e.examSectionSubjectMapList ?? []))
+        .expand((i) => i)
+        .map((e) => e!)
+        .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
+        .where((e) => widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
+        .toList();
+    tdsList = widget.tdsList
+        .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
+        .where((e) => e.status == 'active')
+        .toList();
   }
 
   @override
@@ -95,8 +117,11 @@ class _FAExamWidgetState extends State<FAExamWidget> {
     List<Widget> widgetsOfEachInternal = [];
     for (FaInternalExam eachInternal in internals) {
       ScrollController controller = ScrollController();
-      List<ExamSectionSubjectMap> essmListForInternal =
-          examSectionSubjectMapList.where((e) => e.examId == eachInternal.faInternalExamId && e.masterExamId == eachInternal.masterExamId).toList();
+      List<ExamSectionSubjectMap> essmListForInternal = examSectionSubjectMapList
+          .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
+          .where((e) => e.examId == eachInternal.faInternalExamId && e.masterExamId == eachInternal.masterExamId)
+          .where((e) => widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
+          .toList();
       widgetsOfEachInternal.add(Container(
         margin: const EdgeInsets.all(15),
         child: ClayContainer(
@@ -114,12 +139,19 @@ class _FAExamWidgetState extends State<FAExamWidget> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  eachInternal.faInternalExamName ?? "-",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        eachInternal.faInternalExamName ?? "-",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    if (widget.teacherProfile == null && widget.editingEnabled) hallTicketsButton(widget.faExam, eachInternal),
+                  ],
                 ),
                 const SizedBox(height: 15),
                 Scrollbar(
@@ -143,7 +175,10 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                           "End Time",
                         ].map((e) => DataColumn(label: Center(child: Text(e)))).toList(),
                         rows: [
-                          ...essmListForInternal.where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId).map(
+                          ...essmListForInternal
+                              .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
+                              .where((e) => widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
+                              .map(
                                 (eachExamSectionSubjectMap) => DataRow(
                                   onSelectChanged: (bool? selected) {
                                     if (selected ?? false) {
@@ -317,15 +352,24 @@ class _FAExamWidgetState extends State<FAExamWidget> {
               child: ClayButton(
                 color: clayContainerColor(context),
                 height: 30,
-                width: 30,
+                width: 130,
                 borderRadius: 50,
                 surfaceColor: clayContainerColor(context),
                 spread: 1,
-                child: const Padding(
-                  padding: EdgeInsets.all(4.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Icon(Icons.score_outlined),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.score_outlined),
+                        SizedBox(width: 10),
+                        Text("Update Marks"),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -354,11 +398,11 @@ class _FAExamWidgetState extends State<FAExamWidget> {
               borderRadius: 50,
               surfaceColor: clayContainerColor(context),
               spread: 1,
-              child: const Padding(
-                padding: EdgeInsets.all(4.0),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Icon(Icons.edit),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Container(
+                  margin: const EdgeInsets.all(8.0),
+                  child: const Icon(Icons.edit),
                 ),
               ),
             ),
@@ -388,6 +432,234 @@ class _FAExamWidgetState extends State<FAExamWidget> {
         ),
         const SizedBox(width: 15),
       ],
+    );
+  }
+
+  Widget hallTicketsButton(FAExam faExam, FaInternalExam eachInternal) {
+    return GestureDetector(
+      onTap: () async {
+        List<StudentProfile> selectedStudentsForHallTickets = widget.studentsList
+            .where((e) => (eachInternal.examSectionSubjectMapList ?? []).map((essm) => essm?.sectionId).contains(e.sectionId))
+            .map((e) => StudentProfile.fromJson(e.origJson()))
+            .toList();
+        List<StudentProfile> studentsMatchedWithSearchKey = widget.studentsList
+            .where((e) => (eachInternal.examSectionSubjectMapList ?? []).map((essm) => essm?.sectionId).contains(e.sectionId))
+            .map((e) => StudentProfile.fromJson(e.origJson()))
+            .toList();
+        List<Section> mappedSections = widget.sectionsList
+            .where((eachSection) => (eachInternal.examSectionSubjectMapList ?? []).map((essm) => essm?.sectionId).contains(eachSection.sectionId))
+            .map((e) => Section.fromJson(e.toJson()))
+            .toList();
+        String searchKey = '';
+        await showDialog(
+          context: widget.scaffoldKey.currentContext!,
+          builder: (currentContext) {
+            return AlertDialog(
+              title: const Text("Hall Tickets"),
+              content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        color: clayContainerColor(context),
+                        width: MediaQuery.of(context).size.width / 2,
+                        height: MediaQuery.of(context).size.height / 2,
+                        child: CustomScrollView(
+                          slivers: [
+                            ...mappedSections
+                                .where((eachSection) => studentsMatchedWithSearchKey.any((e) => e.sectionId == eachSection.sectionId))
+                                .map(
+                              (Section eachSection) {
+                                return SliverStickyHeader.builder(
+                                  builder: (context, state) => Container(
+                                    color: clayContainerColor(context),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        if (searchKey == '') const SizedBox(width: 10),
+                                        if (searchKey == '')
+                                          Checkbox(
+                                            value: selectedStudentsForHallTickets.where((e) => e.sectionId == eachSection.sectionId).length ==
+                                                    widget.studentsList.where((e) => e.sectionId == eachSection.sectionId).length &&
+                                                widget.studentsList.where((e) => e.sectionId == eachSection.sectionId).isNotEmpty,
+                                            onChanged: (bool? newValue) {
+                                              if (newValue == null) return;
+                                              setState(() {
+                                                if (newValue) {
+                                                  selectedStudentsForHallTickets.removeWhere((e) => e.sectionId == eachSection.sectionId);
+                                                  selectedStudentsForHallTickets
+                                                      .addAll(studentsMatchedWithSearchKey.where((e) => e.sectionId == eachSection.sectionId));
+                                                } else {
+                                                  selectedStudentsForHallTickets.removeWhere((e) => e.sectionId == eachSection.sectionId);
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        const SizedBox(width: 10),
+                                        Expanded(child: Text(eachSection.sectionName ?? "-")),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    ),
+                                  ),
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, i) {
+                                        StudentProfile eachStudent = studentsMatchedWithSearchKey
+                                            .where((eachStudent) => eachStudent.sectionId == eachSection.sectionId)
+                                            .toList()
+                                            .tryGet(i);
+                                        return Container(
+                                          color: clayContainerColor(context),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              const SizedBox(width: 20),
+                                              Checkbox(
+                                                value: selectedStudentsForHallTickets.map((e) => e.studentId).contains(eachStudent.studentId),
+                                                onChanged: (bool? newValue) {
+                                                  if (newValue == null) return;
+                                                  setState(() {
+                                                    if (newValue) {
+                                                      selectedStudentsForHallTickets.add(eachStudent);
+                                                    } else {
+                                                      selectedStudentsForHallTickets.removeWhere((e) => e.studentId == eachStudent.studentId);
+                                                    }
+                                                  });
+                                                },
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                  child: Text(eachStudent.rollNumber == null
+                                                      ? eachStudent.studentFirstName ?? "-"
+                                                      : "${eachStudent.rollNumber}. ${eachStudent.studentFirstName}")),
+                                              const SizedBox(width: 10),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      childCount:
+                                          studentsMatchedWithSearchKey.where((eachStudent) => eachStudent.sectionId == eachSection.sectionId).length,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () => setState(() {
+                              selectedStudentsForHallTickets.clear();
+                              selectedStudentsForHallTickets.addAll(widget.studentsList.map((e) => StudentProfile.fromJson(e.origJson())));
+                            }),
+                            child: ClayButton(
+                              depth: 40,
+                              surfaceColor: clayContainerColor(context),
+                              parentColor: clayContainerColor(context),
+                              spread: 1,
+                              borderRadius: 25,
+                              child: Container(
+                                margin: const EdgeInsets.all(10),
+                                child: const Center(child: Text("Select All", style: TextStyle(fontSize: 9))),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextFormField(
+                              maxLines: 1,
+                              initialValue: '',
+                              decoration: const InputDecoration(
+                                labelText: 'Search Student',
+                                hintText: 'Search Student',
+                              ),
+                              onChanged: (String? newValue) => setState(() {
+                                searchKey = (newValue ?? "").trim();
+                                studentsMatchedWithSearchKey = searchKey == ""
+                                    ? widget.studentsList.map((e) => StudentProfile.fromJson(e.origJson())).toList()
+                                    : widget.studentsList
+                                        .map((e) => StudentProfile.fromJson(e.origJson()))
+                                        .where((eachStudent) => "${eachStudent.rollNumber}. ${eachStudent.studentFirstName}"
+                                            .toLowerCase()
+                                            .contains(searchKey.toLowerCase()))
+                                        .toList();
+                              }),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () => setState(() => selectedStudentsForHallTickets.clear()),
+                            child: ClayButton(
+                              depth: 40,
+                              surfaceColor: clayContainerColor(context),
+                              parentColor: clayContainerColor(context),
+                              spread: 1,
+                              borderRadius: 25,
+                              child: Container(
+                                margin: const EdgeInsets.all(10),
+                                child: const Center(child: Text("Clear All", style: TextStyle(fontSize: 9))),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    downloadHallTickets(context, widget.adminProfile!, faExam, eachInternal, selectedStudentsForHallTickets, widget.subjectsList);
+                  },
+                  child: const Text("YES"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("No"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: ClayButton(
+        color: clayContainerColor(context),
+        height: 30,
+        width: 130,
+        borderRadius: 50,
+        surfaceColor: clayContainerColor(context),
+        spread: 1,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Container(
+                margin: const EdgeInsets.all(8.0),
+                child: const Icon(Icons.file_copy_outlined),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(child: Text("Hall Tickets")),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -194,58 +194,58 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
       height: 60,
       child: _selectedSection != null
           ? Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: InkWell(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      if (_isLoading) return;
+                      setState(() {
+                        _isSectionPickerOpen = !_isSectionPickerOpen;
+                      });
+                    },
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                InkWell(
+                  child: const Icon(Icons.close),
+                  onTap: () {
+                    setState(() {
+                      _selectedSection = null;
+                    });
+                  },
+                ),
+                const SizedBox(width: 10),
+              ],
+            )
+          : InkWell(
               onTap: () {
                 if (_isLoading) return;
                 setState(() {
                   _isSectionPickerOpen = !_isSectionPickerOpen;
                 });
               },
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(5, 14, 5, 14),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 10),
-          InkWell(
-            child: const Icon(Icons.close),
-            onTap: () {
-              setState(() {
-                _selectedSection = null;
-              });
-            },
-          ),
-          const SizedBox(width: 10),
-        ],
-      )
-          : InkWell(
-        onTap: () {
-          if (_isLoading) return;
-          setState(() {
-            _isSectionPickerOpen = !_isSectionPickerOpen;
-          });
-        },
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(5, 14, 5, 14),
-          child: Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                _selectedSection == null ? "Select a section" : "Section: ${_selectedSection!.sectionName!}",
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -288,13 +288,13 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
         margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
         child: _isSectionPickerOpen
             ? ClayContainer(
-          depth: 40,
-          parentColor: clayContainerColor(context),
-          surfaceColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          child: _selectSectionExpanded(),
-        )
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 10,
+                child: _selectSectionExpanded(),
+              )
             : _selectSectionCollapsed(),
       ),
     );
@@ -303,7 +303,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-          key: scaffoldKey,
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text("FA Exams"),
         actions: [
@@ -334,50 +334,50 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
         ],
       ),
       drawer:
-      widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
+          widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: _isLoading
           ? Center(
-        child: Image.asset(
-          'assets/images/eis_loader.gif',
-          height: 500,
-          width: 500,
-        ),
-      )
-          : ListView(
-        children: <Widget>[
-          const SizedBox(height: 20),
-          _sectionPicker(),
-          const SizedBox(height: 20),
-          widget.teacherProfile == null && _selectedSection == null
-              ? const Center(
-            child: Text("Select a section to continue"),
-          )
-              : Column(
-            children: [
-              ...faExams
-                  .map(
-                    (faExam) => Container(
-                  margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                  child: FAExamWidget(
-                    adminProfile: widget.adminProfile,
-                    teacherProfile: widget.teacherProfile,
-                    selectedAcademicYearId: widget.selectedAcademicYearId,
-                    sectionsList: _sectionsList,
-                    teachersList: teachersList,
-                    subjectsList: subjectsList,
-                    tdsList: tdsList,
-                    faExam: faExam,
-                    studentsList: studentsList,
-                    loadData: _loadData,
-                    editingEnabled: false,
-                    selectedSection: _selectedSection,
-                  ),
-                ),
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
               ),
-            ],
-          ),
-        ],
-      ),
+            )
+          : ListView(
+              children: <Widget>[
+                const SizedBox(height: 20),
+                _sectionPicker(),
+                const SizedBox(height: 20),
+                _selectedSection == null
+                    ? const Center(
+                        child: Text("Select a section to continue"),
+                      )
+                    : Column(
+                        children: [
+                          ...faExams.map(
+                            (faExam) => Container(
+                              margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: FAExamWidget(
+                                scaffoldKey: scaffoldKey,
+                                adminProfile: widget.adminProfile,
+                                teacherProfile: widget.teacherProfile,
+                                selectedAcademicYearId: widget.selectedAcademicYearId,
+                                sectionsList: _sectionsList,
+                                teachersList: teachersList,
+                                subjectsList: subjectsList,
+                                tdsList: tdsList,
+                                faExam: faExam,
+                                studentsList: studentsList,
+                                loadData: _loadData,
+                                editingEnabled: false,
+                                selectedSection: _selectedSection,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              ],
+            ),
     );
   }
 }

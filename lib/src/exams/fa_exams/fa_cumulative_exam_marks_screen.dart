@@ -264,7 +264,12 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
       List<ExamSectionSubjectMap?> subjectWiseEssmList = [];
       List<String> subjectWiseHeaderStrings = [];
       (widget.faExam.faInternalExams ?? []).whereNotNull().forEach((eachInternal) {
-        var x = (eachInternal.examSectionSubjectMapList ?? []).where((essm) => essm?.subjectId == eachSubject.subjectId).firstOrNull;
+        var x = (eachInternal.examSectionSubjectMapList ?? [])
+            .where((essm) =>
+                essm?.subjectId == eachSubject.subjectId &&
+                essm?.sectionId == widget.selectedSection.sectionId &&
+                (widget.teacherProfile == null || widget.teacherProfile?.teacherId == essm?.authorisedAgent))
+            .firstOrNull;
         subjectWiseEssmList.add(x);
         if (x != null) {
           subjectWiseHeaderStrings.add("${eachSubject.subjectName}|${eachInternal.faInternalExamName ?? "-"}");
