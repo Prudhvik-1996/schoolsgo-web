@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/date_wise_admin_expenses_stats_screen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -130,7 +131,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           PopupMenuButton<String>(
             onSelected: handleMoreOptions,
             itemBuilder: (BuildContext context) {
-              return {'Download Report'}.map((String choice) {
+              return {'Download Report', 'Date Wise Stats'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
@@ -892,6 +893,16 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
         if (_reportDownloadStatus == null) {
           downloadReport();
         }
+        return;
+      case "Date Wise Stats":
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return DateWiseAdminExpensesStatsScreen(adminProfile: widget.adminProfile, adminExpenses: adminExpenses);
+            },
+          ),
+        );
         return;
       default:
         return;

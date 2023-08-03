@@ -31,12 +31,14 @@ class DateWiseReceiptsStatsWidget extends StatefulWidget {
     required this.studentFeeReceipts,
     required this.selectedDate,
     required this.routeStopWiseStudents,
+    required this.feeTypes,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
   final List<StudentFeeReceipt> studentFeeReceipts;
   final DateTime selectedDate;
   final List<RouteStopWiseStudent> routeStopWiseStudents;
+  final List<FeeType> feeTypes;
 
   @override
   State<DateWiseReceiptsStatsWidget> createState() => _DateWiseReceiptsStatsWidgetState();
@@ -63,6 +65,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
   @override
   void initState() {
     super.initState();
+    feeTypes = widget.feeTypes;
     _loadData();
   }
 
@@ -98,21 +101,6 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       setState(() {
         sections = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
         selectedSectionsList = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
-      });
-    }
-
-    GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
-      schoolId: widget.adminProfile.schoolId,
-    ));
-    if (getFeeTypesResponse.httpStatus != "OK" || getFeeTypesResponse.responseStatus != "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-    } else {
-      setState(() {
-        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
       });
     }
     setState(() {
@@ -165,7 +153,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       horizontalAlign: HorizontalAlign.Center,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).cellStyle = schoolNameStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 0));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: 0));
     rowIndex++;
 
     sheet.appendRow(["Date: ${(convertDateTimeToDDMMYYYYFormat(widget.selectedDate))}"]);
@@ -175,12 +163,12 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       fontSize: 18,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)).cellStyle = dateStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: 1));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: 1));
     rowIndex++;
 
     // Define the headers for the columns
-    sheet.appendRow(['Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Amount Paid', 'Mode Of Payment', 'Details']);
-    for (int i = 0; i <= 7; i++) {
+    sheet.appendRow(['Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Amount Paid', 'Mode Of Payment', 'Details', 'Comments']);
+    for (int i = 0; i <= 8; i++) {
       sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
         backgroundColorHex: 'FF000000',
         fontColorHex: 'FFFFFFFF',
@@ -199,6 +187,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
         receipt.getTotalAmountForReceipt() / 100,
         ModeOfPaymentExt.fromString(receipt.modeOfPayment).description,
         getReceiptDescription(receipt).replaceAll("\n\n", "\r\n"),
+        receipt.comments ?? "",
       ]);
       sheet.cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: rowIndex)).cellStyle = CellStyle(textWrapping: TextWrapping.WrapText);
       rowIndex++;
@@ -277,6 +266,16 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       );
     }
     rowIndex++;
+
+    sheet.appendRow(["Downloaded: ${convertEpochToDDMMYYYYEEEEHHMMAA(DateTime.now().millisecondsSinceEpoch)}"]);
+    CellStyle downloadTimeStyle = CellStyle(
+      bold: true,
+      fontSize: 9,
+      horizontalAlign: HorizontalAlign.Right,
+      verticalAlign: VerticalAlign.Center,
+    );
+    sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex)).cellStyle = downloadTimeStyle;
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex), CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: rowIndex));
 
     // Auto fit the columns
     for (var i = 1; i < sheet.maxCols; i++) {
@@ -371,6 +370,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                   DataColumn(label: Text('Amount Paid')),
                   DataColumn(label: Text('Mode Of Payment')),
                   DataColumn(label: Text('Details')),
+                  DataColumn(label: Text('Comments')),
                 ],
                 rows: studentFeeReceipts.sorted((a, b) => (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0)).map((receipt) {
                   return DataRow(
@@ -394,6 +394,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                       DataCell(Text("$INR_SYMBOL ${doubleToStringAsFixedForINR(receipt.getTotalAmountForReceipt() / 100)} /-")),
                       DataCell(Text(ModeOfPaymentExt.fromString(receipt.modeOfPayment).description)),
                       DataCell(Text(getReceiptDescription(receipt).split("\n\n").join(", "))),
+                      DataCell(Text(receipt.comments ?? "")),
                     ],
                   );
                 }).toList(),
@@ -406,12 +407,6 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
   }
 
   Widget _totalFeeCollected(List<StudentFeeReceipt> studentFeeReceipts) {
-    final modeOfPaymentMap = <ModeOfPayment, int>{};
-    for (final receipt in studentFeeReceipts) {
-      final modeOfPayment = ModeOfPaymentExt.fromString(receipt.modeOfPayment);
-      final totalAmount = receipt.getTotalAmountForReceipt();
-      modeOfPaymentMap[modeOfPayment] = (modeOfPaymentMap[modeOfPayment] ?? 0) + totalAmount;
-    }
     return Container(
       margin: const EdgeInsets.all(10),
       child: ClayContainer(
@@ -457,11 +452,6 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                           thickness: MediaQuery.of(context).orientation == Orientation.landscape ? 2 : 1,
                           color: clayContainerTextColor(context),
                         ),
-                        ...modeOfPaymentWiseWidgets(modeOfPaymentMap),
-                        Divider(
-                          thickness: MediaQuery.of(context).orientation == Orientation.landscape ? 2 : 1,
-                          color: clayContainerTextColor(context),
-                        ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                           child: Row(
@@ -485,12 +475,12 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                   if (MediaQuery.of(context).orientation == Orientation.landscape) const SizedBox(width: 20),
                   if (MediaQuery.of(context).orientation == Orientation.landscape)
                     CustomVerticalDivider(
-                      height: 200,
+                      height: 300,
                       width: 1,
                       color: clayContainerTextColor(context),
                     ),
                   const SizedBox(width: 10),
-                  if (MediaQuery.of(context).orientation == Orientation.landscape) _modeOfPaymentPieChartWidget(),
+                  if (MediaQuery.of(context).orientation == Orientation.landscape) _modeOfPaymentPieChartWidget(studentFeeReceipts),
                 ],
               ),
               if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 10),
@@ -499,7 +489,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                   thickness: 2,
                   color: clayContainerTextColor(context),
                 ),
-              if (MediaQuery.of(context).orientation == Orientation.portrait) _modeOfPaymentPieChartWidget(),
+              if (MediaQuery.of(context).orientation == Orientation.portrait) _modeOfPaymentPieChartWidget(studentFeeReceipts),
             ],
           ),
         ),
@@ -588,35 +578,57 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
         ),
       ));
 
-  Widget _modeOfPaymentPieChartWidget() {
+  Widget _modeOfPaymentPieChartWidget(List<StudentFeeReceipt> studentFeeReceipts) {
+    final modeOfPaymentMap = <ModeOfPayment, int>{};
+    for (final receipt in studentFeeReceipts) {
+      final modeOfPayment = ModeOfPaymentExt.fromString(receipt.modeOfPayment);
+      final totalAmount = receipt.getTotalAmountForReceipt();
+      modeOfPaymentMap[modeOfPayment] = (modeOfPaymentMap[modeOfPayment] ?? 0) + totalAmount;
+    }
     return SizedBox(
-      width: 300, // Replace with the desired width
-      height: 200, // Replace with the desired height
-      child: Row(
+      width: 300,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 2,
-            child: charts.PieChart<String>(
-              generatePieChartData(filteredReceipts),
-              animate: true,
-              defaultRenderer: charts.ArcRendererConfig(
-                arcRendererDecorators: [
-                  charts.ArcLabelDecorator(
-                    labelPosition: charts.ArcLabelPosition.inside,
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: SizedBox(
+                  height: 150,
+                  child: charts.PieChart<String>(
+                    generatePieChartData(filteredReceipts),
+                    animate: true,
+                    defaultRenderer: charts.ArcRendererConfig(
+                      arcRendererDecorators: [
+                        charts.ArcLabelDecorator(
+                          labelPosition: charts.ArcLabelPosition.inside,
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: ModeOfPayment.values.map((e) => ModeOfPaymentExt.getChartLedgerRow(e)).toList(),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 5),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: ModeOfPayment.values.map((e) => ModeOfPaymentExt.getChartLedgerRow(e)).toList(),
-            ),
+          const SizedBox(height: 10),
+          Divider(
+            thickness: MediaQuery.of(context).orientation == Orientation.landscape ? 2 : 1,
+            color: clayContainerTextColor(context),
           ),
+          const SizedBox(height: 10),
+          ...modeOfPaymentWiseWidgets(modeOfPaymentMap),
         ],
       ),
     );

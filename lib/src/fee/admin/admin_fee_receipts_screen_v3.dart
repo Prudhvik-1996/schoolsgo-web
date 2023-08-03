@@ -244,6 +244,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
           studentFeeReceipts: studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).toList(),
           selectedDate: DateTime.now(),
           routeStopWiseStudents: routeStopWiseStudents,
+          feeTypes: feeTypes,
         );
       }));
     } else if (choice == "Go to date") {
