@@ -437,6 +437,9 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
 
   Widget buildBusFeePayableWidget() {
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const SizedBox(width: 10),
         Checkbox(
@@ -452,8 +455,21 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
           },
         ),
         const SizedBox(width: 10),
-        const Expanded(
-          child: Text("Bus Fee"),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Bus Fee",
+              ),
+              Text(
+                "${widget.newReceipt.studentAnnualFeeBean?.studentBusFeeBean?.routeName} - ${widget.newReceipt.studentAnnualFeeBean?.studentBusFeeBean?.stopName}",
+                style: const TextStyle(fontSize: 9),
+              ),
+            ],
+          ),
         ),
         const SizedBox(width: 10),
         SizedBox(
