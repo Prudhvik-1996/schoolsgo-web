@@ -115,6 +115,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
                         loadData: _loadData,
                         editingEnabled: true,
                         selectedSection: null,
+                        setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
                       ),
                     )
                   ],

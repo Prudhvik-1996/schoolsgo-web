@@ -165,6 +165,7 @@ const String GET_FEE_DETAILS_REPORT = "/reports/getDetailedFeesReport";
 const String GET_FEE_SECTION_WISE_TERM_WISE_REPORT_FOR_ALL_STUDENTS = "/reports/getSectionWiseFeesDueReport";
 const String GET_FEE_SUMMARY_REPORT = "/reports/getFeesSummaryReport";
 const String GET_BUS_WISE_FEES_SUMMARY_REPORT = "/reports/getBusWiseFeesSummaryReport";
+const String GET_HALL_TICKETS = "/reports/generateHallTickets";
 
 const String GET_ACADEMIC_PLANNER_TIME_SLOTS = "/academic_planner/getPlannerTimeSlots";
 const String GET_ACADEMIC_PLANNER = "/academic_planner/getPlanner";

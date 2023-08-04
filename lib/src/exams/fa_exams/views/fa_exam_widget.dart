@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html';
+
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +16,6 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:schoolsgo_web/src/utils/excel_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
 class FAExamWidget extends StatefulWidget {
@@ -32,6 +34,7 @@ class FAExamWidget extends StatefulWidget {
     required this.editingEnabled,
     required this.selectedSection,
     required this.scaffoldKey,
+    required this.setLoading,
   });
 
   final AdminProfile? adminProfile;
@@ -47,6 +50,7 @@ class FAExamWidget extends StatefulWidget {
   final bool editingEnabled;
   final Section? selectedSection;
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final void Function(bool isLoading) setLoading;
 
   @override
   State<FAExamWidget> createState() => _FAExamWidgetState();
@@ -621,7 +625,19 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                 TextButton(
                   onPressed: () async {
                     Navigator.pop(context);
-                    downloadHallTickets(context, widget.adminProfile!, faExam, eachInternal, selectedStudentsForHallTickets, widget.subjectsList);
+                    // downloadHallTickets(context, widget.adminProfile!, faExam, eachInternal, selectedStudentsForHallTickets, widget.subjectsList);
+                    widget.setLoading(true);
+                    List<int> bytes = await downloadHallTicketsFromWeb(
+                      widget.adminProfile!.schoolId!,
+                      widget.selectedAcademicYearId,
+                      selectedStudentsForHallTickets.map((e) => e.studentId).whereNotNull().toList(),
+                      widget.faExam.faExamId!,
+                      eachInternal.faInternalExamId!,
+                    );
+                    AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+                      ..setAttribute("download", "Hall Tickets for ${widget.faExam.faExamName ?? "-"} - ${eachInternal.faInternalExamName}.xls")
+                      ..click();
+                    widget.setLoading(false);
                   },
                   child: const Text("YES"),
                 ),

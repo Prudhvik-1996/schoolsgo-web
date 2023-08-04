@@ -152,6 +152,6 @@ Future<void> downloadHallTickets(
     Uint8List excelUint8List = Uint8List.fromList(excelBytes);
 
     // Save the Excel file
-    FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Fee statistics for ${faExam.faExamName} - ${eachInternal.faInternalExamName}.xlsx');
+    FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Hall Tickets for ${faExam.faExamName} - ${eachInternal.faInternalExamName}.xlsx');
   }
 }

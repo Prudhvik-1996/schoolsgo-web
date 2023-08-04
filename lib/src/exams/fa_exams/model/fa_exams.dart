@@ -115,13 +115,13 @@ class ExamSectionSubjectMap {
   double? get classAverage => (studentExamMarksList ?? []).where((e) => e?.marksObtained != null && e?.isAbsent != 'N').isEmpty
       ? null
       : (((studentExamMarksList ?? [])
-      .where((e) => e?.marksObtained != null && e?.isAbsent != 'N')
-      .map((e) => e?.marksObtained ?? 0.0)
-      .fold<double>(0.0, (double a, double b) => a + b) /
-      (studentExamMarksList ?? []).where((e) => e?.marksObtained != null).length) *
-      100)
-      .toInt() /
-      100.0;
+                          .where((e) => e?.marksObtained != null && e?.isAbsent != 'N')
+                          .map((e) => e?.marksObtained ?? 0.0)
+                          .fold<double>(0.0, (double a, double b) => a + b) /
+                      (studentExamMarksList ?? []).where((e) => e?.marksObtained != null).length) *
+                  100)
+              .toInt() /
+          100.0;
 
   String get examDate => date == null ? "-" : convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(date));
 
@@ -364,7 +364,6 @@ Future<GetFAExamsResponse> getFAExams(GetFAExamsRequest getFAExamsRequest) async
 }
 
 class CreateOrUpdateFAExamRequest {
-
   int? academicYearId;
   int? agent;
   String? comment;
@@ -389,6 +388,7 @@ class CreateOrUpdateFAExamRequest {
     this.schoolId,
     this.status,
   });
+
   CreateOrUpdateFAExamRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     academicYearId = json['academicYearId']?.toInt();
@@ -409,6 +409,7 @@ class CreateOrUpdateFAExamRequest {
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearId'] = academicYearId;
@@ -430,11 +431,11 @@ class CreateOrUpdateFAExamRequest {
     data['status'] = status;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateOrUpdateFAExamResponse {
-
   String? errorCode;
   String? errorMessage;
   int? faExamId;
@@ -449,6 +450,7 @@ class CreateOrUpdateFAExamResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateFAExamResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -457,6 +459,7 @@ class CreateOrUpdateFAExamResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -466,6 +469,7 @@ class CreateOrUpdateFAExamResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -481,4 +485,21 @@ Future<CreateOrUpdateFAExamResponse> createOrUpdateFAExam(CreateOrUpdateFAExamRe
 
   debugPrint("createOrUpdateFAExamResponse ${createOrUpdateFAExamResponse.toJson()}");
   return createOrUpdateFAExamResponse;
+}
+
+Future<List<int>> downloadHallTicketsFromWeb(int schoolId, int academicYearId, List<int> studentIds, int faExamId, int internalExamId) async {
+  debugPrint(
+      """Raising request to downloadHallTicketsFromWeb with request {"schoolId": $schoolId, "academicYearId": $academicYearId, "studentIds": $studentIds, "faExamId": $faExamId, "internalExamId": $internalExamId}""");
+  String _url = SCHOOLS_GO_BASE_URL +
+      GET_HALL_TICKETS +
+      '?' +
+      Uri(queryParameters: {
+        "schoolId": schoolId.toString(),
+        "academicYearId": academicYearId.toString(),
+        "studentIds": studentIds.join(','),
+        "faExamId": faExamId.toString(),
+        "internalExamId": internalExamId.toString(),
+      }).query;
+  debugPrint("URL: $_url");
+  return await HttpUtils.postToDownloadFile(_url, {});
 }
