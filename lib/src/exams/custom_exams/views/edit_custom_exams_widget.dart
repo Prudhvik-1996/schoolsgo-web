@@ -1,26 +1,28 @@
 import 'package:clay_containers/clay_containers.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
-import 'package:collection/collection.dart';
 
 class EditCustomExamWidget extends StatefulWidget {
-  const EditCustomExamWidget(
-      {Key? key,
-      required this.adminProfile,
-      required this.teacherProfile,
-      required this.selectedAcademicYearId,
-      required this.sectionsList,
-      required this.teachersList,
-      required this.tdsList,
-      required this.customExam})
-      : super(key: key);
+  const EditCustomExamWidget({
+    Key? key,
+    required this.adminProfile,
+    required this.teacherProfile,
+    required this.selectedAcademicYearId,
+    required this.sectionsList,
+    required this.teachersList,
+    required this.tdsList,
+    required this.markingAlgorithms,
+    required this.customExam,
+  }) : super(key: key);
 
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
@@ -28,6 +30,7 @@ class EditCustomExamWidget extends StatefulWidget {
   final List<Section> sectionsList;
   final List<Teacher> teachersList;
   final List<TeacherDealingSection> tdsList;
+  final List<MarkingAlgorithmBean> markingAlgorithms;
   final CustomExam customExam;
 
   @override
@@ -81,7 +84,7 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
       return;
     }
     for (ExamSectionSubjectMap eachExamSectionSubjectMap in examSectionSubjectMapList) {
-      if ((eachExamSectionSubjectMap.maxMarks ?? 0) == 0) {
+      if ((eachExamSectionSubjectMap.maxMarks ?? 0) == 0 && eachExamSectionSubjectMap.status == 'active') {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -111,6 +114,7 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
                   status: 'active',
                   agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
                   examType: "CUSTOM",
+                  markingAlgorithmId: widget.customExam.markingAlgorithmId,
                   schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
                   academicYearId: widget.selectedAcademicYearId,
                   customExamId: widget.customExam.customExamId,
@@ -638,23 +642,41 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
   Widget customExamNameWidget() {
     return Container(
       margin: const EdgeInsets.all(15),
-      child: TextFormField(
-        autofocus: true,
-        initialValue: widget.customExam.customExamName,
-        decoration: const InputDecoration(
-          border: UnderlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.blue),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              autofocus: true,
+              initialValue: widget.customExam.customExamName,
+              decoration: const InputDecoration(
+                border: UnderlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+              ),
+              onChanged: (String? newText) => setState(() => widget.customExam.customExamName = newText),
+              maxLines: 1,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.start,
+            ),
           ),
-          contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-        ),
-        onChanged: (String? newText) => setState(() => widget.customExam.customExamName = newText),
-        maxLines: 1,
-        style: const TextStyle(
-          fontSize: 16,
-        ),
-        textAlign: TextAlign.start,
+          const SizedBox(width: 15),
+          DropdownButton(
+            value: widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull,
+            items: widget.markingAlgorithms
+                .map((e) => DropdownMenuItem<MarkingAlgorithmBean>(
+                      child: Text(e.algorithmName ?? "-"),
+                      value: e,
+                    ))
+                .toList(),
+            onChanged: (MarkingAlgorithmBean? newMarkingAlgorithm) =>
+                setState(() => widget.customExam.markingAlgorithmId = newMarkingAlgorithm?.markingAlgorithmId),
+          )
+        ],
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/manage_custom_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_view_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -40,6 +41,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
   bool _isSectionPickerOpen = false;
 
   List<CustomExam> customExams = [];
+  List<MarkingAlgorithmBean> markingAlgorithms = [];
 
   @override
   void initState() {
@@ -65,6 +67,21 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
       );
     } else {
       customExams = (getCustomExamsResponse.customExamsList ?? []).map((e) => e!).toList();
+    }
+
+    GetMarkingAlgorithmsResponse getMarkingAlgorithmsResponse = await getMarkingAlgorithms(GetMarkingAlgorithmsRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+    ));
+    if (getMarkingAlgorithmsResponse.httpStatus == "OK" && getMarkingAlgorithmsResponse.responseStatus == "success") {
+      setState(() {
+        markingAlgorithms = getMarkingAlgorithmsResponse.markingAlgorithmBeanList!.map((e) => e!).toList();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
     }
 
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
@@ -286,6 +303,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
           teachersList: teachersList,
           tdsList: tdsList,
           studentsList: studentsList,
+          markingAlgorithms: markingAlgorithms,
         );
       }));
     } else {
@@ -362,6 +380,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                                     studentsList: studentsList,
                                     loadData: _loadData,
                                     selectedSection: _selectedSection,
+                                    markingAlgorithms: markingAlgorithms,
                                   ),
                                 ),
                               ),

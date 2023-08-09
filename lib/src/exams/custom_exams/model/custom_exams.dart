@@ -167,6 +167,7 @@ class CustomExam {
   String? date;
   List<ExamSectionSubjectMap?>? examSectionSubjectMapList;
   String? examType;
+  int? markingAlgorithmId;
   int? schoolId;
   String? status;
   Map<String, dynamic> __origJson = {};
@@ -182,6 +183,7 @@ class CustomExam {
     this.date,
     this.examSectionSubjectMapList,
     this.examType,
+    this.markingAlgorithmId,
     this.schoolId,
     this.status,
   });
@@ -203,6 +205,7 @@ class CustomExam {
       examSectionSubjectMapList = arr0;
     }
     examType = json['examType']?.toString();
+    markingAlgorithmId = json['markingAlgorithmId']?.toInt();
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
@@ -224,6 +227,7 @@ class CustomExam {
       data['examSectionSubjectMapList'] = arr0;
     }
     data['examType'] = examType;
+    data['markingAlgorithmId'] = markingAlgorithmId;
     data['schoolId'] = schoolId;
     data['status'] = status;
     return data;
@@ -337,6 +341,7 @@ class CreateOrUpdateCustomExamRequest {
   String? date;
   List<ExamSectionSubjectMap?>? examSectionSubjectMapList;
   String? examType;
+  int? markingAlgorithmId;
   int? schoolId;
   String? status;
   Map<String, dynamic> __origJson = {};
@@ -350,6 +355,7 @@ class CreateOrUpdateCustomExamRequest {
     this.date,
     this.examSectionSubjectMapList,
     this.examType,
+    this.markingAlgorithmId,
     this.schoolId,
     this.status,
   });
@@ -371,6 +377,7 @@ class CreateOrUpdateCustomExamRequest {
       examSectionSubjectMapList = arr0;
     }
     examType = json['examType']?.toString();
+    markingAlgorithmId = json['markingAlgorithmId']?.toInt();
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
@@ -392,6 +399,7 @@ class CreateOrUpdateCustomExamRequest {
       data['examSectionSubjectMapList'] = arr0;
     }
     data['examType'] = examType;
+    data['markingAlgorithmId'] = markingAlgorithmId;
     data['schoolId'] = schoolId;
     data['status'] = status;
     return data;

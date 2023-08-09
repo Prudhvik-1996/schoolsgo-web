@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -23,6 +24,7 @@ class CustomExamViewWidget extends StatefulWidget {
     required this.studentsList,
     required this.loadData,
     required this.selectedSection,
+    required this.markingAlgorithms,
   }) : super(key: key);
 
   final AdminProfile? adminProfile;
@@ -35,6 +37,7 @@ class CustomExamViewWidget extends StatefulWidget {
   final List<StudentProfile> studentsList;
   final Future<void> Function() loadData;
   final Section? selectedSection;
+  final List<MarkingAlgorithmBean> markingAlgorithms;
 
   @override
   State<CustomExamViewWidget> createState() => _CustomExamViewWidgetState();
@@ -267,6 +270,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
         children: [
           Expanded(child: Text(widget.customExam.customExamName ?? "-")),
           const SizedBox(width: 15),
+          Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ?? "-"),
+          const SizedBox(width: 15),
           GestureDetector(
             onTap: () {
               setState(() {
@@ -298,6 +303,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(child: Text(widget.customExam.customExamName ?? "-")),
+        const SizedBox(width: 15),
+        Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ?? "-"),
         const SizedBox(width: 15),
         GestureDetector(
           onTap: () {

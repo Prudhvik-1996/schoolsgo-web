@@ -5,10 +5,12 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_widget.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/edit_custom_exams_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
+import 'package:collection/collection.dart';
 
 class ManageCustomExamsScreen extends StatefulWidget {
   const ManageCustomExamsScreen({
@@ -20,6 +22,7 @@ class ManageCustomExamsScreen extends StatefulWidget {
     required this.teachersList,
     required this.tdsList,
     required this.studentsList,
+    required this.markingAlgorithms,
   }) : super(key: key);
 
   final AdminProfile? adminProfile;
@@ -29,6 +32,7 @@ class ManageCustomExamsScreen extends StatefulWidget {
   final List<Teacher> teachersList;
   final List<TeacherDealingSection> tdsList;
   final List<StudentProfile> studentsList;
+  final List<MarkingAlgorithmBean> markingAlgorithms;
 
   @override
   State<ManageCustomExamsScreen> createState() => _ManageCustomExamsScreenState();
@@ -108,6 +112,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
                         loadData: _loadData,
                         editingEnabled: true,
                         selectedSection: null,
+                        markingAlgorithms: widget.markingAlgorithms,
                       ),
                     )
                   ],
@@ -142,6 +147,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
         teachersList: widget.teachersList,
         tdsList: widget.tdsList,
         customExam: customExam,
+        markingAlgorithms: widget.markingAlgorithms,
       );
     })).then((_) => _loadData());
   }

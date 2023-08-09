@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/edit_custom_exams_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -25,6 +26,7 @@ class CustomExamWidget extends StatefulWidget {
     required this.loadData,
     required this.editingEnabled,
     required this.selectedSection,
+    required this.markingAlgorithms,
   }) : super(key: key);
 
   final AdminProfile? adminProfile;
@@ -38,6 +40,7 @@ class CustomExamWidget extends StatefulWidget {
   final Future<void> Function() loadData;
   final bool editingEnabled;
   final Section? selectedSection;
+  final List<MarkingAlgorithmBean> markingAlgorithms;
 
   @override
   State<CustomExamWidget> createState() => _CustomExamWidgetState();
@@ -225,6 +228,8 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
         children: [
           Expanded(child: Text(widget.customExam.customExamName ?? "-")),
           const SizedBox(width: 15),
+          Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ?? "-"),
+          const SizedBox(width: 15),
           GestureDetector(
             onTap: () {
               setState(() {
@@ -256,6 +261,8 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(child: Text(widget.customExam.customExamName ?? "-")),
+        const SizedBox(width: 15),
+        Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ?? "-"),
         if (widget.editingEnabled) const SizedBox(width: 15),
         if (widget.editingEnabled)
           GestureDetector(
@@ -268,6 +275,7 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
                   sectionsList: widget.sectionsList,
                   teachersList: widget.teachersList,
                   tdsList: widget.tdsList,
+                  markingAlgorithms: widget.markingAlgorithms,
                   customExam: widget.customExam,
                 );
               })).then((_) => widget.loadData());
