@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
@@ -218,6 +219,36 @@ class MarkingAlgorithmBean {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  bool get isGpaAllowed => (markingAlgorithmRangeBeanList ?? []).map((e) => (e?.gpa ?? 0) != 0).contains(true);
+
+  bool get isGradeAllowed => (markingAlgorithmRangeBeanList ?? []).map((e) => (e?.grade ?? "") != "").contains(true);
+
+  double? gpaForPercentage(double percentage) {
+    try {
+      return (markingAlgorithmRangeBeanList ?? [])
+          .whereNotNull()
+          .where((e) => e.startRange! >= percentage.ceil() && percentage.ceil() <= e.endRange!)
+          .firstOrNull
+          ?.gpa;
+    } catch (_) {
+      debugPrint("Something went wrong..");
+      return null;
+    }
+  }
+
+  String? gradeForPercentage(double percentage) {
+    try {
+      return (markingAlgorithmRangeBeanList ?? [])
+          .whereNotNull()
+          .where((e) => e.startRange! >= percentage.ceil() && percentage.ceil() <= e.endRange!)
+          .firstOrNull
+          ?.grade;
+    } catch (_) {
+      debugPrint("Something went wrong..");
+      return null;
+    }
+  }
 }
 
 class GetMarkingAlgorithmsResponse {

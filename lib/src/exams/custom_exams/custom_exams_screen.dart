@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_view_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
@@ -37,6 +38,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
   List<StudentProfile> studentsList = [];
   List<TeacherDealingSection> tdsList = [];
   List<Teacher> teachersList = [];
+  List<Subject> subjectsList = [];
 
   bool _isSectionPickerOpen = false;
 
@@ -114,6 +116,17 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
+      });
+    }
+
+    GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+    );
+    GetSubjectsResponse getSubjectsResponse = await getSubjects(getSubjectsRequest);
+
+    if (getSubjectsResponse.httpStatus == "OK" && getSubjectsResponse.responseStatus == "success") {
+      setState(() {
+        subjectsList = getSubjectsResponse.subjects!.map((e) => e!).toList();
       });
     }
 
@@ -301,6 +314,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
           selectedAcademicYearId: widget.selectedAcademicYearId,
           sectionsList: _sectionsList,
           teachersList: teachersList,
+          subjectsList: subjectsList,
           tdsList: tdsList,
           studentsList: studentsList,
           markingAlgorithms: markingAlgorithms,
@@ -375,6 +389,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                                     selectedAcademicYearId: widget.selectedAcademicYearId,
                                     sectionsList: _sectionsList,
                                     teachersList: teachersList,
+                                    subjectsList: subjectsList,
                                     tdsList: tdsList,
                                     customExam: customExam,
                                     studentsList: studentsList,

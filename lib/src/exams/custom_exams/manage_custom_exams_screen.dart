@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_widget.da
 import 'package:schoolsgo_web/src/exams/custom_exams/views/edit_custom_exams_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
@@ -20,6 +21,7 @@ class ManageCustomExamsScreen extends StatefulWidget {
     required this.selectedAcademicYearId,
     required this.sectionsList,
     required this.teachersList,
+    required this.subjectsList,
     required this.tdsList,
     required this.studentsList,
     required this.markingAlgorithms,
@@ -30,6 +32,7 @@ class ManageCustomExamsScreen extends StatefulWidget {
   final int selectedAcademicYearId;
   final List<Section> sectionsList;
   final List<Teacher> teachersList;
+  final List<Subject> subjectsList;
   final List<TeacherDealingSection> tdsList;
   final List<StudentProfile> studentsList;
   final List<MarkingAlgorithmBean> markingAlgorithms;
@@ -106,6 +109,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
                         selectedAcademicYearId: widget.selectedAcademicYearId,
                         sectionsList: widget.sectionsList,
                         teachersList: widget.teachersList,
+                        subjectsList: widget.subjectsList,
                         tdsList: widget.tdsList,
                         customExam: customExam,
                         studentsList: widget.studentsList,

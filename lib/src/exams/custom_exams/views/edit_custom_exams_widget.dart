@@ -665,11 +665,11 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
             ),
           ),
           const SizedBox(width: 15),
-          DropdownButton(
+          DropdownButton<MarkingAlgorithmBean?>(
             value: widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull,
-            items: widget.markingAlgorithms
-                .map((e) => DropdownMenuItem<MarkingAlgorithmBean>(
-                      child: Text(e.algorithmName ?? "-"),
+            items: [null, ...widget.markingAlgorithms]
+                .map((e) => DropdownMenuItem<MarkingAlgorithmBean?>(
+                      child: Text(e?.algorithmName ?? "-"),
                       value: e,
                     ))
                 .toList(),

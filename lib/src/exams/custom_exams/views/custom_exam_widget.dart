@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/edit_custom_exams_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
@@ -20,6 +21,7 @@ class CustomExamWidget extends StatefulWidget {
     required this.selectedAcademicYearId,
     required this.sectionsList,
     required this.teachersList,
+    required this.subjectsList,
     required this.tdsList,
     required this.customExam,
     required this.studentsList,
@@ -34,6 +36,7 @@ class CustomExamWidget extends StatefulWidget {
   final int selectedAcademicYearId;
   final List<Section> sectionsList;
   final List<Teacher> teachersList;
+  final List<Subject> subjectsList;
   final List<TeacherDealingSection> tdsList;
   final CustomExam customExam;
   final List<StudentProfile> studentsList;
@@ -227,8 +230,8 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(child: Text(widget.customExam.customExamName ?? "-")),
-          const SizedBox(width: 15),
-          Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ?? "-"),
+          // const SizedBox(width: 15),
+          // Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ?? "-"),
           const SizedBox(width: 15),
           GestureDetector(
             onTap: () {

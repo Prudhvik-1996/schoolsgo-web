@@ -310,9 +310,11 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                           ];
                         });
                       },
-                      child: const ClayButton(
+                      child: ClayButton(
                         borderRadius: 10,
-                        child: Padding(
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        child: const Padding(
                           padding: EdgeInsets.all(15),
                           child: Center(child: Text("Clear all")),
                         ),
@@ -329,9 +331,11 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                           _isAddNew = !_isAddNew;
                         });
                       },
-                      child: const ClayButton(
+                      child: ClayButton(
                         borderRadius: 100,
-                        child: Padding(
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        child: const Padding(
                           padding: EdgeInsets.all(10),
                           child: Icon(
                             Icons.close,
@@ -349,9 +353,11 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                           eachMarkingAlgorithmBean.isEditMode = !eachMarkingAlgorithmBean.isEditMode;
                         });
                       },
-                      child: const ClayButton(
+                      child: ClayButton(
                         borderRadius: 100,
-                        child: Padding(
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        child: const Padding(
                           padding: EdgeInsets.all(5),
                           child: Icon(
                             Icons.edit,
@@ -414,9 +420,11 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                           },
                         );
                       },
-                      child: const ClayButton(
+                      child: ClayButton(
                         borderRadius: 100,
-                        child: Padding(
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        child: const Padding(
                           padding: EdgeInsets.all(5),
                           child: Icon(
                             Icons.delete,
@@ -472,9 +480,11 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                           });
                         }
                       },
-                      child: const ClayButton(
+                      child: ClayButton(
                         borderRadius: 100,
-                        child: Padding(
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        child: const Padding(
                           padding: EdgeInsets.all(5),
                           child: Icon(
                             Icons.check,
@@ -732,22 +742,22 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
                     );
                     return;
                   }
-                  if (eachMarkingAlgorithmRangeBean.grade == null || eachMarkingAlgorithmRangeBean.grade!.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Please enter grade and then continue.."),
-                      ),
-                    );
-                    return;
-                  }
-                  if (eachMarkingAlgorithmRangeBean.gpa == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Please enter gpa and then continue.."),
-                      ),
-                    );
-                    return;
-                  }
+                  // if (eachMarkingAlgorithmRangeBean.grade == null || eachMarkingAlgorithmRangeBean.grade!.isEmpty) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     const SnackBar(
+                  //       content: Text("Please enter grade and then continue.."),
+                  //     ),
+                  //   );
+                  //   return;
+                  // }
+                  // if (eachMarkingAlgorithmRangeBean.gpa == null) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     const SnackBar(
+                  //       content: Text("Please enter gpa and then continue.."),
+                  //     ),
+                  //   );
+                  //   return;
+                  // }
                   setState(() {
                     eachMarkingAlgorithmRangeBean.status = 'active';
                     if (eachMarkingAlgorithmRangeBean.startRange! != 0) {
