@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -21,9 +22,10 @@ class EditCustomExamWidget extends StatefulWidget {
     required this.teachersList,
     required this.tdsList,
     required this.markingAlgorithms,
-    required this.customExam,
+    required this.customExam, required this.schoolInfo,
   }) : super(key: key);
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;

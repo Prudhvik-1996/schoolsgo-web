@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/manage_custom_exams_screen.
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_view_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -44,6 +45,8 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
 
   List<CustomExam> customExams = [];
   List<MarkingAlgorithmBean> markingAlgorithms = [];
+
+  late SchoolInfoBean schoolInfo;
 
   @override
   void initState() {
@@ -144,6 +147,19 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
         studentsList = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
         studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
       });
+    }
+
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      schoolInfo = getSchoolsResponse.schoolInfo!;
     }
 
     setState(() {
@@ -309,6 +325,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
     if (choice == "Manage Exams") {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return ManageCustomExamsScreen(
+          schoolInfo: schoolInfo,
           adminProfile: widget.adminProfile,
           teacherProfile: widget.teacherProfile,
           selectedAcademicYearId: widget.selectedAcademicYearId,
@@ -384,6 +401,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                                 (customExam) => Container(
                                   margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                   child: CustomExamViewWidget(
+                                    schoolInfo: schoolInfo,
                                     adminProfile: widget.adminProfile,
                                     teacherProfile: widget.teacherProfile,
                                     selectedAcademicYearId: widget.selectedAcademicYearId,

@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.da
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_all_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -27,9 +28,10 @@ class CustomExamViewWidget extends StatefulWidget {
     required this.studentsList,
     required this.loadData,
     required this.selectedSection,
-    required this.markingAlgorithms,
+    required this.markingAlgorithms, required this.schoolInfo,
   }) : super(key: key);
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
@@ -376,6 +378,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) {
                           return CustomExamsAllMarksScreen(
+                            schoolInfo: widget.schoolInfo,
                             adminProfile: widget.adminProfile,
                             teacherProfile: widget.teacherProfile,
                             selectedAcademicYearId: widget.selectedAcademicYearId,

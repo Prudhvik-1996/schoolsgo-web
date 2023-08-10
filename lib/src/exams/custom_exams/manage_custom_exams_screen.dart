@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_widget.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/edit_custom_exams_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -24,9 +25,10 @@ class ManageCustomExamsScreen extends StatefulWidget {
     required this.subjectsList,
     required this.tdsList,
     required this.studentsList,
-    required this.markingAlgorithms,
+    required this.markingAlgorithms, required this.schoolInfo,
   }) : super(key: key);
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
@@ -104,6 +106,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
                   children: [
                     ...customExams.map(
                       (customExam) => CustomExamWidget(
+                        schoolInfo: widget.schoolInfo,
                         adminProfile: widget.adminProfile,
                         teacherProfile: widget.teacherProfile,
                         selectedAcademicYearId: widget.selectedAcademicYearId,
@@ -144,6 +147,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
   Future<void> goToEditMode(BuildContext context, CustomExam customExam) {
     return Navigator.push(context, MaterialPageRoute(builder: (context) {
       return EditCustomExamWidget(
+        schoolInfo: widget.schoolInfo,
         adminProfile: widget.adminProfile,
         teacherProfile: widget.teacherProfile,
         selectedAcademicYearId: widget.selectedAcademicYearId,

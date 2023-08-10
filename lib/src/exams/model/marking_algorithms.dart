@@ -241,7 +241,7 @@ class MarkingAlgorithmBean {
     try {
       return (markingAlgorithmRangeBeanList ?? [])
           .whereNotNull()
-          .where((e) => e.startRange! >= percentage.ceil() && percentage.ceil() <= e.endRange!)
+          .where((e) => e.startRange! <= percentage.ceil() && percentage.ceil() <= e.endRange!)
           .firstOrNull
           ?.grade;
     } catch (_) {

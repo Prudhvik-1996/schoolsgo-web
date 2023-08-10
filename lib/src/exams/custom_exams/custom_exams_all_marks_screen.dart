@@ -2,11 +2,14 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_memo_view.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -19,6 +22,7 @@ import 'package:table_sticky_headers/table_sticky_headers.dart';
 class CustomExamsAllMarksScreen extends StatefulWidget {
   const CustomExamsAllMarksScreen({
     Key? key,
+    required this.schoolInfo,
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
@@ -33,6 +37,7 @@ class CustomExamsAllMarksScreen extends StatefulWidget {
     required this.loadData,
   }) : super(key: key);
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
@@ -263,6 +268,54 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
                 Expanded(
                   child: Text("${studentsList[rowIndex].rollNumber ?? "-"}. ${studentsList[rowIndex].studentFirstName ?? "-"}"),
                 ),
+                if (!_isEditMode) const SizedBox(width: 10),
+                if (!_isEditMode)
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return EachStudentMemoView(
+                              schoolInfo: widget.schoolInfo,
+                              adminProfile: widget.adminProfile,
+                              teacherProfile: widget.teacherProfile,
+                              selectedAcademicYearId: widget.selectedAcademicYearId,
+                              teachersList: widget.teachersList,
+                              subjectsList: widget.subjectsList,
+                              tdsList: widget.tdsList,
+                              markingAlgorithm: widget.markingAlgorithm,
+                              customExam: widget.customExam,
+                              studentProfile: studentsList[rowIndex],
+                              selectedSection: widget.selectedSection,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: Tooltip(
+                      message: "Memo",
+                      child: ClayButton(
+                        depth: 40,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        spread: 1,
+                        borderRadius: 10,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          width: 20,
+                          height: 20,
+                          child: const Center(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Icon(Icons.add_chart),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(width: 10),
               ],
             ),
             emboss: true,
@@ -349,7 +402,6 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
     var essmIdIndex = examMarks.keys.toList().indexWhere((e) => e == essm.examSectionSubjectMapId);
     if (_isEditMode) {
       if (editingCell == eachStudentExamMarks) {
-        print("369: $studentId, $essmIdIndex");
         return EachMarksCellWidget(
           studentId: studentId,
           essmIdIndex: essmIdIndex,

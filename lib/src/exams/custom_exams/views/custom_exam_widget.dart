@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.da
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/edit_custom_exams_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -16,6 +17,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 class CustomExamWidget extends StatefulWidget {
   const CustomExamWidget({
     Key? key,
+    required this.schoolInfo,
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
@@ -31,6 +33,7 @@ class CustomExamWidget extends StatefulWidget {
     required this.markingAlgorithms,
   }) : super(key: key);
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
@@ -272,6 +275,7 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return EditCustomExamWidget(
+                  schoolInfo: widget.schoolInfo,
                   adminProfile: widget.adminProfile,
                   teacherProfile: widget.teacherProfile,
                   selectedAcademicYearId: widget.selectedAcademicYearId,
