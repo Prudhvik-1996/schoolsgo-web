@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_all_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_memo_pdf_download.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -28,7 +29,8 @@ class CustomExamViewWidget extends StatefulWidget {
     required this.studentsList,
     required this.loadData,
     required this.selectedSection,
-    required this.markingAlgorithms, required this.schoolInfo,
+    required this.markingAlgorithms,
+    required this.schoolInfo,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
@@ -55,6 +57,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
   List<TeacherDealingSection> tdsList = [];
 
   bool _isExpanded = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -65,30 +68,48 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(15),
-      child: ClayContainer(
-        emboss: _isExpanded,
-        depth: 40,
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        child: Container(
-          margin: const EdgeInsets.all(15),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              customExamNameWidget(),
-              if (_isExpanded) const SizedBox(height: 15),
-              if (_isExpanded) populatedTdsList(),
-              if (_isExpanded) const SizedBox(height: 15),
-            ],
+    return Stack(
+      children: [
+        AbsorbPointer(
+          absorbing: _isLoading,
+          child: Container(
+            margin: const EdgeInsets.all(15),
+            child: ClayContainer(
+              emboss: _isExpanded,
+              depth: 40,
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 10,
+              child: Container(
+                margin: const EdgeInsets.all(15),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    customExamNameWidget(),
+                    if (_isExpanded) const SizedBox(height: 15),
+                    if (_isExpanded) populatedTdsList(),
+                    if (_isExpanded) const SizedBox(height: 15),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-      ),
+        if (_isLoading)
+          Align(
+            alignment: Alignment.center,
+            child: Center(
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
+            ),
+          )
+      ],
     );
   }
 
@@ -349,9 +370,9 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
               Expanded(
                 child: TextFormField(
                   initialValue: widget.markingAlgorithms
-                      .where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId)
-                      .firstOrNull
-                      ?.algorithmName ??
+                          .where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId)
+                          .firstOrNull
+                          ?.algorithmName ??
                       "-",
                   enabled: false,
                   decoration: const InputDecoration(
@@ -369,37 +390,88 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                   ),
                 ),
               ),
-              Expanded(
-                child: Container(
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                child: Tooltip(
+                  message: "Marks",
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                        return CustomExamsAllMarksScreen(
+                          schoolInfo: widget.schoolInfo,
+                          adminProfile: widget.adminProfile,
+                          teacherProfile: widget.teacherProfile,
+                          selectedAcademicYearId: widget.selectedAcademicYearId,
+                          sectionsList: widget.sectionsList,
+                          teachersList: widget.teachersList,
+                          subjectsList: widget.subjectsList,
+                          tdsList: widget.tdsList,
+                          customExam: widget.customExam,
+                          selectedSection: widget.selectedSection!,
+                          loadData: widget.loadData,
+                          studentsList: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
+                          markingAlgorithm: widget.customExam.markingAlgorithmId == null
+                              ? null
+                              : widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull,
+                        );
+                      })).then((_) => widget.loadData());
+                    },
+                    child: ClayButton(
+                      color: clayContainerColor(context),
+                      height: 50,
+                      borderRadius: 10,
+                      surfaceColor: clayContainerColor(context),
+                      spread: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.score_outlined),
+                              SizedBox(width: 10),
+                              Text("Marks"),
+                              SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (widget.selectedSection != null)
+                Container(
                   margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
                   child: Tooltip(
-                    message: "Update Marks",
+                    message: "Download all memos",
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return CustomExamsAllMarksScreen(
-                            schoolInfo: widget.schoolInfo,
-                            adminProfile: widget.adminProfile,
-                            teacherProfile: widget.teacherProfile,
-                            selectedAcademicYearId: widget.selectedAcademicYearId,
-                            sectionsList: widget.sectionsList,
-                            teachersList: widget.teachersList,
-                            subjectsList: widget.subjectsList,
-                            tdsList: widget.tdsList,
-                            customExam: widget.customExam,
-                            selectedSection: widget.selectedSection!,
-                            loadData: widget.loadData,
-                            studentsList: widget.studentsList,
-                            markingAlgorithm: widget.customExam.markingAlgorithmId == null
-                                ? null
-                                : widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull,
-                          );
-                        })).then((_) => widget.loadData());
+                      onTap: () async {
+                        setState(() => _isLoading = true);
+                        await Future.delayed(const Duration(seconds: 1));
+                        await EachStudentMemoPdfDownload(
+                          schoolInfo: widget.schoolInfo,
+                          adminProfile: widget.adminProfile,
+                          teacherProfile: widget.teacherProfile,
+                          selectedAcademicYearId: widget.selectedAcademicYearId,
+                          teachersList: widget.teachersList,
+                          subjectsList: widget.subjectsList,
+                          tdsList: widget.tdsList,
+                          markingAlgorithm:
+                              widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull,
+                          customExam: widget.customExam,
+                          studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
+                          selectedSection: widget.selectedSection!,
+                        ).downloadMemo();
+                        setState(() => _isLoading = false);
                       },
                       child: ClayButton(
                         color: clayContainerColor(context),
                         height: 50,
-                        borderRadius: 50,
+                        borderRadius: 10,
                         surfaceColor: clayContainerColor(context),
                         spread: 1,
                         child: Padding(
@@ -411,9 +483,10 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: const [
-                                Icon(Icons.score_outlined),
+                                Icon(Icons.download),
                                 SizedBox(width: 10),
-                                Text("Update Marks"),
+                                Text("Memos"),
+                                SizedBox(width: 10),
                               ],
                             ),
                           ),
@@ -422,7 +495,6 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                     ),
                   ),
                 ),
-              ),
             ],
           ),
       ],

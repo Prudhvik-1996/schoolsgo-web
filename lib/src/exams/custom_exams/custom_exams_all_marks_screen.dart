@@ -215,7 +215,12 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
     double marksObtainedCellWidth = 150;
     double legendCellWidth = MediaQuery.of(context).orientation == Orientation.landscape ? 300 : 150;
     double defaultCellHeight = 80;
-    List<Subject> subjectsList = widget.subjectsList..sort((a, b) => (a.seqOrder ?? 0).compareTo((b.seqOrder ?? 0)));
+    List<Subject> subjectsList = (widget.customExam.examSectionSubjectMapList ?? [])
+        .where((essm) => essm?.sectionId == widget.selectedSection.sectionId)
+        .map((e) => e?.subjectId)
+        .map((eachSubjectId) => widget.subjectsList.where((e) => e.subjectId == eachSubjectId).firstOrNull)
+        .whereNotNull()
+        .toList();
     List<ExamSectionSubjectMap?> essmList = widget.customExam.examSectionSubjectMapList ?? [];
     List<String> headerStrings = [];
     List<Subject> subjectsForExam = [];
@@ -259,66 +264,75 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
             ),
             emboss: true,
           ),
-          rowsTitleBuilder: (int rowIndex) => clayCell(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  child: Text("${studentsList[rowIndex].rollNumber ?? "-"}. ${studentsList[rowIndex].studentFirstName ?? "-"}"),
+          rowsTitleBuilder: (int rowIndex) => Stack(
+            children: [
+              clayCell(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Text("${studentsList[rowIndex].rollNumber ?? "-"}. ${studentsList[rowIndex].studentFirstName ?? "-"}"),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                 ),
-                if (!_isEditMode) const SizedBox(width: 10),
-                if (!_isEditMode)
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return EachStudentMemoView(
-                              schoolInfo: widget.schoolInfo,
-                              adminProfile: widget.adminProfile,
-                              teacherProfile: widget.teacherProfile,
-                              selectedAcademicYearId: widget.selectedAcademicYearId,
-                              teachersList: widget.teachersList,
-                              subjectsList: widget.subjectsList,
-                              tdsList: widget.tdsList,
-                              markingAlgorithm: widget.markingAlgorithm,
-                              customExam: widget.customExam,
-                              studentProfile: studentsList[rowIndex],
-                              selectedSection: widget.selectedSection,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    child: Tooltip(
-                      message: "Memo",
-                      child: ClayButton(
-                        depth: 40,
-                        surfaceColor: clayContainerColor(context),
-                        parentColor: clayContainerColor(context),
-                        spread: 1,
-                        borderRadius: 10,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          width: 20,
-                          height: 20,
-                          child: const Center(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Icon(Icons.add_chart),
+                emboss: true,
+              ),
+              if (!_isEditMode)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return EachStudentMemoView(
+                                schoolInfo: widget.schoolInfo,
+                                adminProfile: widget.adminProfile,
+                                teacherProfile: widget.teacherProfile,
+                                selectedAcademicYearId: widget.selectedAcademicYearId,
+                                teachersList: widget.teachersList,
+                                subjectsList: widget.subjectsList,
+                                tdsList: widget.tdsList,
+                                markingAlgorithm: widget.markingAlgorithm,
+                                customExam: widget.customExam,
+                                studentProfile: studentsList[rowIndex],
+                                selectedSection: widget.selectedSection,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: Tooltip(
+                        message: "Memo",
+                        child: ClayButton(
+                          depth: 40,
+                          surfaceColor: clayContainerColor(context),
+                          parentColor: clayContainerColor(context),
+                          spread: 1,
+                          borderRadius: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            width: 20,
+                            height: 20,
+                            child: const Center(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Icon(Icons.add_chart),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                const SizedBox(width: 10),
-              ],
-            ),
-            emboss: true,
+                ),
+            ],
           ),
           columnsTitleBuilder: (int colIndex) => columnHeaderBuilder(headerStrings, colIndex),
           contentCellBuilder: (int columnIndex, int rowIndex) {
@@ -358,6 +372,9 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
             ExamSectionSubjectMap? essm = essmList[columnIndex];
             StudentExamMarks? eachStudentExamMarks =
                 (examMarks[essm?.examSectionSubjectMapId] ?? []).where((e) => e.studentId == studentId).firstOrNull;
+            if (studentId == 72) {
+              print("371: ${eachStudentExamMarks?.toJson()}");
+            }
             if (essm == null) {
               return clayCell(
                 child: const Center(child: Text("N/A")),

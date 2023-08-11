@@ -107,7 +107,7 @@ class EachMarksCellWidget extends StatelessWidget {
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
