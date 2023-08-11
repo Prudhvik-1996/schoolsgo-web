@@ -64,6 +64,7 @@ class SchoolInfoBean {
   String? detailedAddress;
   String? receiptHeader;
   String? examMemoHeader;
+  String? principalSignature;
   Map<String, dynamic> __origJson = {};
 
   SchoolInfoBean({
@@ -83,6 +84,7 @@ class SchoolInfoBean {
     this.detailedAddress,
     this.receiptHeader,
     this.examMemoHeader,
+    this.principalSignature,
   });
   SchoolInfoBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -102,6 +104,7 @@ class SchoolInfoBean {
     detailedAddress = json['detailedAddress']?.toString();
     receiptHeader = json['receiptHeader']?.toString();
     examMemoHeader = json['examMemoHeader']?.toString();
+    principalSignature = json['principalSignature']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -121,6 +124,7 @@ class SchoolInfoBean {
     data['detailedAddress'] = detailedAddress;
     data['receiptHeader'] = receiptHeader;
     data['examMemoHeader'] = examMemoHeader;
+    data['principalSignature'] = principalSignature;
     return data;
   }
 

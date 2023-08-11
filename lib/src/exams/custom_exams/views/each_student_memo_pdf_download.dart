@@ -321,12 +321,30 @@ class EachStudentMemoPdfDownload {
           footer: (_) => Padding(
             padding: const EdgeInsets.all(8),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text("Class Teacher"),
                 Expanded(
                   child: Center(child: Text("Parent Signature", textAlign: TextAlign.center)),
                 ),
-                Text("Principal", textAlign: TextAlign.right),
+                Column(
+                  children: [
+                    if (schoolInfo.principalSignature != null)
+                      Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Image(
+                          height: 50,
+                          width: 60,
+                          MemoryImage(
+                            const Base64Decoder().convert(schoolInfo.principalSignature!),
+                          ),
+                          fit: BoxFit.scaleDown,
+                        ),
+                      ),
+                    Text("Principal", textAlign: TextAlign.right),
+                  ],
+                ),
               ],
             ),
           ),
