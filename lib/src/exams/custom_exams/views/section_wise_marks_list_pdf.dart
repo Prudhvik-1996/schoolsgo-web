@@ -186,10 +186,7 @@ class SectionWiseMarkListPdf {
                     (StudentProfile eachStudent) => TableRow(
                       verticalAlignment: TableCellVerticalAlignment.middle,
                       children: [
-                        cellText(
-                          eachStudent.rollNumber ?? "",
-                          isCenter: false,
-                        ),
+                        cellText(eachStudent.rollNumber ?? "", isCenter: false),
                         cellText(eachStudent.studentFirstName ?? "", isCenter: false),
                         ...List.generate(headerStrings.length, (int columnIndex) {
                           int? studentId = eachStudent.studentId;
@@ -243,7 +240,7 @@ class SectionWiseMarkListPdf {
                         })
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

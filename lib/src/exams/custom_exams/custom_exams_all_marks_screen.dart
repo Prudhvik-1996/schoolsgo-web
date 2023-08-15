@@ -1,11 +1,13 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
+import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exams_all_students_marks_excel_template.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_memo_view.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/section_wise_marks_list_pdf.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
@@ -121,39 +123,109 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
         title: Text(widget.customExam.customExamName ?? " - "),
         actions: [
           if (!_isLoading)
-            IconButton(
-              icon: _isEditMode ? const Icon(Icons.save) : const Icon(Icons.edit),
-              onPressed: () async {
-                if (_isEditMode) {
-                  await saveChangesAlert(context);
-                } else {
-                  setState(() {
-                    _showInfo = false;
-                    _isEditMode = true;
-                  });
-                }
-              },
+            Tooltip(
+              message: _isEditMode ? "Save" : "Edit",
+              child: IconButton(
+                icon: _isEditMode ? const Icon(Icons.save) : const Icon(Icons.edit),
+                onPressed: () async {
+                  if (_isEditMode) {
+                    await saveChangesAlert(context);
+                  } else {
+                    setState(() {
+                      _showInfo = false;
+                      _isEditMode = true;
+                    });
+                  }
+                },
+              ),
             ),
           if (!_isLoading && !_isEditMode)
-            IconButton(
-              icon: const Icon(Icons.download),
-              onPressed: () async {
-                setState(() => _isLoading = true);
-                await SectionWiseMarkListPdf(
-                  schoolInfo: widget.schoolInfo,
-                  adminProfile: widget.adminProfile,
-                  teacherProfile: widget.teacherProfile,
-                  selectedAcademicYearId: widget.selectedAcademicYearId,
-                  sectionsList: widget.sectionsList,
-                  teachersList: widget.teachersList,
-                  subjectsList: widget.subjectsList,
-                  tdsList: widget.tdsList,
-                  markingAlgorithm: widget.markingAlgorithm,
-                  customExam: widget.customExam,
-                  studentsList: widget.studentsList,
-                  selectedSection: widget.selectedSection,
-                ).downloadAsPdf();
-                setState(() => _isLoading = false);
+            Tooltip(
+              message: "Download report",
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: () async {
+                  setState(() => _isLoading = true);
+                  await SectionWiseMarkListPdf(
+                    schoolInfo: widget.schoolInfo,
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    sectionsList: widget.sectionsList,
+                    teachersList: widget.teachersList,
+                    subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm: widget.markingAlgorithm,
+                    customExam: widget.customExam,
+                    studentsList: widget.studentsList,
+                    selectedSection: widget.selectedSection,
+                  ).downloadAsPdf();
+                  setState(() => _isLoading = false);
+                },
+              ),
+            ),
+          if (!_isLoading && _isEditMode)
+            PopupMenuButton<String>(
+              tooltip: "Templates",
+              onSelected: (String choice) async {
+                if (choice == "Download Template") {
+                  setState(() => _isLoading = true);
+                  await CustomExamsAllStudentsMarksExcel(
+                    schoolInfo: widget.schoolInfo,
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    sectionsList: widget.sectionsList,
+                    teachersList: widget.teachersList,
+                    subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm: widget.markingAlgorithm,
+                    customExam: widget.customExam,
+                    studentsList: widget.studentsList,
+                    selectedSection: widget.selectedSection,
+                  ).downloadTemplate();
+                  setState(() => _isLoading = false);
+                } else if (choice == "Upload From Template") {
+                  setState(() => _isLoading = true);
+                  CustomExamsAllStudentsMarksExcel customExamsAllStudentsMarksExcel = CustomExamsAllStudentsMarksExcel(
+                    schoolInfo: widget.schoolInfo,
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    sectionsList: widget.sectionsList,
+                    teachersList: widget.teachersList,
+                    subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm: widget.markingAlgorithm,
+                    customExam: widget.customExam,
+                    studentsList: widget.studentsList,
+                    selectedSection: widget.selectedSection,
+                  );
+                  Excel? excel = await customExamsAllStudentsMarksExcel.readAndValidateExcel();
+                  if (excel == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Invalid format! Try again later.."),
+                      ),
+                    );
+                    return;
+                  }
+                  customExamsAllStudentsMarksExcel.readExamMarks(excel);
+                  setState(() => _isLoading = false);
+                } else {
+                  debugPrint("Invalid choice");
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {
+                  "Download Template",
+                  "Upload From Template",
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
               },
             ),
         ],
