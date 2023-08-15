@@ -406,6 +406,9 @@ class _CustomExamMarksScreenState extends State<CustomExamMarksScreen> {
   }
 
   Widget studentMarksObtainedWidget(StudentExamMarks eachStudentExamMarks) {
+    if (eachStudentExamMarks.studentId == 5025) {
+      print("410: ${eachStudentExamMarks.toJson()}");
+    }
     if (_isEditMode) {
       int rowIndex = studentsList.indexWhere((student) => student.studentId == eachStudentExamMarks.studentId);
       FocusNode focusNode = focusNodesMap[rowIndex][0];

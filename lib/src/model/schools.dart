@@ -202,6 +202,6 @@ Future<GetSchoolInfoResponse> getSchools(GetSchoolInfoRequest getSchoolsRequest)
     GetSchoolInfoResponse.fromJson,
   );
 
-  debugPrint("GetSchoolsResponse ${getSchoolsResponse.toJson()}");
+  // debugPrint("GetSchoolsResponse ${getSchoolsResponse.toJson()}");
   return getSchoolsResponse;
 }

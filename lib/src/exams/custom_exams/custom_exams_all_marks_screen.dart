@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_memo_view.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/views/section_wise_marks_list_pdf.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -69,6 +70,7 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
   @override
   void initState() {
     super.initState();
+    (widget.customExam.examSectionSubjectMapList ?? []).removeWhere((e) => e?.sectionId != widget.selectedSection.sectionId);
     _loadData();
   }
 
@@ -130,6 +132,28 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
                     _isEditMode = true;
                   });
                 }
+              },
+            ),
+          if (!_isLoading && !_isEditMode)
+            IconButton(
+              icon: const Icon(Icons.download),
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                await SectionWiseMarkListPdf(
+                  schoolInfo: widget.schoolInfo,
+                  adminProfile: widget.adminProfile,
+                  teacherProfile: widget.teacherProfile,
+                  selectedAcademicYearId: widget.selectedAcademicYearId,
+                  sectionsList: widget.sectionsList,
+                  teachersList: widget.teachersList,
+                  subjectsList: widget.subjectsList,
+                  tdsList: widget.tdsList,
+                  markingAlgorithm: widget.markingAlgorithm,
+                  customExam: widget.customExam,
+                  studentsList: widget.studentsList,
+                  selectedSection: widget.selectedSection,
+                ).downloadAsPdf();
+                setState(() => _isLoading = false);
               },
             ),
         ],
@@ -342,7 +366,7 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
                 StudentExamMarks? marks = (examMarks[essm?.examSectionSubjectMapId] ?? []).where((e) => e.studentId == studentId).firstOrNull;
                 return marks == null
                     ? 0.0
-                    : marks.isAbsent == "Y"
+                    : marks.isAbsent == "N"
                         ? 0.0
                         : marks.marksObtained;
               }).fold<double>(0.0, (double a, double? b) => a + (b ?? 0));
@@ -372,9 +396,6 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
             ExamSectionSubjectMap? essm = essmList[columnIndex];
             StudentExamMarks? eachStudentExamMarks =
                 (examMarks[essm?.examSectionSubjectMapId] ?? []).where((e) => e.studentId == studentId).firstOrNull;
-            if (studentId == 72) {
-              print("371: ${eachStudentExamMarks?.toJson()}");
-            }
             if (essm == null) {
               return clayCell(
                 child: const Center(child: Text("N/A")),
