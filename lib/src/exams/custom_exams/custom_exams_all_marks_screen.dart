@@ -183,6 +183,7 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
                     customExam: widget.customExam,
                     studentsList: widget.studentsList,
                     selectedSection: widget.selectedSection,
+                      examMarks: examMarks,
                   ).downloadTemplate();
                   setState(() => _isLoading = false);
                 } else if (choice == "Upload From Template") {
@@ -200,6 +201,7 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
                     customExam: widget.customExam,
                     studentsList: widget.studentsList,
                     selectedSection: widget.selectedSection,
+                    examMarks: examMarks,
                   );
                   Excel? excel = await customExamsAllStudentsMarksExcel.readAndValidateExcel();
                   if (excel == null) {

@@ -31,8 +31,8 @@ class CustomExamsAllStudentsMarksExcel {
   CustomExam customExam;
   List<StudentProfile> studentsList;
   Section selectedSection;
+  Map<int, List<StudentExamMarks>> examMarks;
 
-  Map<int, List<StudentExamMarks>> examMarks = {};
   List<String> headerStrings = [];
   List<Subject> subjectsForExam = [];
   List<ExamSectionSubjectMap?> essmList = [];
@@ -51,7 +51,9 @@ class CustomExamsAllStudentsMarksExcel {
     required this.customExam,
     required this.studentsList,
     required this.selectedSection,
+    required this.examMarks,
   }) {
+    (customExam.examSectionSubjectMapList ?? []).removeWhere((e) => e?.sectionId != selectedSection.sectionId);
     studentsList = <StudentProfile>{
       ...studentsList.where((e) => e.sectionId == selectedSection.sectionId),
       ...studentsList.where((e) => (customExam.examSectionSubjectMapList ?? [])
@@ -63,26 +65,6 @@ class CustomExamsAllStudentsMarksExcel {
           .contains(e.studentId))
     }.toList();
     studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
-    for (StudentProfile eachStudent in studentsList) {
-      for (ExamSectionSubjectMap examSectionSubjectMap in (customExam.examSectionSubjectMapList ?? []).whereNotNull()) {
-        examMarks[examSectionSubjectMap.examSectionSubjectMapId!] ??= [];
-        if ((examSectionSubjectMap.studentExamMarksList ?? []).where((e) => e?.studentId == eachStudent.studentId).isNotEmpty) {
-          examMarks[examSectionSubjectMap.examSectionSubjectMapId!]!
-              .add((examSectionSubjectMap.studentExamMarksList ?? []).where((e) => e?.studentId == eachStudent.studentId).first!);
-        } else {
-          examMarks[examSectionSubjectMap.examSectionSubjectMapId!]!.add(StudentExamMarks(
-            examSectionSubjectMapId: examSectionSubjectMap.examSectionSubjectMapId,
-            examId: examSectionSubjectMap.examId,
-            agent: adminProfile?.userId ?? teacherProfile?.teacherId,
-            comment: null,
-            studentId: eachStudent.studentId,
-            marksObtained: null,
-            marksId: null,
-            studentExamMediaBeans: [],
-          ));
-        }
-      }
-    }
     List<Subject> tempSubjectsList = (customExam.examSectionSubjectMapList ?? [])
         .where((essm) => essm?.sectionId == selectedSection.sectionId)
         .map((e) => e?.subjectId)

@@ -55,6 +55,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
   late double totalMaxMarks;
   late double? totalMarksObtained;
   late double? totalPercentage;
+  ImageProvider? studentImage;
 
   @override
   void initState() {
@@ -72,6 +73,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
         .whereNotNull()
         .fold<double>(0.0, (double a, double b) => a + b);
     totalPercentage = totalMarksObtained == null ? null : (totalMarksObtained! * 100.0 / totalMaxMarks);
+    studentImage = widget.studentProfile.studentPhotoUrl == null ? null : NetworkImage(widget.studentProfile.studentPhotoUrl!);
   }
 
   @override
@@ -137,45 +139,64 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                             ),
                           if (widget.schoolInfo.examMemoHeader != null) const SizedBox(height: 10),
                           if (widget.schoolInfo.examMemoHeader != null) const Divider(color: Colors.grey, thickness: 1.0),
-                          Row(
-                            children: [
-                              const Text("Student Name: "),
-                              Expanded(child: Text(widget.studentProfile.studentFirstName ?? "-")),
-                            ],
-                          ),
                           const SizedBox(height: 10),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Expanded(
-                                child: Row(
+                                child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text("Class: "),
-                                    Expanded(child: Text(widget.studentProfile.sectionName ?? "-")),
+                                    Row(
+                                      children: [
+                                        const Text("Student Name: "),
+                                        Expanded(child: Text(widget.studentProfile.studentFirstName ?? "-")),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Text("Class: "),
+                                              Expanded(child: Text(widget.studentProfile.sectionName ?? "-")),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Text("Roll No.: "),
+                                              Expanded(child: Text(widget.studentProfile.rollNumber ?? "-")),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        const Text("Admission No.: "),
+                                        Expanded(child: Text(widget.studentProfile.admissionNo ?? "-")),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Text("Roll No.: "),
-                                    Expanded(child: Text(widget.studentProfile.rollNumber ?? "-")),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Text("Admission No.: "),
-                              Expanded(child: Text(widget.studentProfile.admissionNo ?? "-")),
+                              if (studentImage != null) const SizedBox(width: 10),
+                              if (studentImage != null) Image(image: studentImage!, height: 100, width: 75, fit: BoxFit.scaleDown),
                             ],
                           ),
                           if (widget.studentProfile.fatherName != null) const SizedBox(height: 10),

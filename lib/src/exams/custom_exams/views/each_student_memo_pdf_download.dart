@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
@@ -55,6 +57,8 @@ class EachStudentMemoPdfDownload {
 
     for (StudentProfile studentProfile in studentProfiles) {
       print("57: Writing memo for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
+      ImageProvider? studentImage = studentProfile.studentPhotoUrl == null ? null : await networkImage(allowCORSEndPoint + studentProfile.studentPhotoUrl!);
+
       CustomExam customExamForStudent = CustomExam.fromJson(customExam.toJson());
       customExamForStudent.examSectionSubjectMapList?.removeWhere((e) => e?.sectionId != selectedSection.sectionId);
       customExamForStudent.examSectionSubjectMapList?.forEach((essm) {
@@ -137,44 +141,62 @@ class EachStudentMemoPdfDownload {
                   children: [
                     SizedBox(height: 10),
                     Row(
-                      children: [
-                        Text("Student Name: "),
-                        Expanded(child: Text(studentProfile.studentFirstName ?? "-")),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Expanded(
-                          child: Row(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text("Class: "),
-                              Expanded(child: Text(studentProfile.sectionName ?? "-")),
+                              Row(
+                                children: [
+                                  Text("Student Name: "),
+                                  Expanded(child: Text(studentProfile.studentFirstName ?? "-")),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text("Class: "),
+                                        Expanded(child: Text(studentProfile.sectionName ?? "-")),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text("Roll No.: "),
+                                        Expanded(child: Text(studentProfile.rollNumber ?? "-")),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Text("Admission No.: "),
+                                  Expanded(child: Text(studentProfile.admissionNo ?? "-")),
+                                ],
+                              ),
                             ],
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text("Roll No.: "),
-                              Expanded(child: Text(studentProfile.rollNumber ?? "-")),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Text("Admission No.: "),
-                        Expanded(child: Text(studentProfile.admissionNo ?? "-")),
+                        if (studentImage != null) SizedBox(width: 10),
+                        if (studentImage != null) Image(studentImage, height: 100, width: 75, fit: BoxFit.scaleDown),
                       ],
                     ),
                     if (studentProfile.fatherName != null) SizedBox(height: 10),
