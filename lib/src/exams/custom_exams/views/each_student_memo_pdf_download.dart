@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:html' as html;
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart' as material;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
@@ -31,6 +30,8 @@ class EachStudentMemoPdfDownload {
   final List<StudentProfile> studentProfiles;
   final Section selectedSection;
 
+  final void Function(String? e) updateMessage;
+
   late double totalMaxMarks;
   late double? totalMarksObtained;
   late double? totalPercentage;
@@ -47,6 +48,7 @@ class EachStudentMemoPdfDownload {
     required this.customExam,
     required this.studentProfiles,
     required this.selectedSection,
+    required this.updateMessage,
   });
 
   Future<void> downloadMemo() async {
@@ -54,10 +56,22 @@ class EachStudentMemoPdfDownload {
 
     final font = await PdfGoogleFonts.merriweatherRegular();
     final schoolNameFont = await PdfGoogleFonts.acmeRegular();
-
+    List<ImageProvider?> studentImages = [];
     for (StudentProfile studentProfile in studentProfiles) {
-      print("57: Writing memo for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
-      ImageProvider? studentImage = studentProfile.studentPhotoUrl == null ? null : await networkImage(allowCORSEndPoint + studentProfile.studentPhotoUrl!);
+      updateMessage("Caching image for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
+      ImageProvider? x;
+      try {
+        x = studentProfile.studentPhotoUrl == null ? null : await networkImage(allowCORSEndPoint + studentProfile.studentPhotoUrl!);
+      } on Exception catch (e) {
+        updateMessage("Something went wrong.. $e");
+      }
+      studentImages.add(x);
+    }
+
+    for (int studentIndex = 0; studentIndex < studentProfiles.length; studentIndex++) {
+      StudentProfile studentProfile = studentProfiles[studentIndex];
+      updateMessage("Writing memo for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
+      ImageProvider? studentImage = studentImages[studentIndex];
 
       CustomExam customExamForStudent = CustomExam.fromJson(customExam.toJson());
       customExamForStudent.examSectionSubjectMapList?.removeWhere((e) => e?.sectionId != selectedSection.sectionId);
@@ -192,6 +206,14 @@ class EachStudentMemoPdfDownload {
                                   Expanded(child: Text(studentProfile.admissionNo ?? "-")),
                                 ],
                               ),
+                              if (studentProfile.fatherName != null) SizedBox(height: 10),
+                              if (studentProfile.fatherName != null)
+                                Row(
+                                  children: [
+                                    Text("Father Name: "),
+                                    Expanded(child: Text(studentProfile.fatherName ?? "-")),
+                                  ],
+                                ),
                             ],
                           ),
                         ),
@@ -199,14 +221,6 @@ class EachStudentMemoPdfDownload {
                         if (studentImage != null) Image(studentImage, height: 100, width: 75, fit: BoxFit.scaleDown),
                       ],
                     ),
-                    if (studentProfile.fatherName != null) SizedBox(height: 10),
-                    if (studentProfile.fatherName != null)
-                      Row(
-                        children: [
-                          Text("Father Name: "),
-                          Expanded(child: Text(studentProfile.fatherName ?? "-")),
-                        ],
-                      ),
                     SizedBox(height: 10),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -258,7 +272,7 @@ class EachStudentMemoPdfDownload {
                             children: [
                               paddedText(subjectsList.where((es) => essm.subjectId == es.subjectId).firstOrNull?.subjectName ?? "-"),
                               paddedText("${essm.maxMarks ?? "-"}", textAlign: TextAlign.center),
-                              paddedText("${marks?.isAbsent == "Y" ? "Absent" : marks?.marksObtained ?? "-"}", textAlign: TextAlign.center),
+                              paddedText("${marks?.isAbsent == "N" ? "Absent" : marks?.marksObtained ?? "-"}", textAlign: TextAlign.center),
                               if (markingAlgorithm != null && (markingAlgorithm?.isGpaAllowed ?? false))
                                 paddedText(
                                   percentage == null ? "-" : "${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}",
@@ -372,6 +386,7 @@ class EachStudentMemoPdfDownload {
           ),
         ),
       );
+      updateMessage("Completed writing memo for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
     }
 
     var x = await pdf.save();
@@ -383,6 +398,7 @@ class EachStudentMemoPdfDownload {
         ? "${studentProfiles[0].sectionName} ${studentProfiles[0].rollNumber ?? ""} ${studentProfiles[0].studentFirstName}.pdf"
         : "${customExam.customExamName} Memos.pdf";
     anchorElement.click();
+    updateMessage(null);
   }
 
   Widget paddedText(String text, {double fontSize = 12, TextAlign textAlign = TextAlign.left}) {

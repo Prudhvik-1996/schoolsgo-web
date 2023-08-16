@@ -100,6 +100,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                   customExam: customExam,
                   studentProfiles: [widget.studentProfile],
                   selectedSection: widget.selectedSection,
+                  updateMessage: (String? e) => debugPrint(e),
                 ).downloadMemo();
                 setState(() => _isLoading = false);
               },

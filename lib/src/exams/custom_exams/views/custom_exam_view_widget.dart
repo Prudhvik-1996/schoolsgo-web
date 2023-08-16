@@ -59,6 +59,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
   bool _isExpanded = false;
   bool _isLoading = false;
 
+  String? downloadMessage;
+
   @override
   void initState() {
     super.initState();
@@ -68,48 +70,30 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AbsorbPointer(
-          absorbing: _isLoading,
-          child: Container(
-            margin: const EdgeInsets.all(15),
-            child: ClayContainer(
-              emboss: _isExpanded,
-              depth: 40,
-              surfaceColor: clayContainerColor(context),
-              parentColor: clayContainerColor(context),
-              spread: 1,
-              borderRadius: 10,
-              child: Container(
-                margin: const EdgeInsets.all(15),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    customExamNameWidget(),
-                    if (_isExpanded) const SizedBox(height: 15),
-                    if (_isExpanded) populatedTdsList(),
-                    if (_isExpanded) const SizedBox(height: 15),
-                  ],
-                ),
-              ),
-            ),
+    return Container(
+      padding: const EdgeInsets.all(15),
+      child: ClayContainer(
+        emboss: _isExpanded,
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Container(
+          margin: const EdgeInsets.all(15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              customExamNameWidget(),
+              if (_isExpanded) const SizedBox(height: 15),
+              if (_isExpanded) populatedTdsList(),
+              if (_isExpanded) const SizedBox(height: 15),
+            ],
           ),
         ),
-        if (_isLoading)
-          Align(
-            alignment: Alignment.center,
-            child: Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            ),
-          )
-      ],
+      ),
     );
   }
 
@@ -291,37 +275,44 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
 
   Widget customExamNameWidget() {
     if (!_isExpanded) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      return Column(
         children: [
-          Expanded(child: Text(widget.customExam.customExamName ?? "-")),
-          const SizedBox(width: 15),
-          Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ?? "-"),
-          const SizedBox(width: 15),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isExpanded = true;
-              });
-            },
-            child: ClayButton(
-              color: clayContainerColor(context),
-              height: 30,
-              width: 30,
-              borderRadius: 50,
-              surfaceColor: clayContainerColor(context),
-              spread: 1,
-              child: const Padding(
-                padding: EdgeInsets.all(4.0),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Icon(Icons.arrow_drop_down),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: Text(widget.customExam.customExamName ?? "-")),
+              const SizedBox(width: 15),
+              Text(widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull?.algorithmName ??
+                  "-"),
+              const SizedBox(width: 15),
+              if (downloadMessage == null)
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isExpanded = true;
+                    });
+                  },
+                  child: ClayButton(
+                    color: clayContainerColor(context),
+                    height: 30,
+                    width: 30,
+                    borderRadius: 50,
+                    surfaceColor: clayContainerColor(context),
+                    spread: 1,
+                    child: const Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Icon(Icons.arrow_drop_down),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
+              const SizedBox(width: 15),
+            ],
           ),
-          const SizedBox(width: 15),
+          if (downloadMessage != null) renderingPdfWidget()
         ],
       );
     }
@@ -450,7 +441,10 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                     message: "Download all memos",
                     child: GestureDetector(
                       onTap: () async {
-                        setState(() => _isLoading = true);
+                        setState(() {
+                          _isLoading = true;
+                          _isExpanded = false;
+                        });
                         await Future.delayed(const Duration(seconds: 1));
                         await EachStudentMemoPdfDownload(
                           schoolInfo: widget.schoolInfo,
@@ -465,8 +459,12 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           customExam: widget.customExam,
                           studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
                           selectedSection: widget.selectedSection!,
+                          updateMessage: (String? e) => setState(() => downloadMessage = e),
                         ).downloadMemo();
-                        setState(() => _isLoading = false);
+                        setState(() {
+                          _isLoading = false;
+                          _isExpanded = true;
+                        });
                       },
                       child: ClayButton(
                         color: clayContainerColor(context),
@@ -498,6 +496,34 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
             ],
           ),
       ],
+    );
+  }
+
+  Widget renderingPdfWidget() {
+    return Container(
+      color: Colors.grey.withOpacity(0.4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 10),
+          Center(
+            child: Image.asset(
+              'assets/images/eis_loader.gif',
+              height: 100,
+              width: 100,
+            ),
+          ),
+          const SizedBox(height: 10),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              downloadMessage ?? "",
+              style: const TextStyle(fontSize: 9),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
     );
   }
 }
