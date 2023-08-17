@@ -206,18 +206,23 @@ class SectionWiseMarkListPdf {
                                     .where((StudentExamMarks? e) => e?.studentId == studentId)
                                     .where((e) => e?.isAbsent == "N")
                                     .isNotEmpty ??
-                                true;
+                                false;
                             bool isFailInAtLeastForOneSubject = customExam.examSectionSubjectMapList
                                     ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
                                     .expand((i) => i)
                                     .where((StudentExamMarks? e) => e?.studentId == studentId)
                                     .where((StudentExamMarks? e) => e?.isAbsent != "N")
-                                    .map((StudentExamMarks? e) => markingAlgorithm?.rangeBeanForPercentage((e?.marksObtained ?? 0) /
-                                        ((customExam.examSectionSubjectMapList ?? [])
-                                                .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
-                                                .first
-                                                ?.maxMarks ??
-                                            1)))
+                                    .map((StudentExamMarks? e) {
+                                      double percentage = (e?.marksObtained ?? 0) /
+                                          ((customExam.examSectionSubjectMapList ?? [])
+                                                  .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
+                                                  .first
+                                                  ?.maxMarks ??
+                                              1) *
+                                          100;
+                                      MarkingAlgorithmRangeBean? rangeBeanForPercentage = markingAlgorithm?.rangeBeanForPercentage(percentage);
+                                      return rangeBeanForPercentage;
+                                    })
                                     .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
                                     .contains(true) ??
                                 false;
@@ -233,10 +238,13 @@ class SectionWiseMarkListPdf {
                                     : "${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}"),
                               );
                             } else if (headerStrings[columnIndex].contains("Grade")) {
-                              return Center(child: cellText(markingAlgorithm?.gradeForPercentage(percentage) ?? "-"));
+                              return Center(
+                                  child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                      ? "-"
+                                      : markingAlgorithm?.gradeForPercentage(percentage) ?? "-"));
                             } else {
                               return Center(
-                                child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "$studentWiseTotalMarks"),
+                                child: cellText("$studentWiseTotalMarks"),
                               );
                             }
                           }

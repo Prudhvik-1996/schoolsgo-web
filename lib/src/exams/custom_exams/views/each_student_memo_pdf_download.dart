@@ -91,17 +91,22 @@ class EachStudentMemoPdfDownload {
               ?.map((e) => (e?.studentExamMarksList ?? []).firstOrNull)
               .where((e) => e?.isAbsent == "N")
               .isNotEmpty ??
-          true;
+          false;
       bool isFailInAtLeastForOneSubject = customExamForStudent.examSectionSubjectMapList
               ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
               .expand((i) => i)
               .where((StudentExamMarks? e) => e?.isAbsent != "N")
-              .map((StudentExamMarks? e) => markingAlgorithm?.rangeBeanForPercentage((e?.marksObtained ?? 0) /
-                  ((customExamForStudent.examSectionSubjectMapList ?? [])
-                          .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
-                          .first
-                          ?.maxMarks ??
-                      1)))
+              .map((StudentExamMarks? e) {
+                double percentage = (e?.marksObtained ?? 0) /
+                    ((customExam.examSectionSubjectMapList ?? [])
+                            .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
+                            .first
+                            ?.maxMarks ??
+                        1) *
+                    100;
+                MarkingAlgorithmRangeBean? rangeBeanForPercentage = markingAlgorithm?.rangeBeanForPercentage(percentage);
+                return rangeBeanForPercentage;
+              })
               .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
               .contains(true) ??
           false;
@@ -330,9 +335,7 @@ class EachStudentMemoPdfDownload {
                           children: [
                             "$totalMaxMarks",
                             "$totalMarksObtained",
-                            isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
-                                ? "-"
-                                : "${doubleToStringAsFixed(totalPercentage)} %",
+                            isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "${doubleToStringAsFixed(totalPercentage)} %",
                             if (markingAlgorithm?.isGpaAllowed ?? false)
                               isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
                                   ? "-"

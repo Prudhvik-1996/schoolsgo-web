@@ -77,17 +77,22 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
     totalPercentage = totalMarksObtained == null ? null : (totalMarksObtained! * 100.0 / totalMaxMarks);
     isAbsentForAtLeastForOneSubject =
         customExam.examSectionSubjectMapList?.map((e) => (e?.studentExamMarksList ?? []).firstOrNull).where((e) => e?.isAbsent == "N").isNotEmpty ??
-            true;
+            false;
     isFailInAtLeastForOneSubject = customExam.examSectionSubjectMapList
             ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
             .expand((i) => i)
             .where((StudentExamMarks? e) => e?.isAbsent != "N")
-            .map((StudentExamMarks? e) => widget.markingAlgorithm?.rangeBeanForPercentage((e?.marksObtained ?? 0) /
-                ((customExam.examSectionSubjectMapList ?? [])
-                        .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
-                        .first
-                        ?.maxMarks ??
-                    1)))
+            .map((StudentExamMarks? e) {
+              double percentage = (e?.marksObtained ?? 0) /
+                  ((customExam.examSectionSubjectMapList ?? [])
+                          .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
+                          .first
+                          ?.maxMarks ??
+                      1) *
+                  100;
+              MarkingAlgorithmRangeBean? rangeBeanForPercentage = widget.markingAlgorithm?.rangeBeanForPercentage(percentage);
+              return rangeBeanForPercentage;
+            })
             .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
             .contains(true) ??
         false;
