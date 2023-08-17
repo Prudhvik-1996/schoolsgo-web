@@ -350,7 +350,9 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                                 children: [
                                   "$totalMaxMarks",
                                   "$totalMarksObtained",
-                                  "${doubleToStringAsFixed(totalPercentage)} %",
+                                  isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                      ? "-"
+                                      : "${doubleToStringAsFixed(totalPercentage)} %",
                                   if (widget.markingAlgorithm?.isGpaAllowed ?? false)
                                     isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
                                         ? "-"

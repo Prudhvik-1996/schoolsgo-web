@@ -222,17 +222,22 @@ class SectionWiseMarkListPdf {
                                     .contains(true) ??
                                 false;
                             if (headerStrings[columnIndex].contains("Percentage")) {
-                              return Center(child: cellText("${doubleToStringAsFixed(percentage)} %"));
+                              return Center(
+                                child: cellText(
+                                    isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "${doubleToStringAsFixed(percentage)} %"),
+                              );
                             } else if (headerStrings[columnIndex].contains("GPA")) {
                               return Center(
-                                  child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
-                                      ? "-"
-                                      : "${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}"));
+                                child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                    ? "-"
+                                    : "${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}"),
+                              );
                             } else if (headerStrings[columnIndex].contains("Grade")) {
                               return Center(child: cellText(markingAlgorithm?.gradeForPercentage(percentage) ?? "-"));
                             } else {
                               return Center(
-                                  child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "$studentWiseTotalMarks"));
+                                child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "$studentWiseTotalMarks"),
+                              );
                             }
                           }
                           ExamSectionSubjectMap? essm = essmList[columnIndex];

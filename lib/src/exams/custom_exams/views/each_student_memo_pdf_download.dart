@@ -330,7 +330,9 @@ class EachStudentMemoPdfDownload {
                           children: [
                             "$totalMaxMarks",
                             "$totalMarksObtained",
-                            "${doubleToStringAsFixed(totalPercentage)} %",
+                            isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                ? "-"
+                                : "${doubleToStringAsFixed(totalPercentage)} %",
                             if (markingAlgorithm?.isGpaAllowed ?? false)
                               isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
                                   ? "-"
