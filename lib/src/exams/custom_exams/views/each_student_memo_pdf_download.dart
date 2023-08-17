@@ -61,7 +61,7 @@ class EachStudentMemoPdfDownload {
       updateMessage("Caching image for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
       ImageProvider? x;
       try {
-        x = studentProfile.studentPhotoUrl == null ? null : await networkImage(allowCORSEndPoint + studentProfile.studentPhotoUrl!);
+        x = studentProfile.studentPhotoThumbnailUrl == null ? null : await networkImage(allowCORSEndPoint + studentProfile.studentPhotoThumbnailUrl!);
       } on Exception catch (e) {
         updateMessage("Something went wrong.. $e");
       }
@@ -82,11 +82,29 @@ class EachStudentMemoPdfDownload {
           customExamForStudent.examSectionSubjectMapList?.map((e) => e?.maxMarks ?? 0.0).fold<double>(0.0, (double a, double b) => a + b) ?? 0.0;
       totalMarksObtained = customExamForStudent.examSectionSubjectMapList
           ?.map((e) => (e?.studentExamMarksList ?? []).firstOrNull)
-          .where((e) => e?.isAbsent != "Y")
+          .where((e) => e?.isAbsent != "N")
           .map((e) => e?.marksObtained)
           .whereNotNull()
           .fold<double>(0.0, (double a, double b) => a + b);
       totalPercentage = totalMarksObtained == null ? null : (totalMarksObtained! * 100.0 / totalMaxMarks);
+      bool isAbsentForAtLeastForOneSubject = customExamForStudent.examSectionSubjectMapList
+              ?.map((e) => (e?.studentExamMarksList ?? []).firstOrNull)
+              .where((e) => e?.isAbsent == "N")
+              .isNotEmpty ??
+          true;
+      bool isFailInAtLeastForOneSubject = customExamForStudent.examSectionSubjectMapList
+              ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
+              .expand((i) => i)
+              .where((StudentExamMarks? e) => e?.isAbsent != "N")
+              .map((StudentExamMarks? e) => markingAlgorithm?.rangeBeanForPercentage((e?.marksObtained ?? 0) /
+                  ((customExamForStudent.examSectionSubjectMapList ?? [])
+                          .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
+                          .first
+                          ?.maxMarks ??
+                      1)))
+              .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
+              .contains(true) ??
+          false;
 
       List<String> attendanceHeaders = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "Total"];
 
@@ -265,7 +283,7 @@ class EachStudentMemoPdfDownload {
                               .where(
                                   (esm) => esm.examSectionSubjectMapId == essm.examSectionSubjectMapId && esm.studentId == studentProfile.studentId)
                               .firstOrNull;
-                          double? percentage = marks == null || marks.marksObtained == null || marks.isAbsent == "Y"
+                          double? percentage = marks == null || marks.marksObtained == null || marks.isAbsent == "N"
                               ? null
                               : (((marks.marksObtained!) / (essm.maxMarks ?? 0)) * 100);
                           return TableRow(
@@ -314,9 +332,17 @@ class EachStudentMemoPdfDownload {
                             "$totalMarksObtained",
                             "${doubleToStringAsFixed(totalPercentage)} %",
                             if (markingAlgorithm?.isGpaAllowed ?? false)
-                              totalPercentage == null ? "-" : "${markingAlgorithm?.gpaForPercentage(totalPercentage!) ?? "-"}",
+                              isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                  ? "-"
+                                  : totalPercentage == null
+                                      ? "-"
+                                      : "${markingAlgorithm?.gpaForPercentage(totalPercentage!) ?? "-"}",
                             if (markingAlgorithm?.isGradeAllowed ?? false)
-                              totalPercentage == null ? "-" : markingAlgorithm?.gradeForPercentage(totalPercentage!) ?? "-"
+                              isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                  ? "-"
+                                  : totalPercentage == null
+                                      ? "-"
+                                      : markingAlgorithm?.gradeForPercentage(totalPercentage!) ?? "-"
                           ]
                               .map(
                                 (e) => paddedText(e, textAlign: TextAlign.center),

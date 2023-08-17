@@ -201,14 +201,38 @@ class SectionWiseMarkListPdf {
                                       : marks.marksObtained;
                             }).fold<double>(0.0, (double a, double? b) => a + (b ?? 0));
                             double percentage = ((studentWiseTotalMarks / totalMaxMarks) * 100);
+                            bool isAbsentForAtLeastForOneSubject = customExam.examSectionSubjectMapList
+                                    ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []).firstOrNull)
+                                    .where((StudentExamMarks? e) => e?.studentId == studentId)
+                                    .where((e) => e?.isAbsent == "N")
+                                    .isNotEmpty ??
+                                true;
+                            bool isFailInAtLeastForOneSubject = customExam.examSectionSubjectMapList
+                                    ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
+                                    .expand((i) => i)
+                                    .where((StudentExamMarks? e) => e?.studentId == studentId)
+                                    .where((StudentExamMarks? e) => e?.isAbsent != "N")
+                                    .map((StudentExamMarks? e) => markingAlgorithm?.rangeBeanForPercentage((e?.marksObtained ?? 0) /
+                                        ((customExam.examSectionSubjectMapList ?? [])
+                                                .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
+                                                .first
+                                                ?.maxMarks ??
+                                            1)))
+                                    .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
+                                    .contains(true) ??
+                                false;
                             if (headerStrings[columnIndex].contains("Percentage")) {
                               return Center(child: cellText("${doubleToStringAsFixed(percentage)} %"));
                             } else if (headerStrings[columnIndex].contains("GPA")) {
-                              return Center(child: cellText("${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}"));
+                              return Center(
+                                  child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                      ? "-"
+                                      : "${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}"));
                             } else if (headerStrings[columnIndex].contains("Grade")) {
                               return Center(child: cellText(markingAlgorithm?.gradeForPercentage(percentage) ?? "-"));
                             } else {
-                              return Center(child: cellText("$studentWiseTotalMarks"));
+                              return Center(
+                                  child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "$studentWiseTotalMarks"));
                             }
                           }
                           ExamSectionSubjectMap? essm = essmList[columnIndex];

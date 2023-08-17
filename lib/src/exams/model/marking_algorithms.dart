@@ -70,6 +70,7 @@ class MarkingAlgorithmRangeBean {
   int? startRange;
   TextEditingController startRangeController = TextEditingController();
   String? status;
+  String? isFailure;
   Map<String, dynamic> __origJson = {};
 
   MarkingAlgorithmRangeBean({
@@ -84,6 +85,7 @@ class MarkingAlgorithmRangeBean {
     this.schoolName,
     this.startRange,
     this.status,
+    this.isFailure,
   }) {
     endRangeController.text = '${endRange ?? ''}';
     startRangeController.text = '${startRange ?? ''}';
@@ -108,6 +110,7 @@ class MarkingAlgorithmRangeBean {
     startRange = json['startRange']?.toInt();
     startRangeController.text = '${startRange ?? ''}';
     status = json['status']?.toString();
+    isFailure = json['isFailure']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -123,6 +126,7 @@ class MarkingAlgorithmRangeBean {
     data['schoolName'] = schoolName;
     data['startRange'] = startRange;
     data['status'] = status;
+    data['isFailure'] = isFailure;
     return data;
   }
 
@@ -207,9 +211,9 @@ class MarkingAlgorithmBean {
     if (markingAlgorithmRangeBeanList != null) {
       final v = markingAlgorithmRangeBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['markingAlgorithmRangeBeanList'] = arr0;
     }
     data['schoolId'] = schoolId;
@@ -226,11 +230,15 @@ class MarkingAlgorithmBean {
 
   double? gpaForPercentage(double percentage) {
     try {
-      return (markingAlgorithmRangeBeanList ?? [])
+      MarkingAlgorithmRangeBean? rangeBean = (markingAlgorithmRangeBeanList ?? [])
           .whereNotNull()
           .where((e) => e.startRange! <= percentage.floor() && percentage.floor() <= e.endRange!)
-          .firstOrNull
-          ?.gpa;
+          .firstOrNull;
+      // if (rangeBean?.isFailure != "N") {
+      return rangeBean?.gpa;
+      // } else {
+      //   return null;
+      // }
     } catch (_) {
       debugPrint("Something went wrong..");
       return null;
@@ -239,11 +247,27 @@ class MarkingAlgorithmBean {
 
   String? gradeForPercentage(double percentage) {
     try {
+      MarkingAlgorithmRangeBean? rangeBean = (markingAlgorithmRangeBeanList ?? [])
+          .whereNotNull()
+          .where((e) => e.startRange! <= percentage.floor() && percentage.floor() <= e.endRange!)
+          .firstOrNull;
+      // if (rangeBean?.isFailure != "N") {
+      return rangeBean?.grade;
+      // } else {
+      //   return null;
+      // }
+    } catch (_) {
+      debugPrint("Something went wrong..");
+      return null;
+    }
+  }
+
+  MarkingAlgorithmRangeBean? rangeBeanForPercentage(double percentage) {
+    try {
       return (markingAlgorithmRangeBeanList ?? [])
           .whereNotNull()
           .where((e) => e.startRange! <= percentage.floor() && percentage.floor() <= e.endRange!)
-          .firstOrNull
-          ?.grade;
+          .firstOrNull;
     } catch (_) {
       debugPrint("Something went wrong..");
       return null;
@@ -325,9 +349,9 @@ class GetMarkingAlgorithmsResponse {
     if (markingAlgorithmBeanList != null) {
       final v = markingAlgorithmBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['markingAlgorithmBeanList'] = arr0;
     }
     data['responseStatus'] = responseStatus;
@@ -423,9 +447,9 @@ class CreateOrUpdateMarkingAlgorithmRequest {
     if (markingAlgorithmRangeBeanList != null) {
       final v = markingAlgorithmRangeBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['markingAlgorithmRangeBeanList'] = arr0;
     }
     data['schoolId'] = schoolId;

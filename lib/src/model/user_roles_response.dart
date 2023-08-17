@@ -276,6 +276,7 @@ class StudentProfile {
   String? studentMiddleName;
   String? studentMobile;
   String? studentPhotoUrl;
+  String? studentPhotoThumbnailUrl;
   String? studentStatus;
   String? sex;
   String? nationality;
@@ -364,6 +365,7 @@ class StudentProfile {
     this.studentMiddleName,
     this.studentMobile,
     this.studentPhotoUrl,
+    this.studentPhotoThumbnailUrl,
     this.studentStatus,
     this.isAssignedToBusStop,
   }) {
@@ -480,6 +482,7 @@ class StudentProfile {
     studentMiddleName = json['studentMiddleName']?.toString();
     studentMobile = json['studentMobile']?.toString();
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
+    studentPhotoThumbnailUrl = json['studentPhotoThumbnailUrl']?.toString();
     studentStatus = json['studentStatus']?.toString();
     populateControllers();
   }
@@ -542,6 +545,7 @@ class StudentProfile {
     studentMiddleName = json['studentMiddleName']?.toString();
     studentMobile = json['studentMobile']?.toString();
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
+    studentPhotoThumbnailUrl = json['studentPhotoThumbnailUrl']?.toString();
     studentStatus = json['studentStatus']?.toString();
     populateControllers();
   }
@@ -602,6 +606,7 @@ class StudentProfile {
     data['studentMiddleName'] = studentMiddleName;
     data['studentMobile'] = studentMobile;
     data['studentPhotoUrl'] = studentPhotoUrl;
+    data['studentPhotoThumbnailUrl'] = studentPhotoThumbnailUrl;
     data['studentStatus'] = studentStatus;
     return data;
   }
@@ -1339,6 +1344,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     super.studentMiddleName,
     super.studentMobile,
     super.studentPhotoUrl,
+    super.studentPhotoThumbnailUrl,
     super.studentStatus,
   });
 
@@ -1397,6 +1403,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     studentMiddleName = studentProfile.studentMiddleName;
     studentMobile = studentProfile.studentMobile;
     studentPhotoUrl = studentProfile.studentPhotoUrl;
+    studentPhotoThumbnailUrl = studentProfile.studentPhotoThumbnailUrl;
     studentStatus = studentProfile.studentStatus;
   }
 
@@ -1458,6 +1465,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     data['studentMiddleName'] = studentMiddleName;
     data['studentMobile'] = studentMobile;
     data['studentPhotoUrl'] = studentPhotoUrl;
+    data['studentPhotoThumbnailUrl'] = studentPhotoThumbnailUrl;
     data['studentStatus'] = studentStatus;
     return data;
   }

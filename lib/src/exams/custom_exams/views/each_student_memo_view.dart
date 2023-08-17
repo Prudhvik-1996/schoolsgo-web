@@ -56,6 +56,8 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
   late double? totalMarksObtained;
   late double? totalPercentage;
   ImageProvider? studentImage;
+  late bool isAbsentForAtLeastForOneSubject;
+  late bool isFailInAtLeastForOneSubject;
 
   @override
   void initState() {
@@ -73,6 +75,22 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
         .whereNotNull()
         .fold<double>(0.0, (double a, double b) => a + b);
     totalPercentage = totalMarksObtained == null ? null : (totalMarksObtained! * 100.0 / totalMaxMarks);
+    isAbsentForAtLeastForOneSubject =
+        customExam.examSectionSubjectMapList?.map((e) => (e?.studentExamMarksList ?? []).firstOrNull).where((e) => e?.isAbsent == "N").isNotEmpty ??
+            true;
+    isFailInAtLeastForOneSubject = customExam.examSectionSubjectMapList
+            ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
+            .expand((i) => i)
+            .where((StudentExamMarks? e) => e?.isAbsent != "N")
+            .map((StudentExamMarks? e) => widget.markingAlgorithm?.rangeBeanForPercentage((e?.marksObtained ?? 0) /
+                ((customExam.examSectionSubjectMapList ?? [])
+                        .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
+                        .first
+                        ?.maxMarks ??
+                    1)))
+            .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
+            .contains(true) ??
+        false;
     studentImage = widget.studentProfile.studentPhotoUrl == null ? null : NetworkImage(widget.studentProfile.studentPhotoUrl!);
   }
 
@@ -270,7 +288,6 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                                         esm.examSectionSubjectMapId == essm.examSectionSubjectMapId &&
                                         esm.studentId == widget.studentProfile.studentId)
                                     .firstOrNull;
-                                print("241: ${marks?.toJson()}");
                                 double? percentage = marks == null || marks.marksObtained == null || marks.isAbsent == "N"
                                     ? null
                                     : (((marks.marksObtained!) / (essm.maxMarks ?? 0)) * 100);
@@ -335,9 +352,17 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                                   "$totalMarksObtained",
                                   "${doubleToStringAsFixed(totalPercentage)} %",
                                   if (widget.markingAlgorithm?.isGpaAllowed ?? false)
-                                    totalPercentage == null ? "-" : "${widget.markingAlgorithm?.gpaForPercentage(totalPercentage!) ?? "-"}",
+                                    isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                        ? "-"
+                                        : totalPercentage == null
+                                            ? "-"
+                                            : "${widget.markingAlgorithm?.gpaForPercentage(totalPercentage!) ?? "-"}",
                                   if (widget.markingAlgorithm?.isGradeAllowed ?? false)
-                                    totalPercentage == null ? "-" : widget.markingAlgorithm?.gradeForPercentage(totalPercentage!) ?? "-"
+                                    isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                        ? "-"
+                                        : totalPercentage == null
+                                            ? "-"
+                                            : widget.markingAlgorithm?.gradeForPercentage(totalPercentage!) ?? "-"
                                 ]
                                     .map(
                                       (e) => TableCell(
