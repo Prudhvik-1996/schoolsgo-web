@@ -49,7 +49,7 @@ class AppVersion {
 }
 
 Future<AppVersion?> getAppVersion(String? versionName) async {
-  debugPrint("Raising request to getLogBook with request $versionName");
+  debugPrint("Raising request to getAppVersion with request $versionName");
   String _url = SCHOOLS_GO_BASE_URL + getAppVersionUrl(null);
 
   AppVersion? appVersion = await HttpUtils.get(

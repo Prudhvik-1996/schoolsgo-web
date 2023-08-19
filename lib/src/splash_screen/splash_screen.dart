@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
+import 'package:schoolsgo_web/src/user_dashboard/user_dashboard_v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isLoading = true;
   bool isUserLoggedIn = false;
   late int loggedInUserId;
+  late String loggedInMobile;
   late int loggedInStudentId;
 
   int splashScreenDelay = 1;
@@ -49,6 +51,18 @@ class _SplashScreenState extends State<SplashScreen> {
     setState(() {
       isUserLoggedIn = boolValue;
     });
+    String? storedMobile = prefs.getString('LOGGED_IN_MOBILE');
+    if (storedMobile != null) {
+      setState(() {
+        loggedInMobile = storedMobile;
+      });
+      Navigator.restorablePushNamed(
+        context,
+        UserDashboardV2.routeName,
+        arguments: "m$loggedInMobile",
+      );
+      return;
+    }
     if (isUserLoggedIn) {
       int id = prefs.getInt('LOGGED_IN_USER_ID') ?? 0;
       setState(() {

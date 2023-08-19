@@ -42,6 +42,8 @@ class UserDetails {
     this.firstName,
     this.lastName,
     this.mailId,
+    this.mobile,
+    this.password,
     this.status,
     this.userId,
     this.fourDigitPin,
@@ -49,6 +51,8 @@ class UserDetails {
   String? firstName;
   String? lastName;
   String? mailId;
+  String? mobile;
+  String? password;
   String? status;
   int? userId;
   String? fourDigitPin;
@@ -57,6 +61,8 @@ class UserDetails {
     firstName = json['firstName'];
     lastName = json['lastName'];
     mailId = json['mailId'];
+    mobile = json['mobile'];
+    password = json['password'];
     status = json['status'];
     userId = json['userId'];
     fourDigitPin = json['fourDigitPin'];
@@ -67,6 +73,8 @@ class UserDetails {
     _data['firstName'] = firstName;
     _data['lastName'] = lastName;
     _data['mailId'] = mailId;
+    _data['mobile'] = mobile;
+    _data['password'] = password;
     _data['status'] = status;
     _data['userId'] = userId;
     _data['fourDigitPin'] = fourDigitPin;

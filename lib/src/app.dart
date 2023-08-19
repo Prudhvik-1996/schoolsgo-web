@@ -24,6 +24,7 @@ import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
 import 'package:schoolsgo_web/src/hostel/admin/hostel_options_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
+import 'package:schoolsgo_web/src/login/login_screen_v2.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
@@ -37,6 +38,7 @@ import 'package:schoolsgo_web/src/student_information_center/student_information
 import 'package:schoolsgo_web/src/student_information_center/student_information_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
 import 'package:schoolsgo_web/src/task_manager/task_manager_screen.dart';
+import 'package:schoolsgo_web/src/user_dashboard/user_dashboard_v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_dashboard/admin_dashboard.dart';
@@ -235,13 +237,22 @@ class _MyAppState extends State<MyApp> {
           case SplashScreen.routeName:
             return const SplashScreen();
           case LoginScreen.routeName:
-            return const LoginScreen();
+            // return const LoginScreen();
+            return const LoginScreenV2();
           case UserDashboard.routeName:
             try {
-              return UserDashboard(
-                loggedInUserId: loggedInUserId ?? (routeSettings.arguments as int),
-                loggedInSchoolId: loggedInSchoolId,
-              );
+              int? userId = int.tryParse(routeSettings.arguments.toString());
+              if (userId != null) {
+                return UserDashboard(
+                  loggedInUserId: loggedInUserId ?? (routeSettings.arguments as int),
+                  loggedInSchoolId: loggedInSchoolId,
+                );
+              } else {
+                return UserDashboardV2(
+                  mobile: (routeSettings.arguments as String).replaceAll("m", ""),
+                  schoolId: null,
+                );
+              }
             } catch (e) {
               return const SplashScreen();
             }

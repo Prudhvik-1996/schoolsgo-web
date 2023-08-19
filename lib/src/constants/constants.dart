@@ -20,6 +20,7 @@ const String GET_SCHOOL_WISE_ACADEMIC_YEARS = "/commons/getSchoolWiseAcademicYea
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String GET_SCHOOLS_DETAILS = "/commons/getSchoolInfo";
 const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
+const String UPDATE_MOBILE_AND_PASSWORD = "/users/updatePhoneNumberPassword";
 const String DO_LOGIN = "/auth/doLogin";
 const String DO_LOGIN_WITH_USER_ID_AND_PASSWORD = "/auth/doLoginWithLoginUserIdAndPassword";
 const String UPDATE_LOGIN_CREDENTIALS = "/auth/updateLoginCredentials";

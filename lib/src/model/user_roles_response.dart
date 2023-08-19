@@ -16,18 +16,25 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class GetUserRolesRequest {
   int? schoolId;
+  String? mobile;
   int? userId;
 
-  GetUserRolesRequest({this.schoolId, this.userId});
+  GetUserRolesRequest({
+    this.schoolId,
+    this.mobile,
+    this.userId,
+  });
 
   GetUserRolesRequest.fromJson(dynamic json) {
     schoolId = json['schoolId'];
+    mobile = json['mobile'];
     userId = json['userId'];
   }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['schoolId'] = schoolId;
+    map['mobile'] = mobile;
     map['userId'] = userId;
     return map;
   }
@@ -159,6 +166,7 @@ class TeacherProfile {
   String? teacherPhotoUrl;
   int? franchiseId;
   String? franchiseName;
+  String? fourDigitPin;
   Map<String, dynamic> __origJson = {};
 
   TeacherProfile({
@@ -179,6 +187,7 @@ class TeacherProfile {
     this.teacherPhotoUrl,
     this.franchiseId,
     this.franchiseName,
+    this.fourDigitPin,
   });
 
   TeacherProfile.fromJson(Map<String, dynamic> json) {
@@ -200,6 +209,7 @@ class TeacherProfile {
     teacherPhotoUrl = json['teacherPhotoUrl']?.toString();
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
+    fourDigitPin = json['fourDigitPin']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -221,6 +231,7 @@ class TeacherProfile {
     data['teacherPhotoUrl'] = teacherPhotoUrl;
     data['franchiseId'] = franchiseId;
     data['franchiseName'] = franchiseName;
+    data['fourDigitPin'] = fourDigitPin;
     return data;
   }
 
@@ -284,6 +295,7 @@ class StudentProfile {
   String? caste;
   String? category;
   String? identificationMarks;
+  String? password;
 
   bool? isAssignedToBusStop;
   Map<String, dynamic> __origJson = {};
@@ -309,6 +321,7 @@ class StudentProfile {
   TextEditingController addressForCommunicationController = TextEditingController();
   TextEditingController permanentAddressController = TextEditingController();
   TextEditingController identificationMarksController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   StudentProfile({
     this.aadhaarNo,
@@ -368,6 +381,7 @@ class StudentProfile {
     this.studentPhotoThumbnailUrl,
     this.studentStatus,
     this.isAssignedToBusStop,
+    this.password,
   }) {
     populateControllers();
   }
@@ -400,6 +414,7 @@ class StudentProfile {
     addressForCommunicationController = TextEditingController(text: residenceForCommunication);
     permanentAddressController = TextEditingController(text: permanentResidence);
     identificationMarksController = TextEditingController(text: identificationMarks);
+    passwordController = TextEditingController(text: password);
   }
 
   void fromControllers() {
@@ -424,6 +439,7 @@ class StudentProfile {
     residenceForCommunication = addressForCommunicationController.text;
     permanentResidence = permanentAddressController.text;
     identificationMarks = identificationMarksController.text;
+    password = passwordController.text;
   }
 
   StudentProfile.fromJson(Map<String, dynamic> json) {
@@ -484,6 +500,7 @@ class StudentProfile {
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
     studentPhotoThumbnailUrl = json['studentPhotoThumbnailUrl']?.toString();
     studentStatus = json['studentStatus']?.toString();
+    password = json['password']?.toString();
     populateControllers();
   }
 
@@ -547,6 +564,7 @@ class StudentProfile {
     studentPhotoUrl = json['studentPhotoUrl']?.toString();
     studentPhotoThumbnailUrl = json['studentPhotoThumbnailUrl']?.toString();
     studentStatus = json['studentStatus']?.toString();
+    password = json['password']?.toString();
     populateControllers();
   }
 
@@ -608,6 +626,7 @@ class StudentProfile {
     data['studentPhotoUrl'] = studentPhotoUrl;
     data['studentPhotoThumbnailUrl'] = studentPhotoThumbnailUrl;
     data['studentStatus'] = studentStatus;
+    data['password'] = password;
     return data;
   }
 
@@ -747,6 +766,7 @@ class MegaAdminProfile {
   String? branchCode;
   int? userId;
   String? userName;
+  String? fourDigitPin;
   Map<String, dynamic> __origJson = {};
 
   List<AdminProfile>? adminProfiles;
@@ -768,6 +788,7 @@ class MegaAdminProfile {
     this.userId,
     this.userName,
     this.adminProfiles,
+    this.fourDigitPin,
   });
 
   MegaAdminProfile.fromJson(Map<String, dynamic> json) {
@@ -787,6 +808,7 @@ class MegaAdminProfile {
     branchCode = json['branchCode']?.toString();
     userId = json['userId']?.toInt();
     userName = json['userName']?.toString();
+    fourDigitPin = json['fourDigitPin']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -806,6 +828,7 @@ class MegaAdminProfile {
     data['branchCode'] = branchCode;
     data['userId'] = userId;
     data['userName'] = userName;
+    data['fourDigitPin'] = fourDigitPin;
     return data;
   }
 
@@ -841,6 +864,7 @@ class AdminProfile {
   String? city;
   int? franchiseId;
   String? franchiseName;
+  String? fourDigitPin;
 
   bool isMegaAdmin = false;
 
@@ -862,6 +886,7 @@ class AdminProfile {
     this.franchiseId,
     this.franchiseName,
     required this.isMegaAdmin,
+    this.fourDigitPin,
   });
 
   AdminProfile.fromJson(Map<String, dynamic> json) {
@@ -879,6 +904,7 @@ class AdminProfile {
     schoolPhotoUrl = json['schoolPhotoUrl']?.toString();
     userId = json['userId']?.toInt();
     adminPhotoUrl = json['adminPhotoUrl']?.toString();
+    fourDigitPin = json['fourDigitPin']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -896,6 +922,7 @@ class AdminProfile {
     data['schoolPhotoUrl'] = schoolPhotoUrl;
     data['userId'] = userId;
     data['adminPhotoUrl'] = adminPhotoUrl;
+    data['fourDigitPin'] = fourDigitPin;
     return data;
   }
 
@@ -1285,7 +1312,6 @@ Future<GetStudentProfileResponse> getStudentProfile(GetStudentProfileRequest get
 }
 
 class CreateOrUpdateStudentProfileRequest extends StudentProfile {
-
   int? agent;
 
   CreateOrUpdateStudentProfileRequest({
