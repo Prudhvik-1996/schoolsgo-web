@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_screen.dart';
 import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -104,6 +105,15 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
                 "Mark Attendance",
                 null,
                 AdminMarkStudentAttendanceScreen(
+                  adminProfile: widget.adminProfile,
+                  selectedSection: null,
+                  selectedDateTime: DateTime.now(),
+                ),
+              ),
+              _getAttendanceOption(
+                "Absentees Screen",
+                null,
+                AdminStudentAbsenteesScreen(
                   adminProfile: widget.adminProfile,
                 ),
               ),

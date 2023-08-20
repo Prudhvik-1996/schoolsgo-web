@@ -1,20 +1,15 @@
 import 'package:clay_containers/widgets/clay_container.dart';
-import 'package:excel/excel.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
-import 'package:schoolsgo_web/src/common_components/common_components.dart';
-import 'package:schoolsgo_web/src/common_components/update_mobile_number_and_password/modal/update_phone_number_and_password.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class StudentLoginCredentials extends StatefulWidget {
-  const StudentLoginCredentials({
+class AdminStudentAbsenteesScreen extends StatefulWidget {
+  const AdminStudentAbsenteesScreen({
     super.key,
     required this.adminProfile,
   });
@@ -22,25 +17,30 @@ class StudentLoginCredentials extends StatefulWidget {
   final AdminProfile adminProfile;
 
   @override
-  State<StudentLoginCredentials> createState() => _StudentLoginCredentialsState();
+  State<AdminStudentAbsenteesScreen> createState() => _AdminStudentAbsenteesScreenState();
 }
 
-class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
+class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScreen> {
   bool _isLoading = true;
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
-  Section? selectedSection;
-  List<Section> sectionsList = [];
-  bool _isSectionPickerOpen = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<StudentProfile> studentsList = [];
   List<StudentProfile> filteredStudentsList = [];
   String? searchingWith;
-
   final ScrollController dataTableController = ScrollController();
   TextEditingController studentNameSearchController = TextEditingController();
   TextEditingController studentRollNoSearchController = TextEditingController();
   TextEditingController phoneNoSearchController = TextEditingController();
+
+  List<Section> sectionsList = [];
+  Section? selectedSection;
+  bool _isSectionPickerOpen = false;
+
+  List<StudentAttendanceBean> _studentAttendanceBeans = [];
+  List<AttendanceTimeSlotBean> _attendanceTimeSlotBeans = [];
+  bool showOnlyAbsentees = true;
+
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -49,17 +49,13 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
-    GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
-    );
-    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
+    setState(() {
+      _isLoading = true;
+      sectionsList = [];
+      _studentAttendanceBeans = [];
+      _attendanceTimeSlotBeans = [];
+    });
 
-    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
-      setState(() {
-        sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
-      });
-    }
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
@@ -74,139 +70,95 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
         studentsList = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
         studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
       });
-      filterStudentsList();
     }
-    setState(() => _isLoading = false);
+
+    GetSectionsRequest getSectionsRequest = GetSectionsRequest(
+      schoolId: widget.adminProfile.schoolId,
+    );
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
+
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
+      setState(() {
+        sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
+      });
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    _loadStudentAttendance();
+    filterStudentsList();
   }
 
-  void filterStudentsList() => setState(() {
-        filteredStudentsList = studentsList.where((e) => selectedSection != null ? e.sectionId == selectedSection?.sectionId : true).toList();
-        if (studentNameSearchController.text.trim().isNotEmpty) {
-          filteredStudentsList = filteredStudentsList.where((student) {
-            String searchObject = [
-                  ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
-                  student.studentFirstName ?? "",
-                  student.studentMiddleName ?? "",
-                  student.studentLastName ?? ""
-                ].where((e) => e != "").join(" ").trim() +
-                " - ${student.sectionName}";
-            return searchObject.toLowerCase().contains(studentNameSearchController.text.trim().toLowerCase());
-          }).toList();
-        }
-        if (studentRollNoSearchController.text.trim().isNotEmpty) {
-          filteredStudentsList =
-              filteredStudentsList.where((es) => (es.rollNumber ?? "").contains(studentRollNoSearchController.text.trim())).toList();
-        }
-        if (phoneNoSearchController.text.trim().isNotEmpty) {
-          filteredStudentsList = filteredStudentsList.where((es) => (es.gaurdianMobile ?? "").contains(phoneNoSearchController.text.trim())).toList();
-        }
+  Future<void> _loadStudentAttendance() async {
+    if (selectedSection == null) return;
+    setState(() {
+      _isLoading = true;
+    });
+
+    GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
+      schoolId: widget.adminProfile.schoolId,
+      date: convertDateTimeToYYYYMMDDFormat(selectedDate),
+      sectionId: selectedSection!.sectionId,
+    ));
+    if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
+      setState(() {
+        _studentAttendanceBeans = getStudentAttendanceBeansResponse.studentAttendanceBeans!;
+        _attendanceTimeSlotBeans = getStudentAttendanceBeansResponse.attendanceTimeSlotBeans!;
       });
-
-  void _downloadReport() {
-    setState(() => _isLoading = true);
-    // Create an Excel workbook
-    var excel = Excel.createExcel();
-    var columnCount = 6;
-
-    for (Section eachSection in sectionsList) {
-      // Add a sheet to the workbook
-      Sheet sheet = excel[eachSection.sectionName ?? "-"];
-
-      List<StudentProfile> sectionWiseStudents = studentsList.where((es) => es.sectionId == eachSection.sectionId).toList();
-
-      int rowIndex = 0;
-
-      // Append the school name
-      sheet.appendRow(["${widget.adminProfile.schoolName}"]);
-      // Apply formatting to the school name cell
-      CellStyle schoolNameStyle = CellStyle(
-        bold: true,
-        fontSize: 24,
-        horizontalAlign: HorizontalAlign.Center,
-      );
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).cellStyle = schoolNameStyle;
-      sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: columnCount, rowIndex: 0));
-      rowIndex++;
-
-      // Define the headers for the columns
-      sheet.appendRow(['Roll No.', 'Admission No.', 'Class', 'Student Name', 'Guardian Name', 'Mobile', 'Password']);
-      for (int i = 0; i <= columnCount; i++) {
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
-          backgroundColorHex: 'FF000000',
-          fontColorHex: 'FFFFFFFF',
-        );
-      }
-      rowIndex++;
-
-      // Add the data rows to the sheet
-      for (StudentProfile eachStudent in sectionWiseStudents) {
-        sheet.appendRow([
-          eachStudent.rollNumber,
-          eachStudent.admissionNo,
-          eachStudent.sectionName,
-          eachStudent.studentFirstName,
-          eachStudent.gaurdianFirstName,
-          eachStudent.gaurdianMobile,
-          (eachStudent.gaurdianMobile ?? "") == "" ? "-" : eachStudent.password ?? "",
-        ]);
-        rowIndex++;
-      }
-
-      // Deleting default sheet
-      if (excel.getDefaultSheet() != null) {
-        excel.delete(excel.getDefaultSheet()!);
-      }
-
-      sheet.appendRow(["Downloaded: ${convertEpochToDDMMYYYYEEEEHHMMAA(DateTime.now().millisecondsSinceEpoch)}"]);
-      CellStyle downloadTimeStyle = CellStyle(
-        bold: true,
-        fontSize: 9,
-        horizontalAlign: HorizontalAlign.Right,
-        verticalAlign: VerticalAlign.Center,
-      );
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex)).cellStyle = downloadTimeStyle;
-      sheet.merge(
-          CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex), CellIndex.indexByColumnRow(columnIndex: columnCount, rowIndex: rowIndex));
-
-      // Auto fit the columns
-      for (var i = 1; i < sheet.maxCols; i++) {
-        sheet.setColAutoFit(i);
-      }
     }
+    filterStudentsList();
 
-    // Generate the Excel file as bytes
-    var excelBytes = excel.encode();
-    if (excelBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-    } else {
-      Uint8List excelUint8List = Uint8List.fromList(excelBytes);
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
-      // Save the Excel file
-      FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Student Login Credentials ${widget.adminProfile.schoolName ?? ""}.xlsx');
-    }
-    setState(() => _isLoading = false);
+  void filterStudentsList() {
+    setState(() {
+      _isLoading = true;
+    });
+    setState(() {
+      filteredStudentsList = studentsList.where((e) => selectedSection != null ? e.sectionId == selectedSection?.sectionId : true).toList();
+      if (studentNameSearchController.text.trim().isNotEmpty) {
+        filteredStudentsList = filteredStudentsList.where((student) {
+          String searchObject = [
+                ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
+                student.studentFirstName ?? "",
+                student.studentMiddleName ?? "",
+                student.studentLastName ?? ""
+              ].where((e) => e != "").join(" ").trim() +
+              " - ${student.sectionName}";
+          return searchObject.toLowerCase().contains(studentNameSearchController.text.trim().toLowerCase());
+        }).toList();
+      }
+      if (studentRollNoSearchController.text.trim().isNotEmpty) {
+        filteredStudentsList = filteredStudentsList.where((es) => (es.rollNumber ?? "").contains(studentRollNoSearchController.text.trim())).toList();
+      }
+      if (phoneNoSearchController.text.trim().isNotEmpty) {
+        filteredStudentsList = filteredStudentsList.where((es) => (es.gaurdianMobile ?? "").contains(phoneNoSearchController.text.trim())).toList();
+      }
+      if (showOnlyAbsentees) {
+        filteredStudentsList = filteredStudentsList.where((es) {
+          List<StudentAttendanceBean> eachStudentAttendanceBeans = (_studentAttendanceBeans.where((esab) => esab.studentId == es.studentId).toList()
+            ..sort((a, b) =>
+                getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime, null).compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime, null))));
+          return eachStudentAttendanceBeans.where((e) => e.isPresent == -1).isNotEmpty;
+        }).toList();
+      }
+    });
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Student Login Credentials"),
-        actions: [
-          if (!_isLoading)
-            IconButton(
-              onPressed: () => _downloadReport(),
-              icon: const Icon(Icons.download),
-            ),
-        ],
-      ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
+        title: const Text("Student Absentees Screen"),
       ),
       body: _isLoading
           ? Center(
@@ -218,10 +170,22 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
             )
           : ListView(
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
                 _sectionPicker(),
-                const SizedBox(height: 20),
-                populateDataTableForCreds(selectedSection),
+                const SizedBox(height: 30),
+                datePickerWidget(),
+                if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 30),
+                if (MediaQuery.of(context).orientation == Orientation.portrait)
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+                    child: showOnlyAbsenteesButton(),
+                  ),
+                const SizedBox(height: 30),
+                selectedSection == null
+                    ? const Center(
+                        child: Text("Select a section to continue"),
+                      )
+                    : populateDataTableForAbsentees(selectedSection!),
               ],
             ),
     );
@@ -346,6 +310,7 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
             _isSectionPickerOpen = false;
           });
           filterStudentsList();
+          _loadStudentAttendance();
         },
         child: ClayButton(
           depth: 40,
@@ -383,8 +348,141 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
     );
   }
 
-  Widget populateDataTableForCreds(Section? selectedSection) {
-    if (selectedSection == null) return const Center(child: Text("Select a section to continue.."));
+  Widget datePickerWidget() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: () async {
+              setState(() => selectedDate = selectedDate.subtract(const Duration(days: 1)));
+              await _loadStudentAttendance();
+            },
+            child: ClayButton(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 100,
+              height: 30,
+              width: 30,
+              child: const Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(Icons.arrow_left),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () async {
+                DateTime? _newDate = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate,
+                  firstDate: DateTime(2021),
+                  lastDate: DateTime.now(),
+                  helpText: "Pick date",
+                );
+                setState(() {
+                  selectedDate = _newDate ?? selectedDate;
+                });
+                await _loadStudentAttendance();
+              },
+              child: ClayButton(
+                depth: 40,
+                parentColor: clayContainerColor(context),
+                surfaceColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            convertDateTimeToDDMMYYYYFormat(selectedDate),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          GestureDetector(
+            onTap: () async {
+              if (convertDateTimeToDDMMYYYYFormat(selectedDate) == convertDateTimeToDDMMYYYYFormat(DateTime.now())) return;
+              setState(() => selectedDate = selectedDate.add(const Duration(days: 1)));
+              await _loadStudentAttendance();
+            },
+            child: ClayButton(
+              depth: 40,
+              parentColor: clayContainerColor(context),
+              surfaceColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 100,
+              height: 30,
+              width: 30,
+              child: const Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(Icons.arrow_right),
+                ),
+              ),
+            ),
+          ),
+          if (MediaQuery.of(context).orientation == Orientation.landscape)
+            const SizedBox(
+              width: 10,
+            ),
+          if (MediaQuery.of(context).orientation == Orientation.landscape) showOnlyAbsenteesButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget showOnlyAbsenteesButton() {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          showOnlyAbsentees = !showOnlyAbsentees;
+        });
+        filterStudentsList();
+      },
+      child: Card(
+        color: showOnlyAbsentees ? Colors.blue : null,
+        child: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Center(child: Text("Show Only Absentees")),
+        ),
+      ),
+    );
+  }
+
+  Widget populateDataTableForAbsentees(Section selectedSection) {
     return Container(
       margin: const EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width - 20,
@@ -526,7 +624,7 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
                 ),
                 onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
               ),
-              const DataColumn(label: Text("Password")),
+              const DataColumn(label: Text("Attendance")),
             ],
             rows: [
               ...filteredStudentsList.where((StudentProfile es) => es.sectionId == selectedSection.sectionId).map(
@@ -534,9 +632,6 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
                       cells: [
                         DataCell(
                           placeholder: true,
-                          onTap: () {
-                            editStudentDetails(es);
-                          },
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(es.rollNumber ?? ""),
@@ -566,109 +661,14 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
                                 ),
                         ),
                         DataCell(
-                          placeholder: true,
-                          showEditIcon: true,
-                          onTap: () async {
-                            if (es.gaurdianId == null || (es.gaurdianMobile ?? "").isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text("Edit the guardian details first and then edit the password"),
-                                  action: SnackBarAction(
-                                    label: "Edit Guardian Details",
-                                    onPressed: () => editStudentDetails(es),
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
-                            await showDialog(
-                              context: scaffoldKey.currentContext!,
-                              barrierDismissible: false,
-                              builder: (currentContext) {
-                                bool isWaitingOnServer = false;
-                                return AlertDialog(
-                                  title: const Text("Edit Password"),
-                                  content: StatefulBuilder(
-                                    builder: (BuildContext context, StateSetter setState) {
-                                      return TextFormField(
-                                        autofocus: true,
-                                        initialValue: es.password ?? "",
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          errorText: (es.password ?? "").isEmpty
-                                              ? "Password cannot be empty"
-                                              : (es.password?.length ?? 0) < 6
-                                                  ? "Password must be exactly 6 digits"
-                                                  : "",
-                                          border: const UnderlineInputBorder(),
-                                          focusedBorder: const OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                            borderSide: BorderSide(color: Colors.blue),
-                                          ),
-                                          contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                                        ),
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                                          TextInputFormatter.withFunction((oldValue, newValue) {
-                                            try {
-                                              final text = newValue.text;
-                                              if (text.length > 6) return oldValue;
-                                              if (text.isNotEmpty) int.parse(text);
-                                              return newValue;
-                                            } catch (e) {
-                                              return oldValue;
-                                            }
-                                          }),
-                                        ],
-                                        onChanged: (String? newText) => setState(() => es.password = newText),
-                                        maxLines: null,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                        ),
-                                        textAlign: TextAlign.start,
-                                      );
-                                    },
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () async {
-                                        if ((es.password ?? "").trim().isEmpty || (es.password?.length ?? 0) < 6) return;
-                                        setState(() => isWaitingOnServer = true);
-                                        UpdatePhoneNumberPasswordResponse updatePhoneNumberPasswordResponse =
-                                            await updatePhoneNumberPassword(UpdatePhoneNumberPasswordRequest(
-                                          agent: widget.adminProfile.userId,
-                                          newPassword: es.password,
-                                          newPhoneNumber: es.gaurdianMobile,
-                                          oldPhoneNumber: es.gaurdianMobile,
-                                        ));
-                                        if (updatePhoneNumberPasswordResponse.httpStatus != "OK" ||
-                                            updatePhoneNumberPasswordResponse.responseStatus != "success") {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text("Something went wrong! Try again later.."),
-                                            ),
-                                          );
-                                        }
-                                        setState(() => isWaitingOnServer = false);
-                                        Navigator.pop(context);
-                                      },
-                                      child: isWaitingOnServer ? const CircularProgressIndicator() : const Text("YES"),
-                                    ),
-                                    if (!isWaitingOnServer)
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text("No"),
-                                      ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                            child: Text((es.gaurdianMobile ?? "") == "" ? "-" : es.password ?? ""),
+                          Row(
+                            children: [
+                              ...(_studentAttendanceBeans.where((esab) => esab.studentId == es.studentId).toList()
+                                    ..sort((a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime, null)
+                                        .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime, null))))
+                                  .where((e) => showOnlyAbsentees ? e.isPresent == -1 : true)
+                                  .map((esab) => studentAttendanceBeanWidget(esab))
+                            ],
                           ),
                         )
                       ],
@@ -677,6 +677,121 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget studentAttendanceBeanWidget(StudentAttendanceBean esab) {
+    if (esab.startTime == null && esab.endTime == null) return Container();
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      child: Card(
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                "${esab.startTime == null ? "-" : formatHHMMSStoHHMMA(esab.startTime!)} - ${esab.endTime == null ? "-" : formatHHMMSStoHHMMA(esab.endTime!)}",
+              ),
+            ),
+            PopupMenuButton<String>(
+              tooltip: "More Options",
+              onSelected: (String choice) async {
+                if (choice == "Mark Present") {
+                  //  TODO mark present
+                } else if (choice == "Mark Absent") {
+                  //  TODO mark absent
+                } else if (choice == "Clear") {
+                  //  TODO un mark
+                } else {
+                  debugPrint("Clicked on invalid choice");
+                }
+                showDialog(
+                  context: _scaffoldKey.currentContext!,
+                  builder: (dialogueContext) {
+                    return AlertDialog(
+                      title: const Text('Attendance Management'),
+                      content: const Text("Are you sure to save changes?"),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text("Yes"),
+                          onPressed: () async {
+                            Navigator.of(context).pop();
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest = CreateOrUpdateStudentAttendanceRequest(
+                              schoolId: widget.adminProfile.schoolId,
+                              agent: widget.adminProfile.userId,
+                              studentAttendanceBeans: [
+                                esab
+                                  ..isPresent = choice == "Mark Present"
+                                      ? 1
+                                      : choice == "Mark Absent"
+                                          ? -1
+                                          : 0
+                              ],
+                            );
+                            CreateOrUpdateStudentAttendanceResponse createOrUpdateStudentAttendanceResponse =
+                                await createOrUpdateStudentAttendance(createOrUpdateStudentAttendanceRequest);
+                            if (createOrUpdateStudentAttendanceResponse.httpStatus == "OK" &&
+                                createOrUpdateStudentAttendanceResponse.responseStatus == "success") {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Success!"),
+                                ),
+                              );
+                              setState(() {
+                                esab.isPresent = choice == "Mark Present"
+                                    ? 1
+                                    : choice == "Mark Absent"
+                                        ? -1
+                                        : 0;
+                                esab.agent = widget.adminProfile.userId;
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Something went wrong!"),
+                                ),
+                              );
+                            }
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          },
+                        ),
+                        TextButton(
+                          child: const Text("Cancel"),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              itemBuilder: (BuildContext context) {
+                return {
+                  if (esab.isPresent != 1) "Mark Present",
+                  if (esab.isPresent != -1) "Mark Absent",
+                  if (esab.isPresent != 0) "Clear",
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+        ),
+        color: esab.isPresent == 1
+            ? Colors.green
+            : esab.isPresent == -1
+                ? Colors.red
+                : Colors.blue,
       ),
     );
   }
@@ -715,22 +830,5 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
       }
     }
     setState(() => debugPrint("Sorted based on $columnIndex"));
-  }
-
-  void editStudentDetails(StudentProfile es) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return StudentCardWidgetV2(
-            studentProfile: es,
-            sections: sectionsList,
-            adminProfile: widget.adminProfile,
-            students: studentsList,
-            isEditMode: true,
-          );
-        },
-      ),
-    ).then((value) => setState(() => debugPrint("Set the student profile")));
   }
 }

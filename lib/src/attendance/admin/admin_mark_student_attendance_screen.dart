@@ -15,9 +15,13 @@ class AdminMarkStudentAttendanceScreen extends StatefulWidget {
   const AdminMarkStudentAttendanceScreen({
     Key? key,
     required this.adminProfile,
+    required this.selectedSection,
+    required this.selectedDateTime,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
+  final Section? selectedSection;
+  final DateTime selectedDateTime;
 
   @override
   _AdminMarkStudentAttendanceScreenState createState() => _AdminMarkStudentAttendanceScreenState();
@@ -61,6 +65,8 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
   @override
   void initState() {
     super.initState();
+    _selectedSection = widget.selectedSection;
+    _selectedDate = widget.selectedDateTime;
     _loadData();
   }
 
@@ -102,9 +108,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
       studentWiseAttendanceBeans = [];
     });
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
-      schoolId: widget.adminProfile.schoolId,
-      date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
-      sectionId: _selectedSection!.sectionId,
+      schoolId: widget.adminProfile.schoolId, date: convertDateTimeToYYYYMMDDFormat(_selectedDate), sectionId: _selectedSection!.sectionId,
       // studentId: 71,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
@@ -272,30 +276,31 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
           ? const EdgeInsets.fromLTRB(10, 10, 10, 10)
           : const EdgeInsets.fromLTRB(10, 0, 10, 10),
       child: InkWell(
-          onTap: () {
-            setState(() {
-              _showOnlyAbsentees = !_showOnlyAbsentees;
-            });
-          },
-          child: ClayContainer(
-            depth: 40,
-            surfaceColor: _showOnlyAbsentees ? Colors.green : Colors.red.shade400,
-            parentColor: clayContainerColor(context),
-            spread: 2,
-            borderRadius: 10,
-            emboss: _showOnlyAbsentees,
-            child: Container(
-              padding: const EdgeInsets.all(15),
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    _showOnlyAbsentees ? "Show only\nabsentees" : "Show all",
-                  ),
+        onTap: () {
+          setState(() {
+            _showOnlyAbsentees = !_showOnlyAbsentees;
+          });
+        },
+        child: ClayContainer(
+          depth: 40,
+          surfaceColor: _showOnlyAbsentees ? Colors.green : Colors.red.shade400,
+          parentColor: clayContainerColor(context),
+          spread: 2,
+          borderRadius: 10,
+          emboss: _showOnlyAbsentees,
+          child: Container(
+            padding: const EdgeInsets.all(15),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  _showOnlyAbsentees ? "Show only\nabsentees" : "Show all",
                 ),
               ),
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 
