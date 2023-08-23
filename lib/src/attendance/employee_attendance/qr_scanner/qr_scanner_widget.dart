@@ -35,15 +35,24 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
   }
 
   Future<void> clockAttendance() async {
+    int? schoolId = scannedSchoolId;
+    if (schoolId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Scanned an incorrect QR!"),
+        ),
+      );
+      return;
+    }
     setState(() => updatingAttendance = true);
     CreateOrUpdateEmployeeAttendanceClockResponse createOrUpdateEmployeeAttendanceClockResponse =
         await createOrUpdateEmployeeAttendanceClock(CreateOrUpdateEmployeeAttendanceClockRequest(
-      schoolId: widget.employeeAttendanceBean.schoolId,
+      schoolId: schoolId,
       agent: widget.employeeAttendanceBean.employeeId,
       status: "active",
       attendanceId: null,
       clockedIn: scannedClockInMode,
-      clockedTime: scannedMillis,
+      clockedTime: scannedMillis ?? DateTime.now().millisecondsSinceEpoch,
       comment: null,
       employeeId: widget.employeeAttendanceBean.employeeId,
       latitude: null,
@@ -57,7 +66,9 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
         ),
       );
     }
+    await Future.delayed(const Duration(seconds: 2));
     setState(() => updatingAttendance = false);
+    await Future.delayed(const Duration(seconds: 5));
     Navigator.pop(context);
   }
 
@@ -191,6 +202,19 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
     );
   }
 
+  int? get scannedSchoolId {
+    try {
+      int? scannedId = int.parse((scannedQrCodeData?.split("|") ?? [])[0]);
+      if (scannedId == widget.employeeAttendanceBean.schoolId) {
+        return scannedId;
+      }
+      return null;
+    } on Exception catch (e, st) {
+      debugPrintStack(stackTrace: st);
+      return null;
+    }
+  }
+
   int? get scannedMillis {
     try {
       return int.parse((scannedQrCodeData?.split("|") ?? [])[1]);
@@ -203,15 +227,6 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
   bool? get scannedClockInMode {
     try {
       return (scannedQrCodeData?.split("|") ?? [])[2] == "true";
-    } on Exception catch (e, st) {
-      debugPrintStack(stackTrace: st);
-      return null;
-    }
-  }
-
-  int? get scannedSchoolId {
-    try {
-      return int.parse((scannedQrCodeData?.split("|") ?? [])[0]);
     } on Exception catch (e, st) {
       debugPrintStack(stackTrace: st);
       return null;

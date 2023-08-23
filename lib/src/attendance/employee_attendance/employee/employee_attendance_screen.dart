@@ -58,37 +58,38 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
       ),
       body: isLoading
           ? Center(
-        child: Image.asset(
-          'assets/images/eis_loader.gif',
-          height: 500,
-          width: 500,
-        ),
-      )
+              child: Image.asset(
+                'assets/images/eis_loader.gif',
+                height: 500,
+                width: 500,
+              ),
+            )
           : Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            const SizedBox(height: 20),
-            datePickerRow(),
-            const SizedBox(height: 20),
-            attendanceForDateWidget(),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-      floatingActionButton: employeeAttendanceBean == null
-          ? null
-          : FloatingActionButton(
-              tooltip: "Scan QR",
-              child: const Icon(Icons.qr_code_scanner),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return QrScannerWidget(
-                    employeeAttendanceBean: employeeAttendanceBean!,
-                  );
-                })).then((_) => _loadData());
-              },
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(
+                children: [
+                  const SizedBox(height: 20),
+                  datePickerRow(),
+                  const SizedBox(height: 20),
+                  attendanceForDateWidget(),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
+      floatingActionButton:
+          employeeAttendanceBean == null || convertDateTimeToYYYYMMDDFormat(selectedDate) != convertDateTimeToYYYYMMDDFormat(DateTime.now())
+              ? null
+              : FloatingActionButton(
+                  tooltip: "Scan QR",
+                  child: const Icon(Icons.qr_code_scanner),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                      return QrScannerWidget(
+                        employeeAttendanceBean: employeeAttendanceBean!,
+                      );
+                    })).then((_) => _loadData());
+                  },
+                ),
     );
   }
 
@@ -100,6 +101,7 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
             .expand((i) => i)
             .where((e) => e != null)
             .map((e) => e!)
+            .where((e) => e.clockedTime != null)
             .toList();
     if (dateWiseEmployeeAttendanceBeanList.isEmpty) {
       return Padding(
@@ -113,7 +115,12 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
             SizedBox(width: 10),
             Text('Marked at: '),
             SizedBox(width: 10),
-            Expanded(child: Text("-", style: TextStyle(color: Colors.red),)),
+            Expanded(
+              child: Text(
+                "-",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
             SizedBox(width: 10),
           ],
         ),
@@ -121,26 +128,32 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
     }
     return Column(
       children: [
-        ...dateWiseEmployeeAttendanceBeanList.where((e) => e.clockedTime != null).map(
-          (e) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 10),
-                  const Icon(Icons.timer_sharp),
-                  const SizedBox(width: 10),
-                  const Text('Marked at: '),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(convertEpochToDDMMYYYYEEEEHHMMAA(e.clockedTime!))),
-                  const SizedBox(width: 10),
-                ],
-              ),
-            );
-          },
-        )
+        ...List.generate(dateWiseEmployeeAttendanceBeanList.length, (index) {
+          DateWiseEmployeeAttendanceDetailsBean e = dateWiseEmployeeAttendanceBeanList[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(width: 10),
+                const Icon(Icons.timer_sharp),
+                const SizedBox(width: 10),
+                const Text('Marked at: '),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    convertEpochToDDMMYYYYEEEEHHMMAA(e.clockedTime!),
+                    style: TextStyle(
+                      color: index % 2 == 0 ? Colors.green : Colors.red,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }
