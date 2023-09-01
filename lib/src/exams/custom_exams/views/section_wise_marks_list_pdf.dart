@@ -229,19 +229,25 @@ class SectionWiseMarkListPdf {
                             if (headerStrings[columnIndex].contains("Percentage")) {
                               return Center(
                                 child: cellText(
-                                    isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "${doubleToStringAsFixed(percentage)} %"),
+                                  isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject ? "-" : "${doubleToStringAsFixed(percentage)} %",
+                                ),
                               );
                             } else if (headerStrings[columnIndex].contains("GPA")) {
                               return Center(
-                                child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
-                                    ? "-"
-                                    : "${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}"),
+                                child: cellText(
+                                  isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                      ? "-"
+                                      : "${markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}",
+                                ),
                               );
                             } else if (headerStrings[columnIndex].contains("Grade")) {
                               return Center(
-                                  child: cellText(isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
+                                child: cellText(
+                                  isAbsentForAtLeastForOneSubject || isFailInAtLeastForOneSubject
                                       ? "-"
-                                      : markingAlgorithm?.gradeForPercentage(percentage) ?? "-"));
+                                      : markingAlgorithm?.gradeForPercentage(percentage) ?? "-",
+                                ),
+                              );
                             } else {
                               return Center(
                                 child: cellText("$studentWiseTotalMarks"),
