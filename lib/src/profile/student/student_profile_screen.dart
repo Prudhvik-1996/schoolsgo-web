@@ -131,81 +131,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                               ),
                               Align(
                                 alignment: Alignment.bottomRight,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-                                    uploadInput.multiple = false;
-                                    uploadInput.draggable = true;
-                                    uploadInput.accept = '.png,.jpg,.jpeg';
-                                    uploadInput.click();
-                                    uploadInput.onChange.listen(
-                                      (changeEvent) {
-                                        final files = uploadInput.files!;
-                                        for (html.File file in files) {
-                                          final reader = html.FileReader();
-                                          reader.readAsDataUrl(file);
-                                          reader.onLoadEnd.listen(
-                                            (loadEndEvent) async {
-                                              setState(() {
-                                                _isLoading = true;
-                                              });
-
-                                              try {
-                                                UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
-
-                                                CreateOrUpdateStudentProfileResponse response =
-                                                    await createOrUpdateStudentProfile(CreateOrUpdateStudentProfileRequest(
-                                                  studentId: widget.studentProfile.studentId,
-                                                  agent: widget.studentProfile.gaurdianId,
-                                                  studentPhotoUrl: uploadFileResponse.mediaBean?.mediaUrl,
-                                                  schoolId: widget.studentProfile.schoolId,
-                                                ));
-
-                                                if (response.httpStatus != "OK" || response.responseStatus != "success") {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text("Something went wrong! Try again later.."),
-                                                    ),
-                                                  );
-                                                } else {
-                                                  setState(() {
-                                                    widget.studentProfile.studentPhotoUrl = uploadFileResponse.mediaBean?.mediaUrl;
-                                                  });
-                                                }
-                                              } catch (e) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content:
-                                                        Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
-                                                  ),
-                                                );
-                                              }
-                                              setState(() {
-                                                _isLoading = false;
-                                              });
-                                            },
-                                          );
-                                        }
-                                      },
-                                    );
-                                  },
-                                  child: ClayButton(
-                                    width: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
-                                    height: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
-                                    depth: 40,
-                                    borderRadius: 100,
-                                    spread: 1,
-                                    surfaceColor: Colors.blue,
-                                    parentColor: clayContainerColor(context),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Icon(Icons.edit),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                child: editPhotoButton(context),
                               ),
                             ],
                           ),
@@ -217,8 +143,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 Container(
                   margin: MediaQuery.of(context).orientation == Orientation.landscape
                       ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
-                      : const EdgeInsets.all(20),
-                  // padding: EdgeInsets.all(25),
+                      : const EdgeInsets.all(20), // padding: EdgeInsets.all(25),
                   child: ClayContainer(
                     depth: 10,
                     color: clayContainerColor(context),
@@ -317,5 +242,82 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               ],
             ),
     );
+  }
+
+  Widget editPhotoButton(BuildContext context) {
+    return Container();
+    // return GestureDetector(
+    //   onTap: () {
+    //     html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+    //     uploadInput.multiple = false;
+    //     uploadInput.draggable = true;
+    //     uploadInput.accept = '.png,.jpg,.jpeg';
+    //     uploadInput.click();
+    //     uploadInput.onChange.listen(
+    //       (changeEvent) {
+    //         final files = uploadInput.files!;
+    //         for (html.File file in files) {
+    //           final reader = html.FileReader();
+    //           reader.readAsDataUrl(file);
+    //           reader.onLoadEnd.listen(
+    //             (loadEndEvent) async {
+    //               setState(() {
+    //                 _isLoading = true;
+    //               });
+    //
+    //               try {
+    //                 UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
+    //
+    //                 CreateOrUpdateStudentProfileResponse response = await createOrUpdateStudentProfile(CreateOrUpdateStudentProfileRequest(
+    //                   studentId: widget.studentProfile.studentId,
+    //                   agent: widget.studentProfile.gaurdianId,
+    //                   studentPhotoUrl: uploadFileResponse.mediaBean?.mediaUrl,
+    //                   schoolId: widget.studentProfile.schoolId,
+    //                 ));
+    //
+    //                 if (response.httpStatus != "OK" || response.responseStatus != "success") {
+    //                   ScaffoldMessenger.of(context).showSnackBar(
+    //                     const SnackBar(
+    //                       content: Text("Something went wrong! Try again later.."),
+    //                     ),
+    //                   );
+    //                 } else {
+    //                   setState(() {
+    //                     widget.studentProfile.studentPhotoUrl = uploadFileResponse.mediaBean?.mediaUrl;
+    //                   });
+    //                 }
+    //               } catch (e) {
+    //                 ScaffoldMessenger.of(context).showSnackBar(
+    //                   SnackBar(
+    //                     content: Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
+    //                   ),
+    //                 );
+    //               }
+    //               setState(() {
+    //                 _isLoading = false;
+    //               });
+    //             },
+    //           );
+    //         }
+    //       },
+    //     );
+    //   },
+    //   child: ClayButton(
+    //     width: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
+    //     height: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
+    //     depth: 40,
+    //     borderRadius: 100,
+    //     spread: 1,
+    //     surfaceColor: Colors.blue,
+    //     parentColor: clayContainerColor(context),
+    //     child: const Padding(
+    //       padding: EdgeInsets.all(8),
+    //       child: FittedBox(
+    //         fit: BoxFit.scaleDown,
+    //         child: Icon(Icons.edit),
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 }

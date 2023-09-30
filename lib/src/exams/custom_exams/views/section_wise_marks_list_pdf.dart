@@ -166,6 +166,15 @@ class SectionWiseMarkListPdf {
               ),
         build: (context) {
           return [
+            SizedBox(height: 10),
+            Center(
+              child: Text(
+                customExam.customExamName ?? "-",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SizedBox(height: 10),
             Container(
               margin: const EdgeInsets.all(10),
               child: Table(

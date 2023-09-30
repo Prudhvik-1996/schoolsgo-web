@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_memo_pdf_download.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_pdf_download.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
@@ -111,7 +112,27 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
             IconButton(
               onPressed: () async {
                 setState(() => _isLoading = true);
-                await EachStudentMemoPdfDownload(
+                List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
+                GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
+                await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
+                  schoolId: widget.schoolInfo.schoolId,
+                  sectionId: widget.selectedSection.sectionId,
+                  academicYearId: widget.selectedAcademicYearId,
+                  isAdminView: "Y",
+                  studentId: widget.studentProfile.studentId,
+                ));
+                if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
+                    getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                } else {
+                  studentMonthWiseAttendanceList =
+                      (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
+                }
+                await EachStudentPdfDownload(
                   schoolInfo: widget.schoolInfo,
                   adminProfile: widget.adminProfile,
                   teacherProfile: widget.teacherProfile,
@@ -124,7 +145,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                   studentProfiles: [widget.studentProfile],
                   selectedSection: widget.selectedSection,
                   updateMessage: (String? e) => debugPrint(e),
-                ).downloadMemo();
+                ).downloadMemo(studentMonthWiseAttendanceList);
                 setState(() => _isLoading = false);
               },
               icon: const Icon(Icons.download),

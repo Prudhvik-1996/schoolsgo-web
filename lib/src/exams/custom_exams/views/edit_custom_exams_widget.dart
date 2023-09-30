@@ -22,7 +22,8 @@ class EditCustomExamWidget extends StatefulWidget {
     required this.teachersList,
     required this.tdsList,
     required this.markingAlgorithms,
-    required this.customExam, required this.schoolInfo,
+    required this.customExam,
+    required this.schoolInfo,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
@@ -539,28 +540,52 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
   }
 
   Widget _buildDatePicker(ExamSectionSubjectMap eachExamSectionSubjectMap) {
-    return InkWell(
-      onTap: () async {
-        DateTime? _newDate = await showDatePicker(
-          context: context,
-          initialDate: convertYYYYMMDDFormatToDateTime(eachExamSectionSubjectMap.date),
-          firstDate: DateTime.now().subtract(const Duration(days: 364)),
-          lastDate: DateTime.now(),
-          helpText: "Select a date",
-        );
-        if (_newDate == null) return;
-        setState(() {
-          eachExamSectionSubjectMap.date = convertDateTimeToYYYYMMDDFormat(_newDate);
-        });
-      },
-      child: eachExamSectionSubjectMap.date == null
-          ? const FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Icon(
-                Icons.calendar_today_rounded,
-              ),
-            )
-          : Text(eachExamSectionSubjectMap.examDate),
+    return Row(
+      children: [
+        InkWell(
+          onTap: () async {
+            DateTime? _newDate = await showDatePicker(
+              context: context,
+              initialDate: convertYYYYMMDDFormatToDateTime(eachExamSectionSubjectMap.date),
+              firstDate: DateTime.now().subtract(const Duration(days: 364)),
+              lastDate: DateTime.now(),
+              helpText: "Select a date",
+            );
+            if (_newDate == null) return;
+            setState(() {
+              eachExamSectionSubjectMap.date = convertDateTimeToYYYYMMDDFormat(_newDate);
+            });
+          },
+          child: eachExamSectionSubjectMap.date == null
+              ? const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(
+                    Icons.calendar_today_rounded,
+                  ),
+                )
+              : Text(eachExamSectionSubjectMap.examDate),
+        ),
+        PopupMenuButton<DateTime>(
+          tooltip: "More Options",
+          onSelected: (DateTime choice) async {
+            setState(() {
+              eachExamSectionSubjectMap.date = convertDateTimeToYYYYMMDDFormat(choice);
+            });
+          },
+          itemBuilder: (BuildContext context) {
+            return (widget.customExam.examSectionSubjectMapList ?? [])
+                .map((e) => e?.date == null ? null : convertYYYYMMDDFormatToDateTime(e?.date))
+                .whereNotNull()
+                .toSet()
+                .toList()
+                .map((DateTime choice) => PopupMenuItem<DateTime>(
+                      value: choice,
+                      child: Text(convertDateTimeToDDMMYYYYFormat(choice)),
+                    ))
+                .toList();
+          },
+        ),
+      ],
     );
   }
 
@@ -608,13 +633,41 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
   }
 
   Widget _buildStartTimePicker(ExamSectionSubjectMap eachExamSectionSubjectMap) {
-    return InkWell(
-      onTap: () async {
-        await _pickStartTime(context, eachExamSectionSubjectMap);
-      },
-      child: Center(
-        child: Text(eachExamSectionSubjectMap.startTimeSlot),
-      ),
+    return Row(
+      children: [
+        InkWell(
+          onTap: () async {
+            await _pickStartTime(context, eachExamSectionSubjectMap);
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: Center(
+              child: Text(eachExamSectionSubjectMap.startTimeSlot),
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
+        PopupMenuButton<TimeOfDay>(
+          tooltip: "Other Start Times",
+          onSelected: (TimeOfDay choice) async {
+            setState(() {
+              eachExamSectionSubjectMap.startTime = timeOfDayToHHMMSS(choice);
+            });
+          },
+          itemBuilder: (BuildContext context) {
+            return (widget.customExam.examSectionSubjectMapList ?? [])
+                .map((e) => e?.startTime == null ? null : formatHHMMSSToTimeOfDay(e!.startTime!))
+                .whereNotNull()
+                .toSet()
+                .toList()
+                .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
+                      value: choice,
+                      child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),
+                    ))
+                .toList();
+          },
+        ),
+      ],
     );
   }
 
@@ -631,13 +684,41 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
   }
 
   Widget _buildEndTimePicker(ExamSectionSubjectMap eachExamSectionSubjectMap) {
-    return InkWell(
-      onTap: () async {
-        await _pickEndTime(context, eachExamSectionSubjectMap);
-      },
-      child: Center(
-        child: Text(eachExamSectionSubjectMap.endTimeSlot),
-      ),
+    return Row(
+      children: [
+        InkWell(
+          onTap: () async {
+            await _pickStartTime(context, eachExamSectionSubjectMap);
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: Center(
+              child: Text(eachExamSectionSubjectMap.startTimeSlot),
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
+        PopupMenuButton<TimeOfDay>(
+          tooltip: "Other End Times",
+          onSelected: (TimeOfDay choice) async {
+            setState(() {
+              eachExamSectionSubjectMap.endTime = timeOfDayToHHMMSS(choice);
+            });
+          },
+          itemBuilder: (BuildContext context) {
+            return (widget.customExam.examSectionSubjectMapList ?? [])
+                .map((e) => e?.endTime == null ? null : formatHHMMSSToTimeOfDay(e!.endTime!))
+                .whereNotNull()
+                .toSet()
+                .toList()
+                .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
+                      value: choice,
+                      child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),
+                    ))
+                .toList();
+          },
+        ),
+      ],
     );
   }
 

@@ -6,13 +6,14 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_all_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_memo_pdf_download.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_pdf_download.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 
 class CustomExamViewWidget extends StatefulWidget {
@@ -446,7 +447,27 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           _isExpanded = false;
                         });
                         await Future.delayed(const Duration(seconds: 1));
-                        await EachStudentMemoPdfDownload(
+                        List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
+                        GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
+                            await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
+                          schoolId: widget.schoolInfo.schoolId,
+                          sectionId: widget.selectedSection?.sectionId,
+                          academicYearId: widget.selectedAcademicYearId,
+                          isAdminView: "Y",
+                          studentId: null,
+                        ));
+                        if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
+                            getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Something went wrong! Try again later.."),
+                            ),
+                          );
+                        } else {
+                          studentMonthWiseAttendanceList =
+                              (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
+                        }
+                        await EachStudentPdfDownload(
                           schoolInfo: widget.schoolInfo,
                           adminProfile: widget.adminProfile,
                           teacherProfile: widget.teacherProfile,
@@ -460,7 +481,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
                           selectedSection: widget.selectedSection!,
                           updateMessage: (String? e) => setState(() => downloadMessage = e),
-                        ).downloadMemo();
+                        ).downloadMemo(studentMonthWiseAttendanceList);
                         setState(() {
                           _isLoading = false;
                           _isExpanded = true;
@@ -484,6 +505,65 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                                 Icon(Icons.download),
                                 SizedBox(width: 10),
                                 Text("Memos"),
+                                SizedBox(width: 10),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (widget.selectedSection != null)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                  child: Tooltip(
+                    message: "Download Hall Tickets",
+                    child: GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          _isLoading = true;
+                          _isExpanded = false;
+                        });
+                        await Future.delayed(const Duration(seconds: 1));
+                        await EachStudentPdfDownload(
+                          schoolInfo: widget.schoolInfo,
+                          adminProfile: widget.adminProfile,
+                          teacherProfile: widget.teacherProfile,
+                          selectedAcademicYearId: widget.selectedAcademicYearId,
+                          teachersList: widget.teachersList,
+                          subjectsList: widget.subjectsList,
+                          tdsList: widget.tdsList,
+                          markingAlgorithm:
+                              widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull,
+                          customExam: widget.customExam,
+                          studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
+                          selectedSection: widget.selectedSection!,
+                          updateMessage: (String? e) => setState(() => downloadMessage = e),
+                        ).downloadHallTickets();
+                        setState(() {
+                          _isLoading = false;
+                          _isExpanded = true;
+                        });
+                      },
+                      child: ClayButton(
+                        color: clayContainerColor(context),
+                        height: 50,
+                        borderRadius: 10,
+                        surfaceColor: clayContainerColor(context),
+                        spread: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(Icons.download),
+                                SizedBox(width: 10),
+                                Text("Hall Tickets"),
                                 SizedBox(width: 10),
                               ],
                             ),

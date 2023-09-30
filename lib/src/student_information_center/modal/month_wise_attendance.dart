@@ -15,6 +15,7 @@ class GetStudentMonthWiseAttendanceRequest {
 */
 
   String? isAdminView;
+  int? academicYearId;
   int? schoolId;
   int? sectionId;
   int? studentId;
@@ -22,6 +23,7 @@ class GetStudentMonthWiseAttendanceRequest {
 
   GetStudentMonthWiseAttendanceRequest({
     this.isAdminView,
+    this.academicYearId,
     this.schoolId,
     this.sectionId,
     this.studentId,
@@ -30,6 +32,7 @@ class GetStudentMonthWiseAttendanceRequest {
   GetStudentMonthWiseAttendanceRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     isAdminView = json['isAdminView']?.toString();
+    academicYearId = json['academicYearId']?.toInt();
     schoolId = json['schoolId']?.toInt();
     sectionId = json['sectionId']?.toInt();
     studentId = json['studentId']?.toInt();
@@ -38,6 +41,7 @@ class GetStudentMonthWiseAttendanceRequest {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['isAdminView'] = isAdminView;
+    data['academicYearId'] = academicYearId;
     data['schoolId'] = schoolId;
     data['sectionId'] = sectionId;
     data['studentId'] = studentId;

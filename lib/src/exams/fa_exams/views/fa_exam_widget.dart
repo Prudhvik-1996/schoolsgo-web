@@ -390,6 +390,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                   selectedAcademicYearId: widget.selectedAcademicYearId,
                   sectionsList: widget.sectionsList,
                   teachersList: widget.teachersList,
+                  subjectsList: widget.subjectsList,
                   tdsList: widget.tdsList,
                   faExam: widget.faExam,
                 );

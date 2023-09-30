@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
@@ -18,6 +19,7 @@ class EditFAExamWidget extends StatefulWidget {
     required this.selectedAcademicYearId,
     required this.sectionsList,
     required this.teachersList,
+    required this.subjectsList,
     required this.tdsList,
     required this.faExam,
   });
@@ -27,6 +29,7 @@ class EditFAExamWidget extends StatefulWidget {
   final int selectedAcademicYearId;
   final List<Section> sectionsList;
   final List<Teacher> teachersList;
+  final List<Subject> subjectsList;
   final List<TeacherDealingSection> tdsList;
   final FAExam faExam;
 
@@ -318,6 +321,11 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
     List<Widget> widgetsForEachInternal = [];
     for (FaInternalExam eachInternal in (widget.faExam.faInternalExams ?? []).map((e) => e!).where((e) => e.status == 'active')) {
       List<ExamSectionSubjectMap> examSectionSubjectMapList = (eachInternal.examSectionSubjectMapList ?? []).map((e) => e!).toList();
+      examSectionSubjectMapList.sort((a, b) {
+        Subject aSubject = widget.subjectsList.where((e) => e.subjectId == a.subjectId).first;
+        Subject bSubject = widget.subjectsList.where((e) => e.subjectId == b.subjectId).first;
+        return (aSubject.subjectId ?? 0).compareTo(bSubject.subjectId ?? 0);
+      });
       ScrollController scrollController = ScrollController();
       widgetsForEachInternal.add(Container(
         margin: const EdgeInsets.all(15),
@@ -675,28 +683,54 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
   }
 
   Widget _buildDatePicker(ExamSectionSubjectMap eachExamSectionSubjectMap) {
-    return InkWell(
-      onTap: () async {
-        DateTime? _newDate = await showDatePicker(
-          context: context,
-          initialDate: convertYYYYMMDDFormatToDateTime(eachExamSectionSubjectMap.date),
-          firstDate: DateTime.now().subtract(const Duration(days: 364)),
-          lastDate: DateTime.now(),
-          helpText: "Select a date",
-        );
-        if (_newDate == null) return;
-        setState(() {
-          eachExamSectionSubjectMap.date = convertDateTimeToYYYYMMDDFormat(_newDate);
-        });
-      },
-      child: eachExamSectionSubjectMap.date == null
-          ? const FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Icon(
-                Icons.calendar_today_rounded,
-              ),
-            )
-          : Text(eachExamSectionSubjectMap.examDate),
+    return Row(
+      children: [
+        InkWell(
+          onTap: () async {
+            DateTime? _newDate = await showDatePicker(
+              context: context,
+              initialDate: convertYYYYMMDDFormatToDateTime(eachExamSectionSubjectMap.date),
+              firstDate: DateTime.now().subtract(const Duration(days: 364)),
+              lastDate: DateTime.now(),
+              helpText: "Select a date",
+            );
+            if (_newDate == null) return;
+            setState(() {
+              eachExamSectionSubjectMap.date = convertDateTimeToYYYYMMDDFormat(_newDate);
+            });
+          },
+          child: eachExamSectionSubjectMap.date == null
+              ? const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(
+                    Icons.calendar_today_rounded,
+                  ),
+                )
+              : Text(eachExamSectionSubjectMap.examDate),
+        ),
+        PopupMenuButton<DateTime>(
+          tooltip: "Other Dates",
+          onSelected: (DateTime choice) async {
+            setState(() {
+              eachExamSectionSubjectMap.date = convertDateTimeToYYYYMMDDFormat(choice);
+            });
+          },
+          itemBuilder: (BuildContext context) {
+            return (widget.faExam.faInternalExams ?? [])
+                .map((e) => e?.examSectionSubjectMapList ?? [])
+                .expand((i) => i)
+                .map((e) => e?.date == null ? null : convertYYYYMMDDFormatToDateTime(e?.date))
+                .whereNotNull()
+                .toSet()
+                .toList()
+                .map((DateTime choice) => PopupMenuItem<DateTime>(
+                      value: choice,
+                      child: Text(convertDateTimeToDDMMYYYYFormat(choice)),
+                    ))
+                .toList();
+          },
+        ),
+      ],
     );
   }
 
@@ -744,13 +778,43 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
   }
 
   Widget _buildStartTimePicker(ExamSectionSubjectMap eachExamSectionSubjectMap) {
-    return InkWell(
-      onTap: () async {
-        await _pickStartTime(context, eachExamSectionSubjectMap);
-      },
-      child: Center(
-        child: Text(eachExamSectionSubjectMap.startTimeSlot),
-      ),
+    return Row(
+      children: [
+        InkWell(
+          onTap: () async {
+            await _pickStartTime(context, eachExamSectionSubjectMap);
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: Center(
+              child: Text(eachExamSectionSubjectMap.startTimeSlot),
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
+        PopupMenuButton<TimeOfDay>(
+          tooltip: "Other Start Times",
+          onSelected: (TimeOfDay choice) async {
+            setState(() {
+              eachExamSectionSubjectMap.startTime = timeOfDayToHHMMSS(choice);
+            });
+          },
+          itemBuilder: (BuildContext context) {
+            return (widget.faExam.faInternalExams ?? [])
+                .map((e) => e?.examSectionSubjectMapList ?? [])
+                .expand((i) => i)
+                .map((e) => e?.startTime == null ? null : formatHHMMSSToTimeOfDay(e!.startTime!))
+                .whereNotNull()
+                .toSet()
+                .toList()
+                .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
+                      value: choice,
+                      child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),
+                    ))
+                .toList();
+          },
+        ),
+      ],
     );
   }
 
@@ -767,13 +831,43 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
   }
 
   Widget _buildEndTimePicker(ExamSectionSubjectMap eachExamSectionSubjectMap) {
-    return InkWell(
-      onTap: () async {
-        await _pickEndTime(context, eachExamSectionSubjectMap);
-      },
-      child: Center(
-        child: Text(eachExamSectionSubjectMap.endTimeSlot),
-      ),
+    return Row(
+      children: [
+        InkWell(
+          onTap: () async {
+            await _pickEndTime(context, eachExamSectionSubjectMap);
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: Center(
+              child: Text(eachExamSectionSubjectMap.endTimeSlot),
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
+        PopupMenuButton<TimeOfDay>(
+          tooltip: "Other End Times",
+          onSelected: (TimeOfDay choice) async {
+            setState(() {
+              eachExamSectionSubjectMap.endTime = timeOfDayToHHMMSS(choice);
+            });
+          },
+          itemBuilder: (BuildContext context) {
+            return (widget.faExam.faInternalExams ?? [])
+                .map((e) => e?.examSectionSubjectMapList ?? [])
+                .expand((i) => i)
+                .map((e) => e?.endTime == null ? null : formatHHMMSSToTimeOfDay(e!.endTime!))
+                .whereNotNull()
+                .toSet()
+                .toList()
+                .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
+                      value: choice,
+                      child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),
+                    ))
+                .toList();
+          },
+        ),
+      ],
     );
   }
 

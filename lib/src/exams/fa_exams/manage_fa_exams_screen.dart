@@ -117,7 +117,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
                         selectedSection: null,
                         setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
                       ),
-                    )
+                    ),
                   ],
                 ),
       floatingActionButton: faExams.map((e) => e.isEditMode).contains(true) || _isLoading
@@ -148,6 +148,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
         selectedAcademicYearId: widget.selectedAcademicYearId,
         sectionsList: widget.sectionsList,
         teachersList: widget.teachersList,
+        subjectsList: widget.subjectsList,
         tdsList: widget.tdsList,
         faExam: faExam,
       );

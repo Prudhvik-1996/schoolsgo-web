@@ -156,6 +156,14 @@ class ExamSectionSubjectMap {
   String get startTimeSlot => startTime == null ? "-" : convert24To12HourFormat(startTime!);
 
   String get endTimeSlot => endTime == null ? "-" : convert24To12HourFormat(endTime!);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExamSectionSubjectMap && runtimeType == other.runtimeType && examSectionSubjectMapId == other.examSectionSubjectMapId;
+
+  @override
+  int get hashCode => examSectionSubjectMapId.hashCode;
 }
 
 class CustomExam {
