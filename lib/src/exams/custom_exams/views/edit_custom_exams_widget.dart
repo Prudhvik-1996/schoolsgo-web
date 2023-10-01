@@ -578,6 +578,7 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
                 .whereNotNull()
                 .toSet()
                 .toList()
+                .sorted((a, b) => a.millisecondsSinceEpoch.compareTo(b.millisecondsSinceEpoch))
                 .map((DateTime choice) => PopupMenuItem<DateTime>(
                       value: choice,
                       child: Text(convertDateTimeToDDMMYYYYFormat(choice)),
@@ -660,6 +661,10 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
                 .whereNotNull()
                 .toSet()
                 .toList()
+                .sorted(
+                  (a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(a), 1)
+                      .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(b), 1)),
+                )
                 .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
                       value: choice,
                       child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),
@@ -688,7 +693,7 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
       children: [
         InkWell(
           onTap: () async {
-            await _pickStartTime(context, eachExamSectionSubjectMap);
+            await _pickEndTime(context, eachExamSectionSubjectMap);
           },
           child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
@@ -711,6 +716,10 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
                 .whereNotNull()
                 .toSet()
                 .toList()
+                .sorted(
+                  (a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(a), 1)
+                      .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(b), 1)),
+                )
                 .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
                       value: choice,
                       child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),

@@ -723,6 +723,7 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                 .whereNotNull()
                 .toSet()
                 .toList()
+                .sorted((a, b) => a.millisecondsSinceEpoch.compareTo(b.millisecondsSinceEpoch))
                 .map((DateTime choice) => PopupMenuItem<DateTime>(
                       value: choice,
                       child: Text(convertDateTimeToDDMMYYYYFormat(choice)),
@@ -807,6 +808,10 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                 .whereNotNull()
                 .toSet()
                 .toList()
+                .sorted(
+                  (a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(a), 1)
+                      .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(b), 1)),
+                )
                 .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
                       value: choice,
                       child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),
@@ -860,6 +865,10 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                 .whereNotNull()
                 .toSet()
                 .toList()
+                .sorted(
+                  (a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(a), 1)
+                      .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(timeOfDayToHHMMSS(b), 1)),
+                )
                 .map((TimeOfDay choice) => PopupMenuItem<TimeOfDay>(
                       value: choice,
                       child: Text(convert24To12HourFormat(timeOfDayToHHMMSS(choice))),
