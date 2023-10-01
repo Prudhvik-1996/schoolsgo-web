@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/admin/admin_suggestion_box.dart';
+import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_screen.dart';
 import 'package:schoolsgo_web/src/time_table/student/student_time_table_view.dart';
 
 class DashboardWidget<T> {
@@ -168,6 +169,13 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         routeName: "/diary",
         argument: teacherProfile,
       ),
+      if ((teacherProfile.classTeacherFor ?? []).isNotEmpty)
+        DashboardWidget(
+          image: SvgPicture.asset("assets/images/logbook.svg"),
+          title: "Class Teacher",
+          routeName: ClassTeacherScreen.routeName,
+          argument: teacherProfile,
+        ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/logbook.svg"),
         title: "Log Book",

@@ -132,7 +132,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                   studentMonthWiseAttendanceList =
                       (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
                 }
-                await EachStudentPdfDownload(
+                await EachStudentPdfDownloadForCustomExam(
                   schoolInfo: widget.schoolInfo,
                   adminProfile: widget.adminProfile,
                   teacherProfile: widget.teacherProfile,

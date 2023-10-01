@@ -9,9 +9,13 @@ class StudentInformationCenterStudentsListScreen extends StatefulWidget {
   const StudentInformationCenterStudentsListScreen({
     Key? key,
     required this.adminProfile,
+    this.teacherProfile,
+    this.defaultSection,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
+  final Section? defaultSection;
 
   static const String routeName = "/student_information_center";
 
@@ -39,9 +43,11 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
+      selectedSection = widget.defaultSection;
     });
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSection?.sectionId,
     ));
     if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,7 +60,8 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
     }
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSection?.sectionId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
@@ -83,7 +90,7 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
     if (searchKeyController.text.trim() == "") {
       filteredStudentsList = filteredStudentsList;
     } else {
-      filteredStudentsList = studentsList
+      filteredStudentsList = filteredStudentsList
           .where((e) => "${(e.rollNumber ?? "").toLowerCase()}|${(e.studentFirstName ?? "").toLowerCase()}|${e.sectionName ?? ""}"
               .contains(searchKeyController.text))
           .toList();
@@ -221,6 +228,7 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
           ),
         ),
         child: DropdownSearch<Section>(
+          enabled: widget.defaultSection != null,
           mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
           selectedItem: selectedSection,
           items: sectionsList,
@@ -240,7 +248,7 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
             });
             _filterData();
           },
-          showClearButton: true,
+          showClearButton: widget.defaultSection != null,
           compareFn: (item, selectedItem) => item?.sectionId == selectedItem?.sectionId,
           dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
           filterFn: (Section? section, String? key) {

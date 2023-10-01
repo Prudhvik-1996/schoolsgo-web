@@ -38,6 +38,7 @@ import 'package:schoolsgo_web/src/student_information_center/student_information
 import 'package:schoolsgo_web/src/student_information_center/student_information_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
 import 'package:schoolsgo_web/src/task_manager/task_manager_screen.dart';
+import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_screen.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard_v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -272,6 +273,15 @@ class _MyAppState extends State<MyApp> {
             return TeacherDashboard(
               teacherProfile: argument,
             );
+          case ClassTeacherScreen.routeName:
+            try {
+              var argument = (routeSettings.arguments as TeacherProfile);
+              return ClassTeacherScreen(
+                teacherProfile: argument,
+              );
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
           case AdminDashboard.routeName:
             if (routeSettings.arguments == null) {
               return const SplashScreen();

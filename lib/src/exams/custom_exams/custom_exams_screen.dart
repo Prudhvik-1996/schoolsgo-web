@@ -20,11 +20,13 @@ class CustomExamsScreen extends StatefulWidget {
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
+    this.defaultSelectedSection,
   }) : super(key: key);
 
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
+  final Section? defaultSelectedSection;
 
   @override
   State<CustomExamsScreen> createState() => _CustomExamsScreenState();
@@ -57,12 +59,13 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
+      _selectedSection = widget.defaultSelectedSection;
     });
 
     GetCustomExamsResponse getCustomExamsResponse = await getCustomExams(GetCustomExamsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
       academicYearId: widget.selectedAcademicYearId,
-      teacherId: widget.teacherProfile?.teacherId,
+      teacherId: widget.defaultSelectedSection != null ? null : widget.teacherProfile?.teacherId,
     ));
     if (getCustomExamsResponse.httpStatus != "OK" || getCustomExamsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -91,7 +94,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
 
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      teacherId: widget.teacherProfile?.teacherId,
+      teacherId: widget.defaultSelectedSection != null ? null : widget.teacherProfile?.teacherId,
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
@@ -101,7 +104,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      teacherId: widget.teacherProfile?.teacherId,
+      teacherId: widget.defaultSelectedSection != null ? null : widget.teacherProfile?.teacherId,
     );
     GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
@@ -113,6 +116,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSelectedSection?.sectionId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -135,6 +139,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
 
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSelectedSection?.sectionId,
     ));
     if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -179,6 +184,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
           InkWell(
             onTap: () {
               if (_isLoading) return;
+              if (widget.defaultSelectedSection != null) return;
               setState(() {
                 _isSectionPickerOpen = !_isSectionPickerOpen;
               });
@@ -236,16 +242,17 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                InkWell(
-                  child: const Icon(Icons.close),
-                  onTap: () {
-                    setState(() {
-                      _selectedSection = null;
-                    });
-                  },
-                ),
-                const SizedBox(width: 10),
+                if (widget.defaultSelectedSection == null) const SizedBox(width: 10),
+                if (widget.defaultSelectedSection == null)
+                  InkWell(
+                    child: const Icon(Icons.close),
+                    onTap: () {
+                      setState(() {
+                        _selectedSection = null;
+                      });
+                    },
+                  ),
+                if (widget.defaultSelectedSection == null) const SizedBox(width: 10),
               ],
             )
           : InkWell(
@@ -347,32 +354,34 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Custom Exams"),
-        actions: [
-          if (widget.adminProfile != null)
-            buildRoleButtonForAppBar(
-              context,
-              widget.adminProfile!,
-            )
-          else
-            buildRoleButtonForAppBar(
-              context,
-              widget.teacherProfile!,
-            ),
-          if (!_isLoading && widget.teacherProfile == null)
-            PopupMenuButton<String>(
-              onSelected: (String choice) async => await handleClick(choice),
-              itemBuilder: (BuildContext context) {
-                return {
-                  "Manage Exams",
-                }.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
-              },
-            ),
-        ],
+        actions: (widget.defaultSelectedSection == null)
+            ? [
+                if (widget.adminProfile != null)
+                  buildRoleButtonForAppBar(
+                    context,
+                    widget.adminProfile!,
+                  )
+                else
+                  buildRoleButtonForAppBar(
+                    context,
+                    widget.teacherProfile!,
+                  ),
+                if (!_isLoading && widget.teacherProfile == null)
+                  PopupMenuButton<String>(
+                    onSelected: (String choice) async => await handleClick(choice),
+                    itemBuilder: (BuildContext context) {
+                      return {
+                        "Manage Exams",
+                      }.map((String choice) {
+                        return PopupMenuItem<String>(
+                          value: choice,
+                          child: Text(choice),
+                        );
+                      }).toList();
+                    },
+                  ),
+              ]
+            : [],
       ),
       drawer:
           widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
@@ -414,6 +423,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                                     loadData: _loadData,
                                     selectedSection: _selectedSection,
                                     markingAlgorithms: markingAlgorithms,
+                                    isClassTeacher: widget.defaultSelectedSection != null,
                                   ),
                                 ),
                               ),

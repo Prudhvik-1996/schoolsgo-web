@@ -27,6 +27,7 @@ class FaCumulativeExamMarksScreen extends StatefulWidget {
     required this.selectedSection,
     required this.studentsList,
     required this.loadData,
+    required this.isClassTeacher,
   });
 
   final AdminProfile? adminProfile;
@@ -39,6 +40,7 @@ class FaCumulativeExamMarksScreen extends StatefulWidget {
   final Section selectedSection;
   final List<StudentProfile> studentsList;
   final Future<void> Function() loadData;
+  final bool isClassTeacher;
 
   @override
   State<FaCumulativeExamMarksScreen> createState() => _FaCumulativeExamMarksScreenState();
@@ -268,7 +270,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
             .where((essm) =>
                 essm?.subjectId == eachSubject.subjectId &&
                 essm?.sectionId == widget.selectedSection.sectionId &&
-                (widget.teacherProfile == null || widget.teacherProfile?.teacherId == essm?.authorisedAgent))
+                (widget.teacherProfile == null || widget.isClassTeacher || widget.teacherProfile?.teacherId == essm?.authorisedAgent))
             .firstOrNull;
         subjectWiseEssmList.add(x);
         if (x != null) {

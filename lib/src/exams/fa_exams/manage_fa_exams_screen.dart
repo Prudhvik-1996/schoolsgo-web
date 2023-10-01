@@ -5,6 +5,8 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/fa_exam_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -14,6 +16,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 class ManageFAExamsScreen extends StatefulWidget {
   const ManageFAExamsScreen({
     super.key,
+    required this.schoolInfo,
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
@@ -22,8 +25,10 @@ class ManageFAExamsScreen extends StatefulWidget {
     required this.subjectsList,
     required this.tdsList,
     required this.studentsList,
+    required this.markingAlgorithms,
   });
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
@@ -32,6 +37,7 @@ class ManageFAExamsScreen extends StatefulWidget {
   final List<Subject> subjectsList;
   final List<TeacherDealingSection> tdsList;
   final List<StudentProfile> studentsList;
+  final List<MarkingAlgorithmBean> markingAlgorithms;
 
   @override
   State<ManageFAExamsScreen> createState() => _ManageFAExamsScreenState();
@@ -103,6 +109,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
                     ...faExams.map(
                       (faExam) => FAExamWidget(
                         scaffoldKey: _scaffoldKey,
+                        schoolInfo: widget.schoolInfo,
                         adminProfile: widget.adminProfile,
                         teacherProfile: widget.teacherProfile,
                         selectedAcademicYearId: widget.selectedAcademicYearId,
@@ -116,6 +123,8 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
                         editingEnabled: true,
                         selectedSection: null,
                         setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
+                        markingAlgorithms: widget.markingAlgorithms,
+                        isClassTeacher: false,
                       ),
                     ),
                   ],

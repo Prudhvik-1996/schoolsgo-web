@@ -11,6 +11,8 @@ import 'package:schoolsgo_web/src/exams/fa_exams/fa_cumulative_exam_marks_screen
 import 'package:schoolsgo_web/src/exams/fa_exams/fa_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -18,9 +20,12 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
+import 'each_student_pdf_download.dart';
+
 class FAExamWidget extends StatefulWidget {
   const FAExamWidget({
     super.key,
+    required this.schoolInfo,
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
@@ -33,10 +38,13 @@ class FAExamWidget extends StatefulWidget {
     required this.loadData,
     required this.editingEnabled,
     required this.selectedSection,
+    required this.markingAlgorithms,
     required this.scaffoldKey,
     required this.setLoading,
+    required this.isClassTeacher,
   });
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
@@ -49,8 +57,10 @@ class FAExamWidget extends StatefulWidget {
   final Future<void> Function() loadData;
   final bool editingEnabled;
   final Section? selectedSection;
+  final List<MarkingAlgorithmBean> markingAlgorithms;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final void Function(bool isLoading) setLoading;
+  final bool isClassTeacher;
 
   @override
   State<FAExamWidget> createState() => _FAExamWidgetState();
@@ -62,6 +72,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
   List<TeacherDealingSection> tdsList = [];
 
   bool _isExpanded = false;
+  String? downloadMessage;
 
   @override
   void initState() {
@@ -72,7 +83,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
             widget.selectedSection == null ||
             (e.examSectionSubjectMapList ?? []).map((e) => e?.sectionId).contains(widget.selectedSection?.sectionId))
         .where((e) =>
-            widget.teacherProfile == null ||
+            widget.isClassTeacher || widget.teacherProfile == null ||
             (e.examSectionSubjectMapList ?? []).map((e) => e?.authorisedAgent).contains(widget.teacherProfile?.teacherId))
         .toList();
     examSectionSubjectMapList = internals
@@ -80,7 +91,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
         .expand((i) => i)
         .map((e) => e!)
         .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
-        .where((e) => widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
+        .where((e) => widget.isClassTeacher || widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
         .toList();
     tdsList = widget.tdsList
         .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
@@ -108,7 +119,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
             children: [
               faExamNameWidget(),
               if (_isExpanded) const SizedBox(height: 15),
-              if (_isExpanded) ...populatedTdsLists(),
+              if (_isExpanded) ...populatedExamsLists(),
               if (_isExpanded) const SizedBox(height: 15),
             ],
           ),
@@ -117,14 +128,14 @@ class _FAExamWidgetState extends State<FAExamWidget> {
     );
   }
 
-  List<Widget> populatedTdsLists() {
+  List<Widget> populatedExamsLists() {
     List<Widget> widgetsOfEachInternal = [];
     for (FaInternalExam eachInternal in internals) {
       ScrollController controller = ScrollController();
       List<ExamSectionSubjectMap> essmListForInternal = examSectionSubjectMapList
           .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
           .where((e) => e.examId == eachInternal.faInternalExamId && e.masterExamId == eachInternal.masterExamId)
-          .where((e) => widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
+          .where((e) => widget.isClassTeacher || widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
           .toList();
       widgetsOfEachInternal.add(Container(
         margin: const EdgeInsets.all(15),
@@ -154,7 +165,64 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                         ),
                       ),
                     ),
-                    if (widget.teacherProfile == null && widget.editingEnabled) hallTicketsButton(widget.faExam, eachInternal),
+                    // if (widget.isClassTeacher || widget.teacherProfile == null && widget.editingEnabled) hallTicketsButton(widget.faExam, eachInternal),
+                    if (widget.selectedSection != null)
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                        child: Tooltip(
+                          message: "Download Hall Tickets",
+                          child: GestureDetector(
+                            onTap: () async {
+                              setState(() {
+                                _isExpanded = false;
+                              });
+                              await Future.delayed(const Duration(seconds: 1));
+                              await EachStudentPdfDownloadForFaExam(
+                                schoolInfo: widget.schoolInfo,
+                                adminProfile: widget.adminProfile,
+                                teacherProfile: widget.teacherProfile,
+                                selectedAcademicYearId: widget.selectedAcademicYearId,
+                                teachersList: widget.teachersList,
+                                subjectsList: widget.subjectsList,
+                                tdsList: widget.tdsList,
+                                markingAlgorithm: widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
+                                faExam: widget.faExam,
+                                selectedInternal: eachInternal,
+                                studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
+                                selectedSection: widget.selectedSection!,
+                                updateMessage: (String? e) => setState(() => downloadMessage = e),
+                              ).downloadHallTickets();
+                              setState(() {
+                                _isExpanded = true;
+                              });
+                            },
+                            child: ClayButton(
+                              color: clayContainerColor(context),
+                              height: 50,
+                              borderRadius: 10,
+                              surfaceColor: clayContainerColor(context),
+                              spread: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      Icon(Icons.download),
+                                      SizedBox(width: 10),
+                                      Text("Hall Tickets"),
+                                      SizedBox(width: 10),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 15),
@@ -181,7 +249,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                         rows: [
                           ...essmListForInternal
                               .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
-                              .where((e) => widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
+                              .where((e) => widget.isClassTeacher || widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
                               .map(
                                 (eachExamSectionSubjectMap) => DataRow(
                                   onSelectChanged: (bool? selected) {
@@ -287,35 +355,40 @@ class _FAExamWidgetState extends State<FAExamWidget> {
 
   Widget faExamNameWidget() {
     if (!_isExpanded) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      return Column(
         children: [
-          Expanded(child: Text(widget.faExam.faExamName ?? "-")),
-          const SizedBox(width: 15),
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isExpanded = true;
-              });
-            },
-            child: ClayButton(
-              color: clayContainerColor(context),
-              height: 30,
-              width: 30,
-              borderRadius: 50,
-              surfaceColor: clayContainerColor(context),
-              spread: 1,
-              child: const Padding(
-                padding: EdgeInsets.all(4.0),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Icon(Icons.arrow_drop_down),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: Text(widget.faExam.faExamName ?? "-")),
+              const SizedBox(width: 15),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isExpanded = true;
+                  });
+                },
+                child: ClayButton(
+                  color: clayContainerColor(context),
+                  height: 30,
+                  width: 30,
+                  borderRadius: 50,
+                  surfaceColor: clayContainerColor(context),
+                  spread: 1,
+                  child: const Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Icon(Icons.arrow_drop_down),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(width: 15),
+            ],
           ),
-          const SizedBox(width: 15),
+          if (downloadMessage != null) renderingPdfWidget()
         ],
       );
     }
@@ -350,6 +423,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                     selectedSection: widget.selectedSection!,
                     loadData: widget.loadData,
                     studentsList: widget.studentsList,
+                    isClassTeacher: widget.isClassTeacher,
                   );
                 })).then((_) => widget.loadData());
               },
@@ -437,6 +511,34 @@ class _FAExamWidgetState extends State<FAExamWidget> {
         ),
         const SizedBox(width: 15),
       ],
+    );
+  }
+
+  Widget renderingPdfWidget() {
+    return Container(
+      color: Colors.grey.withOpacity(0.4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 10),
+          Center(
+            child: Image.asset(
+              'assets/images/eis_loader.gif',
+              height: 100,
+              width: 100,
+            ),
+          ),
+          const SizedBox(height: 10),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              downloadMessage ?? "",
+              style: const TextStyle(fontSize: 9),
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
     );
   }
 

@@ -167,6 +167,7 @@ class TeacherProfile {
   int? franchiseId;
   String? franchiseName;
   String? fourDigitPin;
+  List<int?>? classTeacherFor;
   Map<String, dynamic> __origJson = {};
 
   TeacherProfile({
@@ -188,6 +189,7 @@ class TeacherProfile {
     this.franchiseId,
     this.franchiseName,
     this.fourDigitPin,
+    this.classTeacherFor,
   });
 
   TeacherProfile.fromJson(Map<String, dynamic> json) {
@@ -210,6 +212,14 @@ class TeacherProfile {
     franchiseId = json['franchiseId']?.toInt();
     franchiseName = json['franchiseName']?.toString();
     fourDigitPin = json['fourDigitPin']?.toString();
+    if (json['classTeacherFor'] != null) {
+      final v = json['classTeacherFor'];
+      final arr0 = <int?>[];
+      v.forEach((v) {
+        arr0.add(v);
+      });
+      classTeacherFor = arr0.toList();
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -232,6 +242,7 @@ class TeacherProfile {
     data['franchiseId'] = franchiseId;
     data['franchiseName'] = franchiseName;
     data['fourDigitPin'] = fourDigitPin;
+    data['classTeacherFor'] = classTeacherFor;
     return data;
   }
 

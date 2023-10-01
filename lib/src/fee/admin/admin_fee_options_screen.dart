@@ -8,7 +8,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v3.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/stats/fees/due_receipts_report_screen.dart';
+import 'package:schoolsgo_web/src/stats/fees/due_reports_screen.dart';
 
 class AdminFeeOptionsScreen extends StatefulWidget {
   const AdminFeeOptionsScreen({
@@ -150,8 +150,10 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
           _getFeeOption(
             "Fee Due Reports",
             null,
-            DueReceiptsScreen(
+            DueReportsScreen(
               adminProfile: widget.adminProfile,
+              teacherProfile: null,
+              defaultSelectedSection: null,
             ),
           ),
         ],

@@ -115,6 +115,7 @@ dependencies:
   flutter_sticky_header: ^0.6.5
 
   file_picker: ^5.2.4
+  adaptive_scrollbar: ^2.1.2
 
 dev_dependencies:
   flutter_test:

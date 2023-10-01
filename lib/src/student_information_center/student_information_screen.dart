@@ -341,9 +341,9 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   _scrollToBottomButton(),
-                  if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true)))
+                  if (!(_isLoading || studentComments.map((e) => e.isEditMode).contains(true)))
                     const SizedBox(height: 20),
-                  if (!(_isLoading || widget.adminProfile == null || studentComments.map((e) => e.isEditMode).contains(true))) _buildAddNewFAB(),
+                  if (!(_isLoading || studentComments.map((e) => e.isEditMode).contains(true))) _buildAddNewFAB(),
                 ],
               ),
             ),
@@ -399,7 +399,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
         spread: 1,
         borderRadius: 100,
         child: Container(
-          margin: const EdgeInsets.all(8),
+          margin: const EdgeInsets.all(4),
           child: const Icon(Icons.arrow_downward),
         ),
       ),

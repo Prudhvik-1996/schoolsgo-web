@@ -106,6 +106,7 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
                 null,
                 AdminMarkStudentAttendanceScreen(
                   adminProfile: widget.adminProfile,
+                  teacherProfile: null,
                   selectedSection: null,
                   selectedDateTime: DateTime.now(),
                 ),

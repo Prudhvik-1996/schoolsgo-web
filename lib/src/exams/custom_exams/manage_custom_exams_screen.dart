@@ -12,7 +12,6 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:collection/collection.dart';
 
 class ManageCustomExamsScreen extends StatefulWidget {
   const ManageCustomExamsScreen({
@@ -25,7 +24,8 @@ class ManageCustomExamsScreen extends StatefulWidget {
     required this.subjectsList,
     required this.tdsList,
     required this.studentsList,
-    required this.markingAlgorithms, required this.schoolInfo,
+    required this.markingAlgorithms,
+    required this.schoolInfo,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
@@ -120,6 +120,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
                         editingEnabled: true,
                         selectedSection: null,
                         markingAlgorithms: widget.markingAlgorithms,
+                        isClassTeacher: false,
                       ),
                     )
                   ],

@@ -19,7 +19,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
-class EachStudentPdfDownload {
+class EachStudentPdfDownloadForCustomExam {
   final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
@@ -38,7 +38,7 @@ class EachStudentPdfDownload {
   late double? totalMarksObtained;
   late double? totalPercentage;
 
-  EachStudentPdfDownload({
+  EachStudentPdfDownloadForCustomExam({
     required this.schoolInfo,
     required this.adminProfile,
     required this.teacherProfile,
@@ -774,7 +774,7 @@ class EachStudentPdfDownload {
     anchorElement.target = '_blank';
     anchorElement.download = studentProfiles.length == 1
         ? "${studentProfiles[0].sectionName} ${studentProfiles[0].rollNumber ?? ""} ${studentProfiles[0].studentFirstName}.pdf"
-        : "${customExam.customExamName} Hall Tickets.pdf";
+        : "${customExam.customExamName} - ${selectedSection.sectionName} - Hall Tickets.pdf";
     anchorElement.click();
     updateMessage(null);
   }

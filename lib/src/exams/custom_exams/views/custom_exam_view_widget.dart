@@ -32,6 +32,7 @@ class CustomExamViewWidget extends StatefulWidget {
     required this.selectedSection,
     required this.markingAlgorithms,
     required this.schoolInfo,
+    required this.isClassTeacher,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
@@ -47,6 +48,7 @@ class CustomExamViewWidget extends StatefulWidget {
   final Future<void> Function() loadData;
   final Section? selectedSection;
   final List<MarkingAlgorithmBean> markingAlgorithms;
+  final bool isClassTeacher;
 
   @override
   State<CustomExamViewWidget> createState() => _CustomExamViewWidgetState();
@@ -445,6 +447,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                         setState(() {
                           _isLoading = true;
                           _isExpanded = false;
+                          downloadMessage = "Getting attendance report";
                         });
                         await Future.delayed(const Duration(seconds: 1));
                         List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
@@ -452,7 +455,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                             await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
                           schoolId: widget.schoolInfo.schoolId,
                           sectionId: widget.selectedSection?.sectionId,
-                          academicYearId: widget.selectedAcademicYearId,
+                          academicYearId: widget.customExam.academicYearId,
                           isAdminView: "Y",
                           studentId: null,
                         ));
@@ -467,7 +470,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           studentMonthWiseAttendanceList =
                               (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
                         }
-                        await EachStudentPdfDownload(
+                        setState(() => downloadMessage = "Got the attendance report");
+                        await EachStudentPdfDownloadForCustomExam(
                           schoolInfo: widget.schoolInfo,
                           adminProfile: widget.adminProfile,
                           teacherProfile: widget.teacherProfile,
@@ -526,7 +530,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           _isExpanded = false;
                         });
                         await Future.delayed(const Duration(seconds: 1));
-                        await EachStudentPdfDownload(
+                        await EachStudentPdfDownloadForCustomExam(
                           schoolInfo: widget.schoolInfo,
                           adminProfile: widget.adminProfile,
                           teacherProfile: widget.teacherProfile,

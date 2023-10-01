@@ -225,6 +225,7 @@ class FaInternalExam {
 
 class FAExam {
   int? academicYearId;
+  int? markingAlgorithmId;
   int? agent;
   String? comment;
   String? date;
@@ -240,6 +241,7 @@ class FAExam {
 
   FAExam({
     this.academicYearId,
+    this.markingAlgorithmId,
     this.agent,
     this.comment,
     this.date,
@@ -254,6 +256,7 @@ class FAExam {
   FAExam.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     academicYearId = json['academicYearId']?.toInt();
+    markingAlgorithmId = json['markingAlgorithmId']?.toInt();
     agent = json['agent']?.toInt();
     comment = json['comment']?.toString();
     date = json['date']?.toString();
@@ -275,6 +278,7 @@ class FAExam {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearId'] = academicYearId;
+    data['markingAlgorithmId'] = markingAlgorithmId;
     data['agent'] = agent;
     data['comment'] = comment;
     data['date'] = date;

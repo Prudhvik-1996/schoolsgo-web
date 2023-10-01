@@ -15,11 +15,13 @@ class AdminMarkStudentAttendanceScreen extends StatefulWidget {
   const AdminMarkStudentAttendanceScreen({
     Key? key,
     required this.adminProfile,
+    required this.teacherProfile,
     required this.selectedSection,
     required this.selectedDateTime,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
   final Section? selectedSection;
   final DateTime selectedDateTime;
 
@@ -85,7 +87,8 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
       _isLoading = true;
     });
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.selectedSection?.sectionId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -108,7 +111,10 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
       studentWiseAttendanceBeans = [];
     });
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
-      schoolId: widget.adminProfile.schoolId, date: convertDateTimeToYYYYMMDDFormat(_selectedDate), sectionId: _selectedSection!.sectionId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionIds: widget.selectedSection == null ? null : [widget.selectedSection?.sectionId],
+      date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
+      sectionId: _selectedSection!.sectionId,
       // studentId: 71,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
@@ -122,7 +128,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
             .toList()
             .map((int eachStudentId) => StudentProfile(
                   studentId: eachStudentId,
-                  schoolId: widget.adminProfile.schoolId,
+                  schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
                   sectionId: _selectedSection?.sectionId,
                   sectionName: _selectedSection?.sectionName,
                   studentFirstName: studentAttendanceBeans.where((e) => e.studentId == eachStudentId).firstOrNull?.studentName,
@@ -204,7 +210,9 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                           flex: 1,
                           child: _showOnlyAbsenteesButton(),
                         ),
-                      _isSectionPickerOpen || _selectedSection == null || widget.adminProfile.isMegaAdmin ? Container() : buildEditButton(context),
+                      _isSectionPickerOpen || _selectedSection == null || (widget.adminProfile?.isMegaAdmin ?? false)
+                          ? Container()
+                          : buildEditButton(context),
                     ],
                   ),
                   if (!_isSectionPickerOpen && attendanceTimeSlotBeans.isNotEmpty && MediaQuery.of(context).orientation == Orientation.portrait)
@@ -474,8 +482,10 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                                 for (int k = 0; k < studentWiseAttendanceBeans.length; k++) {
                                   setState(() {
                                     studentWiseAttendanceBeans[k].studentAttendanceBeans[i].isPresent = 1;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.adminProfile.userId;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.adminProfile.userId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent =
+                                        widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById =
+                                        widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
                                   });
                                 }
                               },
@@ -492,8 +502,10 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                                 for (int k = 0; k < studentWiseAttendanceBeans.length; k++) {
                                   setState(() {
                                     studentWiseAttendanceBeans[k].studentAttendanceBeans[i].isPresent = -1;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.adminProfile.userId;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.adminProfile.userId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent =
+                                        widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById =
+                                        widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
                                   });
                                 }
                               },
@@ -510,8 +522,10 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                                 for (int k = 0; k < studentWiseAttendanceBeans.length; k++) {
                                   setState(() {
                                     studentWiseAttendanceBeans[k].studentAttendanceBeans[i].isPresent = 0;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent = widget.adminProfile.userId;
-                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById = widget.adminProfile.userId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].agent =
+                                        widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
+                                    studentWiseAttendanceBeans[k].studentAttendanceBeans[i].markedById =
+                                        widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
                                   });
                                 }
                               },
@@ -793,8 +807,8 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                     _isLoading = true;
                   });
                   CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest = CreateOrUpdateStudentAttendanceRequest(
-                    schoolId: widget.adminProfile.schoolId,
-                    agent: widget.adminProfile.userId,
+                    schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+                    agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
                     studentAttendanceBeans: studentWiseAttendanceBeans
                         .map((e) => e.studentAttendanceBeans)
                         .expand((i) => i)
@@ -1007,6 +1021,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
         onTap: () {
           if (_isLoading) return;
           if (_isEditMode) return;
+          if (widget.selectedSection != null) return;
           setState(() {
             _isSectionPickerOpen = !_isSectionPickerOpen;
           });
@@ -1029,10 +1044,11 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
                   ),
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                child: const Icon(Icons.expand_more),
-              ),
+              if (widget.selectedSection == null)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                  child: const Icon(Icons.expand_more),
+                ),
             ],
           ),
         ),

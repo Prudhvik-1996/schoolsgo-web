@@ -31,6 +31,7 @@ class CustomExamWidget extends StatefulWidget {
     required this.editingEnabled,
     required this.selectedSection,
     required this.markingAlgorithms,
+    required this.isClassTeacher,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
@@ -47,6 +48,7 @@ class CustomExamWidget extends StatefulWidget {
   final bool editingEnabled;
   final Section? selectedSection;
   final List<MarkingAlgorithmBean> markingAlgorithms;
+  final bool isClassTeacher;
 
   @override
   State<CustomExamWidget> createState() => _CustomExamWidgetState();

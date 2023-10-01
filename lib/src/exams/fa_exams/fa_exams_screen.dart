@@ -6,6 +6,8 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/manage_fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/fa_exam_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -18,11 +20,13 @@ class FAExamsScreen extends StatefulWidget {
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
+    this.defaultSelectedSection,
   }) : super(key: key);
 
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
+  final Section? defaultSelectedSection;
 
   @override
   State<FAExamsScreen> createState() => _AdminFAExamsScreenState();
@@ -31,6 +35,7 @@ class FAExamsScreen extends StatefulWidget {
 class _AdminFAExamsScreenState extends State<FAExamsScreen> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
+  late SchoolInfoBean schoolInfo;
 
   List<Section> _sectionsList = [];
   Section? _selectedSection;
@@ -43,6 +48,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
   bool _isSectionPickerOpen = false;
 
   List<FAExam> faExams = [];
+  List<MarkingAlgorithmBean> markingAlgorithms = [];
 
   @override
   void initState() {
@@ -51,10 +57,27 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
   }
 
   Future<void> _loadData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _selectedSection = widget.defaultSelectedSection;
+    });
+
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      schoolInfo = getSchoolsResponse.schoolInfo!;
+    }
+
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      teacherId: widget.teacherProfile?.teacherId,
+      teacherId: widget.defaultSelectedSection != null ? null : widget.teacherProfile?.teacherId,
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
@@ -64,7 +87,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      teacherId: widget.teacherProfile?.teacherId,
+      teacherId: widget.defaultSelectedSection != null ? null : widget.teacherProfile?.teacherId,
     );
     GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
@@ -76,6 +99,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSelectedSection?.sectionId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -96,6 +120,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
 
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSelectedSection?.sectionId,
     ));
     if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -124,6 +149,21 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
       faExams = (getFAExamsResponse.exams ?? []).map((e) => e!).toList();
     }
 
+    GetMarkingAlgorithmsResponse getMarkingAlgorithmsResponse = await getMarkingAlgorithms(GetMarkingAlgorithmsRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+    ));
+    if (getMarkingAlgorithmsResponse.httpStatus == "OK" && getMarkingAlgorithmsResponse.responseStatus == "success") {
+      setState(() {
+        markingAlgorithms = getMarkingAlgorithmsResponse.markingAlgorithmBeanList!.map((e) => e!).toList();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    }
+
     setState(() => _isLoading = false);
   }
 
@@ -131,6 +171,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
     if (choice == "Manage Exams") {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return ManageFAExamsScreen(
+          schoolInfo: schoolInfo,
           adminProfile: widget.adminProfile,
           teacherProfile: widget.teacherProfile,
           selectedAcademicYearId: widget.selectedAcademicYearId,
@@ -139,6 +180,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
           subjectsList: subjectsList,
           tdsList: tdsList,
           studentsList: studentsList,
+          markingAlgorithms: markingAlgorithms,
         );
       }));
     } else {
@@ -201,6 +243,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
                   child: InkWell(
                     onTap: () {
                       if (_isLoading) return;
+                      if (widget.defaultSelectedSection != null) return;
                       setState(() {
                         _isSectionPickerOpen = !_isSectionPickerOpen;
                       });
@@ -215,16 +258,17 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                InkWell(
-                  child: const Icon(Icons.close),
-                  onTap: () {
-                    setState(() {
-                      _selectedSection = null;
-                    });
-                  },
-                ),
-                const SizedBox(width: 10),
+                if (widget.defaultSelectedSection != null) const SizedBox(width: 10),
+                if (widget.defaultSelectedSection != null)
+                  InkWell(
+                    child: const Icon(Icons.close),
+                    onTap: () {
+                      setState(() {
+                        _selectedSection = null;
+                      });
+                    },
+                  ),
+                if (widget.defaultSelectedSection != null) const SizedBox(width: 10),
               ],
             )
           : InkWell(
@@ -306,32 +350,34 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
       key: scaffoldKey,
       appBar: AppBar(
         title: const Text("FA Exams"),
-        actions: [
-          if (widget.adminProfile != null)
-            buildRoleButtonForAppBar(
-              context,
-              widget.adminProfile!,
-            )
-          else
-            buildRoleButtonForAppBar(
-              context,
-              widget.teacherProfile!,
-            ),
-          if (!_isLoading && widget.teacherProfile == null)
-            PopupMenuButton<String>(
-              onSelected: (String choice) async => await handleClick(choice),
-              itemBuilder: (BuildContext context) {
-                return {
-                  "Manage Exams",
-                }.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
-              },
-            ),
-        ],
+        actions: widget.defaultSelectedSection != null
+            ? []
+            : [
+                if (widget.adminProfile != null)
+                  buildRoleButtonForAppBar(
+                    context,
+                    widget.adminProfile!,
+                  )
+                else
+                  buildRoleButtonForAppBar(
+                    context,
+                    widget.teacherProfile!,
+                  ),
+                if (!_isLoading && widget.teacherProfile == null)
+                  PopupMenuButton<String>(
+                    onSelected: (String choice) async => await handleClick(choice),
+                    itemBuilder: (BuildContext context) {
+                      return {
+                        "Manage Exams",
+                      }.map((String choice) {
+                        return PopupMenuItem<String>(
+                          value: choice,
+                          child: Text(choice),
+                        );
+                      }).toList();
+                    },
+                  ),
+              ],
       ),
       drawer:
           widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
@@ -359,6 +405,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
                               margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                               child: FAExamWidget(
                                 scaffoldKey: scaffoldKey,
+                                schoolInfo: schoolInfo,
                                 adminProfile: widget.adminProfile,
                                 teacherProfile: widget.teacherProfile,
                                 selectedAcademicYearId: widget.selectedAcademicYearId,
@@ -371,7 +418,9 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
                                 loadData: _loadData,
                                 editingEnabled: false,
                                 selectedSection: _selectedSection,
+                                markingAlgorithms: markingAlgorithms,
                                 setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
+                                isClassTeacher: widget.defaultSelectedSection != null,
                               ),
                             ),
                           ),
