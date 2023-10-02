@@ -322,9 +322,19 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
     for (FaInternalExam eachInternal in (widget.faExam.faInternalExams ?? []).map((e) => e!).where((e) => e.status == 'active')) {
       List<ExamSectionSubjectMap> examSectionSubjectMapList = (eachInternal.examSectionSubjectMapList ?? []).map((e) => e!).toList();
       examSectionSubjectMapList.sort((a, b) {
-        Subject aSubject = widget.subjectsList.where((e) => e.subjectId == a.subjectId).first;
-        Subject bSubject = widget.subjectsList.where((e) => e.subjectId == b.subjectId).first;
-        return (aSubject.subjectId ?? 0).compareTo(bSubject.subjectId ?? 0);
+        Section aSection = widget.sectionsList.firstWhere((e) => e.sectionId == a.sectionId);
+        Section bSection = widget.sectionsList.firstWhere((e) => e.sectionId == b.sectionId);
+        if ((aSection.seqOrder ?? 0) == (bSection.seqOrder ?? 0)) {
+          Subject aSubject = widget.subjectsList
+              .where((e) => e.subjectId == a.subjectId)
+              .first;
+          Subject bSubject = widget.subjectsList
+              .where((e) => e.subjectId == b.subjectId)
+              .first;
+          return (aSubject.subjectId ?? 0).compareTo(bSubject.subjectId ?? 0);
+        } else {
+          return (aSection.seqOrder ?? 0).compareTo(bSection.seqOrder ?? 0);
+        }
       });
       ScrollController scrollController = ScrollController();
       widgetsForEachInternal.add(Container(
@@ -467,7 +477,7 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                                                   context: context,
                                                   initialDate: convertYYYYMMDDFormatToDateTime(eachSubjectWiseDateTime.date),
                                                   firstDate: DateTime.now().subtract(const Duration(days: 364)),
-                                                  lastDate: DateTime.now(),
+                                                  lastDate: DateTime.now().add(const Duration(days: 365)),
                                                   helpText: "Select a date",
                                                 );
                                                 if (_newDate == null) return;

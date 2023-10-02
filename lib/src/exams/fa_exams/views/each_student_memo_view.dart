@@ -2,8 +2,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_pdf_download.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -11,7 +10,6 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
@@ -26,7 +24,7 @@ class EachStudentMemoView extends StatefulWidget {
     required this.subjectsList,
     required this.tdsList,
     required this.markingAlgorithm,
-    required this.customExam,
+    required this.faExam,
     required this.studentProfile,
     required this.selectedSection,
   }) : super(key: key);
@@ -39,7 +37,7 @@ class EachStudentMemoView extends StatefulWidget {
   final List<Subject> subjectsList;
   final List<TeacherDealingSection> tdsList;
   final MarkingAlgorithmBean? markingAlgorithm;
-  final CustomExam customExam;
+  final FAExam faExam;
   final StudentProfile studentProfile;
   final Section selectedSection;
 
@@ -48,10 +46,9 @@ class EachStudentMemoView extends StatefulWidget {
 }
 
 class _EachStudentMemoViewState extends State<EachStudentMemoView> {
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  bool _isLoading = false;
+  bool _isLoading = true;
 
-  late CustomExam customExam;
+  late FAExam faExamForStudent;
 
   late double totalMaxMarks;
   late double? totalMarksObtained;
@@ -63,41 +60,68 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
   @override
   void initState() {
     super.initState();
-    customExam = CustomExam.fromJson(widget.customExam.toJson());
-    customExam.examSectionSubjectMapList?.removeWhere((e) => e?.sectionId != widget.selectedSection.sectionId);
-    customExam.examSectionSubjectMapList?.forEach((essm) {
-      essm?.studentExamMarksList?.removeWhere((esm) => esm?.studentId != widget.studentProfile.studentId);
+    faExamForStudent = FAExam.fromJson(widget.faExam.toJson());
+    faExamForStudent.faInternalExams ??= [];
+    for (FaInternalExam? ei in faExamForStudent.faInternalExams!) {
+      ei!.examSectionSubjectMapList ??= [];
+      ei.examSectionSubjectMapList!.removeWhere((essm) => essm?.sectionId != widget.selectedSection.sectionId);
+      for (ExamSectionSubjectMap? essm in ei.examSectionSubjectMapList!) {
+        essm!.studentExamMarksList ??= [];
+        essm.studentExamMarksList!.removeWhere((esm) => esm?.studentId != widget.studentProfile.studentId);
+      }
+    }
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
     });
-    totalMaxMarks = customExam.examSectionSubjectMapList?.map((e) => e?.maxMarks ?? 0.0).fold<double>(0.0, (double a, double b) => a + b) ?? 0.0;
-    totalMarksObtained = customExam.examSectionSubjectMapList
-        ?.map((e) => (e?.studentExamMarksList ?? []).firstOrNull)
+    setState(() {
+      studentImage = widget.studentProfile.studentPhotoUrl == null ? null : NetworkImage(widget.studentProfile.studentPhotoUrl!);
+    });
+    totalMaxMarks = (faExamForStudent.faInternalExams ?? [])
+        .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
+        .expand((i) => i)
+        .map((e) => e.maxMarks ?? 0.0)
+        .fold<double>(0.0, (double a, double b) => a + b);
+    totalMarksObtained = (faExamForStudent.faInternalExams ?? [])
+        .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
+        .expand((i) => i)
+        .map((e) => (e.studentExamMarksList ?? []).firstOrNull)
         .where((e) => e?.isAbsent != "N")
         .map((e) => e?.marksObtained)
         .whereNotNull()
         .fold<double>(0.0, (double a, double b) => a + b);
     totalPercentage = totalMarksObtained == null ? null : (totalMarksObtained! * 100.0 / totalMaxMarks);
-    isAbsentForAtLeastForOneSubject =
-        customExam.examSectionSubjectMapList?.map((e) => (e?.studentExamMarksList ?? []).firstOrNull).where((e) => e?.isAbsent == "N").isNotEmpty ??
-            false;
-    isFailInAtLeastForOneSubject = customExam.examSectionSubjectMapList
-            ?.map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
-            .expand((i) => i)
-            .where((StudentExamMarks? e) => e?.isAbsent != "N")
-            .map((StudentExamMarks? e) {
-              double percentage = (e?.marksObtained ?? 0) /
-                  ((customExam.examSectionSubjectMapList ?? [])
-                          .where((essm) => e?.examSectionSubjectMapId == essm?.examSectionSubjectMapId)
-                          .first
-                          ?.maxMarks ??
-                      1) *
-                  100;
-              MarkingAlgorithmRangeBean? rangeBeanForPercentage = widget.markingAlgorithm?.rangeBeanForPercentage(percentage);
-              return rangeBeanForPercentage;
-            })
-            .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
-            .contains(true) ??
-        false;
-    studentImage = widget.studentProfile.studentPhotoUrl == null ? null : NetworkImage(widget.studentProfile.studentPhotoUrl!);
+    isAbsentForAtLeastForOneSubject = (faExamForStudent.faInternalExams ?? [])
+        .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
+        .expand((i) => i)
+        .map((e) => (e.studentExamMarksList ?? []).firstOrNull)
+        .where((e) => e?.isAbsent == "N")
+        .isNotEmpty;
+    isFailInAtLeastForOneSubject = (faExamForStudent.faInternalExams ?? [])
+        .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
+        .expand((i) => i)
+        .map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
+        .expand((i) => i)
+        .where((StudentExamMarks? e) => e?.isAbsent != "N")
+        .map((StudentExamMarks? e) {
+          double percentage = (e?.marksObtained ?? 0) /
+              (((faExamForStudent.faInternalExams ?? []).map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull()).expand((i) => i))
+                      .where((essm) => e?.examSectionSubjectMapId == essm.examSectionSubjectMapId)
+                      .first
+                      .maxMarks ??
+                  1) *
+              100;
+          MarkingAlgorithmRangeBean? rangeBeanForPercentage = widget.markingAlgorithm?.rangeBeanForPercentage(percentage);
+          return rangeBeanForPercentage;
+        })
+        .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
+        .contains(true);
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -108,49 +132,6 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(widget.studentProfile.studentFirstName ?? "-"),
-          actions: [
-            IconButton(
-              onPressed: () async {
-                setState(() => _isLoading = true);
-                List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
-                GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
-                await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
-                  schoolId: widget.schoolInfo.schoolId,
-                  sectionId: widget.selectedSection.sectionId,
-                  academicYearId: widget.selectedAcademicYearId,
-                  isAdminView: "Y",
-                  studentId: widget.studentProfile.studentId,
-                ));
-                if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
-                    getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Something went wrong! Try again later.."),
-                    ),
-                  );
-                } else {
-                  studentMonthWiseAttendanceList =
-                      (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
-                }
-                await EachStudentPdfDownloadForCustomExam(
-                  schoolInfo: widget.schoolInfo,
-                  adminProfile: widget.adminProfile,
-                  teacherProfile: widget.teacherProfile,
-                  selectedAcademicYearId: widget.selectedAcademicYearId,
-                  teachersList: widget.teachersList,
-                  subjectsList: widget.subjectsList,
-                  tdsList: widget.tdsList,
-                  markingAlgorithm: widget.markingAlgorithm,
-                  customExam: customExam,
-                  studentProfiles: [widget.studentProfile],
-                  selectedSection: widget.selectedSection,
-                  updateMessage: (String? e) => debugPrint(e),
-                ).downloadMemo(studentMonthWiseAttendanceList);
-                setState(() => _isLoading = false);
-              },
-              icon: const Icon(Icons.download),
-            ),
-          ],
         ),
         body: _isLoading
             ? Center(
@@ -259,7 +240,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                "Report of ${customExam.customExamName ?? "-"}",
+                                "Report of ${faExamForStudent.faExamName ?? "-"}",
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
@@ -280,13 +261,17 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                                     verticalAlignment: TableCellVerticalAlignment.middle,
                                     child: paddedText("Subject"),
                                   ),
-                                  TableCell(
-                                    verticalAlignment: TableCellVerticalAlignment.middle,
-                                    child: paddedText("Max Marks", textAlign: TextAlign.center),
+                                  ...(faExamForStudent.faInternalExams ?? []).map(
+                                    (e) {
+                                      return TableCell(
+                                        verticalAlignment: TableCellVerticalAlignment.middle,
+                                        child: paddedText(e?.faInternalExamName ?? " - ", textAlign: TextAlign.center),
+                                      );
+                                    },
                                   ),
                                   TableCell(
                                     verticalAlignment: TableCellVerticalAlignment.middle,
-                                    child: paddedText("Marks Obtained", textAlign: TextAlign.center),
+                                    child: paddedText("Total", textAlign: TextAlign.center),
                                   ),
                                   if (widget.markingAlgorithm != null && (widget.markingAlgorithm?.isGpaAllowed ?? false))
                                     TableCell(
@@ -300,47 +285,92 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                                     ),
                                 ],
                               ),
-                              ...?(customExam.examSectionSubjectMapList?.whereNotNull().toList()
-                                    ?..sort((a, b) {
-                                      Subject? aSubject = widget.subjectsList.where((es) => es.subjectId == a.subjectId).firstOrNull;
-                                      Subject? bSubject = widget.subjectsList.where((es) => es.subjectId == b.subjectId).firstOrNull;
-                                      return (aSubject?.seqOrder ?? 0).compareTo(bSubject?.seqOrder ?? 0);
-                                    }))
-                                  ?.map((essm) {
-                                Subject? eachSubject = widget.subjectsList.where((es) => essm.subjectId == es.subjectId).firstOrNull;
-                                StudentExamMarks? marks = essm.studentExamMarksList
-                                    ?.whereNotNull()
-                                    .where((esm) =>
-                                        esm.examSectionSubjectMapId == essm.examSectionSubjectMapId &&
-                                        esm.studentId == widget.studentProfile.studentId)
-                                    .firstOrNull;
-                                double? percentage = marks == null || marks.marksObtained == null || marks.isAbsent == "N"
+                              ...(faExamForStudent.faInternalExams ?? [])
+                                  .map((e) => (e?.examSectionSubjectMapList ?? []))
+                                  .expand((i) => i)
+                                  .map((e) => e?.subjectId)
+                                  .toSet()
+                                  .map((esid) => widget.subjectsList.where((es) => es.subjectId == esid).firstOrNull)
+                                  .whereNotNull()
+                                  .sorted((a, b) => (a.seqOrder ?? 0).compareTo(b.seqOrder ?? 0))
+                                  .map((eachSubject) {
+                                print("293: ${eachSubject.subjectName}");
+                                List<ExamSectionSubjectMap> internalsEssms = (faExamForStudent.faInternalExams ?? [])
+                                    .map((e) => e?.examSectionSubjectMapList ?? [])
+                                    .expand((i) => i)
+                                    .whereNotNull()
+                                    .where((essm) => essm.subjectId == eachSubject.subjectId)
+                                    .toList();
+                                List<StudentExamMarks?> examMarksForSubject = [];
+                                for (FaInternalExam? eachInternal in faExamForStudent.faInternalExams ?? []) {
+                                  ExamSectionSubjectMap? essmForSubject =
+                                      eachInternal?.examSectionSubjectMapList?.where((essm) => essm?.subjectId == eachSubject.subjectId).firstOrNull;
+                                  print("303: $essmForSubject");
+                                  if (essmForSubject == null) {
+                                    examMarksForSubject.add(null);
+                                  } else {
+                                    StudentExamMarks? esm = (essmForSubject.studentExamMarksList ?? [])
+                                        .where((esm) => esm?.studentId == widget.studentProfile.studentId)
+                                        .firstOrNull;
+                                    print("309: $esm");
+                                    examMarksForSubject.add(esm);
+                                  }
+                                }
+                                print("311: ${examMarksForSubject.length}");
+                                double? totalMarksObtained = examMarksForSubject.contains(null) ||
+                                        examMarksForSubject.where((esm) => esm?.marksObtained == null || esm?.isAbsent == "N").isNotEmpty
                                     ? null
-                                    : (((marks.marksObtained!) / (essm.maxMarks ?? 0)) * 100);
+                                    : examMarksForSubject
+                                        .whereNotNull()
+                                        .map((e) => e.marksObtained)
+                                        .whereNotNull()
+                                        .fold(0.0, (double? a, b) => (a ?? 0.0) + b);
+                                // double? totalMaxMarks = internalsEssms
+                                //     .map((e) => e.maxMarks)
+                                //     .whereNotNull()
+                                //     .fold(0.0, (double? a, b) => (a ?? 0.0) + b);
+                                double totalMaxMarks = 0;
+                                for (ExamSectionSubjectMap essm in internalsEssms) {
+                                  totalMaxMarks += (essm.maxMarks ?? 0);
+                                  print("330: $totalMaxMarks");
+                                }
+                                print("311: ${internalsEssms.length} $totalMarksObtained / $totalMaxMarks");
+
                                 return TableRow(
                                   children: [
                                     TableCell(
                                       child: Row(
                                         children: [
-                                          Expanded(child: paddedText(eachSubject?.subjectName ?? "-")),
+                                          Expanded(child: paddedText(eachSubject.subjectName ?? "-")),
                                         ],
                                       ),
                                     ),
-                                    TableCell(child: paddedText("${essm.maxMarks ?? "-"}", textAlign: TextAlign.center)),
+                                    ...examMarksForSubject.map((esm) {
+                                      double? maxMarks =
+                                          internalsEssms.where((e) => (e.studentExamMarksList ?? []).contains(esm)).firstOrNull?.maxMarks;
+                                      return paddedTextForMarksObtained(esm, maxMarks);
+                                    }),
                                     TableCell(
-                                        child: paddedText("${marks?.isAbsent == "N" ? "Absent" : marks?.marksObtained ?? "-"}",
-                                            textAlign: TextAlign.center)),
+                                      child: paddedText(
+                                        (totalMarksObtained == null || (totalMaxMarks) == 0) ? "-" : "$totalMarksObtained",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                                     if (widget.markingAlgorithm != null && (widget.markingAlgorithm?.isGpaAllowed ?? false))
                                       TableCell(
                                         child: paddedText(
-                                          percentage == null ? "-" : "${widget.markingAlgorithm?.gpaForPercentage(percentage) ?? "-"}",
+                                          (totalMarksObtained == null || (totalMaxMarks) == 0)
+                                              ? "-"
+                                              : "${widget.markingAlgorithm?.gpaForPercentage(totalMarksObtained * 100 / totalMaxMarks!) ?? "-"}",
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
                                     if (widget.markingAlgorithm != null && (widget.markingAlgorithm?.isGradeAllowed ?? false))
                                       TableCell(
                                         child: paddedText(
-                                          percentage == null ? "-" : widget.markingAlgorithm?.gradeForPercentage(percentage) ?? "-",
+                                          (totalMarksObtained == null || (totalMaxMarks) == 0)
+                                              ? "-"
+                                              : widget.markingAlgorithm?.gradeForPercentage(totalMarksObtained * 100 / totalMaxMarks!) ?? "-",
                                           textAlign: TextAlign.center,
                                         ),
                                       ),
@@ -390,7 +420,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                                         ? "-"
                                         : totalPercentage == null
                                             ? "-"
-                                            : widget.markingAlgorithm?.gradeForPercentage(totalPercentage!) ?? "-"
+                                            : widget.markingAlgorithm?.gradeForPercentage(totalPercentage!) ?? "-",
                                 ]
                                     .map(
                                       (e) => TableCell(
@@ -400,7 +430,7 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                                     .toList(),
                               ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -408,6 +438,42 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                 ],
               ),
       ),
+    );
+  }
+
+  Widget paddedTextForMarksObtained(StudentExamMarks? esm, double? maxMarks) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: esm?.isAbsent == "N"
+          ? const Text(
+              "Absent",
+              textAlign: TextAlign.center,
+            )
+          : esm?.marksObtained == null
+              ? const Text(
+                  "-",
+                  textAlign: TextAlign.center,
+                )
+              : maxMarks == null
+                  ? Text(
+                      "${esm?.marksObtained}",
+                      textAlign: TextAlign.center,
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "${esm?.marksObtained}",
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          " / $maxMarks",
+                          style: const TextStyle(fontSize: 9),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ), // "${esm?.isAbsent == "N" ? "Absent" : esm?.marksObtained ?? "-"}",
     );
   }
 

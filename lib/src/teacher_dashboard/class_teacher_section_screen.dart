@@ -1,25 +1,26 @@
 import 'package:clay_containers/widgets/clay_text.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
-import 'package:schoolsgo_web/src/exams/fa_exams/fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/fees/due_reports_screen.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
+import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_exams_options_screen.dart';
+import 'package:schoolsgo_web/src/teacher_dashboard/class_techer_attendance_options_screen.dart';
 
 class ClassTeacherSectionScreen extends StatefulWidget {
   const ClassTeacherSectionScreen({
     super.key,
+    required this.adminProfile,
     required this.teacherProfile,
     required this.section,
     required this.selectedAcademicYearId,
   });
 
-  final TeacherProfile teacherProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
   final Section section;
   final int selectedAcademicYearId;
 
@@ -94,9 +95,13 @@ class _ClassTeacherSectionScreenState extends State<ClassTeacherSectionScreen> {
       appBar: AppBar(
         elevation: 0,
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: widget.teacherProfile != null
+          ? TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile!,
+            )
+          : widget.adminProfile != null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : null,
       body: ListView(
         children: [
           EisStandardHeader(
@@ -108,52 +113,44 @@ class _ClassTeacherSectionScreenState extends State<ClassTeacherSectionScreen> {
             ),
           ),
           _getClassOption(
-            "Student Information Center",
+            "Attendance",
             null,
-            StudentInformationCenterStudentsListScreen(
+            ClassTeacherAttendanceOptionsScreen(
+              adminProfile: widget.adminProfile,
               teacherProfile: widget.teacherProfile,
-              defaultSection: widget.section,
-              adminProfile: null,
-            ),
-          ),
-          _getClassOption(
-            "Mark Attendance",
-            null,
-            AdminMarkStudentAttendanceScreen(
-              adminProfile: null,
-              teacherProfile: widget.teacherProfile,
-              selectedSection: widget.section,
-              selectedDateTime: DateTime.now(),
+              section: widget.section,
+              selectedAcademicYearId: widget.selectedAcademicYearId,
             ),
           ),
           _getClassOption(
             "Fee Dues",
             null,
             DueReportsScreen(
-              adminProfile: null,
+              adminProfile: widget.adminProfile,
               teacherProfile: widget.teacherProfile,
               defaultSelectedSection: widget.section,
             ),
           ),
+          if (widget.teacherProfile != null)
+            _getClassOption(
+              "Exams",
+              null,
+              ClassTeacherExamsOptionScreen(
+                teacherProfile: widget.teacherProfile!,
+                section: widget.section,
+                selectedAcademicYearId: widget.selectedAcademicYearId,
+              ),
+            ),
           _getClassOption(
-            "Custom Exams",
+            "Student Information Center",
             null,
-            CustomExamsScreen(
-              adminProfile: null,
+            StudentInformationCenterStudentsListScreen(
+              adminProfile: widget.adminProfile,
               teacherProfile: widget.teacherProfile,
-              selectedAcademicYearId: widget.selectedAcademicYearId,
-              defaultSelectedSection: widget.section,
-            ),
-          ),_getClassOption(
-            "FA Exams",
-            null,
-            FAExamsScreen(
-              adminProfile: null,
-              teacherProfile: widget.teacherProfile,
-              selectedAcademicYearId: widget.selectedAcademicYearId,
-              defaultSelectedSection: widget.section,
+              defaultSection: widget.section,
             ),
           ),
+          const SizedBox(height: 100),
         ],
       ),
     );

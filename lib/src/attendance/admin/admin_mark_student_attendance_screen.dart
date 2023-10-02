@@ -97,6 +97,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
       });
     }
+    await _loadStudentAttendance();
     setState(() {
       _isLoading = false;
     });

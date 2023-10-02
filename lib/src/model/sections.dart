@@ -61,6 +61,8 @@ class Section {
   String? sectionName;
   String? sectionPhotoUrl;
   bool? ocrAsPerTt;
+  int? seqOrder;
+  int? classTeacherId;
   Map<String, dynamic> __origJson = {};
 
   Section({
@@ -71,6 +73,8 @@ class Section {
     this.sectionName,
     this.sectionPhotoUrl,
     this.ocrAsPerTt,
+    this.seqOrder,
+    this.classTeacherId,
   });
 
   Section.fromJson(Map<String, dynamic> json) {
@@ -82,6 +86,8 @@ class Section {
     sectionName = json["sectionName"]?.toString();
     sectionPhotoUrl = json["sectionPhotoUrl"]?.toString();
     ocrAsPerTt = json["ocrAsPerTt"] ?? false;
+    seqOrder = int.tryParse(json["seqOrder"]?.toString() ?? '');
+    classTeacherId = int.tryParse(json["classTeacherId"]?.toString() ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -93,6 +99,8 @@ class Section {
     data["sectionName"] = sectionName;
     data["sectionPhotoUrl"] = sectionPhotoUrl;
     data["ocrAsPerTt"] = ocrAsPerTt;
+    data["seqOrder"] = seqOrder;
+    data["classTeacherId"] = classTeacherId;
     return data;
   }
 
@@ -102,9 +110,10 @@ class Section {
     return toJson().toString().compareTo(other.toJson().toString());
   }
 
+
   @override
   String toString() {
-    return "Section {'sectionId'=$sectionId,'schoolId'=$schoolId,'sectionName'='$sectionName','sectionPhotoUrl'='$sectionPhotoUrl','description'='$description','agent'=$agent,'ocrAsPerTt'=$ocrAsPerTt}";
+    return 'Section{agent: $agent, description: $description, schoolId: $schoolId, sectionId: $sectionId, sectionName: $sectionName, sectionPhotoUrl: $sectionPhotoUrl, ocrAsPerTt: $ocrAsPerTt, seqOrder: $seqOrder, classTeacherId: $classTeacherId, __origJson: $__origJson}';
   }
 
   @override
@@ -199,4 +208,151 @@ Future<GetSectionsResponse> getSections(GetSectionsRequest getSectionsRequest) a
 
   debugPrint("GetSectionsResponse ${getSectionsResponse.toJson()}");
   return getSectionsResponse;
+}
+
+class CreateOrUpdateSectionRequest {
+/*
+{
+  "agent": "string",
+  "classTeacherId": 0,
+  "description": "string",
+  "franchiseId": 0,
+  "franchiseName": "string",
+  "ocrAsPerTt": true,
+  "schoolId": 0,
+  "schoolName": "string",
+  "sectionId": 0,
+  "sectionName": "string",
+  "sectionPhotoUrl": "string",
+  "seqOrder": 0
+}
+*/
+
+  String? agent;
+  int? classTeacherId;
+  String? description;
+  int? franchiseId;
+  String? franchiseName;
+  bool? ocrAsPerTt;
+  int? schoolId;
+  String? schoolName;
+  int? sectionId;
+  String? sectionName;
+  String? sectionPhotoUrl;
+  int? seqOrder;
+  Map<String, dynamic> __origJson = {};
+
+
+  CreateOrUpdateSectionRequest.fromSection(Section section) {
+    agent = section.agent;
+    classTeacherId = section.classTeacherId;
+    description = section.description;
+    ocrAsPerTt = section.ocrAsPerTt;
+    schoolId = section.schoolId;
+    sectionId = section.sectionId;
+    sectionName = section.sectionName;
+    sectionPhotoUrl = section.sectionPhotoUrl;
+    seqOrder = section.seqOrder;
+  }
+
+  CreateOrUpdateSectionRequest({
+    this.agent,
+    this.classTeacherId,
+    this.description,
+    this.franchiseId,
+    this.franchiseName,
+    this.ocrAsPerTt,
+    this.schoolId,
+    this.schoolName,
+    this.sectionId,
+    this.sectionName,
+    this.sectionPhotoUrl,
+    this.seqOrder,
+  });
+  CreateOrUpdateSectionRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toString();
+    classTeacherId = json['classTeacherId']?.toInt();
+    description = json['description']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    franchiseName = json['franchiseName']?.toString();
+    ocrAsPerTt = json['ocrAsPerTt'];
+    schoolId = json['schoolId']?.toInt();
+    schoolName = json['schoolName']?.toString();
+    sectionId = json['sectionId']?.toInt();
+    sectionName = json['sectionName']?.toString();
+    sectionPhotoUrl = json['sectionPhotoUrl']?.toString();
+    seqOrder = json['seqOrder']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['classTeacherId'] = classTeacherId;
+    data['description'] = description;
+    data['franchiseId'] = franchiseId;
+    data['franchiseName'] = franchiseName;
+    data['ocrAsPerTt'] = ocrAsPerTt;
+    data['schoolId'] = schoolId;
+    data['schoolName'] = schoolName;
+    data['sectionId'] = sectionId;
+    data['sectionName'] = sectionName;
+    data['sectionPhotoUrl'] = sectionPhotoUrl;
+    data['seqOrder'] = seqOrder;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateSectionResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSectionResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateSectionResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateSectionResponse> createOrUpdateSection(CreateOrUpdateSectionRequest createOrUpdateSectionRequest) async {
+  debugPrint("Raising request to createOrUpdateSection with request ${jsonEncode(createOrUpdateSectionRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SECTIONS;
+
+  CreateOrUpdateSectionResponse createOrUpdateSectionResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateSectionRequest.toJson(),
+    CreateOrUpdateSectionResponse.fromJson,
+  );
+
+  debugPrint("CreateOrUpdateSectionResponse ${createOrUpdateSectionResponse.toJson()}");
+  return createOrUpdateSectionResponse;
 }

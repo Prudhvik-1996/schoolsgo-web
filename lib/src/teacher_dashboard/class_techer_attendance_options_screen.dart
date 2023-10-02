@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_screen.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
-import 'admin_attendance_management_screen.dart';
+class ClassTeacherAttendanceOptionsScreen extends StatefulWidget {
+  const ClassTeacherAttendanceOptionsScreen({
+    super.key,
+    required this.adminProfile,
+    required this.teacherProfile,
+    required this.section,
+    required this.selectedAcademicYearId,
+  });
 
-class AdminAttendanceOptionsScreen extends StatefulWidget {
-  final AdminProfile adminProfile;
-
-  const AdminAttendanceOptionsScreen({Key? key, required this.adminProfile}) : super(key: key);
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
+  final Section section;
+  final int selectedAcademicYearId;
 
   @override
-  _AdminAttendanceOptionsScreenState createState() => _AdminAttendanceOptionsScreenState();
+  State<ClassTeacherAttendanceOptionsScreen> createState() => _ClassTeacherAttendanceOptionsScreenState();
 }
 
-class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScreen> {
-  Widget _getAttendanceOption(String title, String? description, StatefulWidget nextWidget) {
+class _ClassTeacherAttendanceOptionsScreenState extends State<ClassTeacherAttendanceOptionsScreen> {
+  Widget _getClassOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -85,50 +92,34 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
       appBar: AppBar(
         title: const Text("Attendance"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
-      body: Stack(
-        children: <Widget>[
-          ListView(
-            padding: EdgeInsets.zero,
-            primary: false,
-            children: <Widget>[
-              _getAttendanceOption(
-                "Attendance Management",
-                null,
-                AdminAttendanceManagementScreen(
-                  adminProfile: widget.adminProfile,
-                ),
-              ),
-              _getAttendanceOption(
-                "Mark Attendance",
-                null,
-                AdminMarkStudentAttendanceScreen(
-                  adminProfile: widget.adminProfile,
-                  teacherProfile: null,
-                  selectedSection: null,
-                  selectedDateTime: DateTime.now(),
-                ),
-              ),
-              _getAttendanceOption(
-                "Absentees Screen",
-                null,
-                AdminStudentAbsenteesScreen(
-                  adminProfile: widget.adminProfile,
-                  teacherProfile: null,
-                  defaultSelectedSection: null,
-                ),
-              ),
-              _getAttendanceOption(
-                "Employees Attendance",
-                null,
-                EmployeeAttendanceQRScreen(
-                  adminProfile: widget.adminProfile,
-                ),
-              ),
-            ],
-          )
+      drawer: widget.teacherProfile != null
+          ? TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile!,
+            )
+          : widget.adminProfile != null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : null,
+      body: ListView(
+        children: [
+          _getClassOption(
+            "Mark Attendance",
+            null,
+            AdminMarkStudentAttendanceScreen(
+              adminProfile: widget.adminProfile,
+              teacherProfile: widget.teacherProfile,
+              selectedSection: widget.section,
+              selectedDateTime: DateTime.now(),
+            ),
+          ),
+          _getClassOption(
+            "Absentees Screen",
+            null,
+            AdminStudentAbsenteesScreen(
+              adminProfile: widget.adminProfile,
+              teacherProfile: widget.teacherProfile,
+              defaultSelectedSection: widget.section,
+            ),
+          ),
         ],
       ),
     );

@@ -228,10 +228,10 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
           ),
         ),
         child: DropdownSearch<Section>(
-          enabled: widget.defaultSection != null,
+          enabled: widget.defaultSection == null,
           mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
           selectedItem: selectedSection,
-          items: sectionsList,
+          items: sectionsList..sort((a, b) => (a.seqOrder ?? 0).compareTo(b.seqOrder ?? 0)),
           itemAsString: (Section? section) {
             return section == null ? "" : section.sectionName ?? "-";
           },

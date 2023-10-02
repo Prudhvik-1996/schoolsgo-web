@@ -17,6 +17,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
@@ -83,7 +84,8 @@ class _FAExamWidgetState extends State<FAExamWidget> {
             widget.selectedSection == null ||
             (e.examSectionSubjectMapList ?? []).map((e) => e?.sectionId).contains(widget.selectedSection?.sectionId))
         .where((e) =>
-            widget.isClassTeacher || widget.teacherProfile == null ||
+            widget.isClassTeacher ||
+            widget.teacherProfile == null ||
             (e.examSectionSubjectMapList ?? []).map((e) => e?.authorisedAgent).contains(widget.teacherProfile?.teacherId))
         .toList();
     examSectionSubjectMapList = internals
@@ -185,7 +187,8 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                                 teachersList: widget.teachersList,
                                 subjectsList: widget.subjectsList,
                                 tdsList: widget.tdsList,
-                                markingAlgorithm: widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
+                                markingAlgorithm:
+                                    widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
                                 faExam: widget.faExam,
                                 selectedInternal: eachInternal,
                                 studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
@@ -249,7 +252,8 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                         rows: [
                           ...essmListForInternal
                               .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
-                              .where((e) => widget.isClassTeacher || widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
+                              .where((e) =>
+                                  widget.isClassTeacher || widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
                               .map(
                                 (eachExamSectionSubjectMap) => DataRow(
                                   onSelectChanged: (bool? selected) {
@@ -407,18 +411,101 @@ class _FAExamWidgetState extends State<FAExamWidget> {
         ),
         if (widget.selectedSection != null) const SizedBox(width: 15),
         if (widget.selectedSection != null)
+          Container(
+            margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+            child: Tooltip(
+              message: "Download all memos",
+              child: GestureDetector(
+                onTap: () async {
+                  setState(() {
+                    _isExpanded = false;
+                    downloadMessage = "Getting attendance report";
+                  });
+                  await Future.delayed(const Duration(seconds: 1));
+                  List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
+                  GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
+                  await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
+                    schoolId: widget.schoolInfo.schoolId,
+                    sectionId: widget.selectedSection?.sectionId,
+                    academicYearId: widget.faExam.academicYearId,
+                    isAdminView: "Y",
+                    studentId: null,
+                  ));
+                  if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
+                      getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Something went wrong! Try again later.."),
+                      ),
+                    );
+                  } else {
+                    studentMonthWiseAttendanceList =
+                        (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
+                  }
+                  setState(() => downloadMessage = "Got the attendance report");
+                  await EachStudentPdfDownloadForFaExam(
+                    schoolInfo: widget.schoolInfo,
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    teachersList: widget.teachersList,
+                    subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm:
+                    widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
+                    faExam: widget.faExam,
+                    studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
+                    selectedSection: widget.selectedSection!,
+                    updateMessage: (String? e) => setState(() => downloadMessage = e),
+                    selectedInternal: null,
+                  ).downloadMemo(studentMonthWiseAttendanceList);
+                  setState(() {
+                    _isExpanded = true;
+                  });
+                },
+                child: ClayButton(
+                  color: clayContainerColor(context),
+                  height: 50,
+                  borderRadius: 10,
+                  surfaceColor: clayContainerColor(context),
+                  spread: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.download),
+                          SizedBox(width: 10),
+                          Text("Memos"),
+                          SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (widget.selectedSection != null)
           Tooltip(
             message: "Update Marks",
             child: GestureDetector(
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return FaCumulativeExamMarksScreen(
+                    schoolInfo: widget.schoolInfo,
                     adminProfile: widget.adminProfile,
                     teacherProfile: widget.teacherProfile,
                     selectedAcademicYearId: widget.selectedAcademicYearId,
                     sectionsList: widget.sectionsList,
                     teachersList: widget.teachersList,
                     subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm: widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
                     faExam: widget.faExam,
                     selectedSection: widget.selectedSection!,
                     loadData: widget.loadData,

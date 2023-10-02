@@ -12,9 +12,13 @@ class AdminStudentAbsenteesScreen extends StatefulWidget {
   const AdminStudentAbsenteesScreen({
     super.key,
     required this.adminProfile,
+    required this.teacherProfile,
+    required this.defaultSelectedSection,
   });
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final TeacherProfile? teacherProfile;
+  final Section? defaultSelectedSection;
 
   @override
   State<AdminStudentAbsenteesScreen> createState() => _AdminStudentAbsenteesScreenState();
@@ -52,12 +56,14 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     setState(() {
       _isLoading = true;
       sectionsList = [];
+      selectedSection = widget.defaultSelectedSection;
       _studentAttendanceBeans = [];
       _attendanceTimeSlotBeans = [];
     });
 
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSelectedSection?.sectionId,
     ));
     if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,7 +79,8 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     }
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSelectedSection?.sectionId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -98,7 +105,7 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     });
 
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
       date: convertDateTimeToYYYYMMDDFormat(selectedDate),
       sectionId: selectedSection!.sectionId,
     ));
@@ -185,7 +192,7 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                     ? const Center(
                         child: Text("Select a section to continue"),
                       )
-                    : populateDataTableForAbsentees(selectedSection!),
+                    : filteredStudentsList.isEmpty ? const Center(child: Text("No entries.."),) : populateDataTableForAbsentees(selectedSection!),
               ],
             ),
     );
@@ -246,6 +253,7 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                   child: InkWell(
                     onTap: () {
                       if (_isLoading) return;
+                      if (widget.defaultSelectedSection != null) return;
                       setState(() {
                         _isSectionPickerOpen = !_isSectionPickerOpen;
                       });
@@ -260,17 +268,18 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                InkWell(
-                  child: const Icon(Icons.close),
-                  onTap: () {
-                    setState(() {
-                      selectedSection = null;
-                    });
-                    filterStudentsList();
-                  },
-                ),
-                const SizedBox(width: 10),
+                if (widget.defaultSelectedSection == null) const SizedBox(width: 10),
+                if (widget.defaultSelectedSection == null)
+                  InkWell(
+                    child: const Icon(Icons.close),
+                    onTap: () {
+                      setState(() {
+                        selectedSection = null;
+                      });
+                      filterStudentsList();
+                    },
+                  ),
+                if (widget.defaultSelectedSection == null) const SizedBox(width: 10),
               ],
             )
           : InkWell(
@@ -694,97 +703,98 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                 "${esab.startTime == null ? "-" : formatHHMMSStoHHMMA(esab.startTime!)} - ${esab.endTime == null ? "-" : formatHHMMSStoHHMMA(esab.endTime!)}",
               ),
             ),
-            PopupMenuButton<String>(
-              tooltip: "More Options",
-              onSelected: (String choice) async {
-                if (choice == "Mark Present") {
-                  //  TODO mark present
-                } else if (choice == "Mark Absent") {
-                  //  TODO mark absent
-                } else if (choice == "Clear") {
-                  //  TODO un mark
-                } else {
-                  debugPrint("Clicked on invalid choice");
-                }
-                showDialog(
-                  context: _scaffoldKey.currentContext!,
-                  builder: (dialogueContext) {
-                    return AlertDialog(
-                      title: const Text('Attendance Management'),
-                      content: const Text("Are you sure to save changes?"),
-                      actions: <Widget>[
-                        TextButton(
-                          child: const Text("Yes"),
-                          onPressed: () async {
-                            Navigator.of(context).pop();
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest = CreateOrUpdateStudentAttendanceRequest(
-                              schoolId: widget.adminProfile.schoolId,
-                              agent: widget.adminProfile.userId,
-                              studentAttendanceBeans: [
-                                esab
-                                  ..isPresent = choice == "Mark Present"
+            if (esab.isPresent == 1 || esab.isPresent == -1)
+              PopupMenuButton<String>(
+                tooltip: "More Options",
+                onSelected: (String choice) async {
+                  if (choice == "Mark Present") {
+                    //  TODO mark present
+                  } else if (choice == "Mark Absent") {
+                    //  TODO mark absent
+                  } else if (choice == "Clear") {
+                    //  TODO un mark
+                  } else {
+                    debugPrint("Clicked on invalid choice");
+                  }
+                  showDialog(
+                    context: _scaffoldKey.currentContext!,
+                    builder: (dialogueContext) {
+                      return AlertDialog(
+                        title: const Text('Attendance Management'),
+                        content: const Text("Are you sure to save changes?"),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text("Yes"),
+                            onPressed: () async {
+                              Navigator.of(context).pop();
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              CreateOrUpdateStudentAttendanceRequest createOrUpdateStudentAttendanceRequest = CreateOrUpdateStudentAttendanceRequest(
+                                schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+                                agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
+                                studentAttendanceBeans: [
+                                  esab
+                                    ..isPresent = choice == "Mark Present"
+                                        ? 1
+                                        : choice == "Mark Absent"
+                                            ? -1
+                                            : 0
+                                ],
+                              );
+                              CreateOrUpdateStudentAttendanceResponse createOrUpdateStudentAttendanceResponse =
+                                  await createOrUpdateStudentAttendance(createOrUpdateStudentAttendanceRequest);
+                              if (createOrUpdateStudentAttendanceResponse.httpStatus == "OK" &&
+                                  createOrUpdateStudentAttendanceResponse.responseStatus == "success") {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Success!"),
+                                  ),
+                                );
+                                setState(() {
+                                  esab.isPresent = choice == "Mark Present"
                                       ? 1
                                       : choice == "Mark Absent"
                                           ? -1
-                                          : 0
-                              ],
-                            );
-                            CreateOrUpdateStudentAttendanceResponse createOrUpdateStudentAttendanceResponse =
-                                await createOrUpdateStudentAttendance(createOrUpdateStudentAttendanceRequest);
-                            if (createOrUpdateStudentAttendanceResponse.httpStatus == "OK" &&
-                                createOrUpdateStudentAttendanceResponse.responseStatus == "success") {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Success!"),
-                                ),
-                              );
+                                          : 0;
+                                  esab.agent = widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
+                                });
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Something went wrong!"),
+                                  ),
+                                );
+                              }
                               setState(() {
-                                esab.isPresent = choice == "Mark Present"
-                                    ? 1
-                                    : choice == "Mark Absent"
-                                        ? -1
-                                        : 0;
-                                esab.agent = widget.adminProfile.userId;
+                                _isLoading = false;
                               });
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Something went wrong!"),
-                                ),
-                              );
-                            }
-                            setState(() {
-                              _isLoading = false;
-                            });
-                          },
-                        ),
-                        TextButton(
-                          child: const Text("Cancel"),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              itemBuilder: (BuildContext context) {
-                return {
-                  if (esab.isPresent != 1) "Mark Present",
-                  if (esab.isPresent != -1) "Mark Absent",
-                  if (esab.isPresent != 0) "Clear",
-                }.map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
+                            },
+                          ),
+                          TextButton(
+                            child: const Text("Cancel"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   );
-                }).toList();
-              },
-            ),
+                },
+                itemBuilder: (BuildContext context) {
+                  return {
+                    if (esab.isPresent != 1) "Mark Present",
+                    if (esab.isPresent != -1) "Mark Absent",
+                    if (esab.isPresent != 0) "Clear",
+                  }.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                    );
+                  }).toList();
+                },
+              ),
           ],
         ),
         color: esab.isPresent == 1

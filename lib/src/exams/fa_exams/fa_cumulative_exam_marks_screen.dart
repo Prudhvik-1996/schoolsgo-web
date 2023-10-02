@@ -4,25 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_memo_view.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 
 class FaCumulativeExamMarksScreen extends StatefulWidget {
   const FaCumulativeExamMarksScreen({
     super.key,
+    required this.schoolInfo,
     required this.adminProfile,
     required this.teacherProfile,
     required this.selectedAcademicYearId,
     required this.sectionsList,
     required this.teachersList,
     required this.subjectsList,
+    required this.tdsList,
+    required this.markingAlgorithm,
     required this.faExam,
     required this.selectedSection,
     required this.studentsList,
@@ -30,12 +37,15 @@ class FaCumulativeExamMarksScreen extends StatefulWidget {
     required this.isClassTeacher,
   });
 
+  final SchoolInfoBean schoolInfo;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
   final List<Section> sectionsList;
   final List<Teacher> teachersList;
   final List<Subject> subjectsList;
+  final List<TeacherDealingSection> tdsList;
+  final MarkingAlgorithmBean? markingAlgorithm;
   final FAExam faExam;
   final Section selectedSection;
   final List<StudentProfile> studentsList;
@@ -309,18 +319,75 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
             ),
             emboss: true,
           ),
-          rowsTitleBuilder: (int rowIndex) => clayCell(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  child: Text("${studentsList[rowIndex].rollNumber ?? "-"}. ${studentsList[rowIndex].studentFirstName ?? "-"}"),
+          rowsTitleBuilder: (int rowIndex) => Stack(
+            children: [
+              clayCell(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Text("${studentsList[rowIndex].rollNumber ?? "-"}. ${studentsList[rowIndex].studentFirstName ?? "-"}"),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                 ),
-              ],
-            ),
-            emboss: true,
+                emboss: true,
+              ),
+              if (!_isEditMode)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return EachStudentMemoView(
+                                schoolInfo: widget.schoolInfo,
+                                adminProfile: widget.adminProfile,
+                                teacherProfile: widget.teacherProfile,
+                                selectedAcademicYearId: widget.selectedAcademicYearId,
+                                teachersList: widget.teachersList,
+                                subjectsList: widget.subjectsList,
+                                tdsList: widget.tdsList,
+                                markingAlgorithm: widget.markingAlgorithm,
+                                faExam: widget.faExam,
+                                studentProfile: studentsList[rowIndex],
+                                selectedSection: widget.selectedSection,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: Tooltip(
+                        message: "Memo",
+                        child: ClayButton(
+                          depth: 40,
+                          surfaceColor: clayContainerColor(context),
+                          parentColor: clayContainerColor(context),
+                          spread: 1,
+                          borderRadius: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            width: 20,
+                            height: 20,
+                            child: const Center(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Icon(Icons.add_chart),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           columnsTitleBuilder: (int colIndex) => columnHeaderBuilder(headerStrings, colIndex),
           contentCellBuilder: (int columnIndex, int rowIndex) {

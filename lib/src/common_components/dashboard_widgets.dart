@@ -427,7 +427,7 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/student_info.svg"),
-        title: "School Information Center",
+        title: "Student Information Center",
         routeName: "/student_information_center",
         argument: adminProfile,
       ),

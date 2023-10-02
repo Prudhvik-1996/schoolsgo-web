@@ -149,12 +149,14 @@ class _ClassTeacherScreenState extends State<ClassTeacherScreen> {
                         es.sectionName ?? " - ",
                         null,
                         ClassTeacherSectionScreen(
+                          adminProfile: null,
                           teacherProfile: widget.teacherProfile,
                           section: es,
                           selectedAcademicYearId: selectedAcademicYearId,
                         ),
                       ),
                     ),
+                const SizedBox(height: 100),
               ],
             ),
     );

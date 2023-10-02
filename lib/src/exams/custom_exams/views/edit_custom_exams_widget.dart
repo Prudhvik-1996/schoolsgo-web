@@ -330,7 +330,7 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
                                                   context: context,
                                                   initialDate: convertYYYYMMDDFormatToDateTime(eachSubjectWiseDateTime.date),
                                                   firstDate: DateTime.now().subtract(const Duration(days: 364)),
-                                                  lastDate: DateTime.now(),
+                                                  lastDate: DateTime.now().add(const Duration(days: 365)),
                                                   helpText: "Select a date",
                                                 );
                                                 if (_newDate == null) return;
