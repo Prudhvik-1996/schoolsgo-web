@@ -166,23 +166,27 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                     ),
                 ],
               ),
-              const Expanded(child: Text(""),),
-              if (selectedSection == null)
-                const SizedBox(height: 10),
+              const Expanded(
+                child: Text(""),
+              ),
+              if (selectedSection == null) const SizedBox(height: 10),
               if (selectedSection == null)
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                        return ClassTeacherSectionScreen(
-                          adminProfile: widget.adminProfile,
-                          teacherProfile: null,
-                          section: section,
-                          selectedAcademicYearId: selectedAcademicYearId,
-                        );
-                      }));
-                    },
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ClassTeacherSectionScreen(
+                              adminProfile: widget.adminProfile,
+                              teacherProfile: null,
+                              section: section,
+                              selectedAcademicYearId: selectedAcademicYearId,
+                            );
+                          },
+                        ),
+                      ),
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: ClayButton(

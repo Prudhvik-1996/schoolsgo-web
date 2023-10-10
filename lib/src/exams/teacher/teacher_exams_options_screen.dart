@@ -129,7 +129,7 @@ class _TeacherExamOptionsScreenState extends State<TeacherExamOptionsScreen> {
             ),
           ),
           _getExamsOption(
-            "Custom Exams",
+            "Exams Without Internals",
             null,
             CustomExamsScreen(
               adminProfile: null,
@@ -138,7 +138,7 @@ class _TeacherExamOptionsScreenState extends State<TeacherExamOptionsScreen> {
             ),
           ),
           _getExamsOption(
-            "FA Exams",
+            "Exams With Internals",
             null,
             FAExamsScreen(
               adminProfile: null,

@@ -353,7 +353,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Custom Exams"),
+        title: const Text("Exams Without Internals"),
         actions: (widget.defaultSelectedSection == null)
             ? [
                 if (widget.adminProfile != null)

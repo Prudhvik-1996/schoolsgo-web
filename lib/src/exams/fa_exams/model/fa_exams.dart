@@ -1,9 +1,10 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
-import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetFAExamsRequest {
@@ -42,116 +43,6 @@ class GetFAExamsRequest {
     data['sectionId'] = sectionId;
     data['subjectId'] = subjectId;
     data['teacherId'] = teacherId;
-    return data;
-  }
-
-  Map<String, dynamic> origJson() => __origJson;
-}
-
-class ExamSectionSubjectMap {
-  int? agent;
-  int? authorisedAgent;
-  String? comment;
-  String? date;
-  String? endTime;
-  int? examId;
-  int? examSectionSubjectMapId;
-  int? masterExamId;
-  double? maxMarks;
-  int? sectionId;
-  String? startTime;
-  String? status;
-  List<StudentExamMarks?>? studentExamMarksList;
-  int? subjectId;
-  Map<String, dynamic> __origJson = {};
-
-  TextEditingController maxMarksController = TextEditingController();
-
-  ExamSectionSubjectMap({
-    this.agent,
-    this.authorisedAgent,
-    this.comment,
-    this.date,
-    this.endTime,
-    this.examId,
-    this.examSectionSubjectMapId,
-    this.masterExamId,
-    this.maxMarks,
-    this.sectionId,
-    this.startTime,
-    this.status,
-    this.studentExamMarksList,
-    this.subjectId,
-  }) {
-    maxMarksController.text = "${maxMarks ?? ''}";
-  }
-
-  ExamSectionSubjectMap.fromJson(Map<String, dynamic> json) {
-    __origJson = json;
-    agent = json['agent']?.toInt();
-    authorisedAgent = json['authorisedAgent']?.toInt();
-    comment = json['comment']?.toString();
-    date = json['date']?.toString();
-    endTime = json['endTime']?.toString();
-    examId = json['examId']?.toInt();
-    examSectionSubjectMapId = json['examSectionSubjectMapId']?.toInt();
-    masterExamId = json['masterExamId']?.toInt();
-    maxMarks = json['maxMarks']?.toDouble();
-    maxMarksController.text = "${maxMarks ?? ''}";
-    sectionId = json['sectionId']?.toInt();
-    startTime = json['startTime']?.toString();
-    status = json['status']?.toString();
-    if (json['studentExamMarksList'] != null) {
-      final v = json['studentExamMarksList'];
-      final arr0 = <StudentExamMarks>[];
-      v.forEach((v) {
-        arr0.add(StudentExamMarks.fromJson(v));
-      });
-      studentExamMarksList = arr0;
-    }
-    subjectId = json['subjectId']?.toInt();
-  }
-
-  double? get classAverage => (studentExamMarksList ?? []).where((e) => e?.marksObtained != null && e?.isAbsent != 'N').isEmpty
-      ? null
-      : (((studentExamMarksList ?? [])
-                          .where((e) => e?.marksObtained != null && e?.isAbsent != 'N')
-                          .map((e) => e?.marksObtained ?? 0.0)
-                          .fold<double>(0.0, (double a, double b) => a + b) /
-                      (studentExamMarksList ?? []).where((e) => e?.marksObtained != null).length) *
-                  100)
-              .toInt() /
-          100.0;
-
-  String get examDate => date == null ? "-" : convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(date));
-
-  String get startTimeSlot => startTime == null ? "-" : convert24To12HourFormat(startTime!);
-
-  String get endTimeSlot => endTime == null ? "-" : convert24To12HourFormat(endTime!);
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['agent'] = agent;
-    data['authorisedAgent'] = authorisedAgent;
-    data['comment'] = comment;
-    data['date'] = date;
-    data['endTime'] = endTime;
-    data['examId'] = examId;
-    data['examSectionSubjectMapId'] = examSectionSubjectMapId;
-    data['masterExamId'] = masterExamId;
-    data['maxMarks'] = maxMarks;
-    data['sectionId'] = sectionId;
-    data['startTime'] = startTime;
-    data['status'] = status;
-    if (studentExamMarksList != null) {
-      final v = studentExamMarksList;
-      final arr0 = [];
-      for (var v in v!) {
-        arr0.add(v!.toJson());
-      }
-      data['studentExamMarksList'] = arr0;
-    }
-    data['subjectId'] = subjectId;
     return data;
   }
 
@@ -299,6 +190,90 @@ class FAExam {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  List<ExamSectionSubjectMap> get overAllEssmList {
+    // Initialize a set to store unique subject-section IDs.
+    Set<String> subjectSectionIds = {};
+
+    // Iterate through the internal exams and their associated sections and subjects.
+    (faInternalExams ?? []).forEach((FaInternalExam? internalExam) {
+      (internalExam?.examSectionSubjectMapList ?? []).forEach((essm) {
+        // Create a unique identifier for subject and section.
+        String subjectSectionId = "${essm?.subjectId ?? "-"}|${essm?.sectionId ?? "-"}";
+        subjectSectionIds.add(subjectSectionId);
+      });
+    });
+
+    // Create a list of ExamSectionSubjectMap based on unique subject-section IDs.
+    return subjectSectionIds.map((subjectSectionId) {
+      int? subjectId = int.tryParse(subjectSectionId.split("|")[0]);
+      int? sectionId = int.tryParse(subjectSectionId.split("|")[1]);
+
+      // Calculate maxMaxMarks.
+      double maxMaxMarks = (faInternalExams ?? []).fold<double>(0.0, (max, internalExam) {
+        double maxMarks = (internalExam?.examSectionSubjectMapList ?? [])
+            .where((essm) => essm?.subjectId == subjectId && essm?.sectionId == sectionId)
+            .map((essm) => essm?.maxMarks ?? 0)
+            .fold<double>(0.0, (max, value) => max > value ? max : value);
+        return max > maxMarks ? max : maxMarks;
+      });
+
+      // Find authorizedAgent.
+      int? authorizedAgent = (faInternalExams ?? []).expand((internalExam) {
+        return (internalExam?.examSectionSubjectMapList ?? [])
+            .where((essm) => essm?.subjectId == subjectId && essm?.sectionId == sectionId && essm?.maxMarks == maxMaxMarks)
+            .map((essm) => essm?.authorisedAgent);
+      }).firstOrNull;
+
+      // Extract studentExamMarksList.
+      // List<StudentExamMarks?> studentExamMarksList = (faInternalExams ?? []).expand((FaInternalExam? internalExam) =>
+      //     (internalExam?.examSectionSubjectMapList ?? [])
+      //       .where((ExamSectionSubjectMap? essm) => essm?.subjectId == subjectId && essm?.sectionId == sectionId)
+      //       .expand((ExamSectionSubjectMap? essm) => essm?.studentExamMarksList ?? [])
+      // ).toList();
+
+      List<StudentExamMarks?> studentExamMarksList = (faInternalExams ?? [])
+          .map((FaInternalExam? e) => e?.examSectionSubjectMapList ?? [])
+          .expand((i) => i)
+          .where((ExamSectionSubjectMap? essm) => essm?.subjectId == subjectId && essm?.sectionId == sectionId)
+          .map((ExamSectionSubjectMap? essm) => essm?.studentExamMarksList ?? [])
+          .expand((i) => i)
+          .toList();
+
+      // Filter and remove absent or unmarked students.
+      Set<int> studentIdAbsentOrUnMarkedSet = studentExamMarksList
+          .where((examMarks) => examMarks?.isAbsent == "N" || examMarks?.marksObtained != null)
+          .map((examMarks) => examMarks?.studentId)
+      .whereNotNull()
+          .toSet();
+
+      studentExamMarksList.removeWhere((examMarks) => !studentIdAbsentOrUnMarkedSet.contains(examMarks?.studentId));
+
+      // Calculate studentExamMarksForEssm.
+      List<StudentExamMarks> studentExamMarksForEssm = studentIdAbsentOrUnMarkedSet
+          .map((studentId) => StudentExamMarks()
+            ..studentId = studentId
+            ..marksObtained =
+                studentExamMarksList.where((examMarks) => examMarks?.studentId == studentId).map((examMarks) => examMarks?.marksObtained ?? 0).sum)
+          .toList();
+
+      double actualMaxMarks = 0.0;
+      for (FaInternalExam? internalExam in faInternalExams ??[]) {
+        if (internalExam == null) continue;
+        for (ExamSectionSubjectMap? essm in (internalExam.examSectionSubjectMapList ?? []).where((essm) => essm?.sectionId == sectionId && essm?.subjectId == subjectId)) {
+          actualMaxMarks += essm?.maxMarks ?? 0;
+        }
+      }
+
+      // Create and return ExamSectionSubjectMap.
+      return ExamSectionSubjectMap()
+        ..subjectId = subjectId
+        ..sectionId = sectionId
+        ..authorisedAgent = authorizedAgent
+        ..maxMarks = actualMaxMarks
+        ..studentExamMarksList = studentExamMarksForEssm;
+    }).toList();
+  }
 }
 
 class GetFAExamsResponse {

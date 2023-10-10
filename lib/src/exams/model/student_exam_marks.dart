@@ -65,30 +65,6 @@ class StudentExamMediaBean {
 }
 
 class StudentExamMarks {
-/*
-{
-  "agent": 0,
-  "comment": "string",
-  "examId": 0,
-  "examSectionSubjectMapId": 0,
-  "marksId": 0,
-  "marksObtained": 0,
-  "studentExamMediaBeans": [
-    {
-      "agent": 0,
-      "comment": "string",
-      "marksId": 0,
-      "marksMediaId": 0,
-      "mediaType": "string",
-      "mediaUrl": "string",
-      "mediaUrlId": 0,
-      "status": "active"
-    }
-  ],
-  "studentId": 0
-} 
-*/
-
   int? agent;
   String? comment;
   int? examId;

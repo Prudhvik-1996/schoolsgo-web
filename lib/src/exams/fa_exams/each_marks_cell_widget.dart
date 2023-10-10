@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class EachMarksCellWidget extends StatelessWidget {
   const EachMarksCellWidget({

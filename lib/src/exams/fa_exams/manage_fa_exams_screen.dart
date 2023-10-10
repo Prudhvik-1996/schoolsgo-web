@@ -78,7 +78,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Manage FA Exams"),
+        title: const Text("Exams With Internals"),
         actions: [
           if (widget.adminProfile != null)
             buildRoleButtonForAppBar(

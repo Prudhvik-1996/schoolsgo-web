@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 Future<void> downloadHallTickets(
   BuildContext context,

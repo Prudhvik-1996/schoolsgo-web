@@ -5,7 +5,7 @@ import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
@@ -19,7 +19,7 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
-class CustomExamsAllStudentsMarksExcel {
+class FAExamsAllStudentsMarksExcel {
   SchoolInfoBean schoolInfo;
   AdminProfile? adminProfile;
   TeacherProfile? teacherProfile;
@@ -29,7 +29,7 @@ class CustomExamsAllStudentsMarksExcel {
   List<Subject> subjectsList;
   List<TeacherDealingSection> tdsList;
   MarkingAlgorithmBean? markingAlgorithm;
-  CustomExam customExam;
+  FAExam faExam;
   List<StudentProfile> studentsList;
   Section selectedSection;
   Map<int, List<StudentExamMarks>> examMarks;
@@ -39,7 +39,7 @@ class CustomExamsAllStudentsMarksExcel {
   List<ExamSectionSubjectMap?> essmList = [];
   double totalMaxMarks = 0;
 
-  CustomExamsAllStudentsMarksExcel({
+  FAExamsAllStudentsMarksExcel({
     required this.schoolInfo,
     required this.adminProfile,
     required this.teacherProfile,
@@ -49,37 +49,50 @@ class CustomExamsAllStudentsMarksExcel {
     required this.subjectsList,
     required this.tdsList,
     required this.markingAlgorithm,
-    required this.customExam,
+    required this.faExam,
     required this.studentsList,
     required this.selectedSection,
     required this.examMarks,
   }) {
-    (customExam.examSectionSubjectMapList ?? []).removeWhere((e) => e?.sectionId != selectedSection.sectionId);
+    (faExam.faInternalExams ?? []).whereNotNull().forEach((eachInternal) {
+      (eachInternal.examSectionSubjectMapList ?? []).removeWhere((e) => e?.sectionId != selectedSection.sectionId);
+    });
+    essmList = ((faExam.faInternalExams ?? []).map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull()).expand((i) => i)).toList();
+    essmList.sort((a, b) {
+      Subject? aSubject = subjectsList.where((es) => es.subjectId == a?.subjectId).firstOrNull;
+      Subject? bSubject = subjectsList.where((es) => es.subjectId == b?.subjectId).firstOrNull;
+      return (aSubject?.seqOrder ?? 0).compareTo(bSubject?.seqOrder ?? 0);
+    });
     studentsList = <StudentProfile>{
       ...studentsList.where((e) => e.sectionId == selectedSection.sectionId),
-      ...studentsList.where((e) => (customExam.examSectionSubjectMapList ?? [])
-          .whereNotNull()
-          .map((e) => e.studentExamMarksList ?? [])
-          .expand((i) => i)
-          .whereNotNull()
-          .map((e) => e.studentId)
-          .contains(e.studentId))
+      ...studentsList.where((e) {
+        return essmList.map((e) => e?.studentExamMarksList ?? []).expand((i) => i).whereNotNull().map((e) => e.studentId).contains(e.studentId);
+      })
     }.toList();
     studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
-    List<Subject> tempSubjectsList = (customExam.examSectionSubjectMapList ?? [])
+    List<Subject> tempSubjectsList = essmList
         .where((essm) => essm?.sectionId == selectedSection.sectionId)
         .map((e) => e?.subjectId)
+        .toSet()
         .map((eachSubjectId) => subjectsList.where((e) => e.subjectId == eachSubjectId).firstOrNull)
         .whereNotNull()
         .toList();
-    essmList = customExam.examSectionSubjectMapList ?? [];
+
     for (Subject es in tempSubjectsList) {
-      ExamSectionSubjectMap? essm = essmList.where((essm) => essm?.subjectId == es.subjectId).firstOrNull;
-      if (essm != null) {
-        subjectsForExam.add(es);
-        headerStrings.add("${es.subjectName?.split(" ").join("\n") ?? " - "}\n(${essm.maxMarks})");
-        totalMaxMarks += essm.maxMarks ?? 0;
-      }
+      List<ExamSectionSubjectMap?> tempEssmList = essmList.where((essm) => essm?.subjectId == es.subjectId).toList();
+      tempEssmList.forEach((essm) {
+        if (essm != null) {
+          String examName = (faExam.faInternalExams ?? [])
+                  .where(
+                      (eie) => (eie?.examSectionSubjectMapList ?? []).map((e) => e?.examSectionSubjectMapId).contains(essm.examSectionSubjectMapId))
+                  .firstOrNull
+                  ?.faInternalExamName ??
+              "-";
+          subjectsForExam.add(es);
+          headerStrings.add("${es.subjectName?.split(" ").join("\n") ?? " - "}\n$examName\n${essm.sectionId}\n(${essm.maxMarks})");
+          totalMaxMarks += essm.maxMarks ?? 0;
+        }
+      });
     }
     // headerStrings.add("Total\n($totalMaxMarks)");
   }
@@ -146,10 +159,8 @@ class CustomExamsAllStudentsMarksExcel {
                 .expand((i) => i)
                 .where((e) => e.studentId == studentId)
                 .where((eachMarks) {
-                  int? eachMarksSubjectId = (customExam.examSectionSubjectMapList ?? [])
-                      .where((e) => e?.examSectionSubjectMapId == eachMarks.examSectionSubjectMapId)
-                      .firstOrNull
-                      ?.subjectId;
+                  int? eachMarksSubjectId =
+                      essmList.where((e) => e?.examSectionSubjectMapId == eachMarks.examSectionSubjectMapId).firstOrNull?.subjectId;
                   return eachMarksSubjectId == marksSubjectId;
                 })
                 .map((e) => e.isAbsent == 'N' ? 0.0 : e.marksObtained ?? 0.0)
@@ -185,7 +196,7 @@ class CustomExamsAllStudentsMarksExcel {
     Uint8List excelUint8List = Uint8List.fromList(excelBytes);
 
     // Save the Excel file
-    FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Template for ${customExam.customExamName}.xlsx');
+    FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Template for ${faExam.faExamName}.xlsx');
   }
 
   Future<Excel?> readAndValidateExcel() async {

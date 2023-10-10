@@ -1,5 +1,6 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
+import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -7,6 +8,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_memo_view.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/views/fa_exams_all_students_marks_excel_template.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -17,6 +19,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class FaCumulativeExamMarksScreen extends StatefulWidget {
   const FaCumulativeExamMarksScreen({
@@ -184,6 +187,72 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                     _isEditMode = true;
                   });
                 }
+              },
+            ),
+          if (!_isLoading && _isEditMode)
+            PopupMenuButton<String>(
+              tooltip: "Templates",
+              onSelected: (String choice) async {
+                if (choice == "Download Template") {
+                  setState(() => _isLoading = true);
+                  await FAExamsAllStudentsMarksExcel(
+                    schoolInfo: widget.schoolInfo,
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    sectionsList: widget.sectionsList,
+                    teachersList: widget.teachersList,
+                    subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm: widget.markingAlgorithm,
+                    faExam: widget.faExam,
+                    studentsList: widget.studentsList,
+                    selectedSection: widget.selectedSection,
+                    examMarks: examMarks,
+                  ).downloadTemplate();
+                  setState(() => _isLoading = false);
+                } else if (choice == "Upload From Template") {
+                  setState(() => _isLoading = true);
+                  FAExamsAllStudentsMarksExcel faExamsAllStudentsMarksExcel = FAExamsAllStudentsMarksExcel(
+                    schoolInfo: widget.schoolInfo,
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    sectionsList: widget.sectionsList,
+                    teachersList: widget.teachersList,
+                    subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm: widget.markingAlgorithm,
+                    faExam: widget.faExam,
+                    studentsList: widget.studentsList,
+                    selectedSection: widget.selectedSection,
+                    examMarks: examMarks,
+                  );
+                  Excel? excel = await faExamsAllStudentsMarksExcel.readAndValidateExcel();
+                  if (excel == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Invalid format! Try again later.."),
+                      ),
+                    );
+                    return;
+                  }
+                  faExamsAllStudentsMarksExcel.readExamMarks(excel);
+                  setState(() => _isLoading = false);
+                } else {
+                  debugPrint("Invalid choice");
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {
+                  "Download Template",
+                  "Upload From Template",
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
               },
             ),
         ],

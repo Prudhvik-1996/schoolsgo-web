@@ -20,6 +20,7 @@ import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_at
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class EachStudentPdfDownloadForFaExam {
   final SchoolInfoBean schoolInfo;
@@ -81,7 +82,6 @@ class EachStudentPdfDownloadForFaExam {
       updateMessage("Writing memo for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
       ImageProvider? studentImage = studentImages[studentIndex];
 
-      FAExam faExamForStudent = FAExam.fromJson(faExam.toJson());
       faExam.faInternalExams ??= [];
       for (FaInternalExam? ei in faExam.faInternalExams!) {
         ei!.examSectionSubjectMapList ??= [];
@@ -91,6 +91,7 @@ class EachStudentPdfDownloadForFaExam {
           essm.studentExamMarksList!.removeWhere((esm) => esm?.studentId != studentProfile.studentId);
         }
       }
+      FAExam faExamForStudent = FAExam.fromJson(faExam.toJson());
 
       late double totalMaxMarks;
       late double? totalMarksObtained;
@@ -609,7 +610,7 @@ class EachStudentPdfDownloadForFaExam {
       updateMessage("Caching image for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
       ImageProvider? x;
       try {
-        x = studentProfile.studentPhotoThumbnailUrl == null ? null : await networkImage(allowCORSEndPoint + studentProfile.studentPhotoThumbnailUrl!);
+        x = studentProfile.studentPhotoThumbnailUrl == null ? null : await networkImage(studentProfile.studentPhotoThumbnailUrl!);
       } on Exception catch (e) {
         updateMessage("Something went wrong.. $e");
       }

@@ -14,6 +14,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class EachStudentMemoView extends StatefulWidget {
   const EachStudentMemoView({
@@ -114,15 +115,14 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                 setState(() => _isLoading = true);
                 List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
                 GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
-                await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
+                    await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
                   schoolId: widget.schoolInfo.schoolId,
                   sectionId: widget.selectedSection.sectionId,
                   academicYearId: widget.selectedAcademicYearId,
                   isAdminView: "Y",
                   studentId: widget.studentProfile.studentId,
                 ));
-                if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
-                    getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
+                if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" || getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Something went wrong! Try again later.."),

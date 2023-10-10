@@ -95,7 +95,7 @@ class _ClassTeacherExamsOptionScreenState extends State<ClassTeacherExamsOptionS
       body: ListView(
         children: [
           _getExamsOption(
-            "Custom Exams",
+            "Exams Without Internals",
             null,
             CustomExamsScreen(
               adminProfile: null,
@@ -105,7 +105,7 @@ class _ClassTeacherExamsOptionScreenState extends State<ClassTeacherExamsOptionS
             ),
           ),
           _getExamsOption(
-            "FA Exams",
+            "Exams With Internals",
             null,
             FAExamsScreen(
               adminProfile: null,

@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class CustomExamView extends StatefulWidget {
   const CustomExamView({

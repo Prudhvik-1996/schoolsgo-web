@@ -349,7 +349,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: const Text("FA Exams"),
+        title: const Text("Exams With Internals"),
         actions: widget.defaultSelectedSection != null
             ? []
             : [

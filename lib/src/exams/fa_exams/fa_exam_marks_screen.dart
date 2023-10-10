@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class FAExamMarksScreen extends StatefulWidget {
   const FAExamMarksScreen({

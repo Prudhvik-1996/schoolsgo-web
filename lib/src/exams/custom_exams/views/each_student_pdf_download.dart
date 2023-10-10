@@ -18,6 +18,7 @@ import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_at
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class EachStudentPdfDownloadForCustomExam {
   final SchoolInfoBean schoolInfo;

@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.da
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_all_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_pdf_download.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';

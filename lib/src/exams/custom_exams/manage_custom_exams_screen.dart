@@ -76,7 +76,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Custom Exams"),
+        title: const Text("Manage Exams Without Internals"),
         actions: [
           if (widget.adminProfile != null)
             buildRoleButtonForAppBar(
