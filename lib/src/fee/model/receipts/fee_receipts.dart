@@ -472,6 +472,7 @@ class StudentFeeReceipt {
   String? sectionName;
   int? studentId;
   String? studentName;
+  String? gaurdianName;
   String? transactionDate;
   int? transactionId;
   String? comments;
@@ -491,6 +492,7 @@ class StudentFeeReceipt {
     this.sectionName,
     this.studentId,
     this.studentName,
+    this.gaurdianName,
     this.transactionDate,
     this.transactionId,
     this.comments,
@@ -517,6 +519,7 @@ class StudentFeeReceipt {
     sectionName = json['sectionName']?.toString();
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
+    gaurdianName = json['gaurdianName']?.toString();
     transactionDate = json['transactionDate']?.toString();
     transactionId = json['transactionId']?.toInt();
     comments = json['comments']?.toString();
@@ -540,6 +543,7 @@ class StudentFeeReceipt {
     data['sectionName'] = sectionName;
     data['studentId'] = studentId;
     data['studentName'] = studentName;
+    data['gaurdianName'] = gaurdianName;
     data['transactionDate'] = transactionDate;
     data['transactionId'] = transactionId;
     data['comments'] = comments;
@@ -622,6 +626,8 @@ class StudentFeeReceipt {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    guardianNameWidget(),
                     const SizedBox(height: 10),
                     if ((feeTypes ?? []).isNotEmpty) ...feeTypes!.map((e) => e == null ? Container() : e.widget(context, isTermWise)),
                     const SizedBox(height: 10),
@@ -949,6 +955,23 @@ class StudentFeeReceipt {
           ),
         ),
       ),
+    );
+  }
+
+  Widget guardianNameWidget() {
+    if (studentId == null) return Container();
+    if (gaurdianName == "") return Container();
+    return Row(
+      children: [
+        const SizedBox(width: 10),
+        const Text("Parent Name:", style: TextStyle(color: Colors.blue)),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: 2,
+          child: Text(gaurdianName ?? "-"),
+        ),
+        const SizedBox(width: 10),
+      ],
     );
   }
 

@@ -1,8 +1,8 @@
-const String SCHOOLS_GO_BASE_URL = "http://epsiloninfinityservices.com:8080/schoolsgo";
-const String SCHOOLS_GO_DRIVE_SERVICE_BASE_URL = "http://epsiloninfinityservices.com:8082/eis";
-const String SCHOOLS_GO_MESSAGING_SERVICE_BASE_URL = "http://epsiloninfinityservices.com:8081/schoolsgo";
+const String SCHOOLS_GO_BASE_URL = "https://epsiloninfinityservices.com:8000/schoolsgo";
+const String SCHOOLS_GO_DRIVE_SERVICE_BASE_URL = "https://epsiloninfinityservices.com:8002/eis";
+const String SCHOOLS_GO_MESSAGING_SERVICE_BASE_URL = "https://epsiloninfinityservices.com:8001/schoolsgo";
 
-const String BUS_TRACKING_API_URL = "http://epsiloninfinityservices.com:8085";
+const String BUS_TRACKING_API_URL = "https://epsiloninfinityservices.com:8005";
 const String GET_LOCATION = "/bus_tracking/getBusPosition";
 
 const String UPLOAD_FILE_TO_DRIVE = "/drive/uploadFileToDrive";

@@ -67,8 +67,8 @@ Future<void> printReceipts(
               pw.SizedBox(
                 height: 10,
               ),
-            if (studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.gaurdianFirstName != null)
-              parentNameWidget(studentProfiles.where((e) => e.studentId == eachTransaction.studentId).firstOrNull?.gaurdianFirstName ?? "-", font),
+            if (eachTransaction.gaurdianName != null)
+              parentNameWidget(eachTransaction.gaurdianName ?? "-", font),
             pw.SizedBox(
               height: 10,
             ),
