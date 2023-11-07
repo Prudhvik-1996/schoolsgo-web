@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_memo_view.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_memo_view.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/fa_exams_all_students_marks_excel_template.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -19,7 +20,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
-import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class FaCumulativeExamMarksScreen extends StatefulWidget {
   const FaCumulativeExamMarksScreen({
@@ -76,6 +76,8 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
   @override
   void initState() {
     super.initState();
+    (widget.faExam.faInternalExams ?? []).whereNotNull().forEach(
+        (eachInternal) => eachInternal.examSectionSubjectMapList?.removeWhere((essm) => essm?.sectionId != widget.selectedSection.sectionId));
     _loadData();
   }
 
