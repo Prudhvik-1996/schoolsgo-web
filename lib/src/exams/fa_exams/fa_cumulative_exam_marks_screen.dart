@@ -353,6 +353,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                 essm?.sectionId == widget.selectedSection.sectionId &&
                 (widget.teacherProfile == null || widget.isClassTeacher || widget.teacherProfile?.teacherId == essm?.authorisedAgent))
             .firstOrNull;
+        print("356:\n${x?.toJson()}\n${eachSubject.toJson()}\n");
         subjectWiseEssmList.add(x);
         if (x != null) {
           subjectWiseHeaderStrings.add("${eachSubject.subjectName}|${eachInternal.faInternalExamName ?? "-"}");
@@ -463,7 +464,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
           columnsTitleBuilder: (int colIndex) => columnHeaderBuilder(headerStrings, colIndex),
           contentCellBuilder: (int columnIndex, int rowIndex) {
             int? studentId = studentsList[rowIndex].studentId;
-            ExamSectionSubjectMap? essm = essmList[columnIndex];
+            ExamSectionSubjectMap? essm = essmList.whereNotNull().toList()[columnIndex];
             StudentExamMarks? eachStudentExamMarks =
                 (examMarks[essm?.examSectionSubjectMapId] ?? []).where((e) => e.studentId == studentId).firstOrNull;
             if (essm == null) {
