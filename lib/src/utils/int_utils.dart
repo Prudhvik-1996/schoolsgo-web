@@ -6,7 +6,7 @@ String intToStringAsFixed(int? val, {int decimalPlaces = 2}) {
 }
 
 String doubleToStringAsFixed(double? val, {int decimalPlaces = 2}) {
-  if (val == null) return "-";
+  if (val == null) return "";
   int? parsedInt = int.tryParse(val.toString());
   if (parsedInt == val) {
     return int.parse(val.toString()).toString();

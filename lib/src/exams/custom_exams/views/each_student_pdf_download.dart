@@ -7,6 +7,8 @@ import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/constants.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -18,7 +20,6 @@ import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_at
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class EachStudentPdfDownloadForCustomExam {
   final SchoolInfoBean schoolInfo;
@@ -54,7 +55,8 @@ class EachStudentPdfDownloadForCustomExam {
     required this.updateMessage,
   });
 
-  Future<void> downloadMemo(List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList) async {
+  Future<void> downloadMemo(List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList,
+      {AttendanceType attendanceType = AttendanceType.WITH}) async {
     final pdf = Document();
 
     final font = await PdfGoogleFonts.merriweatherRegular();
@@ -370,86 +372,95 @@ class EachStudentPdfDownloadForCustomExam {
                       ],
                     ),
                     SizedBox(height: 10),
-                    Table(
-                      border: TableBorder.all(),
-                      children: [
-                        TableRow(
-                          decoration: const BoxDecoration(
-                            color: PdfColors.grey100,
+                    if (AttendanceType.NO != attendanceType)
+                      Table(
+                        border: TableBorder.all(),
+                        children: [
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: PdfColors.grey100,
+                            ),
+                            children: ["Month", ...attendanceHeaders].map((e) => paddedText(e, fontSize: 9, textAlign: TextAlign.center)).toList(),
                           ),
-                          children: ["Month", ...attendanceHeaders].map((e) => paddedText(e, fontSize: 9, textAlign: TextAlign.center)).toList(),
-                        ),
-                        TableRow(
-                          decoration: const BoxDecoration(
-                            color: PdfColors.white,
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: PdfColors.white,
+                            ),
+                            children: [
+                              paddedText("Working\ndays", fontSize: 9),
+                              ...attendanceHeaders.map((e) {
+                                int month = getMonth(e);
+                                if (month != 0) {
+                                  StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
+                                      .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
+                                      .firstOrNull;
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (smwa?.present ?? 0) + (smwa?.absent ?? 0),
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                } else {
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (studentMonthWiseAttendanceList
+                                                    .where((smwa) => smwa.studentId == studentProfile.studentId)
+                                                    .map((e) => e.present ?? 0)).sum +
+                                                (studentMonthWiseAttendanceList
+                                                    .where((smwa) => smwa.studentId == studentProfile.studentId)
+                                                    .map((e) => e.absent ?? 0)).sum,
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }
+                              })
+                            ],
                           ),
-                          children: [
-                            paddedText("Working\ndays", fontSize: 9),
-                            ...attendanceHeaders.map((e) {
-                              int month = getMonth(e);
-                              if (month != 0) {
-                                StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
-                                    .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
-                                    .firstOrNull;
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (smwa?.present ?? 0) + (smwa?.absent ?? 0),
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              } else {
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (studentMonthWiseAttendanceList
-                                            .where((smwa) => smwa.studentId == studentProfile.studentId)
-                                            .map((e) => e.present ?? 0)).sum +
-                                        (studentMonthWiseAttendanceList
-                                            .where((smwa) => smwa.studentId == studentProfile.studentId)
-                                            .map((e) => e.absent ?? 0)).sum,
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              }
-                            })
-                          ],
-                        ),
-                        TableRow(
-                          decoration: const BoxDecoration(
-                            color: PdfColors.white,
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: PdfColors.white,
+                            ),
+                            children: [
+                              paddedText("Present\ndays", fontSize: 9),
+                              ...attendanceHeaders.map((e) {
+                                int month = getMonth(e);
+                                if (month != 0) {
+                                  StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
+                                      .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
+                                      .firstOrNull;
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (smwa?.present ?? 0),
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                } else {
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (studentMonthWiseAttendanceList
+                                                .where((smwa) => smwa.studentId == studentProfile.studentId)
+                                                .map((e) => e.present ?? 0)).sum,
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }
+                              })
+                            ],
                           ),
-                          children: [
-                            paddedText("Present\ndays", fontSize: 9),
-                            ...attendanceHeaders.map((e) {
-                              int month = getMonth(e);
-                              if (month != 0) {
-                                StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
-                                    .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
-                                    .firstOrNull;
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (smwa?.present ?? 0),
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              } else {
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (studentMonthWiseAttendanceList
-                                        .where((smwa) => smwa.studentId == studentProfile.studentId)
-                                        .map((e) => e.present ?? 0)).sum,
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              }
-                            })
-                          ],
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -497,7 +508,7 @@ class EachStudentPdfDownloadForCustomExam {
     anchorElement.target = '_blank';
     anchorElement.download = studentProfiles.length == 1
         ? "${studentProfiles[0].sectionName} ${studentProfiles[0].rollNumber ?? ""} ${studentProfiles[0].studentFirstName}.pdf"
-        : "${customExam.customExamName} Memos.pdf";
+        : "${selectedSection.sectionName ?? " "} ${customExam.customExamName} Memos.pdf".trim();
     anchorElement.click();
     updateMessage(null);
   }

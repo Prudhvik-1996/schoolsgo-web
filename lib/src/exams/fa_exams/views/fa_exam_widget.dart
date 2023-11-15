@@ -11,6 +11,8 @@ import 'package:schoolsgo_web/src/exams/fa_exams/fa_cumulative_exam_marks_screen
 import 'package:schoolsgo_web/src/exams/fa_exams/fa_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/constants.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -20,7 +22,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
-import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 import 'each_student_pdf_download.dart';
 
@@ -418,32 +419,37 @@ class _FAExamWidgetState extends State<FAExamWidget> {
               message: "Download all memos",
               child: GestureDetector(
                 onTap: () async {
+                  AttendanceType attendanceType = await getAttendanceTypeFromAlertDialogue(context);
                   setState(() {
                     _isExpanded = false;
-                    downloadMessage = "Getting attendance report";
                   });
-                  await Future.delayed(const Duration(seconds: 1));
                   List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
-                  GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
-                  await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
-                    schoolId: widget.schoolInfo.schoolId,
-                    sectionId: widget.selectedSection?.sectionId,
-                    academicYearId: widget.faExam.academicYearId,
-                    isAdminView: "Y",
-                    studentId: null,
-                  ));
-                  if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
-                      getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Something went wrong! Try again later.."),
-                      ),
-                    );
-                  } else {
-                    studentMonthWiseAttendanceList =
-                        (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
+                  if (attendanceType == AttendanceType.WITH) {
+                    setState(() {
+                      downloadMessage = "Getting attendance report";
+                    });
+                    await Future.delayed(const Duration(seconds: 1));
+                    GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
+                        await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
+                      schoolId: widget.schoolInfo.schoolId,
+                      sectionId: widget.selectedSection?.sectionId,
+                      academicYearId: widget.faExam.academicYearId,
+                      isAdminView: "Y",
+                      studentId: null,
+                    ));
+                    if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
+                        getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Something went wrong! Try again later.."),
+                        ),
+                      );
+                    } else {
+                      studentMonthWiseAttendanceList =
+                          (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
+                    }
+                    setState(() => downloadMessage = "Got the attendance report");
                   }
-                  setState(() => downloadMessage = "Got the attendance report");
                   await EachStudentPdfDownloadForFaExam(
                     schoolInfo: widget.schoolInfo,
                     adminProfile: widget.adminProfile,
@@ -452,14 +458,13 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                     teachersList: widget.teachersList,
                     subjectsList: widget.subjectsList,
                     tdsList: widget.tdsList,
-                    markingAlgorithm:
-                    widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
+                    markingAlgorithm: widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
                     faExam: widget.faExam,
                     studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
                     selectedSection: widget.selectedSection!,
                     updateMessage: (String? e) => setState(() => downloadMessage = e),
                     selectedInternal: null,
-                  ).downloadMemo(studentMonthWiseAttendanceList);
+                  ).downloadMemo(studentMonthWiseAttendanceList, attendanceType: attendanceType);
                   setState(() {
                     _isExpanded = true;
                   });

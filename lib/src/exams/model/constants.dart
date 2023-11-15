@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum InternalsComputationCode { A, B, S }
 
 extension InternalsComputationCodeExt on InternalsComputationCode {
@@ -20,6 +22,55 @@ extension InternalsComputationCodeExt on InternalsComputationCode {
 }
 
 enum MarkingSchemeCode { A, B, C, D, E, F, G }
+
+enum AttendanceType { BLANK, NO, WITH }
+
+Future<AttendanceType> getAttendanceTypeFromAlertDialogue(BuildContext context) async {
+  AttendanceType attendanceType = AttendanceType.WITH;
+  await showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext dialogueContext) {
+      return AlertDialog(
+        title: const Text('Choose Attendance Report Format'),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...AttendanceType.values.map((e) => RadioListTile(
+                  title: e == AttendanceType.WITH
+                      ? const Text("With Actual Attendance Report")
+                      : e == AttendanceType.BLANK
+                      ? const Text("With Empty Attendance Report")
+                      : const Text("With No Attendance Report"),
+                  selected: attendanceType == e,
+                  value: e,
+                  onChanged: (AttendanceType? value) {
+                    if (value == null) return;
+                    setState(() => attendanceType = value);
+                  },
+                  groupValue: attendanceType,
+                )),
+              ],
+            );
+          },
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text("Proceed to download"),
+            onPressed: () async {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      );
+    },
+  );
+  return attendanceType;
+}
 
 extension MarkingSchemeExt on MarkingSchemeCode {
   String toShortString() {

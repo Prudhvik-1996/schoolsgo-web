@@ -225,13 +225,6 @@ class FAExam {
             .map((essm) => essm?.authorisedAgent);
       }).firstOrNull;
 
-      // Extract studentExamMarksList.
-      // List<StudentExamMarks?> studentExamMarksList = (faInternalExams ?? []).expand((FaInternalExam? internalExam) =>
-      //     (internalExam?.examSectionSubjectMapList ?? [])
-      //       .where((ExamSectionSubjectMap? essm) => essm?.subjectId == subjectId && essm?.sectionId == sectionId)
-      //       .expand((ExamSectionSubjectMap? essm) => essm?.studentExamMarksList ?? [])
-      // ).toList();
-
       List<StudentExamMarks?> studentExamMarksList = (faInternalExams ?? [])
           .map((FaInternalExam? e) => e?.examSectionSubjectMapList ?? [])
           .expand((i) => i)

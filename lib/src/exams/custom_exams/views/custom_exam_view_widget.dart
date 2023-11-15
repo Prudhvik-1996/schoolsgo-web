@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.da
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_all_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_pdf_download.dart';
+import 'package:schoolsgo_web/src/exams/model/constants.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -445,33 +446,39 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                     message: "Download all memos",
                     child: GestureDetector(
                       onTap: () async {
+                        AttendanceType attendanceType = await getAttendanceTypeFromAlertDialogue(context);
                         setState(() {
                           _isLoading = true;
                           _isExpanded = false;
-                          downloadMessage = "Getting attendance report";
                         });
-                        await Future.delayed(const Duration(seconds: 1));
                         List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
-                        GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
-                            await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
-                          schoolId: widget.schoolInfo.schoolId,
-                          sectionId: widget.selectedSection?.sectionId,
-                          academicYearId: widget.customExam.academicYearId,
-                          isAdminView: "Y",
-                          studentId: null,
-                        ));
-                        if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
-                            getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Something went wrong! Try again later.."),
-                            ),
-                          );
-                        } else {
-                          studentMonthWiseAttendanceList =
-                              (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
+                        if (attendanceType == AttendanceType.WITH) {
+                          setState(() {
+                            downloadMessage = "Getting attendance report";
+                          });
+                          await Future.delayed(const Duration(seconds: 1));
+                          List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
+                          GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
+                              await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
+                            schoolId: widget.schoolInfo.schoolId,
+                            sectionId: widget.selectedSection?.sectionId,
+                            academicYearId: widget.customExam.academicYearId,
+                            isAdminView: "Y",
+                            studentId: null,
+                          ));
+                          if (getStudentMonthWiseAttendanceResponse.httpStatus != "OK" ||
+                              getStudentMonthWiseAttendanceResponse.responseStatus != "success") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Something went wrong! Try again later.."),
+                              ),
+                            );
+                          } else {
+                            studentMonthWiseAttendanceList =
+                                (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
+                          }
+                          setState(() => downloadMessage = "Got the attendance report");
                         }
-                        setState(() => downloadMessage = "Got the attendance report");
                         await EachStudentPdfDownloadForCustomExam(
                           schoolInfo: widget.schoolInfo,
                           adminProfile: widget.adminProfile,
@@ -486,7 +493,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
                           selectedSection: widget.selectedSection!,
                           updateMessage: (String? e) => setState(() => downloadMessage = e),
-                        ).downloadMemo(studentMonthWiseAttendanceList);
+                        ).downloadMemo(studentMonthWiseAttendanceList, attendanceType: attendanceType);
                         setState(() {
                           _isLoading = false;
                           _isExpanded = true;

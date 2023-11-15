@@ -9,6 +9,8 @@ import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/constants.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -20,7 +22,6 @@ import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_at
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class EachStudentPdfDownloadForFaExam {
   final SchoolInfoBean schoolInfo;
@@ -58,7 +59,8 @@ class EachStudentPdfDownloadForFaExam {
     required this.updateMessage,
   });
 
-  Future<void> downloadMemo(List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList) async {
+  Future<void> downloadMemo(List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList,
+      {AttendanceType attendanceType = AttendanceType.WITH}) async {
     final pdf = Document();
 
     final font = await PdfGoogleFonts.merriweatherRegular();
@@ -82,8 +84,9 @@ class EachStudentPdfDownloadForFaExam {
       updateMessage("Writing memo for ${studentProfile.rollNumber}. ${studentProfile.studentFirstName}");
       ImageProvider? studentImage = studentImages[studentIndex];
 
-      faExam.faInternalExams ??= [];
-      for (FaInternalExam? ei in faExam.faInternalExams!) {
+      FAExam faExamForStudent = FAExam.fromJson(faExam.toJson());
+      faExamForStudent.faInternalExams ??= [];
+      for (FaInternalExam? ei in faExamForStudent.faInternalExams!) {
         ei!.examSectionSubjectMapList ??= [];
         ei.examSectionSubjectMapList!.removeWhere((essm) => essm?.sectionId != selectedSection.sectionId);
         for (ExamSectionSubjectMap? essm in ei.examSectionSubjectMapList!) {
@@ -91,7 +94,6 @@ class EachStudentPdfDownloadForFaExam {
           essm.studentExamMarksList!.removeWhere((esm) => esm?.studentId != studentProfile.studentId);
         }
       }
-      FAExam faExamForStudent = FAExam.fromJson(faExam.toJson());
 
       late double totalMaxMarks;
       late double? totalMarksObtained;
@@ -468,86 +470,95 @@ class EachStudentPdfDownloadForFaExam {
                       ],
                     ),
                     SizedBox(height: 10),
-                    Table(
-                      border: TableBorder.all(),
-                      children: [
-                        TableRow(
-                          decoration: const BoxDecoration(
-                            color: PdfColors.grey100,
+                    if (AttendanceType.NO != attendanceType)
+                      Table(
+                        border: TableBorder.all(),
+                        children: [
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: PdfColors.grey100,
+                            ),
+                            children: ["Month", ...attendanceHeaders].map((e) => paddedText(e, fontSize: 9, textAlign: TextAlign.center)).toList(),
                           ),
-                          children: ["Month", ...attendanceHeaders].map((e) => paddedText(e, fontSize: 9, textAlign: TextAlign.center)).toList(),
-                        ),
-                        TableRow(
-                          decoration: const BoxDecoration(
-                            color: PdfColors.white,
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: PdfColors.white,
+                            ),
+                            children: [
+                              paddedText("Working\ndays", fontSize: 9),
+                              ...attendanceHeaders.map((e) {
+                                int month = getMonth(e);
+                                if (month != 0) {
+                                  StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
+                                      .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
+                                      .firstOrNull;
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (smwa?.present ?? 0) + (smwa?.absent ?? 0),
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                } else {
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (studentMonthWiseAttendanceList
+                                                    .where((smwa) => smwa.studentId == studentProfile.studentId)
+                                                    .map((e) => e.present ?? 0)).sum +
+                                                (studentMonthWiseAttendanceList
+                                                    .where((smwa) => smwa.studentId == studentProfile.studentId)
+                                                    .map((e) => e.absent ?? 0)).sum,
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }
+                              })
+                            ],
                           ),
-                          children: [
-                            paddedText("Working\ndays", fontSize: 9),
-                            ...attendanceHeaders.map((e) {
-                              int month = getMonth(e);
-                              if (month != 0) {
-                                StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
-                                    .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
-                                    .firstOrNull;
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (smwa?.present ?? 0) + (smwa?.absent ?? 0),
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              } else {
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (studentMonthWiseAttendanceList
-                                            .where((smwa) => smwa.studentId == studentProfile.studentId)
-                                            .map((e) => e.present ?? 0)).sum +
-                                        (studentMonthWiseAttendanceList
-                                            .where((smwa) => smwa.studentId == studentProfile.studentId)
-                                            .map((e) => e.absent ?? 0)).sum,
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              }
-                            })
-                          ],
-                        ),
-                        TableRow(
-                          decoration: const BoxDecoration(
-                            color: PdfColors.white,
+                          TableRow(
+                            decoration: const BoxDecoration(
+                              color: PdfColors.white,
+                            ),
+                            children: [
+                              paddedText("Present\ndays", fontSize: 9),
+                              ...attendanceHeaders.map((e) {
+                                int month = getMonth(e);
+                                if (month != 0) {
+                                  StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
+                                      .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
+                                      .firstOrNull;
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (smwa?.present ?? 0),
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                } else {
+                                  return paddedText(
+                                    AttendanceType.BLANK == attendanceType
+                                        ? ""
+                                        : doubleToStringAsFixed(
+                                            (studentMonthWiseAttendanceList
+                                                .where((smwa) => smwa.studentId == studentProfile.studentId)
+                                                .map((e) => e.present ?? 0)).sum,
+                                            decimalPlaces: 1,
+                                          ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }
+                              })
+                            ],
                           ),
-                          children: [
-                            paddedText("Present\ndays", fontSize: 9),
-                            ...attendanceHeaders.map((e) {
-                              int month = getMonth(e);
-                              if (month != 0) {
-                                StudentMonthWiseAttendance? smwa = studentMonthWiseAttendanceList
-                                    .where((smwa) => smwa.month == month && smwa.studentId == studentProfile.studentId)
-                                    .firstOrNull;
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (smwa?.present ?? 0),
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              } else {
-                                return paddedText(
-                                  doubleToStringAsFixed(
-                                    (studentMonthWiseAttendanceList
-                                        .where((smwa) => smwa.studentId == studentProfile.studentId)
-                                        .map((e) => e.present ?? 0)).sum,
-                                    decimalPlaces: 1,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              }
-                            })
-                          ],
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -595,7 +606,7 @@ class EachStudentPdfDownloadForFaExam {
     anchorElement.target = '_blank';
     anchorElement.download = studentProfiles.length == 1
         ? "${studentProfiles[0].sectionName} ${studentProfiles[0].rollNumber ?? ""} ${studentProfiles[0].studentFirstName}.pdf"
-        : "${faExam.faExamName} Memos.pdf";
+        : "${selectedSection.sectionName ?? " "} ${faExam.faExamName} Memos.pdf".trim();
     anchorElement.click();
     updateMessage(null);
   }
@@ -902,7 +913,7 @@ class EachStudentPdfDownloadForFaExam {
             )
           : esm?.marksObtained == null
               ? Text(
-                  "-",
+                  "-|-",
                   textAlign: TextAlign.center,
                 )
               : maxMarks == null
