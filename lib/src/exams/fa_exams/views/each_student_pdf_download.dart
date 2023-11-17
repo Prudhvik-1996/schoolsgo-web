@@ -121,26 +121,59 @@ class EachStudentPdfDownloadForFaExam {
           .map((e) => (e.studentExamMarksList ?? []).firstOrNull)
           .where((e) => e?.isAbsent == "N")
           .isNotEmpty;
-      isFailInAtLeastForOneSubject = (faExamForStudent.faInternalExams ?? [])
-          .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
-          .expand((i) => i)
-          .map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
-          .expand((i) => i)
-          .where((StudentExamMarks? e) => e?.isAbsent != "N")
-          .map((StudentExamMarks? e) {
-            double percentage = (e?.marksObtained ?? 0) /
-                (((faExamForStudent.faInternalExams ?? []).map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull()).expand((i) => i))
-                        .where((essm) => e?.examSectionSubjectMapId == essm.examSectionSubjectMapId)
-                        .first
-                        .maxMarks ??
-                    1) *
-                100;
-            MarkingAlgorithmRangeBean? rangeBeanForPercentage = markingAlgorithm?.rangeBeanForPercentage(percentage);
-            return rangeBeanForPercentage;
-          })
-          .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
-          .contains(true);
-
+      if ([100].contains(schoolInfo.schoolId)) {
+        List<double?> subjectWisePercentages = [];
+        for (Subject eachSubject in subjectsList.where((es) =>
+            faExamForStudent.faInternalExams
+                ?.map((ei) => (ei?.examSectionSubjectMapList ?? []).map((essm) => essm?.subjectId))
+                .expand((i) => i)
+                .contains(es.subjectId) ??
+            false)) {
+          double marksObtainedPerSubject = 0.0;
+          double maxMarksPerSubject = 0.0;
+          (faExamForStudent.faInternalExams ?? [])
+              .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
+              .expand((i) => i)
+              .where((ExamSectionSubjectMap? e) => e?.subjectId == eachSubject.subjectId)
+              .map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
+              .expand((i) => i)
+              .where((StudentExamMarks? e) => e?.isAbsent != "N")
+              .forEach((StudentExamMarks? e) {
+            marksObtainedPerSubject += (e?.marksObtained ?? 0);
+            maxMarksPerSubject += (((faExamForStudent.faInternalExams ?? [])
+                    .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
+                    .expand((i) => i)).where((essm) => e?.examSectionSubjectMapId == essm.examSectionSubjectMapId).first.maxMarks ??
+                1);
+          });
+          if (maxMarksPerSubject != 0) {
+            subjectWisePercentages.add(marksObtainedPerSubject * 100 / maxMarksPerSubject);
+          } else {
+            subjectWisePercentages.add(null);
+          }
+        }
+        isFailInAtLeastForOneSubject = subjectWisePercentages.contains(null) ||
+            subjectWisePercentages.map((percentage) => markingAlgorithm?.rangeBeanForPercentage(percentage!)?.isFailure == "Y").contains(true);
+      } else {
+        isFailInAtLeastForOneSubject = (faExamForStudent.faInternalExams ?? [])
+            .map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull())
+            .expand((i) => i)
+            .map((ExamSectionSubjectMap? e) => (e?.studentExamMarksList ?? []))
+            .expand((i) => i)
+            .where((StudentExamMarks? e) => e?.isAbsent != "N")
+            .map((StudentExamMarks? e) {
+              double percentage = (e?.marksObtained ?? 0) /
+                  (((faExamForStudent.faInternalExams ?? []).map((e) => (e?.examSectionSubjectMapList ?? []).whereNotNull()).expand((i) => i))
+                          .where((essm) => e?.examSectionSubjectMapId == essm.examSectionSubjectMapId)
+                          .first
+                          .maxMarks ??
+                      1) *
+                  100;
+              MarkingAlgorithmRangeBean? rangeBeanForPercentage = markingAlgorithm?.rangeBeanForPercentage(percentage);
+              return rangeBeanForPercentage;
+            })
+            .map((MarkingAlgorithmRangeBean? e) => e?.isFailure == "Y")
+            .contains(true);
+      }
       List<String> attendanceHeaders = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "Total"];
 
       pdf.addPage(
