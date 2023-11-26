@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/exams/fa_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_memo_view.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/fa_exams_all_students_marks_excel_template.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/views/section_wise_marks_list_pdf.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
@@ -190,6 +191,31 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                   });
                 }
               },
+            ),
+          if (!_isLoading && !_isEditMode)
+            Tooltip(
+              message: "Download report",
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: () async {
+                  setState(() => _isLoading = true);
+                  await SectionWiseMarkListPdf(
+                    schoolInfo: widget.schoolInfo,
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    sectionsList: widget.sectionsList,
+                    teachersList: widget.teachersList,
+                    subjectsList: widget.subjectsList,
+                    tdsList: widget.tdsList,
+                    markingAlgorithm: widget.markingAlgorithm,
+                    faExam: widget.faExam,
+                    studentsList: widget.studentsList,
+                    selectedSection: widget.selectedSection,
+                  ).downloadAsPdf();
+                  setState(() => _isLoading = false);
+                },
+              ),
             ),
           if (!_isLoading && _isEditMode)
             PopupMenuButton<String>(

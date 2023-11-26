@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/exam_topics.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exam_marks_screen.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/topic_wise_exams_cumulative_marks_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -22,6 +23,7 @@ class ExamTopicWidget extends StatefulWidget {
     required this.topicWiseExams,
     required this.saveTopicWiseExam,
     required this.loadTopicWiseExams,
+    required this.setState,
   }) : super(key: key);
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -34,6 +36,7 @@ class ExamTopicWidget extends StatefulWidget {
   final List<TopicWiseExam> topicWiseExams;
   final Future<TopicWiseExam> Function(TopicWiseExam topicWiseExam) saveTopicWiseExam;
   final Future<void> Function() loadTopicWiseExams;
+  final void Function(VoidCallback fn) setState;
 
   @override
   State<ExamTopicWidget> createState() => _ExamTopicWidgetState();
@@ -184,7 +187,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
               ),
               contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
             ),
-            onChanged: (String? newText) => setState(() => eachTopicWiseExam.examName = newText),
+            onChanged: (String? newText) => widget.setState(() => eachTopicWiseExam.examName = newText),
             maxLines: null,
             style: const TextStyle(
               fontSize: 16,
@@ -219,7 +222,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
     );
 
     if (_startTimePicker == null) return;
-    setState(() {
+    widget.setState(() {
       topicWiseExam.startTime = timeOfDayToHHMMSS(_startTimePicker);
     });
   }
@@ -252,7 +255,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
     );
 
     if (_endTimePicker == null) return;
-    setState(() {
+    widget.setState(() {
       topicWiseExam.endTime = timeOfDayToHHMMSS(_endTimePicker);
     });
   }
@@ -290,7 +293,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
             helpText: "Select a date",
           );
           if (_newDate == null) return;
-          setState(() {
+          widget.setState(() {
             eachTopicWiseExam.date = convertDateTimeToYYYYMMDDFormat(_newDate);
           });
         },
@@ -353,7 +356,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
               contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
             ),
             keyboardType: TextInputType.number,
-            onChanged: (String? newText) => setState(() {
+            onChanged: (String? newText) => widget.setState(() {
               if (newText == "") {
                 eachTopicWiseExam.maxMarks = null;
               }
@@ -398,7 +401,23 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
         Expanded(
           child: InkWell(
             onTap: () {
-              //  TODO: show cumulative stats table
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return TopicWiseExamCumulativeMarksScreen(
+                      adminProfile: widget.adminProfile,
+                      teacherProfile: widget.teacherProfile,
+                      tds: widget.tds,
+                      selectedAcademicYearId: widget.academicYearId,
+                      studentsList: widget.studentsList,
+                      examTopic: widget.examTopic,
+                      topicWiseExams: widget.topicWiseExams,
+                      updateExamMarks: (_) => widget.loadTopicWiseExams(),
+                    );
+                  },
+                ),
+              );
             },
             child: !widget.examTopic.isEditMode
                 ? Text(
@@ -418,7 +437,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
                       ),
                       contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
                     ),
-                    onChanged: (String? newText) => setState(() => widget.examTopic.topicName = newText),
+                    onChanged: (String? newText) => widget.setState(() => widget.examTopic.topicName = newText),
                     maxLines: null,
                     style: const TextStyle(
                       fontSize: 18,
@@ -439,7 +458,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
   Widget addNewExamButton() => fab(
         const Icon(Icons.add),
         "Add New Exam",
-        () => setState(() => widget.topicWiseExams.add(
+        () => widget.setState(() => widget.topicWiseExams.add(
               TopicWiseExam(
                 academicYearId: widget.academicYearId,
                 schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
@@ -469,12 +488,12 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
         const Icon(Icons.check),
         "Save",
         () {
-          setState(() => widget.examTopic.isEditMode = false);
+          widget.setState(() => widget.examTopic.isEditMode = false);
         },
         color: Colors.green,
       );
 
-  Widget editButton() => fab(const Icon(Icons.edit), "Edit", () => setState(() => widget.examTopic.isEditMode = true), color: Colors.blue);
+  Widget editButton() => fab(const Icon(Icons.edit), "Edit", () => widget.setState(() => widget.examTopic.isEditMode = true), color: Colors.blue);
 
   Widget fab(Icon icon, String text, Function() action, {Function()? postAction, Color? color}) {
     return Container(
@@ -520,7 +539,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
       message: _isExpanded ? "Minimise" : "Expand",
       child: GestureDetector(
         onTap: () {
-          setState(() => _isExpanded = !_isExpanded);
+          widget.setState(() => _isExpanded = !_isExpanded);
         },
         child: ClayButton(
           color: clayContainerColor(context),
@@ -556,7 +575,13 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
             );
             return;
           }
+          widget.setState(() {
+            topicWiseExam.isEditMode = false;
+          });
           widget.saveTopicWiseExam(topicWiseExam);
+          setState(() {
+            _isExpanded = true;
+          });
         },
         child: ClayButton(
           color: clayContainerColor(context),
@@ -584,7 +609,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
       child: GestureDetector(
         onTap: () {
           if (topicWiseExam.examId == null) {
-            setState(() {
+            widget.setState(() {
               widget.topicWiseExams.remove(topicWiseExam);
             });
           } else {
@@ -619,7 +644,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
       message: "Edit",
       child: GestureDetector(
         onTap: () {
-          setState(() => topicWiseExam.isEditMode = true);
+          widget.setState(() => topicWiseExam.isEditMode = true);
         },
         child: ClayButton(
           color: clayContainerColor(context),

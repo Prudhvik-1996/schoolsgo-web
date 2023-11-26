@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/exam_topics.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/all_topics_students_marks_download.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/exam_topic_widget.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
@@ -90,6 +91,26 @@ class _TopicWiseExamsScreenState extends State<TopicWiseExamsScreen> {
       key: scaffoldKey,
       appBar: AppBar(
         title: Text("${widget.tds.sectionName} - ${widget.tds.subjectName} - ${widget.tds.teacherName}"),
+        actions: [
+          if (!(_isLoading || examTopics.map((e) => e.isEditMode).contains(true) || topicWiseExams.map((e) => e.isEditMode).contains(true)))
+            Tooltip(
+              message: "Download Report",
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: () async {
+                  await AllTopicsStudentsMarksDownload(
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    tds: widget.tds,
+                    selectedAcademicYearId: widget.selectedAcademicYearId,
+                    studentsList: widget.studentsList,
+                    examTopics: examTopics,
+                    topicWiseExams: topicWiseExams,
+                  ).downloadReport();
+                },
+              ),
+            ),
+        ],
       ),
       body: _isLoading
           ? Center(
@@ -115,6 +136,7 @@ class _TopicWiseExamsScreenState extends State<TopicWiseExamsScreen> {
                         topicWiseExams: topicWiseExams.where((eachTopicWiseExam) => eachTopicWiseExam.topicId == eachTopic.topicId).toList(),
                         saveTopicWiseExam: (TopicWiseExam topicWiseExam) => saveTopicWiseExam(topicWiseExam),
                         loadTopicWiseExams: () => loadTopicWiseExams(),
+                        setState: setState,
                       ),
                     ),
                     const SizedBox(height: 200),
