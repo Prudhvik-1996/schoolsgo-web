@@ -559,6 +559,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                   teachersList: widget.teachersList,
                   subjectsList: widget.subjectsList,
                   tdsList: widget.tdsList,
+                  markingAlgorithms: widget.markingAlgorithms,
                   faExam: widget.faExam,
                 );
               })).then((_) => widget.loadData());

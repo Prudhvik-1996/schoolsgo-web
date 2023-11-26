@@ -40,7 +40,6 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<StudentFeeReceipt> studentFeeReceipts = [];
-  List<StudentFeeReceipt> filteredStudentFeeReceipts = [];
   final ItemScrollController _itemScrollController = ItemScrollController();
 
   List<RouteStopWiseStudent> routeStopWiseStudents = [];
@@ -57,6 +56,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   double? _loadingReceiptPercentage;
   Uint8List? pdfInBytes;
 
+  bool? showOnlyDeletedReceipts = false;
+
   bool isAddNew = false;
   ScrollController newReceiptsListViewController = ScrollController();
 
@@ -72,7 +73,6 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     setState(() {
       _isLoading = true;
       studentFeeReceipts = [];
-      filteredStudentFeeReceipts = [];
       newReceipts = [
         NewReceipt(
           schoolId: widget.adminProfile.schoolId,
@@ -141,14 +141,9 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     } else {
       setState(() {
         studentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).toList();
-        filteredStudentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).toList();
         studentFeeReceipts.sort((b, a) {
           int dateCom = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
           return (dateCom == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateCom;
-        });
-        filteredStudentFeeReceipts.sort((b, a) {
-          int dateComp = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
-          return (dateComp == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateComp;
         });
       });
     }
@@ -156,6 +151,15 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  List<StudentFeeReceipt> get filteredStudentFeeReceipts {
+    List<StudentFeeReceipt> x = studentFeeReceipts.map((e) => StudentFeeReceipt.fromJson(e.origJson())).toList();
+    x.sort((b, a) {
+      int dateComp = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
+      return (dateComp == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateComp;
+    });
+    return x.where((er) => showOnlyDeletedReceipts == null ? true : showOnlyDeletedReceipts! ? er.status == "deleted" : er.status != "deleted").toList();
   }
 
   Future<void> getDataReadyToPrint() async {
@@ -237,7 +241,16 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   }
 
   Future<void> handleClick(String choice) async {
-    if (choice == "Today") {
+    if (choice == "Show Only Deleted Receipts") {
+      // filteredStudentFeeReceipts = studentFeeReceipts.where((e) => e.status == "deleted").toList();
+      setState(() => showOnlyDeletedReceipts = true);
+    } else if (choice == "Hide Deleted Receipts") {
+      // filteredStudentFeeReceipts = studentFeeReceipts.where((e) => e.status == "deleted").toList();
+      setState(() => showOnlyDeletedReceipts = false);
+    } else if (choice == "Show All Receipts") {
+      // filteredStudentFeeReceipts = studentFeeReceipts.where((e) => e.status == "deleted").toList();
+      setState(() => showOnlyDeletedReceipts = null);
+    } else if (choice == "Today") {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return DateWiseReceiptsStatsWidget(
           adminProfile: widget.adminProfile,
@@ -418,6 +431,9 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                   itemBuilder: (BuildContext context) {
                     return {
                       if (studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).isNotEmpty) "Today",
+                      if (!(showOnlyDeletedReceipts == true)) "Show Only Deleted Receipts",
+                      if (!(showOnlyDeletedReceipts == false)) "Hide Deleted Receipts",
+                      if (!(showOnlyDeletedReceipts == null)) "Show All Receipts",
                       "Go to date",
                       "Term Wise",
                       "Date wise Stats",

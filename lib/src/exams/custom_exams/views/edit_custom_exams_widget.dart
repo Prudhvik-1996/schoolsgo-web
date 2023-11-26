@@ -768,7 +768,7 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
                 .toList(),
             onChanged: (MarkingAlgorithmBean? newMarkingAlgorithm) =>
                 setState(() => widget.customExam.markingAlgorithmId = newMarkingAlgorithm?.markingAlgorithmId),
-          )
+          ),
         ],
       ),
     );

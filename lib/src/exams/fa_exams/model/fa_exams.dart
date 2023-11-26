@@ -264,6 +264,7 @@ class FAExam {
         ..sectionId = sectionId
         ..authorisedAgent = authorizedAgent
         ..maxMarks = actualMaxMarks
+        ..masterExamId = faExamId
         ..studentExamMarksList = studentExamMarksForEssm;
     }).toList();
   }
@@ -343,6 +344,7 @@ class CreateOrUpdateFAExamRequest {
   String? examType;
   int? faExamId;
   String? faExamName;
+  int? markingAlgorithmId;
   List<FaInternalExam?>? faInternalExams;
   int? schoolId;
   String? status;
@@ -356,6 +358,7 @@ class CreateOrUpdateFAExamRequest {
     this.examType,
     this.faExamId,
     this.faExamName,
+    this.markingAlgorithmId,
     this.faInternalExams,
     this.schoolId,
     this.status,
@@ -370,6 +373,7 @@ class CreateOrUpdateFAExamRequest {
     examType = json['examType']?.toString();
     faExamId = json['faExamId']?.toInt();
     faExamName = json['faExamName']?.toString();
+    markingAlgorithmId = json['markingAlgorithmId']?.toInt();
     if (json['faInternalExams'] != null) {
       final v = json['faInternalExams'];
       final arr0 = <FaInternalExam>[];
@@ -391,6 +395,7 @@ class CreateOrUpdateFAExamRequest {
     data['examType'] = examType;
     data['faExamId'] = faExamId;
     data['faExamName'] = faExamName;
+    data['markingAlgorithmId'] = markingAlgorithmId;
     if (faInternalExams != null) {
       final v = faInternalExams;
       final arr0 = [];

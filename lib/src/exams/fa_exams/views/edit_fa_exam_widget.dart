@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
@@ -22,6 +23,7 @@ class EditFAExamWidget extends StatefulWidget {
     required this.teachersList,
     required this.subjectsList,
     required this.tdsList,
+    required this.markingAlgorithms,
     required this.faExam,
   });
 
@@ -32,6 +34,7 @@ class EditFAExamWidget extends StatefulWidget {
   final List<Teacher> teachersList;
   final List<Subject> subjectsList;
   final List<TeacherDealingSection> tdsList;
+  final List<MarkingAlgorithmBean> markingAlgorithms;
   final FAExam faExam;
 
   @override
@@ -149,6 +152,7 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                   date: widget.faExam.date,
                   faExamId: widget.faExam.faExamId,
                   faExamName: widget.faExam.faExamName,
+                  markingAlgorithmId: widget.faExam.markingAlgorithmId,
                   faInternalExams: widget.faExam.faInternalExams,
                 );
                 CreateOrUpdateFAExamResponse createOrUpdateFAExamResponse = await createOrUpdateFAExam(createOrUpdateFAExamRequest);
@@ -921,23 +925,41 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
   Widget faExamNameWidget() {
     return Container(
       margin: const EdgeInsets.all(15),
-      child: TextFormField(
-        autofocus: true,
-        initialValue: widget.faExam.faExamName,
-        decoration: const InputDecoration(
-          border: UnderlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-            borderSide: BorderSide(color: Colors.blue),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              autofocus: true,
+              initialValue: widget.faExam.faExamName,
+              decoration: const InputDecoration(
+                border: UnderlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+              ),
+              onChanged: (String? newText) => setState(() => widget.faExam.faExamName = newText),
+              maxLines: 1,
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.start,
+            ),
           ),
-          contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-        ),
-        onChanged: (String? newText) => setState(() => widget.faExam.faExamName = newText),
-        maxLines: 1,
-        style: const TextStyle(
-          fontSize: 16,
-        ),
-        textAlign: TextAlign.start,
+          const SizedBox(width: 15),
+          DropdownButton<MarkingAlgorithmBean?>(
+            value: widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
+            items: [null, ...widget.markingAlgorithms]
+                .map((e) => DropdownMenuItem<MarkingAlgorithmBean?>(
+              child: Text(e?.algorithmName ?? "-"),
+              value: e,
+            ))
+                .toList(),
+            onChanged: (MarkingAlgorithmBean? newMarkingAlgorithm) =>
+                setState(() => widget.faExam.markingAlgorithmId = newMarkingAlgorithm?.markingAlgorithmId),
+          ),
+        ],
       ),
     );
   }

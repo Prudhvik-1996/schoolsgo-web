@@ -476,6 +476,7 @@ class StudentFeeReceipt {
   String? transactionDate;
   int? transactionId;
   String? comments;
+  String? status;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController newReceiptNumberController = TextEditingController();
@@ -496,6 +497,7 @@ class StudentFeeReceipt {
     this.transactionDate,
     this.transactionId,
     this.comments,
+    this.status,
   }) {
     newReceiptNumberController.text = "${receiptNumber ?? ""}";
   }
@@ -523,6 +525,7 @@ class StudentFeeReceipt {
     transactionDate = json['transactionDate']?.toString();
     transactionId = json['transactionId']?.toInt();
     comments = json['comments']?.toString();
+    status = json['status']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -547,6 +550,7 @@ class StudentFeeReceipt {
     data['transactionDate'] = transactionDate;
     data['transactionId'] = transactionId;
     data['comments'] = comments;
+    data['status'] = status;
     return data;
   }
 
@@ -569,9 +573,9 @@ class StudentFeeReceipt {
           ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10)
           : const EdgeInsets.all(10),
       child: AbsorbPointer(
-        absorbing: isLoading,
+        absorbing: isLoading || status == "deleted",
         child: ClayContainer(
-          surfaceColor: clayContainerColor(context),
+          surfaceColor: status == "deleted" ? Colors.brown : clayContainerColor(context),
           parentColor: clayContainerColor(context),
           spread: 1,
           borderRadius: 10,
@@ -592,9 +596,9 @@ class StudentFeeReceipt {
                         const SizedBox(width: 10),
                         receiptDateWidget(context, setState),
                         const SizedBox(width: 10),
-                        if (makePdf != null) printReceiptButton(context, makePdf),
-                        if (makePdf != null) const SizedBox(width: 5),
-                        if (adminId != null)
+                        if (status != "deleted" && makePdf != null) printReceiptButton(context, makePdf),
+                        if (status != "deleted" && makePdf != null) const SizedBox(width: 5),
+                        if (status != "deleted" && adminId != null)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,

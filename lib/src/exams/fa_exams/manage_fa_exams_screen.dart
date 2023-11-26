@@ -159,6 +159,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
         teachersList: widget.teachersList,
         subjectsList: widget.subjectsList,
         tdsList: widget.tdsList,
+        markingAlgorithms: widget.markingAlgorithms,
         faExam: faExam,
       );
     })).then((_) => _loadData());

@@ -138,6 +138,30 @@ class _SectionWiseExamsStatsScreenState extends State<SectionWiseExamsStatsScree
   }
 
   Widget sectionWiseStatsTable(Section eachSection, ScrollController verticalScrollController, ScrollController horizontalScrollController) {
+    var examIdsForSection = sortedExamIds.map((eachExamId) {
+      CustomExam? mayBeCustomExam = widget.customExams.where((ece) => ece.customExamId == eachExamId).firstOrNull;
+      FAExam? mayBeFAExam = widget.faExams.where((efe) => efe.faExamId == eachExamId).firstOrNull;
+      if (mayBeCustomExam != null) {
+        if (mayBeCustomExam.examSectionSubjectMapList?.where((essm) => essm?.sectionId == eachSection.sectionId).isEmpty ?? true) {
+          return null;
+        }
+      }
+      if (mayBeFAExam != null) {
+        if (mayBeFAExam.faInternalExams
+                ?.map((e) => e?.examSectionSubjectMapList ?? [])
+                .expand((i) => i)
+                .where((essm) => essm?.sectionId == eachSection.sectionId)
+                .isEmpty ??
+            true) {
+          return null;
+        }
+      }
+      return eachExamId;
+    }).whereNotNull();
+    List<List<ExamSectionSubjectMap>> examWiseEssmListForEachSection = examWiseEssmList
+        .where((essmList) =>
+            essmList.where((essm) => examIdsForSection.contains(essm.examId) || examIdsForSection.contains(essm.masterExamId)).isNotEmpty)
+        .toList();
     return Container(
       margin: const EdgeInsets.all(10),
       child: Column(
@@ -169,8 +193,8 @@ class _SectionWiseExamsStatsScreenState extends State<SectionWiseExamsStatsScree
                       columns: [
                         const DataColumn(label: Text("Subject")),
                         const DataColumn(label: Text("Teacher")),
-                        ...sortedExamIds
-                            .map((eachExamId) => DataColumn(
+                        ...examIdsForSection
+                            .map((int eachExamId) => DataColumn(
                                   label: Text(widget.customExams.where((ece) => ece.customExamId == eachExamId).firstOrNull?.customExamName ??
                                       widget.faExams.where((efe) => efe.faExamId == eachExamId).firstOrNull?.faExamName ??
                                       "-"),
@@ -192,7 +216,7 @@ class _SectionWiseExamsStatsScreenState extends State<SectionWiseExamsStatsScree
                               Text(widget.subjectsList.where((eachSubject) => eachSubject.subjectId == subjectId).firstOrNull?.subjectName ?? "-")));
                           cells.add(DataCell(
                               Text(widget.teachersList.where((eachTeacher) => eachTeacher.teacherId == teacherId).firstOrNull?.teacherName ?? "-")));
-                          for (List<ExamSectionSubjectMap> eachEssmList in examWiseEssmList) {
+                          for (List<ExamSectionSubjectMap> eachEssmList in examWiseEssmListForEachSection) {
                             int index = eachEssmList
                                 .map((e) => "${e.sectionId ?? "-"}|${e.subjectId ?? "-"}|${e.authorisedAgent ?? "-"}")
                                 .toList()
