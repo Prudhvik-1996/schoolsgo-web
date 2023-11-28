@@ -40,6 +40,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<StudentFeeReceipt> studentFeeReceipts = [];
+  List<StudentFeeReceipt> filteredStudentFeeReceipts = [];
   final ItemScrollController _itemScrollController = ItemScrollController();
 
   List<RouteStopWiseStudent> routeStopWiseStudents = [];
@@ -145,21 +146,17 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
           int dateCom = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
           return (dateCom == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateCom;
         });
+        filteredStudentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).toList();
+        filteredStudentFeeReceipts.sort((b, a) {
+          int dateComp = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
+          return (dateComp == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateComp;
+        });
       });
     }
 
     setState(() {
       _isLoading = false;
     });
-  }
-
-  List<StudentFeeReceipt> get filteredStudentFeeReceipts {
-    List<StudentFeeReceipt> x = studentFeeReceipts.map((e) => StudentFeeReceipt.fromJson(e.origJson())).toList();
-    x.sort((b, a) {
-      int dateComp = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
-      return (dateComp == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateComp;
-    });
-    return x.where((er) => showOnlyDeletedReceipts == null ? true : showOnlyDeletedReceipts! ? er.status == "deleted" : er.status != "deleted").toList();
   }
 
   Future<void> getDataReadyToPrint() async {
@@ -407,18 +404,25 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
 
   @override
   Widget build(BuildContext context) {
+    List<StudentFeeReceipt> filteredReceiptsAsPerDeletedStatus = filteredStudentFeeReceipts
+        .where((er) => showOnlyDeletedReceipts == null
+            ? true
+            : showOnlyDeletedReceipts!
+                ? er.status == "deleted"
+                : er.status != "deleted")
+        .toList();
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Fee Receipts"),
-        actions: _isLoading || filteredStudentFeeReceipts.isEmpty || isAddNew
+        actions: _isLoading || filteredReceiptsAsPerDeletedStatus.isEmpty || isAddNew
             ? []
             : [
                 if (!isSearchBarSelected)
                   SearchWidget(
                     isSearchBarSelectedByDefault: false,
                     onComplete: scrollToReceiptNumber,
-                    receiptNumbers: filteredStudentFeeReceipts.map((e) => "${e.receiptNumber ?? ""}").toList(),
+                    receiptNumbers: filteredReceiptsAsPerDeletedStatus.map((e) => "${e.receiptNumber ?? ""}").toList(),
                     isSearchButtonSelected: isSearchButtonSelected,
                   ),
                 if (_renderingReceiptText != null)
@@ -430,7 +434,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                   onSelected: (String choice) async => await handleClick(choice),
                   itemBuilder: (BuildContext context) {
                     return {
-                      if (studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).isNotEmpty) "Today",
+                      if (filteredReceiptsAsPerDeletedStatus.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).isNotEmpty) "Today",
                       if (!(showOnlyDeletedReceipts == true)) "Show Only Deleted Receipts",
                       if (!(showOnlyDeletedReceipts == false)) "Hide Deleted Receipts",
                       if (!(showOnlyDeletedReceipts == null)) "Show All Receipts",
@@ -493,7 +497,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                     SizedBox(height: MediaQuery.of(context).size.height / 2),
                   ],
                 )
-              : filteredStudentFeeReceipts.isEmpty
+              : filteredReceiptsAsPerDeletedStatus.isEmpty
                   ? const Center(
                       child: Text("No Transactions to display"),
                     )
@@ -503,21 +507,21 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                           initialScrollIndex: 0,
                           physics: const BouncingScrollPhysics(),
                           itemScrollController: _itemScrollController,
-                          itemCount: filteredStudentFeeReceipts.length,
+                          itemCount: filteredReceiptsAsPerDeletedStatus.length,
                           itemBuilder: (BuildContext context, int index) {
-                            return filteredStudentFeeReceipts[index].widget(
+                            return filteredReceiptsAsPerDeletedStatus[index].widget(
                               _scaffoldKey.currentContext ?? context,
                               adminId: widget.adminProfile.userId,
                               isTermWise: isTermWise,
                               setState: setState,
                               reload: _loadData,
-                              makePdf: filteredStudentFeeReceipts[index].isEditMode
+                              makePdf: filteredReceiptsAsPerDeletedStatus[index].isEditMode
                                   ? null
                                   : (int? transactionId) async {
                                       makePdf(transactionId: transactionId);
                                     },
                               routeStopWiseStudent:
-                                  routeStopWiseStudents.where((e) => e.studentId == filteredStudentFeeReceipts[index].studentId).firstOrNull,
+                                  routeStopWiseStudents.where((e) => e.studentId == filteredReceiptsAsPerDeletedStatus[index].studentId).firstOrNull,
                             );
                           },
                         ),
@@ -533,7 +537,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                                 child: SearchWidget(
                                   isSearchBarSelectedByDefault: true,
                                   onComplete: scrollToReceiptNumber,
-                                  receiptNumbers: filteredStudentFeeReceipts.map((e) => "${e.receiptNumber ?? ""}").toList(),
+                                  receiptNumbers: filteredReceiptsAsPerDeletedStatus.map((e) => "${e.receiptNumber ?? ""}").toList(),
                                   isSearchButtonSelected: isSearchButtonSelected,
                                 ),
                               ),
