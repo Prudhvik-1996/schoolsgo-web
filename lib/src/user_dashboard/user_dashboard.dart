@@ -21,11 +21,9 @@ class UserDashboard extends StatefulWidget {
   const UserDashboard({
     Key? key,
     required this.loggedInUserId,
-    required this.loggedInSchoolId,
   }) : super(key: key);
 
   final int? loggedInUserId;
-  final int? loggedInSchoolId;
 
   static const routeName = "/user_dashboard";
 
@@ -80,22 +78,16 @@ class _UserDashboardState extends State<UserDashboard> {
         _studentProfiles = loggedInWithEmail ? (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList() : [];
         _teacherProfiles = loggedInWithEmail
             ? (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList()
-            : (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
+            : (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList();
         _adminProfiles = loggedInWithEmail
             ? (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).toList()
-            : (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId).toList();
+            : (getUserRolesResponse.adminProfiles ?? []).map((e) => e!).toList();
         _otherRoleProfile = loggedInWithEmail
             ? (getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e!).toList()
-            : (getUserRolesResponse.otherUserRoleProfiles ?? [])
-                .map((e) => e!)
-                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
-                .toList();
+            : (getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e!).toList();
         _megaAdminProfiles = loggedInWithEmail
             ? (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList()
-            : (getUserRolesResponse.megaAdminProfiles ?? [])
-                .map((e) => e!)
-                .where((e) => (widget.loggedInSchoolId ?? schoolId) == e.schoolId)
-                .toList();
+            : (getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e!).toList();
         _groupedMegaAdminsLists = groupBy(
           _megaAdminProfiles,
           (MegaAdminProfile profile) => profile.franchiseId,

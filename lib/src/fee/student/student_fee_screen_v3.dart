@@ -1,5 +1,3 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'dart:typed_data';
 
 // ignore: implementation_imports
@@ -11,7 +9,6 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/basic_fee_stats_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
@@ -95,7 +92,7 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
       );
     } else {
       setState(() {
-        studentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).toList();
+        studentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).where((e) => e.status == "active").toList();
         studentFeeReceipts.sort((b, a) {
           int dateCom = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
           return (dateCom == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateCom;

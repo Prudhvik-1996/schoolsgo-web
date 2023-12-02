@@ -946,10 +946,8 @@ class _LoginScreenState extends State<LoginScreen> {
               context,
               MaterialPageRoute(builder: (context) {
                 return GenerateNewLoginPinScreen(
-                  userLoginId: loginIdEditingController.text,
                   userId: doLoginWithLoginUserIdAndPasswordResponse.userId,
                   studentId: doLoginWithLoginUserIdAndPasswordResponse.studentId,
-                  schoolId: doLoginWithLoginUserIdAndPasswordResponse.schoolId,
                 );
               }),
               (Route<dynamic> route) => false,
@@ -976,7 +974,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 await prefs.setBool('IS_USER_LOGGED_IN', true);
                 await prefs.setInt('LOGGED_IN_USER_ID', getUserDetailsResponse.userDetails!.first.userId!);
-                await prefs.setInt('LOGGED_IN_SCHOOL_ID', doLoginWithLoginUserIdAndPasswordResponse.schoolId!);
                 await prefs.setBool("IS_EMAIL_LOGIN", false);
                 if (getUserDetailsResponse.userDetails!.first.fourDigitPin != null) {
                   await prefs.setString('USER_FOUR_DIGIT_PIN', getUserDetailsResponse.userDetails!.first.fourDigitPin!);

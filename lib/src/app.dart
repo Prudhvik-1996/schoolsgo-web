@@ -104,7 +104,6 @@ class _MyAppState extends State<MyApp> {
   bool _isLoading = true;
   late bool isUserLoggedIn;
   int? loggedInUserId;
-  int? loggedInSchoolId;
 
   NetworkStatus networkStatus = NetworkStatus.Offline;
 
@@ -134,7 +133,6 @@ class _MyAppState extends State<MyApp> {
     bool boolValue = prefs.getBool('IS_USER_LOGGED_IN') ?? false;
     setState(() {
       loggedInStudentId = prefs.getInt('LOGGED_IN_STUDENT_ID');
-      loggedInSchoolId = prefs.getInt('LOGGED_IN_SCHOOL_ID');
     });
     if (loggedInStudentId != null) {
       GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(
@@ -246,7 +244,6 @@ class _MyAppState extends State<MyApp> {
               if (userId != null) {
                 return UserDashboard(
                   loggedInUserId: loggedInUserId ?? (routeSettings.arguments as int),
-                  loggedInSchoolId: loggedInSchoolId,
                 );
               } else {
                 return UserDashboardV2(

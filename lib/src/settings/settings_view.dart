@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/login/generate_new_login_pin_screen.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,6 +75,8 @@ class _SettingsViewState extends State<SettingsView> {
                 _buildTextThemeDropdown(),
                 const Divider(),
                 _buildNotificationToggle(),
+                if (loggedInUserId != null) const Divider(),
+                if (loggedInUserId != null) _buildUpdatePasswordWidget(),
                 const Divider(),
               ],
             ),
@@ -88,6 +91,22 @@ class _SettingsViewState extends State<SettingsView> {
           if (fcmToken != null) _buildFcmTokenSection(),
           if (fcmToken != null) const SizedBox(height: 10),
         ],
+      ),
+    );
+  }
+
+  Widget _buildUpdatePasswordWidget() {
+    return ListTile(
+      leading: const Icon(Icons.password),
+      title: const Text("Update Password"),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return GenerateNewLoginPinScreen(
+            userId: loggedInUserId,
+            studentId: null,
+          );
+        }),
       ),
     );
   }

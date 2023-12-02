@@ -221,7 +221,6 @@ class DoLoginWithLoginUserIdAndPasswordResponse {
   String? errorMessage;
   String? httpStatus;
   String? responseStatus;
-  int? schoolId;
   int? studentId;
   int? userId;
   Map<String, dynamic> __origJson = {};
@@ -231,7 +230,6 @@ class DoLoginWithLoginUserIdAndPasswordResponse {
     this.errorMessage,
     this.httpStatus,
     this.responseStatus,
-    this.schoolId,
     this.studentId,
     this.userId,
   });
@@ -241,7 +239,6 @@ class DoLoginWithLoginUserIdAndPasswordResponse {
     errorMessage = json['errorMessage']?.toString();
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
-    schoolId = json['schoolId']?.toInt();
     studentId = json['studentId']?.toInt();
     userId = json['userId']?.toInt();
   }
@@ -251,7 +248,6 @@ class DoLoginWithLoginUserIdAndPasswordResponse {
     data['errorMessage'] = errorMessage;
     data['httpStatus'] = httpStatus;
     data['responseStatus'] = responseStatus;
-    data['schoolId'] = schoolId;
     data['studentId'] = studentId;
     data['userId'] = userId;
     return data;

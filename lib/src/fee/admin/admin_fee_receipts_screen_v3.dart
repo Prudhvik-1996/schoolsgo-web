@@ -251,7 +251,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return DateWiseReceiptsStatsWidget(
           adminProfile: widget.adminProfile,
-          studentFeeReceipts: studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).toList(),
+          studentFeeReceipts:
+              studentFeeReceipts.where((e) => e.status == "active" && e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).toList(),
           selectedDate: DateTime.now(),
           routeStopWiseStudents: routeStopWiseStudents,
           feeTypes: feeTypes,
@@ -267,7 +268,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return DateWiseReceiptStats(
           adminProfile: widget.adminProfile,
-          studentFeeReceipts: studentFeeReceipts,
+          studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
           routeStopWiseStudents: routeStopWiseStudents,
         );
       }));
@@ -275,7 +276,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return SectionWiseFeeStats(
           adminProfile: widget.adminProfile,
-          studentFeeReceipts: studentFeeReceipts,
+          studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
         );
       }));
     } else {
@@ -434,7 +435,10 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                   onSelected: (String choice) async => await handleClick(choice),
                   itemBuilder: (BuildContext context) {
                     return {
-                      if (filteredReceiptsAsPerDeletedStatus.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).isNotEmpty) "Today",
+                      if (filteredReceiptsAsPerDeletedStatus
+                          .where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()))
+                          .isNotEmpty)
+                        "Today",
                       if (!(showOnlyDeletedReceipts == true)) "Show Only Deleted Receipts",
                       if (!(showOnlyDeletedReceipts == false)) "Hide Deleted Receipts",
                       if (!(showOnlyDeletedReceipts == null)) "Show All Receipts",

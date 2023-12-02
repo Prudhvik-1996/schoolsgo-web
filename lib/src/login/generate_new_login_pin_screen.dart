@@ -10,21 +10,18 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GenerateNewLoginPinScreen extends StatefulWidget {
   const GenerateNewLoginPinScreen({
     Key? key,
-    required this.userLoginId,
     required this.userId,
     required this.studentId,
-    required this.schoolId,
   }) : super(key: key);
 
-  final String userLoginId;
   final int? userId;
   final int? studentId;
-  final int? schoolId;
 
   @override
   State<GenerateNewLoginPinScreen> createState() => _GenerateNewLoginPinScreenState();
@@ -52,7 +49,7 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     if (widget.userId != null) {
-      GetUserRolesRequest getUserRolesRequest = GetUserRolesRequest(userId: widget.userId!, schoolId: widget.schoolId!);
+      GetUserRolesRequest getUserRolesRequest = GetUserRolesRequest(userId: widget.userId!);
       GetUserRolesDetailsResponse getUserRolesResponse = await getUserRoles(getUserRolesRequest);
       if (getUserRolesResponse.httpStatus != "OK" || getUserRolesResponse.responseStatus != "success") {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -62,28 +59,28 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
         );
       } else {
         userDetails = getUserRolesResponse.userDetails!;
-        if ((getUserRolesResponse.adminProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).isNotEmpty) {
+        if ((getUserRolesResponse.adminProfiles ?? []).isNotEmpty) {
           roles.add("Admin");
         }
-        if ((getUserRolesResponse.teacherProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).isNotEmpty) {
+        if ((getUserRolesResponse.teacherProfiles ?? []).isNotEmpty) {
           roles.add("Teacher");
         }
-        if ((getUserRolesResponse.megaAdminProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).isNotEmpty) {
+        if ((getUserRolesResponse.megaAdminProfiles ?? []).isNotEmpty) {
           roles.add("Mega Admin");
         }
-        if ((getUserRolesResponse.otherUserRoleProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).isNotEmpty) {
-          getUserRolesResponse.otherUserRoleProfiles?.where((e) => e?.schoolId == widget.schoolId).forEach((eachRole) {
+        if ((getUserRolesResponse.otherUserRoleProfiles ?? []).isNotEmpty) {
+          getUserRolesResponse.otherUserRoleProfiles?.forEach((eachRole) {
             roles.add(eachRole?.roleName ?? "-");
           });
         }
         List<String?> schoolNameFromAdminProfiles =
-            ((getUserRolesResponse.adminProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).map((e) => e?.schoolName)).toList();
+            ((getUserRolesResponse.adminProfiles ?? []).map((e) => e?.schoolName)).toList();
         List<String?> schoolNameFromTeacherProfiles =
-            ((getUserRolesResponse.teacherProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).map((e) => e?.schoolName)).toList();
+            ((getUserRolesResponse.teacherProfiles ?? []).map((e) => e?.schoolName)).toList();
         List<String?> schoolNameFromMegaAdminProfiles =
-            ((getUserRolesResponse.megaAdminProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).map((e) => e?.schoolName)).toList();
+            ((getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e?.schoolName)).toList();
         List<String?> schoolNameFromOtherUserRoleProfiles =
-            ((getUserRolesResponse.otherUserRoleProfiles?.where((e) => e?.schoolId == widget.schoolId) ?? []).map((e) => e?.schoolName)).toList();
+            ((getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e?.schoolName)).toList();
 
         schoolName = [
               ...schoolNameFromAdminProfiles,
@@ -111,7 +108,7 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text("Set Login Pin"),
+        title: const Text("Update Login Pin"),
       ),
       body: Container(
         margin: MediaQuery.of(context).orientation == Orientation.portrait
@@ -134,9 +131,9 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
                     height: 20,
                   ),
                   if (studentProfile != null) ..._getStudentDetailsWidgets(),
-                  if (userDetails != null) ..._getUserDetailsWidgets(),
+                  if (studentProfile == null && userDetails != null) ..._getUserDetailsWidgets(),
                   const SizedBox(
-                    height: 10,
+                    height: 20,
                   ),
                   buildNewPinTextField(),
                   const SizedBox(
@@ -176,7 +173,6 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
         }
         user_details.UpdateLoginCredentialsResponse updateLoginCredentialsResponse =
             await user_details.updateLoginCredentials(user_details.UpdateLoginCredentialsRequest(
-          schoolId: widget.schoolId,
           studentId: widget.studentId,
           userId: widget.userId,
           agentId: widget.userId ?? widget.studentId,
@@ -400,14 +396,14 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
 
   List<Widget> _getUserDetailsWidgets() {
     return [
-      Text(
-        schoolName ?? "-",
-        style: GoogleFonts.archivoBlack(
-          textStyle: const TextStyle(
-            fontSize: 24,
-          ),
-        ),
-      ),
+      // Text(
+      //   schoolName ?? "-",
+      //   style: GoogleFonts.archivoBlack(
+      //     textStyle: const TextStyle(
+      //       fontSize: 24,
+      //     ),
+      //   ),
+      // ),
       const SizedBox(
         height: 10,
       ),
@@ -421,7 +417,7 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
         height: 10,
       ),
       Text(
-        "Roles: ${roles.join(", ")}",
+        "Roles: ${roles.map((e) => e.replaceAll("_", " ").capitalize()).join(", ")}",
         style: const TextStyle(
           fontSize: 10,
         ),
