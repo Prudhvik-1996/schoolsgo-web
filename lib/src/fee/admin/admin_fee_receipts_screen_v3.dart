@@ -397,9 +397,10 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     // }
 
     List<StudentFeeReceipt> receiptsToPrint = filteredStudentFeeReceipts
-        .where((e) => transactionId == null || e.transactionId == transactionId && e.status != "deleted" && isReceptionist
-            ? e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())
-            : true)
+        .where((e) =>
+            (transactionId == null || e.transactionId == transactionId) &&
+            e.status != "deleted" &&
+            (isReceptionist ? e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()) : true))
         .toList();
     await printReceipts(
       context,
