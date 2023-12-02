@@ -121,7 +121,7 @@ class _SettingsViewState extends State<SettingsView> {
         const SizedBox(
           width: 15,
         ),
-        const Text("2.5.13"),
+        Text(currentAppVersion ?? "-"),
         const SizedBox(
           width: 15,
         ),
