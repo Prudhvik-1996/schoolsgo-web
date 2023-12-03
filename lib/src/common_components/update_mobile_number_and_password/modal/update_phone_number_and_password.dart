@@ -89,3 +89,69 @@ Future<UpdatePhoneNumberPasswordResponse> updatePhoneNumberPassword(UpdatePhoneN
   debugPrint("UpdatePhoneNumberPasswordResponse ${updatePhoneNumberPasswordResponse.toJson()}");
   return updatePhoneNumberPasswordResponse;
 }
+
+class ResetPinRequest {
+
+  String? loginUserId;
+  Map<String, dynamic> __origJson = {};
+
+  ResetPinRequest({
+    this.loginUserId,
+  });
+  ResetPinRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    loginUserId = json['loginUserId']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['loginUserId'] = loginUserId;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class ResetPinResponse {
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  ResetPinResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  ResetPinResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<ResetPinResponse> resetPin(ResetPinRequest resetPinRequest) async {
+  debugPrint("Raising request to resetPin with request ${jsonEncode(resetPinRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + RESET_PIN;
+
+  ResetPinResponse resetPinResponse = await HttpUtils.post(
+    _url,
+    resetPinRequest.toJson(),
+    ResetPinResponse.fromJson,
+  );
+
+  debugPrint("ResetPinResponse ${resetPinResponse.toJson()}");
+  return resetPinResponse;
+}

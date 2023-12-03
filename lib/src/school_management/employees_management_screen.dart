@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/constants/user_roles.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/school_management/employee_card_widget.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EmployeesManagementScreen extends StatefulWidget {
@@ -19,12 +20,13 @@ class EmployeesManagementScreen extends StatefulWidget {
 
 class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
   bool _isLoading = true;
-  bool _tableView = true;
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<SchoolWiseEmployeeBean> employees = [];
   int? selectedEmployeeId;
 
-  ScrollController dataTableController = ScrollController();
+  ScrollController dataTableHorizontalController = ScrollController();
+  ScrollController dataTableVerticalController = ScrollController();
   TextEditingController sNoSearchController = TextEditingController();
   TextEditingController nameSearchController = TextEditingController();
   TextEditingController mobileSearchController = TextEditingController();
@@ -72,14 +74,9 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text("Employees Management"),
-        actions: [
-          IconButton(
-            icon: _tableView ? const Icon(Icons.list) : const Icon(Icons.grid_view),
-            onPressed: () => setState(() => _tableView = !_tableView),
-          ),
-        ],
       ),
       body: _isLoading
           ? Center(
@@ -89,229 +86,389 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
                 width: 500,
               ),
             )
-          : _tableView
-              ? ListView(
-                  children: [
-                    credentialsTable(filteredEmployees),
-                  ],
-                )
-              : ListView(
-                  children: employees
-                      .map((e) => EmployeeCardWidget(
-                            adminProfile: widget.adminProfile,
-                            employeeProfile: e,
-                            isEmployeeSelected: selectedEmployeeId == e.employeeId,
-                            onEmployeeSelected: onEmployeeSelected,
-                          ))
-                      .toList(),
-                ),
+          : SizedBox(
+              width: MediaQuery.of(context).size.width - 10,
+              height: MediaQuery.of(context).size.height - 10,
+              child: employeesTable(filteredEmployees),
+            ),
     );
   }
 
-  Widget credentialsTable(List<SchoolWiseEmployeeBean> employees) {
+  Widget employeesTable(List<SchoolWiseEmployeeBean> employees) {
     return Container(
       margin: const EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width - 20,
       child: Scrollbar(
         thumbVisibility: true,
-        controller: dataTableController,
+        controller: dataTableHorizontalController,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          controller: dataTableController,
-          child: DataTable(
-            columns: [
-              DataColumn(
-                numeric: true,
-                label: Row(
-                  children: [
-                    searchingWith == "S. No."
-                        ? SizedBox(
-                            width: 100,
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'S. No.',
-                                hintText: 'S. No.',
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue),
-                                ),
-                                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
-                              controller: sNoSearchController,
-                              autofocus: true,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                          )
-                        : const Text(
-                            "S. No.",
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: () {
-                        editSearchingWith(searchingWith == "S. No." ? null : "S. No.");
-                      },
-                      icon: Icon(
-                        searchingWith != "S. No." ? Icons.search : Icons.close,
-                      ),
-                    ),
-                  ],
-                ),
+          controller: dataTableHorizontalController,
+          child: Scrollbar(
+            thumbVisibility: true,
+            controller: dataTableVerticalController,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              controller: dataTableVerticalController,
+              child: DataTable(
+                columns: extractDataTableColumns(),
+                rows: [
+                  ...employees.mapIndexed(
+                    (employeeIndex, eachEmployee) => selectedEmployeeId == eachEmployee.employeeId
+                        ? eachEmployeeDataTableRowForEditMode(employeeIndex, employees)
+                        : eachEmployeeDataTableRowForReadMode(employeeIndex, employees),
+                  ),
+                ],
               ),
-              DataColumn(
-                numeric: false,
-                label: Row(
-                  children: [
-                    searchingWith == "Name"
-                        ? SizedBox(
-                            width: 100,
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Name',
-                                hintText: 'Name',
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue),
-                                ),
-                                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
-                              controller: nameSearchController,
-                              autofocus: true,
-                              onChanged: (_) => setState(() {}),
-                            ),
-                          )
-                        : const Text(
-                            "Name",
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: () {
-                        editSearchingWith(searchingWith == "Name" ? null : "Name");
-                      },
-                      icon: Icon(
-                        searchingWith != "Name" ? Icons.search : Icons.close,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const DataColumn(
-                label: Text(
-                  "Email",
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ),
-              DataColumn(
-                numeric: false,
-                label: Row(
-                  children: [
-                    searchingWith == "Mobile"
-                        ? SizedBox(
-                      width: 100,
-                      child: TextField(
-                        decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
-                          labelText: 'Mobile',
-                          hintText: 'Mobile',
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                        ),
-                        style: const TextStyle(
-                          fontSize: 12,
-                        ),
-                        controller: mobileSearchController,
-                        autofocus: true,
-                        onChanged: (_) => setState(() {}),
-                      ),
-                    )
-                        : const Text(
-                      "Mobile",
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: () {
-                        editSearchingWith(searchingWith == "Mobile" ? null : "Mobile");
-                      },
-                      icon: Icon(
-                        searchingWith != "Mobile" ? Icons.search : Icons.close,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const DataColumn(
-                label: Text(
-                  "Login Id",
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ),
-              const DataColumn(
-                label: Text(
-                  "Roles",
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ),
-            ],
-            rows: [
-              ...employees.map(
-                (eachEmployee) => DataRow(
-                  cells: [
-                    DataCell(Text("${employees.indexWhere((e) => e == eachEmployee) + 1}")),
-                    DataCell(Text(eachEmployee.employeeName ?? " - ")),
-                    DataCell(Text(eachEmployee.emailId ?? " - ")),
-                    DataCell(
-                      Row(
-                        children: [
-                          Text(eachEmployee.mobile ?? " - "),
-                          if (eachEmployee.mobile != null)
-                            IconButton(
-                              onPressed: () => launch("tel://${eachEmployee.mobile}"),
-                              icon: const Icon(Icons.phone),
-                            ),
-                        ],
-                      ),
-                    ),
-                    DataCell(Text(eachEmployee.loginId ?? " - ")),
-                    DataCell(
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: (eachEmployee.roles ?? [])
-                            .whereNotNull()
-                            .sorted((a, b) => a.compareTo(b))
-                            .map((e) => Card(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(e.replaceAll("_", " ")),
-                                  ),
-                                  // color: e == "ADMIN"
-                                  //     ? Colors.red
-                                  //     : e == "TEACHER"
-                                  //         ? Colors.blue
-                                  //         : null,
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  DataRow eachEmployeeDataTableRowForEditMode(int employeeIndex, List<SchoolWiseEmployeeBean> employees) {
+    SchoolWiseEmployeeBean eachEmployee = employees[employeeIndex];
+    return DataRow(
+      cells: [
+        DataCell(
+          onTap: () async {
+            if (const DeepCollectionEquality().equals(eachEmployee.origJson()..removeWhere((key, value) => value == null),
+                eachEmployee.toJson()..removeWhere((key, value) => value == null))) {
+              onEmployeeSelected(null);
+              return;
+            }
+            await saveChanges(eachEmployee, employees, employeeIndex);
+          },
+          ListTile(
+            leading: const Icon(Icons.check),
+            title: Text("${employees.indexWhere((e) => e == eachEmployee) + 1}"),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: 300,
+            child: TextFormField(
+              enabled: true,
+              initialValue: eachEmployee.employeeName,
+              keyboardType: TextInputType.name,
+              textAlign: TextAlign.left,
+              onChanged: (String? value) {
+                setState(() {
+                  eachEmployee.employeeName = value ?? "";
+                });
+              },
+            ),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: 300,
+            child: TextFormField(
+              enabled: true,
+              initialValue: eachEmployee.emailId,
+              keyboardType: TextInputType.emailAddress,
+              textAlign: TextAlign.left,
+              onChanged: (String? value) {
+                setState(() {
+                  eachEmployee.emailId = value ?? "";
+                });
+              },
+            ),
+          ),
+        ),
+        DataCell(
+          SizedBox(
+            width: 300,
+            child: TextFormField(
+              enabled: true,
+              initialValue: eachEmployee.mobile,
+              keyboardType: TextInputType.phone,
+              textAlign: TextAlign.left,
+              onChanged: (String? value) {
+                setState(() {
+                  eachEmployee.mobile = value ?? "";
+                });
+              },
+            ),
+          ),
+        ),
+        loginIdDataCell(eachEmployee),
+        DataCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: UserRole.values
+                .sorted((a, b) => a.name.compareTo(b.name))
+                .map((e) => InkWell(
+                      onTap: () {
+                        eachEmployee.roles ??= [];
+                        if (eachEmployee.roles!.length == 1 && eachEmployee.roles!.firstOrNull == e.name) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Employee must be assigned to at least one role"),
+                            ),
+                          );
+                          return;
+                        }
+                        if (eachEmployee.roles!.contains(e.name)) {
+                          setState(() => eachEmployee.roles!.remove(e.name));
+                        } else {
+                          setState(() => eachEmployee.roles!.add(e.name));
+                        }
+                      },
+                      child: Card(
+                        color: (eachEmployee.roles ?? []).contains(e.name) ? Colors.blue : null,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(e.name.split("_").map((e) => e.capitalize()).join(" ")),
+                        ),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> saveChanges(SchoolWiseEmployeeBean eachEmployee, List<SchoolWiseEmployeeBean> employees, int employeeIndex) async {
+    setState(() => _isLoading = true);
+    List<String> previousRolesList = (SchoolWiseEmployeeBean.fromJson(eachEmployee.origJson()).roles ?? []).whereNotNull().toList();
+    CreateUserAndAssignRolesRequest createUserAndAssignRolesRequest = CreateUserAndAssignRolesRequest(
+      userId: eachEmployee.employeeId,
+      schoolId: eachEmployee.schoolId,
+      firstName: eachEmployee.employeeName,
+      mobile: eachEmployee.mobile,
+      mailId: eachEmployee.emailId,
+      admin: (previousRolesList).contains(UserRole.ADMIN.name) && !(eachEmployee.roles ?? []).contains(UserRole.ADMIN.name)
+          ? false
+          : !(previousRolesList).contains(UserRole.ADMIN.name) && (eachEmployee.roles ?? []).contains(UserRole.ADMIN.name)
+              ? true
+              : null,
+      teacher: (previousRolesList).contains(UserRole.TEACHER.name) && !(eachEmployee.roles ?? []).contains(UserRole.TEACHER.name)
+          ? false
+          : !(previousRolesList).contains(UserRole.TEACHER.name) && (eachEmployee.roles ?? []).contains(UserRole.TEACHER.name)
+              ? true
+              : null,
+      status: "active",
+      agent: widget.adminProfile.userId,
+    );
+    CreateUserAndAssignRolesResponse createUserAndAssignRolesResponse = await createUserAndAssignRoles(createUserAndAssignRolesRequest);
+    if (createUserAndAssignRolesResponse.httpStatus != "OK" ||
+        createUserAndAssignRolesResponse.responseStatus != "success" ||
+        createUserAndAssignRolesResponse.employeeBean == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        employees[employeeIndex] = createUserAndAssignRolesResponse.employeeBean!;
+      });
+      onEmployeeSelected(null);
+    }
+    setState(() => _isLoading = false);
+  }
+
+  DataRow eachEmployeeDataTableRowForReadMode(int employeeIndex, List<SchoolWiseEmployeeBean> employees) {
+    SchoolWiseEmployeeBean eachEmployee = employees[employeeIndex];
+    return DataRow(
+      cells: [
+        DataCell(
+          showEditIcon: selectedEmployeeId == null,
+          onTap: () {
+            if (selectedEmployeeId == null) onEmployeeSelected(eachEmployee.employeeId);
+          },
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: Text("${employees.indexWhere((e) => e == eachEmployee) + 1}"),
+          ),
+        ),
+        DataCell(Text(eachEmployee.employeeName ?? " - ")),
+        DataCell(Text(eachEmployee.emailId ?? " - ")),
+        DataCell(
+          Row(
+            children: [
+              Text(eachEmployee.mobile ?? " - "),
+              if (eachEmployee.mobile != null)
+                IconButton(
+                  onPressed: () => launch("tel://${eachEmployee.mobile}"),
+                  icon: const Icon(Icons.phone),
+                ),
+            ],
+          ),
+        ),
+        loginIdDataCell(eachEmployee),
+        DataCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: (eachEmployee.roles ?? [])
+                .whereNotNull()
+                .sorted((a, b) => a.compareTo(b))
+                .map((e) => Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(e.replaceAll("_", " ")),
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  DataCell loginIdDataCell(SchoolWiseEmployeeBean eachEmployee) => DataCell(Text(eachEmployee.loginId ?? " - "));
+
+  List<DataColumn> extractDataTableColumns() {
+    return [
+      DataColumn(
+        numeric: true,
+        label: Row(
+          children: [
+            searchingWith == "S. No."
+                ? SizedBox(
+                    width: 100,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'S. No.',
+                        hintText: 'S. No.',
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                        contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                      controller: sNoSearchController,
+                      autofocus: true,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  )
+                : const Text(
+                    "S. No.",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+            const SizedBox(width: 10),
+            IconButton(
+              onPressed: () {
+                editSearchingWith(searchingWith == "S. No." ? null : "S. No.");
+              },
+              icon: Icon(
+                searchingWith != "S. No." ? Icons.search : Icons.close,
+              ),
+            ),
+          ],
+        ),
+      ),
+      DataColumn(
+        numeric: false,
+        label: Row(
+          children: [
+            searchingWith == "Name"
+                ? SizedBox(
+                    width: 100,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'Name',
+                        hintText: 'Name',
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                        contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                      controller: nameSearchController,
+                      autofocus: true,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  )
+                : const Text(
+                    "Name",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+            const SizedBox(width: 10),
+            IconButton(
+              onPressed: () {
+                editSearchingWith(searchingWith == "Name" ? null : "Name");
+              },
+              icon: Icon(
+                searchingWith != "Name" ? Icons.search : Icons.close,
+              ),
+            ),
+          ],
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Email",
+          style: TextStyle(color: Colors.blue),
+        ),
+      ),
+      DataColumn(
+        numeric: false,
+        label: Row(
+          children: [
+            searchingWith == "Mobile"
+                ? SizedBox(
+                    width: 100,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        border: UnderlineInputBorder(),
+                        labelText: 'Mobile',
+                        hintText: 'Mobile',
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                        contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                      ),
+                      controller: mobileSearchController,
+                      autofocus: true,
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  )
+                : const Text(
+                    "Mobile",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+            const SizedBox(width: 10),
+            IconButton(
+              onPressed: () {
+                editSearchingWith(searchingWith == "Mobile" ? null : "Mobile");
+              },
+              icon: Icon(
+                searchingWith != "Mobile" ? Icons.search : Icons.close,
+              ),
+            ),
+          ],
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Login Id",
+          style: TextStyle(color: Colors.blue),
+        ),
+      ),
+      const DataColumn(
+        label: Text(
+          "Roles",
+          style: TextStyle(color: Colors.blue),
+        ),
+      ),
+    ];
   }
 
   void editSearchingWith(String? newSearchingWith) => setState(() {

@@ -213,3 +213,217 @@ Future<GetSchoolWiseEmployeesResponse> getSchoolWiseEmployees(GetSchoolWiseEmplo
   debugPrint("GetSchoolWiseEmployeesResponse ${getSchoolWiseEmployeesResponse.toJson()}");
   return getSchoolWiseEmployeesResponse;
 }
+
+class CreateUserAndAssignRolesRequest {
+
+  bool? admin;
+  int? agent;
+  String? alternateMobile;
+  String? firstName;
+  String? lastName;
+  String? mailId;
+  String? middleName;
+  String? mobile;
+  int? schoolId;
+  String? status;
+  bool? teacher;
+  int? userId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateUserAndAssignRolesRequest({
+    this.admin,
+    this.agent,
+    this.alternateMobile,
+    this.firstName,
+    this.lastName,
+    this.mailId,
+    this.middleName,
+    this.mobile,
+    this.schoolId,
+    this.status,
+    this.teacher,
+    this.userId,
+  });
+  CreateUserAndAssignRolesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    admin = json['admin'];
+    agent = json['agent']?.toInt();
+    alternateMobile = json['alternateMobile']?.toString();
+    firstName = json['firstName']?.toString();
+    lastName = json['lastName']?.toString();
+    mailId = json['mailId']?.toString();
+    middleName = json['middleName']?.toString();
+    mobile = json['mobile']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    teacher = json['teacher'];
+    userId = json['userId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['admin'] = admin;
+    data['agent'] = agent;
+    data['alternateMobile'] = alternateMobile;
+    data['firstName'] = firstName;
+    data['lastName'] = lastName;
+    data['mailId'] = mailId;
+    data['middleName'] = middleName;
+    data['mobile'] = mobile;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    data['teacher'] = teacher;
+    data['userId'] = userId;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateUserAndAssignRolesResponse {
+
+  SchoolWiseEmployeeBean? employeeBean;
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateUserAndAssignRolesResponse({
+    this.employeeBean,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateUserAndAssignRolesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    employeeBean = (json['employeeBean'] != null) ? SchoolWiseEmployeeBean.fromJson(json['employeeBean']) : null;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (employeeBean != null) {
+      data['employeeBean'] = employeeBean!.toJson();
+    }
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateUserAndAssignRolesResponse> createUserAndAssignRoles(CreateUserAndAssignRolesRequest createUserAndAssignRolesRequest) async {
+  debugPrint("Raising request to createUserAndAssignRoles with request ${jsonEncode(createUserAndAssignRolesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_USER_AND_ASSIGN_ROLES;
+
+  CreateUserAndAssignRolesResponse createUserAndAssignRolesResponse = await HttpUtils.post(
+    _url,
+    createUserAndAssignRolesRequest.toJson(),
+    CreateUserAndAssignRolesResponse.fromJson,
+  );
+
+  debugPrint("CreateUserAndAssignRolesResponse ${createUserAndAssignRolesResponse.toJson()}");
+  return createUserAndAssignRolesResponse;
+}
+
+class AssignUserWithRolesRequest {
+
+  int? agent;
+  List<String?>? roles;
+  int? schoolId;
+  int? userId;
+  Map<String, dynamic> __origJson = {};
+
+  AssignUserWithRolesRequest({
+    this.agent,
+    this.roles,
+    this.schoolId,
+    this.userId,
+  });
+  AssignUserWithRolesRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    if (json['roles'] != null) {
+      final v = json['roles'];
+      final arr0 = <String>[];
+      v.forEach((v) {
+        arr0.add(v.toString());
+      });
+      roles = arr0;
+    }
+    schoolId = json['schoolId']?.toInt();
+    userId = json['userId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    if (roles != null) {
+      final v = roles;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v);
+      });
+      data['roles'] = arr0;
+    }
+    data['schoolId'] = schoolId;
+    data['userId'] = userId;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class AssignUserWithRolesResponse {
+
+  SchoolWiseEmployeeBean? employeeBean;
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  AssignUserWithRolesResponse({
+    this.employeeBean,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  AssignUserWithRolesResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    employeeBean = (json['employeeBean'] != null) ? SchoolWiseEmployeeBean.fromJson(json['employeeBean']) : null;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (employeeBean != null) {
+      data['employeeBean'] = employeeBean!.toJson();
+    }
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<AssignUserWithRolesResponse> assignUserWithRoles(AssignUserWithRolesRequest assignUserWithRolesRequest) async {
+  debugPrint("Raising request to assignUserWithRoles with request ${jsonEncode(assignUserWithRolesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + ASSIGN_USER_WITH_ROLES;
+
+  AssignUserWithRolesResponse assignUserWithRolesResponse = await HttpUtils.post(
+    _url,
+    assignUserWithRolesRequest.toJson(),
+    AssignUserWithRolesResponse.fromJson,
+  );
+
+  debugPrint("AssignUserWithRolesResponse ${assignUserWithRolesResponse.toJson()}");
+  return assignUserWithRolesResponse;
+}

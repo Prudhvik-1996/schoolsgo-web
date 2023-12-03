@@ -565,118 +565,196 @@ class _StudentLoginCredentialsState extends State<StudentLoginCredentials> {
                                   ],
                                 ),
                         ),
-                        DataCell(
-                          placeholder: true,
-                          showEditIcon: true,
-                          onTap: () async {
-                            if (es.gaurdianId == null || (es.gaurdianMobile ?? "").isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text("Edit the guardian details first and then edit the password"),
-                                  action: SnackBarAction(
-                                    label: "Edit Guardian Details",
-                                    onPressed: () => editStudentDetails(es),
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
-                            await showDialog(
-                              context: scaffoldKey.currentContext!,
-                              barrierDismissible: false,
-                              builder: (currentContext) {
-                                bool isWaitingOnServer = false;
-                                return AlertDialog(
-                                  title: const Text("Edit Password"),
-                                  content: StatefulBuilder(
-                                    builder: (BuildContext context, StateSetter setState) {
-                                      return TextFormField(
-                                        autofocus: true,
-                                        initialValue: es.password ?? "",
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          errorText: (es.password ?? "").isEmpty
-                                              ? "Password cannot be empty"
-                                              : (es.password?.length ?? 0) < 6
-                                                  ? "Password must be exactly 6 digits"
-                                                  : "",
-                                          border: const UnderlineInputBorder(),
-                                          focusedBorder: const OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                            borderSide: BorderSide(color: Colors.blue),
-                                          ),
-                                          contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                                        ),
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                                          TextInputFormatter.withFunction((oldValue, newValue) {
-                                            try {
-                                              final text = newValue.text;
-                                              if (text.length > 6) return oldValue;
-                                              if (text.isNotEmpty) int.parse(text);
-                                              return newValue;
-                                            } catch (e) {
-                                              return oldValue;
-                                            }
-                                          }),
-                                        ],
-                                        onChanged: (String? newText) => setState(() => es.password = newText),
-                                        maxLines: null,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                        ),
-                                        textAlign: TextAlign.start,
-                                      );
-                                    },
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () async {
-                                        if ((es.password ?? "").trim().isEmpty || (es.password?.length ?? 0) < 6) return;
-                                        setState(() => isWaitingOnServer = true);
-                                        UpdatePhoneNumberPasswordResponse updatePhoneNumberPasswordResponse =
-                                            await updatePhoneNumberPassword(UpdatePhoneNumberPasswordRequest(
-                                          agent: widget.adminProfile.userId,
-                                          newPassword: es.password,
-                                          newPhoneNumber: es.gaurdianMobile,
-                                          oldPhoneNumber: es.gaurdianMobile,
-                                        ));
-                                        if (updatePhoneNumberPasswordResponse.httpStatus != "OK" ||
-                                            updatePhoneNumberPasswordResponse.responseStatus != "success") {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text("Something went wrong! Try again later.."),
-                                            ),
-                                          );
-                                        }
-                                        setState(() => isWaitingOnServer = false);
-                                        Navigator.pop(context);
-                                      },
-                                      child: isWaitingOnServer ? const CircularProgressIndicator() : const Text("YES"),
-                                    ),
-                                    if (!isWaitingOnServer)
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text("No"),
-                                      ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                            child: Text((es.gaurdianMobile ?? "") == "" ? "-" : es.password ?? ""),
-                          ),
-                        )
+                        resetPinInAlertDialogueButton(es),
                       ],
                     ),
                   ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  DataCell resetPinInAlertDialogueButton(StudentProfile es) {
+    return DataCell(
+      onTap: () async {
+        if (es.gaurdianId == null || (es.gaurdianMobile ?? "").isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("Edit the guardian details first and then edit the password"),
+              action: SnackBarAction(
+                label: "Edit Guardian Details",
+                onPressed: () => editStudentDetails(es),
+              ),
+            ),
+          );
+          return;
+        }
+        await showDialog(
+          context: scaffoldKey.currentContext!,
+          barrierDismissible: false,
+          builder: (currentContext) {
+            bool isWaitingOnServer = false;
+            return AlertDialog(
+              title: const Text("Reset Password"),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    setState(() => isWaitingOnServer = true);
+                    ResetPinRequest resetPinRequest = ResetPinRequest(
+                      loginUserId: es.loginId,
+                    );
+                    ResetPinResponse resetPinResponse = await resetPin(resetPinRequest);
+                    if (resetPinResponse.httpStatus != "OK" || resetPinResponse.responseStatus != "success") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Something went wrong! Try again later.."),
+                        ),
+                      );
+                    } else {
+                      setState(() => es.password = null);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Pin reset successful.."),
+                        ),
+                      );
+                    }
+                    setState(() => isWaitingOnServer = false);
+                    Navigator.pop(context);
+                  },
+                  child: isWaitingOnServer ? const CircularProgressIndicator() : const Text("YES"),
+                ),
+                if (!isWaitingOnServer)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("No"),
+                  ),
+              ],
+            );
+          },
+        );
+      },
+      ClayButton(
+        depth: 40,
+        parentColor: clayContainerColor(context),
+        surfaceColor: es.password == null ? clayContainerColor(context) : Colors.blue,
+        spread: es.password == null ? 0 : 2,
+        borderRadius: 10,
+        child: const Padding(
+          padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: Text("Reset PIN"),
+        ),
+      ),
+    );
+  }
+
+  DataCell editPinInAlertDialogueButton(StudentProfile es) {
+    return DataCell(
+      placeholder: true,
+      showEditIcon: true,
+      onTap: () async {
+        if (es.gaurdianId == null || (es.gaurdianMobile ?? "").isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("Edit the guardian details first and then edit the password"),
+              action: SnackBarAction(
+                label: "Edit Guardian Details",
+                onPressed: () => editStudentDetails(es),
+              ),
+            ),
+          );
+          return;
+        }
+        await showDialog(
+          context: scaffoldKey.currentContext!,
+          barrierDismissible: false,
+          builder: (currentContext) {
+            bool isWaitingOnServer = false;
+            return AlertDialog(
+              title: const Text("Edit Password"),
+              content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return TextFormField(
+                    autofocus: true,
+                    initialValue: es.password ?? "",
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      errorText: (es.password ?? "").isEmpty
+                          ? "Password cannot be empty"
+                          : (es.password?.length ?? 0) < 6
+                              ? "Password must be exactly 6 digits"
+                              : "",
+                      border: const UnderlineInputBorder(),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide(color: Colors.blue),
+                      ),
+                      contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                      TextInputFormatter.withFunction((oldValue, newValue) {
+                        try {
+                          final text = newValue.text;
+                          if (text.length > 6) return oldValue;
+                          if (text.isNotEmpty) int.parse(text);
+                          return newValue;
+                        } catch (e) {
+                          return oldValue;
+                        }
+                      }),
+                    ],
+                    onChanged: (String? newText) => setState(() => es.password = newText),
+                    maxLines: null,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.start,
+                  );
+                },
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    if ((es.password ?? "").trim().isEmpty || (es.password?.length ?? 0) < 6) return;
+                    setState(() => isWaitingOnServer = true);
+                    UpdatePhoneNumberPasswordResponse updatePhoneNumberPasswordResponse =
+                        await updatePhoneNumberPassword(UpdatePhoneNumberPasswordRequest(
+                      agent: widget.adminProfile.userId,
+                      newPassword: es.password,
+                      newPhoneNumber: es.gaurdianMobile,
+                      oldPhoneNumber: es.gaurdianMobile,
+                    ));
+                    if (updatePhoneNumberPasswordResponse.httpStatus != "OK" || updatePhoneNumberPasswordResponse.responseStatus != "success") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Something went wrong! Try again later.."),
+                        ),
+                      );
+                    }
+                    setState(() => isWaitingOnServer = false);
+                    Navigator.pop(context);
+                  },
+                  child: isWaitingOnServer ? const CircularProgressIndicator() : const Text("YES"),
+                ),
+                if (!isWaitingOnServer)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text("No"),
+                  ),
+              ],
+            );
+          },
+        );
+      },
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: Text((es.gaurdianMobile ?? "") == "" ? "-" : es.password ?? ""),
       ),
     );
   }
