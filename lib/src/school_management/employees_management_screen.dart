@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/user_roles.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -31,6 +33,8 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
   TextEditingController nameSearchController = TextEditingController();
   TextEditingController mobileSearchController = TextEditingController();
   String? searchingWith;
+
+  bool isAddingNewEmployee = false;
 
   @override
   void initState() {
@@ -91,6 +95,68 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
               height: MediaQuery.of(context).size.height - 10,
               child: employeesTable(filteredEmployees),
             ),
+      floatingActionButton: !_isLoading && selectedEmployeeId == null && !isAddingNewEmployee
+          ? fab(
+              const Icon(Icons.add),
+              "Add Employee",
+              () async {
+                setState(() {
+                  employees.add(SchoolWiseEmployeeBean(
+                    employeeId: -1,
+                    schoolId: widget.adminProfile.schoolId,
+                  ));
+                  selectedEmployeeId = -1;
+                });
+                dataTableVerticalController.animateTo(
+                  dataTableVerticalController.position.maxScrollExtent,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              },
+              color: Colors.green,
+            )
+          : null,
+    );
+  }
+
+  Widget fab(Icon icon, String text, Function() action, {Function()? postAction, Color? color}) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: GestureDetector(
+        onTap: () {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            await action();
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (postAction != null) {
+              await postAction();
+            }
+          });
+        },
+        child: ClayButton(
+          surfaceColor: color ?? clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 20,
+          spread: 2,
+          child: Container(
+            width: 100,
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                icon,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(text),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -110,15 +176,18 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               controller: dataTableVerticalController,
-              child: DataTable(
-                columns: extractDataTableColumns(),
-                rows: [
-                  ...employees.mapIndexed(
-                    (employeeIndex, eachEmployee) => selectedEmployeeId == eachEmployee.employeeId
-                        ? eachEmployeeDataTableRowForEditMode(employeeIndex, employees)
-                        : eachEmployeeDataTableRowForReadMode(employeeIndex, employees),
-                  ),
-                ],
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                child: DataTable(
+                  columns: extractDataTableColumns(),
+                  rows: [
+                    ...employees.mapIndexed(
+                      (employeeIndex, eachEmployee) => selectedEmployeeId == eachEmployee.employeeId
+                          ? eachEmployeeDataTableRowForEditMode(employeeIndex, employees)
+                          : eachEmployeeDataTableRowForReadMode(employeeIndex, employees),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -132,17 +201,34 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
     return DataRow(
       cells: [
         DataCell(
-          onTap: () async {
-            if (const DeepCollectionEquality().equals(eachEmployee.origJson()..removeWhere((key, value) => value == null),
-                eachEmployee.toJson()..removeWhere((key, value) => value == null))) {
-              onEmployeeSelected(null);
-              return;
-            }
-            await saveChanges(eachEmployee, employees, employeeIndex);
-          },
-          ListTile(
-            leading: const Icon(Icons.check),
-            title: Text("${employees.indexWhere((e) => e == eachEmployee) + 1}"),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.check,
+                  color: Colors.green,
+                ),
+                onPressed: () async {
+                  if (const DeepCollectionEquality().equals(eachEmployee.origJson()..removeWhere((key, value) => value == null),
+                      eachEmployee.toJson()..removeWhere((key, value) => value == null))) {
+                    onEmployeeSelected(null);
+                    return;
+                  }
+                  await saveChanges(eachEmployee, employees, employeeIndex);
+                },
+              ),
+              const SizedBox(width: 10),
+              IconButton(
+                icon: const Icon(
+                  Icons.clear,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  setState(() => employees[employeeIndex] = SchoolWiseEmployeeBean.fromJson(eachEmployee.origJson()));
+                  onEmployeeSelected(null);
+                },
+              ),
+            ],
           ),
         ),
         DataCell(
@@ -234,22 +320,49 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
   }
 
   Future<void> saveChanges(SchoolWiseEmployeeBean eachEmployee, List<SchoolWiseEmployeeBean> employees, int employeeIndex) async {
+    if ((eachEmployee.employeeName ?? "").isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Employee must be assigned to at least one role"),
+        ),
+      );
+      return;
+    }
+    if ((eachEmployee.roles ?? []).isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Employee must be assigned to at least one role"),
+        ),
+      );
+      return;
+    }
     setState(() => _isLoading = true);
     List<String> previousRolesList = (SchoolWiseEmployeeBean.fromJson(eachEmployee.origJson()).roles ?? []).whereNotNull().toList();
     CreateUserAndAssignRolesRequest createUserAndAssignRolesRequest = CreateUserAndAssignRolesRequest(
-      userId: eachEmployee.employeeId,
+      userId: eachEmployee.employeeId == -1 ? null : eachEmployee.employeeId,
       schoolId: eachEmployee.schoolId,
       firstName: eachEmployee.employeeName,
       mobile: eachEmployee.mobile,
       mailId: eachEmployee.emailId,
-      admin: (previousRolesList).contains(UserRole.ADMIN.name) && !(eachEmployee.roles ?? []).contains(UserRole.ADMIN.name)
+      isAdmin: (previousRolesList).contains(UserRole.ADMIN.name) && !(eachEmployee.roles ?? []).contains(UserRole.ADMIN.name)
           ? false
           : !(previousRolesList).contains(UserRole.ADMIN.name) && (eachEmployee.roles ?? []).contains(UserRole.ADMIN.name)
               ? true
               : null,
-      teacher: (previousRolesList).contains(UserRole.TEACHER.name) && !(eachEmployee.roles ?? []).contains(UserRole.TEACHER.name)
+      isTeacher: (previousRolesList).contains(UserRole.TEACHER.name) && !(eachEmployee.roles ?? []).contains(UserRole.TEACHER.name)
           ? false
           : !(previousRolesList).contains(UserRole.TEACHER.name) && (eachEmployee.roles ?? []).contains(UserRole.TEACHER.name)
+              ? true
+              : null,
+      isNonTeachingStaff: (previousRolesList).contains(UserRole.NON_TEACHING_STAFF.name) &&
+              !(eachEmployee.roles ?? []).contains(UserRole.NON_TEACHING_STAFF.name)
+          ? false
+          : !(previousRolesList).contains(UserRole.NON_TEACHING_STAFF.name) && (eachEmployee.roles ?? []).contains(UserRole.NON_TEACHING_STAFF.name)
+              ? true
+              : null,
+      isBusDriver: (previousRolesList).contains(UserRole.BUS_DRIVER.name) && !(eachEmployee.roles ?? []).contains(UserRole.BUS_DRIVER.name)
+          ? false
+          : !(previousRolesList).contains(UserRole.BUS_DRIVER.name) && (eachEmployee.roles ?? []).contains(UserRole.BUS_DRIVER.name)
               ? true
               : null,
       status: "active",

@@ -20,11 +20,13 @@ class GetSchoolWiseEmployeesRequest {
     this.employeeId,
     this.schoolId,
   });
+
   GetSchoolWiseEmployeesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeId = json['employeeId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['employeeId'] = employeeId;
@@ -79,6 +81,7 @@ class SchoolWiseEmployeeBean {
     this.mobile,
     this.alternateMobile,
   });
+
   SchoolWiseEmployeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeId = json['employeeId']?.toInt();
@@ -101,6 +104,7 @@ class SchoolWiseEmployeeBean {
     mobile = json['mobile']?.toString();
     alternateMobile = json['alternateMobile']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['employeeId'] = employeeId;
@@ -165,6 +169,7 @@ class GetSchoolWiseEmployeesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetSchoolWiseEmployeesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['employees'] != null) {
@@ -180,6 +185,7 @@ class GetSchoolWiseEmployeesResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (employees != null) {
@@ -215,8 +221,7 @@ Future<GetSchoolWiseEmployeesResponse> getSchoolWiseEmployees(GetSchoolWiseEmplo
 }
 
 class CreateUserAndAssignRolesRequest {
-
-  bool? admin;
+  bool? isAdmin;
   int? agent;
   String? alternateMobile;
   String? firstName;
@@ -226,12 +231,14 @@ class CreateUserAndAssignRolesRequest {
   String? mobile;
   int? schoolId;
   String? status;
-  bool? teacher;
+  bool? isTeacher;
+  bool? isNonTeachingStaff;
+  bool? isBusDriver;
   int? userId;
   Map<String, dynamic> __origJson = {};
 
   CreateUserAndAssignRolesRequest({
-    this.admin,
+    this.isAdmin,
     this.agent,
     this.alternateMobile,
     this.firstName,
@@ -241,12 +248,15 @@ class CreateUserAndAssignRolesRequest {
     this.mobile,
     this.schoolId,
     this.status,
-    this.teacher,
+    this.isTeacher,
+    this.isNonTeachingStaff,
+    this.isBusDriver,
     this.userId,
   });
+
   CreateUserAndAssignRolesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
-    admin = json['admin'];
+    isAdmin = json['isAdmin'];
     agent = json['agent']?.toInt();
     alternateMobile = json['alternateMobile']?.toString();
     firstName = json['firstName']?.toString();
@@ -256,12 +266,15 @@ class CreateUserAndAssignRolesRequest {
     mobile = json['mobile']?.toString();
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
-    teacher = json['teacher'];
+    isTeacher = json['isTeacher'];
+    isNonTeachingStaff = json['isNonTeachingStaff'];
+    isBusDriver = json['isBusDriver'];
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['admin'] = admin;
+    data['isAdmin'] = isAdmin;
     data['agent'] = agent;
     data['alternateMobile'] = alternateMobile;
     data['firstName'] = firstName;
@@ -271,15 +284,17 @@ class CreateUserAndAssignRolesRequest {
     data['mobile'] = mobile;
     data['schoolId'] = schoolId;
     data['status'] = status;
-    data['teacher'] = teacher;
+    data['isTeacher'] = isTeacher;
+    data['isNonTeachingStaff'] = isNonTeachingStaff;
+    data['isBusDriver'] = isBusDriver;
     data['userId'] = userId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateUserAndAssignRolesResponse {
-
   SchoolWiseEmployeeBean? employeeBean;
   String? errorCode;
   String? errorMessage;
@@ -294,6 +309,7 @@ class CreateUserAndAssignRolesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateUserAndAssignRolesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeBean = (json['employeeBean'] != null) ? SchoolWiseEmployeeBean.fromJson(json['employeeBean']) : null;
@@ -302,6 +318,7 @@ class CreateUserAndAssignRolesResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (employeeBean != null) {
@@ -313,6 +330,7 @@ class CreateUserAndAssignRolesResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -331,7 +349,6 @@ Future<CreateUserAndAssignRolesResponse> createUserAndAssignRoles(CreateUserAndA
 }
 
 class AssignUserWithRolesRequest {
-
   int? agent;
   List<String?>? roles;
   int? schoolId;
@@ -344,6 +361,7 @@ class AssignUserWithRolesRequest {
     this.schoolId,
     this.userId,
   });
+
   AssignUserWithRolesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -358,6 +376,7 @@ class AssignUserWithRolesRequest {
     schoolId = json['schoolId']?.toInt();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -373,11 +392,11 @@ class AssignUserWithRolesRequest {
     data['userId'] = userId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class AssignUserWithRolesResponse {
-
   SchoolWiseEmployeeBean? employeeBean;
   String? errorCode;
   String? errorMessage;
@@ -392,6 +411,7 @@ class AssignUserWithRolesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   AssignUserWithRolesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeBean = (json['employeeBean'] != null) ? SchoolWiseEmployeeBean.fromJson(json['employeeBean']) : null;
@@ -400,6 +420,7 @@ class AssignUserWithRolesResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (employeeBean != null) {
@@ -411,6 +432,7 @@ class AssignUserWithRolesResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
