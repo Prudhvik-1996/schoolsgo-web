@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
+import 'package:schoolsgo_web/src/notifications/admin_notifications_screen.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/admin/admin_suggestion_box.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_screen.dart';
@@ -327,6 +328,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         routeName: StudentAttendanceViewScreen.routeName,
         argument: adminProfile,
       ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/bell_notification.svg"),
+      //   title: "Notifications",
+      //   routeName: AdminNotificationsScreen.routeName,
+      //   argument: adminProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/exams.svg"),
         title: "Exams",

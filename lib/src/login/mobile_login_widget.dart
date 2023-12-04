@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/login/generate_new_login_pin_screen.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
+import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/colors.dart';
@@ -212,12 +214,10 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
         await prefs.clear();
         UserDetails getUserDetailsRequest = UserDetails(
           mobile: mobileEditingController.text,
-          password: passwordEditingController.text,
         );
         GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(getUserDetailsRequest);
-        if (getUserDetailsResponse.responseStatus != "success" ||
-            getUserDetailsResponse.httpStatus != "OK" ||
-            getUserDetailsResponse.userDetails!.isEmpty) {
+        UserDetails? userDetails = (getUserDetailsResponse.userDetails ?? []).firstOrNull();
+        if (getUserDetailsResponse.responseStatus != "success" || getUserDetailsResponse.httpStatus != "OK" || userDetails == null) {
           setState(() => mobileErrorText = "Invalid Credentials");
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -227,14 +227,37 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
           setState(() => _isLoading = false);
           return;
         } else {
-          setState(() => _isLoading = true);
-          prefs.setString("LOGGED_IN_MOBILE", mobileEditingController.text);
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            SplashScreen.routeName,
-            (route) => false,
-          );
-          setState(() => _isLoading = false);
+          if (userDetails.password == null) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) {
+                return GenerateNewLoginPinScreen(
+                  userId: userDetails.userId,
+                  studentId: null,
+                );
+              }),
+              (Route<dynamic> route) => false,
+            );
+          } else {
+            if (userDetails.password != passwordEditingController.text) {
+              setState(() => mobileErrorText = "Invalid Credentials");
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Invalid Credentials"),
+                ),
+              );
+              setState(() => _isLoading = false);
+            } else {
+              setState(() => _isLoading = true);
+              prefs.setString("LOGGED_IN_MOBILE", mobileEditingController.text);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                SplashScreen.routeName,
+                (route) => false,
+              );
+              setState(() => _isLoading = false);
+            }
+          }
         }
       },
       child: ClayButton(

@@ -28,6 +28,7 @@ import 'package:schoolsgo_web/src/login/login_screen_v2.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
+import 'package:schoolsgo_web/src/notifications/admin_notifications_screen.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
@@ -551,6 +552,19 @@ class _MyAppState extends State<MyApp> {
                 return AdminAttendanceOptionsScreen(
                   adminProfile: argument,
                 );
+              }
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case AdminNotificationsScreen.routeName:
+            try {
+              if (routeSettings.arguments is AdminProfile) {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return AdminNotificationsScreen(
+                  adminProfile: argument,
+                );
+              } else {
+                return const E404NotFoundScreen();
               }
             } catch (e) {
               return const E404NotFoundScreen();

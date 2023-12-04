@@ -169,6 +169,7 @@ flutter:
     - assets/images/school.svg
     - assets/images/payslips.svg
     - assets/images/student_management.svg
+    - assets/images/bell_notification.svg
     - assets/images/student_info.svg
     - assets/images/tick_icon.png
     - assets/images/logbook.svg
