@@ -29,6 +29,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
 
   List<Section> sectionsList = [];
   List<Teacher> teachersList = [];
+  List<StudentProfile> studentsList = [];
 
   Section? selectedSection;
   late int selectedAcademicYearId;
@@ -76,6 +77,22 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
         ),
       );
       return;
+    }
+    GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      return;
+    } else {
+      setState(() {
+        studentsList = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
+        studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
+      });
     }
     setState(() => _isLoading = false);
   }
@@ -138,12 +155,12 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                   if (selectedSection?.sectionId == section.sectionId) saveChangesButton(section),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               Divider(
                 thickness: 2,
                 color: clayContainerTextColor(context),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               Row(
                 children: [
                   const Expanded(child: Text("Class Teacher")),
@@ -166,43 +183,77 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                     ),
                 ],
               ),
-              const Expanded(
-                child: Text(""),
-              ),
-              if (selectedSection == null) const SizedBox(height: 10),
-              if (selectedSection == null)
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return ClassTeacherSectionScreen(
-                              adminProfile: widget.adminProfile,
-                              teacherProfile: null,
-                              section: section,
-                              selectedAcademicYearId: selectedAcademicYearId,
-                            );
-                          },
+              const SizedBox(height: 5),
+              Expanded(
+                child: ListView(
+                  children: [
+                    Row(
+                      children: [
+                        const Text("No. of Students:"),
+                        Expanded(
+                          child: Text(
+                            "${studentsList.where((es) => es.sectionId == section.sectionId && es.status == 'active').length}",
+                          ),
                         ),
-                      ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: ClayButton(
-                        depth: 40,
-                        surfaceColor: clayContainerColor(context),
-                        parentColor: clayContainerColor(context),
-                        spread: 1,
-                        borderRadius: 5,
-                        child: Center(
-                          child: Container(
-                            margin: const EdgeInsets.all(10),
-                            child: const Text(
-                              "More Info",
-                              style: TextStyle(
-                                color: Colors.blue,
-                              ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        const Text("No. of Boys:"),
+                        Expanded(
+                          child: Text(
+                            "${studentsList.where((es) => es.sectionId == section.sectionId && es.status == 'active' && es.sex == "male").length}",
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        const Text("No. of Girls:"),
+                        Expanded(
+                          child: Text(
+                            "${studentsList.where((es) => es.sectionId == section.sectionId && es.status == 'active' && es.sex == "female").length}",
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 5),
+              if (selectedSection == null) const SizedBox(height: 5),
+              if (selectedSection == null)
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ClassTeacherSectionScreen(
+                          adminProfile: widget.adminProfile,
+                          teacherProfile: null,
+                          section: section,
+                          selectedAcademicYearId: selectedAcademicYearId,
+                        );
+                      },
+                    ),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: ClayButton(
+                      depth: 40,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 1,
+                      borderRadius: 5,
+                      child: Center(
+                        child: Container(
+                          margin: const EdgeInsets.all(8),
+                          child: const Text(
+                            "More Info",
+                            style: TextStyle(
+                              color: Colors.blue,
                             ),
                           ),
                         ),

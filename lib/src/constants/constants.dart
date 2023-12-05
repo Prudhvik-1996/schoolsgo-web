@@ -44,6 +44,7 @@ const String GET_STUDENT_ATTENDANCE_BEANS = "/attendance/getStudentAttendanceBea
 const String CREATE_OR_UPDATE_STUDENT_ATTENDANCE_BEANS = "/attendance/createOrUpdateStudentAttendance";
 const String BULK_EDIT_ATTENDANCE_TIME_SLOTS = "/attendance/bulkEditAttendanceTimeSlots";
 const String GET_MONTH_WISE_STUDENT_ATTENDANCE_BEANS = "/attendance/getStudentMonthWiseAttendance";
+const String GET_DATE_RANGE_STUDENT_ATTENDANCE_BEANS = "/attendance/getStudentDateRangeAttendance";
 
 const String GET_NOTICE_BOARD = "/notice_board/getNoticeBoard";
 const String CREATE_OR_UPDATE_NOTICE_BOARD_MEDIA_BEANS = "/notice_board/createOrUpdateNoticeBoardMedia";

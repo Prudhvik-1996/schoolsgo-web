@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_stats_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_screen.dart';
 import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
@@ -112,9 +113,18 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
                 ),
               ),
               _getAttendanceOption(
-                "Absentees Screen",
+                "Absentees",
                 null,
                 AdminStudentAbsenteesScreen(
+                  adminProfile: widget.adminProfile,
+                  teacherProfile: null,
+                  defaultSelectedSection: null,
+                ),
+              ),
+              _getAttendanceOption(
+                "Attendance Stats",
+                null,
+                AdminStudentAttendanceStatsScreen(
                   adminProfile: widget.adminProfile,
                   teacherProfile: null,
                   defaultSelectedSection: null,

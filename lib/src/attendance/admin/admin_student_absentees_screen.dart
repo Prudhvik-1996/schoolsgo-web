@@ -638,6 +638,12 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
             rows: [
               ...filteredStudentsList.where((StudentProfile es) => es.sectionId == selectedSection.sectionId).map(
                     (es) => DataRow(
+                      color: MaterialStateProperty.resolveWith((Set states) {
+                        if (filteredStudentsList.indexOf(es) % 2 == 0) {
+                          return Colors.grey[400];
+                        }
+                        return null;
+                      }),
                       cells: [
                         DataCell(
                           placeholder: true,
