@@ -1,8 +1,10 @@
-import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_pdf_download.dart';
 import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -31,20 +33,22 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
   List<StudentProfile> studentsList = [];
   List<StudentProfile> filteredStudentsList = [];
   String? searchingWith;
-  final ScrollController dataTableController = ScrollController();
+  ScrollController dataTableHorizontalController = ScrollController();
+  ScrollController dataTableVerticalController = ScrollController();
   TextEditingController studentNameSearchController = TextEditingController();
   TextEditingController studentRollNoSearchController = TextEditingController();
   TextEditingController phoneNoSearchController = TextEditingController();
+  bool _showContactInfo = false;
 
   List<Section> sectionsList = [];
   Section? selectedSection;
-  bool _isSectionPickerOpen = false;
 
   List<StudentAttendanceBean> _studentAttendanceBeans = [];
-  List<AttendanceTimeSlotBean> _attendanceTimeSlotBeans = [];
   bool showOnlyAbsentees = true;
 
   DateTime selectedDate = DateTime.now();
+
+  late SchoolInfoBean schoolInfo;
 
   @override
   void initState() {
@@ -58,8 +62,35 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
       sectionsList = [];
       selectedSection = widget.defaultSelectedSection;
       _studentAttendanceBeans = [];
-      _attendanceTimeSlotBeans = [];
     });
+
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile?.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        schoolInfo = getSchoolsResponse.schoolInfo!;
+      });
+    }
+
+    GetSectionsRequest getSectionsRequest = GetSectionsRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSelectedSection?.sectionId,
+    );
+    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
+
+    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
+      setState(() {
+        sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
+        sectionsList.sort((a, b) => (a.seqOrder ?? 0).compareTo(a.seqOrder ?? 0));
+      });
+    }
 
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
@@ -74,45 +105,43 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     } else {
       setState(() {
         studentsList = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
-        studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
+        studentsList.sort((a, b) {
+          int aSection = sectionsList.where((es) => es.sectionId == a.sectionId).firstOrNull?.seqOrder ?? 0;
+          int bSection = sectionsList.where((es) => es.sectionId == b.sectionId).firstOrNull?.seqOrder ?? 0;
+          if (aSection == bSection) {
+            return (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0);
+          }
+          return aSection.compareTo(bSection);
+        });
+        filteredStudentsList = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
+        filteredStudentsList.sort((a, b) {
+          int aSection = sectionsList.where((es) => es.sectionId == a.sectionId).firstOrNull?.seqOrder ?? 0;
+          int bSection = sectionsList.where((es) => es.sectionId == b.sectionId).firstOrNull?.seqOrder ?? 0;
+          if (aSection == bSection) {
+            return (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0);
+          }
+          return aSection.compareTo(bSection);
+        });
       });
     }
 
-    GetSectionsRequest getSectionsRequest = GetSectionsRequest(
-      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      sectionId: widget.defaultSelectedSection?.sectionId,
-    );
-    GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
-
-    if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
-      setState(() {
-        sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
-      });
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    _loadStudentAttendance();
+    await _loadStudentAttendance();
     filterStudentsList();
   }
 
   Future<void> _loadStudentAttendance() async {
-    if (selectedSection == null) return;
+    // if (selectedSection == null) return;
     setState(() {
       _isLoading = true;
     });
 
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
-      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      date: convertDateTimeToYYYYMMDDFormat(selectedDate),
-      sectionId: selectedSection!.sectionId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId, date: convertDateTimeToYYYYMMDDFormat(selectedDate),
+      // sectionId: selectedSection!.sectionId,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {
         _studentAttendanceBeans = getStudentAttendanceBeansResponse.studentAttendanceBeans!;
-        _attendanceTimeSlotBeans = getStudentAttendanceBeansResponse.attendanceTimeSlotBeans!;
       });
     }
     filterStudentsList();
@@ -166,6 +195,36 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Student Absentees Screen"),
+        actions: [
+          if (!_isLoading)
+            IconButton(
+              tooltip: "Show Contact Info",
+              onPressed: () => setState(() => _showContactInfo = !_showContactInfo),
+              icon: Icon(
+                Icons.phone,
+                color: _showContactInfo ? Colors.blue : null,
+              ),
+            ),
+          if (!_isLoading)
+            IconButton(
+              tooltip: "Download Report",
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                await StudentAbsenteesPdfDownload(
+                  filteredStudentsList: filteredStudentsList,
+                  studentAttendanceBeans: _studentAttendanceBeans,
+                  showContactInfo: _showContactInfo,
+                  showOnlyAbsentees: showOnlyAbsentees,
+                  schoolInfo: schoolInfo,
+                  selectedDate: selectedDate,
+                ).downloadAsPdf();
+                setState(() => _isLoading = false);
+              },
+              icon: const Icon(
+                Icons.download,
+              ),
+            ),
+        ],
       ),
       body: _isLoading
           ? Center(
@@ -175,185 +234,22 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                 width: 500,
               ),
             )
-          : ListView(
+          : Column(
               children: [
-                const SizedBox(height: 30),
-                _sectionPicker(),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 datePickerWidget(),
-                if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 30),
+                if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 10),
                 if (MediaQuery.of(context).orientation == Orientation.portrait)
                   Container(
                     margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
                     child: showOnlyAbsenteesButton(),
                   ),
-                const SizedBox(height: 30),
-                selectedSection == null
-                    ? const Center(
-                        child: Text("Select a section to continue"),
-                      )
-                    : filteredStudentsList.isEmpty ? const Center(child: Text("No entries.."),) : populateDataTableForAbsentees(selectedSection!),
-              ],
-            ),
-    );
-  }
-
-  Widget _selectSectionExpanded() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
-      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
-      child: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          InkWell(
-            onTap: () {
-              if (_isLoading) return;
-              setState(() {
-                _isSectionPickerOpen = !_isSectionPickerOpen;
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-              child: Text(
-                selectedSection == null ? "Select a section" : "Sections:",
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.25,
-            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
-            shrinkWrap: true,
-            children: sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _selectSectionCollapsed() {
-    return ClayContainer(
-      depth: 40,
-      parentColor: clayContainerColor(context),
-      surfaceColor: clayContainerColor(context),
-      spread: 1,
-      borderRadius: 10,
-      height: 60,
-      child: selectedSection != null
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+                if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 10),
                 Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      if (_isLoading) return;
-                      if (widget.defaultSelectedSection != null) return;
-                      setState(() {
-                        _isSectionPickerOpen = !_isSectionPickerOpen;
-                      });
-                    },
-                    child: Center(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          selectedSection == null ? "Select a section" : "Section: ${selectedSection!.sectionName!}",
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: populateDataTableForAbsentees(),
                 ),
-                if (widget.defaultSelectedSection == null) const SizedBox(width: 10),
-                if (widget.defaultSelectedSection == null)
-                  InkWell(
-                    child: const Icon(Icons.close),
-                    onTap: () {
-                      setState(() {
-                        selectedSection = null;
-                      });
-                      filterStudentsList();
-                    },
-                  ),
-                if (widget.defaultSelectedSection == null) const SizedBox(width: 10),
               ],
-            )
-          : InkWell(
-              onTap: () {
-                if (_isLoading) return;
-                setState(() {
-                  _isSectionPickerOpen = !_isSectionPickerOpen;
-                });
-              },
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(5, 14, 5, 14),
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      selectedSection == null ? "Select a section" : "Section: ${selectedSection!.sectionName!}",
-                    ),
-                  ),
-                ),
-              ),
             ),
-    );
-  }
-
-  Widget buildSectionCheckBox(Section section) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      child: GestureDetector(
-        onTap: () {
-          if (_isLoading) return;
-          setState(() {
-            if (selectedSection != null && selectedSection!.sectionId == section.sectionId) {
-              selectedSection = null;
-            } else {
-              selectedSection = section;
-            }
-            _isSectionPickerOpen = false;
-          });
-          filterStudentsList();
-          _loadStudentAttendance();
-        },
-        child: ClayButton(
-          depth: 40,
-          color: selectedSection != null && selectedSection!.sectionId == section.sectionId ? Colors.blue[200] : clayContainerColor(context),
-          spread: selectedSection != null && selectedSection!.sectionId == section.sectionId! ? 0 : 2,
-          borderRadius: 10,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              section.sectionName!,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionPicker() {
-    return AnimatedSize(
-      curve: Curves.fastOutSlowIn,
-      duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-        child: _isSectionPickerOpen
-            ? ClayContainer(
-                depth: 40,
-                parentColor: clayContainerColor(context),
-                surfaceColor: clayContainerColor(context),
-                spread: 1,
-                borderRadius: 10,
-                child: _selectSectionExpanded(),
-              )
-            : _selectSectionCollapsed(),
-      ),
     );
   }
 
@@ -491,205 +387,264 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     );
   }
 
-  Widget populateDataTableForAbsentees(Section selectedSection) {
+  Widget populateDataTableForAbsentees() {
     return Container(
       margin: const EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width - 20,
       child: Scrollbar(
         thumbVisibility: true,
-        controller: dataTableController,
+        controller: dataTableHorizontalController,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          controller: dataTableController,
-          child: DataTable(
-            columns: [
-              DataColumn(
-                numeric: true,
-                label: Row(
-                  children: [
-                    searchingWith == "Roll No."
-                        ? SizedBox(
-                            width: 100,
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Roll No.',
-                                hintText: 'Roll No.',
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue),
-                                ),
-                                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
-                              controller: studentRollNoSearchController,
-                              autofocus: true,
-                              onChanged: (_) {
-                                filterStudentsList();
-                              },
-                            ),
-                          )
-                        : const Text("Roll No."),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: () {
-                        editSearchingWith(searchingWith == "Roll No." ? null : "Roll No.");
-                        filterStudentsList();
-                      },
-                      icon: Icon(
-                        searchingWith != "Roll No." ? Icons.search : Icons.close,
-                      ),
-                    ),
-                  ],
-                ),
-                onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
-              ),
-              DataColumn(
-                label: Row(
-                  children: [
-                    searchingWith == "Student Name"
-                        ? SizedBox(
-                            width: 100,
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Student Name',
-                                hintText: 'Student Name',
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue),
-                                ),
-                                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
-                              controller: studentNameSearchController,
-                              autofocus: true,
-                              onChanged: (_) {
-                                filterStudentsList();
-                              },
-                            ),
-                          )
-                        : const Text("Student Name"),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: () {
-                        editSearchingWith(searchingWith == "Student Name" ? null : "Student Name");
-                        filterStudentsList();
-                      },
-                      icon: Icon(
-                        searchingWith != "Student Name" ? Icons.search : Icons.close,
-                      ),
-                    ),
-                  ],
-                ),
-                onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
-              ),
-              DataColumn(
-                label: const Text("Parent Name"),
-                onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
-              ),
-              DataColumn(
-                numeric: true,
-                label: Row(
-                  children: [
-                    searchingWith == "Phone Number"
-                        ? SizedBox(
-                            width: 100,
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                border: UnderlineInputBorder(),
-                                labelText: 'Phone Number',
-                                hintText: 'Phone Number',
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue),
-                                ),
-                                contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                              ),
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
-                              controller: phoneNoSearchController,
-                              keyboardType: TextInputType.phone,
-                              autofocus: true,
-                              onChanged: (_) {
-                                filterStudentsList();
-                              },
-                            ),
-                          )
-                        : const Text("Phone Number"),
-                    const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: () {
-                        editSearchingWith(searchingWith == "Phone Number" ? null : "Phone Number");
-                        filterStudentsList();
-                      },
-                      icon: Icon(
-                        searchingWith != "Phone Number" ? Icons.search : Icons.close,
-                      ),
-                    ),
-                  ],
-                ),
-                onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
-              ),
-              const DataColumn(label: Text("Attendance")),
-            ],
-            rows: [
-              ...filteredStudentsList.where((StudentProfile es) => es.sectionId == selectedSection.sectionId).map(
-                    (es) => DataRow(
-                      color: MaterialStateProperty.resolveWith((Set states) {
-                        if (filteredStudentsList.indexOf(es) % 2 == 0) {
-                          return Colors.grey[400];
-                        }
-                        return null;
-                      }),
-                      cells: [
-                        DataCell(
-                          placeholder: true,
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(es.rollNumber ?? ""),
-                          ),
-                        ),
-                        DataCell(Text(es.studentFirstName ?? "")),
-                        DataCell(Text(es.gaurdianFirstName ?? "")),
-                        DataCell(
-                          (es.gaurdianMobile ?? "").isEmpty
-                              ? const Center(child: Text("-"))
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(es.gaurdianMobile ?? ""),
-                                    const SizedBox(width: 10),
-                                    IconButton(
-                                      onPressed: () => launch("tel://${es.gaurdianMobile}"),
-                                      icon: const Icon(
-                                        Icons.phone,
-                                        size: 12,
+          controller: dataTableHorizontalController,
+          child: Scrollbar(
+            thumbVisibility: true,
+            controller: dataTableVerticalController,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              controller: dataTableVerticalController,
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                child: DataTable(
+                  columns: [
+                    DataColumn(
+                      label: SizedBox(
+                        width: 100,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: DropdownButton<Section>(
+                            hint: const Center(child: Text("Select Section")),
+                            value: selectedSection,
+                            onChanged: (Section? section) {
+                              setState(() {
+                                selectedSection = section;
+                              });
+                              filterStudentsList();
+                            },
+                            items: [null, ...sectionsList]
+                                .map(
+                                  (e) => DropdownMenuItem<Section>(
+                                    value: e,
+                                    child: SizedBox(
+                                      width: 75,
+                                      height: 50,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Text(
+                                            e?.sectionName ?? "All",
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
-                                  ],
-                                ),
-                        ),
-                        DataCell(
-                          Row(
-                            children: [
-                              ...(_studentAttendanceBeans.where((esab) => esab.studentId == es.studentId).toList()
-                                    ..sort((a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime, null)
-                                        .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime, null))))
-                                  .where((e) => showOnlyAbsentees ? e.isPresent == -1 : true)
-                                  .map((esab) => studentAttendanceBeanWidget(esab))
-                            ],
+                                  ),
+                                )
+                                .toList(),
                           ),
-                        )
-                      ],
+                        ),
+                      ),
                     ),
-                  ),
-            ],
+                    DataColumn(
+                      numeric: true,
+                      label: Row(
+                        children: [
+                          searchingWith == "Roll No."
+                              ? SizedBox(
+                                  width: 100,
+                                  child: TextField(
+                                    decoration: const InputDecoration(
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Roll No.',
+                                      hintText: 'Roll No.',
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.blue),
+                                      ),
+                                      contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                    controller: studentRollNoSearchController,
+                                    autofocus: true,
+                                    onChanged: (_) {
+                                      filterStudentsList();
+                                    },
+                                  ),
+                                )
+                              : const Text("Roll No."),
+                          const SizedBox(width: 10),
+                          IconButton(
+                            onPressed: () {
+                              editSearchingWith(searchingWith == "Roll No." ? null : "Roll No.");
+                              filterStudentsList();
+                            },
+                            icon: Icon(
+                              searchingWith != "Roll No." ? Icons.search : Icons.close,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
+                    ),
+                    DataColumn(
+                      label: Row(
+                        children: [
+                          searchingWith == "Student Name"
+                              ? SizedBox(
+                                  width: 100,
+                                  child: TextField(
+                                    decoration: const InputDecoration(
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Student Name',
+                                      hintText: 'Student Name',
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.blue),
+                                      ),
+                                      contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                    controller: studentNameSearchController,
+                                    autofocus: true,
+                                    onChanged: (_) {
+                                      filterStudentsList();
+                                    },
+                                  ),
+                                )
+                              : const Text("Student Name"),
+                          const SizedBox(width: 10),
+                          IconButton(
+                            onPressed: () {
+                              editSearchingWith(searchingWith == "Student Name" ? null : "Student Name");
+                              filterStudentsList();
+                            },
+                            icon: Icon(
+                              searchingWith != "Student Name" ? Icons.search : Icons.close,
+                            ),
+                          ),
+                        ],
+                      ),
+                      onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
+                    ),
+                    if (_showContactInfo)
+                      DataColumn(
+                        label: const Text("Parent Name"),
+                        onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
+                      ),
+                    if (_showContactInfo)
+                      DataColumn(
+                        numeric: true,
+                        label: Row(
+                          children: [
+                            searchingWith == "Phone Number"
+                                ? SizedBox(
+                                    width: 100,
+                                    child: TextField(
+                                      decoration: const InputDecoration(
+                                        border: UnderlineInputBorder(),
+                                        labelText: 'Phone Number',
+                                        hintText: 'Phone Number',
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.blue),
+                                        ),
+                                        contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                      ),
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                      controller: phoneNoSearchController,
+                                      keyboardType: TextInputType.phone,
+                                      autofocus: true,
+                                      onChanged: (_) {
+                                        filterStudentsList();
+                                      },
+                                    ),
+                                  )
+                                : const Text("Phone Number"),
+                            const SizedBox(width: 10),
+                            IconButton(
+                              onPressed: () {
+                                editSearchingWith(searchingWith == "Phone Number" ? null : "Phone Number");
+                                filterStudentsList();
+                              },
+                              icon: Icon(
+                                searchingWith != "Phone Number" ? Icons.search : Icons.close,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onSort: (columnIndex, ascending) => onSortColum(columnIndex, ascending),
+                      ),
+                    const DataColumn(label: Text("Attendance")),
+                  ],
+                  rows: [
+                    ...filteredStudentsList
+                        // .where((StudentProfile es) => es.sectionId == selectedSection.sectionId)
+                        .map(
+                      (es) => DataRow(
+                        color: MaterialStateProperty.resolveWith((Set states) {
+                          if (filteredStudentsList.indexOf(es) % 2 == 0) {
+                            return Colors.grey[400];
+                          }
+                          return Colors.grey;
+                        }),
+                        cells: [
+                          DataCell(Text(es.sectionName ?? "")),
+                          DataCell(
+                            placeholder: true,
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(es.rollNumber ?? ""),
+                            ),
+                          ),
+                          DataCell(Text(es.studentFirstName ?? "")),
+                          if (_showContactInfo) DataCell(Text(es.gaurdianFirstName ?? "")),
+                          if (_showContactInfo)
+                            DataCell(
+                              (es.gaurdianMobile ?? "").isEmpty
+                                  ? const Center(child: Text("-"))
+                                  : Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(es.gaurdianMobile ?? ""),
+                                        const SizedBox(width: 10),
+                                        IconButton(
+                                          onPressed: () => launch("tel://${es.gaurdianMobile}"),
+                                          icon: const Icon(
+                                            Icons.phone,
+                                            size: 12,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                      ],
+                                    ),
+                            ),
+                          DataCell(
+                            Row(
+                              children: [
+                                ...(_studentAttendanceBeans.where((esab) => esab.studentId == es.studentId).toList()
+                                      ..sort((a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime, null)
+                                          .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime, null))))
+                                    .where((e) => showOnlyAbsentees ? e.isPresent == -1 : true)
+                                    .map((esab) => studentAttendanceBeanWidget(esab))
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

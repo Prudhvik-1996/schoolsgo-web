@@ -1,9 +1,14 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+
+// ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_attendence_stats_pdf_download.dart';
+import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/date_range_attendance.dart';
@@ -38,18 +43,21 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
 
   List<StudentProfile> studentsList = [];
   Section? selectedSection;
-  bool _isSectionPickerOpen = false;
 
   List<StudentDateRangeAttendanceBean> studentAttendanceBeansList = [];
+  Map<StudentProfile, StudentDateRangeAttendanceBean?> studentAttendanceMap = {};
 
   bool _showDatePicker = false;
   bool _showContactInfo = false;
+  int sortByPercentage = 0;
   late String startDate;
   late String endDate;
   late String startDateForAttendance;
   late String endDateForAttendance;
   TextEditingController rNoSearchController = TextEditingController();
   TextEditingController studentNameSearchController = TextEditingController();
+
+  late SchoolInfoBean schoolInfo;
 
   @override
   void initState() {
@@ -59,6 +67,22 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
+
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile?.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        schoolInfo = getSchoolsResponse.schoolInfo!;
+      });
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID')!;
     GetSchoolWiseAcademicYearsResponse getAcademicYearsResponse = await getSchoolWiseAcademicYears(
@@ -116,38 +140,29 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
     } else {
       setState(() {
         studentsList = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
-        studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
+        studentsList.sort((a, b) {
+          int aSection = sectionsList.where((es) => es.sectionId == a.sectionId).firstOrNull?.seqOrder ?? 0;
+          int bSection = sectionsList.where((es) => es.sectionId == b.sectionId).firstOrNull?.seqOrder ?? 0;
+          if (aSection == bSection) {
+            return (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0);
+          }
+          return aSection.compareTo(bSection);
+        });
       });
     }
     setState(() => _isLoading = false);
+    await loadStudentAttendanceData();
   }
 
   Future<void> loadStudentAttendanceData() async {
     setState(() {
-      _isSectionPickerOpen = false;
-    });
-    if (selectedSection == null) {
-      setState(() {
-        studentAttendanceBeansList = [];
-      });
-      return;
-    }
-    setState(() {
       _isLoading = true;
     });
-    GetStudentDateRangeAttendanceRequest getStudentDateRangeAttendanceRequest = GetStudentDateRangeAttendanceRequest(
-      academicYearId: selectedAcademicYearId,
-      sectionId: selectedSection?.sectionId,
-      schoolId: selectedSection?.schoolId,
-      isAdminView: true,
-      startDate: startDateForAttendance,
-      endDate: endDateForAttendance,
-    );
     GetStudentDateRangeAttendanceResponse getStudentDateRangeAttendanceResponse = await getStudentDateRangeAttendance(
       GetStudentDateRangeAttendanceRequest(
         schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-        sectionId: widget.defaultSelectedSection?.sectionId,
         academicYearId: selectedAcademicYearId,
+        isAdminView: true,
         startDate: startDateForAttendance,
         endDate: endDateForAttendance,
       ),
@@ -164,10 +179,10 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
       );
       return;
     }
-
     setState(() {
       _isLoading = false;
     });
+    filteredStudentAttendanceStatsMap();
   }
 
   @override
@@ -176,20 +191,40 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
       appBar: AppBar(
         title: const Text("Attendance Stats"),
         actions: [
-          if (!_isLoading && selectedSection != null)
+          if (!_isLoading)
             IconButton(
+              tooltip: "Show Date Picker",
               onPressed: () => setState(() => _showDatePicker = !_showDatePicker),
               icon: Icon(
                 Icons.date_range_outlined,
                 color: _showDatePicker ? Colors.blue : null,
               ),
             ),
-          if (!_isLoading && selectedSection != null)
+          if (!_isLoading)
             IconButton(
+              tooltip: "Show Contact Info",
               onPressed: () => setState(() => _showContactInfo = !_showContactInfo),
               icon: Icon(
                 Icons.phone,
                 color: _showContactInfo ? Colors.blue : null,
+              ),
+            ),
+          if (!_isLoading)
+            IconButton(
+              tooltip: "Download Stats Report",
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                await StudentAttendanceStatsPdfDownload(
+                  studentAttendanceMap: studentAttendanceMap,
+                  showContactInfo: _showContactInfo,
+                  startDateForAttendance: startDateForAttendance,
+                  endDateForAttendance: endDateForAttendance,
+                  schoolInfo: schoolInfo,
+                ).downloadAsPdf();
+                setState(() => _isLoading = false);
+              },
+              icon: const Icon(
+                Icons.download,
               ),
             ),
         ],
@@ -207,11 +242,6 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(child: _sectionPicker()),
-                  ],
-                ),
                 if (_showDatePicker)
                   Row(
                     children: [
@@ -219,7 +249,7 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                     ],
                   ),
                 Expanded(
-                  child: selectedSection == null ? const Center(child: Text("Select a section to continue..")) : studentAttendanceTable(),
+                  child: studentAttendanceTable(),
                 ),
               ],
             ),
@@ -227,12 +257,6 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
   }
 
   Widget studentAttendanceTable() {
-    List<StudentProfile> filteredStudentsList = studentsList
-        .where((es) =>
-            es.sectionId == selectedSection?.sectionId &&
-            (es.rollNumber ?? "").toLowerCase().contains(rNoSearchController.text.toLowerCase()) &&
-            (es.studentFirstName ?? "").toLowerCase().contains(studentNameSearchController.text.toLowerCase()))
-        .toList();
     return Container(
       margin: const EdgeInsets.all(10),
       width: MediaQuery.of(context).size.width - 20,
@@ -255,6 +279,48 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                     DataColumn(
                       label: SizedBox(
                         width: 100,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: DropdownButton<Section>(
+                            hint: const Center(child: Text("Select Section")),
+                            value: selectedSection,
+                            onChanged: (Section? section) {
+                              setState(() {
+                                selectedSection = section;
+                              });
+                              filteredStudentAttendanceStatsMap();
+                            },
+                            items: [null, ...sectionsList]
+                                .map(
+                                  (e) => DropdownMenuItem<Section>(
+                                    value: e,
+                                    child: SizedBox(
+                                      width: 75,
+                                      height: 50,
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: Text(
+                                            e?.sectionName ?? "All",
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: SizedBox(
+                        width: 100,
                         child: TextField(
                           decoration: const InputDecoration(
                             border: UnderlineInputBorder(),
@@ -270,7 +336,7 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                           ),
                           controller: rNoSearchController,
                           autofocus: true,
-                          onChanged: (_) => setState(() {}),
+                          onChanged: (_) => filteredStudentAttendanceStatsMap(),
                         ),
                       ),
                     ),
@@ -292,10 +358,14 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                           ),
                           controller: studentNameSearchController,
                           autofocus: true,
-                          onChanged: (_) => setState(() {}),
+                          onChanged: (_) => filteredStudentAttendanceStatsMap(),
                         ),
                       ),
                     ),
+                    if (_showContactInfo)
+                      const DataColumn(
+                        label: Text("Parent Name"),
+                      ),
                     if (_showContactInfo)
                       const DataColumn(
                         label: Text("Contact"),
@@ -317,19 +387,64 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                       label: Text("Attendance Percentage"),
                     ),
                   ],
-                  rows: filteredStudentsList.map((es) {
-                    StudentDateRangeAttendanceBean? attendanceBean =
-                        studentAttendanceBeansList.where((eab) => eab.studentId == es.studentId).firstOrNull;
+                  rows: studentAttendanceMap.entries.mapIndexed((int index, MapEntry<StudentProfile, StudentDateRangeAttendanceBean?> entry) {
+                    StudentProfile es = entry.key;
+                    StudentDateRangeAttendanceBean? attendanceBean = entry.value;
                     return DataRow(
                       color: MaterialStateProperty.resolveWith((Set states) {
-                        if (filteredStudentsList.indexOf(es) % 2 == 0) {
+                        if (index % 2 == 0) {
                           return Colors.grey[400];
                         }
-                        return null;
+                        return Colors.grey;
                       }),
                       cells: [
-                        DataCell(Text(es.rollNumber ?? "-")),
-                        DataCell(Text(es.studentFirstName ?? "-")),
+                        DataCell(Text(
+                          es.sectionName ?? "-",
+                          style: outLinedTextStyle(
+                            textColor: Colors.black,
+                            strokeWidth: 0,
+                          ),
+                        )),
+                        DataCell(Row(
+                          children: [
+                            Text(
+                              es.rollNumber ?? "-",
+                              style: outLinedTextStyle(
+                                textColor: Colors.black,
+                                strokeWidth: 0,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.info_outline),
+                              iconSize: 12,
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => StudentAttendanceViewScreen(
+                                    studentProfile: es,
+                                    startDate: startDateForAttendance,
+                                    endDate: endDateForAttendance,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+                        DataCell(Text(
+                          es.studentFirstName ?? "-",
+                          style: outLinedTextStyle(
+                            textColor: Colors.black,
+                            strokeWidth: 0,
+                          ),
+                        )),
+                        if (_showContactInfo)
+                          DataCell(Text(
+                            es.gaurdianFirstName ?? "-",
+                            style: outLinedTextStyle(
+                              textColor: Colors.black,
+                              strokeWidth: 0,
+                            ),
+                          )),
                         if (_showContactInfo)
                           DataCell(
                             (es.gaurdianMobile ?? "").isEmpty
@@ -339,7 +454,13 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(es.gaurdianMobile ?? ""),
+                                      Text(
+                                        es.gaurdianMobile ?? "",
+                                        style: outLinedTextStyle(
+                                          textColor: Colors.black,
+                                          strokeWidth: 0,
+                                        ),
+                                      ),
                                       const SizedBox(width: 10),
                                       IconButton(
                                         onPressed: () => launch("tel://${es.gaurdianMobile}"),
@@ -352,9 +473,24 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                                     ],
                                   ),
                           ),
-                        DataCell(Text(doubleToStringAsFixed(attendanceBean?.totalWorkingDays ?? 0))),
-                        DataCell(Text(doubleToStringAsFixed((attendanceBean?.presentDays ?? 0)))),
-                        DataCell(Text(doubleToStringAsFixed((attendanceBean?.absentDays ?? 0)))),
+                        DataCell(
+                          Text(
+                            doubleToStringAsFixed(attendanceBean?.totalWorkingDays ?? 0),
+                            style: outLinedTextStyle(outlinedTextColor: Colors.blue),
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            doubleToStringAsFixed((attendanceBean?.presentDays ?? 0)),
+                            style: outLinedTextStyle(outlinedTextColor: Colors.green),
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            doubleToStringAsFixed((attendanceBean?.absentDays ?? 0)),
+                            style: outLinedTextStyle(outlinedTextColor: Colors.red),
+                          ),
+                        ),
                         DataCell(Text("${doubleToStringAsFixed(attendanceBean?.attendancePercentage ?? 0)} %")),
                       ],
                     );
@@ -365,6 +501,48 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
           ),
         ),
       ),
+    );
+  }
+
+  void filteredStudentAttendanceStatsMap() {
+    setState(() {
+      studentAttendanceMap = Map.fromEntries(studentsList
+          .where((es) =>
+              (selectedSection != null ? (es.sectionId == selectedSection?.sectionId) : true) &&
+              (es.rollNumber ?? "").toLowerCase().contains(rNoSearchController.text.toLowerCase()) &&
+              (es.studentFirstName ?? "").toLowerCase().contains(studentNameSearchController.text.toLowerCase()))
+          .map((e) => MapEntry(e, studentAttendanceBeansList.where((eab) => eab.studentId == e.studentId).firstOrNull)));
+    });
+  }
+
+  TextStyle outLinedTextStyle({
+    double fontSize = 14.0,
+    Color textColor = Colors.black,
+    Color outlinedTextColor = Colors.black,
+    double strokeWidth = 0.25,
+  }) {
+    return TextStyle(
+      inherit: true,
+      fontSize: fontSize,
+      color: textColor,
+      shadows: [
+        Shadow(
+          offset: Offset(-strokeWidth, -strokeWidth),
+          color: outlinedTextColor,
+        ),
+        Shadow(
+          offset: Offset(strokeWidth, -strokeWidth),
+          color: outlinedTextColor,
+        ),
+        Shadow(
+          offset: Offset(strokeWidth, strokeWidth),
+          color: outlinedTextColor,
+        ),
+        Shadow(
+          offset: Offset(-strokeWidth, strokeWidth),
+          color: outlinedTextColor,
+        ),
+      ],
     );
   }
 
@@ -409,7 +587,7 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
           setState(() {
             startDateForAttendance = convertDateTimeToYYYYMMDDFormat(_newDate);
           });
-          loadStudentAttendanceData();
+          await loadStudentAttendanceData();
         },
         child: ClayButton(
           depth: 20,
@@ -448,7 +626,7 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
           setState(() {
             endDateForAttendance = convertDateTimeToYYYYMMDDFormat(_newDate);
           });
-          loadStudentAttendanceData();
+          await loadStudentAttendanceData();
         },
         child: ClayButton(
           depth: 20,
@@ -463,148 +641,6 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
                 "End Date: ${convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(endDateForAttendance))}",
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _sectionPicker() {
-    return AnimatedSize(
-      curve: Curves.fastOutSlowIn,
-      duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: _isSectionPickerOpen
-            ? ClayContainer(
-                depth: 20,
-                surfaceColor: clayContainerColor(context),
-                parentColor: clayContainerColor(context),
-                spread: 2,
-                borderRadius: 10,
-                child: _selectSectionExpanded(),
-              )
-            : _selectSectionCollapsed(),
-      ),
-    );
-  }
-
-  Widget _buildSectionCheckBox(Section section) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      child: GestureDetector(
-        onTap: () {
-          if (_isLoading) return;
-          if (selectedSection?.sectionId == section.sectionId) {
-            setState(() => selectedSection = null);
-            loadStudentAttendanceData();
-          } else {
-            setState(() => selectedSection = section);
-            loadStudentAttendanceData();
-          }
-        },
-        child: ClayButton(
-          depth: 20,
-          spread: selectedSection != null && selectedSection!.sectionId == section.sectionId ? 0 : 2,
-          surfaceColor:
-              selectedSection != null && selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          borderRadius: 10,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              section.sectionName!,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _selectSectionExpanded() {
-    return Container(
-      width: double.infinity,
-      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
-      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
-      child: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          GestureDetector(
-            onTap: () {
-              if (_isLoading) return;
-              setState(() {
-                _isSectionPickerOpen = !_isSectionPickerOpen;
-              });
-            },
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-                    child: Text(
-                      selectedSection == null ? "Select a section" : "Section: ${selectedSection!.sectionName}",
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                  child: const Icon(Icons.expand_less),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.25,
-            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
-            shrinkWrap: true,
-            children: sectionsList.map((e) => _buildSectionCheckBox(e)).toList(),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _selectSectionCollapsed() {
-    return GestureDetector(
-      onTap: () {
-        if (_isLoading) return;
-        setState(() => _isSectionPickerOpen = !_isSectionPickerOpen);
-      },
-      child: ClayButton(
-        depth: 20,
-        parentColor: clayContainerColor(context),
-        surfaceColor: clayContainerColor(context),
-        spread: 2,
-        borderRadius: 10,
-        height: 60,
-        width: 60,
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(5, 15, 5, 15),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                  child: Text(
-                    selectedSection == null ? "Select a section" : "Sections: ${selectedSection!.sectionName}",
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                child: const Icon(Icons.expand_more),
-              ),
-            ],
           ),
         ),
       ),

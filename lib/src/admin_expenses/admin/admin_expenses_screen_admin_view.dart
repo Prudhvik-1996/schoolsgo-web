@@ -26,10 +26,12 @@ import 'package:url_launcher/url_launcher.dart';
 class AdminExpenseScreenAdminView extends StatefulWidget {
   const AdminExpenseScreenAdminView({
     Key? key,
-    required this.adminProfile,
+    this.adminProfile,
+    this.receptionistProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final OtherUserRoleProfile? receptionistProfile;
 
   static const String routeName = "/admin_expenses";
 
@@ -72,12 +74,12 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       _isLoading = true;
       isAddNew = false;
       newAdminExpenseBean = AdminExpenseBean(
-        franchiseId: widget.adminProfile.franchiseId,
-        schoolId: widget.adminProfile.schoolId,
-        agent: widget.adminProfile.userId,
-        adminId: widget.adminProfile.userId,
-        adminName: widget.adminProfile.firstName,
-        adminPhotoUrl: widget.adminProfile.adminPhotoUrl,
+        franchiseId: widget.adminProfile?.franchiseId,
+        schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+        agent: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+        adminId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+        adminName: widget.adminProfile?.firstName ?? widget.receptionistProfile?.userName,
+        adminPhotoUrl: widget.adminProfile?.adminPhotoUrl,
         transactionTime: DateTime.now().millisecondsSinceEpoch,
         adminExpenseReceiptsList: [],
         status: "active",
@@ -85,8 +87,8 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     });
     // await myGoogleSheet();
     GetAdminExpensesResponse getAdminExpensesResponse = await getAdminExpenses(GetAdminExpensesRequest(
-      schoolId: widget.adminProfile.schoolId,
-      franchiseId: widget.adminProfile.franchiseId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+      franchiseId: widget.adminProfile?.franchiseId,
     ));
     if (getAdminExpensesResponse.httpStatus != "OK" || getAdminExpensesResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,23 +129,28 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       appBar: AppBar(
         title: const Text("Admin Expenses"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.adminProfile),
-          PopupMenuButton<String>(
-            onSelected: handleMoreOptions,
-            itemBuilder: (BuildContext context) {
-              return {'Download Report', 'Date Wise Stats'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          ),
+          if (widget.adminProfile != null) buildRoleButtonForAppBar(context, widget.adminProfile!),
+          if (widget.adminProfile != null)
+            PopupMenuButton<String>(
+              onSelected: handleMoreOptions,
+              itemBuilder: (BuildContext context) {
+                return {'Download Report', 'Date Wise Stats'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
         ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: widget.adminProfile != null
+          ? AdminAppDrawer(
+              adminProfile: widget.adminProfile!,
+            )
+          : ReceptionistAppDrawer(
+              receptionistProfile: widget.receptionistProfile!,
+            ),
       body: _isLoading
           ? Center(
               child: Image.asset(
@@ -888,6 +895,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   }
 
   void handleMoreOptions(String value) {
+    if (widget.adminProfile == null) return;
     switch (value) {
       case "Download Report":
         if (_reportDownloadStatus == null) {
@@ -899,7 +907,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           context,
           MaterialPageRoute(
             builder: (context) {
-              return DateWiseAdminExpensesStatsScreen(adminProfile: widget.adminProfile, adminExpenses: adminExpenses);
+              return DateWiseAdminExpensesStatsScreen(adminProfile: widget.adminProfile!, adminExpenses: adminExpenses);
             },
           ),
         );
@@ -968,7 +976,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   _isLoading = true;
                 });
                 CreateOrUpdateAdminExpenseRequest createOrUpdateAdminExpenseRequest = CreateOrUpdateAdminExpenseRequest()
-                  ..agent = widget.adminProfile.userId
+                  ..agent = widget.adminProfile?.userId ?? widget.receptionistProfile?.userId
                   ..adminExpenseId = eachExpense.adminExpenseId
                   ..adminId = eachExpense.adminId
                   ..adminName = eachExpense.adminName
@@ -1013,12 +1021,12 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   setState(() {
                     isAddNew = false;
                     newAdminExpenseBean = AdminExpenseBean(
-                      franchiseId: widget.adminProfile.franchiseId,
-                      schoolId: widget.adminProfile.schoolId,
-                      agent: widget.adminProfile.userId,
-                      adminId: widget.adminProfile.userId,
-                      adminName: widget.adminProfile.firstName,
-                      adminPhotoUrl: widget.adminProfile.adminPhotoUrl,
+                      franchiseId: widget.adminProfile?.franchiseId,
+                      schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+                      agent: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+                      adminId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+                      adminName: widget.adminProfile?.firstName ?? widget.receptionistProfile?.userName,
+                      adminPhotoUrl: widget.adminProfile?.adminPhotoUrl,
                       transactionTime: DateTime.now().millisecondsSinceEpoch,
                       adminExpenseReceiptsList: [],
                       status: "active",

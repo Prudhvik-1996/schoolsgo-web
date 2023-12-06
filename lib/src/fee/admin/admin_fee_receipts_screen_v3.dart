@@ -26,10 +26,12 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 class AdminFeeReceiptsScreenV3 extends StatefulWidget {
   const AdminFeeReceiptsScreenV3({
     Key? key,
-    required this.adminProfile,
+    this.adminProfile,
+    this.otherRole,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final OtherUserRoleProfile? otherRole;
 
   @override
   State<AdminFeeReceiptsScreenV3> createState() => _AdminFeeReceiptsScreenV3State();
@@ -76,15 +78,15 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       studentFeeReceipts = [];
       newReceipts = [
         NewReceipt(
-          schoolId: widget.adminProfile.schoolId,
-          agentId: widget.adminProfile.userId,
+          schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
+          agentId: widget.adminProfile?.userId ?? widget.otherRole?.userId,
           date: DateTime.now().millisecondsSinceEpoch,
           modeOfPayment: ModeOfPayment.CASH.name,
         ),
       ];
     });
     GetBusRouteDetailsResponse getBusRouteDetailsResponse = await getBusRouteDetails(GetBusRouteDetailsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
     ));
     if (getBusRouteDetailsResponse.httpStatus != "OK" || getBusRouteDetailsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -131,7 +133,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     });
 
     GetStudentFeeReceiptsResponse studentFeeReceiptsResponse = await getStudentFeeReceipts(GetStudentFeeReceiptsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
     ));
     if (studentFeeReceiptsResponse.httpStatus != "OK" || studentFeeReceiptsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -164,7 +166,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       _isLoading = true;
     });
     GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
     ));
     if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -177,7 +179,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     }
 
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
     ));
     if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -190,7 +192,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     }
 
     GetSectionsResponse getSectionsResponse = await getSections(GetSectionsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
     ));
     if (getSectionsResponse.httpStatus != "OK" || getSectionsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -203,7 +205,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     }
 
     GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
     ));
     if (getFeeTypesResponse.httpStatus != "OK" || getFeeTypesResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -248,16 +250,19 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       // filteredStudentFeeReceipts = studentFeeReceipts.where((e) => e.status == "deleted").toList();
       setState(() => showOnlyDeletedReceipts = null);
     } else if (choice == "Today") {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return DateWiseReceiptsStatsWidget(
-          adminProfile: widget.adminProfile,
-          studentFeeReceipts:
-              studentFeeReceipts.where((e) => e.status == "active" && e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())).toList(),
-          selectedDate: DateTime.now(),
-          routeStopWiseStudents: routeStopWiseStudents,
-          feeTypes: feeTypes,
-        );
-      }));
+      if (widget.adminProfile != null) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return DateWiseReceiptsStatsWidget(
+            adminProfile: widget.adminProfile!,
+            studentFeeReceipts: studentFeeReceipts
+                .where((e) => e.status == "active" && e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()))
+                .toList(),
+            selectedDate: DateTime.now(),
+            routeStopWiseStudents: routeStopWiseStudents,
+            feeTypes: feeTypes,
+          );
+        }));
+      }
     } else if (choice == "Go to date") {
       await goToDateAction();
     } else if (choice == "Term Wise") {
@@ -265,20 +270,24 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     } else if (choice == "Print") {
       makePdf();
     } else if (choice == "Date wise Stats") {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return DateWiseReceiptStats(
-          adminProfile: widget.adminProfile,
-          studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
-          routeStopWiseStudents: routeStopWiseStudents,
-        );
-      }));
+      if (widget.adminProfile != null) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return DateWiseReceiptStats(
+            adminProfile: widget.adminProfile!,
+            studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
+            routeStopWiseStudents: routeStopWiseStudents,
+          );
+        }));
+      }
     } else if (choice == "Section wise Stats") {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return SectionWiseFeeStats(
-          adminProfile: widget.adminProfile,
-          studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
-        );
-      }));
+      if (widget.adminProfile != null) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return SectionWiseFeeStats(
+            adminProfile: widget.adminProfile!,
+            studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
+          );
+        }));
+      }
     } else {
       debugPrint("Clicked on $choice");
     }
@@ -387,7 +396,11 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     //   );
     // }
 
-    List<StudentFeeReceipt> receiptsToPrint = studentFeeReceipts.where((e) => transactionId == null || e.transactionId == transactionId).toList();
+    List<StudentFeeReceipt> receiptsToPrint = filteredStudentFeeReceipts
+        .where((e) => transactionId == null || e.transactionId == transactionId && e.status != "deleted" && isReceptionist
+            ? e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now())
+            : true)
+        .toList();
     await printReceipts(
       context,
       schoolInfoBean!,
@@ -411,6 +424,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             : showOnlyDeletedReceipts!
                 ? er.status == "deleted"
                 : er.status != "deleted")
+        .where((efr) => isReceptionist ? efr.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()) : true)
         .toList();
     return Scaffold(
       key: _scaffoldKey,
@@ -439,13 +453,13 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                           .where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()))
                           .isNotEmpty)
                         "Today",
-                      if (!(showOnlyDeletedReceipts == true)) "Show Only Deleted Receipts",
-                      if (!(showOnlyDeletedReceipts == false)) "Hide Deleted Receipts",
-                      if (!(showOnlyDeletedReceipts == null)) "Show All Receipts",
-                      "Go to date",
+                      if (!isReceptionist && !(showOnlyDeletedReceipts == true)) "Show Only Deleted Receipts",
+                      if (!isReceptionist && !(showOnlyDeletedReceipts == false)) "Hide Deleted Receipts",
+                      if (!isReceptionist && !(showOnlyDeletedReceipts == null)) "Show All Receipts",
+                      if (!isReceptionist) "Go to date",
                       "Term Wise",
-                      "Date wise Stats",
-                      "Section wise Stats",
+                      if (!isReceptionist) "Date wise Stats",
+                      if (!isReceptionist) "Section wise Stats",
                       if (_renderingReceiptText == null) "Print",
                     }.map((String choice) {
                       return PopupMenuItem<String>(
@@ -461,9 +475,11 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                 ),
               ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: widget.adminProfile != null
+          ? AdminAppDrawer(
+              adminProfile: widget.adminProfile!,
+            )
+          : null,
       body: _isLoading
           ? Center(
               child: Image.asset(
@@ -515,7 +531,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                           itemBuilder: (BuildContext context, int index) {
                             return filteredReceiptsAsPerDeletedStatus[index].widget(
                               _scaffoldKey.currentContext ?? context,
-                              adminId: widget.adminProfile.userId,
+                              adminId: widget.adminProfile?.userId ?? widget.otherRole?.userId,
                               isTermWise: isTermWise,
                               setState: setState,
                               reload: _loadData,
@@ -612,7 +628,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     List<NewReceiptBean> newReceiptsToBePaid = newReceipts
         .where((e) => e.status == "active")
         .map((eachNewReceipt) => NewReceiptBean(
-              agentId: widget.adminProfile.userId,
+              agentId: widget.adminProfile?.userId ?? widget.otherRole?.userId,
               date: eachNewReceipt.date,
               receiptNumber: eachNewReceipt.receiptNumber,
               schoolId: eachNewReceipt.schoolId,
@@ -700,8 +716,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       setState(() {
         newReceipts.add(
           NewReceipt(
-            schoolId: widget.adminProfile.schoolId,
-            agentId: widget.adminProfile.userId,
+            schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
+            agentId: widget.adminProfile?.userId ?? widget.otherRole?.userId,
             date: newReceipts.isEmpty
                 ? studentFeeReceipts.isEmpty
                     ? (DateTime.now().millisecondsSinceEpoch)
@@ -748,4 +764,6 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       ),
     );
   }
+
+  bool get isReceptionist => widget.otherRole?.roleId == 8;
 }

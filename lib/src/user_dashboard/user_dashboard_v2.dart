@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
@@ -150,6 +151,13 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
               MegaAdminHomePage.routeName,
               arguments: megaAdminProfile,
             );
+          } else if (role == "Receptionist") {
+            await updateSchoolIdInPrefs((profile as OtherUserRoleProfile).schoolId);
+            Navigator.pushNamed(
+              context,
+              ReceptionistDashboard.routeName,
+              arguments: profile,
+            ).then((_) => updateSchoolIdInPrefs(null));
           }
         },
         child: ClayButton(

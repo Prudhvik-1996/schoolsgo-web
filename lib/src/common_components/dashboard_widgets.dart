@@ -246,6 +246,21 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
       ),
     ];
 
+List<DashboardWidget<OtherUserRoleProfile>> receptionistDashBoardWidgets(OtherUserRoleProfile receptionistProfile) => [
+  DashboardWidget(
+    image: SvgPicture.asset("assets/images/admin_expenses.svg"),
+    title: "Admin Expenses",
+    routeName: "/admin_expenses",
+    argument: receptionistProfile,
+  ),
+  DashboardWidget(
+    image: SvgPicture.asset("assets/images/fee.svg"),
+    title: "Fee",
+    routeName: "/fee",
+    argument: receptionistProfile,
+  ),
+];
+
 List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProfile) => [
       DashboardWidget(
         image: SvgPicture.asset("assets/images/profile.svg"),

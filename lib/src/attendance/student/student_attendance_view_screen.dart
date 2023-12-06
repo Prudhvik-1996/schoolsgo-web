@@ -8,19 +8,28 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/clay_pie_chart/clay_pie_chart.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/attendance_beans.dart';
 
 class StudentAttendanceViewScreen extends StatefulWidget {
   final StudentProfile studentProfile;
+  final String? startDate;
+  final String? endDate;
 
   static const routeName = "/attendance";
 
-  const StudentAttendanceViewScreen({Key? key, required this.studentProfile}) : super(key: key);
+  const StudentAttendanceViewScreen({
+    Key? key,
+    required this.studentProfile,
+    this.startDate,
+    this.endDate,
+  }) : super(key: key);
 
   @override
   _StudentAttendanceViewScreenState createState() => _StudentAttendanceViewScreenState();
@@ -57,11 +66,39 @@ class _StudentAttendanceViewScreenState extends State<StudentAttendanceViewScree
       _availableDates = [];
       _selectedDate = null;
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID')!;
+    String? startDate, endDate;
+    GetSchoolWiseAcademicYearsResponse getAcademicYearsResponse = await getSchoolWiseAcademicYears(
+      GetSchoolWiseAcademicYearsRequest(
+        schoolId: widget.studentProfile?.schoolId,
+        academicYearId: selectedAcademicYearId,
+      ),
+    );
+    if (getAcademicYearsResponse.httpStatus == "OK" && getAcademicYearsResponse.responseStatus == "success") {
+      setState(() {
+        startDate = widget.startDate ??
+            (getAcademicYearsResponse.academicYearBeanList ?? [])
+                .where((e) => e?.academicYearId == selectedAcademicYearId)
+                .first!
+                .academicYearStartDate!;
+        endDate = widget.endDate ?? convertDateTimeToYYYYMMDDFormat(DateTime.now());
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      return;
+    }
 
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.studentProfile.schoolId,
       studentId: widget.studentProfile.studentId,
       sectionId: widget.studentProfile.sectionId,
+      startDate: startDate,
+      endDate: endDate,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {

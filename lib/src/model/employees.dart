@@ -234,6 +234,7 @@ class CreateUserAndAssignRolesRequest {
   bool? isTeacher;
   bool? isNonTeachingStaff;
   bool? isBusDriver;
+  bool? isReceptionist;
   int? userId;
   Map<String, dynamic> __origJson = {};
 
@@ -251,6 +252,7 @@ class CreateUserAndAssignRolesRequest {
     this.isTeacher,
     this.isNonTeachingStaff,
     this.isBusDriver,
+    this.isReceptionist,
     this.userId,
   });
 
@@ -269,6 +271,7 @@ class CreateUserAndAssignRolesRequest {
     isTeacher = json['isTeacher'];
     isNonTeachingStaff = json['isNonTeachingStaff'];
     isBusDriver = json['isBusDriver'];
+    isReceptionist = json['isReceptionist'];
     userId = json['userId']?.toInt();
   }
 
@@ -287,6 +290,7 @@ class CreateUserAndAssignRolesRequest {
     data['isTeacher'] = isTeacher;
     data['isNonTeachingStaff'] = isNonTeachingStaff;
     data['isBusDriver'] = isBusDriver;
+    data['isReceptionist'] = isReceptionist;
     data['userId'] = userId;
     return data;
   }

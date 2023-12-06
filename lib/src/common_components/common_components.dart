@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/settings/settings_view.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
@@ -595,6 +596,200 @@ class AdminAppDrawer extends Drawer {
                                   context,
                                   e.routeName!,
                                   arguments: e.argument as AdminProfile,
+                                );
+                              },
+                            ),
+                          ),
+                          const Divider(),
+                        ]
+                      : [
+                          ExpansionTile(
+                              title: ListTile(
+                                leading: SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: e.image,
+                                  ),
+                                ),
+                                title: Text(
+                                  "${e.title}",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              children: e.subWidgets!
+                                  .map(
+                                    (e1) => [
+                                      Container(
+                                        margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                        child: ListTile(
+                                          leading: const SizedBox(
+                                            height: 25,
+                                            width: 25,
+                                            child: Icon(Icons.format_list_bulleted),
+                                          ),
+                                          title: Text(
+                                            "${e1.title}",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                              context,
+                                              e1.routeName!,
+                                              arguments: e1.argument,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const Divider()
+                                    ],
+                                  )
+                                  .expand((i) => i)
+                                  .toList()),
+                          const Divider(),
+                        ],
+                )
+                .expand((i) => i)
+                .toList(),
+      ),
+    );
+  }
+}
+
+class ReceptionistAppDrawer extends Drawer {
+  const ReceptionistAppDrawer({Key? key, required this.receptionistProfile}) : super(key: key);
+
+  final OtherUserRoleProfile receptionistProfile;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<DashboardWidget<OtherUserRoleProfile>> dashBoardWidgets = receptionistDashBoardWidgets(receptionistProfile);
+    return Container(
+      color: Theme.of(context).backgroundColor,
+      width: MediaQuery.of(context).orientation == Orientation.landscape ? 255 : 255,
+      child: ListView(
+        restorationId: 'DefaultAppDrawer',
+        children: <Widget>[
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                          const Expanded(
+                            child: Text(""),
+                          ),
+                          InkWell(
+                            child: const Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        '${receptionistProfile.userName}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.home),
+                  onTap: () {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      ReceptionistDashboard.routeName,
+                      (route) => route.isFirst,
+                      arguments: receptionistProfile,
+                    );
+                  },
+                ),
+              ),
+              const Divider(),
+              Container(
+                margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                child: ListTile(
+                  title: const Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  leading: const Icon(Icons.settings),
+                  onTap: () {
+                    Navigator.restorablePushNamed(context, SettingsView.routeName);
+                  },
+                ),
+              ),
+              const Divider(),
+            ] +
+            dashBoardWidgets
+                .map(
+                  (e) => e.subWidgets == null || e.subWidgets!.isEmpty
+                      ? [
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(15, 0, 0, 0),
+                            child: ListTile(
+                              leading: SizedBox(
+                                height: 25,
+                                width: 25,
+                                child: FittedBox(
+                                  fit: BoxFit.contain,
+                                  child: e.image,
+                                ),
+                              ),
+                              title: Text(
+                                "${e.title}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              onTap: () {
+                                debugPrint("Entering ${e.routeName}");
+                                Navigator.pushNamed(
+                                  context,
+                                  e.routeName!,
+                                  arguments: e.argument as OtherUserRoleProfile,
                                 );
                               },
                             ),

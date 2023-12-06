@@ -20,6 +20,7 @@ import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/teacher/teacher_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
+import 'package:schoolsgo_web/src/fee/receptionist/receptionist_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
 import 'package:schoolsgo_web/src/hostel/admin/hostel_options_screen.dart';
@@ -32,6 +33,7 @@ import 'package:schoolsgo_web/src/notifications/admin_notifications_screen.dart'
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_ocr_options_screen.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
+import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/school_management/school_management_options_screen.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
@@ -270,6 +272,14 @@ class _MyAppState extends State<MyApp> {
             var argument = (routeSettings.arguments as TeacherProfile);
             return TeacherDashboard(
               teacherProfile: argument,
+            );
+          case ReceptionistDashboard.routeName:
+            if (routeSettings.arguments == null) {
+              return const SplashScreen();
+            }
+            var argument = (routeSettings.arguments as OtherUserRoleProfile);
+            return ReceptionistDashboard(
+              receptionistProfile: argument,
             );
           case ClassTeacherScreen.routeName:
             try {
@@ -658,25 +668,25 @@ class _MyAppState extends State<MyApp> {
           // }
 
           case AdminExpenseScreenAdminView.routeName:
-            // if (routeSettings.arguments is MegaAdminProfile) {
-            //   try {
-            //     var argument = (routeSettings.arguments as MegaAdminProfile);
-            //     return MegaAdminCircularsScreen(
-            //       megaAdminProfile: argument,
-            //     );
-            //   } catch (e) {
-            //     return const E404NotFoundScreen();
-            //   }
-            // } else {
-            try {
-              var argument = (routeSettings.arguments as AdminProfile);
-              return AdminExpenseScreenAdminView(
-                adminProfile: argument,
-              );
-            } catch (e) {
-              return const E404NotFoundScreen();
+            if (routeSettings.arguments is OtherUserRoleProfile && (routeSettings.arguments as OtherUserRoleProfile).roleId == 8) {
+              try {
+                var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                return AdminExpenseScreenAdminView(
+                  receptionistProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else {
+              try {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return AdminExpenseScreenAdminView(
+                  adminProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
             }
-          // }
           case StudentStudyMaterialTDSScreen.routeName:
             try {
               if (routeSettings.arguments is StudentProfile) {
@@ -829,6 +839,16 @@ class _MyAppState extends State<MyApp> {
                   return StudentFeeScreenV3(
                     studentProfile: argument,
                     adminProfile: null,
+                  );
+                } catch (e) {
+                  return const E404NotFoundScreen();
+                }
+              }
+              if (routeSettings.arguments is OtherUserRoleProfile && (routeSettings.arguments as OtherUserRoleProfile).roleId == 8) {
+                try {
+                  var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                  return ReceptionistFeeOptionsScreen(
+                    receptionistProfile: argument,
                   );
                 } catch (e) {
                   return const E404NotFoundScreen();

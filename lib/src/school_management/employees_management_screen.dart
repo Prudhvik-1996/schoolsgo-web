@@ -365,6 +365,11 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
           : !(previousRolesList).contains(UserRole.BUS_DRIVER.name) && (eachEmployee.roles ?? []).contains(UserRole.BUS_DRIVER.name)
               ? true
               : null,
+      isReceptionist: (previousRolesList).contains(UserRole.RECEPTIONIST.name) && !(eachEmployee.roles ?? []).contains(UserRole.RECEPTIONIST.name)
+          ? false
+          : !(previousRolesList).contains(UserRole.RECEPTIONIST.name) && (eachEmployee.roles ?? []).contains(UserRole.RECEPTIONIST.name)
+              ? true
+              : null,
       status: "active",
       agent: widget.adminProfile.userId,
     );

@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
@@ -159,7 +160,6 @@ class _UserDashboardState extends State<UserDashboard> {
               TeacherDashboard.routeName,
               arguments: profile,
             ).then((_) => updateSchoolIdInPrefs(null));
-            ;
           } else if (role == "Mega Admin") {
             MegaAdminProfile x = (profile as List<MegaAdminProfile>).first;
             MegaAdminProfile megaAdminProfile = MegaAdminProfile(
@@ -190,6 +190,13 @@ class _UserDashboardState extends State<UserDashboard> {
               MegaAdminHomePage.routeName,
               arguments: megaAdminProfile,
             );
+          } else if (role == "Receptionist") {
+            await updateSchoolIdInPrefs((profile as OtherUserRoleProfile).schoolId);
+            Navigator.pushNamed(
+              context,
+              ReceptionistDashboard.routeName,
+              arguments: profile,
+            ).then((_) => updateSchoolIdInPrefs(null));
           }
         },
         child: ClayButton(
