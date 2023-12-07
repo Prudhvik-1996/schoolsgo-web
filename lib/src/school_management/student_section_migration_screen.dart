@@ -31,7 +31,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
   bool isSectionPickerOpen = false;
   Section? newSection;
 
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _isMigrateMode = false;
   bool _isRollNumberEditMode = false;
@@ -248,7 +248,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Student Section Migration"),
         actions: selectedSection == null
@@ -549,6 +549,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
   }
 
   Widget rollNumberSortOptionsWidget() {
+    String sortAsPer = "Alphabetically";
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -558,16 +559,76 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
         Expanded(
           child: GestureDetector(
             onTap: () {
-              debugPrint("548: Tapped");
-              setState(() {
-                List<StudentProfile> updatedStudentProfiles = studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList();
-                updatedStudentProfiles.sort(
-                  (a, b) => (a.studentFirstName ?? "").compareTo(b.studentFirstName ?? ""),
-                );
-                for (int i = 0; i < updatedStudentProfiles.length; i++) {
-                  updatedStudentProfiles[i].rollNumberController.text = (i + 1).toString();
-                }
-              });
+              showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (BuildContext dialogueContext) {
+                  return AlertDialog(
+                    title: const Text('Download receipts'),
+                    content: StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            RadioListTile<String>(
+                              value: "Boys First, Girls Next",
+                              title: const Text("Boys First, Girls Next"),
+                              groupValue: sortAsPer,
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() => sortAsPer = newValue);
+                                }
+                              },
+                            ),
+                            RadioListTile<String>(
+                              value: "Girls First, Boys Next",
+                              title: const Text("Girls First, Boys Next"),
+                              groupValue: sortAsPer,
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() => sortAsPer = newValue);
+                                }
+                              },
+                            ),
+                            RadioListTile<String>(
+                              value: "Alphabetically",
+                              title: const Text("Alphabetically"),
+                              groupValue: sortAsPer,
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() => sortAsPer = newValue);
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text("Proceed"),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                          print("611: $sortAsPer");
+                          if (sortAsPer == "Alphabetically") {
+                            sortStudentsAlphabetically();
+                          } else if (sortAsPer == "Boys First, Girls Next") {
+                            sortStudentsAlphabetically(boysFirstGirlsNext: true);
+                          } else if (sortAsPer == "Girls First, Boys Next") {
+                            sortStudentsAlphabetically(boysFirstGirlsNext: false);
+                          }
+                        },
+                      ),
+                      TextButton(
+                        child: const Text("Cancel"),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
             },
             child: ClayButton(
               depth: 15,
@@ -599,7 +660,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
               setState(() {
                 List<StudentProfile> updatedStudentProfiles = studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList();
                 updatedStudentProfiles.sort(
-                      (a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0),
+                  (a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0),
                 );
                 for (int i = 0; i < updatedStudentProfiles.length; i++) {
                   updatedStudentProfiles[i].rollNumberController.text = (i + 1).toString();
@@ -633,12 +694,78 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
     );
   }
 
+  void sortStudentsAlphabetically({bool? boysFirstGirlsNext}) {
+    if (boysFirstGirlsNext == null) {
+      setState(() {
+        List<StudentProfile> updatedStudentProfiles = studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList();
+        updatedStudentProfiles.sort(
+          (a, b) => (a.studentFirstName ?? "").compareTo(b.studentFirstName ?? ""),
+        );
+        for (int i = 0; i < updatedStudentProfiles.length; i++) {
+          updatedStudentProfiles[i].rollNumberController.text = (i + 1).toString();
+        }
+      });
+    } else if (boysFirstGirlsNext) {
+      setState(() {
+        List<StudentProfile> updatedStudentProfiles = studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList();
+        updatedStudentProfiles.sort(
+          (a, b) {
+            int aGender = a.sex == null
+                ? 2
+                : a.sex == "male"
+                    ? 1
+                    : 0;
+            int bGender = b.sex == null
+                ? 2
+                : b.sex == "male"
+                    ? 1
+                    : 0;
+            if (aGender == bGender) {
+              return (a.studentFirstName ?? "").compareTo(b.studentFirstName ?? "");
+            } else {
+              return aGender.compareTo(bGender);
+            }
+          },
+        );
+        for (int i = 0; i < updatedStudentProfiles.length; i++) {
+          updatedStudentProfiles[i].rollNumberController.text = (i + 1).toString();
+        }
+      });
+    } else {
+      setState(() {
+        List<StudentProfile> updatedStudentProfiles = studentProfiles.where((e) => e.sectionId == selectedSection?.sectionId).toList();
+        updatedStudentProfiles.sort(
+          (a, b) {
+            int aGender = a.sex == null
+                ? 2
+                : a.sex == "female"
+                    ? 1
+                    : 0;
+            int bGender = b.sex == null
+                ? 2
+                : b.sex == "female"
+                    ? 1
+                    : 0;
+            if (aGender == bGender) {
+              return (a.studentFirstName ?? "").compareTo(b.studentFirstName ?? "");
+            } else {
+              return aGender.compareTo(bGender);
+            }
+          },
+        );
+        for (int i = 0; i < updatedStudentProfiles.length; i++) {
+          updatedStudentProfiles[i].rollNumberController.text = (i + 1).toString();
+        }
+      });
+    }
+  }
+
   Future<void> showMigrateStudentsAlertDialogue() async {
     if (selectedStudentsList.isEmpty) return;
     if (newSection == null) return;
     if (selectedSection == null) return;
     await showDialog(
-      context: scaffoldKey.currentContext!,
+      context: _scaffoldKey.currentContext!,
       builder: (BuildContext dialogueContext) {
         return AlertDialog(
           title: Text(
@@ -667,6 +794,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
                       .where((eachStudent) => selectedStudentsList.contains(eachStudent.studentId))
                       .map((eachStudent) => StudentProfile.fromJson(eachStudent.origJson())
                         ..sectionId = newSection?.sectionId
+                        ..rollNumber = "0"
                         ..agentId = widget.adminProfile.userId)
                       .toList(),
                 );
@@ -706,7 +834,7 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
         .toList();
     if (updatedStudentProfiles.isEmpty) return;
     await showDialog(
-      context: scaffoldKey.currentContext!,
+      context: _scaffoldKey.currentContext!,
       builder: (BuildContext dialogueContext) {
         return AlertDialog(
           title: const Text(
@@ -735,7 +863,8 @@ class _StudentSectionMigrationScreenState extends State<StudentSectionMigrationS
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
-                    children: updatedStudentProfiles.map((eachStudent) => Text(" -\t${eachStudent.rollNumber}. ${eachStudent.studentFirstName}")).toList(),
+                    children:
+                        updatedStudentProfiles.map((eachStudent) => Text(" -\t${eachStudent.rollNumber}. ${eachStudent.studentFirstName}")).toList(),
                   ),
                 ),
               ],
