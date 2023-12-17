@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
+import 'dart:typed_data';
 
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/number_to_words.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-Future<void> printReceipts(
+Future<Uint8List> printReceipts(
   BuildContext context,
   SchoolInfoBean schoolInfoBean,
   List<StudentFeeReceipt> receiptsToPrint,
@@ -26,6 +27,7 @@ Future<void> printReceipts(
   bool isAdminCopySelected = false,
   bool isStudentCopySelected = true,
   bool download = false,
+  bool isNewTab = true,
 }) async {
   final pdf = pw.Document();
   final font = await PdfGoogleFonts.merriweatherRegular();
@@ -67,8 +69,7 @@ Future<void> printReceipts(
               pw.SizedBox(
                 height: 10,
               ),
-            if (eachTransaction.gaurdianName != null)
-              parentNameWidget(eachTransaction.gaurdianName ?? "-", font),
+            if (eachTransaction.gaurdianName != null) parentNameWidget(eachTransaction.gaurdianName ?? "-", font),
             pw.SizedBox(
               height: 10,
             ),
@@ -113,10 +114,10 @@ Future<void> printReceipts(
         build: (context) {
           return [
             pw.Container(
-                decoration: pw.BoxDecoration(
-                  border: pw.Border.all(width: 2),
-                  borderRadius: pw.BorderRadius.circular(10),
-                ),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(width: 2),
+                borderRadius: pw.BorderRadius.circular(10),
+              ),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 mainAxisAlignment: pw.MainAxisAlignment.start,
@@ -137,11 +138,14 @@ Future<void> printReceipts(
   final blob = html.Blob([x], 'application/pdf');
   final url = html.Url.createObjectUrlFromBlob(blob);
   html.AnchorElement anchorElement = html.AnchorElement(href: url);
-  anchorElement.target = '_blank';
+  if (isNewTab) {
+    anchorElement.target = '_blank';
+  }
   if (download) {
     anchorElement.download = "Receipts.pdf";
   }
   anchorElement.click();
+  return x;
 }
 
 pw.Widget amountPayingInWordsWidget(int amount, pw.Font font) {

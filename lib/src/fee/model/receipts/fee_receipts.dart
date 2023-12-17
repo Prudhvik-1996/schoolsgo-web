@@ -39,6 +39,7 @@ class GetStudentFeeReceiptsRequest {
   int? schoolId;
   List<int?>? sectionIds;
   List<int?>? studentIds;
+  List<int?>? transactionIds;
   Map<String, dynamic> __origJson = {};
 
   GetStudentFeeReceiptsRequest({
@@ -47,6 +48,7 @@ class GetStudentFeeReceiptsRequest {
     this.schoolId,
     this.sectionIds,
     this.studentIds,
+    this.transactionIds,
   });
 
   GetStudentFeeReceiptsRequest.fromJson(Map<String, dynamic> json) {
@@ -78,6 +80,14 @@ class GetStudentFeeReceiptsRequest {
     }
     if (json['studentIds'] != null) {
       final v = json['studentIds'];
+      final arr0 = <int>[];
+      v.forEach((v) {
+        arr0.add(v.toInt());
+      });
+      studentIds = arr0;
+    }
+    if (json['transactionIds'] != null) {
+      final v = json['transactionIds'];
       final arr0 = <int>[];
       v.forEach((v) {
         arr0.add(v.toInt());
@@ -120,6 +130,14 @@ class GetStudentFeeReceiptsRequest {
         arr0.add(v);
       }
       data['studentIds'] = arr0;
+    }
+    if (transactionIds != null) {
+      final v = transactionIds;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v);
+      }
+      data['transactionIds'] = arr0;
     }
     return data;
   }

@@ -20,6 +20,7 @@ import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/teacher/teacher_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_options_screen.dart';
+import 'package:schoolsgo_web/src/fee/receipt_copy.dart';
 import 'package:schoolsgo_web/src/fee/receptionist/receptionist_fee_options_screen.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
@@ -180,6 +181,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  String? getRouteName(BuildContext context) {
+    final ModalRoute<Object?>? modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      return modalRoute.settings.name;
+    } else {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -206,15 +216,11 @@ class _MyAppState extends State<MyApp> {
             return MaterialPageRoute<void>(
                 settings: routeSettings,
                 builder: (BuildContext context) {
-                  // NetworkStatus networkStatus = Provider.of<NetworkStatus>(context);
-                  // if (networkStatus == NetworkStatus.Offline) {
-                  //   return const NoInternetScreen();
-                  // }
                   return const E404NotFoundScreen();
                 });
           },
           onGenerateRoute: (RouteSettings routeSettings) {
-            debugPrint(routeSettings.name);
+            debugPrint("225 ${routeSettings.name}");
             return buildCustomMaterialPageRoute(routeSettings);
           },
         );
@@ -231,6 +237,16 @@ class _MyAppState extends State<MyApp> {
         // if (networkStatus == NetworkStatus.Offline) {
         //   return const NoInternetScreen();
         // }
+        if (routeSettings.name?.startsWith("/txnId/") ?? false) {
+          int? transactionId = int.tryParse(routeSettings.name!.replaceAll("/txnId/", ""));
+          if (transactionId == null) {
+            return const E404NotFoundScreen();
+          } else {
+            return ReceiptCopyScreen(
+              transactionId: transactionId,
+            );
+          }
+        }
         switch (routeSettings.name) {
           // case "manifest.json":
           //   return
