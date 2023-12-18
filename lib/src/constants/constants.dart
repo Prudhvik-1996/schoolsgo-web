@@ -199,3 +199,11 @@ const String CREATE_OR_UPDATE_CUSTOM_EXAMS = "/exams/createOrUpdateCustomExam";
 const String GET_STUDENT_WISE_EXAMS = "/exams/getStudentWiseExams";
 const String GET_FA_EXAMS = "/exams/getFAExams";
 const String CREATE_OR_UPDATE_FA_EXAMS = "/exams/createOrUpdateFAExam";
+
+const String GET_SCHOOL_WISE_SMS_COUNTER = "/sms/getSchoolWiseSmsCounter";
+const String GET_SMS_CATEGORIES = "/sms/getSmsCategories";
+const String GET_SMS_CONFIG = "/sms/getSmsConfig";
+const String GET_SMS_TEMPLATES = "/sms/getSmsTemplates";
+const String GET_SMS_LOGS = "/sms/getSmsLogs";
+const String GET_SMS_TEMPLATE_WISE_LOGS = "/sms/getSmsTemplateWiseLog";
+const String SEND_SMS = "/sms/sendSms";

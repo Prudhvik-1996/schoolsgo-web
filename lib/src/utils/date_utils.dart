@@ -205,3 +205,27 @@ List<DateTime> populateDates(DateTime startDate, DateTime endDate) => List.gener
       endDate.difference(startDate).inDays,
       (index) => startDate.add(Duration(days: index)),
     );
+
+String parseAndFormatDateString(String inputString) {
+  DateTime parsedDate = DateTime.parse(inputString);
+  String formattedDate = DateFormat('d MMMM y hh:mm a').format(parsedDate);
+  String dayWithSuffix = _addOrdinalSuffix(parsedDate.day);
+  formattedDate = formattedDate.replaceFirst(parsedDate.day.toString(), dayWithSuffix);
+  return formattedDate;
+}
+
+String _addOrdinalSuffix(int day) {
+  if (day >= 11 && day <= 13) {
+    return '${day}th';
+  }
+  switch (day % 10) {
+    case 1:
+      return '${day}st';
+    case 2:
+      return '${day}nd';
+    case 3:
+      return '${day}rd';
+    default:
+      return '${day}th';
+  }
+}

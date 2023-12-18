@@ -142,6 +142,6 @@ Future<GetSchoolWiseStatsResponse> getSchoolWiseStats(
     GetSchoolWiseStatsResponse.fromJson,
   );
 
-  debugPrint("GetStudentCommentBeanResponse ${getSchoolWiseStatsResponse.toJson()}");
+  debugPrint("GetSchoolWiseStatsResponse ${getSchoolWiseStatsResponse.toJson()}");
   return getSchoolWiseStatsResponse;
 }

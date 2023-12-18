@@ -8,7 +8,6 @@ import 'package:schoolsgo_web/src/logbook/logbook_screen.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/notice_board/student/student_notice_board_view.dart';
-import 'package:schoolsgo_web/src/notifications/admin_notifications_screen.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/admin/admin_suggestion_box.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_screen.dart';
@@ -247,19 +246,19 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
     ];
 
 List<DashboardWidget<OtherUserRoleProfile>> receptionistDashBoardWidgets(OtherUserRoleProfile receptionistProfile) => [
-  DashboardWidget(
-    image: SvgPicture.asset("assets/images/admin_expenses.svg"),
-    title: "Admin Expenses",
-    routeName: "/admin_expenses",
-    argument: receptionistProfile,
-  ),
-  DashboardWidget(
-    image: SvgPicture.asset("assets/images/fee.svg"),
-    title: "Fee",
-    routeName: "/fee",
-    argument: receptionistProfile,
-  ),
-];
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/admin_expenses.svg"),
+        title: "Admin Expenses",
+        routeName: "/admin_expenses",
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/fee.svg"),
+        title: "Fee",
+        routeName: "/fee",
+        argument: receptionistProfile,
+      ),
+    ];
 
 List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProfile) => [
       DashboardWidget(
@@ -429,6 +428,13 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         routeName: "/admin_expenses",
         argument: adminProfile,
       ),
+      if (adminProfile.schoolId == 91)
+        DashboardWidget(
+          image: SvgPicture.asset("assets/images/payslips.svg"),
+          title: "Sms",
+          routeName: "/sms",
+          argument: adminProfile,
+        ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/payslips.svg"),
         title: "Payslips",

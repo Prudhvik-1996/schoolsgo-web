@@ -37,6 +37,7 @@ import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.d
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/school_management/school_management_options_screen.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
+import 'package:schoolsgo_web/src/sms/admin/admin_sms_options_screen.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_screen.dart';
@@ -395,6 +396,19 @@ class _MyAppState extends State<MyApp> {
               } else if (routeSettings.arguments is StudentProfile) {
                 var argument = (routeSettings.arguments as StudentProfile);
                 return const E404NotFoundScreen();
+              } else {
+                return const E404NotFoundScreen();
+              }
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case AdminSmsOptionsScreen.routeName:
+            try {
+              if (routeSettings.arguments is AdminProfile) {
+                var adminProfile = routeSettings.arguments as AdminProfile;
+                return AdminSmsOptionsScreen(
+                  adminProfile: adminProfile,
+                );
               } else {
                 return const E404NotFoundScreen();
               }
