@@ -289,6 +289,7 @@ class StudentProfile {
   String? sectionDescription;
   int? sectionId;
   String? sectionName;
+  int? sectionSeqOrder;
   String? status;
   String? studentDob;
   String? studentFirstName;
@@ -307,6 +308,8 @@ class StudentProfile {
   String? category;
   String? identificationMarks;
   String? password;
+  String? createTime;
+  String? lastUpdated;
 
   bool? isAssignedToBusStop;
   Map<String, dynamic> __origJson = {};
@@ -379,6 +382,7 @@ class StudentProfile {
     this.sectionDescription,
     this.sectionId,
     this.sectionName,
+    this.sectionSeqOrder,
     this.sex,
     this.status,
     this.studentDob,
@@ -393,6 +397,8 @@ class StudentProfile {
     this.studentStatus,
     this.isAssignedToBusStop,
     this.password,
+    this.createTime,
+    this.lastUpdated,
   }) {
     populateControllers();
   }
@@ -499,6 +505,7 @@ class StudentProfile {
     sectionDescription = json['sectionDescription']?.toString();
     sectionId = json['sectionId']?.toInt();
     sectionName = json['sectionName']?.toString();
+    sectionSeqOrder = json['sectionSeqOrder']?.toInt();
     sex = json['sex']?.toString();
     status = json['status']?.toString();
     studentDob = json['studentDob']?.toString();
@@ -512,6 +519,8 @@ class StudentProfile {
     studentPhotoThumbnailUrl = json['studentPhotoThumbnailUrl']?.toString();
     studentStatus = json['studentStatus']?.toString();
     password = json['password']?.toString();
+    createTime = json['createTime']?.toString();
+    lastUpdated = json['lastUpdated']?.toString();
     populateControllers();
   }
 
@@ -563,6 +572,7 @@ class StudentProfile {
     sectionDescription = json['sectionDescription']?.toString();
     sectionId = json['sectionId']?.toInt();
     sectionName = json['sectionName']?.toString();
+    sectionSeqOrder = json['sectionSeqOrder']?.toInt();
     sex = json['sex']?.toString();
     status = json['status']?.toString();
     studentDob = json['studentDob']?.toString();
@@ -576,6 +586,8 @@ class StudentProfile {
     studentPhotoThumbnailUrl = json['studentPhotoThumbnailUrl']?.toString();
     studentStatus = json['studentStatus']?.toString();
     password = json['password']?.toString();
+    createTime = json['createTime']?.toString();
+    lastUpdated = json['lastUpdated']?.toString();
     populateControllers();
   }
 
@@ -625,6 +637,7 @@ class StudentProfile {
     data['sectionDescription'] = sectionDescription;
     data['sectionId'] = sectionId;
     data['sectionName'] = sectionName;
+    data['sectionSeqOrder'] = sectionSeqOrder;
     data['sex'] = sex;
     data['status'] = status;
     data['studentDob'] = studentDob;
@@ -638,6 +651,8 @@ class StudentProfile {
     data['studentPhotoThumbnailUrl'] = studentPhotoThumbnailUrl;
     data['studentStatus'] = studentStatus;
     data['password'] = password;
+    data['createTime'] = createTime;
+    data['lastUpdated'] = lastUpdated;
     return data;
   }
 

@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class AdminSmsOptionsScreen extends StatefulWidget {
@@ -32,15 +34,6 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
   List<SmsConfigBean> smsConfigList = [];
   List<SmsTemplateBean> smsTemplates = [];
   List<SmsTemplateWiseLogBean> smsTemplateWiseLogBeans = [];
-  late _TemplateWiseLogDataSource templateWiseLogDataSource;
-  Map<String, double> columnWidths = {
-    'Date': 250,
-    'Category': 250,
-    'Sms Template': 250,
-    'Sms Used': 150,
-    'Failure Reason': 500,
-  };
-  int _rowsPerPage = 5;
 
   @override
   void initState() {
@@ -121,7 +114,6 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
       smsTemplateWiseLogBeans = getSmsTemplateWiseLogResponse.smsTemplateWiseLogBeans?.map((e) => e!).toList() ?? [];
       print("113: ${smsTemplateWiseLogBeans.length}");
     }
-    templateWiseLogDataSource = _TemplateWiseLogDataSource(smsTemplateWiseLogBeans, smsCategoryList, smsTemplates, _rowsPerPage);
     setState(() => _isLoading = false);
   }
 
@@ -151,112 +143,167 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: SfDataGrid(
-                    frozenColumnsCount: 1,
-                    shrinkWrapRows: true,
-                    source: templateWiseLogDataSource,
-                    allowColumnsResizing: true,
-                    onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
-                      setState(() {
-                        columnWidths[details.column.columnName] = details.width;
-                      });
-                      return true;
-                    },
-                    isScrollbarAlwaysShown: true,
-                    columns: [
-                      GridColumn(
-                        width: columnWidths["Date"]!,
-                        autoFitPadding: const EdgeInsets.all(10.0),
-                        label: Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(10.0),
-                          child: const Text(
-                            "Date",
-                            softWrap: false,
-                          ),
-                        ),
-                        columnName: 'Date',
-                      ),
-                      GridColumn(
-                        width: columnWidths["Category"]!,
-                        autoFitPadding: const EdgeInsets.all(10.0),
-                        label: Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(10.0),
-                          child: const Text(
-                            "Category",
-                            softWrap: false,
-                          ),
-                        ),
-                        columnName: 'Category',
-                      ),
-                      GridColumn(
-                        width: columnWidths["Sms Template"]!,
-                        autoFitPadding: const EdgeInsets.all(10.0),
-                        label: Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(10.0),
-                          child: const Text(
-                            "Sms Template",
-                            softWrap: false,
-                          ),
-                        ),
-                        columnName: 'Sms Template',
-                      ),
-                      GridColumn(
-                        width: columnWidths["Sms Used"]!,
-                        autoFitPadding: const EdgeInsets.all(10.0),
-                        label: Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(10.0),
-                          child: const Text(
-                            "Sms Used",
-                            softWrap: false,
-                          ),
-                        ),
-                        columnName: 'Sms Used',
-                      ),
-                      GridColumn(
-                        width: columnWidths["Failure Reason"]!,
-                        autoFitPadding: const EdgeInsets.all(10.0),
-                        label: Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(10.0),
-                          child: const Text(
-                            "Failure Reason",
-                            softWrap: false,
-                          ),
-                        ),
-                        columnName: 'Failure Reason',
-                      ),
-                    ],
-                    footerHeight: 100,
-                    footer: SfDataPager(
-                      itemHeight: 50,
-                      delegate: templateWiseLogDataSource,
-                      availableRowsPerPage: [
-                        if (smsTemplateWiseLogBeans.length >= 5) 5,
-                        if (smsTemplateWiseLogBeans.length >= 10) 10,
-                        if (smsTemplateWiseLogBeans.length >= 20) 20,
-                        if (smsTemplateWiseLogBeans.length >= 50) 50,
-                        if (smsTemplateWiseLogBeans.length >= 100) 100,
-                        smsTemplateWiseLogBeans.length
-                      ],
-                      onRowsPerPageChanged: (int? rowsPerPage) {
-                        setState(() {
-                          _rowsPerPage = rowsPerPage!;
-                          templateWiseLogDataSource.updateRowsPerPage(_rowsPerPage);
-                        });
-                      },
-                      pageCount: ((smsTemplateWiseLogBeans.length / _rowsPerPage).ceil()).toDouble(),
-                      direction: Axis.horizontal,
-                    ),
+                  child: TemplateWiseLogGrid(
+                    smsTemplateWiseLogBeans: smsTemplateWiseLogBeans,
+                    smsCategoryList: smsCategoryList,
+                    smsTemplates: smsTemplates,
                   ),
                 ),
               ],
             ),
     );
   }
+}
+
+class TemplateWiseLogGrid extends StatefulWidget {
+  final List<SmsTemplateWiseLogBean> smsTemplateWiseLogBeans;
+  final List<SmsCategoryBean> smsCategoryList;
+  final List<SmsTemplateBean> smsTemplates;
+
+  const TemplateWiseLogGrid({
+    Key? key,
+    required this.smsTemplateWiseLogBeans,
+    required this.smsCategoryList,
+    required this.smsTemplates,
+  }) : super(key: key);
+
+  @override
+  _TemplateWiseLogGridState createState() => _TemplateWiseLogGridState();
+}
+
+class _TemplateWiseLogGridState extends State<TemplateWiseLogGrid> {
+  late _TemplateWiseLogDataSource templateWiseLogDataSource;
+  Map<String, double> columnWidths = {
+    'Date': 250,
+    'Category': 250,
+    'Sms Template': 250,
+    'Sms Used': 100,
+    'Status': 100,
+  };
+  int _rowsPerPage = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    templateWiseLogDataSource = _TemplateWiseLogDataSource(
+      widget.smsTemplateWiseLogBeans,
+      widget.smsCategoryList,
+      widget.smsTemplates,
+      _rowsPerPage,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SfDataGrid(
+      // frozenColumnsCount: 1,
+      shrinkWrapRows: true,
+      source: templateWiseLogDataSource,
+      horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
+      allowColumnsResizing: true,
+      onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
+        setState(() {
+          columnWidths[details.column.columnName] = details.width;
+        });
+        return true;
+      },
+      isScrollbarAlwaysShown: true,
+      columns: [
+        GridColumn(
+          width: columnWidth("Date"),
+          autoFitPadding: const EdgeInsets.all(10.0),
+          label: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+              "Date",
+              softWrap: false,
+            ),
+          ),
+          columnName: 'Date',
+        ),
+        GridColumn(
+          width: columnWidth("Category"),
+          autoFitPadding: const EdgeInsets.all(10.0),
+          label: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+              "Category",
+              softWrap: false,
+            ),
+          ),
+          columnName: 'Category',
+        ),
+        GridColumn(
+          width: columnWidth("Sms Template"),
+          autoFitPadding: const EdgeInsets.all(10.0),
+          label: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+              "Sms Template",
+              softWrap: false,
+            ),
+          ),
+          columnName: 'Sms Template',
+        ),
+        GridColumn(
+          width: columnWidth("Sms Used"),
+          autoFitPadding: const EdgeInsets.all(10.0),
+          label: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+              "Sms Used",
+              softWrap: false,
+            ),
+          ),
+          columnName: 'Sms Used',
+        ),
+        GridColumn(
+          width: columnWidth("Status"),
+          autoFitPadding: const EdgeInsets.all(10.0),
+          label: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+              "Status",
+              softWrap: false,
+            ),
+          ),
+          columnName: 'Status',
+        ),
+      ],
+      footerHeight: 100,
+      footer: SfDataPager(
+        itemHeight: 50,
+        delegate: templateWiseLogDataSource,
+        availableRowsPerPage: [
+          if (widget.smsTemplateWiseLogBeans.length >= 5) 5,
+          if (widget.smsTemplateWiseLogBeans.length >= 10) 10,
+          if (widget.smsTemplateWiseLogBeans.length >= 20) 20,
+          if (widget.smsTemplateWiseLogBeans.length >= 50) 50,
+          if (widget.smsTemplateWiseLogBeans.length >= 100) 100,
+          widget.smsTemplateWiseLogBeans.length
+        ],
+        onRowsPerPageChanged: (int? rowsPerPage) {
+          setState(() {
+            _rowsPerPage = rowsPerPage!;
+            templateWiseLogDataSource.updateRowsPerPage(_rowsPerPage);
+          });
+        },
+        pageCount: ((widget.smsTemplateWiseLogBeans.length / _rowsPerPage).ceil()).toDouble(),
+        direction: Axis.horizontal,
+      ),
+    );
+  }
+
+  double columnWidth(String columnName) => columnWidths[columnName]!;
 }
 
 class _TemplateWiseLogDataSource extends DataGridSource {
@@ -297,21 +344,39 @@ class _TemplateWiseLogDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-      color: rowColor(row),
       cells: row
           .getCells()
           .map<Widget>(
-            (dataGridCell) => Container(
+            (DataGridCell dataGridCell) => Container(
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.all(10.0),
-              child: Text(dataGridCell.value.toString()),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: buildDataGridCell(dataGridCell, row),
+              ),
             ),
           )
           .toList(),
     );
   }
 
-  Color? rowColor(DataGridRow row) {
+  Widget buildDataGridCell(DataGridCell<dynamic> dataGridCell, DataGridRow row) {
+    return dataGridCell.columnName.toLowerCase() == "status"
+        ? Text(
+            dataGridCell.value,
+            style: TextStyle(
+              color: statusColor(row),
+            ),
+          )
+        : AutoSizeText(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+            minFontSize: 8,
+            maxLines: maxLines(dataGridCell),
+          );
+  }
+
+  Color? statusColor(DataGridRow row) {
     String status = _paginatedSource[rows.indexOf(row)].status;
     switch (status) {
       case "active":
@@ -322,6 +387,24 @@ class _TemplateWiseLogDataSource extends DataGridSource {
         return Colors.grey;
       default:
         return null;
+    }
+  }
+
+  int maxLines(DataGridCell dataGridCell) {
+    String columnName = dataGridCell.columnName;
+    switch (columnName) {
+      case "Date":
+        return 1;
+      case "Category":
+        return 1;
+      case "Sms Template":
+        return 1;
+      case "Sms Used":
+        return 1;
+      case "Status":
+        return 2;
+      default:
+        return 1;
     }
   }
 
@@ -342,10 +425,12 @@ class _TemplateWiseLogDataSource extends DataGridSource {
         DataGridCell<String>(columnName: 'category', value: e.category),
         DataGridCell<String>(columnName: 'templateName', value: e.templateName),
         DataGridCell<int>(columnName: 'noOfSmsSent', value: e.noOfSmsSent),
-        DataGridCell<String>(columnName: 'comments', value: e.comments),
+        DataGridCell<String>(columnName: 'status', value: buildStatusMessage(e)),
       ]);
     }).toList(growable: false);
   }
+
+  String buildStatusMessage(TemplateWiseLogDataSourceBean e) => e.status == "active" ? "Sent" : e.status.capitalize();
 
   void updateRowsPerPage(int _rowsPerPage) {
     rowsPerPage = _rowsPerPage;

@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
+import 'package:schoolsgo_web/src/school_management/student_management_screen_v2.dart';
 
 class StudentManagementScreen extends StatefulWidget {
   const StudentManagementScreen({
@@ -68,6 +69,13 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
       );
     } else {
       studentProfiles = (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList();
+      studentProfiles.sort((a, b) {
+        int aSectionSeqOder = a.sectionSeqOrder ?? 0;
+        int bSectionSeqOder = b.sectionSeqOrder ?? 0;
+        int aRollNumber = int.tryParse(a.rollNumber ?? "") ?? 0;
+        int bRollNumber = int.tryParse(b.rollNumber ?? "") ?? 0;
+        return aSectionSeqOder != bSectionSeqOder ? aSectionSeqOder.compareTo(bSectionSeqOder) : aRollNumber.compareTo(bRollNumber);
+      });
     }
     GetSectionsResponse getSectionsResponse = await getSections(
       GetSectionsRequest(
@@ -284,12 +292,41 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
       key: scaffoldKey,
       appBar: AppBar(
         title: selectedSection == null ? const Text("Student Management") : Text(selectedSection?.sectionName ?? "-"),
-        actions: (MediaQuery.of(context).orientation == Orientation.landscape)
+        actions: ((MediaQuery.of(context).orientation == Orientation.landscape)
             ? [
                 if (!_isLoading && !showSearchBar) IconButton(onPressed: () => setState(() => showSearchBar = true), icon: const Icon(Icons.search)),
                 if (!_isLoading && showSearchBar) _studentSearchableDropDown(),
               ]
-            : [],
+            : [])
+          ..addAll([
+            if (!_isLoading)
+              PopupMenuButton<String>(
+                onSelected: (String? selectedValue) {
+                  if (selectedValue == "V2") {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return StudentManagementScreenV2(
+                            adminProfile: widget.adminProfile,
+                            studentProfiles: studentProfiles,
+                            sectionsList: sectionsList,
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return {"V2"}.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                    );
+                  }).toList();
+                },
+              ),
+          ]),
       ),
       body: _isLoading
           ? Center(
