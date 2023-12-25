@@ -3,7 +3,10 @@ import 'dart:math';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/sms/admin/admin_sms_config_screen.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -45,7 +48,7 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
     setState(() => _isLoading = true);
     GetSchoolWiseSmsCounterResponse getSchoolWiseSmsCounterResponse = await getSchoolWiseSmsCounter(GetSchoolWiseSmsCounterRequest(
       schoolId: widget.adminProfile.schoolId,
-      franchiseId: widget.adminProfile.franchiseId,
+      // franchiseId: widget.adminProfile.franchiseId,
     ));
     if (getSchoolWiseSmsCounterResponse.httpStatus != "OK" || getSchoolWiseSmsCounterResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +63,7 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
     }
     GetSmsCategoriesResponse getSmsCategoriesResponse = await getSmsCategories(GetSmsCategoriesRequest(
       schoolId: widget.adminProfile.schoolId,
-      franchiseId: widget.adminProfile.franchiseId,
+      // franchiseId: widget.adminProfile.franchiseId,
     ));
     if (getSmsCategoriesResponse.httpStatus != "OK" || getSmsCategoriesResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -74,7 +77,7 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
     }
     GetSmsConfigResponse getSmsConfigResponse = await getSmsConfig(GetSmsConfigRequest(
       schoolId: widget.adminProfile.schoolId,
-      franchiseId: widget.adminProfile.franchiseId,
+      // franchiseId: widget.adminProfile.franchiseId,
     ));
     if (getSmsConfigResponse.httpStatus != "OK" || getSmsConfigResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -101,7 +104,7 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
     }
     GetSmsTemplateWiseLogResponse getSmsTemplateWiseLogResponse = await getSmsTemplateWiseLog(GetSmsTemplateWiseLogRequest(
       schoolId: widget.adminProfile.schoolId,
-      franchiseId: widget.adminProfile.franchiseId,
+      // franchiseId: widget.adminProfile.franchiseId,
     ));
     if (getSmsTemplateWiseLogResponse.httpStatus != "OK" || getSmsTemplateWiseLogResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -147,6 +150,37 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
                     smsTemplateWiseLogBeans: smsTemplateWiseLogBeans,
                     smsCategoryList: smsCategoryList,
                     smsTemplates: smsTemplates,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.fromLTRB(20, 5, 20, 0),
+                  child: ClayButton(
+                    depth: 40,
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 10,
+                    child: Container(
+                      padding: const EdgeInsets.all(10), // margin: const EdgeInsets.all(10),
+                      child: ListTile(
+                        leading: const Icon(Icons.message),
+                        title: const Text("SMS Config"),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) {
+                            return AdminSmsConfigScreen(
+                              adminProfile: widget.adminProfile,
+                              smsCategoryList: smsCategoryList,
+                              smsConfigList: smsConfigList,
+                              smsTemplates: smsTemplates,
+                              fromSettings: false,
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -323,7 +357,7 @@ class _TemplateWiseLogDataSource extends DataGridSource {
       return TemplateWiseLogDataSourceBean(eachLog.createTime ?? " - ", categoryBean?.category ?? "-", templateBean?.textLocalTemplateName ?? "-",
           eachLog.noOfSmsSent ?? 0, eachLog.comments ?? " - ", eachLog.status ?? " - ");
     }).toList();
-    _paginatedSource = rowsSource.getRange(0, rowsPerPage).toList(growable: false);
+    _paginatedSource = rowsSource.getRange(0, min(rowsSource.length, rowsPerPage)).toList(growable: false);
     handlePageChange(0, 0);
     buildPaginatedDataGridRows();
   }

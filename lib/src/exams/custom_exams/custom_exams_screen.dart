@@ -1,4 +1,5 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -12,6 +13,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 
 class CustomExamsScreen extends StatefulWidget {
@@ -49,6 +51,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
   List<MarkingAlgorithmBean> markingAlgorithms = [];
 
   late SchoolInfoBean schoolInfo;
+  SmsTemplateBean? smsTemplate;
 
   @override
   void initState() {
@@ -165,6 +168,24 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
       );
     } else {
       schoolInfo = getSchoolsResponse.schoolInfo!;
+    }
+
+    if (widget.adminProfile != null) {
+      GetSmsTemplatesResponse getSmsTemplatesResponse = await getSmsTemplates(GetSmsTemplatesRequest(
+        categoryId: 4,
+        schoolId: widget.adminProfile?.schoolId,
+      ));
+      if (getSmsTemplatesResponse.httpStatus != "OK" ||
+          getSmsTemplatesResponse.responseStatus != "success" ||
+          getSmsTemplatesResponse.smsTemplateBeans == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        smsTemplate = getSmsTemplatesResponse.smsTemplateBeans?.firstOrNull;
+      }
     }
 
     setState(() {
@@ -424,6 +445,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                                     selectedSection: _selectedSection,
                                     markingAlgorithms: markingAlgorithms,
                                     isClassTeacher: widget.defaultSelectedSection != null,
+                                    smsTemplate: smsTemplate,
                                   ),
                                 ),
                               ),

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 extension StringExtension on String {
   String capitalize() {
     if (this == null || this.trim() == '') return '-';
@@ -21,5 +23,12 @@ extension StringExtension on String {
     } catch (e) {
       return reg;
     }
+  }
+
+  String getShortenedMessage({int shortLength = 29, bool reduceSpaces = true}) => replaceAll("  ", " ").substring(0, min(shortLength, length)).trim();
+
+  String lastChars({int lastLength = 10}) {
+    if (length <= lastLength) return this;
+    return substring(length - lastLength);
   }
 }

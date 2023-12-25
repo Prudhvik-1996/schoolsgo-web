@@ -101,7 +101,7 @@ class _ReceiptCopyScreenState extends State<ReceiptCopyScreen> {
           : receiptToPrint == null
               ? const Center(
                   child: Text(
-                    "In active receipt, kindly contact admin for more details",
+                    "Inactive receipt, kindly contact admin for more details",
                   ),
                 )
               : const Center(

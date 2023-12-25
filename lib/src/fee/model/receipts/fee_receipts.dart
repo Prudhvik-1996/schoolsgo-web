@@ -495,6 +495,7 @@ class StudentFeeReceipt {
   int? transactionId;
   String? comments;
   String? status;
+  int? noOfTimesNotified;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController newReceiptNumberController = TextEditingController();
@@ -516,6 +517,7 @@ class StudentFeeReceipt {
     this.transactionId,
     this.comments,
     this.status,
+    this.noOfTimesNotified,
   }) {
     newReceiptNumberController.text = "${receiptNumber ?? ""}";
   }
@@ -544,6 +546,7 @@ class StudentFeeReceipt {
     transactionId = json['transactionId']?.toInt();
     comments = json['comments']?.toString();
     status = json['status']?.toString();
+    noOfTimesNotified = json['noOfTimesNotified']?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -569,6 +572,7 @@ class StudentFeeReceipt {
     data['transactionId'] = transactionId;
     data['comments'] = comments;
     data['status'] = status;
+    data['noOfTimesNotified'] = noOfTimesNotified;
     return data;
   }
 
@@ -583,6 +587,9 @@ class StudentFeeReceipt {
     bool isTermWise = false,
     Function? setState,
     Function? reload,
+    bool canSendSms = false,
+    Function? sendSms,
+    Function(int?)? sendReceiptSms,
     Function(int?)? makePdf,
     RouteStopWiseStudent? routeStopWiseStudent,
   }) {
@@ -616,6 +623,8 @@ class StudentFeeReceipt {
                         const SizedBox(width: 10),
                         if (status != "deleted" && makePdf != null) printReceiptButton(context, makePdf),
                         if (status != "deleted" && makePdf != null) const SizedBox(width: 5),
+                        if (adminId != null && canSendSms) noOfTimesNotifiedWidget(context, sendReceiptSms),
+                        if (adminId != null && canSendSms) const SizedBox(width: 5),
                         if (status != "deleted" && adminId != null)
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -677,6 +686,87 @@ class StudentFeeReceipt {
           ),
         ),
       ),
+    );
+  }
+
+  Widget noOfTimesNotifiedWidget(BuildContext context, Function(int?)? sendReceiptSms) {
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.center,
+          child: GestureDetector(
+            onTap: () async {
+              await showDialog(
+                context: context,
+                builder: (BuildContext dialogueContext) {
+                  return AlertDialog(
+                    title: const Text('Send receipt SMS'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text("Yes"),
+                        onPressed: () async {
+                          if (sendReceiptSms != null) sendReceiptSms(transactionId);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      TextButton(
+                        child: const Text("No"),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: ClayButton(
+              color: clayContainerColor(context),
+              height: 20,
+              width: 20,
+              spread: 1,
+              borderRadius: 10,
+              depth: 40,
+              child: const Padding(
+                padding: EdgeInsets.all(3.0),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(
+                      Icons.notifications_active,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if ((noOfTimesNotified ?? 0) != 0)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              height: 12,
+              width: 12,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  (noOfTimesNotified ?? 0).toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10, // Adjust the font size as needed
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -1434,4 +1524,104 @@ class FeeToBePaid {
       amountPaying: 0,
     )..amountPayingController.text = "0";
   }
+}
+
+class SendFeeReceiptSmsRequest {
+/*
+{
+  "agentId": 127,
+  "bothDateAndTime": false,
+  "masterTransactionId": 1653146783553,
+  "schoolId": 91
+}
+*/
+
+  int? agentId;
+  bool? bothDateAndTime;
+  int? masterTransactionId;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  SendFeeReceiptSmsRequest({
+    this.agentId,
+    this.bothDateAndTime,
+    this.masterTransactionId,
+    this.schoolId,
+  });
+
+  SendFeeReceiptSmsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    bothDateAndTime = json['bothDateAndTime'];
+    masterTransactionId = json['masterTransactionId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['bothDateAndTime'] = bothDateAndTime;
+    data['masterTransactionId'] = masterTransactionId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class SendFeeReceiptSmsResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  SendFeeReceiptSmsResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+
+  SendFeeReceiptSmsResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<SendFeeReceiptSmsResponse> sendFeeReceiptSms(SendFeeReceiptSmsRequest sendFeeReceiptSmsRequest) async {
+  debugPrint("Raising request to sendFeeReceiptSms with request ${jsonEncode(sendFeeReceiptSmsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + SEND_FEE_RECEIPT_SMS;
+
+  SendFeeReceiptSmsResponse sendFeeReceiptSmsResponse = await HttpUtils.post(
+    _url,
+    sendFeeReceiptSmsRequest.toJson(),
+    SendFeeReceiptSmsResponse.fromJson,
+  );
+
+  debugPrint("SendFeeReceiptSmsResponse ${sendFeeReceiptSmsResponse.toJson()}");
+  return sendFeeReceiptSmsResponse;
 }

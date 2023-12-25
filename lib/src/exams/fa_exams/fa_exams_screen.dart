@@ -12,6 +12,8 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/sms/modal/sms.dart';
+import 'package:collection/collection.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 
 class FAExamsScreen extends StatefulWidget {
@@ -49,6 +51,8 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
 
   List<FAExam> faExams = [];
   List<MarkingAlgorithmBean> markingAlgorithms = [];
+
+  SmsTemplateBean? smsTemplate;
 
   @override
   void initState() {
@@ -162,6 +166,24 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
           content: Text("Something went wrong! Try again later.."),
         ),
       );
+    }
+
+    if (widget.adminProfile != null) {
+      GetSmsTemplatesResponse getSmsTemplatesResponse = await getSmsTemplates(GetSmsTemplatesRequest(
+        categoryId: 4,
+        schoolId: widget.adminProfile?.schoolId,
+      ));
+      if (getSmsTemplatesResponse.httpStatus != "OK" ||
+          getSmsTemplatesResponse.responseStatus != "success" ||
+          getSmsTemplatesResponse.smsTemplateBeans == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        smsTemplate = getSmsTemplatesResponse.smsTemplateBeans?.firstOrNull;
+      }
     }
 
     setState(() => _isLoading = false);
@@ -421,6 +443,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
                                 markingAlgorithms: markingAlgorithms,
                                 setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
                                 isClassTeacher: widget.defaultSelectedSection != null,
+                                smsTemplate: smsTemplate,
                               ),
                             ),
                           ),

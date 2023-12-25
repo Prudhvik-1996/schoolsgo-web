@@ -43,7 +43,7 @@ class _StudentManagementScreenV2State extends State<StudentManagementScreenV2> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Student Manegement"),
+        title: const Text("Student Management"),
       ),
       body: _isLoading
           ? Center(

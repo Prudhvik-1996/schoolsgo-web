@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
+import 'dart:math';
 
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
@@ -14,14 +15,18 @@ import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart'
 import 'package:schoolsgo_web/src/exams/model/constants.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 import 'each_student_pdf_download.dart';
 
@@ -45,6 +50,7 @@ class FAExamWidget extends StatefulWidget {
     required this.scaffoldKey,
     required this.setLoading,
     required this.isClassTeacher,
+    required this.smsTemplate,
   });
 
   final SchoolInfoBean schoolInfo;
@@ -64,6 +70,7 @@ class FAExamWidget extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final void Function(bool isLoading) setLoading;
   final bool isClassTeacher;
+  final SmsTemplateBean? smsTemplate;
 
   @override
   State<FAExamWidget> createState() => _FAExamWidgetState();
@@ -228,6 +235,91 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                           ),
                         ),
                       ),
+                    if (widget.selectedSection != null && widget.adminProfile != null && widget.smsTemplate != null)
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                        child: Tooltip(
+                          message: "Send SMS",
+                          child: GestureDetector(
+                            onTap: () async {
+                              Map<StudentProfile, String> studentSmsMap = {};
+                              widget.studentsList
+                                  .where((eachStudentProfile) => eachStudentProfile.sectionId == widget.selectedSection?.sectionId)
+                                  .forEach((eachStudentProfile) {
+                                if (eachStudentProfile.gaurdianMobile == null) return;
+                                String phoneNumber = eachStudentProfile.gaurdianMobile ?? "";
+                                String studentName = (eachStudentProfile.studentFirstName ?? "-").getShortenedMessage(shortLength: 29);
+                                String shortExamName = (widget.faExam.faExamName ?? "").split(" ").map((e) => e[0].toUpperCase()).join("");
+                                List<MapEntry<String, String>> marksPerSubject =
+                                    widget.faExam.overAllEssmList.where((essm) => essm.sectionId == widget.selectedSection?.sectionId).map((essm) {
+                                          String subjectName = (widget.subjectsList
+                                                      .firstWhereOrNull((eachSubject) => essm.subjectId == eachSubject.subjectId)
+                                                      ?.subjectName ??
+                                                  "-")
+                                              .replaceAll(".", "")
+                                              .substring(0, 2)
+                                              .toUpperCase();
+                                          String marksObtained = "";
+                                          StudentExamMarks? esm = (essm.studentExamMarksList ?? [])
+                                              .firstWhereOrNull((esm) => esm?.studentId == eachStudentProfile.studentId);
+                                          if (esm == null) {
+                                            marksObtained = "-";
+                                          } else if (esm.isAbsent == "N") {
+                                            marksObtained = "A";
+                                          } else if (esm.marksObtained == null) {
+                                            marksObtained = "-";
+                                          } else {
+                                            marksObtained = doubleToStringAsFixed(esm.marksObtained);
+                                          }
+                                          return MapEntry(subjectName, marksObtained);
+                                        }).toList() ??
+                                        [];
+                                String marksData = marksPerSubject.map((eachEntry) => "${eachEntry.key}:${eachEntry.value}").join("\n");
+                                String message = "Dear parent,\n"
+                                    "$studentName's Exam marks are\n"
+                                    "\n${("$shortExamName:\n$marksData").getShortenedMessage(shortLength: 60)}\n"
+                                    "\n-EISPL";
+                                studentSmsMap[eachStudentProfile] = message;
+                              });
+                              setState(() {
+                                _isExpanded = true;
+                              });
+                              // await Future.delayed(const Duration(seconds: 1));
+                              // studentSmsMap.forEach((eachStudentProfile, message) {
+                              //   print("${eachStudentProfile.gaurdianMobile}: $message\n");
+                              // });
+                              await getStudentExamMarksForSmsFromAlertDialogue(context, studentSmsMap);
+                              setState(() {
+                                _isExpanded = false;
+                              });
+                            },
+                            child: ClayButton(
+                              color: clayContainerColor(context),
+                              height: 50,
+                              borderRadius: 10,
+                              surfaceColor: clayContainerColor(context),
+                              spread: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: const [
+                                      Icon(Icons.message),
+                                      SizedBox(width: 10),
+                                      Text("Send Message"),
+                                      SizedBox(width: 10),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 15),
@@ -309,6 +401,145 @@ class _FAExamWidgetState extends State<FAExamWidget> {
       ));
     }
     return widgetsOfEachInternal;
+  }
+
+  Future<void> getStudentExamMarksForSmsFromAlertDialogue(BuildContext context, Map<StudentProfile, String> studentSmsMap) async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext dialogueContext) {
+        Map<StudentProfile, bool> sendSmsMap = studentSmsMap.map((key, value) => MapEntry(key, true));
+        return AlertDialog(
+          title: const Text("Students' Exam Marks"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              var horizontalScrollView = ScrollController();
+              return SizedBox(
+                height: MediaQuery.of(context).size.height - 100,
+                width: MediaQuery.of(context).size.width - 100,
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  controller: horizontalScrollView,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: horizontalScrollView,
+                    child: SizedBox(
+                      width: max(500, MediaQuery.of(context).size.width - 150),
+                      child: ListView(
+                        children: [
+                          CheckboxListTile(
+                            controlAffinity: ListTileControlAffinity.leading,
+                            isThreeLine: false,
+                            title: const Text("Select All"),
+                            selected: !sendSmsMap.values.contains(false),
+                            value: !sendSmsMap.values.contains(false),
+                            onChanged: (bool? selectStatus) {
+                              if (selectStatus == null) return;
+                              setState(() {
+                                if (selectStatus) {
+                                  for (var eachStudentProfile in sendSmsMap.keys) {
+                                    sendSmsMap[eachStudentProfile] = true;
+                                  }
+                                } else {
+                                  for (var eachStudentProfile in sendSmsMap.keys) {
+                                    sendSmsMap[eachStudentProfile] = false;
+                                  }
+                                }
+                              });
+                            },
+                          ),
+                          ...studentSmsMap.entries.map((eachEntry) {
+                            StudentProfile eachStudentProfile = eachEntry.key;
+                            String message = eachEntry.value;
+                            return CheckboxListTile(
+                              controlAffinity: ListTileControlAffinity.leading,
+                              title: Row(
+                                children: [
+                                  Text(
+                                    eachStudentProfile.rollNumber ?? "-",
+                                    style: TextStyle(color: clayContainerTextColor(context)),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                      child: Text(
+                                    eachStudentProfile.studentFirstName ?? "-",
+                                    style: TextStyle(color: clayContainerTextColor(context)),
+                                  )),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    eachStudentProfile.gaurdianMobile ?? "-",
+                                    style: TextStyle(color: clayContainerTextColor(context)),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Tooltip(
+                                    message: message,
+                                    child: const Icon(Icons.info_outline),
+                                  ),
+                                ],
+                              ),
+                              selected: sendSmsMap[eachStudentProfile] ?? false,
+                              value: sendSmsMap[eachStudentProfile] ?? false,
+                              onChanged: (bool? selectStatus) {
+                                if (selectStatus == null) return;
+                                setState(() => sendSmsMap[eachStudentProfile] = selectStatus);
+                              },
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          actions: <Widget>[
+            if (sendSmsMap.values.contains(true))
+              TextButton(
+                child: const Text("Proceed to send SMS"),
+                onPressed: () async {
+                  if (!sendSmsMap.values.contains(true)) return;
+                  Navigator.pop(context);
+                  SendSmsResponse sendSmsResponse = await sendSms(SendSmsRequest(
+                      schoolId: widget.smsTemplate?.schoolId,
+                      categoryId: widget.smsTemplate?.categoryId,
+                      templateId: widget.smsTemplate?.templateId,
+                      agent: widget.adminProfile?.userId,
+                      smsLogBeans: [
+                        ...studentSmsMap.keys.where((eachStudentProfile) => sendSmsMap[eachStudentProfile] ?? false).map((eachStudentProfile) {
+                          String message = studentSmsMap[eachStudentProfile] ?? "";
+                          String mobile = (eachStudentProfile.gaurdianMobile ?? "").lastChars(lastLength: 10);
+                          return SmsLogBean(
+                            agent: widget.adminProfile?.userId,
+                            message: message,
+                            phone: mobile,
+                            smsLogId: null,
+                            smsTemplateWiseLogId: null,
+                            status: "initiated",
+                            studentId: eachStudentProfile.studentId,
+                            userId: eachStudentProfile.gaurdianId,
+                          );
+                        })
+                      ]));
+                  if (sendSmsResponse.httpStatus != "OK" || sendSmsResponse.responseStatus != "success") {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Something went wrong! Try again later.."),
+                      ),
+                    );
+                  }
+                },
+              ),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () async {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void goToMarksScreen(FaInternalExam internal, ExamSectionSubjectMap eachExamSectionSubjectMap) {

@@ -426,6 +426,92 @@ Future<GetSmsConfigResponse> getSmsConfig(GetSmsConfigRequest getSmsConfigReques
   return getSmsConfigResponse;
 }
 
+class UpdateSmsConfigRequest {
+
+  int? agent;
+  bool? automatic;
+  int? categoryId;
+  bool? enabled;
+  int? franchiseId;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateSmsConfigRequest({
+    this.agent,
+    this.automatic,
+    this.categoryId,
+    this.enabled,
+    this.franchiseId,
+    this.schoolId,
+  });
+  UpdateSmsConfigRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    automatic = json['automatic'];
+    categoryId = json['categoryId']?.toInt();
+    enabled = json['enabled'];
+    franchiseId = json['franchiseId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['automatic'] = automatic;
+    data['categoryId'] = categoryId;
+    data['enabled'] = enabled;
+    data['franchiseId'] = franchiseId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class UpdateSmsConfigResponse {
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  UpdateSmsConfigResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  UpdateSmsConfigResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<UpdateSmsConfigResponse> updateSmsConfig(UpdateSmsConfigRequest updateSmsConfigRequest) async {
+  debugPrint("Raising request to updateSmsConfig with request ${jsonEncode(updateSmsConfigRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + UPDATE_SMS_CONFIG;
+
+  UpdateSmsConfigResponse updateSmsConfigResponse = await HttpUtils.post(
+    _url,
+    updateSmsConfigRequest.toJson(),
+    UpdateSmsConfigResponse.fromJson,
+  );
+
+  debugPrint("UpdateSmsConfigResponse ${updateSmsConfigResponse.toJson()}");
+  return updateSmsConfigResponse;
+}
+
 class GetSmsLogsRequest {
 
   int? categoryId;
@@ -636,7 +722,7 @@ class SmsTemplateBean {
   String? textLocalStatus;
   String? textLocalTemplateId;
   String? textLocalTemplateName;
-  List<String?>? variablesList;
+  String? variablesList;
   Map<String, dynamic> __origJson = {};
 
   SmsTemplateBean({
@@ -668,14 +754,7 @@ class SmsTemplateBean {
     textLocalStatus = json['textLocalStatus']?.toString();
     textLocalTemplateId = json['textLocalTemplateId']?.toString();
     textLocalTemplateName = json['textLocalTemplateName']?.toString();
-    if (json['variablesList'] != null) {
-      final v = json['variablesList'];
-      final arr0 = <String>[];
-      v.forEach((v) {
-        arr0.add(v.toString());
-      });
-      variablesList = arr0;
-    }
+    variablesList = json['variablesList']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -691,14 +770,7 @@ class SmsTemplateBean {
     data['textLocalStatus'] = textLocalStatus;
     data['textLocalTemplateId'] = textLocalTemplateId;
     data['textLocalTemplateName'] = textLocalTemplateName;
-    if (variablesList != null) {
-      final v = variablesList;
-      final arr0 = [];
-      for (var v in v!) {
-        arr0.add(v);
-      }
-      data['variablesList'] = arr0;
-    }
+    data['variablesList'] = variablesList;
     return data;
   }
   Map<String, dynamic> origJson() => __origJson;

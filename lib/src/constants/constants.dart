@@ -127,6 +127,7 @@ const String CREATE_NEW_FEE_RECEIPTS = "/fee/createNewReceipts";
 const String DELETE_FEE_RECEIPT = "/fee/deleteReceipt";
 const String UPDATE_FEE_RECEIPT = "/fee/updateReceipt";
 const String GET_STUDENT_FEE_RECEIPTS = "/fee/getStudentFeeReceipts";
+const String SEND_FEE_RECEIPT_SMS = "/fee/sendFeeReceiptSms";
 
 const String GET_BUSES_DRIVERS = "/buses/getDrivers";
 const String GET_BUSES_BASE_DETAILS = "/buses/getBusesBaseDetails";
@@ -207,3 +208,4 @@ const String GET_SMS_TEMPLATES = "/sms/getSmsTemplates";
 const String GET_SMS_LOGS = "/sms/getSmsLogs";
 const String GET_SMS_TEMPLATE_WISE_LOGS = "/sms/getSmsTemplateWiseLog";
 const String SEND_SMS = "/sms/sendSms";
+const String UPDATE_SMS_CONFIG = "/sms/updateSmsConfig";

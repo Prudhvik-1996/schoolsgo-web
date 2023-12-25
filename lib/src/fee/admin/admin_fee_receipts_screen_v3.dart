@@ -19,6 +19,7 @@ import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/print_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -66,6 +67,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
 
   List<NewReceipt> newReceipts = [];
 
+  SmsTemplateBean? smsTemplate;
+
   @override
   void initState() {
     super.initState();
@@ -103,6 +106,23 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             .expand((i) => i)
             .toList();
       });
+    }
+    if (widget.adminProfile != null) {
+      GetSmsTemplatesResponse getSmsTemplatesResponse = await getSmsTemplates(GetSmsTemplatesRequest(
+        categoryId: 2,
+        schoolId: widget.adminProfile?.schoolId,
+      ));
+      if (getSmsTemplatesResponse.httpStatus != "OK" ||
+          getSmsTemplatesResponse.responseStatus != "success" ||
+          getSmsTemplatesResponse.smsTemplateBeans == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        smsTemplate = getSmsTemplatesResponse.smsTemplateBeans?.firstOrNull;
+      }
     }
     await loadReceipts();
     setState(() {
@@ -417,6 +437,33 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     });
   }
 
+  Future<void> sendReceiptSms({int? transactionId}) async {
+    SendFeeReceiptSmsResponse sendFeeReceiptSmsResponse = await sendFeeReceiptSms(SendFeeReceiptSmsRequest(
+      schoolId: widget.adminProfile?.schoolId,
+      agentId: widget.adminProfile?.userId,
+      bothDateAndTime: false,
+      masterTransactionId: transactionId,
+    ));
+    if (sendFeeReceiptSmsResponse.httpStatus != "OK" || sendFeeReceiptSmsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("SMS sent successfully.."),
+        ),
+      );
+      setState(() {
+        StudentFeeReceipt? studentFeeReceipt = studentFeeReceipts.firstWhereOrNull((eachReceipt) => eachReceipt.transactionId == transactionId);
+        int noOfTimesNotified = (studentFeeReceipt?.noOfTimesNotified ?? 0) + 1;
+        studentFeeReceipt?.noOfTimesNotified = noOfTimesNotified;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<StudentFeeReceipt> filteredReceiptsAsPerDeletedStatus = filteredStudentFeeReceipts
@@ -543,6 +590,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                                     },
                               routeStopWiseStudent:
                                   routeStopWiseStudents.where((e) => e.studentId == filteredReceiptsAsPerDeletedStatus[index].studentId).firstOrNull,
+                              canSendSms: !filteredReceiptsAsPerDeletedStatus[index].isEditMode && smsTemplate != null,
+                              sendReceiptSms: (int? transactionId) async => sendReceiptSms(transactionId: transactionId),
                             );
                           },
                         ),

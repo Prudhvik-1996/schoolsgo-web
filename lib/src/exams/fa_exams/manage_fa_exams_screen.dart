@@ -125,6 +125,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
                         setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
                         markingAlgorithms: widget.markingAlgorithms,
                         isClassTeacher: false,
+                        smsTemplate: null,
                       ),
                     ),
                   ],
