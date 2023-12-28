@@ -25,6 +25,7 @@ import 'package:schoolsgo_web/src/fee/receptionist/receptionist_fee_options_scre
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/feedback/admin/admin_feedback_view_screen.dart';
 import 'package:schoolsgo_web/src/hostel/admin/hostel_options_screen.dart';
+import 'package:schoolsgo_web/src/inventory/modal/admin_inventory_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
 import 'package:schoolsgo_web/src/login/login_screen_v2.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
@@ -408,6 +409,20 @@ class _MyAppState extends State<MyApp> {
                 var adminProfile = routeSettings.arguments as AdminProfile;
                 return AdminSmsOptionsScreen(
                   adminProfile: adminProfile,
+                );
+              } else {
+                return const E404NotFoundScreen();
+              }
+            } catch (e) {
+              return const E404NotFoundScreen();
+            }
+          case AdminInventoryScreen.routeName:
+            try {
+              if (routeSettings.arguments is AdminProfile) {
+                var adminProfile = routeSettings.arguments as AdminProfile;
+                return AdminInventoryScreen(
+                  adminProfile: adminProfile,
+                  isHostel: false,
                 );
               } else {
                 return const E404NotFoundScreen();

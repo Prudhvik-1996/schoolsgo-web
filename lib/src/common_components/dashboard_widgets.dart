@@ -430,11 +430,17 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
       ),
       if (adminProfile.schoolId == 91)
         DashboardWidget(
-          image: SvgPicture.asset("assets/images/payslips.svg"),
+          image: SvgPicture.asset("assets/images/sms.svg"),
           title: "Sms",
           routeName: "/sms",
           argument: adminProfile,
         ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/inventory.svg"),
+        title: "Inventory",
+        routeName: "/inventory",
+        argument: adminProfile,
+      ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/payslips.svg"),
         title: "Payslips",

@@ -209,3 +209,10 @@ const String GET_SMS_LOGS = "/sms/getSmsLogs";
 const String GET_SMS_TEMPLATE_WISE_LOGS = "/sms/getSmsTemplateWiseLog";
 const String SEND_SMS = "/sms/sendSms";
 const String UPDATE_SMS_CONFIG = "/sms/updateSmsConfig";
+
+const String GET_INVENTORY_ITEMS = "/inventory/getInventoryItems";
+const String GET_INVENTORY_ITEM_CONSUMPTION = "/inventory/getInventoryItemsConsumption";
+const String GET_INVENTORY_PO = "/inventory/getInventoryPo";
+const String CREATE_OR_UPDATE_INVENTORY_ITEMS = "/inventory/createOrUpdateInventoryItems";
+const String CREATE_OR_UPDATE_INVENTORY_ITEMS_CONSUMPTION = "/inventory/createOrUpdateInventoryItemsConsumption";
+const String CREATE_OR_UPDATE_INVENTORY_PO = "/inventory/createOrUpdateInventoryPo";

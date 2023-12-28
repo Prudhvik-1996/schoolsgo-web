@@ -192,6 +192,8 @@ flutter:
     - assets/images/task_management.svg
     - assets/images/hostel_management.svg
     - assets/images/stats.svg
+    - assets/images/inventory.svg
+    - assets/images/sms.svg
     - assets/images/gear-loader.gif
     - assets/images/EISlogo.png
     - assets/images/INR_symbol.png
