@@ -39,11 +39,13 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   List<InventoryItemBean> inventoryItemBeans = [];
   List<InventoryItemConsumptionBean> inventoryItemConsumptionBeans = [];
   List<InventoryPoBean> inventoryPoBeans = [];
+  List<InventoryLogBean> inventoryLogBeans = [];
   int widgetToDisplayIndex = 0;
-  List<String> widgetsToDisplay = ["Stock", "Purchase Order", "Consumption"];
+  List<String> widgetsToDisplay = ["Stock", "Purchase Order", "Consumption", "Log"];
 
   ScrollController stockHorizontalScrollController = ScrollController();
   ScrollController consumptionHorizontalScrollController = ScrollController();
+  ScrollController logHorizontalScrollController = ScrollController();
 
   @override
   void initState() {
@@ -68,6 +70,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
     await _loadInventoryItems();
     await _loadInventoryConsumption();
     await _loadInventoryPos();
+    await _loadInventoryLogs();
     setState(() => _isLoading = false);
   }
 
@@ -86,6 +89,24 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
       );
     } else {
       inventoryPoBeans = getInventoryPoResponse.inventoryPoBeans?.whereNotNull().toList() ?? [];
+    }
+  }
+
+  Future<void> _loadInventoryLogs() async {
+    GetInventoryLogResponse getInventoryLogResponse = await getInventoryLog(GetInventoryLogRequest(
+      schoolId: widget.adminProfile.schoolId,
+      isHostel: widget.isHostel ? "Y" : "N",
+    ));
+    if (getInventoryLogResponse.httpStatus != "OK" ||
+        getInventoryLogResponse.responseStatus != "success" ||
+        getInventoryLogResponse.inventoryLogBeans == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      inventoryLogBeans = getInventoryLogResponse.inventoryLogBeans?.whereNotNull().toList() ?? [];
     }
   }
 
@@ -174,7 +195,10 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     alignment: Alignment.center,
-                                    child: Text(e, textAlign: TextAlign.center,),
+                                    child: Text(
+                                      e,
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -232,6 +256,8 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
         return purchaseOrdersWidget();
       case 2:
         return consumptionWidget();
+      case 3:
+        return logWidget();
       default:
         return const Center(child: Text("Invalid choice"));
     }
@@ -240,37 +266,39 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   Widget stocksWidget() {
     if (inventoryItemBeans.isEmpty) return const Center(child: Text("No items in your inventory.."));
     return SizedBox(
-        width: getAlertBoxWidth(context) + 20,
-        child: Scrollbar(
-          thumbVisibility: true,
-          thickness: 8.0,
+      width: _isEditMode ? getAlertBoxWidth(context, scaleFactor: 1.5) + 20 : getAlertBoxWidth(context) + 20,
+      child: Scrollbar(
+        thumbVisibility: true,
+        thickness: 8.0,
+        controller: stockHorizontalScrollController,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           controller: stockHorizontalScrollController,
           child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: stockHorizontalScrollController,
-            child: SingleChildScrollView(
+            child: Center(
               child: DataTable(
-              columns: [
-                const DataColumn(label: Text('Item Name')),
-                const DataColumn(label: Text('Unit')),
-                const DataColumn(label: Text('Quantity Left')),
-                if (_isEditMode) const DataColumn(label: Text('Actions')),
-              ],
-              rows: inventoryItemBeans
-                  .map(
-                    (item) => DataRow(
-                      cells: [
-                        DataCell(Text(item.itemName ?? '')),
-                        DataCell(Text(item.unit ?? '')),
-                        DataCell(Text(item.availableStock?.toString() ?? '')),
-                        if (_isEditMode)
-                          DataCell(
-                            createOrUpdateItemButton(item, const Icon(Icons.edit, size: 12), "Edit"),
-                          ),
-                      ],
-                    ),
-                  )
-                  .toList(),
+                columns: [
+                  const DataColumn(label: Text('Item Name')),
+                  const DataColumn(label: Text('Unit')),
+                  const DataColumn(label: Text('Quantity Left')),
+                  if (_isEditMode) const DataColumn(label: Text('Actions')),
+                ],
+                rows: inventoryItemBeans
+                    .map(
+                      (item) => DataRow(
+                        cells: [
+                          DataCell(Text(item.itemName ?? '')),
+                          DataCell(Text(item.unit ?? '')),
+                          DataCell(Text(item.availableStock?.toString() ?? '')),
+                          if (_isEditMode)
+                            DataCell(
+                              createOrUpdateItemButton(item, const Icon(Icons.edit, size: 12), "Edit"),
+                            ),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
           ),
         ),
@@ -381,6 +409,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
       );
     } else {
       await _loadInventoryItems();
+      await _loadInventoryLogs();
     }
     setState(() => _isLoading = false);
   }
@@ -887,45 +916,48 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
     if (inventoryItemBeans.isEmpty) return const Center(child: Text("No items in your inventory.."));
     if (inventoryItemConsumptionBeans.isEmpty) return const Center(child: Text("No items consumed yet.."));
     return SizedBox(
-        width: _isEditMode ?  getAlertBoxWidth(context, scaleFactor: 1.5) + 20 : getAlertBoxWidth(context) + 20,
-        child: Scrollbar(
-          thumbVisibility: true,
-          thickness: 8.0,
+      width: _isEditMode ? getAlertBoxWidth(context, scaleFactor: 1.5) + 20 : getAlertBoxWidth(context) + 20,
+      child: Scrollbar(
+        thumbVisibility: true,
+        thickness: 8.0,
+        controller: consumptionHorizontalScrollController,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           controller: consumptionHorizontalScrollController,
           child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            controller: consumptionHorizontalScrollController,
-            child: SingleChildScrollView(
+            child: Center(
               child: DataTable(
-              columns: [
-                const DataColumn(label: Text('Item Name')),
-                const DataColumn(label: Text('Date')),
-                const DataColumn(label: Text('Quantity Used')),
-                const DataColumn(label: Text('Unit')),
-                if (_isEditMode) const DataColumn(label: Text('Actions')),
-              ],
-              rows: inventoryItemConsumptionBeans
-                  .map(
-                    (consumedItem) => DataRow(
-                      cells: [
-                        DataCell(Text(consumedItem.itemName ?? '')),
-                        DataCell(Text(convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(consumedItem.date)))),
-                        DataCell(Text("${consumedItem.quantityUsed}")),
-                        DataCell(Text(consumedItem.unit ?? '')),
-                        if (_isEditMode)
-                          DataCell(
-                            Row(
-                              children: [
-                                createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.edit, size: 12), "Edit"),
-                                const SizedBox(width: 10),
-                                createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.delete, size: 12, color: Colors.white), "Delete", color: Colors.red),
-                              ],
+                columns: [
+                  const DataColumn(label: Text('Item Name')),
+                  const DataColumn(label: Text('Date')),
+                  const DataColumn(label: Text('Quantity Used')),
+                  const DataColumn(label: Text('Unit')),
+                  if (_isEditMode) const DataColumn(label: Text('Actions')),
+                ],
+                rows: inventoryItemConsumptionBeans
+                    .map(
+                      (consumedItem) => DataRow(
+                        cells: [
+                          DataCell(Text(consumedItem.itemName ?? '')),
+                          DataCell(Text(convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(consumedItem.date)))),
+                          DataCell(Text("${consumedItem.quantityUsed}")),
+                          DataCell(Text(consumedItem.unit ?? '')),
+                          if (_isEditMode)
+                            DataCell(
+                              Row(
+                                children: [
+                                  createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.edit, size: 12), "Edit"),
+                                  const SizedBox(width: 10),
+                                  createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.delete, size: 12, color: Colors.white), "Delete",
+                                      color: Colors.red),
+                                ],
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-                  )
-                  .toList(),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
           ),
         ),
@@ -933,7 +965,8 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
     );
   }
 
-  Widget createOrUpdateItemConsumptionButton(InventoryItemConsumptionBean consumedItem, Icon buttonIcon, String buttonText, {Color color = Colors.blue}) {
+  Widget createOrUpdateItemConsumptionButton(InventoryItemConsumptionBean consumedItem, Icon buttonIcon, String buttonText,
+      {Color color = Colors.blue}) {
     return ElevatedButton(
       style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => color)),
       onPressed: () async {
@@ -963,105 +996,130 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
 
   Widget createOrUpdateConsumptionAlertDialog(InventoryItemConsumptionBean consumedItem) {
     return AlertDialog(
-            title: Text("${consumedItem.itemId == null ? "Create" : "Update"} Item Consumption"),
-            content: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                InventoryItemBean? item = inventoryItemBeans.firstWhereOrNull((e) => e.itemId == consumedItem.itemId);
-                return SizedBox(
-                  width: getAlertBoxWidth(context),
-                  height: getAlertBoxHeight(context),
-                  child: ListView(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Expanded(
-                            child: consumedItem.itemId == null
-                                ? buildItemNamePickerForConsumption(consumedItem, setState)
-                                : Text(consumedItem.itemName ?? "-"),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(" x ${item?.unit ?? "-"} "),
-                          const SizedBox(width: 10),
-                          SizedBox(
-                            width: 80,
-                            child: TextFormField(
-                              initialValue: "${consumedItem.quantityUsed ?? ""}",
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
-                                TextInputFormatter.withFunction((oldValue, newValue) {
-                                  try {
-                                    if (consumedItem.itemId == null) return oldValue;
-                                    final text = newValue.text;
-                                    if (text.isNotEmpty) double.parse(text);
-                                    return newValue;
-                                  } on Exception catch (_, e) {
-                                    debugPrintStack(stackTrace: e);
-                                  }
-                                  return oldValue;
-                                }),
-                              ],
-                              onChanged: (String e) => setState(() => consumedItem.quantityUsed = double.tryParse(e)),
-                              decoration: const InputDecoration(
-                                labelText: 'Quantity',
-                                hintText: '10',
-                              ),
-                            ),
-                          ),
+      title: Text("${consumedItem.itemId == null ? "Create" : "Update"} Item Consumption"),
+      content: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          InventoryItemBean? item = inventoryItemBeans.firstWhereOrNull((e) => e.itemId == consumedItem.itemId);
+          return SizedBox(
+            width: getAlertBoxWidth(context),
+            height: getAlertBoxHeight(context),
+            child: ListView(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: consumedItem.itemId == null
+                          ? buildItemNamePickerForConsumption(consumedItem, setState)
+                          : Text(consumedItem.itemName ?? "-"),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(" x ${item?.unit ?? "-"} "),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 80,
+                      child: TextFormField(
+                        initialValue: "${consumedItem.quantityUsed ?? ""}",
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r"[0-9.]")),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            try {
+                              if (consumedItem.itemId == null) return oldValue;
+                              final text = newValue.text;
+                              if (text.isNotEmpty) double.parse(text);
+                              if (consumedItem.doNotLetQuantityExceedStock && (int.tryParse(newValue.text) ?? 0) > (item?.availableStock ?? 0)) {
+                                return oldValue;
+                              }
+                              return newValue;
+                            } on Exception catch (_, e) {
+                              debugPrintStack(stackTrace: e);
+                            }
+                            return oldValue;
+                          }),
                         ],
+                        onChanged: (String e) => setState(() => consumedItem.quantityUsed = double.tryParse(e)),
+                        decoration: const InputDecoration(
+                          labelText: 'Quantity',
+                          hintText: '10',
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Expanded(child: Text("Date")),
-                          InkWell(
-                            onTap: () async {
-                              DateTime? _newDate = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                                lastDate: DateTime.now(),
-                                helpText: "Select a date",
-                              );
-                              if (_newDate == null) return;
-                              setState(() => consumedItem.date = convertDateTimeToYYYYMMDDFormat(_newDate));
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(consumedItem.date))),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Expanded(child: Text("Date")),
+                    InkWell(
+                      onTap: () async {
+                        DateTime? _newDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                          lastDate: DateTime.now(),
+                          helpText: "Select a date",
+                        );
+                        if (_newDate == null) return;
+                        setState(() => consumedItem.date = convertDateTimeToYYYYMMDDFormat(_newDate));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(consumedItem.date))),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (item != null) const SizedBox(height: 10),
+                if (item != null)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [const Expanded(child: Text("Available stock:")), Text(item.availableStock?.toString() ?? "-")],
+                  ),
+                if (item != null) const SizedBox(height: 20),
+                if (item != null)
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: consumedItem.doNotLetQuantityExceedStock,
+                        onChanged: (bool? newValue) => setState(() => consumedItem.doNotLetQuantityExceedStock = newValue ?? false),
+                      ),
+                      const SizedBox(width: 10),
+                      const Expanded(
+                        child: Text("Do not let the quantity exceed the available stock"),
+                      ),
                     ],
                   ),
-                );
-              },
+              ],
             ),
-            actions: [
-                TextButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    if (consumedItem.itemId == null || (consumedItem.quantityUsed ?? 0) == 0) return;
-                    createOrUpdateInventoryItemsConsumptionAction(consumedItem);
-                  },
-                  child: const Text("Proceed to save"),
-                ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("No"),
-              ),
-            ],
           );
+        },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+            if (consumedItem.itemId == null || (consumedItem.quantityUsed ?? 0) == 0) return;
+            createOrUpdateInventoryItemsConsumptionAction(consumedItem);
+          },
+          child: const Text("Proceed to save"),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text("No"),
+        ),
+      ],
+    );
   }
 
   Widget buildItemNamePickerForConsumption(InventoryItemConsumptionBean itemConsumptionBean, StateSetter setState) {
@@ -1103,12 +1161,14 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
 
   Future<void> createOrUpdateInventoryItemsConsumptionAction(InventoryItemConsumptionBean consumedItem) async {
     setState(() => _isLoading = true);
-    CreateOrUpdateInventoryItemsConsumptionResponse createOrUpdateInventoryItemsConsumptionResponse = await createOrUpdateInventoryItemsConsumption(CreateOrUpdateInventoryItemsConsumptionRequest(
+    CreateOrUpdateInventoryItemsConsumptionResponse createOrUpdateInventoryItemsConsumptionResponse =
+        await createOrUpdateInventoryItemsConsumption(CreateOrUpdateInventoryItemsConsumptionRequest(
       schoolId: widget.adminProfile.schoolId,
       agentId: widget.adminProfile.userId,
       inventoryItemConsumptionBeans: [consumedItem],
     ));
-    if (createOrUpdateInventoryItemsConsumptionResponse.httpStatus != "OK" || createOrUpdateInventoryItemsConsumptionResponse.responseStatus != "success") {
+    if (createOrUpdateInventoryItemsConsumptionResponse.httpStatus != "OK" ||
+        createOrUpdateInventoryItemsConsumptionResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Something went wrong! Try again later.."),
@@ -1141,6 +1201,61 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
           child: const Text("No"),
         ),
       ],
+    );
+  }
+
+  Widget logWidget() {
+    if (inventoryItemBeans.isEmpty) return const Center(child: Text("No items in your inventory.."));
+    if (inventoryLogBeans.isEmpty) return const Center(child: Text("No items recorded yet.."));
+    return SizedBox(
+      width: getAlertBoxWidth(context, scaleFactor: 1.5) + 20,
+      child: Scrollbar(
+        thumbVisibility: true,
+        thickness: 8.0,
+        controller: logHorizontalScrollController,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          controller: logHorizontalScrollController,
+          child: SingleChildScrollView(
+            child: Center(
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Date')),
+                  DataColumn(label: Text('Item Name')),
+                  DataColumn(label: Text('Quantity')),
+                  DataColumn(label: Text('Unit')),
+                  DataColumn(label: Text('')),
+                ],
+                rows: inventoryLogBeans
+                    .map(
+                      (item) => DataRow(
+                        cells: [
+                          DataCell(Text(item.date == null ? "-" : convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(item.date)))),
+                          DataCell(Text(item.itemName ?? '')),
+                          DataCell(Text("${item.quantity ?? "-"}")),
+                          DataCell(Text(item.unit ?? '-')),
+                          DataCell(
+                            item.logType == "LOADED"
+                                ? const Icon(
+                                    Icons.arrow_drop_up,
+                                    size: 16,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.arrow_drop_down,
+                                    size: 16,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

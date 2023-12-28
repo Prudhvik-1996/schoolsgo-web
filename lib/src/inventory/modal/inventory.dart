@@ -248,6 +248,7 @@ class InventoryItemConsumptionBean {
   Map<String, dynamic> __origJson = {};
 
   TextEditingController itemNameController = TextEditingController();
+  bool doNotLetQuantityExceedStock = true;
 
   InventoryItemConsumptionBean({
     this.agent,
@@ -430,7 +431,7 @@ class InventoryPurchaseItemBean {
     return null;
   }
 
-  bool get isFilledCompletely => itemId != null && (quantity ?? 0) != 0 && (amount ?? 0) != 0;
+  bool get isFilledCompletely => itemId != null && (quantity ?? 0) != 0;
 
   InventoryPurchaseItemBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -959,4 +960,156 @@ Future<CreateOrUpdateInventoryPoResponse> createOrUpdateInventoryPo(CreateOrUpda
 
   debugPrint("CreateOrUpdateInventoryPoResponse ${createOrUpdateInventoryPoResponse.toJson()}");
   return createOrUpdateInventoryPoResponse;
+}
+
+class GetInventoryLogRequest {
+
+  String? isHostel;
+  int? itemId;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  GetInventoryLogRequest({
+    this.isHostel,
+    this.itemId,
+    this.schoolId,
+  });
+  GetInventoryLogRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    isHostel = json['isHostel']?.toString();
+    itemId = json['itemId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['isHostel'] = isHostel;
+    data['itemId'] = itemId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class InventoryLogBean {
+
+  int? agentId;
+  String? date;
+  String? isHostel;
+  int? itemId;
+  String? itemName;
+  String? logType;
+  String? mediaType;
+  String? mediaUrl;
+  int? mediaUrlId;
+  int? quantity;
+  String? unit;
+  Map<String, dynamic> __origJson = {};
+
+  InventoryLogBean({
+    this.agentId,
+    this.date,
+    this.isHostel,
+    this.itemId,
+    this.itemName,
+    this.logType,
+    this.mediaType,
+    this.mediaUrl,
+    this.mediaUrlId,
+    this.quantity,
+    this.unit,
+  });
+  InventoryLogBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    date = json['date']?.toString();
+    isHostel = json['isHostel']?.toString();
+    itemId = json['itemId']?.toInt();
+    itemName = json['itemName']?.toString();
+    logType = json['logType']?.toString();
+    mediaType = json['mediaType']?.toString();
+    mediaUrl = json['mediaUrl']?.toString();
+    mediaUrlId = json['mediaUrlId']?.toInt();
+    quantity = json['quantity']?.toInt();
+    unit = json['unit']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['date'] = date;
+    data['isHostel'] = isHostel;
+    data['itemId'] = itemId;
+    data['itemName'] = itemName;
+    data['logType'] = logType;
+    data['mediaType'] = mediaType;
+    data['mediaUrl'] = mediaUrl;
+    data['mediaUrlId'] = mediaUrlId;
+    data['quantity'] = quantity;
+    data['unit'] = unit;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetInventoryLogResponse {
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  List<InventoryLogBean?>? inventoryLogBeans;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  GetInventoryLogResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.inventoryLogBeans,
+    this.responseStatus,
+  });
+  GetInventoryLogResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    if (json['inventoryLogBeans'] != null) {
+      final v = json['inventoryLogBeans'];
+      final arr0 = <InventoryLogBean>[];
+      v.forEach((v) {
+        arr0.add(InventoryLogBean.fromJson(v));
+      });
+      inventoryLogBeans = arr0;
+    }
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    if (inventoryLogBeans != null) {
+      final v = inventoryLogBeans;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['inventoryLogBeans'] = arr0;
+    }
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetInventoryLogResponse> getInventoryLog(GetInventoryLogRequest getInventoryLogRequest) async {
+  debugPrint("Raising request to getInventoryLog with request ${jsonEncode(getInventoryLogRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_INVENTORY_LOG;
+
+  GetInventoryLogResponse getInventoryLogResponse = await HttpUtils.post(
+    _url,
+    getInventoryLogRequest.toJson(),
+    GetInventoryLogResponse.fromJson,
+  );
+
+  debugPrint("GetInventoryLogResponse ${getInventoryLogResponse.toJson()}");
+  return getInventoryLogResponse;
 }

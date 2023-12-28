@@ -216,3 +216,4 @@ const String GET_INVENTORY_PO = "/inventory/getInventoryPo";
 const String CREATE_OR_UPDATE_INVENTORY_ITEMS = "/inventory/createOrUpdateInventoryItems";
 const String CREATE_OR_UPDATE_INVENTORY_ITEMS_CONSUMPTION = "/inventory/createOrUpdateInventoryItemsConsumption";
 const String CREATE_OR_UPDATE_INVENTORY_PO = "/inventory/createOrUpdateInventoryPo";
+const String GET_INVENTORY_LOG = "/inventory/getInventoryLog";
