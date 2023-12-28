@@ -877,6 +877,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
         ),
       );
     } else {
+      await _loadInventoryItems();
       await _loadInventoryPos();
     }
     setState(() => _isLoading = false);
@@ -1114,6 +1115,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
         ),
       );
     } else {
+      await _loadInventoryItems();
       await _loadInventoryConsumption();
     }
     setState(() => _isLoading = false);
