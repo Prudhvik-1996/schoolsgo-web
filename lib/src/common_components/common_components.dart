@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
@@ -1157,4 +1158,55 @@ StatelessWidget buildRoleButtonForAppBar(BuildContext context, Object profile) {
           ),
         )
       : Container();
+}
+
+class ClayTable2DWidget extends StatelessWidget {
+  const ClayTable2DWidget({
+    Key? key,
+    required this.context,
+    required this.horizontalScrollController,
+    required this.dataTable,
+  this.defaultPadding = 8.0,
+  this.defaultBorderRadius = 10.0,
+  this.defaultClayDepth = 20,
+  }) : super(key: key);
+
+  final BuildContext context;
+  final ScrollController horizontalScrollController;
+  final DataTable dataTable;
+  final double defaultPadding;
+  final double defaultBorderRadius;
+  final int defaultClayDepth;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(defaultPadding),
+      child: ClayContainer(
+        emboss: true,
+        depth: defaultClayDepth,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: defaultBorderRadius,
+        child: Padding(
+          padding: EdgeInsets.all(defaultPadding),
+          child: Scrollbar(
+            thumbVisibility: true,
+            thickness: defaultPadding,
+            controller: horizontalScrollController,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              controller: horizontalScrollController,
+              child: SingleChildScrollView(
+                child: Center(
+                  child: dataTable,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -5,14 +5,18 @@ import 'package:collection/collection.dart';
 import 'package:easy_autocomplete/easy_autocomplete.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
+import 'package:schoolsgo_web/src/inventory/admin/admin_inventory_stats_screen.dart';
 import 'package:schoolsgo_web/src/inventory/modal/inventory.dart';
+import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substring_highlight/substring_highlight.dart';
 
 class AdminInventoryScreen extends StatefulWidget {
@@ -35,6 +39,10 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
   bool _isEditMode = false;
+
+  late DateTime academicYearStartDate;
+  late DateTime academicYearEndDate;
+
   late SchoolInfoBean schoolInfo;
   List<InventoryItemBean> inventoryItemBeans = [];
   List<InventoryItemConsumptionBean> inventoryItemConsumptionBeans = [];
@@ -66,6 +74,28 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
       );
     } else {
       schoolInfo = getSchoolsResponse.schoolInfo!;
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+    GetSchoolWiseAcademicYearsResponse response = await getSchoolWiseAcademicYears(
+      GetSchoolWiseAcademicYearsRequest(schoolId: widget.adminProfile.schoolId),
+    );
+    List<AcademicYearBean> academicYears = response.academicYearBeanList?.whereNotNull().toList() ?? [];
+    if (academicYears.isNotEmpty) {
+      if (selectedAcademicYearId != null) {
+        if (academicYears.any((e) => e.academicYearId == selectedAcademicYearId)) {
+          academicYearStartDate =
+              convertYYYYMMDDFormatToDateTime(academicYears.where((e) => e.academicYearId == selectedAcademicYearId).first.academicYearStartDate);
+          academicYearEndDate =
+              convertYYYYMMDDFormatToDateTime(academicYears.where((e) => e.academicYearId == selectedAcademicYearId).first.academicYearEndDate);
+        } else {
+          academicYearStartDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearStartDate);
+          academicYearEndDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearEndDate);
+        }
+      } else {
+        academicYearStartDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearStartDate);
+        academicYearEndDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearEndDate);
+      }
     }
     await _loadInventoryItems();
     await _loadInventoryConsumption();
@@ -147,6 +177,30 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
     }
   }
 
+  void handleMoreOptions(String value) {
+    switch (value) {
+      case "Date Wise Stats":
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return AdminInventoryStatsScreen(
+                adminProfile: widget.adminProfile,
+                items: inventoryItemBeans,
+                purchasedItems: inventoryPoBeans.map((e) => e.inventoryPurchaseItemsForStats).expand((i) => i).toList(),
+                consumedItems: inventoryItemConsumptionBeans,
+                academicYearStartDate: academicYearStartDate,
+                academicYearEndDate: academicYearEndDate,
+              );
+            },
+          ),
+        );
+        return;
+      default:
+        return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,7 +212,19 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
             IconButton(
               icon: _isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
               onPressed: () => setState(() => _isEditMode = !_isEditMode),
-            )
+            ),
+          if (!_isLoading && !_isEditMode)
+            PopupMenuButton<String>(
+              onSelected: handleMoreOptions,
+              itemBuilder: (BuildContext context) {
+                return {'Date Wise Stats'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
         ],
       ),
       body: _isLoading
@@ -209,6 +275,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
                   ),
                 ),
                 Expanded(child: widgetToDisplay(widgetToDisplayIndex)),
+                const SizedBox(height: 10),
               ],
             ),
       floatingActionButton: _isLoading || !_isEditMode ? null : fabToDisplay(widgetToDisplayIndex),
@@ -265,43 +332,31 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
 
   Widget stocksWidget() {
     if (inventoryItemBeans.isEmpty) return const Center(child: Text("No items in your inventory.."));
-    return SizedBox(
-      width: _isEditMode ? getAlertBoxWidth(context, scaleFactor: 1.5) + 20 : getAlertBoxWidth(context) + 20,
-      child: Scrollbar(
-        thumbVisibility: true,
-        thickness: 8.0,
-        controller: stockHorizontalScrollController,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          controller: stockHorizontalScrollController,
-          child: SingleChildScrollView(
-            child: Center(
-              child: DataTable(
-                columns: [
-                  const DataColumn(label: Text('Item Name')),
-                  const DataColumn(label: Text('Unit')),
-                  const DataColumn(label: Text('Quantity Left')),
-                  if (_isEditMode) const DataColumn(label: Text('Actions')),
+    return ClayTable2DWidget(
+      context: context,
+      horizontalScrollController: stockHorizontalScrollController,
+      dataTable: DataTable(
+        columns: [
+          const DataColumn(label: Text('Item Name')),
+          const DataColumn(label: Text('Unit')),
+          const DataColumn(label: Text('Quantity Left')),
+          if (_isEditMode) const DataColumn(label: Text('Actions')),
+        ],
+        rows: inventoryItemBeans
+            .map(
+              (item) => DataRow(
+                cells: [
+                  DataCell(Text(item.itemName ?? '')),
+                  DataCell(Text(item.unit ?? '')),
+                  DataCell(Text(item.availableStock?.toString() ?? '')),
+                  if (_isEditMode)
+                    DataCell(
+                      createOrUpdateItemButton(item, const Icon(Icons.edit, size: 12), "Edit"),
+                    ),
                 ],
-                rows: inventoryItemBeans
-                    .map(
-                      (item) => DataRow(
-                        cells: [
-                          DataCell(Text(item.itemName ?? '')),
-                          DataCell(Text(item.unit ?? '')),
-                          DataCell(Text(item.availableStock?.toString() ?? '')),
-                          if (_isEditMode)
-                            DataCell(
-                              createOrUpdateItemButton(item, const Icon(Icons.edit, size: 12), "Edit"),
-                            ),
-                        ],
-                      ),
-                    )
-                    .toList(),
               ),
-            ),
-          ),
-        ),
+            )
+            .toList(),
       ),
     );
   }
@@ -481,7 +536,9 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
                                         DataCell(Text(purchaseItem.itemName ?? '')),
                                         DataCell(Text(purchaseItem.quantity?.toString() ?? '-')),
                                         DataCell(Text(item?.unit ?? '-')),
-                                        DataCell(Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((purchaseItem.amount ?? 0) / 100.0)}/-")),
+                                        DataCell(Text(purchaseItem.amount == 0
+                                            ? "-"
+                                            : "$INR_SYMBOL ${doubleToStringAsFixedForINR((purchaseItem.amount ?? 0) / 100.0)}/-")),
                                       ],
                                     );
                                   },
@@ -728,8 +785,8 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
                                 onTap: () async {
                                   DateTime? _newDate = await showDatePicker(
                                     context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                                    initialDate: convertYYYYMMDDFormatToDateTime(poBean.transactionDate),
+                                    firstDate: academicYearStartDate,
                                     lastDate: DateTime.now(),
                                     helpText: "Select a date",
                                   );
@@ -915,52 +972,40 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   Widget consumptionWidget() {
     if (inventoryItemBeans.isEmpty) return const Center(child: Text("No items in your inventory.."));
     if (inventoryItemConsumptionBeans.isEmpty) return const Center(child: Text("No items consumed yet.."));
-    return SizedBox(
-      width: _isEditMode ? getAlertBoxWidth(context, scaleFactor: 1.5) + 20 : getAlertBoxWidth(context) + 20,
-      child: Scrollbar(
-        thumbVisibility: true,
-        thickness: 8.0,
-        controller: consumptionHorizontalScrollController,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          controller: consumptionHorizontalScrollController,
-          child: SingleChildScrollView(
-            child: Center(
-              child: DataTable(
-                columns: [
-                  const DataColumn(label: Text('Item Name')),
-                  const DataColumn(label: Text('Date')),
-                  const DataColumn(label: Text('Quantity Used')),
-                  const DataColumn(label: Text('Unit')),
-                  if (_isEditMode) const DataColumn(label: Text('Actions')),
-                ],
-                rows: inventoryItemConsumptionBeans
-                    .map(
-                      (consumedItem) => DataRow(
-                        cells: [
-                          DataCell(Text(consumedItem.itemName ?? '')),
-                          DataCell(Text(convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(consumedItem.date)))),
-                          DataCell(Text("${consumedItem.quantityUsed}")),
-                          DataCell(Text(consumedItem.unit ?? '')),
-                          if (_isEditMode)
-                            DataCell(
-                              Row(
-                                children: [
-                                  createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.edit, size: 12), "Edit"),
-                                  const SizedBox(width: 10),
-                                  createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.delete, size: 12, color: Colors.white), "Delete",
-                                      color: Colors.red),
-                                ],
-                              ),
-                            ),
+    return ClayTable2DWidget(
+      context: context,
+      horizontalScrollController: consumptionHorizontalScrollController,
+      dataTable: DataTable(
+        columns: [
+          const DataColumn(label: Text('Item Name')),
+          const DataColumn(label: Text('Date')),
+          const DataColumn(label: Text('Quantity Used')),
+          const DataColumn(label: Text('Unit')),
+          if (_isEditMode) const DataColumn(label: Text('Actions')),
+        ],
+        rows: inventoryItemConsumptionBeans
+            .map(
+              (consumedItem) => DataRow(
+                cells: [
+                  DataCell(Text(consumedItem.itemName ?? '')),
+                  DataCell(Text(convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(consumedItem.date)))),
+                  DataCell(Text("${consumedItem.quantityUsed}")),
+                  DataCell(Text(consumedItem.unit ?? '')),
+                  if (_isEditMode)
+                    DataCell(
+                      Row(
+                        children: [
+                          createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.edit, size: 12), "Edit"),
+                          const SizedBox(width: 10),
+                          createOrUpdateItemConsumptionButton(consumedItem, const Icon(Icons.delete, size: 12, color: Colors.white), "Delete",
+                              color: Colors.red),
                         ],
                       ),
-                    )
-                    .toList(),
+                    ),
+                ],
               ),
-            ),
-          ),
-        ),
+            )
+            .toList(),
       ),
     );
   }
@@ -1058,8 +1103,8 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
                       onTap: () async {
                         DateTime? _newDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                          initialDate: convertYYYYMMDDFormatToDateTime(consumedItem.date),
+                          firstDate: academicYearStartDate,
                           lastDate: DateTime.now(),
                           helpText: "Select a date",
                         );
@@ -1207,54 +1252,42 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   Widget logWidget() {
     if (inventoryItemBeans.isEmpty) return const Center(child: Text("No items in your inventory.."));
     if (inventoryLogBeans.isEmpty) return const Center(child: Text("No items recorded yet.."));
-    return SizedBox(
-      width: getAlertBoxWidth(context, scaleFactor: 1.5) + 20,
-      child: Scrollbar(
-        thumbVisibility: true,
-        thickness: 8.0,
-        controller: logHorizontalScrollController,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          controller: logHorizontalScrollController,
-          child: SingleChildScrollView(
-            child: Center(
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Date')),
-                  DataColumn(label: Text('Item Name')),
-                  DataColumn(label: Text('Quantity')),
-                  DataColumn(label: Text('Unit')),
-                  DataColumn(label: Text('')),
-                ],
-                rows: inventoryLogBeans
-                    .map(
-                      (item) => DataRow(
-                        cells: [
-                          DataCell(Text(item.date == null ? "-" : convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(item.date)))),
-                          DataCell(Text(item.itemName ?? '')),
-                          DataCell(Text("${item.quantity ?? "-"}")),
-                          DataCell(Text(item.unit ?? '-')),
-                          DataCell(
-                            item.logType == "LOADED"
-                                ? const Icon(
-                                    Icons.arrow_drop_up,
-                                    size: 16,
-                                    color: Colors.green,
-                                  )
-                                : const Icon(
-                                    Icons.arrow_drop_down,
-                                    size: 16,
-                                    color: Colors.red,
-                                  ),
+    return ClayTable2DWidget(
+      context: context,
+      horizontalScrollController: logHorizontalScrollController,
+      dataTable: DataTable(
+        columns: const [
+          DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Item Name')),
+          DataColumn(label: Text('Quantity')),
+          DataColumn(label: Text('Unit')),
+          DataColumn(label: Text('')),
+        ],
+        rows: inventoryLogBeans
+            .map(
+              (item) => DataRow(
+                cells: [
+                  DataCell(Text(item.date == null ? "-" : convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(item.date)))),
+                  DataCell(Text(item.itemName ?? '')),
+                  DataCell(Text("${item.quantity ?? "-"}")),
+                  DataCell(Text(item.unit ?? '-')),
+                  DataCell(
+                    item.logType == "LOADED"
+                        ? const Icon(
+                            Icons.arrow_drop_up,
+                            size: 16,
+                            color: Colors.green,
+                          )
+                        : const Icon(
+                            Icons.arrow_drop_down,
+                            size: 16,
+                            color: Colors.red,
                           ),
-                        ],
-                      ),
-                    )
-                    .toList(),
+                  ),
+                ],
               ),
-            ),
-          ),
-        ),
+            )
+            .toList(),
       ),
     );
   }

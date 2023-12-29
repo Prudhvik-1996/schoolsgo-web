@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
@@ -408,6 +409,8 @@ class InventoryPurchaseItemBean {
   TextEditingController quantityController = TextEditingController();
   TextEditingController amountController = TextEditingController();
 
+  String? date;
+
   InventoryPurchaseItemBean({
     this.agent,
     this.amount,
@@ -499,7 +502,10 @@ class InventoryPoBean {
     descriptionController.text = description ?? "";
   }
 
-  int get computeTotal => (inventoryPurchaseItemBeans??[]).map((e) => e?.amount ?? 0).fold(0, (int? a, b) => (a ?? 0) + b);
+  int get computeTotal => (inventoryPurchaseItemBeans ?? []).map((e) => e?.amount ?? 0).fold(0, (int? a, b) => (a ?? 0) + b);
+
+  List<InventoryPurchaseItemBean> get inventoryPurchaseItemsForStats =>
+      (inventoryPurchaseItemBeans ?? []).whereNotNull().map((e) => e..date = transactionDate).toList();
 
   InventoryPoBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -963,7 +969,6 @@ Future<CreateOrUpdateInventoryPoResponse> createOrUpdateInventoryPo(CreateOrUpda
 }
 
 class GetInventoryLogRequest {
-
   String? isHostel;
   int? itemId;
   int? schoolId;
@@ -974,12 +979,14 @@ class GetInventoryLogRequest {
     this.itemId,
     this.schoolId,
   });
+
   GetInventoryLogRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     isHostel = json['isHostel']?.toString();
     itemId = json['itemId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['isHostel'] = isHostel;
@@ -987,11 +994,11 @@ class GetInventoryLogRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class InventoryLogBean {
-
   int? agentId;
   String? date;
   String? isHostel;
@@ -1018,6 +1025,7 @@ class InventoryLogBean {
     this.quantity,
     this.unit,
   });
+
   InventoryLogBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -1032,6 +1040,7 @@ class InventoryLogBean {
     quantity = json['quantity']?.toInt();
     unit = json['unit']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -1047,11 +1056,11 @@ class InventoryLogBean {
     data['unit'] = unit;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetInventoryLogResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -1066,6 +1075,7 @@ class GetInventoryLogResponse {
     this.inventoryLogBeans,
     this.responseStatus,
   });
+
   GetInventoryLogResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1081,6 +1091,7 @@ class GetInventoryLogResponse {
     }
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1097,6 +1108,7 @@ class GetInventoryLogResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
