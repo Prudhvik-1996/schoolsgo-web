@@ -217,3 +217,6 @@ const String CREATE_OR_UPDATE_INVENTORY_ITEMS = "/inventory/createOrUpdateInvent
 const String CREATE_OR_UPDATE_INVENTORY_ITEMS_CONSUMPTION = "/inventory/createOrUpdateInventoryItemsConsumption";
 const String CREATE_OR_UPDATE_INVENTORY_PO = "/inventory/createOrUpdateInventoryPo";
 const String GET_INVENTORY_LOG = "/inventory/getInventoryLog";
+
+const String GET_STUDENT_POCKET_MONEY = "/students/getStudentPocketMoney";
+const String LOAD_OR_DEBIT_STUDENT_POCKET_MONEY = "/students/loadOrDebitStudentPocketMoney";

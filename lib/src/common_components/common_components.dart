@@ -1166,9 +1166,10 @@ class ClayTable2DWidget extends StatelessWidget {
     required this.context,
     required this.horizontalScrollController,
     required this.dataTable,
-  this.defaultPadding = 8.0,
-  this.defaultBorderRadius = 10.0,
-  this.defaultClayDepth = 20,
+    this.defaultPadding = 8.0,
+    this.defaultBorderRadius = 10.0,
+    this.defaultClayDepth = 20,
+    this.bottomMessage,
   }) : super(key: key);
 
   final BuildContext context;
@@ -1177,6 +1178,7 @@ class ClayTable2DWidget extends StatelessWidget {
   final double defaultPadding;
   final double defaultBorderRadius;
   final int defaultClayDepth;
+  final String? bottomMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -1191,19 +1193,30 @@ class ClayTable2DWidget extends StatelessWidget {
         borderRadius: defaultBorderRadius,
         child: Padding(
           padding: EdgeInsets.all(defaultPadding),
-          child: Scrollbar(
-            thumbVisibility: true,
-            thickness: defaultPadding,
-            controller: horizontalScrollController,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              controller: horizontalScrollController,
-              child: SingleChildScrollView(
-                child: Center(
-                  child: dataTable,
+          child: Column(
+            children: [
+              Expanded(
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  thickness: defaultPadding,
+                  controller: horizontalScrollController,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: horizontalScrollController,
+                    child: SingleChildScrollView(
+                      child: Center(
+                        child: dataTable,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              if (bottomMessage != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(bottomMessage ?? ""),
+                ),
+            ],
           ),
         ),
       ),

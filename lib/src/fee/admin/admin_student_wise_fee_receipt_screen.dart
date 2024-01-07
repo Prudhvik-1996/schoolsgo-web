@@ -572,7 +572,6 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                   ),
                   GestureDetector(
                     onTap: () async {
-                      //  TODO
                       await showDialog(
                         context: _scaffoldKey.currentContext!,
                         builder: (BuildContext dialogueContext) {

@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/hostel/admin/hostel_management_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/student_pocket_money/admin/admin_student_pocket_money_screen.dart';
 
 class AdminHostelOptionsScreen extends StatefulWidget {
   const AdminHostelOptionsScreen({
@@ -96,6 +97,13 @@ class _AdminHostelOptionsScreenState extends State<AdminHostelOptionsScreen> {
             "Hostel Management",
             null,
             AdminHostelManagementScreen(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getHostelOption(
+            "Student Pocket Money",
+            null,
+            AdminStudentPocketMoneyScreen(
               adminProfile: widget.adminProfile,
             ),
           ),
