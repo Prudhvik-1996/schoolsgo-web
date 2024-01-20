@@ -495,7 +495,12 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
                     ],
                     rows: pocketMoneyTransactions.map((e) {
                       return DataRow(cells: [
-                        DataCell(Text(convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(e.transactionDate)))),
+                        DataCell(
+                          Text(
+                            convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(e.transactionDate)),
+                            style: transactionTextStyle(e),
+                          ),
+                        ),
                         DataCell(
                           e.transactionKind == "CR"
                               ? const Icon(
@@ -507,9 +512,24 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
                                   color: Colors.red,
                                 ),
                         ),
-                        DataCell(Text(INR_SYMBOL + " " + doubleToStringAsFixedForINR((e.amount ?? 0) / 100.0) + " /-")),
-                        DataCell(Text(e.modeOfPayment ?? "-")),
-                        DataCell(Text(e.comment ?? "-")),
+                        DataCell(
+                          Text(
+                            INR_SYMBOL + " " + doubleToStringAsFixedForINR((e.amount ?? 0) / 100.0) + " /-",
+                            style: transactionTextStyle(e),
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            e.modeOfPayment ?? "-",
+                            style: transactionTextStyle(e),
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            e.status == 'active' ? e.comment ?? "-" : e.transactionDescription ?? "-",
+                            style: transactionTextStyle(e),
+                          ),
+                        ),
                       ]);
                     }).toList(),
                   ),
@@ -531,6 +551,10 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
       },
     );
   }
+
+  TextStyle transactionTextStyle(LoadOrDebitStudentPocketMoneyTransactionBean e) => TextStyle(
+        color: e.status != "active" ? Colors.red : null,
+      );
 
   double getAlertBoxHeight(BuildContext context, {double scaleFactor = 2}) => MediaQuery.of(context).size.height / scaleFactor;
 

@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -591,6 +592,7 @@ class StudentFeeReceipt {
     Function? sendSms,
     Function(int?)? sendReceiptSms,
     Function(int?)? makePdf,
+    Function(String?)? updateModeOfPayment,
     RouteStopWiseStudent? routeStopWiseStudent,
   }) {
     return Container(
@@ -666,7 +668,7 @@ class StudentFeeReceipt {
                     if ((busFeePaid ?? 0) != 0) const SizedBox(height: 10),
                     Container(
                       margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      child: receiptTotalWidget(),
+                      child: receiptTotalWidget(updateModeOfPayment),
                     ),
                     if (!isEditMode && comments != null) const SizedBox(height: 10),
                     commentsWidget(),
@@ -759,8 +761,7 @@ class StudentFeeReceipt {
                 child: Text(
                   (noOfTimesNotified ?? 0).toString(),
                   style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10, // Adjust the font size as needed
+                    color: Colors.white, fontSize: 10, // Adjust the font size as needed
                   ),
                 ),
               ),
@@ -785,7 +786,7 @@ class StudentFeeReceipt {
             ),
             const SizedBox(width: 10),
           ],
-        ); // TODO
+        );
 
   int getTotalAmountForReceipt() {
     int busFee = busFeePaid ?? 0;
@@ -796,13 +797,30 @@ class StudentFeeReceipt {
     return busFee + feeTypesAmount + customFeeTypesAmount;
   }
 
-  Row receiptTotalWidget() {
+  Row receiptTotalWidget(Function(String? e)? updateModeOfPayment) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(child: Text(modeOfPayment ?? "")),
+        if (!isEditMode) Expanded(child: Text(modeOfPayment ?? "")),
+        if (isEditMode)
+          DropdownButton<String>(
+            value: modeOfPayment,
+            items: ModeOfPayment.values
+                .map((e) => DropdownMenuItem<String>(
+                      value: e.name,
+                      child: Text(e.description),
+                      onTap: () {
+                        if (updateModeOfPayment != null) updateModeOfPayment(e.name);
+                      },
+                    ))
+                .toList(),
+            onChanged: (String? e) {
+              if (updateModeOfPayment != null) updateModeOfPayment(e ?? ModeOfPayment.CASH.name);
+            },
+          ),
+        if (isEditMode) const Expanded(child: Text("")),
         const SizedBox(width: 10),
         Text(
           "Total: $INR_SYMBOL ${doubleToStringAsFixedForINR((getTotalAmountForReceipt()) / 100.0)} /-",
@@ -835,7 +853,7 @@ class StudentFeeReceipt {
           ),
         ),
         const SizedBox(width: 5),
-        Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((busFeePaid ?? 0) / 100.0)} /-"), // TODO
+        Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((busFeePaid ?? 0) / 100.0)} /-"),
         const SizedBox(width: 10),
       ],
     );
@@ -991,10 +1009,12 @@ class StudentFeeReceipt {
     if (setState != null) setState(() {});
     if (receiptNumber != StudentFeeReceipt.fromJson(origJson()).receiptNumber ||
         transactionDate != StudentFeeReceipt.fromJson(origJson()).transactionDate ||
-        comments != StudentFeeReceipt.fromJson(origJson()).comments) {
+        comments != StudentFeeReceipt.fromJson(origJson()).comments ||
+        modeOfPayment != StudentFeeReceipt.fromJson(origJson()).modeOfPayment) {
       UpdateReceiptResponse updateReceiptResponse = await updateReceipt(UpdateReceiptRequest(
         transactionId: transactionId,
         receiptId: receiptNumber,
+        modeOfPayment: modeOfPayment,
         comments: comments,
         date: transactionDate,
         agent: adminId,

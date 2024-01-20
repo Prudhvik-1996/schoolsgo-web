@@ -591,6 +591,9 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                               routeStopWiseStudent:
                                   routeStopWiseStudents.where((e) => e.studentId == filteredReceiptsAsPerDeletedStatus[index].studentId).firstOrNull,
                               canSendSms: !filteredReceiptsAsPerDeletedStatus[index].isEditMode && smsTemplate != null,
+                              updateModeOfPayment: (String? modeOfPayment) => setState(() {
+                                filteredReceiptsAsPerDeletedStatus[index].modeOfPayment = modeOfPayment;
+                              }),
                               sendReceiptSms: (int? transactionId) async => sendReceiptSms(transactionId: transactionId),
                             );
                           },

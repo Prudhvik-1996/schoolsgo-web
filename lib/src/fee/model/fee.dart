@@ -4812,6 +4812,7 @@ class UpdateReceiptRequest {
   int? agent;
   String? date;
   int? receiptId;
+  String? modeOfPayment;
   String? comments;
   int? schoolId;
   int? transactionId;
@@ -4821,6 +4822,7 @@ class UpdateReceiptRequest {
     this.agent,
     this.date,
     this.receiptId,
+    this.modeOfPayment,
     this.comments,
     this.schoolId,
     this.transactionId,
@@ -4831,6 +4833,7 @@ class UpdateReceiptRequest {
     agent = json['agent']?.toInt();
     date = json['date']?.toString();
     receiptId = json['receiptId']?.toInt();
+    modeOfPayment = json['modeOfPayment']?.toString();
     comments = json['comments']?.toString();
     schoolId = json['schoolId']?.toInt();
     transactionId = json['transactionId']?.toInt();
@@ -4841,6 +4844,7 @@ class UpdateReceiptRequest {
     data['agent'] = agent;
     data['date'] = date;
     data['receiptId'] = receiptId;
+    data['modeOfPayment'] = modeOfPayment;
     data['comments'] = comments;
     data['schoolId'] = schoolId;
     data['transactionId'] = transactionId;

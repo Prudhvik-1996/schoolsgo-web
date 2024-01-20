@@ -57,11 +57,13 @@ class LoadOrDebitStudentPocketMoneyTransactionBean {
   String? transactionKind;
   String? transactionType;
   String? txnStatus;
+  String? status;
   int? agent;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController amountController = TextEditingController();
   TextEditingController commentController = TextEditingController();
+  TextEditingController reasonToDeleteController = TextEditingController();
 
   LoadOrDebitStudentPocketMoneyTransactionBean({
     this.amount,
@@ -82,6 +84,7 @@ class LoadOrDebitStudentPocketMoneyTransactionBean {
     this.transactionKind,
     this.transactionType,
     this.txnStatus,
+    this.status,
     this.agent,
   }) {
     amountController.text = amount == null ? "" : "${amount! / 100}";
@@ -110,6 +113,7 @@ class LoadOrDebitStudentPocketMoneyTransactionBean {
     transactionKind = json['transactionKind']?.toString();
     transactionType = json['transactionType']?.toString();
     txnStatus = json['txnStatus']?.toString();
+    status = json['status']?.toString();
     agent = json['agent']?.toInt();
   }
 
@@ -138,6 +142,7 @@ class LoadOrDebitStudentPocketMoneyTransactionBean {
     data['transactionKind'] = transactionKind;
     data['transactionType'] = transactionType;
     data['txnStatus'] = txnStatus;
+    data['status'] = status;
     data['agent'] = agent;
     return data;
   }

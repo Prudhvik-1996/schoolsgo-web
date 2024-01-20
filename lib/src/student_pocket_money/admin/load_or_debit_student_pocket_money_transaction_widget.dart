@@ -30,8 +30,7 @@ class LoadOrDebitStudentPocketMoneyTransactionWidget extends StatelessWidget {
           : const EdgeInsets.all(10),
       child: ClayContainer(
         depth: 40,
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
+        color: pocketMoneyTransactionBean.status == 'active' ? clayContainerColor(context) : Colors.redAccent[100],
         spread: 2,
         borderRadius: 10,
         child: Container(
