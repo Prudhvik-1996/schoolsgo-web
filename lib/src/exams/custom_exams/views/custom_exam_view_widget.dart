@@ -786,6 +786,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                       categoryId: widget.smsTemplate?.categoryId,
                       templateId: widget.smsTemplate?.templateId,
                       agent: widget.adminProfile?.userId,
+                      comments: "Sending SMS to notify class ${widget.selectedSection?.sectionName ?? "-"} for ${widget.customExam.customExamName}",
                       smsLogBeans: [
                         ...studentSmsMap.keys.where((eachStudentProfile) => sendSmsMap[eachStudentProfile] ?? false).map((eachStudentProfile) {
                           String message = studentSmsMap[eachStudentProfile] ?? "";

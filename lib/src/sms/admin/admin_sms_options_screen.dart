@@ -141,16 +141,24 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("Sms Left: $smsCount"),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("Sms Left: $smsCount"),
+                    ),
                   ],
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: TemplateWiseLogGrid(
-                    smsTemplateWiseLogBeans: smsTemplateWiseLogBeans,
-                    smsCategoryList: smsCategoryList,
-                    smsTemplates: smsTemplates,
-                  ),
+                  child: smsTemplateWiseLogBeans.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Center(child: Text("No SMS Sent Yet")),
+                        )
+                      : TemplateWiseLogGrid(
+                          smsTemplateWiseLogBeans: smsTemplateWiseLogBeans,
+                          smsCategoryList: smsCategoryList,
+                          smsTemplates: smsTemplates,
+                        ),
                 ),
                 const SizedBox(height: 10),
                 Container(
@@ -210,7 +218,8 @@ class _TemplateWiseLogGridState extends State<TemplateWiseLogGrid> {
   Map<String, double> columnWidths = {
     'Date': 250,
     'Category': 250,
-    'Sms Template': 250,
+    'Comments': 250,
+    'Sms Template': 500,
     'Sms Used': 100,
     'Status': 100,
   };
@@ -285,6 +294,19 @@ class _TemplateWiseLogGridState extends State<TemplateWiseLogGrid> {
             ),
           ),
           columnName: 'Sms Template',
+        ),
+        GridColumn(
+          width: columnWidth("Comments"),
+          autoFitPadding: const EdgeInsets.all(10.0),
+          label: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.all(10.0),
+            child: const Text(
+              "Comments",
+              softWrap: false,
+            ),
+          ),
+          columnName: 'Comments',
         ),
         GridColumn(
           width: columnWidth("Sms Used"),
@@ -458,6 +480,7 @@ class _TemplateWiseLogDataSource extends DataGridSource {
         DataGridCell<String>(columnName: 'createTime', value: parseAndFormatDateString(e.createTime)),
         DataGridCell<String>(columnName: 'category', value: e.category),
         DataGridCell<String>(columnName: 'templateName', value: e.templateName),
+        DataGridCell<String>(columnName: 'comments', value: e.comments),
         DataGridCell<int>(columnName: 'noOfSmsSent', value: e.noOfSmsSent),
         DataGridCell<String>(columnName: 'status', value: buildStatusMessage(e)),
       ]);

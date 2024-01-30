@@ -428,13 +428,12 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         routeName: "/admin_expenses",
         argument: adminProfile,
       ),
-      if (adminProfile.schoolId == 91)
-        DashboardWidget(
-          image: SvgPicture.asset("assets/images/sms.svg"),
-          title: "Sms",
-          routeName: "/sms",
-          argument: adminProfile,
-        ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/sms.svg"),
+        title: "Sms",
+        routeName: "/sms",
+        argument: adminProfile,
+      ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/inventory.svg"),
         title: "Inventory",

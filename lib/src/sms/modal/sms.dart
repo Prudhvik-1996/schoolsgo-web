@@ -1006,6 +1006,7 @@ class SendSmsRequest {
   int? categoryId;
   int? franchiseId;
   int? schoolId;
+  String? comments;
   List<SmsLogBean?>? smsLogBeans;
   int? templateId;
   Map<String, dynamic> __origJson = {};
@@ -1015,6 +1016,7 @@ class SendSmsRequest {
     this.categoryId,
     this.franchiseId,
     this.schoolId,
+    this.comments,
     this.smsLogBeans,
     this.templateId,
   });
@@ -1024,6 +1026,7 @@ class SendSmsRequest {
     categoryId = json['categoryId']?.toInt();
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
+    comments = json['comments'];
     if (json['smsLogBeans'] != null) {
       final v = json['smsLogBeans'];
       final arr0 = <SmsLogBean>[];
@@ -1040,6 +1043,7 @@ class SendSmsRequest {
     data['categoryId'] = categoryId;
     data['franchiseId'] = franchiseId;
     data['schoolId'] = schoolId;
+    data['comments'] = comments;
     if (smsLogBeans != null) {
       final v = smsLogBeans;
       final arr0 = [];

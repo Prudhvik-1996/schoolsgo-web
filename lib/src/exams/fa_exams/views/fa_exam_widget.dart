@@ -505,6 +505,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                       categoryId: widget.smsTemplate?.categoryId,
                       templateId: widget.smsTemplate?.templateId,
                       agent: widget.adminProfile?.userId,
+                      comments: "Sending SMS to notify class ${widget.selectedSection?.sectionName ?? "-"} for ${widget.faExam.faExamName}",
                       smsLogBeans: [
                         ...studentSmsMap.keys.where((eachStudentProfile) => sendSmsMap[eachStudentProfile] ?? false).map((eachStudentProfile) {
                           String message = studentSmsMap[eachStudentProfile] ?? "";
