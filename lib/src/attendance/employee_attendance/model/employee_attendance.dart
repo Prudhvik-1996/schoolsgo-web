@@ -56,6 +56,7 @@ class DateWiseEmployeeAttendanceDetailsBean {
   bool? clockedIn;
   int? clockedTime;
   String? comment;
+  String? qr;
   int? employeeId;
   int? latitude;
   int? longitude;
@@ -69,6 +70,7 @@ class DateWiseEmployeeAttendanceDetailsBean {
     this.clockedIn,
     this.clockedTime,
     this.comment,
+    this.qr,
     this.employeeId,
     this.latitude,
     this.longitude,
@@ -83,6 +85,7 @@ class DateWiseEmployeeAttendanceDetailsBean {
     clockedIn = json['clockedIn'];
     clockedTime = json['clockedTime']?.toInt();
     comment = json['comment']?.toString();
+    qr = json['qr']?.toString();
     employeeId = json['employeeId']?.toInt();
     latitude = json['latitude']?.toInt();
     longitude = json['longitude']?.toInt();
@@ -97,6 +100,7 @@ class DateWiseEmployeeAttendanceDetailsBean {
     data['clockedIn'] = clockedIn;
     data['clockedTime'] = clockedTime;
     data['comment'] = comment;
+    data['qr'] = qr;
     data['employeeId'] = employeeId;
     data['latitude'] = latitude;
     data['longitude'] = longitude;
@@ -419,7 +423,7 @@ class CreateOrUpdateEmployeeAttendanceClockResponse {
 Future<CreateOrUpdateEmployeeAttendanceClockResponse> createOrUpdateEmployeeAttendanceClock(
     CreateOrUpdateEmployeeAttendanceClockRequest createOrUpdateEmployeeAttendanceRequest) async {
   debugPrint("Raising request to createOrUpdateEmployeeAttendanceClock with request ${jsonEncode(createOrUpdateEmployeeAttendanceRequest.toJson())}");
-  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EMPLOYEE_ATTENDANCE;
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EMPLOYEE_ATTENDANCE_CLOCK;
 
   CreateOrUpdateEmployeeAttendanceClockResponse createOrUpdateEmployeeAttendanceClockResponse = await HttpUtils.post(
     _url,
@@ -429,4 +433,93 @@ Future<CreateOrUpdateEmployeeAttendanceClockResponse> createOrUpdateEmployeeAtte
 
   debugPrint("createOrUpdateEmployeeAttendanceClockResponse ${createOrUpdateEmployeeAttendanceClockResponse.toJson()}");
   return createOrUpdateEmployeeAttendanceClockResponse;
+}
+
+class CreateOrUpdateEmployeesAttendanceRequest {
+
+  int? agentId;
+  List<DateWiseEmployeeAttendanceBean?>? dateWiseEmployeeAttendanceBeans;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateEmployeesAttendanceRequest({
+    this.agentId,
+    this.dateWiseEmployeeAttendanceBeans,
+    this.schoolId,
+  });
+  CreateOrUpdateEmployeesAttendanceRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    if (json['dateWiseEmployeeAttendanceBeans'] != null) {
+      final v = json['dateWiseEmployeeAttendanceBeans'];
+      final arr0 = <DateWiseEmployeeAttendanceBean>[];
+      v.forEach((v) {
+        arr0.add(DateWiseEmployeeAttendanceBean.fromJson(v));
+      });
+      dateWiseEmployeeAttendanceBeans = arr0;
+    }
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    if (dateWiseEmployeeAttendanceBeans != null) {
+      final v = dateWiseEmployeeAttendanceBeans;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['dateWiseEmployeeAttendanceBeans'] = arr0;
+    }
+    data['schoolId'] = schoolId;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateEmployeesAttendanceResponse {
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateEmployeesAttendanceResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateEmployeesAttendanceResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateEmployeesAttendanceResponse> createOrUpdateEmployeesAttendance(
+    CreateOrUpdateEmployeesAttendanceRequest createOrUpdateEmployeeAttendanceRequest) async {
+  debugPrint("Raising request to createOrUpdateEmployeesAttendance with request ${jsonEncode(createOrUpdateEmployeeAttendanceRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EMPLOYEES_ATTENDANCE;
+
+  CreateOrUpdateEmployeesAttendanceResponse createOrUpdateEmployeesAttendanceResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateEmployeeAttendanceRequest.toJson(),
+    CreateOrUpdateEmployeesAttendanceResponse.fromJson,
+  );
+
+  debugPrint("createOrUpdateEmployeesAttendanceResponse ${createOrUpdateEmployeesAttendanceResponse.toJson()}");
+  return createOrUpdateEmployeesAttendanceResponse;
 }

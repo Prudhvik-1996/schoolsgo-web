@@ -18,6 +18,14 @@ TimeOfDay stringToTimeOfDay(String tod) {
   }
 }
 
+TimeOfDay millisToTimeOfDay(int? millis) {
+  try {
+    return TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(millis!));
+  } catch (e) {
+    return TimeOfDay.fromDateTime(DateTime.now());
+  }
+}
+
 int getSecondsEquivalentOfTimeFromWHHMMSS(String? time, int? weekId) {
   try {
     time ??= DateFormat("hh:mm:ss").format(DateTime.now());
@@ -161,6 +169,14 @@ String convertDateToDDMMYYYYHHMMSS(String? dateTime) {
 
 String convertEpochToDDMMYYYYEEEEHHMMAA(int millis) {
   return DateFormat("dd MMM, yyyy EEEE, h:mm a").format(DateTime.fromMillisecondsSinceEpoch(millis));
+}
+
+String convertEpochToHHMMSSAA(int millis) {
+  return DateFormat("h:mm:ss a").format(DateTime.fromMillisecondsSinceEpoch(millis));
+}
+
+String convertEpochToHHMMAA(int millis) {
+  return DateFormat("h:mm a").format(DateTime.fromMillisecondsSinceEpoch(millis));
 }
 
 String convertEpochToDDMMYYYYHHMMAA(int millis) {

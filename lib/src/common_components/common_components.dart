@@ -1223,3 +1223,72 @@ class ClayTable2DWidget extends StatelessWidget {
     );
   }
 }
+
+class ClayTable2DWidgetV2 extends StatelessWidget {
+  const ClayTable2DWidgetV2({
+    Key? key,
+    required this.context,
+    required this.horizontalScrollController,
+    required this.columns,
+    required this.rows,
+    this.defaultPadding = 8.0,
+    this.defaultBorderRadius = 10.0,
+    this.defaultClayDepth = 20,
+    this.bottomMessage,
+  }) : super(key: key);
+
+  final BuildContext context;
+  final ScrollController horizontalScrollController;
+  final List<DataColumn> columns;
+  final List<DataRow> rows;
+  final double defaultPadding;
+  final double defaultBorderRadius;
+  final int defaultClayDepth;
+  final String? bottomMessage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(defaultPadding),
+      child: ClayContainer(
+        emboss: true,
+        depth: defaultClayDepth,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: defaultBorderRadius,
+        child: Padding(
+          padding: EdgeInsets.all(defaultPadding),
+          child: Column(
+            children: [
+              Expanded(
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  thickness: defaultPadding,
+                  controller: horizontalScrollController,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: horizontalScrollController,
+                    child: SingleChildScrollView(
+                      child: Center(
+                        child: DataTable(
+                          columns: columns,
+                          rows: rows,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              if (bottomMessage != null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(bottomMessage ?? ""),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
