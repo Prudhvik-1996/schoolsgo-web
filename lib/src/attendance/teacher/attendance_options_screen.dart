@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_screen.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -104,8 +104,9 @@ class _TeacherAttendanceOptionsScreenState extends State<TeacherAttendanceOption
               _getAttendanceOption(
                 "Employee Attendance",
                 null,
-                TeacherAttendanceScreen(
-                  teacherProfile: widget.teacherProfile,
+                EmployeeMarkAttendanceScreen(
+                  employeeId: widget.teacherProfile.teacherId!,
+                  schoolId: widget.teacherProfile.schoolId!,
                 ),
               ),
             ],

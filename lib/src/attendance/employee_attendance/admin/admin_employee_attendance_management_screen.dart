@@ -1,11 +1,14 @@
-import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_pdf.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/employee_attendance_utils.dart';
 import 'package:schoolsgo_web/src/attendance/employee_attendance/model/employee_attendance.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
@@ -29,6 +32,8 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
 
   TextEditingController employeeNameSearchController = TextEditingController();
   DateTime selectedDate = DateTime.now();
+
+  SchoolInfoBean? schoolInfo;
 
   @override
   void initState() {
@@ -78,11 +83,11 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
   Future<void> _saveChanges() async {
     setState(() => _isLoading = true);
     List<DateWiseEmployeeAttendanceBean> toUpdate = filteredEmployeeAttendanceBeanList
-          .map((e) => e.dateWiseEmployeeAttendanceBeanList ?? [])
-          .expand((i) => i)
-          .whereNotNull()
-          .where((e) => const DeepCollectionEquality().equals(e.toJson(), e.origJson()))
-          .toList();
+        .map((e) => e.dateWiseEmployeeAttendanceBeanList ?? [])
+        .expand((i) => i)
+        .whereNotNull()
+        .where((e) => const DeepCollectionEquality().equals(e.toJson(), e.origJson()))
+        .toList();
     if (toUpdate.isEmpty) {
       setState(() => _isEditMode = false);
       return;
@@ -106,6 +111,53 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
     setState(() => _isLoading = false);
   }
 
+  Future<void> _loadSchoolInfo() async {
+    setState(() {
+      _isLoading = true;
+    });
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      return;
+    } else {
+      setState(() {
+        schoolInfo = getSchoolsResponse.schoolInfo!;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> handleClick(String choice) async {
+    await _loadSchoolInfo();
+    if (choice == "Print QR") {
+      setState(() => _isLoading = true);
+      await downloadAttendanceQRPdf(
+          "$QR_BASE_URL${getQRCodeData(widget.adminProfile.schoolId!, false, DateTime.now().millisecondsSinceEpoch, widget.adminProfile.userId!)}&size=250x250",
+          schoolInfo!);
+      setState(() => _isLoading = false);
+    } else {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return EmployeeAttendanceQRScreen(
+          adminProfile: widget.adminProfile,
+        );
+      }));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,6 +179,18 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
                     },
                     icon: Icon(_isEditMode ? Icons.check : Icons.edit),
                   ),
+                ),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  onSelected: (String choice) async => await handleClick(choice),
+                  itemBuilder: (BuildContext context) {
+                    return {"Print QR", "Dynamic QR"}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
                 ),
                 const SizedBox(width: 10),
               ],
@@ -227,7 +291,8 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
                                             ...(attendanceBeanForSelectedDate.dateWiseEmployeeAttendanceDetailsBeans ?? [])
                                                 .where((e) => e?.clockedTime != null && e?.status == 'active')
                                                 .whereNotNull()
-                                                .map((e) => timeChip(e)),
+                                                .map((DateWiseEmployeeAttendanceDetailsBean eachDateWiseEmployeeAttendanceDetailsBean) =>
+                                                    timeChip(eachDateWiseEmployeeAttendanceDetailsBean)),
                                             if (_isEditMode)
                                               addNewChipButton(
                                                 attendanceBeanForSelectedDate,
@@ -703,8 +768,6 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
     });
   }
 
-  bool? scannedFromDynamicQr(String? qr) => qr == null ? null : String.fromCharCodes(base64.decode(qr)).contains("dynamic");
-
   Widget qrWidgetForAttendanceChip(DateWiseEmployeeAttendanceDetailsBean attendanceBeanForSelectedDate) {
     return attendanceBeanForSelectedDate.qr == null
         ? Container()
@@ -712,7 +775,7 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
             height: 25,
             width: 25,
             child: Image.network(
-              "https://api.qrserver.com/v1/create-qr-code/?data=${attendanceBeanForSelectedDate.qr ?? "-"}&size=100x100",
+              "$QR_BASE_URL${attendanceBeanForSelectedDate.qr ?? "-"}&size=100x100",
               fit: BoxFit.scaleDown,
               loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                 if (loadingProgress == null) {

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/employee_attendance_utils.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
@@ -20,10 +22,9 @@ class AttendanceQRWidget extends StatefulWidget {
 
 class _AttendanceQRWidgetState extends State<AttendanceQRWidget> {
   Timer? _timer;
-  final int _refreshInterval = 10;
+  final int _refreshInterval = 5;
   int currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
-
-  bool isClockIn = true;
+  int initTimeMillis = DateTime.now().millisecondsSinceEpoch;
 
   @override
   void initState() {
@@ -45,14 +46,6 @@ class _AttendanceQRWidgetState extends State<AttendanceQRWidget> {
     });
   }
 
-  String getQRCodeData() {
-    return "${widget.adminProfile.schoolId}|$currentTimeMillis|$isClockIn";
-  }
-
-  String getStaticQRCodeData() {
-    return "${widget.adminProfile.schoolId}";
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -70,8 +63,8 @@ class _AttendanceQRWidgetState extends State<AttendanceQRWidget> {
               width: 250,
               child: Image.network(
                 widget.isStatic
-                    ? "https://api.qrserver.com/v1/create-qr-code/?data=${getStaticQRCodeData()}&size=250x250"
-                    : "https://api.qrserver.com/v1/create-qr-code/?data=${getQRCodeData()}&size=250x250",
+                    ? "$QR_BASE_URL${getQRCodeData(widget.adminProfile.schoolId!, false, initTimeMillis, widget.adminProfile.userId!)}&size=250x250"
+                    : "$QR_BASE_URL${getQRCodeData(widget.adminProfile.schoolId!, false, currentTimeMillis, widget.adminProfile.userId!)}&size=250x250",
                 fit: BoxFit.scaleDown,
                 loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
                   if (loadingProgress == null) {
@@ -87,20 +80,6 @@ class _AttendanceQRWidgetState extends State<AttendanceQRWidget> {
                 },
               ),
             ),
-            const SizedBox(height: 20),
-            if (!widget.isStatic)
-              SizedBox(
-                height: 60,
-                width: 250,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 60, maxWidth: 250),
-                  child: SwitchListTile(
-                    value: isClockIn,
-                    onChanged: (bool newValue) => setState(() => isClockIn = newValue),
-                    title: Text(isClockIn ? "Clock In" : "Clock Out"),
-                  ),
-                ),
-              ),
             const SizedBox(height: 10),
           ],
         ),

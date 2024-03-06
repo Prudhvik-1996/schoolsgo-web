@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/admin_employee_attendance_management_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -26,7 +26,6 @@ class SchoolManagementOptionsScreen extends StatefulWidget {
 }
 
 class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsScreen> {
-
   Widget _getStudentManagementOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
@@ -129,9 +128,9 @@ class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsS
             ),
           ),
           _getStudentManagementOption(
-            "Employees Attendance",
+            "Employees Attendance Management",
             null,
-            EmployeeAttendanceQRScreen(
+            AdminEmployeeAttendanceManagementScreen(
               adminProfile: widget.adminProfile,
             ),
           ),

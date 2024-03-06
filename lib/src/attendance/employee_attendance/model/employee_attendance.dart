@@ -126,6 +126,8 @@ class DateWiseEmployeeAttendanceBean {
     this.isPresent,
   });
 
+  bool isNextClockIn() => (dateWiseEmployeeAttendanceDetailsBeans ?? []).where((e) => e?.status == "active").length % 2 == 0;
+
   DateWiseEmployeeAttendanceBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     date = json['date']?.toString();
@@ -335,6 +337,7 @@ class CreateOrUpdateEmployeeAttendanceClockRequest {
   int? longitude;
   int? schoolId;
   String? status;
+  String? qr;
   Map<String, dynamic> __origJson = {};
 
   CreateOrUpdateEmployeeAttendanceClockRequest({
@@ -348,6 +351,7 @@ class CreateOrUpdateEmployeeAttendanceClockRequest {
     this.longitude,
     this.schoolId,
     this.status,
+    this.qr,
   });
 
   CreateOrUpdateEmployeeAttendanceClockRequest.fromJson(Map<String, dynamic> json) {
@@ -362,6 +366,7 @@ class CreateOrUpdateEmployeeAttendanceClockRequest {
     longitude = json['longitude']?.toInt();
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
+    qr = json['qr']?.toString();
   }
 
   Map<String, dynamic> toJson() {
@@ -376,6 +381,7 @@ class CreateOrUpdateEmployeeAttendanceClockRequest {
     data['longitude'] = longitude;
     data['schoolId'] = schoolId;
     data['status'] = status;
+    data['qr'] = qr;
     return data;
   }
 
@@ -436,7 +442,6 @@ Future<CreateOrUpdateEmployeeAttendanceClockResponse> createOrUpdateEmployeeAtte
 }
 
 class CreateOrUpdateEmployeesAttendanceRequest {
-
   int? agentId;
   List<DateWiseEmployeeAttendanceBean?>? dateWiseEmployeeAttendanceBeans;
   int? schoolId;
@@ -447,6 +452,7 @@ class CreateOrUpdateEmployeesAttendanceRequest {
     this.dateWiseEmployeeAttendanceBeans,
     this.schoolId,
   });
+
   CreateOrUpdateEmployeesAttendanceRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -460,6 +466,7 @@ class CreateOrUpdateEmployeesAttendanceRequest {
     }
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -474,11 +481,11 @@ class CreateOrUpdateEmployeesAttendanceRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateOrUpdateEmployeesAttendanceResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -491,6 +498,7 @@ class CreateOrUpdateEmployeesAttendanceResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateEmployeesAttendanceResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -498,6 +506,7 @@ class CreateOrUpdateEmployeesAttendanceResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -506,6 +515,7 @@ class CreateOrUpdateEmployeesAttendanceResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
