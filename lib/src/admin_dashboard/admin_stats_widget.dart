@@ -1,9 +1,13 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
+import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/admin_employee_attendance_management_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v3.dart';
+import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class AdminStatsWidget extends StatefulWidget {
@@ -21,6 +25,7 @@ class AdminStatsWidget extends StatefulWidget {
     required this.totalNoOfEmployees,
     required this.totalNoOfEmployeesMarkedForAttendance,
     required this.totalNoOfEmployeesPresent,
+    required this.adminProfile,
   }) : super(key: key);
 
   final BuildContext context;
@@ -35,6 +40,8 @@ class AdminStatsWidget extends StatefulWidget {
   final int? totalNoOfEmployees;
   final int? totalNoOfEmployeesMarkedForAttendance;
   final int? totalNoOfEmployeesPresent;
+
+  final AdminProfile adminProfile;
 
   @override
   State<AdminStatsWidget> createState() => _AdminStatsWidgetState();
@@ -124,87 +131,102 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
   Widget buildStudentsButton() {
     return SizedBox(
       height: 140,
-      child: ClayButton(
-        surfaceColor: clayContainerColor(widget.context),
-        parentColor: clayContainerColor(widget.context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                Colors.green,
-                Colors.lightGreen,
-              ],
-              stops: [0, 0.9],
-            ),
-            borderRadius: BorderRadius.circular(10),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return AdminMarkStudentAttendanceScreen(
+                adminProfile: widget.adminProfile,
+                teacherProfile: null,
+                selectedSection: null,
+                selectedDateTime: DateTime.now(),
+              );
+            },
           ),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    "assets/images/student.png",
-                    fit: BoxFit.scaleDown,
-                    height: 50,
+        ),
+        child: ClayButton(
+          surfaceColor: clayContainerColor(widget.context),
+          parentColor: clayContainerColor(widget.context),
+          spread: 1,
+          borderRadius: 10,
+          depth: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Colors.green,
+                  Colors.lightGreen,
+                ],
+                stops: [0, 0.9],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
+                    child: Image.asset(
+                      "assets/images/student.png",
+                      fit: BoxFit.scaleDown,
+                      height: 50,
+                    ),
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Students",
+                        style: GoogleFonts.archivoBlack(
+                          textStyle: TextStyle(
+                            fontSize: 36,
+                            color: Colors.lightGreen[200],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Students",
+                      "${((widget.totalNoOfStudentsMarkedForAttendance ?? 0) == 0) ? "-" : widget.totalNoOfStudentsMarkedForAttendance} / ${(widget.totalNoOfStudentsMarkedForAttendance ?? 0) == 0 ? widget.totalNoOfStudents : widget.totalNoOfStudentsMarkedForAttendance}",
                       style: GoogleFonts.archivoBlack(
                         textStyle: TextStyle(
-                          fontSize: 36,
+                          fontSize: 18,
                           color: Colors.lightGreen[200],
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "${((widget.totalNoOfStudentsMarkedForAttendance ?? 0) == 0) ? "-" : widget.totalNoOfStudentsMarkedForAttendance} / ${(widget.totalNoOfStudentsMarkedForAttendance ?? 0) == 0 ? widget.totalNoOfStudents : widget.totalNoOfStudentsMarkedForAttendance}",
-                    style: GoogleFonts.archivoBlack(
-                      textStyle: TextStyle(
-                        fontSize: 18,
-                        color: Colors.lightGreen[200],
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "${widget.totalNoOfStudents ?? "-"}",
+                      style: GoogleFonts.archivoBlack(
+                        textStyle: TextStyle(
+                          fontSize: 24,
+                          color: Colors.green[200],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "${widget.totalNoOfStudents ?? "-"}",
-                    style: GoogleFonts.archivoBlack(
-                      textStyle: TextStyle(
-                        fontSize: 24,
-                        color: Colors.green[200],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -214,87 +236,99 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
   Widget buildEmployeesButton() {
     return SizedBox(
       height: 140,
-      child: ClayButton(
-        surfaceColor: clayContainerColor(widget.context),
-        parentColor: clayContainerColor(widget.context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-              colors: [
-                Colors.orange,
-                Colors.orange.shade100,
-              ],
-              stops: const [0, 0.9],
-            ),
-            borderRadius: BorderRadius.circular(10),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return AdminEmployeeAttendanceManagementScreen(
+                adminProfile: widget.adminProfile,
+              );
+            },
           ),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Image.asset(
-                    "assets/images/student.png",
-                    fit: BoxFit.scaleDown,
-                    height: 50,
+        ),
+        child: ClayButton(
+          surfaceColor: clayContainerColor(widget.context),
+          parentColor: clayContainerColor(widget.context),
+          spread: 1,
+          borderRadius: 10,
+          depth: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Colors.orange,
+                  Colors.orange.shade100,
+                ],
+                stops: const [0, 0.9],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
+                    child: Image.asset(
+                      "assets/images/student.png",
+                      fit: BoxFit.scaleDown,
+                      height: 50,
+                    ),
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Employees",
+                        style: GoogleFonts.archivoBlack(
+                          textStyle: TextStyle(
+                            fontSize: 36,
+                            color: Colors.orange[50],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Employees",
+                      "${((widget.totalNoOfEmployeesMarkedForAttendance ?? 0) == 0) ? "-" : widget.totalNoOfEmployeesMarkedForAttendance} / ${(widget.totalNoOfEmployeesMarkedForAttendance ?? 0) == 0 ? widget.totalNoOfEmployees : widget.totalNoOfEmployeesMarkedForAttendance}",
                       style: GoogleFonts.archivoBlack(
                         textStyle: TextStyle(
-                          fontSize: 36,
+                          fontSize: 18,
+                          color: Colors.orange[100],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "${widget.totalNoOfEmployees ?? "-"}",
+                      style: GoogleFonts.archivoBlack(
+                        textStyle: TextStyle(
+                          fontSize: 24,
                           color: Colors.orange[50],
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "${((widget.totalNoOfEmployeesMarkedForAttendance ?? 0) == 0) ? "-" : widget.totalNoOfEmployeesMarkedForAttendance} / ${(widget.totalNoOfEmployeesMarkedForAttendance ?? 0) == 0 ? widget.totalNoOfEmployees : widget.totalNoOfEmployeesMarkedForAttendance}",
-                    style: GoogleFonts.archivoBlack(
-                      textStyle: TextStyle(
-                        fontSize: 18,
-                        color: Colors.orange[100],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "${widget.totalNoOfEmployees ?? "-"}",
-                    style: GoogleFonts.archivoBlack(
-                      textStyle: TextStyle(
-                        fontSize: 24,
-                        color: Colors.orange[50],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -306,149 +340,161 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
       width: MediaQuery.of(widget.context).orientation == Orientation.landscape
           ? MediaQuery.of(widget.context).size.width / 2
           : MediaQuery.of(widget.context).size.width - 40,
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(widget.context),
-        parentColor: clayContainerColor(widget.context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [Colors.blue, Colors.cyan]),
-            borderRadius: BorderRadius.circular(10),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return AdminFeeReceiptsScreenV3(
+                adminProfile: widget.adminProfile,
+              );
+            },
           ),
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(width: 10),
-              if (MediaQuery.of(widget.context).orientation == Orientation.landscape)
-                Image.asset(
-                  "assets/images/INR_symbol.png",
-                  fit: BoxFit.scaleDown,
-                  height: 100,
-                ),
-              if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 20),
-              SizedBox(
-                height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                child: Stack(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                      width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                      child: CircularProgressIndicator(
-                        value: ((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) /
-                            ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)),
-                        color: Colors.blue,
-                        strokeWidth: 10,
-                        semanticsLabel: "Fee collected",
-                        semanticsValue:
+        ),
+        child: ClayContainer(
+          surfaceColor: clayContainerColor(widget.context),
+          parentColor: clayContainerColor(widget.context),
+          spread: 1,
+          borderRadius: 10,
+          depth: 40,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Colors.blue, Colors.cyan]),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(width: 10),
+                if (MediaQuery.of(widget.context).orientation == Orientation.landscape)
+                  Image.asset(
+                    "assets/images/INR_symbol.png",
+                    fit: BoxFit.scaleDown,
+                    height: 100,
+                  ),
+                if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 20),
+                SizedBox(
+                  height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                  width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                  child: Stack(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                        width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                        child: CircularProgressIndicator(
+                          value: ((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) /
+                              ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)),
+                          color: Colors.blue,
+                          strokeWidth: 10,
+                          semanticsLabel: "Fee collected",
+                          semanticsValue:
+                              "${doubleToStringAsFixed(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) * 100 / ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)))} %",
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                          backgroundColor: const Color(0xFFCDFCFF),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
                             "${doubleToStringAsFixed(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) * 100 / ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)))} %",
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                        backgroundColor: const Color(0xFFCDFCFF),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.center,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          "${doubleToStringAsFixed(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) * 100 / ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)))} %",
-                          style: TextStyle(
-                            color: clayContainerColor(widget.context),
-                            fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                            style: TextStyle(
+                              color: clayContainerColor(widget.context),
+                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 50),
-              if (MediaQuery.of(widget.context).orientation != Orientation.landscape) const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Total Fee:",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 50),
+                if (MediaQuery.of(widget.context).orientation != Orientation.landscape) const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Total Fee:",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)) / 100.0)} /-",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Total Fee Collected:",
+                          Text(
+                            "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)) / 100.0)} /-",
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
                             ),
                           ),
-                        ),
-                        Text(
-                          "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) / 100.0)} /-",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Total Fee Collected:",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Total Fee Collected Today:",
+                          Text(
+                            "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) / 100.0)} /-",
                             style: TextStyle(
                               color: Colors.black,
-                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
                             ),
                           ),
-                        ),
-                        Text(
-                          "$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalFeeCollectedForTheDay ?? 0) / 100.0)} /-",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Total Fee Collected Today:",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          Text(
+                            "$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalFeeCollectedForTheDay ?? 0) / 100.0)} /-",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 10),
-            ],
+                if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 10),
+              ],
+            ),
           ),
         ),
       ),

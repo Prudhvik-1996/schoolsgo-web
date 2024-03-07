@@ -175,6 +175,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             totalNoOfEmployees: totalNoOfEmployees,
             totalNoOfEmployeesMarkedForAttendance: totalNoOfEmployeesMarkedForAttendance,
             totalNoOfEmployeesPresent: totalNoOfEmployeesPresent,
+            adminProfile: widget.adminProfile,
           ),
         Container(
           margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
