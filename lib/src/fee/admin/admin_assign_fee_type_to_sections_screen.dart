@@ -27,12 +27,12 @@ class AdminAssignFeeTypesToSectionsScreen extends StatefulWidget {
 
 class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeTypesToSectionsScreen> {
   bool _isLoading = true;
+  bool isEditMode = false;
 
   List<FeeType> _feeTypes = [];
   List<SectionWiseAnnualFeesBean> sectionWiseAnnualFeeBeansList = [];
   List<Section> _sectionsList = [];
   Map<Section, SectionWiseAnnualFeeMapBean> actualSectionWiseAnnualFeeBeanMap = {};
-  Section? toBeEdited;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -45,7 +45,6 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      toBeEdited = null;
     });
 
     // Get all sections data
@@ -160,7 +159,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
     });
   }
 
-  Future<void> _saveChanges(Section section) async {
+  Future<void> _saveAllChanges() async {
     showDialog(
       context: _scaffoldKey.currentContext!,
       builder: (dialogContext) {
@@ -176,47 +175,45 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                 setState(() {
                   _isLoading = true;
                 });
+                List<SectionWiseAnnualFeesBean> sectionWiseFeesBeanList = [];
+                for (Section section in _sectionsList) {
+                  for (SectionWiseAnnualFeeTypeBean eachFeeType in (actualSectionWiseAnnualFeeBeanMap[section]?.feeTypes ?? [])) {
+                    if ((eachFeeType.sectionWiseAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+                      if (eachFeeType.orgAmount == eachFeeType.amount) continue;
+                      debugPrint("188: adding fee type");
+                      sectionWiseFeesBeanList.add(
+                        SectionWiseAnnualFeesBean(
+                          sectionId: section.sectionId,
+                          feeTypeId: eachFeeType.feeTypeId,
+                          sectionWiseFeesStatus: eachFeeType.sectionWiseFeesStatus,
+                          sectionFeeMapId: eachFeeType.sectionFeeMapId,
+                          schoolId: section.schoolId,
+                          amount: eachFeeType.amount,
+                        ),
+                      );
+                    } else {
+                      for (SectionWiseAnnualCustomFeeTypeBean eachCustomFeeType in (eachFeeType.sectionWiseAnnualCustomFeeTypeBeans ?? [])) {
+                        if (eachCustomFeeType.orgAmount == eachCustomFeeType.amount) continue;
+                        debugPrint("201: adding each custom fee type");
+                        sectionWiseFeesBeanList.add(
+                          SectionWiseAnnualFeesBean(
+                            sectionId: section.sectionId,
+                            feeTypeId: eachFeeType.feeTypeId,
+                            sectionWiseFeesStatus: eachCustomFeeType.sectionWiseFeesStatus,
+                            sectionFeeMapId: eachFeeType.sectionFeeMapId,
+                            schoolId: section.schoolId,
+                            amount: eachCustomFeeType.amount,
+                            customFeeTypeId: eachCustomFeeType.customFeeTypeId,
+                          ),
+                        );
+                      }
+                    }
+                  }
+                }
                 CreateOrUpdateSectionFeeMapRequest createOrUpdateSectionFeeMapRequest = CreateOrUpdateSectionFeeMapRequest(
                   schoolId: widget.adminProfile.schoolId,
                   agent: widget.adminProfile.userId,
-                  sectionWiseFeesBeanList: (actualSectionWiseAnnualFeeBeanMap[section]?.feeTypes ?? [])
-                      .where((e) => e.sectionWiseFeesStatus != null || (e.sectionWiseAnnualCustomFeeTypeBeans ?? []).isNotEmpty)
-                      .map((SectionWiseAnnualFeeTypeBean eachFeeType) {
-                        debugPrint("185: $eachFeeType");
-                        List<SectionWiseAnnualFeesBean> list = [];
-                        if ((eachFeeType.sectionWiseAnnualCustomFeeTypeBeans ?? []).isEmpty) {
-                          debugPrint("188: adding fee type");
-                          list.add(
-                            SectionWiseAnnualFeesBean(
-                              sectionId: toBeEdited!.sectionId,
-                              feeTypeId: eachFeeType.feeTypeId,
-                              sectionWiseFeesStatus: eachFeeType.sectionWiseFeesStatus,
-                              sectionFeeMapId: eachFeeType.sectionFeeMapId,
-                              schoolId: toBeEdited!.schoolId,
-                              amount: eachFeeType.amount,
-                            ),
-                          );
-                        } else {
-                          for (SectionWiseAnnualCustomFeeTypeBean eachCustomFeeType in (eachFeeType.sectionWiseAnnualCustomFeeTypeBeans ?? [])) {
-                            if (eachCustomFeeType.sectionWiseFeesStatus == null) continue;
-                            debugPrint("201: adding each custom fee type");
-                            list.add(
-                              SectionWiseAnnualFeesBean(
-                                sectionId: toBeEdited!.sectionId,
-                                feeTypeId: eachFeeType.feeTypeId,
-                                sectionWiseFeesStatus: eachCustomFeeType.sectionWiseFeesStatus,
-                                sectionFeeMapId: eachFeeType.sectionFeeMapId,
-                                schoolId: toBeEdited!.schoolId,
-                                amount: eachCustomFeeType.amount,
-                                customFeeTypeId: eachCustomFeeType.customFeeTypeId,
-                              ),
-                            );
-                          }
-                        }
-                        return list;
-                      })
-                      .expand((i) => i)
-                      .toList(),
+                  sectionWiseFeesBeanList: sectionWiseFeesBeanList,
                 );
                 CreateOrUpdateSectionFeeMapResponse createOrUpdateSectionFeeMapResponse =
                     await createOrUpdateSectionFeeMap(createOrUpdateSectionFeeMapRequest);
@@ -235,6 +232,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                 }
                 setState(() {
                   _isLoading = false;
+                  isEditMode = false;
                 });
                 _loadData();
               },
@@ -260,6 +258,20 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Assign Fee Types To Sections"),
+        actions: _isLoading
+            ? []
+            : [
+                IconButton(
+                  onPressed: () async {
+                    if (!isEditMode) {
+                      setState(() => isEditMode = true);
+                    } else {
+                      await _saveAllChanges();
+                    }
+                  },
+                  icon: !isEditMode ? const Icon(Icons.edit) : const Icon(Icons.save),
+                )
+              ],
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
@@ -411,67 +423,10 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                 ),
               ),
             ),
-            if (toBeEdited != null && toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId)
-              Container(
-                margin: const EdgeInsets.all(8),
-                child: GestureDetector(
-                  onTap: () {
-                    loadSectionWiseAnnualFeeMap(_sectionsList.where((e) => e.sectionId == toBeEdited!.sectionId).first);
-                    setState(() {
-                      toBeEdited = null;
-                    });
-                  },
-                  child: ClayButton(
-                    depth: 40,
-                    surfaceColor: clayContainerColor(context),
-                    parentColor: clayContainerColor(context),
-                    spread: 1,
-                    borderRadius: 100,
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      child: const Icon(Icons.clear),
-                    ),
-                  ),
-                ),
-              ),
-            Container(
-              margin: const EdgeInsets.all(8),
-              child: GestureDetector(
-                onTap: () async {
-                  if (toBeEdited == null) {
-                    setState(() {
-                      toBeEdited = Section(sectionId: sectionWiseAnnualFee.sectionId, sectionName: sectionWiseAnnualFee.sectionName);
-                    });
-                  } else if (toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId) {
-                    await _saveChanges(_sectionsList.where((e) => e.sectionId == toBeEdited!.sectionId).first);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Save changes for ${toBeEdited!.sectionName} to proceed.."),
-                      ),
-                    );
-                  }
-                },
-                child: ClayButton(
-                  depth: 40,
-                  surfaceColor: clayContainerColor(context),
-                  parentColor: clayContainerColor(context),
-                  spread: 1,
-                  borderRadius: 100,
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    child: toBeEdited != null && toBeEdited!.sectionId == sectionWiseAnnualFee.sectionId
-                        ? const Icon(Icons.check)
-                        : const Icon(Icons.edit),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
         Column(
-          mainAxisSize: MainAxisSize.min,
-          // physics: const BouncingScrollPhysics(),
+          mainAxisSize: MainAxisSize.min, // physics: const BouncingScrollPhysics(),
           children: buildSectionWiseAnnualFeesWidgets(sectionWiseAnnualFee),
         ),
       ],
@@ -480,32 +435,23 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
 
   List<Widget> buildSectionWiseAnnualFeesWidgets(SectionWiseAnnualFeeMapBean sectionWiseAnnualFeeMapBean) {
     List<Widget> widgets = [];
-    for (SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean in (sectionWiseAnnualFeeMapBean.feeTypes ?? []).where((e) => toBeEdited != null &&
-            sectionWiseAnnualFeeMapBean.sectionId == toBeEdited!.sectionId
-        ? true
-        : (e.sectionWiseFeesStatus != null && e.sectionWiseFeesStatus == "active") ||
-            (e.sectionWiseAnnualCustomFeeTypeBeans ?? []).map((e) => e.sectionWiseFeesStatus).where((e) => e != null && e == "active").isNotEmpty)) {
+    for (SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean in (sectionWiseAnnualFeeMapBean.feeTypes ?? [])) {
       widgets.add(const SizedBox(
         height: 15,
       ));
-      widgets.add(
-          buildFeeTypeWidget(sectionWiseAnnualFeeTypeBean, toBeEdited != null && sectionWiseAnnualFeeMapBean.sectionId == toBeEdited!.sectionId));
+      widgets.add(buildFeeTypeWidget(sectionWiseAnnualFeeTypeBean));
       for (SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean
-          in (sectionWiseAnnualFeeTypeBean.sectionWiseAnnualCustomFeeTypeBeans ?? []).where((e) =>
-              toBeEdited != null && sectionWiseAnnualFeeMapBean.sectionId == toBeEdited!.sectionId
-                  ? true
-                  : e.sectionWiseFeesStatus != null && e.sectionWiseFeesStatus == "active")) {
+          in (sectionWiseAnnualFeeTypeBean.sectionWiseAnnualCustomFeeTypeBeans ?? [])) {
         widgets.add(const SizedBox(
           height: 15,
         ));
-        widgets.add(buildCustomFeeTypeWidget(
-            sectionWiseAnnualCustomFeeTypeBean, toBeEdited != null && sectionWiseAnnualFeeMapBean.sectionId == toBeEdited!.sectionId));
+        widgets.add(buildCustomFeeTypeWidget(sectionWiseAnnualCustomFeeTypeBean));
       }
     }
     return widgets;
   }
 
-  Widget buildFeeTypeWidget(SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean, bool isEditMode) {
+  Widget buildFeeTypeWidget(SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean) {
     if (!isEditMode && (sectionWiseAnnualFeeTypeBean.amount ?? 0) == 0) {
       return Container();
     }
@@ -584,7 +530,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
     );
   }
 
-  Widget buildCustomFeeTypeWidget(SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean, bool isEditMode) {
+  Widget buildCustomFeeTypeWidget(SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean) {
     if (!isEditMode && (sectionWiseAnnualCustomFeeTypeBean.amount ?? 0) == 0) {
       return Container();
     }
@@ -759,6 +705,7 @@ class SectionWiseAnnualFeeMapBean {
 
 class SectionWiseAnnualFeeTypeBean {
   int? amount;
+  int? orgAmount;
   TextEditingController amountController = TextEditingController();
   int? sectionFeeMapId;
   int? feeTypeId;
@@ -766,6 +713,8 @@ class SectionWiseAnnualFeeTypeBean {
   String? sectionWiseFeesStatus;
   List<SectionWiseAnnualCustomFeeTypeBean>? sectionWiseAnnualCustomFeeTypeBeans;
   FocusNode focusNode = FocusNode();
+
+  late String orgString;
 
   SectionWiseAnnualFeeTypeBean({
     this.amount,
@@ -776,6 +725,8 @@ class SectionWiseAnnualFeeTypeBean {
     this.sectionWiseAnnualCustomFeeTypeBeans,
   }) {
     amountController.text = "${amount == null ? "" : amount! / 100.0}";
+    orgString = toString();
+    orgAmount = amount;
   }
 
   @override
@@ -786,6 +737,7 @@ class SectionWiseAnnualFeeTypeBean {
 
 class SectionWiseAnnualCustomFeeTypeBean {
   int? amount;
+  int? orgAmount;
   TextEditingController amountController = TextEditingController();
   int? sectionFeeMapId;
   int? feeTypeId;
@@ -794,6 +746,8 @@ class SectionWiseAnnualCustomFeeTypeBean {
   String? customFeeType;
   String? sectionWiseFeesStatus;
   FocusNode focusNode = FocusNode();
+
+  late String orgString;
 
   SectionWiseAnnualCustomFeeTypeBean({
     this.amount,
@@ -805,6 +759,8 @@ class SectionWiseAnnualCustomFeeTypeBean {
     this.sectionWiseFeesStatus,
   }) {
     amountController.text = "${amount == null ? "" : amount! / 100.0}";
+    orgString = toString();
+    orgAmount = amount;
   }
 
   @override
