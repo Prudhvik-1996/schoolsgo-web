@@ -1,16 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_pdf.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_screen.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/employee_attendance_utils.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/model/employee_attendance.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/employee_attendance/admin/attendance_qr_pdf.dart';
+import 'package:schoolsgo_web/src/employee_attendance/admin/attendance_qr_screen.dart';
+import 'package:schoolsgo_web/src/employee_attendance/admin/employee_attendance_utils.dart';
+import 'package:schoolsgo_web/src/employee_attendance/model/employee_attendance.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminEmployeeAttendanceManagementScreen extends StatefulWidget {
   const AdminEmployeeAttendanceManagementScreen({
@@ -27,6 +28,7 @@ class AdminEmployeeAttendanceManagementScreen extends StatefulWidget {
 class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeAttendanceManagementScreen> {
   bool _isLoading = true;
   bool _isEditMode = false;
+  int? selectedAcademicYearId;
   List<EmployeeAttendanceBean> employeeAttendanceBeanList = [];
   List<EmployeeAttendanceBean> filteredEmployeeAttendanceBeanList = [];
 
@@ -43,8 +45,13 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetEmployeeAttendanceResponse getEmployeeAttendanceResponse = await getEmployeeAttendance(GetEmployeeAttendanceRequest(
       schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
     ));
     if (getEmployeeAttendanceResponse.httpStatus != "OK" || getEmployeeAttendanceResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(

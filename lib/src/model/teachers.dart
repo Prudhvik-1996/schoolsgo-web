@@ -18,24 +18,28 @@ class GetTeachersRequest {
   int? schoolId;
   int? teacherId;
   int? franchiseId;
+  int? academicYearId;
   Map<String, dynamic> __origJson = {};
 
   GetTeachersRequest({
     this.schoolId,
     this.teacherId,
     this.franchiseId,
+    this.academicYearId,
   });
   GetTeachersRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
     franchiseId = int.tryParse(json["franchiseId"]?.toString() ?? '');
+    academicYearId = int.tryParse(json["academicYearId"]?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["schoolId"] = schoolId;
     data["teacherId"] = teacherId;
     data["franchiseId"] = franchiseId;
+    data["academicYearId"] = academicYearId;
     return data;
   }
 

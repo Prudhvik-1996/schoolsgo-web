@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_stats_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_screen.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/admin_employee_attendance_management_screen.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/employee_attendance/admin/admin_employee_attendance_management_screen.dart';
+import 'package:schoolsgo_web/src/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
 import 'admin_attendance_management_screen.dart';

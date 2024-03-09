@@ -14,6 +14,7 @@ import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart'
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminTimeTableRandomizer extends StatefulWidget {
   final AdminProfile adminProfile;
@@ -69,8 +70,13 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
       _previewMode = false;
       _debugPrintKeys = {};
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -95,6 +101,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
     GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
+      academicYearId: selectedAcademicYearId,
     ));
     if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
@@ -106,6 +113,7 @@ class _AdminTimeTableRandomizerState extends State<AdminTimeTableRandomizer> wit
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
         status: "active",
+        academicYearId: selectedAcademicYearId,
       ),
     );
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {

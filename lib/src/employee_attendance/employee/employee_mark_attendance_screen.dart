@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/employee_attendance_utils.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/model/employee_attendance.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/qr_scanner/qr_scanner_widget_v2.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/employee_attendance/admin/employee_attendance_utils.dart';
+import 'package:schoolsgo_web/src/employee_attendance/model/employee_attendance.dart';
+import 'package:schoolsgo_web/src/employee_attendance/qr_scanner/qr_scanner_widget_v2.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -41,6 +41,9 @@ class _EmployeeMarkAttendanceScreenState extends State<EmployeeMarkAttendanceScr
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetSchoolWiseEmployeesResponse getSchoolWiseEmployeesResponse = await getSchoolWiseEmployees(GetSchoolWiseEmployeesRequest(
       schoolId: widget.schoolId,
       employeeId: widget.employeeId,
@@ -59,6 +62,7 @@ class _EmployeeMarkAttendanceScreenState extends State<EmployeeMarkAttendanceScr
     GetEmployeeAttendanceResponse getEmployeeAttendanceResponse = await getEmployeeAttendance(GetEmployeeAttendanceRequest(
       employeeId: widget.employeeId,
       schoolId: widget.schoolId,
+      academicYearId: selectedAcademicYearId,
     ));
     if (getEmployeeAttendanceResponse.httpStatus != "OK" || getEmployeeAttendanceResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,8 +74,6 @@ class _EmployeeMarkAttendanceScreenState extends State<EmployeeMarkAttendanceScr
       employeeAttendanceBeanList = (getEmployeeAttendanceResponse.employeeAttendanceBeanList ?? []).map((e) => e!).toList();
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
     GetSchoolWiseAcademicYearsResponse response = await getSchoolWiseAcademicYears(
       GetSchoolWiseAcademicYearsRequest(schoolId: widget.schoolId),
     );

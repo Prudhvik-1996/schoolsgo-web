@@ -15,6 +15,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DiaryEditScreen extends StatefulWidget {
   const DiaryEditScreen({Key? key, this.adminProfile, this.teacherProfile}) : super(key: key);
@@ -139,11 +140,15 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
       _isLoading = true;
     });
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetStudentDiaryResponse getDiaryResponse = await getDiary(
       GetDiaryRequest(
         schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
         teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
         date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
+        academicYearId: selectedAcademicYearId,
       ),
     );
     if (getDiaryResponse.httpStatus == "OK" && getDiaryResponse.responseStatus == "success") {

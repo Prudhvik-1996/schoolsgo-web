@@ -34,6 +34,7 @@ class GetOnlineClassRoomsRequest {
   int? tdsId;
   int? teacherId;
   int? weekId;
+  int? academicYearId;
   Map<String, dynamic> __origJson = {};
 
   GetOnlineClassRoomsRequest({
@@ -48,6 +49,7 @@ class GetOnlineClassRoomsRequest {
     this.tdsId,
     this.teacherId,
     this.weekId,
+    this.academicYearId,
   });
 
   GetOnlineClassRoomsRequest.fromJson(Map<String, dynamic> json) {
@@ -63,6 +65,7 @@ class GetOnlineClassRoomsRequest {
     tdsId = int.tryParse(json['tdsId']?.toString() ?? '');
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     weekId = int.tryParse(json['weekId']?.toString() ?? '');
+    academicYearId = int.tryParse(json['academicYearId']?.toString() ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -78,6 +81,7 @@ class GetOnlineClassRoomsRequest {
     data['tdsId'] = tdsId;
     data['teacherId'] = teacherId;
     data['weekId'] = weekId;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 

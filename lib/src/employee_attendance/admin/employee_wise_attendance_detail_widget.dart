@@ -1,9 +1,9 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/model/employee_attendance.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/qr_scanner/qr_scanner_widget.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/employee_attendance/model/employee_attendance.dart';
+import 'package:schoolsgo_web/src/employee_attendance/qr_scanner/qr_scanner_widget.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 class EmployeeWiseAttendanceDetailWidget extends StatefulWidget {

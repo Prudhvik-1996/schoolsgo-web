@@ -20,6 +20,7 @@ class GetNoticeBoardRequest {
   int? newsId;
   int? offset;
   int? schoolId;
+  int? academicYearId;
   Map<String, dynamic> __origJson = {};
 
   GetNoticeBoardRequest({
@@ -28,6 +29,7 @@ class GetNoticeBoardRequest {
     this.newsId,
     this.offset,
     this.schoolId,
+    this.academicYearId,
   });
 
   GetNoticeBoardRequest.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class GetNoticeBoardRequest {
     newsId = json['newsId']?.toInt();
     offset = json['offset']?.toInt();
     schoolId = json['schoolId']?.toInt();
+    academicYearId = json['academicYearId']?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -46,6 +49,7 @@ class GetNoticeBoardRequest {
     data['newsId'] = newsId;
     data['offset'] = offset;
     data['schoolId'] = schoolId;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 

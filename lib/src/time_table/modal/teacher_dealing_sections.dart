@@ -11,6 +11,7 @@ class GetTeacherDealingSectionsRequest {
   int? subjectId;
   int? tdsId;
   int? franchiseId;
+  int? academicYearId;
   String? status;
 
   GetTeacherDealingSectionsRequest({
@@ -21,6 +22,7 @@ class GetTeacherDealingSectionsRequest {
     this.tdsId,
     this.franchiseId,
     this.status,
+    this.academicYearId,
   });
 
   GetTeacherDealingSectionsRequest.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class GetTeacherDealingSectionsRequest {
     tdsId = json['tdsId'];
     franchiseId = json['franchiseId'];
     status = json['status'];
+    academicYearId = json['academicYearId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -42,6 +45,7 @@ class GetTeacherDealingSectionsRequest {
     data['tdsId'] = tdsId;
     data['franchiseId'] = franchiseId;
     data['status'] = status;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 }
@@ -125,6 +129,8 @@ class TeacherDealingSection {
   int? tdsId;
   int? teacherId;
   String? teacherName;
+  int? sectionSeqOrder;
+  int? subjectSeqOrder;
   Map<String, dynamic> __origJson = {};
 
   bool isEdited = false;
@@ -143,6 +149,8 @@ class TeacherDealingSection {
     this.tdsId,
     this.teacherId,
     this.teacherName,
+    this.sectionSeqOrder,
+    this.subjectSeqOrder,
   });
   TeacherDealingSection.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -159,6 +167,8 @@ class TeacherDealingSection {
     tdsId = int.tryParse(json['tdsId']?.toString() ?? '');
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     teacherName = json['teacherName']?.toString();
+    sectionSeqOrder = int.tryParse(json['sectionSeqOrder']?.toString() ?? '');
+    subjectSeqOrder = int.tryParse(json['subjectSeqOrder']?.toString() ?? '');
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -175,6 +185,8 @@ class TeacherDealingSection {
     data['tdsId'] = tdsId;
     data['teacherId'] = teacherId;
     data['teacherName'] = teacherName;
+    data['sectionSeqOrder'] = sectionSeqOrder;
+    data['subjectSeqOrder'] = subjectSeqOrder;
     return data;
   }
 

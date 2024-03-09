@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/model/employee_attendance.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/qr_scanner/qr_screen_overlay.dart';
+import 'package:schoolsgo_web/src/employee_attendance/model/employee_attendance.dart';
+import 'package:schoolsgo_web/src/employee_attendance/qr_scanner/qr_screen_overlay.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 class QrScannerWidget extends StatefulWidget {

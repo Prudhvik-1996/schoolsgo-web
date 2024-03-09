@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/employee_attendance_utils.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/qr_scanner/qr_screen_overlay.dart';
+import 'package:schoolsgo_web/src/employee_attendance/admin/employee_attendance_utils.dart';
+import 'package:schoolsgo_web/src/employee_attendance/qr_scanner/qr_screen_overlay.dart';
 
 class QRScannerWidgetV2 extends StatefulWidget {
   const QRScannerWidgetV2({

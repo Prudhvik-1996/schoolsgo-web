@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/admin/attendance_qr_widget.dart';
+import 'package:schoolsgo_web/src/employee_attendance/admin/attendance_qr_widget.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 

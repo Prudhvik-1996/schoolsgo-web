@@ -14,6 +14,7 @@ class GetStudentAttendanceTimeSlotsRequest {
   int? sectionId;
   String? status;
   int? managerId;
+  int? academicYearId;
 
   GetStudentAttendanceTimeSlotsRequest({
     this.attendanceTimeSlotId,
@@ -22,6 +23,7 @@ class GetStudentAttendanceTimeSlotsRequest {
     this.sectionId,
     this.status,
     this.managerId,
+    this.academicYearId,
   });
 
   GetStudentAttendanceTimeSlotsRequest.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class GetStudentAttendanceTimeSlotsRequest {
     sectionId = json['sectionId'];
     status = json['status'];
     managerId = json['managerId'];
+    academicYearId = json['academicYearId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -41,6 +44,7 @@ class GetStudentAttendanceTimeSlotsRequest {
     data['sectionId'] = sectionId;
     data['status'] = status;
     data['managerId'] = managerId;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 }
@@ -275,6 +279,7 @@ class GetStudentAttendanceBeansRequest {
   String? startDate;
   int? studentId;
   int? teacherId;
+  int? academicYearId;
 
   List<int?>? sectionIds;
 
@@ -289,6 +294,7 @@ class GetStudentAttendanceBeansRequest {
     this.studentId,
     this.teacherId,
     this.sectionIds,
+    this.academicYearId,
   });
 
   GetStudentAttendanceBeansRequest.fromJson(Map<String, dynamic> json) {
@@ -301,6 +307,7 @@ class GetStudentAttendanceBeansRequest {
     startDate = json['startDate'];
     studentId = json['studentId'];
     teacherId = json['teacherId'];
+    academicYearId = json['academicYearId'];
     if (json['sectionIds'] != null) {
       final v = json['sectionIds'];
       final arr0 = <int?>[];
@@ -323,6 +330,7 @@ class GetStudentAttendanceBeansRequest {
     data['studentId'] = studentId;
     data['teacherId'] = teacherId;
     data['sectionIds'] = sectionIds;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 }
@@ -460,6 +468,7 @@ class StudentAttendanceBean {
     this.week,
     this.weekId,
   });
+
   StudentAttendanceBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -486,6 +495,7 @@ class StudentAttendanceBean {
     week = json['week']?.toString();
     weekId = json['weekId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;

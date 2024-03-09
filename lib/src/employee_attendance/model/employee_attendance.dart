@@ -12,6 +12,7 @@ class GetEmployeeAttendanceRequest {
   int? franchiseId;
   int? schoolId;
   String? startDate;
+  int? academicYearId;
   Map<String, dynamic> __origJson = {};
 
   GetEmployeeAttendanceRequest({
@@ -22,6 +23,7 @@ class GetEmployeeAttendanceRequest {
     this.franchiseId,
     this.schoolId,
     this.startDate,
+    this.academicYearId,
   });
 
   GetEmployeeAttendanceRequest.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,7 @@ class GetEmployeeAttendanceRequest {
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
     startDate = json['startDate']?.toString();
+    academicYearId = json['academicYearId']?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -44,6 +47,7 @@ class GetEmployeeAttendanceRequest {
     data['franchiseId'] = franchiseId;
     data['schoolId'] = schoolId;
     data['startDate'] = startDate;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 

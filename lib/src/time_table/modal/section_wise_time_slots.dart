@@ -17,9 +17,19 @@ class GetSectionWiseTimeSlotsRequest {
   int? subjectId;
   int? tdsId;
   int? teacherId;
+  int? academicYearId;
 
-  GetSectionWiseTimeSlotsRequest(
-      {this.date, this.schoolId, this.sectionId, this.sectionWiseTimeSlotsId, this.status, this.subjectId, this.tdsId, this.teacherId});
+  GetSectionWiseTimeSlotsRequest({
+    this.date,
+    this.schoolId,
+    this.sectionId,
+    this.sectionWiseTimeSlotsId,
+    this.status,
+    this.subjectId,
+    this.tdsId,
+    this.teacherId,
+    this.academicYearId,
+  });
 
   GetSectionWiseTimeSlotsRequest.fromJson(Map<String, dynamic> json) {
     date = json['date'];
@@ -30,6 +40,7 @@ class GetSectionWiseTimeSlotsRequest {
     subjectId = json['subjectId'];
     tdsId = json['tdsId'];
     teacherId = json['teacherId'];
+    academicYearId = json['academicYearId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -42,6 +53,7 @@ class GetSectionWiseTimeSlotsRequest {
     data['subjectId'] = subjectId;
     data['tdsId'] = tdsId;
     data['teacherId'] = teacherId;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 }

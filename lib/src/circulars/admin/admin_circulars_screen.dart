@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminCircularsScreen extends StatefulWidget {
   const AdminCircularsScreen({Key? key, required this.adminProfile}) : super(key: key);
@@ -63,10 +64,15 @@ class _AdminCircularsScreenState extends State<AdminCircularsScreen> {
       )..isEditMode = true;
       newCircular.origJson = newCircular.toJson();
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetCircularsResponse getCircularsResponse = await getCirculars(GetCircularsRequest(
       schoolId: widget.adminProfile.schoolId,
       franchiseId: widget.adminProfile.franchiseId,
       role: "A",
+      academicYearId: selectedAcademicYearId,
     ));
     if (getCircularsResponse.httpStatus != "OK" || getCircularsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(

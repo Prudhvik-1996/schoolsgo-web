@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/attendance/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_attendance_time_slots_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
 class TeacherAttendanceOptionsScreen extends StatefulWidget {

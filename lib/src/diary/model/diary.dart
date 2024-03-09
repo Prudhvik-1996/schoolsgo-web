@@ -26,6 +26,7 @@ class GetDiaryRequest {
   int? subjectId;
   int? teacherId;
   List<int>? sectionIds;
+  int? academicYearId;
   Map<String, dynamic> __origJson = {};
 
   GetDiaryRequest({
@@ -38,6 +39,7 @@ class GetDiaryRequest {
     this.subjectId,
     this.teacherId,
     this.sectionIds,
+    this.academicYearId,
   });
 
   GetDiaryRequest.fromJson(Map<String, dynamic> json) {
@@ -50,6 +52,7 @@ class GetDiaryRequest {
     studentId = int.tryParse(json['studentId']?.toString() ?? '');
     subjectId = int.tryParse(json['subjectId']?.toString() ?? '');
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
+    academicYearId = int.tryParse(json['academicYearId']?.toString() ?? '');
     if (json['sectionIds'] != null) {
       final v = json['sectionIds'];
       final arr0 = <int?>[];
@@ -71,6 +74,7 @@ class GetDiaryRequest {
     data['subjectId'] = subjectId;
     data['teacherId'] = teacherId;
     data['sectionIds'] = sectionIds;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 

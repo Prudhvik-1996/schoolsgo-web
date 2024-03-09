@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AdminStudentAbsenteesScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class AdminStudentAbsenteesScreen extends StatefulWidget {
 class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScreen> {
   bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int? selectedAcademicYearId;
 
   List<StudentProfile> studentsList = [];
   List<StudentProfile> filteredStudentsList = [];
@@ -64,6 +66,9 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
       _studentAttendanceBeans = [];
     });
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
       schoolId: widget.adminProfile?.schoolId,
     ));
@@ -82,6 +87,7 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
       sectionId: widget.defaultSelectedSection?.sectionId,
+      academicYearId: selectedAcademicYearId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -95,6 +101,7 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
       sectionId: widget.defaultSelectedSection?.sectionId,
+      academicYearId: selectedAcademicYearId,
     ));
     if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -138,6 +145,7 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId, date: convertDateTimeToYYYYMMDDFormat(selectedDate),
       // sectionId: selectedSection!.sectionId,
+      academicYearId: selectedAcademicYearId,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {

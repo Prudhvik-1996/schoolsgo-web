@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminTeacherDealingSectionsV2 extends StatefulWidget {
   const AdminTeacherDealingSectionsV2({
@@ -53,8 +54,13 @@ class _AdminTeacherDealingSectionsV2State extends State<AdminTeacherDealingSecti
       _tdsList = [];
       setNewTds();
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -64,7 +70,10 @@ class _AdminTeacherDealingSectionsV2State extends State<AdminTeacherDealingSecti
       });
     }
 
-    GetTeachersRequest getTeachersRequest = GetTeachersRequest(schoolId: widget.adminProfile.schoolId);
+    GetTeachersRequest getTeachersRequest = GetTeachersRequest(
+      schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
+    );
     GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
     if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
@@ -73,7 +82,10 @@ class _AdminTeacherDealingSectionsV2State extends State<AdminTeacherDealingSecti
       });
     }
 
-    GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(schoolId: widget.adminProfile.schoolId);
+    GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(
+      schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
+    );
     GetSubjectsResponse getSubjectsResponse = await getSubjects(getSubjectsRequest);
 
     if (getSubjectsResponse.httpStatus == "OK" && getSubjectsResponse.responseStatus == "success") {
@@ -86,6 +98,7 @@ class _AdminTeacherDealingSectionsV2State extends State<AdminTeacherDealingSecti
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
         status: "active",
+        academicYearId: selectedAcademicYearId,
       ),
     );
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {

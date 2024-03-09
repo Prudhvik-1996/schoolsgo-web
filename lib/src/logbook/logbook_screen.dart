@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogbookScreen extends StatefulWidget {
   const LogbookScreen({Key? key, this.adminProfile, this.teacherProfile}) : super(key: key);
@@ -40,6 +41,8 @@ class _LogbookScreenState extends State<LogbookScreen> {
 
   bool _isSectionPickerOpen = false;
 
+  int? selectedAcademicYearId;
+
   @override
   void initState() {
     super.initState();
@@ -51,10 +54,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
       _isLoading = true;
       _isSectionPickerOpen = false;
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
 
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
       teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
+      academicYearId: selectedAcademicYearId,
     );
     GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
@@ -71,6 +77,7 @@ class _LogbookScreenState extends State<LogbookScreen> {
 
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
+      academicYearId: selectedAcademicYearId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
@@ -90,9 +97,11 @@ class _LogbookScreenState extends State<LogbookScreen> {
     setState(() {
       _isLoading = true;
     });
+
     GetLogBookResponse getLogBookResponse = await getLogBook(GetLogBookRequest(
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
       date: _selectedDate.millisecondsSinceEpoch + 5 * 60 * 60 * 1000 + 30 * 60 * 1000,
+      academicYearId: selectedAcademicYearId,
     ));
 
     if (getLogBookResponse.httpStatus == "OK" && getLogBookResponse.responseStatus == "success") {

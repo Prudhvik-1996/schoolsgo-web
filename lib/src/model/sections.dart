@@ -15,12 +15,14 @@ class GetSectionsRequest {
   int? schoolId;
   int? sectionId;
   int? franchiseId;
+  int? academicYearId;
   Map<String, dynamic> __origJson = {};
 
   GetSectionsRequest({
     this.schoolId,
     this.sectionId,
     this.franchiseId,
+    this.academicYearId,
   });
 
   GetSectionsRequest.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class GetSectionsRequest {
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     sectionId = int.tryParse(json["sectionId"]?.toString() ?? '');
     franchiseId = int.tryParse(json["franchiseId"]?.toString() ?? '');
+    academicYearId = int.tryParse(json["academicYearId"]?.toString() ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -35,6 +38,7 @@ class GetSectionsRequest {
     data["schoolId"] = schoolId;
     data["sectionId"] = sectionId;
     data["franchiseId"] = franchiseId;
+    data["academicYearId"] = academicYearId;
     return data;
   }
 

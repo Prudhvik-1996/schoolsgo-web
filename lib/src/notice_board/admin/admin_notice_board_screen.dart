@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/notice_board.dart';
 
@@ -59,9 +60,13 @@ class _AdminNoticeBoardScreenState extends State<AdminNoticeBoardScreen> {
       );
     });
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(
       schoolId: widget.adminProfile.schoolId,
       franchiseId: widget.adminProfile.franchiseId,
+      academicYearId: selectedAcademicYearId,
     ));
 
     if (getNoticeBoardResponse.httpStatus == 'OK' && getNoticeBoardResponse.responseStatus == 'success') {

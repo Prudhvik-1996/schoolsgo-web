@@ -28,6 +28,8 @@ class GetLogBookRequest {
   List<int?>? teacherIds;
   int? startDate;
   int? endDate;
+  int? academicYearId;
+
   Map<String, dynamic> __origJson = {};
 
   GetLogBookRequest({
@@ -41,6 +43,7 @@ class GetLogBookRequest {
     this.teacherIds,
     this.startDate,
     this.endDate,
+    this.academicYearId,
   });
 
   GetLogBookRequest.fromJson(Map<String, dynamic> json) {
@@ -52,6 +55,7 @@ class GetLogBookRequest {
     subjectId = int.tryParse(json["subjectId"]?.toString() ?? '');
     tdsId = int.tryParse(json["tdsId"]?.toString() ?? '');
     teacherId = int.tryParse(json["teacherId"]?.toString() ?? '');
+    academicYearId = int.tryParse(json["academicYearId"]?.toString() ?? '');
     if (json['teacherIds'] != null) {
       final v = json['teacherIds'];
       final arr0 = <int?>[];
@@ -76,6 +80,7 @@ class GetLogBookRequest {
     data['teacherIds'] = teacherIds;
     data["startDate"] = startDate;
     data["endDate"] = endDate;
+    data["academicYearId"] = academicYearId;
     return data;
   }
 

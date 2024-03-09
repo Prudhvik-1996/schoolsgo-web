@@ -13,6 +13,7 @@ import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_bulk_edit_attendance_time_slots_screen.dart';
 
@@ -55,8 +56,13 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
       _sectionsList = [];
       _teachers = [];
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -70,6 +76,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
         await getStudentAttendanceTimeSlots(GetStudentAttendanceTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
+      academicYearId: selectedAcademicYearId,
     ));
     if (getStudentAttendanceTimeSlotsResponse.httpStatus == "OK" && getStudentAttendanceTimeSlotsResponse.responseStatus == "success") {
       setState(() {
@@ -80,6 +87,7 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
     GetTeacherDealingSectionsResponse getTeacherDealingSectionsResponse = await getTeacherDealingSections(GetTeacherDealingSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
+      academicYearId: selectedAcademicYearId,
     ));
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {
       setState(() {
@@ -87,7 +95,10 @@ class _AdminAttendanceManagementScreenState extends State<AdminAttendanceManagem
       });
     }
 
-    GetTeachersResponse getTeachersResponse = await getTeachers(GetTeachersRequest(schoolId: widget.adminProfile.schoolId));
+    GetTeachersResponse getTeachersResponse = await getTeachers(GetTeachersRequest(
+      schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
+    ));
     if (getTeachersResponse.httpStatus == "OK" && getTeachersResponse.responseStatus == "success") {
       setState(() {
         _teachers = getTeachersResponse.teachers!;

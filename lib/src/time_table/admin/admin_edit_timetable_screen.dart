@@ -15,6 +15,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_edit_section_wise_time_slots.dart';
 
@@ -66,8 +67,13 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
       _previewMode = false;
       _debugPrintKeys = {};
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile.schoolId,
+      academicYearId: selectedAcademicYearId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -91,6 +97,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
     GetSectionWiseTimeSlotsResponse getSectionWiseTimeSlotsResponse = await getSectionWiseTimeSlots(GetSectionWiseTimeSlotsRequest(
       schoolId: widget.adminProfile.schoolId,
       status: "active",
+      academicYearId: selectedAcademicYearId,
     ));
     if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
       setState(() {
@@ -102,6 +109,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
       GetTeacherDealingSectionsRequest(
         schoolId: widget.adminProfile.schoolId,
         status: "active",
+        academicYearId: selectedAcademicYearId,
       ),
     );
     if (getTeacherDealingSectionsResponse.httpStatus == "OK" && getTeacherDealingSectionsResponse.responseStatus == "success") {

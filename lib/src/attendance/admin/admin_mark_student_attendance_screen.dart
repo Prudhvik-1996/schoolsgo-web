@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminMarkStudentAttendanceScreen extends StatefulWidget {
   const AdminMarkStudentAttendanceScreen({
@@ -33,6 +34,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
   bool _isLoading = true;
   bool _isEditMode = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int? selectedAcademicYearId;
 
   DateTime _selectedDate = DateTime.now();
 
@@ -86,9 +88,14 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
     setState(() {
       _isLoading = true;
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
+
     GetSectionsRequest getSectionsRequest = GetSectionsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
       sectionId: widget.selectedSection?.sectionId,
+      academicYearId: selectedAcademicYearId,
     );
     GetSectionsResponse getSectionsResponse = await getSections(getSectionsRequest);
 
@@ -117,6 +124,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
       date: convertDateTimeToYYYYMMDDFormat(_selectedDate),
       sectionId: _selectedSection!.sectionId,
       // studentId: 71,
+      academicYearId: selectedAcademicYearId,
     ));
     if (getStudentAttendanceBeansResponse.httpStatus == "OK" && getStudentAttendanceBeansResponse.responseStatus == "success") {
       setState(() {

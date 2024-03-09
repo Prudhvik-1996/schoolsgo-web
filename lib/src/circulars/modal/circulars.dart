@@ -17,6 +17,7 @@ class GetCircularsRequest {
   int? franchiseId;
   int? schoolId;
   String? role;
+  int? academicYearId;
   Map<String, dynamic> __origJson = {};
 
   GetCircularsRequest({
@@ -24,6 +25,7 @@ class GetCircularsRequest {
     this.franchiseId,
     this.schoolId,
     this.role,
+    this.academicYearId,
   });
   GetCircularsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -31,6 +33,7 @@ class GetCircularsRequest {
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
     role = json['role']?.toString();
+    academicYearId = json['academicYearId']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -38,6 +41,7 @@ class GetCircularsRequest {
     data['franchiseId'] = franchiseId;
     data['schoolId'] = schoolId;
     data['role'] = role;
+    data['academicYearId'] = academicYearId;
     return data;
   }
 
