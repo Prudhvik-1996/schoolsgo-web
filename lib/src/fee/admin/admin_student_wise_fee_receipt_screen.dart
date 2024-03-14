@@ -27,6 +27,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentWiseFeeReceiptsScreen extends StatefulWidget {
   const AdminStudentWiseFeeReceiptsScreen({Key? key, required this.adminProfile, required this.studentAnnualFeeBean}) : super(key: key);
@@ -1543,13 +1544,7 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
         drawer: AdminAppDrawer(
           adminProfile: widget.adminProfile,
         ),
-        body: Center(
-          child: Image.asset(
-            'assets/images/eis_loader.gif',
-            height: 500,
-            width: 500,
-          ),
-        ),
+        body: const EpsilonDiaryLoadingWidget(),
       );
     }
     return Scaffold(

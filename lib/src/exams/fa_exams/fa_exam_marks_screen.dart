@@ -17,6 +17,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class FAExamMarksScreen extends StatefulWidget {
   const FAExamMarksScreen({
@@ -140,13 +141,7 @@ class _FAExamMarksScreenState extends State<FAExamMarksScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

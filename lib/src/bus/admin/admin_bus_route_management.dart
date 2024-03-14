@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/common_components/custom_stepper/custom_steppe
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminRouteManagementScreen extends StatefulWidget {
   const AdminRouteManagementScreen({
@@ -85,13 +86,7 @@ class _AdminRouteManagementScreenState extends State<AdminRouteManagementScreen>
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: busRouteInfoBeans.map((e) => busRouteWidget(e)).toList(),
             ),

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:html';
+
 import 'package:clay_containers/widgets/clay_container.dart';
 
 // ignore: implementation_imports
@@ -17,6 +20,7 @@ import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentFeeManagementScreen extends StatefulWidget {
   const AdminStudentFeeManagementScreen({
@@ -390,6 +394,18 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
     );
   }
 
+  Future<void> downloadStudentFeeData() async {
+    setState(() => _isLoading = true);
+    List<int> bytes = await getStudentFeeData(GetStudentProfileRequest(
+      schoolId: widget.adminProfile.schoolId,
+      sectionId: selectedSection?.sectionId,
+    ));
+    AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+      ..setAttribute("download", "StudentFeeData_${widget.adminProfile.schoolName ?? "_"}.xlsx")
+      ..click();
+    setState(() => _isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
@@ -398,18 +414,23 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text("Student Fee Management"),
+        actions: [
+          if (!_isLoading)
+            IconButton(
+              icon: const Icon(Icons.download),
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                await downloadStudentFeeData();
+                setState(() => _isLoading = false);
+              },
+            ),
+        ],
       ),
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 _sectionPicker(),

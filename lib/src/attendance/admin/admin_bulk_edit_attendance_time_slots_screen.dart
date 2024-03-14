@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/model/time_slot.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminBulkEditAttendanceTimeSlotsScreen extends StatefulWidget {
   final AdminProfile adminProfile;
@@ -559,13 +560,7 @@ class _AdminBulkEditAttendanceTimeSlotsScreenState extends State<AdminBulkEditAt
         title: const Text("Attendance Time Slots"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 getWarningCard(),

@@ -13,6 +13,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherCircularsScreen extends StatefulWidget {
   const TeacherCircularsScreen({Key? key, required this.teacherProfile}) : super(key: key);
@@ -80,13 +81,7 @@ class _TeacherCircularsScreenState extends State<TeacherCircularsScreen> {
         teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Column(
               children: [
                 Expanded(

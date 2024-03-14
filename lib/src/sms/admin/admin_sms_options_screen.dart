@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminSmsOptionsScreen extends StatefulWidget {
   const AdminSmsOptionsScreen({
@@ -127,13 +128,7 @@ class _AdminSmsOptionsScreenState extends State<AdminSmsOptionsScreen> {
         title: const Text("SMS"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               controller: bodyVerticalController,
               children: [

@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/stats/constants/suggestions_raised_against.dar
 import 'package:schoolsgo_web/src/suggestion_box/model/suggestion_box.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class SuggestionBoxReportScreen extends StatefulWidget {
   const SuggestionBoxReportScreen({
@@ -714,13 +715,7 @@ class _SuggestionBoxReportScreenState extends State<SuggestionBoxReportScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _isFileDownloading
               ? Column(
                   children: [

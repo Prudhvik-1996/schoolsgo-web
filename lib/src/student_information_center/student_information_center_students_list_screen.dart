@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:html';
+
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_base_widget.dart';
@@ -105,20 +109,35 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
     });
   }
 
+  Future<void> downloadStudentMasterData() async {
+    List<int> bytes = await getStudentMasterData(GetStudentProfileRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      sectionId: widget.defaultSection?.sectionId,
+    ));
+    AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+      ..setAttribute("download", "StudentMasterData_${widget.adminProfile?.schoolName ?? widget.teacherProfile?.schoolName ?? "_"}.xlsx")
+      ..click();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Student Information Center"),
+        actions: [
+          if (!_isLoading)
+            IconButton(
+            icon: const Icon(Icons.download),
+            onPressed: () async {
+              setState(() => _isLoading = true);
+              await downloadStudentMasterData();
+              setState(() => _isLoading = false);
+            },
+          ),
+        ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

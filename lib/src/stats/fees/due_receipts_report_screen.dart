@@ -19,6 +19,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DueReceiptsScreen extends StatefulWidget {
   const DueReceiptsScreen({
@@ -998,13 +999,7 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _renderingReceiptText != null
               ? buildRenderingReceiptsWidget()
               : pdfInBytes != null

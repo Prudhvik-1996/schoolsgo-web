@@ -163,6 +163,8 @@ const String PAY_EMPLOYEE_SALARIES = "/payslips/payEmployeeSalaries";
 const List<String> shouldEncryptDataForUrl = []; // [GET_USER_DETAILS, UPDATE_USER_PIN, DO_LOGIN];
 
 const String GET_STUDENT_ATTENDANCE_REPORT = "/reports/getStudentAttendanceFile";
+const String GET_STUDENT_MASTER_DATA = "/reports/getStudentsMasterReport";
+const String GET_STUDENT_FEE_DATA = "/reports/getStudentsFeeMasterReport";
 const String GET_DIARY_REPORT = "/reports/getStudentDiaryReport";
 const String GET_STUDENT_TIME_TABLE_REPORT = "/reports/getStudentTimeTableReport";
 const String GET_LEDGER_REPORT = "/reports/getLedgerReport";

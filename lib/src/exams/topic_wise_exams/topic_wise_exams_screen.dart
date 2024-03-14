@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/all_topics_studen
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/exam_topic_widget.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TopicWiseExamsScreen extends StatefulWidget {
   const TopicWiseExamsScreen({
@@ -113,13 +114,7 @@ class _TopicWiseExamsScreenState extends State<TopicWiseExamsScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : examTopics.isEmpty
               ? const Center(child: Text("Create Topics to proceed.."))
               : ListView(

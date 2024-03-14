@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/feedback/model/feedback.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherFeedbackScreen extends StatefulWidget {
   const TeacherFeedbackScreen({
@@ -169,13 +170,7 @@ class _TeacherFeedbackScreenState extends State<TeacherFeedbackScreen> {
         teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               physics: const BouncingScrollPhysics(),
               children: <Widget>[

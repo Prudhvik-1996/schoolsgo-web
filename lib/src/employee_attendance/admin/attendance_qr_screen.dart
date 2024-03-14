@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/employee_attendance/admin/attendance_qr_widget.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class EmployeeAttendanceQRScreen extends StatefulWidget {
   const EmployeeAttendanceQRScreen({
@@ -38,13 +39,7 @@ class _EmployeeAttendanceQRScreenState extends State<EmployeeAttendanceQRScreen>
         title: const Text('Scan QR Code'),
       ),
       body: isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Center(
               child: ListView(
                 children: [

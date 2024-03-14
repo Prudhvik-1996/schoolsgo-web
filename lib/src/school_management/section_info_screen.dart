@@ -1,5 +1,3 @@
-import 'package:clay_containers/clay_containers.dart';
-
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +6,10 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/school_management/sections_reorder_screen.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_section_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class SectionInfoScreen extends StatefulWidget {
   const SectionInfoScreen({
@@ -33,6 +33,8 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
 
   Section? selectedSection;
   late int selectedAcademicYearId;
+
+  bool _isEditMode = false;
 
   @override
   void initState() {
@@ -102,143 +104,85 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Sections Info"),
+        actions: [
+          if (!_isLoading)
+            IconButton(
+              onPressed: () => setState(() => _isEditMode = !_isEditMode),
+              icon: _isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
+            ),
+          if (!_isLoading && !_isEditMode)
+            IconButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return SectionsReorderScreen(
+                      adminProfile: widget.adminProfile,
+                      sections: sectionsList,
+                      teachers: teachersList,
+                      students: studentsList,
+                    );
+                  },
+                ),
+              ).then((_) => _loadData()),
+              icon: const Icon(Icons.reorder),
+            ),
+        ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
-                GridView.count(
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 1 : 3,
-                  shrinkWrap: true,
-                  childAspectRatio: 1.5,
-                  children: sectionsList.map((e) => buildSectionWidget(e)).toList(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: sectionsDataTable(context),
                 ),
               ],
             ),
     );
   }
 
-  Widget buildSectionWidget(Section section) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-      child: ClayContainer(
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        spread: 1,
-        borderRadius: 10,
-        depth: 40,
-        emboss: true,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      section.sectionName ?? "-",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  if (selectedSection == null) editSectionButton(section),
-                  if (selectedSection?.sectionId == section.sectionId) saveChangesButton(section),
-                ],
+  DataTable sectionsDataTable(BuildContext context) {
+    return DataTable(
+      dataRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
+        if (states.contains(MaterialState.selected) || states.contains(MaterialState.hovered)) {
+          return Theme.of(context).colorScheme.primary.withOpacity(0.08);
+        }
+        return null; // Use the default value.
+      }),
+      headingRowColor: MaterialStateColor.resolveWith((states) => Theme.of(context).colorScheme.primary),
+      border: TableBorder.all(
+        color: Colors.grey,
+      ),
+      decoration: BoxDecoration(color: clayContainerColor(context)),
+      columns: const [
+        DataColumn(label: Text('S. No.', style: TextStyle(fontWeight: FontWeight.bold))),
+        DataColumn(label: Text('Section Name', style: TextStyle(fontWeight: FontWeight.bold))),
+        DataColumn(label: Text('Class Teacher', style: TextStyle(fontWeight: FontWeight.bold))),
+        DataColumn(label: Text('No. Of Students', style: TextStyle(fontWeight: FontWeight.bold))),
+        DataColumn(label: Text('More Info', style: TextStyle(fontWeight: FontWeight.bold))),
+      ],
+      showCheckboxColumn: false,
+      rows: [
+        ...sectionsList.map(
+          (section) => DataRow(
+            onSelectChanged: (selected) {
+              if (!_isEditMode) {
+                goToSection(section);
+              }
+            },
+            cells: [
+              DataCell(Text(section.seqOrder?.toString() ?? "-")),
+              DataCell(Text(section.sectionName ?? "-")),
+              DataCell(
+                _isEditMode
+                    ? classTeacherPicker(section)
+                    : Text(teachersList.where((et) => et.teacherId == section.classTeacherId).firstOrNull?.teacherName ?? "-"),
               ),
-              const SizedBox(height: 5),
-              Divider(
-                thickness: 2,
-                color: clayContainerTextColor(context),
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  const Expanded(child: Text("Class Teacher")),
-                  if (selectedSection == section)
-                    DropdownButton<Teacher?>(
-                      value: teachersList.where((et) => et.teacherId == section.classTeacherId).firstOrNull,
-                      items: teachersList.map((e) => DropdownMenuItem<Teacher>(value: e, child: Text(e.teacherName ?? "-"))).toList(),
-                      onChanged: (Teacher? teacher) {
-                        setState(() {
-                          section.classTeacherId = teacher?.teacherId;
-                          section.agent = "${widget.adminProfile.userId}";
-                        });
-                      },
-                    )
-                  else
-                    Expanded(
-                      child: Text(
-                        teachersList.where((et) => et.teacherId == section.classTeacherId).firstOrNull?.teacherName ?? "-",
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Expanded(
-                child: ListView(
-                  children: [
-                    Row(
-                      children: [
-                        const Text("No. of Students:"),
-                        Expanded(
-                          child: Text(
-                            "${studentsList.where((es) => es.sectionId == section.sectionId && es.status == 'active').length}",
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Text("No. of Boys:"),
-                        Expanded(
-                          child: Text(
-                            "${studentsList.where((es) => es.sectionId == section.sectionId && es.status == 'active' && es.sex == "male").length}",
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        const Text("No. of Girls:"),
-                        Expanded(
-                          child: Text(
-                            "${studentsList.where((es) => es.sectionId == section.sectionId && es.status == 'active' && es.sex == "female").length}",
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 5),
-              if (selectedSection == null) const SizedBox(height: 5),
-              if (selectedSection == null)
+              DataCell(Text(studentsList.where((es) => es.sectionId == section.sectionId && es.status == 'active').length.toString())),
+              DataCell(
                 GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ClassTeacherSectionScreen(
-                          adminProfile: widget.adminProfile,
-                          teacherProfile: null,
-                          section: section,
-                          selectedAcademicYearId: selectedAcademicYearId,
-                        );
-                      },
-                    ),
-                  ),
+                  onTap: () => goToSection(section),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: ClayButton(
@@ -246,14 +190,16 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                       surfaceColor: clayContainerColor(context),
                       parentColor: clayContainerColor(context),
                       spread: 1,
-                      borderRadius: 5,
-                      child: Center(
-                        child: Container(
-                          margin: const EdgeInsets.all(8),
-                          child: const Text(
-                            "More Info",
-                            style: TextStyle(
-                              color: Colors.blue,
+                      borderRadius: 100,
+                      child: const Center(
+                        child: SizedBox(
+                          height: 25,
+                          width: 25,
+                          child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(Icons.exit_to_app),
                             ),
                           ),
                         ),
@@ -261,22 +207,24 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                     ),
                   ),
                 ),
+              ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 
-  GestureDetector saveChangesButton(Section section) {
-    return GestureDetector(
-      onTap: () async {
-        if (section.classTeacherId == Section.fromJson(section.origJson()).classTeacherId) {
-          return;
-        }
+  DropdownButton<Teacher?> classTeacherPicker(Section section) {
+    return DropdownButton<Teacher?>(
+      value: teachersList.where((et) => et.teacherId == section.classTeacherId).firstOrNull,
+      items: teachersList.map((e) => DropdownMenuItem<Teacher>(value: e, child: Text(e.teacherName ?? "-"))).toList(),
+      onChanged: (Teacher? teacher) async {
         setState(() {
-          _isSectionLoading = true;
+          section.classTeacherId = teacher?.teacherId;
+          section.agent = "${widget.adminProfile.userId}";
         });
+        setState(() => _isLoading = true);
         CreateOrUpdateSectionRequest createOrUpdateSectionRequest = CreateOrUpdateSectionRequest.fromSection(section);
         CreateOrUpdateSectionResponse createOrUpdateSectionResponse = await createOrUpdateSection(createOrUpdateSectionRequest);
         if (createOrUpdateSectionResponse.httpStatus != "OK" || createOrUpdateSectionResponse.responseStatus != "success") {
@@ -286,48 +234,23 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
             ),
           );
         }
-        setState(() {
-          _isSectionLoading = false;
-          selectedSection = null;
-        });
+        setState(() => _isLoading = false);
       },
-      child: ClayButton(
-        depth: 40,
-        spread: selectedSection != null && selectedSection!.sectionId == section.sectionId ? 0 : 1,
-        surfaceColor: selectedSection != null && selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        borderRadius: 10,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: _isSectionLoading ? const CircularProgressIndicator() : const Icon(Icons.check),
-          ),
-        ),
-      ),
     );
   }
 
-  GestureDetector editSectionButton(Section section) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedSection = section;
-        });
-      },
-      child: ClayButton(
-        depth: 40,
-        spread: selectedSection != null && selectedSection!.sectionId == section.sectionId ? 0 : 1,
-        surfaceColor: clayContainerColor(context),
-        parentColor: clayContainerColor(context),
-        borderRadius: 10,
-        child: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Icon(Icons.edit),
-          ),
-        ),
+  Future<dynamic> goToSection(Section section) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return ClassTeacherSectionScreen(
+            adminProfile: widget.adminProfile,
+            teacherProfile: null,
+            section: section,
+            selectedAcademicYearId: selectedAcademicYearId,
+          );
+        },
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/payslips/modal/payslips.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class PayslipComponentsScreen extends StatefulWidget {
   const PayslipComponentsScreen({
@@ -225,13 +226,7 @@ class _PayslipComponentsScreenState extends State<PayslipComponentsScreen> {
         title: const Text("Payslip components"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: payslipComponents.map((e) => payslipComponentWidget(e, isEditable: true)).toList(),
             ),

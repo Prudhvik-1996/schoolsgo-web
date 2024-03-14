@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -4909,4 +4910,10 @@ Future<UpdateReceiptResponse> updateReceipt(UpdateReceiptRequest updateReceiptRe
 
   debugPrint("UpdateReceiptResponse ${updateReceiptResponse.toJson()}");
   return updateReceiptResponse;
+}
+
+Future<List<int>> getStudentFeeData(GetStudentProfileRequest getStudentProfileRequest) async {
+  debugPrint("Raising request to getStudentAttendanceReport with request ${jsonEncode(getStudentProfileRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_FEE_DATA;
+  return await HttpUtils.postToDownloadFile(_url, getStudentProfileRequest.toJson());
 }

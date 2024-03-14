@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import 'admin_edit_section_wise_time_slots.dart';
 
@@ -871,13 +872,7 @@ class _AdminEditTimeTableState extends State<AdminEditTimeTable> with TickerProv
               ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _previewMode
               ? _showPreviews()
               : CustomScrollView(

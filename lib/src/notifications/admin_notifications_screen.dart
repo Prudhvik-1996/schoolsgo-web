@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminNotificationsScreen extends StatefulWidget {
   const AdminNotificationsScreen({
@@ -236,13 +237,7 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
         title: Text("Notifications"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(),
     );
   }

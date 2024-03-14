@@ -14,6 +14,7 @@ import 'package:schoolsgo_web/src/stats/student_time_table/student_time_table_re
 import 'package:schoolsgo_web/src/stats/suggestion_box/suggestion_box_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/teacher_logbook/teacher_logbook_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/under_development_screen.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StatsHome extends StatefulWidget {
   const StatsHome({
@@ -70,13 +71,7 @@ class _StatsHomeState extends State<StatsHome> {
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               physics: const BouncingScrollPhysics(),
               children: statsType.map((e) => goToSpecificReportWidget(e.svgAssetImage, e.reportType, e.newScreen)).toList(),

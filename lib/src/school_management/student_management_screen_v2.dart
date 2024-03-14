@@ -6,16 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentManagementScreenV2 extends StatefulWidget {
   const StudentManagementScreenV2({
     Key? key,
+    this.title,
     required this.adminProfile,
     required this.studentProfiles,
     required this.sectionsList,
   }) : super(key: key);
 
+  final String? title;
   final AdminProfile adminProfile;
   final List<StudentProfile> studentProfiles;
   final List<Section> sectionsList;
@@ -43,27 +47,16 @@ class _StudentManagementScreenV2State extends State<StudentManagementScreenV2> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Student Management"),
+        title: Text(widget.title ?? "Student Management"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
+          ? const EpsilonDiaryLoadingWidget()
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: StudentProfileGrid(
+                studentProfiles: studentProfiles,
+                sectionsList: sectionsList,
               ),
-            )
-          : ListView(
-              controller: ScrollController(),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: StudentProfileGrid(
-                    studentProfiles: studentProfiles,
-                    sectionsList: sectionsList,
-                  ),
-                ),
-              ],
             ),
     );
   }
@@ -86,14 +79,14 @@ class StudentProfileGrid extends StatefulWidget {
 class _StudentProfileGridState extends State<StudentProfileGrid> {
   late _StudentProfileDataSource studentProfileDataSource;
   Map<String, double> columnWidths = {
-    "Section": 70,
+    "Section": 100,
     "Roll No.": 70,
     "Photo": 70,
     "Student Name": 200,
     "Parent Name": 200,
     "Mobile": 120,
     "Sex": 80,
-    "Status": 80,
+    "Status": 100,
   };
   Section? selectedSection;
   int _rowsPerPage = 5;
@@ -118,46 +111,62 @@ class _StudentProfileGridState extends State<StudentProfileGrid> {
     int studentsLength = widget.studentProfiles.where((e) => selectedSection?.sectionId == null || e.sectionId == selectedSection?.sectionId).length;
     return Column(
       children: [
-        SfDataGrid(
-          frozenColumnsCount: 2,
-          shrinkWrapRows: true,
-          source: studentProfileDataSource,
-          horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
-          allowColumnsResizing: true,
-          onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
-            setState(() {
-              columnWidths[details.column.columnName] = details.width;
-            });
-            return true;
-          },
-          isScrollbarAlwaysShown: true,
-          columns: [
-            ...columnWidths.keys.map((e) => buildGridColumn(columnName: e)),
-          ],
-        ),
-        SizedBox(
-          height: 100,
-          child: SfDataPager(
-            itemHeight: 50,
-            delegate: studentProfileDataSource,
-            availableRowsPerPage: [
-              if (studentsLength >= 5) 5,
-              if (studentsLength >= 10) 10,
-              if (studentsLength >= 20) 20,
-              if (studentsLength >= 50) 50,
-              if (studentsLength >= 100) 100,
-              studentsLength
-            ],
-            onRowsPerPageChanged: (int? rowsPerPage) {
-              setState(() {
-                _rowsPerPage = rowsPerPage!;
-                studentProfileDataSource.updateRowsPerPage(_rowsPerPage);
-              });
-            },
-            pageCount: ((studentsLength / _rowsPerPage).ceil()).toDouble(),
-            direction: Axis.horizontal,
+        Expanded(
+          child: SfDataGridTheme(
+            data: SfDataGridThemeData(headerColor: Colors.blue),
+            child: SfDataGrid(
+              verticalScrollController: ScrollController(),
+              verticalScrollPhysics: const BouncingScrollPhysics(),
+              isScrollbarAlwaysShown: true,
+              allowSwiping: true,
+              gridLinesVisibility: GridLinesVisibility.both,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              // onFilterChanging: (DataGridFilterChangeDetails details) {
+              //   return true;
+              // },
+              allowFiltering: false,
+              // frozenColumnsCount: 2,
+              shrinkWrapRows: false,
+              source: studentProfileDataSource,
+              horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
+              allowColumnsResizing: false,
+              // allowColumnsResizing: true,
+              // onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
+              //   setState(() {
+              //     columnWidths[details.column.columnName] = details.width;
+              //   });
+              //   return true;
+              // },
+              columns: [
+                ...columnWidths.keys.map((e) => buildGridColumn(columnName: e)),
+              ],
+            ),
           ),
         ),
+        if (selectedSection == null)
+          SizedBox(
+            height: 70,
+            child: SfDataPager(
+              itemHeight: 50,
+              delegate: studentProfileDataSource,
+              availableRowsPerPage: [
+                if (studentsLength >= 5) 5,
+                if (studentsLength >= 10) 10,
+                if (studentsLength >= 20) 20,
+                if (studentsLength >= 50) 50,
+                if (studentsLength >= 100) 100,
+                studentsLength
+              ],
+              onRowsPerPageChanged: (int? rowsPerPage) {
+                setState(() {
+                  _rowsPerPage = rowsPerPage!;
+                  studentProfileDataSource.updateRowsPerPage(_rowsPerPage);
+                });
+              },
+              pageCount: ((studentsLength / _rowsPerPage).ceil()).toDouble(),
+              direction: Axis.horizontal,
+            ),
+          ),
       ],
     );
   }
@@ -170,6 +179,7 @@ class _StudentProfileGridState extends State<StudentProfileGrid> {
     if (columnName == "Section") {
       return GridColumn(
         width: columnWidth(columnName),
+        allowFiltering: false,
         autoFitPadding: const EdgeInsets.all(10.0),
         label: Container(
           alignment: Alignment.centerLeft,
@@ -196,7 +206,7 @@ class _StudentProfileGridState extends State<StudentProfileGrid> {
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            e?.sectionName ?? "-",
+                            e?.sectionName ?? "Section",
                             style: const TextStyle(
                               fontSize: 14,
                             ),
@@ -213,6 +223,12 @@ class _StudentProfileGridState extends State<StudentProfileGrid> {
       );
     }
     return GridColumn(
+      filterIconPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      filterPopupMenuOptions: const FilterPopupMenuOptions(
+        filterMode: FilterMode.checkboxFilter,
+        canShowSortingOptions: false,
+        canShowClearFilterOption: false,
+      ),
       width: columnWidth(columnName),
       autoFitPadding: const EdgeInsets.all(10.0),
       label: Container(
@@ -224,6 +240,7 @@ class _StudentProfileGridState extends State<StudentProfileGrid> {
         ),
       ),
       columnName: columnName,
+      allowFiltering: columnName != "Photo",
     );
   }
 
@@ -258,6 +275,9 @@ class _StudentProfileDataSource extends DataGridSource {
         null,
       );
     }).toList();
+    if (selectedSection != null) {
+      rowsPerPage = rowsSource.length;
+    }
     _paginatedSource = rowsSource.getRange(0, min(rowsSource.length, rowsPerPage)).toList(growable: false); // range error fix
     handlePageChange(0, 0);
     buildPaginatedDataGridRows();
@@ -317,15 +337,7 @@ class _StudentProfileDataSource extends DataGridSource {
         ? SizedBox(
             width: 60,
             height: 60,
-            child: dataGridCell.value == null
-                ? Image.asset(
-                    "assets/images/avatar.png",
-                    fit: BoxFit.contain,
-                  )
-                : Image.network(
-                    dataGridCell.value!,
-                    fit: BoxFit.contain,
-                  ),
+            child: extractPhoto(dataGridCell.value),
           )
         : dataGridCell.columnName.toLowerCase() == "status"
             ? Text(
@@ -340,6 +352,25 @@ class _StudentProfileDataSource extends DataGridSource {
                 minFontSize: 8,
                 maxLines: maxLines(dataGridCell),
               );
+  }
+
+  Image extractPhoto(String? photoUrl) {
+    try {
+      return photoUrl == null
+          ? Image.asset(
+              "assets/images/avatar.png",
+              fit: BoxFit.contain,
+            )
+          : Image.network(
+              photoUrl,
+              fit: BoxFit.contain,
+            );
+    } catch (_) {
+      return Image.asset(
+        "assets/images/avatar.png",
+        fit: BoxFit.contain,
+      );
+    }
   }
 
   Color? statusColor(DataGridRow row) {
@@ -391,14 +422,14 @@ class _StudentProfileDataSource extends DataGridSource {
   void buildPaginatedDataGridRows() {
     dataGridRows = _paginatedSource.map<DataGridRow>((e) {
       return DataGridRow(cells: [
-        DataGridCell<String>(columnName: 'sectionName', value: e.sectionName ?? " - "),
-        DataGridCell<String>(columnName: 'rollNumber', value: e.rollNumber?.toString() ?? " - "),
-        DataGridCell<String>(columnName: 'photo', value: e.studentPhotoUrl),
-        DataGridCell<String>(columnName: 'studentName', value: e.studentName ?? " - "),
-        DataGridCell<String>(columnName: 'gaurdianName', value: e.gaurdianName ?? " - "),
-        DataGridCell<String>(columnName: 'gaurdianMobile', value: e.gaurdianMobile ?? " - "),
-        DataGridCell<String>(columnName: 'sex', value: e.sex ?? " - "),
-        DataGridCell<String>(columnName: 'status', value: buildStatusMessage(e)),
+        DataGridCell<String>(columnName: 'Section', value: e.sectionName ?? " - "),
+        DataGridCell<String>(columnName: 'Roll No.', value: e.rollNumber?.toString() ?? " - "),
+        DataGridCell<String>(columnName: 'Photo', value: e.studentPhotoUrl),
+        DataGridCell<String>(columnName: 'Student Name', value: e.studentName ?? " - "),
+        DataGridCell<String>(columnName: 'Parent Name', value: e.gaurdianName ?? " - "),
+        DataGridCell<String>(columnName: 'Mobile', value: e.gaurdianMobile ?? " - "),
+        DataGridCell<String>(columnName: 'Sex', value: e.sex ?? " - "),
+        DataGridCell<String>(columnName: 'Status', value: buildStatusMessage(e)),
       ]);
     }).toList(growable: false);
   }

@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/inventory/modal/inventory.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminInventoryStatsScreen extends StatefulWidget {
   const AdminInventoryStatsScreen({
@@ -109,13 +110,7 @@ class _AdminInventoryStatsScreenState extends State<AdminInventoryStatsScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 summaryWidget(),

@@ -21,6 +21,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/print_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentFeeScreenV3 extends StatefulWidget {
   const StudentFeeScreenV3({
@@ -491,13 +492,7 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
         studentProfile: widget.studentProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : isAddNew
               ? ListView(
                   controller: newReceiptsListViewController,

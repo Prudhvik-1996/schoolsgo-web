@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/fa_exams/fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exams_tds_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherExamOptionsScreen extends StatefulWidget {
   const TeacherExamOptionsScreen({
@@ -108,13 +109,7 @@ class _TeacherExamOptionsScreenState extends State<TeacherExamOptionsScreen> {
         teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
-          ? Center(
-        child: Image.asset(
-          'assets/images/eis_loader.gif',
-          height: 500,
-          width: 500,
-        ),
-      )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
         padding: EdgeInsets.zero,
         primary: false,

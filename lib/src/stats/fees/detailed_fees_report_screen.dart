@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DetailedFeesReportScreen extends StatefulWidget {
   const DetailedFeesReportScreen({
@@ -33,7 +34,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
   List<Section> selectedSectionsList = [];
   bool _isSectionPickerOpen = false;
 
-  FeeReportType feeReportType = FeeReportType.detailed;
+  FeeReportType feeReportType = FeeReportType.summary;
   late String reportName;
 
   @override
@@ -293,7 +294,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
         },
         title: Text(
           _feeReportType == FeeReportType.detailed
-              ? "Detailed Fees Report"
+              ? "Detailed Fees Transaction Report"
               : _feeReportType == FeeReportType.sectionWiseTermWiseForAllStudents
                   ? "Term Wise Report"
                   : _feeReportType == FeeReportType.summary
@@ -312,23 +313,24 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
               children: [
                 Expanded(
                   flex: 1,
+                  child: _radioListTileForFeeReportType(FeeReportType.summary),
+                ),
+                Expanded(
+                  flex: 1,
                   child: _radioListTileForFeeReportType(FeeReportType.detailed),
                 ),
                 Expanded(
                   flex: 1,
                   child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWiseForAllStudents),
                 ),
-                // const SizedBox(
-                //   width: 15,
-                // ),
-                // Expanded(
-                //   flex: 1,
-                //   child: _radioListTileForFeeReportType(FeeReportType.summary),
-                // ),
               ],
             )
           : Column(
               children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                  child: _radioListTileForFeeReportType(FeeReportType.summary),
+                ),
                 Container(
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
                   child: _radioListTileForFeeReportType(FeeReportType.detailed),
@@ -337,13 +339,6 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
                   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
                   child: _radioListTileForFeeReportType(FeeReportType.sectionWiseTermWiseForAllStudents),
                 ),
-                // const SizedBox(
-                //   width: 15,
-                // ),
-                // Container(
-                //   margin: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-                //   child: _radioListTileForFeeReportType(FeeReportType.summary),
-                // ),
               ],
             ),
     );
@@ -357,16 +352,25 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
             _isFileDownloading = true;
           });
 
-          List<int> bytes = await detailedFeeReport(
-            GetStudentWiseAnnualFeesRequest(
+          if (feeReportType == FeeReportType.summary) {
+            List<int> bytes = await getStudentFeeData(GetStudentProfileRequest(
               schoolId: widget.adminProfile.schoolId,
-              sectionIds: selectedSectionsList.map((e) => e.sectionId).where((e) => e != null).map((e) => e!).toList(),
-            ),
-            feeReportType,
-          );
-          AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
-            ..setAttribute("download", reportName)
-            ..click();
+            ));
+            AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+              ..setAttribute("download", "StudentFeeData_${widget.adminProfile.schoolName ?? "_"}.xlsx")
+              ..click();
+          } else {
+            List<int> bytes = await detailedFeeReport(
+              GetStudentWiseAnnualFeesRequest(
+                schoolId: widget.adminProfile.schoolId,
+                sectionIds: selectedSectionsList.map((e) => e.sectionId).where((e) => e != null).map((e) => e!).toList(),
+              ),
+              feeReportType,
+            );
+            AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+              ..setAttribute("download", reportName)
+              ..click();
+          }
           refreshReportName();
           setState(() {
             _isFileDownloading = false;
@@ -401,13 +405,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _isFileDownloading
               ? Column(
                   children: [

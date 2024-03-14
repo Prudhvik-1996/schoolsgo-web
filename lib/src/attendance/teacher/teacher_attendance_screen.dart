@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/employee_attendance/employee/employee_attendance_screen.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherAttendanceScreen extends StatefulWidget {
   const TeacherAttendanceScreen({
@@ -48,13 +49,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
   @override
   Widget build(BuildContext context) {
     return isLoading
-        ? Center(
-            child: Image.asset(
-              'assets/images/eis_loader.gif',
-              height: 500,
-              width: 500,
-            ),
-          )
+        ? const EpsilonDiaryLoadingWidget()
         : EmployeeAttendanceScreen(
             employeeBean: employeeBean,
           );

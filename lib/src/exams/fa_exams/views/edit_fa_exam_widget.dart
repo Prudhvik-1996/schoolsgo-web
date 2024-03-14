@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class EditFAExamWidget extends StatefulWidget {
   const EditFAExamWidget({
@@ -197,13 +198,7 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 Container(

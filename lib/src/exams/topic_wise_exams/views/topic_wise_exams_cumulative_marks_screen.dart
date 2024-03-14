@@ -13,6 +13,7 @@ import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/topic_wise_exams_
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TopicWiseExamCumulativeMarksScreen extends StatefulWidget {
   const TopicWiseExamCumulativeMarksScreen({
@@ -238,13 +239,7 @@ class _TopicWiseExamCumulativeMarksScreenState extends State<TopicWiseExamCumula
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,

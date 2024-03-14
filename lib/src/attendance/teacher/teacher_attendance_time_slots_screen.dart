@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherAttendanceTimeslots extends StatefulWidget {
   final TeacherProfile teacherProfile;
@@ -155,13 +156,7 @@ class _TeacherAttendanceTimeslotsState extends State<TeacherAttendanceTimeslots>
         title: const Text("Attendance"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                     _getDatePicker(),

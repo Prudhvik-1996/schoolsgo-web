@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart'
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import 'admin_bulk_edit_section_wise_time_slots.dart';
 
@@ -569,13 +570,7 @@ class _AdminEditSectionWiseTimeSlotsState extends State<AdminEditSectionWiseTime
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 _buildSectionsFilter(),

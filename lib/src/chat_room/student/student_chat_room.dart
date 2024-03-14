@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/chat_room/modal/chat_room.dart';
 import 'package:schoolsgo_web/src/chat_room/student/student_chat_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -98,38 +99,18 @@ class _StudentChatRoomState extends State<StudentChatRoom> {
         body: TabBarView(
           children: [
             _isLoading
-                ? Center(
-                    child: Image.asset(
-                      'assets/images/eis_loader.gif',
-                      height: 500,
-                      width: 500,
-                    ),
-                  )
+                ? const EpsilonDiaryLoadingWidget()
                 : ListView(
                     children: chatRooms.where((e) => e.lastMessageId != null).map((e) => getChatRoomWidget(e)).toList(),
                   ),
-            _isLoading
-                ? Center(
-                    child: Image.asset(
-                      'assets/images/eis_loader.gif',
-                      height: 500,
-                      width: 500,
-                    ),
-                  )
-                : ListView(
-                    children: chatRooms.where((e) => e.studentId == null).map((e) => getChatRoomWidget(e)).toList(),
-                  ),
-            _isLoading
-                ? Center(
-                    child: Image.asset(
-                      'assets/images/eis_loader.gif',
-                      height: 500,
-                      width: 500,
-                    ),
-                  )
-                : ListView(
-                    children: chatRooms.where((e) => e.studentId != null).map((e) => getChatRoomWidget(e)).toList(),
-                  ),
+            if (!_isLoading)
+              ListView(
+                children: chatRooms.where((e) => e.studentId == null).map((e) => getChatRoomWidget(e)).toList(),
+              ),
+            if (!_isLoading)
+              ListView(
+                children: chatRooms.where((e) => e.studentId != null).map((e) => getChatRoomWidget(e)).toList(),
+              ),
           ],
         ),
       ),

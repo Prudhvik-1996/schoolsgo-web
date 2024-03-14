@@ -22,6 +22,7 @@ import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/sheets_utils.dart';
 import 'package:substring_highlight/substring_highlight.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminExpenseScreenAdminView extends StatefulWidget {
   const AdminExpenseScreenAdminView({
@@ -152,13 +153,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
               receptionistProfile: widget.receptionistProfile!,
             ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           // : ListView(
           //     children: [
           //           const SizedBox(

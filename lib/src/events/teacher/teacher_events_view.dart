@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/events/model/events.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import 'teacher_each_event_view.dart';
 
@@ -335,13 +336,7 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
         teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Container(
               margin: EdgeInsets.fromLTRB(mainMargin, 20, mainMargin, mainMargin),
               child: GridView.count(

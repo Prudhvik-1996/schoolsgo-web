@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/employee_card_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class EmployeesLoginCredentialsScreen extends StatefulWidget {
   const EmployeesLoginCredentialsScreen({
@@ -88,13 +89,7 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
         ],
       ),
       body: _isLoading
-          ? Center(
-        child: Image.asset(
-          'assets/images/eis_loader.gif',
-          height: 500,
-          width: 500,
-        ),
-      )
+          ? const EpsilonDiaryLoadingWidget()
           : _tableView
           ? SizedBox(
         width: MediaQuery.of(context).size.width - 10,

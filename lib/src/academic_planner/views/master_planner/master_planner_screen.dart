@@ -19,6 +19,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class MasterPlannerScreen extends StatefulWidget {
   const MasterPlannerScreen({
@@ -718,13 +719,7 @@ class _MasterPlannerScreenState extends State<MasterPlannerScreen> {
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Column(
               children: [
                 const SizedBox(height: 10),

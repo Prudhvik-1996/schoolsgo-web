@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentFeeScreen extends StatefulWidget {
   const StudentFeeScreen({
@@ -453,13 +454,7 @@ class _StudentFeeScreenState extends State<StudentFeeScreen> {
         studentProfile: widget.studentProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(children: <Widget>[
               ...studentAnnualFeeBeans
                   .map((e) => BasicFeeStatsReadWidget(

@@ -1,5 +1,4 @@
 import 'package:clay_containers/widgets/clay_container.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -7,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/profile/student/profile_picture_screen.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class MegaAdminProfileScreen extends StatefulWidget {
   const MegaAdminProfileScreen({Key? key, required this.megaAdminProfile}) : super(key: key);
@@ -50,13 +50,7 @@ class _MegaAdminProfileScreenState extends State<MegaAdminProfileScreen> {
         megaAdminProfile: widget.megaAdminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               physics: const BouncingScrollPhysics(),
               children: [

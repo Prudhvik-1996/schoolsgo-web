@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/employee_attendance/qr_scanner/qr_scanner_widg
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class EmployeeAttendanceScreen extends StatefulWidget {
   const EmployeeAttendanceScreen({
@@ -57,13 +58,7 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
         title: const Text("Employee Attendance"),
       ),
       body: isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView(

@@ -2133,3 +2133,9 @@ Future<DeactivateStudentResponse> deactivateStudent(DeactivateStudentRequest dea
   debugPrint("deactivateStudentResponse ${deactivateStudentResponse.toJson()}");
   return deactivateStudentResponse;
 }
+
+Future<List<int>> getStudentMasterData(GetStudentProfileRequest getStudentProfileRequest) async {
+  debugPrint("Raising request to getStudentAttendanceReport with request ${jsonEncode(getStudentProfileRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_MASTER_DATA;
+  return await HttpUtils.postToDownloadFile(_url, getStudentProfileRequest.toJson());
+}

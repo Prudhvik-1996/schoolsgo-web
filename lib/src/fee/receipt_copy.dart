@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/print_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class ReceiptCopyScreen extends StatefulWidget {
   const ReceiptCopyScreen({
@@ -91,13 +92,7 @@ class _ReceiptCopyScreenState extends State<ReceiptCopyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : receiptToPrint == null
               ? const Center(
                   child: Text(

@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DateWiseAdminExpensesStatsScreen extends StatefulWidget {
   const DateWiseAdminExpensesStatsScreen({
@@ -100,13 +101,7 @@ class _DateWiseAdminExpensesStatsScreenState extends State<DateWiseAdminExpenses
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 summaryWidget(),

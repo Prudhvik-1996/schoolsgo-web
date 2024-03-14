@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/login/generate_new_login_pin_screen.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import 'settings_controller.dart';
 
@@ -60,13 +61,7 @@ class _SettingsViewState extends State<SettingsView> {
         title: const Text("Settings"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               physics: const BouncingScrollPhysics(),
               children: [

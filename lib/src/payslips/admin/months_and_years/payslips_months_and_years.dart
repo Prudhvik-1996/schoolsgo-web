@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/payslips/admin/months_and_years/payslips_of_gi
 import 'package:schoolsgo_web/src/payslips/modal/payslips.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class PayslipsMonthsAndYearsScreen extends StatefulWidget {
   const PayslipsMonthsAndYearsScreen({
@@ -75,13 +76,7 @@ class _PayslipsMonthsAndYearsScreenState extends State<PayslipsMonthsAndYearsScr
         title: const Text("Month wise payslips"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : monthsAndYears.isEmpty
               ? const Center(
                   child: Text(

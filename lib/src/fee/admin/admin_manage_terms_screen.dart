@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_section_wise_term_fee_screen.d
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminManageTermsScreen extends StatefulWidget {
   const AdminManageTermsScreen({
@@ -70,13 +71,7 @@ class _AdminManageTermsScreenState extends State<AdminManageTermsScreen> {
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: terms.map((e) => buildTermWidget(e)).toList(),
             ),

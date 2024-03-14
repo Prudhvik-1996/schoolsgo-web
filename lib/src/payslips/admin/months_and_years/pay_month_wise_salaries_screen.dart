@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/payslips/modal/payslips.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class PayMonthWiseSalariesScreen extends StatefulWidget {
   const PayMonthWiseSalariesScreen({Key? key, required this.adminProfile, required this.monthAndYearForSchoolBean}) : super(key: key);
@@ -599,13 +600,7 @@ class _PayMonthWiseSalariesScreenState extends State<PayMonthWiseSalariesScreen>
       ),
       key: _scaffoldKey,
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 searchBar(),

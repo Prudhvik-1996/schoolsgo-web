@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DiaryEditScreen extends StatefulWidget {
   const DiaryEditScreen({Key? key, this.adminProfile, this.teacherProfile}) : super(key: key);
@@ -867,13 +868,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
               teacherProfile: widget.teacherProfile!,
             ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               controller: _scrollController,
               children: <Widget>[

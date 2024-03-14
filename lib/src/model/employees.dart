@@ -277,7 +277,7 @@ class CreateUserAndAssignRolesRequest {
 
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
-    data['isAdmin'] = isAdmin;
+    data['admin'] = isAdmin;
     data['agent'] = agent;
     data['alternateMobile'] = alternateMobile;
     data['firstName'] = firstName;
@@ -287,10 +287,10 @@ class CreateUserAndAssignRolesRequest {
     data['mobile'] = mobile;
     data['schoolId'] = schoolId;
     data['status'] = status;
-    data['isTeacher'] = isTeacher;
-    data['isNonTeachingStaff'] = isNonTeachingStaff;
-    data['isBusDriver'] = isBusDriver;
-    data['isReceptionist'] = isReceptionist;
+    data['teacher'] = isTeacher;
+    data['nonTeachingStaff'] = isNonTeachingStaff;
+    data['busDriver'] = isBusDriver;
+    data['receptionist'] = isReceptionist;
     data['userId'] = userId;
     return data;
   }

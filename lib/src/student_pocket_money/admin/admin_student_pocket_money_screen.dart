@@ -18,6 +18,7 @@ import 'package:schoolsgo_web/src/student_pocket_money/modal/student_pocket_mone
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentPocketMoneyScreen extends StatefulWidget {
   const AdminStudentPocketMoneyScreen({
@@ -243,13 +244,7 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
         ),
         drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
         body: _isLoading
-            ? Center(
-                child: Image.asset(
-                  'assets/images/eis_loader.gif',
-                  height: 500,
-                  width: 500,
-                ),
-              )
+            ? const EpsilonDiaryLoadingWidget()
             : studentPocketMoneyTable());
   }
 

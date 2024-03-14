@@ -15,6 +15,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class SectionWiseFeeStats extends StatefulWidget {
   const SectionWiseFeeStats({
@@ -273,13 +274,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       body: widget.studentFeeReceipts.isEmpty
           ? const Center(child: Text("No transactions to display"))
           : _isLoading
-              ? Center(
-                  child: Image.asset(
-                    'assets/images/eis_loader.gif',
-                    height: 500,
-                    width: 500,
-                  ),
-                )
+              ? const EpsilonDiaryLoadingWidget()
               : ListView.builder(
                   itemCount: sections.length,
                   itemBuilder: (context, index) {

@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/hostel/admin/views/hostel_compact_widget.dart'
 import 'package:schoolsgo_web/src/hostel/model/hostels.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminHostelManagementScreen extends StatefulWidget {
   const AdminHostelManagementScreen({
@@ -75,13 +76,7 @@ class _AdminHostelManagementScreenState extends State<AdminHostelManagementScree
       ),
       drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : hostels.isEmpty
               ? const Center(child: Text("No hostels registered.."))
               : ListView(

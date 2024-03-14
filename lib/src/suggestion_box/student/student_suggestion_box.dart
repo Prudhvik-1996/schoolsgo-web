@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentSuggestionBoxView extends StatefulWidget {
   const StudentSuggestionBoxView({Key? key, required this.studentProfile}) : super(key: key);
@@ -849,13 +850,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
       ),
       drawer: StudentAppDrawer(studentProfile: widget.studentProfile),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _isAddNew
               ? _buildNewSuggestionWidget()
               : Column(

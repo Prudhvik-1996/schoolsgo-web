@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/time_table/admin/admin_all_teachers_preview_ti
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherTimeTableView extends StatefulWidget {
   const TeacherTimeTableView({Key? key, required this.teacherProfile}) : super(key: key);
@@ -302,13 +303,7 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView> with Single
         teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _previewMode
               ? TeacherTimeTablePreviewScreen(
                   adminProfile: null,

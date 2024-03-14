@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminTeacherDealingSectionsV2 extends StatefulWidget {
   const AdminTeacherDealingSectionsV2({
@@ -150,13 +151,7 @@ class _AdminTeacherDealingSectionsV2State extends State<AdminTeacherDealingSecti
         title: const Text("Teacher Dealing Sections"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 const SizedBox(height: 10),

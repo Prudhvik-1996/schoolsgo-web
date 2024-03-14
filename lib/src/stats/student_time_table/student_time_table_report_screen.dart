@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentTimeTableReportScreen extends StatefulWidget {
   const StudentTimeTableReportScreen({
@@ -86,13 +87,7 @@ class _StudentTimeTableReportScreenState extends State<StudentTimeTableReportScr
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _isFileDownloading
               ? Column(
                   children: [

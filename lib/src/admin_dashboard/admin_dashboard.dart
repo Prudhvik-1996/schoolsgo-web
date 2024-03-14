@@ -18,6 +18,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({Key? key, required this.adminProfile}) : super(key: key);
@@ -128,13 +129,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             )
           : const DefaultAppDrawer(),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : canGoToDashBoard
               ? buildOldDashBoardView()
               : goToSignUpPage

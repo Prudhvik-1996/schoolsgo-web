@@ -15,6 +15,7 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentStudyMaterialScreen extends StatefulWidget {
   const StudentStudyMaterialScreen({
@@ -370,13 +371,7 @@ class _StudentStudyMaterialScreenState extends State<StudentStudyMaterialScreen>
         ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : CustomScrollView(
               physics: const ClampingScrollPhysics(),
               // controller: controller,

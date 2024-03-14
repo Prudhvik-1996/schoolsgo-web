@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class ExamStatsOptionsScreen extends StatefulWidget {
   const ExamStatsOptionsScreen({
@@ -188,13 +189,7 @@ class _AdminExamStatsOptionsScreenState extends State<ExamStatsOptionsScreen> {
         title: const Text("Exam Stats"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               padding: EdgeInsets.zero,
               primary: false,

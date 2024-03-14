@@ -23,6 +23,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DateWiseReceiptsStatsWidget extends StatefulWidget {
   const DateWiseReceiptsStatsWidget({
@@ -326,13 +327,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       body: filteredReceipts.isEmpty
           ? const Center(child: Text("No transactions to display"))
           : _isLoading
-              ? Center(
-                  child: Image.asset(
-                    'assets/images/eis_loader.gif',
-                    height: 500,
-                    width: 500,
-                  ),
-                )
+              ? const EpsilonDiaryLoadingWidget()
               : ListView(
                   children: [
                     if (_showSectionPicker) _sectionPicker(),

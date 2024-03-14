@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminAssignFeeTypesToSectionsScreen extends StatefulWidget {
   const AdminAssignFeeTypesToSectionsScreen({
@@ -277,13 +278,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                     const SizedBox(

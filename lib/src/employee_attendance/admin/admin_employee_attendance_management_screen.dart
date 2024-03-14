@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminEmployeeAttendanceManagementScreen extends StatefulWidget {
   const AdminEmployeeAttendanceManagementScreen({
@@ -203,13 +204,7 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
               ],
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Column(
               children: [
                 const SizedBox(height: 10),

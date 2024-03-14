@@ -21,6 +21,7 @@ import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -214,13 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         drawer: const DefaultAppDrawer(),
         body: _isLoading
-            ? Center(
-                child: Image.asset(
-                  'assets/images/eis_loader.gif',
-                  height: 500,
-                  width: 500,
-                ),
-              )
+            ? const EpsilonDiaryLoadingWidget()
             : (MediaQuery.of(context).orientation == Orientation.landscape)
                 ? buildLandscapeScreen()
                 : buildPortraitScreen(),

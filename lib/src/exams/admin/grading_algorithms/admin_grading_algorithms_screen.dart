@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/number_range_input_formatter
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminGradingAlgorithmsScreen extends StatefulWidget {
   const AdminGradingAlgorithmsScreen({
@@ -84,13 +85,7 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : _bodyScreen(),
       floatingActionButton: _isLoading || widget.adminProfile.isMegaAdmin
           ? null

@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminBulkEditSectionWiseTimeSlots extends StatefulWidget {
   final AdminProfile adminProfile;
@@ -568,13 +569,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
         title: const Text("Section Wise Time Slots"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 getWarningCard(),

@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_pocket_money/admin/load_or_debit_student_pocket_money_transaction_widget.dart';
 import 'package:schoolsgo_web/src/student_pocket_money/modal/student_pocket_money.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentPocketMoneyReceiptsScreen extends StatefulWidget {
   const AdminStudentPocketMoneyReceiptsScreen({
@@ -52,13 +53,7 @@ class _AdminStudentPocketMoneyReceiptsScreenState extends State<AdminStudentPock
         title: const Text("Student Pocket Money"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 ...pocketMoneyTransactions.map(

@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/chat_room/modal/chat_room.dart';
 import 'package:schoolsgo_web/src/chat_room/teacher/teacher_chat_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
@@ -99,111 +100,113 @@ class _TeacherChatRoomState extends State<TeacherChatRoom> {
         drawer: TeacherAppDrawer(
           teacherProfile: widget.teacherProfile,
         ),
-        body: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  width: MediaQuery.of(context).size.width - 50,
-                  child: TextField(
-                    controller: searchController,
-                    keyboardType: TextInputType.text,
-                    decoration: const InputDecoration(
-                      border: UnderlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide(color: Colors.blue),
-                      ),
-                      labelText: 'Search',
-                      hintText: 'Search',
-                      contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                      suffix: Icon(Icons.search),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ),
-                    autofocus: false,
-                    onChanged: (String e) {
-                      setState(() {
-                        searchString = searchController.text;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: TabBarView(
+        body: _isLoading
+            ? const EpsilonDiaryLoadingWidget()
+            : Column(
                 children: [
-                  _isLoading
-                      ? Center(
-                          child: Image.asset(
-                            'assets/images/eis_loader.gif',
-                            height: 500,
-                            width: 500,
+                  Row(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                        width: MediaQuery.of(context).size.width - 50,
+                        child: TextField(
+                          controller: searchController,
+                          keyboardType: TextInputType.text,
+                          decoration: const InputDecoration(
+                            border: UnderlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderSide: BorderSide(color: Colors.blue),
+                            ),
+                            labelText: 'Search',
+                            hintText: 'Search',
+                            contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                            suffix: Icon(Icons.search),
                           ),
-                        )
-                      : ListView(
-                          children: chatRooms
-                              .where((e) => e.lastMessageId != null)
-                              .where((e) =>
-                                  searchString.trim() == "" ||
-                                  ("${e.teacherName ?? "-"}\n"
-                                          "${e.subjectName ?? "-"}\n"
-                                          "${e.studentName ?? "-"}")
-                                      .toLowerCase()
-                                      .contains(searchString.toLowerCase()))
-                              .map((e) => getChatRoomWidget(e))
-                              .toList(),
-                        ),
-                  _isLoading
-                      ? Center(
-                          child: Image.asset(
-                            'assets/images/eis_loader.gif',
-                            height: 500,
-                            width: 500,
+                          style: const TextStyle(
+                            fontSize: 12,
                           ),
-                        )
-                      : ListView(
-                          children: chatRooms
-                              .where((e) =>
-                                  searchString.trim() == "" ||
-                                  ("${e.teacherName ?? "-"}\n"
-                                          "${e.subjectName ?? "-"}\n"
-                                          "${e.studentName ?? "-"}")
-                                      .toLowerCase()
-                                      .contains(searchString.toLowerCase()))
-                              .where((e) => e.studentId == null)
-                              .map((e) => getChatRoomWidget(e))
-                              .toList(),
+                          autofocus: false,
+                          onChanged: (String e) {
+                            setState(() {
+                              searchString = searchController.text;
+                            });
+                          },
                         ),
-                  _isLoading
-                      ? Center(
-                          child: Image.asset(
-                            'assets/images/eis_loader.gif',
-                            height: 500,
-                            width: 500,
-                          ),
-                        )
-                      : ListView(
-                          children: chatRooms
-                              .where((e) =>
-                                  searchString.trim() == "" ||
-                                  ("${e.teacherName ?? "-"}\n"
-                                          "${e.subjectName ?? "-"}\n"
-                                          "${e.studentName ?? "-"}")
-                                      .toLowerCase()
-                                      .contains(searchString.toLowerCase()))
-                              .where((e) => e.studentId != null)
-                              .map((e) => getChatRoomWidget(e))
-                              .toList(),
-                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _isLoading
+                            ? Center(
+                                child: Image.asset(
+                                  'assets/images/eis_loader.gif',
+                                  height: 500,
+                                  width: 500,
+                                ),
+                              )
+                            : ListView(
+                                children: chatRooms
+                                    .where((e) => e.lastMessageId != null)
+                                    .where((e) =>
+                                        searchString.trim() == "" ||
+                                        ("${e.teacherName ?? "-"}\n"
+                                                "${e.subjectName ?? "-"}\n"
+                                                "${e.studentName ?? "-"}")
+                                            .toLowerCase()
+                                            .contains(searchString.toLowerCase()))
+                                    .map((e) => getChatRoomWidget(e))
+                                    .toList(),
+                              ),
+                        _isLoading
+                            ? Center(
+                                child: Image.asset(
+                                  'assets/images/eis_loader.gif',
+                                  height: 500,
+                                  width: 500,
+                                ),
+                              )
+                            : ListView(
+                                children: chatRooms
+                                    .where((e) =>
+                                        searchString.trim() == "" ||
+                                        ("${e.teacherName ?? "-"}\n"
+                                                "${e.subjectName ?? "-"}\n"
+                                                "${e.studentName ?? "-"}")
+                                            .toLowerCase()
+                                            .contains(searchString.toLowerCase()))
+                                    .where((e) => e.studentId == null)
+                                    .map((e) => getChatRoomWidget(e))
+                                    .toList(),
+                              ),
+                        _isLoading
+                            ? Center(
+                                child: Image.asset(
+                                  'assets/images/eis_loader.gif',
+                                  height: 500,
+                                  width: 500,
+                                ),
+                              )
+                            : ListView(
+                                children: chatRooms
+                                    .where((e) =>
+                                        searchString.trim() == "" ||
+                                        ("${e.teacherName ?? "-"}\n"
+                                                "${e.subjectName ?? "-"}\n"
+                                                "${e.studentName ?? "-"}")
+                                            .toLowerCase()
+                                            .contains(searchString.toLowerCase()))
+                                    .where((e) => e.studentId != null)
+                                    .map((e) => getChatRoomWidget(e))
+                                    .toList(),
+                              ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }

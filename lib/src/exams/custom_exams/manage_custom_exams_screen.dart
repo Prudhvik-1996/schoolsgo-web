@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class ManageCustomExamsScreen extends StatefulWidget {
   const ManageCustomExamsScreen({
@@ -93,13 +94,7 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
       drawer:
           widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : customExams.isEmpty
               ? const Center(child: Text("Create an exam to proceed.."))
               : ListView(

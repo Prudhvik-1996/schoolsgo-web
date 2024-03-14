@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/study_material/model/study_material.dart';
 import 'package:schoolsgo_web/src/study_material/teacher/teacher_study_material_screen.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherStudyMaterialTDSScreen extends StatefulWidget {
   const TeacherStudyMaterialTDSScreen({Key? key, required this.teacherProfile}) : super(key: key);
@@ -178,13 +179,7 @@ class _TeacherStudyMaterialTdsScreenState extends State<TeacherStudyMaterialTDSS
       ),
       drawer: TeacherAppDrawer(teacherProfile: widget.teacherProfile),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : Container(
               padding: const EdgeInsets.fromLTRB(15, 30, 15, 30),
               child: _buildAllTdsGrid(),

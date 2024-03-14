@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/suggestion_box/model/suggestion_box.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminSuggestionBox extends StatefulWidget {
   const AdminSuggestionBox({Key? key, required this.adminProfile}) : super(key: key);
@@ -703,13 +704,7 @@ class _AdminSuggestionBoxState extends State<AdminSuggestionBox> {
       ),
       drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               physics: const BouncingScrollPhysics(),
               children: <Widget>[

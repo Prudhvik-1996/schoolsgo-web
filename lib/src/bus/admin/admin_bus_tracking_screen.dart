@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/map_widgets/map_widget.dart';
 import 'package:schoolsgo_web/src/common_components/map_widgets/modal/bus_lat_long.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminBusTrackingScreen extends StatefulWidget {
   const AdminBusTrackingScreen({
@@ -114,13 +115,7 @@ class _AdminBusTrackingScreenState extends State<AdminBusTrackingScreen> {
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : MapWidget(
               isDarkMode: _darkMode,
               markers: buses.map((e) => e.busLatLong!).toList(),

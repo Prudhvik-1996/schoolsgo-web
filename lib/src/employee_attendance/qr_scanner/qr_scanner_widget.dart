@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:schoolsgo_web/src/employee_attendance/model/employee_attendance.dart';
 import 'package:schoolsgo_web/src/employee_attendance/qr_scanner/qr_screen_overlay.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class QrScannerWidget extends StatefulWidget {
   const QrScannerWidget({
@@ -116,13 +117,7 @@ class _QrScannerWidgetState extends State<QrScannerWidget> {
             : [],
       ),
       body: isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : scannedQrCodeData == null
               ? qrScannerWidget()
               : updatingAttendance

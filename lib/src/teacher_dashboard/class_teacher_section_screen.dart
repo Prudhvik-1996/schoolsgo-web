@@ -95,13 +95,6 @@ class _ClassTeacherSectionScreenState extends State<ClassTeacherSectionScreen> {
       appBar: AppBar(
         elevation: 0,
       ),
-      drawer: widget.teacherProfile != null
-          ? TeacherAppDrawer(
-              teacherProfile: widget.teacherProfile!,
-            )
-          : widget.adminProfile != null
-              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
-              : null,
       body: ListView(
         children: [
           EisStandardHeader(

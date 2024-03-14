@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/common_components/map_widgets/map_widget.dart'
 import 'package:schoolsgo_web/src/common_components/map_widgets/modal/bus_lat_long.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentBusScreen extends StatefulWidget {
   const StudentBusScreen({
@@ -163,13 +164,7 @@ class _StudentBusScreenState extends State<StudentBusScreen> {
           studentProfile: widget.studentProfile,
         ),
         body: _isLoading
-            ? Center(
-                child: Image.asset(
-                  'assets/images/eis_loader.gif',
-                  height: 500,
-                  width: 500,
-                ),
-              )
+            ? const EpsilonDiaryLoadingWidget()
             : busBaseDetails == null || busRouteInfo == null
                 ? const Center(
                     child: Text("Seems like you re not assigned to any bus.."),

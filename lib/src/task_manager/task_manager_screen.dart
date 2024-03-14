@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/task_manager/views/new_task_card.dart';
 import 'package:schoolsgo_web/src/task_manager/views/task_card.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TaskManagerScreen extends StatefulWidget {
   const TaskManagerScreen({
@@ -106,13 +107,7 @@ class _TaskManagerScreenState extends State<TaskManagerScreen> {
         adminProfile: widget.adminProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : isAddNew
               ? Container(
                   margin: MediaQuery.of(context).orientation == Orientation.portrait

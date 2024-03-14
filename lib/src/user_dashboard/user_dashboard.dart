@@ -17,6 +17,7 @@ import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({
@@ -337,13 +338,7 @@ class _UserDashboardState extends State<UserDashboard> {
         drawer: const DefaultAppDrawer(),
         body: SafeArea(
           child: _isLoading
-              ? Center(
-                  child: Image.asset(
-                    'assets/images/eis_loader.gif',
-                    height: 500,
-                    width: 500,
-                  ),
-                )
+              ? const EpsilonDiaryLoadingWidget()
               : ListView(
                   children: [buildUserDetailsWidget(_userDetails)] +
                       [

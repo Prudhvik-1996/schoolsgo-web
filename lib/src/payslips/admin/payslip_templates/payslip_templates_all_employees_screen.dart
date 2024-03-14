@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslip_templates/payslips_templates_screen.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class PayslipTemplatesAllEmployeeScreen extends StatefulWidget {
   const PayslipTemplatesAllEmployeeScreen({
@@ -59,13 +60,7 @@ class _PayslipTemplatesAllEmployeeScreenState extends State<PayslipTemplatesAllE
         title: const Text("Payslips"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: employees.map((e) => _employeeWidget(e)).toList(),
             ),

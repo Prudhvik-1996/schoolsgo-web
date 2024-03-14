@@ -15,6 +15,7 @@ import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherDashboard extends StatefulWidget {
   const TeacherDashboard({Key? key, required this.teacherProfile}) : super(key: key);
@@ -100,13 +101,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
             )
           : const DefaultAppDrawer(),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : canGoToDashBoard
               ? ListView(
                   physics: const BouncingScrollPhysics(),

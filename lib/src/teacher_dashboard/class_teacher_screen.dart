@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_section_screen.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ClassTeacherScreen extends StatefulWidget {
@@ -127,13 +128,7 @@ class _ClassTeacherScreenState extends State<ClassTeacherScreen> {
         teacherProfile: widget.teacherProfile,
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
                 EisStandardHeader(

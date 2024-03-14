@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminMarkStudentAttendanceScreen extends StatefulWidget {
   const AdminMarkStudentAttendanceScreen({
@@ -191,13 +192,7 @@ class _AdminMarkStudentAttendanceScreenState extends State<AdminMarkStudentAtten
         title: const Text("Mark Attendance"),
       ),
       body: _isLoading
-          ? Center(
-              child: Image.asset(
-                'assets/images/eis_loader.gif',
-                height: 500,
-                width: 500,
-              ),
-            )
+          ? const EpsilonDiaryLoadingWidget()
           : SingleChildScrollView(
               child: Column(
                 children: [
