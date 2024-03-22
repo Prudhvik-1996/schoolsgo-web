@@ -185,7 +185,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
                             children: [
                               selectedDateWidget(),
                               SizedBox(
-                                height: MediaQuery.of(context).size.height - 200,
+                                height: MediaQuery.of(context).size.height - 250,
                                 width: MediaQuery.of(context).size.width,
                                 child: graphWidget(context),
                               ),

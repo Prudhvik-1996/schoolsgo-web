@@ -1,15 +1,13 @@
-import 'dart:html' as html;
-
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/profile/student/profile_picture_screen.dart';
-import 'package:schoolsgo_web/src/utils/file_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   const StudentProfileScreen({Key? key, required this.studentProfile}) : super(key: key);
@@ -93,8 +91,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) {
                                         return ProfilePictureScreen(
                                           name: widget.studentProfile.studentFirstName ?? "-",
-                                          pictureUrl: widget.studentProfile.studentPhotoUrl ??
-                                              "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2",
+                                          pictureUrl: allowCORSEndPoint +
+                                              (widget.studentProfile.studentPhotoUrl ??
+                                                  "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2"),
                                         );
                                       }));
                                     },
