@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:clay_containers/clay_containers.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -11,8 +15,6 @@ import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
-import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class EditCustomExamWidget extends StatefulWidget {
   const EditCustomExamWidget({
@@ -764,9 +766,150 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
             onChanged: (MarkingAlgorithmBean? newMarkingAlgorithm) =>
                 setState(() => widget.customExam.markingAlgorithmId = newMarkingAlgorithm?.markingAlgorithmId),
           ),
+          const SizedBox(width: 15),
+          if (widget.customExam.customExamId == null && widget.adminProfile != null) moreCreateExamOptions(),
+          if (widget.customExam.customExamId == null && widget.adminProfile != null) const SizedBox(width: 15),
         ],
       ),
     );
+  }
+
+  Widget moreCreateExamOptions() {
+    return PopupMenuButton<String>(
+      tooltip: "More options to create exam",
+      onSelected: (String choice) {
+        switch (choice) {
+          case "Clone from another exam":
+            cloneExamFromOtherExamsAction();
+            return;
+          default:
+            return;
+        }
+      },
+      itemBuilder: (BuildContext context) {
+        return {
+          "Clone from another exam",
+        }.map((String choice) {
+          return PopupMenuItem<String>(
+            value: choice,
+            child: Text(choice),
+          );
+        }).toList();
+      },
+    );
+  }
+
+  Future<void> cloneExamFromOtherExamsAction() async {
+    setState(() => _isLoading = true);
+    GetCustomExamsResponse getCustomExamsResponse = await getCustomExams(GetCustomExamsRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      academicYearId: widget.selectedAcademicYearId,
+    ));
+    if (getCustomExamsResponse.httpStatus != "OK" || getCustomExamsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      setState(() => _isLoading = false);
+      return;
+    }
+    List<CustomExam> customExams = (getCustomExamsResponse.customExamsList ?? []).map((e) => e!).toList();
+    setState(() => _isLoading = false);
+    if (customExams.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No exams available to clone.."),
+        ),
+      );
+      return;
+    }
+    CustomExam? selectedExam;
+    await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: const Text("Previous exams"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter builderSetState) {
+              var horizontalScrollView = ScrollController();
+              return SizedBox(
+                height: MediaQuery.of(context).size.height - 100,
+                width: MediaQuery.of(context).size.width - 100,
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  controller: horizontalScrollView,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: horizontalScrollView,
+                    child: SizedBox(
+                      width: max(500, MediaQuery.of(context).size.width - 150),
+                      child: ListView(
+                        children: [
+                          ...customExams.map(
+                            (e) => RadioListTile<CustomExam?>(
+                              groupValue: selectedExam,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              isThreeLine: false,
+                              title: Text(e.customExamName ?? "-"),
+                              value: e,
+                              onChanged: (CustomExam? newValue) {
+                                setState(() => builderSetState(() => selectedExam = newValue));
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          actions: <Widget>[
+            // if (selectedExam != null)
+            TextButton(
+              child: const Text("Confirm & Clone"),
+              onPressed: () async {
+                if (selectedExam == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please select an exam to continue.."),
+                    ),
+                  );
+                  return;
+                } else {
+                  cloneFromExam(selectedExam!);
+                  Navigator.pop(context);
+                }
+              },
+            ),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () async {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void cloneFromExam(CustomExam selectedExam) {
+    List<ExamSectionSubjectMap> newEssmMap = (selectedExam.examSectionSubjectMapList ?? []).whereNotNull().toList();
+    for (var eachEssm in newEssmMap) {
+      eachEssm.masterExamId = null;
+      eachEssm.examId = null;
+      eachEssm.studentExamMarksList = [];
+      eachEssm.agent = widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId;
+      eachEssm.examSectionSubjectMapId = null;
+    }
+    setState(() {
+      selectedSections = widget.sectionsList.where((es) => newEssmMap.map((e) => e.sectionId).toSet().contains(es.sectionId)).toList();
+      examSectionSubjectMapList = newEssmMap;
+    });
   }
 
   Widget _selectSectionExpanded() {
