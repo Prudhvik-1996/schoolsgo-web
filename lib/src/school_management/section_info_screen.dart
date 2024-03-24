@@ -112,23 +112,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
               onPressed: () => setState(() => _isEditMode = !_isEditMode),
               icon: _isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
             ),
-          if (!_isLoading && !_isEditMode)
-            IconButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return SectionsReorderScreen(
-                      adminProfile: widget.adminProfile,
-                      sections: sectionsList,
-                      teachers: teachersList,
-                      students: studentsList,
-                    );
-                  },
-                ),
-              ).then((_) => _loadData()),
-              icon: const Icon(Icons.reorder),
-            ),
+          // if (!_isLoading && !_isEditMode) reorderSectionsButton(),
         ],
       ),
       body: _isLoading
@@ -137,14 +121,34 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0), // child: sectionsDataTable(),
-                  child: sectionsDataTableV2(),
+                  child: sectionsDataTable(),
                 ),
               ],
             ),
     );
   }
 
-  Widget sectionsDataTableV2() {
+  IconButton reorderSectionsButton() {
+    return IconButton(
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return SectionsReorderScreen(
+              adminProfile: widget.adminProfile,
+              sections: sectionsList,
+              teachers: teachersList,
+              students: studentsList,
+            );
+          },
+        ),
+      ).then((_) => _loadData()),
+      icon: const Icon(Icons.sort),
+      tooltip: "Rearrange sections' order",
+    );
+  }
+
+  Widget sectionsDataTable() {
     return Container(
       margin: const EdgeInsets.all(10),
       child: SingleChildScrollView(
@@ -295,6 +299,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
 
   DropdownButton<Teacher?> classTeacherPicker(Section section) {
     return DropdownButton<Teacher?>(
+      isExpanded: true,
       value: teachersList.where((et) => et.teacherId == section.classTeacherId).firstOrNull,
       items: teachersList.map((e) => DropdownMenuItem<Teacher>(value: e, child: Text(e.teacherName ?? "-"))).toList(),
       onChanged: (Teacher? teacher) async {
