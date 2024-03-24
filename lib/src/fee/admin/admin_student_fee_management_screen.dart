@@ -1,15 +1,18 @@
 import 'dart:convert';
 import 'dart:html';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
 
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_receipt_screen.dart';
@@ -20,7 +23,6 @@ import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentFeeManagementScreen extends StatefulWidget {
   const AdminStudentFeeManagementScreen({
@@ -52,6 +54,8 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
   List<SectionWiseAnnualFeesBean> sectionWiseAnnualFeeBeansList = [];
 
   int? editingStudentId;
+  List<StudentProfile> studentsList = [];
+  StudentProfile? selectedStudent;
 
   @override
   void initState() {
@@ -73,6 +77,30 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         _sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
+      });
+    }
+
+    GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      return;
+    } else {
+      setState(() {
+        studentsList = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
+        studentsList.sort((a, b) {
+          int aSection = _sectionsList.where((es) => es.sectionId == a.sectionId).firstOrNull?.seqOrder ?? 0;
+          int bSection = _sectionsList.where((es) => es.sectionId == b.sectionId).firstOrNull?.seqOrder ?? 0;
+          if (aSection == bSection) {
+            return (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0);
+          }
+          return aSection.compareTo(bSection);
+        });
       });
     }
 
@@ -409,6 +437,8 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
   @override
   Widget build(BuildContext context) {
     int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
+    List<StudentAnnualFeeBean> studentsListToDisplay =
+        selectedStudent == null ? studentAnnualFeeBeans : studentAnnualFeeBeans.where((e) => e.studentId == selectedStudent?.studentId).toList();
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomInset: false,
@@ -434,7 +464,8 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
           : ListView(
               children: [
                 _sectionPicker(),
-                for (int i = 0; i < studentAnnualFeeBeans.length / perRowCount; i = i + 1)
+                if (selectedSection != null) _studentSearchableDropDown(),
+                for (int i = 0; i < studentsListToDisplay.length / perRowCount; i = i + 1)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,14 +473,98 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                     children: [
                       for (int j = 0; j < perRowCount; j++)
                         Expanded(
-                          child: ((i * perRowCount + j) >= studentAnnualFeeBeans.length)
+                          child: ((i * perRowCount + j) >= studentsListToDisplay.length)
                               ? Container()
-                              : buildStudentWiseAnnualFeeMapCard(studentAnnualFeeBeans[(i * perRowCount + j)]),
+                              : buildStudentWiseAnnualFeeMapCard(studentsListToDisplay[(i * perRowCount + j)]),
                         ),
                     ],
                   ),
               ],
             ),
+    );
+  }
+
+  Widget _studentSearchableDropDown() {
+    return Container(
+      margin: const EdgeInsets.all(10),
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(4, 4, 4, 4),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderSide: BorderSide(color: Colors.blue),
+          ),
+          labelText: "Student Name",
+        ),
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+          child: DropdownSearch<StudentProfile>(
+            mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+            selectedItem: selectedStudent,
+            items: studentsList.where((e) => e.sectionId == selectedSection?.sectionId).toList(),
+            itemAsString: (StudentProfile? student) {
+              return student == null
+                  ? ""
+                  : [
+                        ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
+                        student.studentFirstName ?? "",
+                        student.studentMiddleName ?? "",
+                        student.studentLastName ?? ""
+                      ].where((e) => e != "").join(" ").trim() +
+                      " - ${student.sectionName}";
+            },
+            showSearchBox: true,
+            dropdownBuilder: (BuildContext context, StudentProfile? student) {
+              return buildStudentWidget(student ?? StudentProfile());
+            },
+            onChanged: (StudentProfile? student) {
+              setState(() {
+                selectedStudent = student;
+              });
+            },
+            showClearButton: true,
+            compareFn: (item, selectedItem) => item?.studentId == selectedItem?.studentId,
+            dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+            filterFn: (StudentProfile? student, String? key) {
+              return ([
+                        ((student?.rollNumber ?? "") == "" ? "" : student!.rollNumber! + "."),
+                        student?.studentFirstName ?? "",
+                        student?.studentMiddleName ?? "",
+                        student?.studentLastName ?? ""
+                      ].where((e) => e != "").join(" ") +
+                      " - ${student?.sectionName ?? ""}")
+                  .toLowerCase()
+                  .trim()
+                  .contains(key!.toLowerCase());
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildStudentWidget(StudentProfile e) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 20,
+      child: Center(
+        child: AutoSizeText(
+          ((e.rollNumber ?? "") == "" ? "" : e.rollNumber! + ". ") +
+              ([e.studentFirstName ?? "", e.studentMiddleName ?? "", e.studentLastName ?? ""].where((e) => e != "").join(" ") +
+                      " - ${e.sectionName ?? ""}")
+                  .trim(),
+          style: const TextStyle(
+            fontSize: 14,
+          ),
+          overflow: TextOverflow.visible,
+          maxLines: 1,
+          minFontSize: 12,
+        ),
+      ),
     );
   }
 
