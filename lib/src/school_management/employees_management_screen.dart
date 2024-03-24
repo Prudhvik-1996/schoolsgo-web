@@ -1,13 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/user_roles.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class EmployeesManagementScreen extends StatefulWidget {
   const EmployeesManagementScreen({
@@ -332,39 +332,17 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
       return;
     }
     setState(() => _isLoading = true);
-    List<String> previousRolesList = (SchoolWiseEmployeeBean.fromJson(eachEmployee.origJson()).roles ?? []).whereNotNull().toList();
     CreateUserAndAssignRolesRequest createUserAndAssignRolesRequest = CreateUserAndAssignRolesRequest(
       userId: eachEmployee.employeeId == -1 ? null : eachEmployee.employeeId,
       schoolId: eachEmployee.schoolId,
       firstName: eachEmployee.employeeName,
       mobile: eachEmployee.mobile,
       mailId: eachEmployee.emailId,
-      isAdmin: (previousRolesList).contains(UserRole.ADMIN.name) && !(eachEmployee.roles ?? []).contains(UserRole.ADMIN.name)
-          ? false
-          : !(previousRolesList).contains(UserRole.ADMIN.name) && (eachEmployee.roles ?? []).contains(UserRole.ADMIN.name)
-              ? true
-              : null,
-      isTeacher: (previousRolesList).contains(UserRole.TEACHER.name) && !(eachEmployee.roles ?? []).contains(UserRole.TEACHER.name)
-          ? false
-          : !(previousRolesList).contains(UserRole.TEACHER.name) && (eachEmployee.roles ?? []).contains(UserRole.TEACHER.name)
-              ? true
-              : null,
-      isNonTeachingStaff: (previousRolesList).contains(UserRole.NON_TEACHING_STAFF.name) &&
-              !(eachEmployee.roles ?? []).contains(UserRole.NON_TEACHING_STAFF.name)
-          ? false
-          : !(previousRolesList).contains(UserRole.NON_TEACHING_STAFF.name) && (eachEmployee.roles ?? []).contains(UserRole.NON_TEACHING_STAFF.name)
-              ? true
-              : null,
-      isBusDriver: (previousRolesList).contains(UserRole.BUS_DRIVER.name) && !(eachEmployee.roles ?? []).contains(UserRole.BUS_DRIVER.name)
-          ? false
-          : !(previousRolesList).contains(UserRole.BUS_DRIVER.name) && (eachEmployee.roles ?? []).contains(UserRole.BUS_DRIVER.name)
-              ? true
-              : null,
-      isReceptionist: (previousRolesList).contains(UserRole.RECEPTIONIST.name) && !(eachEmployee.roles ?? []).contains(UserRole.RECEPTIONIST.name)
-          ? false
-          : !(previousRolesList).contains(UserRole.RECEPTIONIST.name) && (eachEmployee.roles ?? []).contains(UserRole.RECEPTIONIST.name)
-              ? true
-              : null,
+      isAdmin: (eachEmployee.roles ?? []).contains(UserRole.ADMIN.name),
+      isTeacher: (eachEmployee.roles ?? []).contains(UserRole.TEACHER.name),
+      isNonTeachingStaff: (eachEmployee.roles ?? []).contains(UserRole.NON_TEACHING_STAFF.name),
+      isBusDriver: (eachEmployee.roles ?? []).contains(UserRole.BUS_DRIVER.name),
+      isReceptionist: (eachEmployee.roles ?? []).contains(UserRole.RECEPTIONIST.name),
       status: "active",
       agent: widget.adminProfile.userId,
     );
