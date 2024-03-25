@@ -464,7 +464,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
           : ListView(
               children: [
                 _sectionPicker(),
-                if (selectedSection != null) _studentSearchableDropDown(),
+                _studentSearchableDropDown(),
                 for (int i = 0; i < studentsListToDisplay.length / perRowCount; i = i + 1)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -505,7 +505,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
           child: DropdownSearch<StudentProfile>(
             mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
             selectedItem: selectedStudent,
-            items: studentsList.where((e) => e.sectionId == selectedSection?.sectionId).toList(),
+            items: studentsList.where((e) => e.status == "active").toList(),
             itemAsString: (StudentProfile? student) {
               return student == null
                   ? ""
@@ -513,7 +513,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                         ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
                         student.studentFirstName ?? "",
                         student.studentMiddleName ?? "",
-                        student.studentLastName ?? ""
+                        student.studentLastName ?? "",
                       ].where((e) => e != "").join(" ").trim() +
                       " - ${student.sectionName}";
             },
@@ -521,7 +521,19 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
             dropdownBuilder: (BuildContext context, StudentProfile? student) {
               return buildStudentWidget(student ?? StudentProfile());
             },
-            onChanged: (StudentProfile? student) {
+            onChanged: (StudentProfile? student) async {
+              if (student == null) {
+                setState(() {
+                  selectedStudent = null;
+                });
+                return;
+              }
+              if (selectedSection?.sectionId != student.sectionId) {
+                setState(() {
+                  selectedSection = _sectionsList.firstWhereOrNull((e) => e.sectionId == student.sectionId);
+                });
+                await loadSectionWiseStudentsFeeMap();
+              }
               setState(() {
                 selectedStudent = student;
               });
@@ -534,7 +546,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                         ((student?.rollNumber ?? "") == "" ? "" : student!.rollNumber! + "."),
                         student?.studentFirstName ?? "",
                         student?.studentMiddleName ?? "",
-                        student?.studentLastName ?? ""
+                        student?.studentLastName ?? "",
                       ].where((e) => e != "").join(" ") +
                       " - ${student?.sectionName ?? ""}")
                   .toLowerCase()

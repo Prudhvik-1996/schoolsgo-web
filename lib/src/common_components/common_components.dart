@@ -1145,10 +1145,10 @@ StatelessWidget buildRoleButtonForAppBar(BuildContext context, Object profile) {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "${profile is TeacherProfile ? profile.firstName : profile is StudentProfile ? profile.studentFirstName : profile is AdminProfile ? profile.firstName : profile is MegaAdminProfile ? profile.userName : ""}",
+                        "${profile is TeacherProfile ? profile.firstName : profile is OtherUserRoleProfile ? profile.userName : profile is StudentProfile ? profile.studentFirstName : profile is AdminProfile ? profile.firstName : profile is MegaAdminProfile ? profile.userName : ""}",
                       ),
                       Text(
-                        "${profile is TeacherProfile ? profile.schoolName : profile is StudentProfile ? profile.schoolName : profile is AdminProfile ? profile.schoolName : profile is MegaAdminProfile ? profile.franchiseName : ""}",
+                        "${profile is TeacherProfile ? profile.schoolName : profile is OtherUserRoleProfile ? profile.schoolName : profile is StudentProfile ? profile.schoolName : profile is AdminProfile ? profile.schoolName : profile is MegaAdminProfile ? profile.franchiseName : ""}",
                       ),
                     ],
                   ),

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:html' as html;
+import 'dart:html';
 import 'dart:ui' as ui;
 
 import 'package:clay_containers/widgets/clay_container.dart';
@@ -12,6 +14,7 @@ import 'package:schoolsgo_web/src/admin_expenses/admin/date_wise_admin_expenses_
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
@@ -19,10 +22,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/utils/sheets_utils.dart';
 import 'package:substring_highlight/substring_highlight.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminExpenseScreenAdminView extends StatefulWidget {
   const AdminExpenseScreenAdminView({
@@ -56,7 +56,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
 
   String? _uploadingFile;
   double? _fileUploadProgress;
-  String? sheetName;
+  String? reportName;
 
   @override
   void initState() {
@@ -90,6 +90,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     GetAdminExpensesResponse getAdminExpensesResponse = await getAdminExpenses(GetAdminExpensesRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
       franchiseId: widget.adminProfile?.franchiseId,
+      agent: widget.receptionistProfile?.userId,
     ));
     if (getAdminExpensesResponse.httpStatus != "OK" || getAdminExpensesResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,7 +183,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                     Expanded(
                       flex: 2,
                       child: Center(
-                        child: Text("$sheetName.xslx"),
+                        child: Text("$reportName"),
                       ),
                     ),
                     Expanded(
@@ -914,39 +915,18 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
 
   Future<void> downloadReport() async {
     setState(() {
-      sheetName = "Admin Expenses - ${convertEpochToDDMMYYYYHHMMSSAA(DateTime.now().millisecondsSinceEpoch)}";
+      reportName = "Admin Expenses - ${convertEpochToDDMMYYYYHHMMSSAA(DateTime.now().millisecondsSinceEpoch)}.xls";
       _reportDownloadStatus = "Creating file";
     });
-    SheetsUtils expenseReport = SheetsUtils(sheetName: sheetName!);
-    await expenseReport.init();
+    List<int> bytes = await getAdminExpensesReport(GetAdminExpensesRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+    ));
+    AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+      ..setAttribute("download", reportName!)
+      ..click();
     setState(() {
       _reportDownloadStatus = "Writing your data into the file";
     });
-    await expenseReport.writeIntoSheet("Admin Expense", rows: [
-      [
-        "Date",
-        "School Name",
-        "Admin Name",
-        "Expense Type",
-        "Description",
-        "Amount",
-      ],
-      ...adminExpenses
-          .map((eachAdminExpense) => [
-                (convertEpochToDDMMYYYYHHMMAA(eachAdminExpense.transactionTime!)),
-                "${eachAdminExpense.schoolName}",
-                "${eachAdminExpense.adminName}",
-                "${eachAdminExpense.expenseType}",
-                "${eachAdminExpense.description}",
-                (doubleToStringAsFixed(((eachAdminExpense.amount ?? 0) / 100.0), decimalPlaces: 2)),
-              ])
-          .toList(),
-    ]);
-    setState(() {
-      _reportDownloadStatus = "Your file should be downloading shortly";
-    });
-    final String reportDownloadLink = "https://docs.google.com/feeds/download/spreadsheets/Export?key=${expenseReport.sheetId}&exportFormat=xlsx";
-    await launchUrl(Uri.parse(reportDownloadLink));
     setState(() {
       _reportDownloadStatus = null;
     });

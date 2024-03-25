@@ -13,23 +13,25 @@ import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget
 
 import '../model/events.dart';
 
-class TeacherEachEventView extends StatefulWidget {
-  const TeacherEachEventView({
+class EmployeeEachEventView extends StatefulWidget {
+  const EmployeeEachEventView({
     Key? key,
     required this.teacherProfile,
+    this.otherUserRoleProfile,
     required this.event,
   }) : super(key: key);
 
-  final TeacherProfile teacherProfile;
+  final TeacherProfile? teacherProfile;
+  final OtherUserRoleProfile? otherUserRoleProfile;
   final Event event;
 
   static const routeName = "/event";
 
   @override
-  _TeacherEachEventViewState createState() => _TeacherEachEventViewState();
+  _EmployeeEachEventViewState createState() => _EmployeeEachEventViewState();
 }
 
-class _TeacherEachEventViewState extends State<TeacherEachEventView> {
+class _EmployeeEachEventViewState extends State<EmployeeEachEventView> {
   bool _isLoading = true;
   List<EventMedia> eventMedia = [];
 
@@ -163,7 +165,7 @@ class _TeacherEachEventViewState extends State<TeacherEachEventView> {
       appBar: AppBar(
         title: Text(widget.event.eventName!),
         actions: [
-          buildRoleButtonForAppBar(context, widget.teacherProfile),
+          buildRoleButtonForAppBar(context, (widget.teacherProfile ?? widget.otherUserRoleProfile)!),
           PopupMenuButton<String>(
             onSelected: _performMoreActions,
             itemBuilder: (context) {
@@ -193,8 +195,8 @@ class _TeacherEachEventViewState extends State<TeacherEachEventView> {
           ),
         ],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
+      drawer: widget.teacherProfile == null ? null : TeacherAppDrawer(
+        teacherProfile: widget.teacherProfile!,
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()

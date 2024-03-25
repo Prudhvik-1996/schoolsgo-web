@@ -13,6 +13,7 @@ class TaskCard extends StatefulWidget {
   final TaskBean task;
   final List<SchoolWiseEmployeeBean> employees;
   final AdminProfile adminProfile;
+  final bool isNotAdmin;
   final Function superSetState;
 
   const TaskCard({
@@ -20,6 +21,7 @@ class TaskCard extends StatefulWidget {
     required this.task,
     required this.employees,
     required this.adminProfile,
+    this.isNotAdmin = false,
     required this.superSetState,
   }) : super(key: key);
 
@@ -29,7 +31,7 @@ class TaskCard extends StatefulWidget {
 
 class _TaskCardState extends State<TaskCard> {
   bool isLoading = false;
-  bool showComments = false;
+  late bool showComments = widget.isNotAdmin;
   late TextEditingController titleController;
   late TextEditingController descriptionController;
   late DateTime startDate;
@@ -172,7 +174,7 @@ class _TaskCardState extends State<TaskCard> {
                 children: [
                   assignerNameWidget(),
                   const SizedBox(height: 10),
-                  if (widget.task.isEditMode && !isNewCommentInAction) assigneeDropdown() else assigneeNameWidget(),
+                  if (!widget.isNotAdmin && widget.task.isEditMode && !isNewCommentInAction) assigneeDropdown() else assigneeNameWidget(),
                   const SizedBox(height: 10),
                   startDateWidget(),
                   const SizedBox(height: 10),
@@ -192,7 +194,7 @@ class _TaskCardState extends State<TaskCard> {
                 ],
               ),
             ),
-            editButton(),
+            if (!widget.isNotAdmin) editButton(),
           ],
         ),
         titleWidget(),
@@ -223,7 +225,7 @@ class _TaskCardState extends State<TaskCard> {
                   children: [
                     assignerNameWidget(),
                     const SizedBox(height: 10),
-                    if (widget.task.isEditMode && !isNewCommentInAction) assigneeDropdown() else assigneeNameWidget(),
+                    if (!widget.isNotAdmin && widget.task.isEditMode && !isNewCommentInAction) assigneeDropdown() else assigneeNameWidget(),
                     const SizedBox(height: 10),
                     startDateWidget(),
                   ],
@@ -240,9 +242,11 @@ class _TaskCardState extends State<TaskCard> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      widget.task.isEditMode && !isNewCommentInAction ? buildTaskStatusDropdown() : Text(widget.task.taskStatus ?? "-"),
+                      widget.isNotAdmin && widget.task.isEditMode && !isNewCommentInAction
+                          ? buildTaskStatusDropdown()
+                          : Text(widget.task.taskStatus ?? "-"),
                       const SizedBox(height: 10),
-                      editButton(),
+                      if (!widget.isNotAdmin) editButton(),
                     ],
                   ),
                 ],
@@ -263,7 +267,7 @@ class _TaskCardState extends State<TaskCard> {
       padding: (MediaQuery.of(context).orientation == Orientation.landscape)
           ? const EdgeInsets.fromLTRB(16, 0, 16, 0)
           : const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: widget.task.isEditMode && !isNewCommentInAction
+      child: widget.isNotAdmin && widget.task.isEditMode && !isNewCommentInAction
           ? TextFormField(
               controller: descriptionController,
               maxLines: null,
@@ -283,7 +287,7 @@ class _TaskCardState extends State<TaskCard> {
       padding: (MediaQuery.of(context).orientation == Orientation.landscape)
           ? const EdgeInsets.fromLTRB(16, 0, 16, 0)
           : const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: widget.task.isEditMode && !isNewCommentInAction
+      child: widget.isNotAdmin && widget.task.isEditMode && !isNewCommentInAction
           ? TextFormField(
               controller: titleController,
               decoration: const InputDecoration(
@@ -382,7 +386,7 @@ class _TaskCardState extends State<TaskCard> {
                 deleteComment: deleteNewCommentAction,
               )),
           const SizedBox(height: 10),
-          if (widget.task.isEditMode && !isNewCommentInAction) addNewCommentButton(),
+          if ((widget.isNotAdmin || widget.task.isEditMode) && !isNewCommentInAction) addNewCommentButton(),
           const SizedBox(height: 10),
         ],
       ),

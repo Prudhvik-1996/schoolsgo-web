@@ -6,6 +6,7 @@ import 'package:easy_autocomplete/easy_autocomplete.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
@@ -18,16 +19,17 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substring_highlight/substring_highlight.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminInventoryScreen extends StatefulWidget {
   const AdminInventoryScreen({
     Key? key,
     required this.adminProfile,
     required this.isHostel,
+    this.otherUserRoleProfile,
   }) : super(key: key);
 
-  final AdminProfile adminProfile;
+  final AdminProfile? adminProfile;
+  final OtherUserRoleProfile? otherUserRoleProfile;
   final bool isHostel;
 
   static const String routeName = "/inventory";
@@ -65,7 +67,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
     ));
     if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +81,9 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
     GetSchoolWiseAcademicYearsResponse response = await getSchoolWiseAcademicYears(
-      GetSchoolWiseAcademicYearsRequest(schoolId: widget.adminProfile.schoolId),
+      GetSchoolWiseAcademicYearsRequest(
+        schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
+      ),
     );
     List<AcademicYearBean> academicYears = response.academicYearBeanList?.whereNotNull().toList() ?? [];
     if (academicYears.isNotEmpty) {
@@ -107,7 +111,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
 
   Future<void> _loadInventoryPos() async {
     GetInventoryPoResponse getInventoryPoResponse = await getInventoryPo(GetInventoryPoRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
       isHostel: widget.isHostel ? "Y" : "N",
     ));
     if (getInventoryPoResponse.httpStatus != "OK" ||
@@ -125,7 +129,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
 
   Future<void> _loadInventoryLogs() async {
     GetInventoryLogResponse getInventoryLogResponse = await getInventoryLog(GetInventoryLogRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
       isHostel: widget.isHostel ? "Y" : "N",
     ));
     if (getInventoryLogResponse.httpStatus != "OK" ||
@@ -144,7 +148,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   Future<void> _loadInventoryConsumption() async {
     GetInventoryItemsConsumptionResponse getInventoryItemsConsumptionResponse =
         await getInventoryItemsConsumption(GetInventoryItemsConsumptionRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
       isHostel: widget.isHostel ? "Y" : "N",
     ));
     if (getInventoryItemsConsumptionResponse.httpStatus != "OK" ||
@@ -162,7 +166,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
 
   Future<void> _loadInventoryItems() async {
     GetInventoryItemsResponse getInventoryItemsResponse = await getInventoryItems(GetInventoryItemsRequest(
-      schoolId: widget.adminProfile.schoolId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
       isHostel: widget.isHostel ? "Y" : "N",
     ));
     if (getInventoryItemsResponse.httpStatus != "OK" ||
@@ -186,7 +190,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
           MaterialPageRoute(
             builder: (context) {
               return AdminInventoryStatsScreen(
-                adminProfile: widget.adminProfile,
+                adminProfile: widget.adminProfile!,
                 items: inventoryItemBeans,
                 purchasedItems: inventoryPoBeans.map((e) => e.inventoryPurchaseItemsForStats).expand((i) => i).toList(),
                 consumedItems: inventoryItemConsumptionBeans,
@@ -214,7 +218,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
               icon: _isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
               onPressed: () => setState(() => _isEditMode = !_isEditMode),
             ),
-          if (!_isLoading && !_isEditMode)
+          if (!_isLoading && !_isEditMode && widget.adminProfile != null)
             PopupMenuButton<String>(
               onSelected: handleMoreOptions,
               itemBuilder: (BuildContext context) {
@@ -284,7 +288,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
           InventoryItemBean()
             ..isHostel = widget.isHostel ? "Y" : "N"
             ..status = "active"
-            ..agent = widget.adminProfile.userId,
+            ..agent = widget.adminProfile?.userId ?? widget.otherUserRoleProfile?.userId,
           const Icon(Icons.add, size: 12),
           "Add Item",
         );
@@ -300,7 +304,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
       case 2:
         return createOrUpdateItemConsumptionButton(
           InventoryItemConsumptionBean()
-            ..agent = widget.adminProfile.userId
+            ..agent = widget.adminProfile?.userId ?? widget.otherUserRoleProfile?.userId
             ..status = "active",
           const Icon(Icons.add, size: 12),
           "Enter Consumption",
@@ -447,8 +451,8 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
     setState(() => _isLoading = true);
     CreateOrUpdateInventoryItemsResponse createOrUpdateInventoryItemsResponse =
         await createOrUpdateInventoryItems(CreateOrUpdateInventoryItemsRequest(
-      agentId: widget.adminProfile.userId,
-      schoolId: widget.adminProfile.schoolId,
+      agentId: widget.adminProfile?.userId ?? widget.otherUserRoleProfile?.userId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
       inventoryItemBeans: [item],
     ));
     if (createOrUpdateInventoryItemsResponse.httpStatus != "OK" || createOrUpdateInventoryItemsResponse.responseStatus != "success") {
@@ -724,7 +728,7 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
                                 onPressed: () {
                                   setState(() => poBean.inventoryPurchaseItemBeans?.add(
                                         InventoryPurchaseItemBean()
-                                          ..agent = widget.adminProfile.userId
+                                          ..agent = widget.adminProfile?.userId ?? widget.otherUserRoleProfile?.userId
                                           ..status = "active",
                                       ));
                                 },
@@ -936,8 +940,8 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
   Future<void> createOrUpdateInventoryPoAction(InventoryPoBean po) async {
     setState(() => _isLoading = true);
     CreateOrUpdateInventoryPoResponse createOrUpdateInventoryPoResponse = await createOrUpdateInventoryPo(CreateOrUpdateInventoryPoRequest(
-      agentId: widget.adminProfile.userId,
-      schoolId: widget.adminProfile.schoolId,
+      agentId: widget.adminProfile?.userId ?? widget.otherUserRoleProfile?.userId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
       isHostel: widget.isHostel ? "Y" : "N",
       transactionId: po.transactionId,
       status: po.status,
@@ -1203,8 +1207,8 @@ class _AdminInventoryScreenState extends State<AdminInventoryScreen> {
     setState(() => _isLoading = true);
     CreateOrUpdateInventoryItemsConsumptionResponse createOrUpdateInventoryItemsConsumptionResponse =
         await createOrUpdateInventoryItemsConsumption(CreateOrUpdateInventoryItemsConsumptionRequest(
-      schoolId: widget.adminProfile.schoolId,
-      agentId: widget.adminProfile.userId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
+      agentId: widget.adminProfile?.userId ?? widget.otherUserRoleProfile?.userId,
       inventoryItemConsumptionBeans: [consumedItem],
     ));
     if (createOrUpdateInventoryItemsConsumptionResponse.httpStatus != "OK" ||

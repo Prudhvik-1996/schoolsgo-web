@@ -102,7 +102,7 @@ class _TaskCommentWidgetState extends State<TaskCommentWidget> {
                   ),
                 ),
                 onPressed: () async {
-                  if (isLoading) return;
+                  if (isLoading || (widget.commentBean!.comment ?? "") == "") return;
                   await saveComment();
                 },
               ),

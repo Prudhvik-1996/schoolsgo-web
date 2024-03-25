@@ -247,15 +247,57 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
 
 List<DashboardWidget<OtherUserRoleProfile>> receptionistDashBoardWidgets(OtherUserRoleProfile receptionistProfile) => [
       DashboardWidget(
-        image: SvgPicture.asset("assets/images/admin_expenses.svg"),
-        title: "Admin Expenses",
-        routeName: "/admin_expenses",
+        image: SvgPicture.asset("assets/images/profile.svg"),
+        title: "Profile",
+        routeName: "/profile",
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/notice_board.svg"),
+        title: "Notice Board",
+        routeName: StudentNoticeBoardView.routeName,
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/circulars.svg"),
+        title: "Circulars",
+        routeName: AdminCircularsScreen.routeName,
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/attendance.svg"),
+        title: "Attendance",
+        routeName: StudentAttendanceViewScreen.routeName,
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/events.svg"),
+        title: "Events",
+        routeName: "/events",
         argument: receptionistProfile,
       ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/fee.svg"),
         title: "Fee",
         routeName: "/fee",
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/admin_expenses.svg"),
+        title: "Admin Expenses",
+        routeName: "/admin_expenses",
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/inventory.svg"),
+        title: "Inventory",
+        routeName: "/inventory",
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
+        image: SvgPicture.asset("assets/images/task_management.svg"),
+        title: "Task Management",
+        routeName: "/task_management",
         argument: receptionistProfile,
       ),
     ];

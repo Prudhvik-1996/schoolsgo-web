@@ -7,26 +7,31 @@ import 'package:schoolsgo_web/src/circulars/modal/circular_type.dart';
 import 'package:schoolsgo_web/src/circulars/modal/circulars.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
-class TeacherCircularsScreen extends StatefulWidget {
-  const TeacherCircularsScreen({Key? key, required this.teacherProfile}) : super(key: key);
+class EmployeesCircularsScreen extends StatefulWidget {
+  const EmployeesCircularsScreen({
+    Key? key,
+    required this.teacherProfile,
+    this.otherUserRoleProfile,
+  }) : super(key: key);
 
-  final TeacherProfile teacherProfile;
+  final TeacherProfile? teacherProfile;
+  final OtherUserRoleProfile? otherUserRoleProfile;
 
   static const routeName = "/circulars";
 
   @override
-  State<TeacherCircularsScreen> createState() => _TeacherCircularsScreenState();
+  State<EmployeesCircularsScreen> createState() => _EmployeesCircularsScreenState();
 }
 
-class _TeacherCircularsScreenState extends State<TeacherCircularsScreen> {
+class _EmployeesCircularsScreenState extends State<EmployeesCircularsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
 
@@ -44,9 +49,9 @@ class _TeacherCircularsScreenState extends State<TeacherCircularsScreen> {
       _isLoading = true;
     });
     GetCircularsResponse getCircularsResponse = await getCirculars(GetCircularsRequest(
-      schoolId: widget.teacherProfile.schoolId,
-      franchiseId: widget.teacherProfile.franchiseId,
-      role: "T",
+      schoolId: widget.teacherProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
+      franchiseId: widget.teacherProfile?.franchiseId,
+      role: widget.otherUserRoleProfile != null ? "F" : "T",
     ));
     if (getCircularsResponse.httpStatus != "OK" || getCircularsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,13 +78,13 @@ class _TeacherCircularsScreenState extends State<TeacherCircularsScreen> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Circulars"),
-        actions: [
-          buildRoleButtonForAppBar(context, widget.teacherProfile),
-        ],
+        actions: [buildRoleButtonForAppBar(context, (widget.teacherProfile ?? widget.otherUserRoleProfile)!)],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: widget.teacherProfile == null
+          ? null
+          : TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile!,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : Column(

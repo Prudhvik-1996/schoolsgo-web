@@ -4,31 +4,33 @@ import 'dart:ui' as ui;
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import '../model/notice_board.dart';
 
-class TeacherNoticeBoardView extends StatefulWidget {
-  const TeacherNoticeBoardView({
+class EmployeeNoticeBoardView extends StatefulWidget {
+  const EmployeeNoticeBoardView({
     Key? key,
     required this.teacherProfile,
+    this.otherUserRoleProfile,
   }) : super(key: key);
 
-  final TeacherProfile teacherProfile;
+  final TeacherProfile? teacherProfile;
+  final OtherUserRoleProfile? otherUserRoleProfile;
 
   static const routeName = "/noticeboard";
 
   @override
-  _TeacherNoticeBoardViewState createState() => _TeacherNoticeBoardViewState();
+  _EmployeeNoticeBoardViewState createState() => _EmployeeNoticeBoardViewState();
 }
 
-class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
+class _EmployeeNoticeBoardViewState extends State<EmployeeNoticeBoardView> {
   bool _isLoading = true;
 
   List<News?> _noticeBoardNews = [];
@@ -49,8 +51,8 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
     });
 
     GetNoticeBoardResponse getNoticeBoardResponse = await getNoticeBoard(GetNoticeBoardRequest(
-      schoolId: widget.teacherProfile.schoolId,
-      franchiseId: widget.teacherProfile.franchiseId,
+      schoolId: widget.teacherProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
+      franchiseId: widget.teacherProfile?.franchiseId,
     ));
 
     if (getNoticeBoardResponse.httpStatus == 'OK' && getNoticeBoardResponse.responseStatus == 'success') {
@@ -312,12 +314,14 @@ class _TeacherNoticeBoardViewState extends State<TeacherNoticeBoardView> {
       appBar: AppBar(
         title: const Text("Notice Board"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.teacherProfile),
+          buildRoleButtonForAppBar(context, (widget.teacherProfile ?? widget.otherUserRoleProfile)!),
         ],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: widget.teacherProfile == null
+          ? null
+          : TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile!,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ScrollablePositionedList.builder(

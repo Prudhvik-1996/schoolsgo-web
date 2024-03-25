@@ -5,31 +5,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/events/model/events.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
-import 'teacher_each_event_view.dart';
+import 'employee_each_event_view.dart';
 
-class TeacherEventsView extends StatefulWidget {
-  const TeacherEventsView({
+class EmployeesEventsView extends StatefulWidget {
+  const EmployeesEventsView({
     Key? key,
     required this.teacherProfile,
+    this.otherUserRoleProfile,
   }) : super(key: key);
 
-  final TeacherProfile teacherProfile;
+  final TeacherProfile? teacherProfile;
+  final OtherUserRoleProfile? otherUserRoleProfile;
 
   static const routeName = "/events";
 
   @override
-  _TeacherEventsViewState createState() => _TeacherEventsViewState();
+  _EmployeesEventsViewState createState() => _EmployeesEventsViewState();
 }
 
-class _TeacherEventsViewState extends State<TeacherEventsView> {
+class _EmployeesEventsViewState extends State<EmployeesEventsView> {
   bool _isLoading = true;
   List<Event> events = [];
 
@@ -44,7 +46,7 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
       _isLoading = true;
     });
     GetEventsResponse getEventsResponse = await getEvents(GetEventsRequest(
-      schoolId: widget.teacherProfile.schoolId,
+      schoolId: widget.teacherProfile?.schoolId ?? widget.otherUserRoleProfile?.schoolId,
     ));
     if (getEventsResponse.httpStatus == 'OK' && getEventsResponse.responseStatus == 'success') {
       setState(() {
@@ -243,15 +245,14 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
   }
 
   Widget buildEventWidget(Event event) {
-    String coverPhotoUrl = event.coverPhotoUrl!;
     return Container(
       margin: const EdgeInsets.all(15),
       child: InkWell(
         onTap: () {
           Navigator.pushNamed(
             context,
-            TeacherEachEventView.routeName,
-            arguments: [widget.teacherProfile, event],
+            EmployeeEachEventView.routeName,
+            arguments: [widget.teacherProfile ?? widget.otherUserRoleProfile, event],
           );
         },
         child: ClayButton(
@@ -328,13 +329,13 @@ class _TeacherEventsViewState extends State<TeacherEventsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Events"),
-        actions: [
-          buildRoleButtonForAppBar(context, widget.teacherProfile),
-        ],
+        actions: [buildRoleButtonForAppBar(context, (widget.teacherProfile ?? widget.otherUserRoleProfile)!)],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: widget.teacherProfile == null
+          ? null
+          : TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile!,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : Container(

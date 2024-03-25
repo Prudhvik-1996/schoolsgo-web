@@ -351,7 +351,7 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
             },
           ),
         ),
-        child: ClayContainer(
+        child: ClayButton(
           surfaceColor: clayContainerColor(widget.context),
           parentColor: clayContainerColor(widget.context),
           spread: 1,

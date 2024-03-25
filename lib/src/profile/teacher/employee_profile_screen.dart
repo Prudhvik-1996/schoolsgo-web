@@ -4,25 +4,26 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/profile/student/profile_picture_screen.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
-class TeacherProfileScreen extends StatefulWidget {
-  const TeacherProfileScreen({Key? key, required this.teacherProfile}) : super(key: key);
+class EmployeeProfileScreen extends StatefulWidget {
+  const EmployeeProfileScreen({Key? key, required this.teacherProfile, this.otherUserRoleProfile}) : super(key: key);
 
-  final TeacherProfile teacherProfile;
+  final TeacherProfile? teacherProfile;
+  final OtherUserRoleProfile? otherUserRoleProfile;
 
   static const routeName = "/profile";
 
   @override
-  _TeacherProfileScreenState createState() => _TeacherProfileScreenState();
+  _EmployeeProfileScreenState createState() => _EmployeeProfileScreenState();
 }
 
-class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
+class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
   bool _isLoading = true;
 
   @override
@@ -46,12 +47,14 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
       appBar: AppBar(
         title: const Text("Profile"),
         actions: [
-          buildRoleButtonForAppBar(context, widget.teacherProfile),
+          buildRoleButtonForAppBar(context, (widget.teacherProfile ?? widget.otherUserRoleProfile)!),
         ],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: widget.teacherProfile != null
+          ? TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile!,
+            )
+          : null,
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(
@@ -71,7 +74,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                               : MediaQuery.of(context).size.height * 0.4,
                           width: double.infinity,
                           child: MediaLoadingWidget(
-                            mediaUrl: widget.teacherProfile.schoolPhotoUrl!,
+                            mediaUrl: (widget.teacherProfile?.schoolPhotoUrl ?? widget.otherUserRoleProfile?.schoolPhotoUrl)!,
                             mediaFit: BoxFit.cover,
                           ),
                         ),
@@ -92,8 +95,8 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                                     onTap: () {
                                       Navigator.push(context, MaterialPageRoute(builder: (context) {
                                         return ProfilePictureScreen(
-                                          name: widget.teacherProfile.teacherName ?? "-",
-                                          pictureUrl: widget.teacherProfile.teacherPhotoUrl ??
+                                          name: widget.teacherProfile?.teacherName ?? widget.otherUserRoleProfile?.userName ?? "-",
+                                          pictureUrl: widget.teacherProfile?.teacherPhotoUrl ??
                                               "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2",
                                         );
                                       }));
@@ -114,7 +117,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                                             bottomLeft: Radius.circular(150.0),
                                           ),
                                           child: MediaLoadingWidget(
-                                            mediaUrl: widget.teacherProfile.teacherPhotoUrl ??
+                                            mediaUrl: widget.teacherProfile?.teacherPhotoUrl ??
                                                 "https://drive.google.com/uc?id=1XC8IaBukQkcmPnysy811oDbZrQImDvs2",
                                             mediaFit: BoxFit.cover,
                                           ),
@@ -124,84 +127,85 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                                   ),
                                 ),
                               ),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-                                    uploadInput.multiple = false;
-                                    uploadInput.draggable = true;
-                                    uploadInput.accept = '.png,.jpg,.jpeg';
-                                    uploadInput.click();
-                                    uploadInput.onChange.listen(
-                                      (changeEvent) {
-                                        final files = uploadInput.files!;
-                                        for (html.File file in files) {
-                                          final reader = html.FileReader();
-                                          reader.readAsDataUrl(file);
-                                          reader.onLoadEnd.listen(
-                                            (loadEndEvent) async {
-                                              setState(() {
-                                                _isLoading = true;
-                                              });
+                              if (widget.teacherProfile != null)
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+                                      uploadInput.multiple = false;
+                                      uploadInput.draggable = true;
+                                      uploadInput.accept = '.png,.jpg,.jpeg';
+                                      uploadInput.click();
+                                      uploadInput.onChange.listen(
+                                        (changeEvent) {
+                                          final files = uploadInput.files!;
+                                          for (html.File file in files) {
+                                            final reader = html.FileReader();
+                                            reader.readAsDataUrl(file);
+                                            reader.onLoadEnd.listen(
+                                              (loadEndEvent) async {
+                                                setState(() {
+                                                  _isLoading = true;
+                                                });
 
-                                              try {
-                                                UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
+                                                try {
+                                                  UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
 
-                                                CreateOrUpdateTeacherProfileResponse response =
-                                                    await createOrUpdateTeacherProfile(CreateOrUpdateTeacherProfileRequest(
-                                                  teacherId: widget.teacherProfile.teacherId,
-                                                  agent: widget.teacherProfile.teacherId?.toString(),
-                                                  teacherPhotoUrl: uploadFileResponse.mediaBean?.mediaUrl,
-                                                  schoolId: widget.teacherProfile.schoolId,
-                                                ));
+                                                  CreateOrUpdateTeacherProfileResponse response =
+                                                      await createOrUpdateTeacherProfile(CreateOrUpdateTeacherProfileRequest(
+                                                    teacherId: widget.teacherProfile?.teacherId,
+                                                    agent: widget.teacherProfile?.teacherId?.toString(),
+                                                    teacherPhotoUrl: uploadFileResponse.mediaBean?.mediaUrl,
+                                                    schoolId: widget.teacherProfile?.schoolId,
+                                                  ));
 
-                                                if (response.httpStatus != "OK" || response.responseStatus != "success") {
+                                                  if (response.httpStatus != "OK" || response.responseStatus != "success") {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text("Something went wrong! Try again later.."),
+                                                      ),
+                                                    );
+                                                  } else {
+                                                    setState(() {
+                                                      widget.teacherProfile?.teacherPhotoUrl = uploadFileResponse.mediaBean?.mediaUrl;
+                                                    });
+                                                  }
+                                                } catch (e) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text("Something went wrong! Try again later.."),
+                                                    SnackBar(
+                                                      content:
+                                                          Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
                                                     ),
                                                   );
-                                                } else {
-                                                  setState(() {
-                                                    widget.teacherProfile.teacherPhotoUrl = uploadFileResponse.mediaBean?.mediaUrl;
-                                                  });
                                                 }
-                                              } catch (e) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content:
-                                                        Text("Something went wrong while trying to upload, ${file.name}..\nPlease try again later"),
-                                                  ),
-                                                );
-                                              }
-                                              setState(() {
-                                                _isLoading = false;
-                                              });
-                                            },
-                                          );
-                                        }
-                                      },
-                                    );
-                                  },
-                                  child: ClayButton(
-                                    width: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
-                                    height: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
-                                    depth: 40,
-                                    borderRadius: 100,
-                                    spread: 1,
-                                    surfaceColor: Colors.blue,
-                                    parentColor: clayContainerColor(context),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(8),
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Icon(Icons.edit),
+                                                setState(() {
+                                                  _isLoading = false;
+                                                });
+                                              },
+                                            );
+                                          }
+                                        },
+                                      );
+                                    },
+                                    child: ClayButton(
+                                      width: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
+                                      height: MediaQuery.of(context).orientation == Orientation.landscape ? 50 : 40,
+                                      depth: 40,
+                                      borderRadius: 100,
+                                      spread: 1,
+                                      surfaceColor: Colors.blue,
+                                      parentColor: clayContainerColor(context),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Icon(Icons.edit),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
@@ -232,7 +236,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                               child: Container(
                                 margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                 child: Text(
-                                  "Name: ${widget.teacherProfile.teacherName ?? "-"}",
+                                  "Name: ${widget.teacherProfile?.teacherName ?? widget.otherUserRoleProfile?.userName ?? "-"}",
                                 ),
                               ),
                             ),
@@ -244,43 +248,45 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                               child: Container(
                                 margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                 child: Text(
-                                  "School: ${widget.teacherProfile.schoolName ?? "-"}",
+                                  "School: ${widget.teacherProfile?.schoolName ?? widget.otherUserRoleProfile?.schoolName ?? "-"}",
                                 ),
                               ),
                             ),
                           ],
                         ),
+                        if (widget.teacherProfile != null)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                  child: Text(
+                                    "Father: ${widget.teacherProfile?.fatherName ?? "-"}",
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        if (widget.teacherProfile != null)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                                  child: Text(
+                                    "Mother: ${widget.teacherProfile?.motherName ?? "-"}",
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         Row(
                           children: [
                             Expanded(
                               child: Container(
                                 margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                 child: Text(
-                                  "Father: ${widget.teacherProfile.fatherName ?? "-"}",
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                child: Text(
-                                  "Mother: ${widget.teacherProfile.motherName ?? "-"}",
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                                child: Text(
-                                  "Mail Id: ${widget.teacherProfile.mailId ?? "-"}",
+                                  "Mail Id: ${widget.teacherProfile?.mailId ?? widget.otherUserRoleProfile?.mailId ?? "-"}",
                                 ),
                               ),
                             ),

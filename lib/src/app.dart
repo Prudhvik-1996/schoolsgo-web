@@ -10,12 +10,13 @@ import 'package:schoolsgo_web/src/bus/student/student_bus_screen.dart';
 import 'package:schoolsgo_web/src/chat_room/student/student_chat_room.dart';
 import 'package:schoolsgo_web/src/chat_room/teacher/teacher_chat_room.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
+import 'package:schoolsgo_web/src/circulars/employees/employees_circular_screen.dart';
 import 'package:schoolsgo_web/src/circulars/mega_admin/mega_admin_circulars_screen.dart';
-import 'package:schoolsgo_web/src/circulars/teachers/teacher_circular_screen.dart';
 import 'package:schoolsgo_web/src/common_components/network_status/constants/network_status.dart';
 import 'package:schoolsgo_web/src/common_components/network_status/service/network_status_service.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
+import 'package:schoolsgo_web/src/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
 import 'package:schoolsgo_web/src/exams/student/student_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/teacher/teacher_exams_options_screen.dart';
@@ -43,6 +44,7 @@ import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_screen.dart';
 import 'package:schoolsgo_web/src/suggestion_box/mega_admin/mega_admin_suggestion_box.dart';
+import 'package:schoolsgo_web/src/task_manager/employee_tasks_screen.dart';
 import 'package:schoolsgo_web/src/task_manager/task_manager_screen.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_screen.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard_v2.dart';
@@ -56,11 +58,11 @@ import 'diary/admin/admin_diary_screen.dart';
 import 'diary/student/student_diary_screen.dart';
 import 'events/admin/admin_each_event_screen.dart';
 import 'events/admin/admin_events_screen.dart';
+import 'events/employee/employee_each_event_view.dart';
+import 'events/employee/employee_events_view.dart';
 import 'events/model/events.dart';
 import 'events/student/student_each_event_view.dart';
 import 'events/student/student_events_view.dart';
-import 'events/teacher/teacher_each_event_view.dart';
-import 'events/teacher/teacher_events_view.dart';
 import 'feedback/student/student_feedback_screen.dart';
 import 'feedback/teacher/feedback_screen.dart';
 import 'logbook/logbook_screen.dart';
@@ -75,7 +77,7 @@ import 'online_class_room/student/student_online_class_room.dart';
 import 'online_class_room/teacher/teacher_online_class_room.dart';
 import 'profile/admin/admin_profile_screen.dart';
 import 'profile/student/student_profile_screen.dart';
-import 'profile/teacher/teacher_profile_screen.dart';
+import 'profile/teacher/employee_profile_screen.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'splash_screen/splash_screen.dart';
@@ -336,7 +338,7 @@ class _MyAppState extends State<MyApp> {
             try {
               if (routeSettings.arguments is TeacherProfile) {
                 var teacherProfile = routeSettings.arguments as TeacherProfile;
-                return TeacherProfileScreen(
+                return EmployeeProfileScreen(
                   teacherProfile: teacherProfile,
                 );
               } else if (routeSettings.arguments is AdminProfile) {
@@ -349,6 +351,16 @@ class _MyAppState extends State<MyApp> {
                   var argument = (routeSettings.arguments as MegaAdminProfile);
                   return MegaAdminProfileScreen(
                     megaAdminProfile: argument,
+                  );
+                } catch (e) {
+                  return const E404NotFoundScreen();
+                }
+              } else if (routeSettings.arguments is OtherUserRoleProfile) {
+                try {
+                  var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                  return EmployeeProfileScreen(
+                    teacherProfile: null,
+                    otherUserRoleProfile: argument,
                   );
                 } catch (e) {
                   return const E404NotFoundScreen();
@@ -422,6 +434,13 @@ class _MyAppState extends State<MyApp> {
                 var adminProfile = routeSettings.arguments as AdminProfile;
                 return AdminInventoryScreen(
                   adminProfile: adminProfile,
+                  isHostel: false,
+                );
+              } else if (routeSettings.arguments is OtherUserRoleProfile) {
+                var otherUserRoleProfile = routeSettings.arguments as OtherUserRoleProfile;
+                return AdminInventoryScreen(
+                  adminProfile: null,
+                  otherUserRoleProfile: otherUserRoleProfile,
                   isHostel: false,
                 );
               } else {
@@ -602,6 +621,13 @@ class _MyAppState extends State<MyApp> {
                 return TeacherAttendanceOptionsScreen(
                   teacherProfile: argument,
                 );
+              }
+              if (routeSettings.arguments is OtherUserRoleProfile) {
+                var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                return EmployeeMarkAttendanceScreen(
+                  schoolId: argument.schoolId!,
+                  employeeId: argument.userId!,
+                );
               } else {
                 var argument = (routeSettings.arguments as AdminProfile);
                 return AdminAttendanceOptionsScreen(
@@ -637,8 +663,18 @@ class _MyAppState extends State<MyApp> {
             } else if (routeSettings.arguments is TeacherProfile) {
               try {
                 var argument = (routeSettings.arguments as TeacherProfile);
-                return TeacherNoticeBoardView(
+                return EmployeeNoticeBoardView(
                   teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if (routeSettings.arguments is OtherUserRoleProfile) {
+              try {
+                var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                return EmployeeNoticeBoardView(
+                  teacherProfile: null,
+                  otherUserRoleProfile: argument,
                 );
               } catch (e) {
                 return const E404NotFoundScreen();
@@ -666,8 +702,19 @@ class _MyAppState extends State<MyApp> {
             if (routeSettings.arguments is TeacherProfile) {
               try {
                 var argument = (routeSettings.arguments as TeacherProfile);
-                return TeacherCircularsScreen(
+                return EmployeesCircularsScreen(
                   teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            }
+            if (routeSettings.arguments is OtherUserRoleProfile) {
+              try {
+                var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                return EmployeesCircularsScreen(
+                  teacherProfile: null,
+                  otherUserRoleProfile: argument,
                 );
               } catch (e) {
                 return const E404NotFoundScreen();
@@ -818,12 +865,21 @@ class _MyAppState extends State<MyApp> {
               } catch (e) {
                 return const E404NotFoundScreen();
               }
-            }
-            if (routeSettings.arguments is TeacherProfile) {
+            } else if (routeSettings.arguments is TeacherProfile) {
               try {
                 var argument = (routeSettings.arguments as TeacherProfile);
-                return TeacherEventsView(
+                return EmployeesEventsView(
                   teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if (routeSettings.arguments is OtherUserRoleProfile) {
+              try {
+                var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                return EmployeesEventsView(
+                  teacherProfile: null,
+                  otherUserRoleProfile: argument,
                 );
               } catch (e) {
                 return const E404NotFoundScreen();
@@ -839,9 +895,9 @@ class _MyAppState extends State<MyApp> {
               }
             }
           case StudentEachEventView.routeName:
-            if ((routeSettings.arguments! as List<Object>)[0] is StudentProfile) {
+            if ((routeSettings.arguments! as List<Object?>)[0] is StudentProfile) {
               try {
-                var arguments = (routeSettings.arguments! as List<Object>);
+                var arguments = (routeSettings.arguments! as List<Object?>);
                 var studentProfile = arguments[0] as StudentProfile;
                 var event = arguments[1] as Event;
                 return StudentEachEventView(
@@ -851,13 +907,26 @@ class _MyAppState extends State<MyApp> {
               } catch (e) {
                 return const E404NotFoundScreen();
               }
-            } else if ((routeSettings.arguments! as List<Object>)[0] is TeacherProfile) {
+            } else if ((routeSettings.arguments! as List<Object?>)[0] is TeacherProfile) {
               try {
-                var arguments = (routeSettings.arguments! as List<Object>);
+                var arguments = (routeSettings.arguments! as List<Object?>);
                 var teacherProfile = arguments[0] as TeacherProfile;
                 var event = arguments[1] as Event;
-                return TeacherEachEventView(
+                return EmployeeEachEventView(
                   teacherProfile: teacherProfile,
+                  event: event,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if ((routeSettings.arguments! as List<Object?>)[0] is OtherUserRoleProfile) {
+              try {
+                var arguments = (routeSettings.arguments! as List<Object?>);
+                var otherUserRoleProfile = arguments[0] as OtherUserRoleProfile;
+                var event = arguments[1] as Event;
+                return EmployeeEachEventView(
+                  teacherProfile: null,
+                  otherUserRoleProfile: otherUserRoleProfile,
                   event: event,
                 );
               } catch (e) {
@@ -865,7 +934,7 @@ class _MyAppState extends State<MyApp> {
               }
             } else {
               try {
-                var arguments = (routeSettings.arguments! as List<Object>);
+                var arguments = (routeSettings.arguments! as List<Object?>);
                 var adminProfile = arguments[0] as AdminProfile;
                 var event = arguments[1] as Event;
                 return AdminEachEventScreen(
@@ -942,10 +1011,20 @@ class _MyAppState extends State<MyApp> {
             }
           case TaskManagerScreen.routeName:
             try {
-              var argument = (routeSettings.arguments as AdminProfile);
-              return TaskManagerScreen(
-                adminProfile: argument,
-              );
+              if (routeSettings.arguments is AdminProfile) {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return TaskManagerScreen(
+                  adminProfile: argument,
+                );
+              } else if (routeSettings.arguments is OtherUserRoleProfile) {
+                var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                return EmployeeTasksScreen(
+                  userId: argument.userId!,
+                  schoolId: argument.schoolId!,
+                );
+              } else {
+                return const E404NotFoundScreen();
+              }
             } catch (e) {
               return const E404NotFoundScreen();
             }
