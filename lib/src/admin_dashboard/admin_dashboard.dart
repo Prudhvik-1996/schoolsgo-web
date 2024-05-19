@@ -63,7 +63,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       appBar: AppBar(
         title: const Text("Admin Dashboard"),
         actions: [
-          AcademicYearDropdown(schoolId: widget.adminProfile.schoolId),
+          // AcademicYearDropdown(schoolId: widget.adminProfile.schoolId),
           buildRoleButtonForAppBar(context, widget.adminProfile),
           if (canGoToDashBoard)
             InkWell(

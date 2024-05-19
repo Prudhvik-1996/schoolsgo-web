@@ -88,6 +88,12 @@ class AcademicYearBean {
   String formattedString() {
     return "${(convertYYYYMMDDFormatToDateTime(academicYearStartDate).year)} - ${(convertYYYYMMDDFormatToDateTime(academicYearEndDate).year)}";
   }
+
+  int getStartYear() => convertYYYYMMDDFormatToDateTime(academicYearStartDate).year;
+  int getStartMonth() => convertYYYYMMDDFormatToDateTime(academicYearStartDate).month;
+
+  int getEndYear() => convertYYYYMMDDFormatToDateTime(academicYearEndDate).year;
+  int getEndMonth() => convertYYYYMMDDFormatToDateTime(academicYearEndDate).month;
 }
 
 class GetSchoolWiseAcademicYearsResponse {

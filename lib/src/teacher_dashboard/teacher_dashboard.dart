@@ -48,7 +48,7 @@ class _TeacherDashboardState extends State<TeacherDashboard> {
       appBar: AppBar(
         title: const Text("Teacher Dashboard"),
         actions: [
-          AcademicYearDropdown(schoolId: widget.teacherProfile.schoolId),
+          // AcademicYearDropdown(schoolId: widget.teacherProfile.schoolId),
           buildRoleButtonForAppBar(context, widget.teacherProfile),
           InkWell(
             onTap: () {

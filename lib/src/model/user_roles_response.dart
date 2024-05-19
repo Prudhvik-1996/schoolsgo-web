@@ -257,6 +257,7 @@ class StudentProfile {
   int? agentId;
   String? alternateMobile;
   bool? assignedToBusStop;
+  bool? promoted;
   int? balanceAmount;
   String? branchCode;
   String? custom;
@@ -294,6 +295,10 @@ class StudentProfile {
   String? studentDob;
   String? studentFirstName;
   int? studentId;
+  int? linkedStudentId;
+  int? promotedStudentId;
+  int? promotedSectionId;
+  String? promotedSectionName;
   String? studentLastName;
   String? studentMailId;
   String? studentMiddleName;
@@ -345,6 +350,7 @@ class StudentProfile {
     this.agentId,
     this.alternateMobile,
     this.assignedToBusStop,
+    this.promoted,
     this.balanceAmount,
     this.branchCode,
     this.caste,
@@ -388,6 +394,10 @@ class StudentProfile {
     this.studentDob,
     this.studentFirstName,
     this.studentId,
+    this.linkedStudentId,
+    this.promotedStudentId,
+    this.promotedSectionId,
+    this.promotedSectionName,
     this.studentLastName,
     this.studentMailId,
     this.studentMiddleName,
@@ -468,6 +478,7 @@ class StudentProfile {
     agentId = json['agentId']?.toInt();
     alternateMobile = json['alternateMobile']?.toString();
     assignedToBusStop = json['assignedToBusStop'];
+    promoted = json['promoted'];
     balanceAmount = json['balanceAmount']?.toInt();
     branchCode = json['branchCode']?.toString();
     caste = json['caste']?.toString();
@@ -511,6 +522,10 @@ class StudentProfile {
     studentDob = json['studentDob']?.toString();
     studentFirstName = json['studentFirstName']?.toString();
     studentId = json['studentId']?.toInt();
+    linkedStudentId = json['linkedStudentId']?.toInt();
+    promotedStudentId = json['promotedStudentId']?.toInt();
+    promotedSectionId = json['promotedSectionId']?.toInt();
+    promotedSectionName = json['promotedSectionName']?.toString();
     studentLastName = json['studentLastName']?.toString();
     studentMailId = json['studentMailId']?.toString();
     studentMiddleName = json['studentMiddleName']?.toString();
@@ -535,6 +550,7 @@ class StudentProfile {
     agentId = json['agentId']?.toInt();
     alternateMobile = json['alternateMobile']?.toString();
     assignedToBusStop = json['assignedToBusStop'];
+    promoted = json['promoted'];
     balanceAmount = json['balanceAmount']?.toInt();
     branchCode = json['branchCode']?.toString();
     caste = json['caste']?.toString();
@@ -578,6 +594,10 @@ class StudentProfile {
     studentDob = json['studentDob']?.toString();
     studentFirstName = json['studentFirstName']?.toString();
     studentId = json['studentId']?.toInt();
+    linkedStudentId = json['linkedStudentId']?.toInt();
+    promotedStudentId = json['promotedStudentId']?.toInt();
+    promotedSectionId = json['promotedSectionId']?.toInt();
+    promotedSectionName = json['promotedSectionName']?.toString();
     studentLastName = json['studentLastName']?.toString();
     studentMailId = json['studentMailId']?.toString();
     studentMiddleName = json['studentMiddleName']?.toString();
@@ -600,6 +620,7 @@ class StudentProfile {
     data['agentId'] = agentId;
     data['alternateMobile'] = alternateMobile;
     data['assignedToBusStop'] = assignedToBusStop;
+    data['promoted'] = promoted;
     data['balanceAmount'] = balanceAmount;
     data['branchCode'] = branchCode;
     data['caste'] = caste;
@@ -643,6 +664,10 @@ class StudentProfile {
     data['studentDob'] = studentDob;
     data['studentFirstName'] = studentFirstName;
     data['studentId'] = studentId;
+    data['linkedStudentId'] = linkedStudentId;
+    data['promotedStudentId'] = promotedStudentId;
+    data['promotedSectionId'] = promotedSectionId;
+    data['promotedSectionName'] = promotedSectionName;
     data['studentLastName'] = studentLastName;
     data['studentMailId'] = studentMailId;
     data['studentMiddleName'] = studentMiddleName;
@@ -1353,6 +1378,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     super.agentId,
     super.alternateMobile,
     super.assignedToBusStop,
+    super.promoted,
     super.balanceAmount,
     super.branchCode,
     super.caste,
@@ -1412,6 +1438,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     agentId = agent;
     alternateMobile = studentProfile.alternateMobile;
     assignedToBusStop = studentProfile.assignedToBusStop;
+    promoted = studentProfile.promoted;
     balanceAmount = studentProfile.balanceAmount;
     branchCode = studentProfile.branchCode;
     caste = studentProfile.caste;
@@ -1474,6 +1501,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     data['agent'] = agent;
     data['alternateMobile'] = alternateMobile;
     data['assignedToBusStop'] = assignedToBusStop;
+    data['promoted'] = promoted;
     data['balanceAmount'] = balanceAmount;
     data['branchCode'] = branchCode;
     data['caste'] = caste;

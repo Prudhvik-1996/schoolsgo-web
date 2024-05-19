@@ -34,7 +34,7 @@ class _StudentDashBoardState extends State<StudentDashBoard> {
       appBar: AppBar(
         title: const Text("Student Dashboard"),
         actions: [
-          AcademicYearDropdown(schoolId: widget.studentProfile.schoolId),
+          // AcademicYearDropdown(schoolId: widget.studentProfile.schoolId),
           buildRoleButtonForAppBar(context, widget.studentProfile),
           InkWell(
             onTap: () {
