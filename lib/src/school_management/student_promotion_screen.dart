@@ -542,7 +542,7 @@ class _StudentPromotionScreenState extends State<StudentPromotionScreen> {
                         ..studentId = null
                         ..schoolId = newSection?.schoolId
                         ..sectionId = newSection?.sectionId
-                        ..rollNumber = "0"
+                        ..rollNumber = eachStudent.rollNumber
                         ..agentId = widget.adminProfile.userId)
                       .toList(),
                 );
