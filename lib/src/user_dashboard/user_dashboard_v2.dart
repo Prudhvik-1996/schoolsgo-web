@@ -46,6 +46,7 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
   List<MegaAdminProfile> _megaAdminProfiles = [];
   List<List<MegaAdminProfile>> _groupedMegaAdminsLists = [];
 
+  List<AcademicYearBean> academicYears = [];
   List<AcademicYearMap> academicYearsMap = [];
   AcademicYearMap? selectedAcademicYearMap;
 
@@ -97,7 +98,7 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
       GetSchoolWiseAcademicYearsRequest(),
     );
     if (getSchoolWiseAcademicYearsResponse.httpStatus == "OK" && getSchoolWiseAcademicYearsResponse.responseStatus == "success") {
-      List<AcademicYearBean> academicYears = getSchoolWiseAcademicYearsResponse.academicYearBeanList?.whereNotNull().toList() ?? [];
+      academicYears = getSchoolWiseAcademicYearsResponse.academicYearBeanList?.whereNotNull().toList() ?? [];
       populateAcademicYearsMap(academicYears);
       print("113: $academicYearsMap");
     }
@@ -139,6 +140,15 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
       prefs.remove('LOGGED_IN_SCHOOL_ID');
     } else {
       prefs.setInt('LOGGED_IN_SCHOOL_ID', schoolId);
+    }
+  }
+
+  Future<void> updateAcademicYearIdInPrefs(int? academicYearId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (academicYearId == null) {
+      prefs.remove('SELECTED_ACADEMIC_YEAR_ID');
+    } else {
+      prefs.setInt('SELECTED_ACADEMIC_YEAR_ID', academicYearId);
     }
   }
 
@@ -339,7 +349,10 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
       child: GestureDetector(
         onTap: () async {
           if (role == "Student") {
-            await updateSchoolIdInPrefs((profile as StudentProfile).schoolId);
+            var studentProfile = profile as StudentProfile;
+            await updateSchoolIdInPrefs((studentProfile).schoolId);
+            int? academicYearId = academicYears.firstWhereOrNull((e) => e.schoolId == studentProfile.schoolId)?.academicYearId;
+            await updateAcademicYearIdInPrefs(academicYearId);
             Navigator.pushNamed(
               context,
               StudentDashBoard.routeName,
@@ -349,6 +362,8 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
             AdminProfile adminProfile = (profile as AdminProfile);
             await updateSchoolIdInPrefs(adminProfile.schoolId);
             await updateAdminProfilePin(adminProfile);
+            int? academicYearId = academicYears.firstWhereOrNull((e) => e.schoolId == adminProfile.schoolId)?.academicYearId;
+            await updateAcademicYearIdInPrefs(academicYearId);
             Navigator.pushNamed(
               context,
               AdminDashboard.routeName,
@@ -358,6 +373,8 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
             TeacherProfile teacherProfile = (profile as TeacherProfile);
             await updateSchoolIdInPrefs(teacherProfile.schoolId);
             await updateTeacherProfilePin(teacherProfile);
+            int? academicYearId = academicYears.firstWhereOrNull((e) => e.schoolId == teacherProfile.schoolId)?.academicYearId;
+            await updateAcademicYearIdInPrefs(academicYearId);
             Navigator.pushNamed(
               context,
               TeacherDashboard.routeName,
@@ -394,7 +411,10 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
               arguments: megaAdminProfile,
             );
           } else if (role == "Receptionist") {
-            await updateSchoolIdInPrefs((profile as OtherUserRoleProfile).schoolId);
+            var otherUserRoleProfile = profile as OtherUserRoleProfile;
+            await updateSchoolIdInPrefs((otherUserRoleProfile).schoolId);
+            int? academicYearId = academicYears.firstWhereOrNull((e) => e.schoolId == otherUserRoleProfile.schoolId)?.academicYearId;
+            await updateAcademicYearIdInPrefs(academicYearId);
             Navigator.pushNamed(
               context,
               ReceptionistDashboard.routeName,

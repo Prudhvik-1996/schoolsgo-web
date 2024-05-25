@@ -26,7 +26,6 @@ class SectionInfoScreen extends StatefulWidget {
 }
 
 class _SectionInfoScreenState extends State<SectionInfoScreen> {
-  bool _isSectionLoading = false;
   bool _isLoading = true;
 
   List<Section> sectionsList = [];
@@ -103,6 +102,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Sections Info"),
@@ -119,12 +119,162 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
           ? const EpsilonDiaryLoadingWidget()
           : ListView(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0), // child: sectionsDataTable(),
-                  child: sectionsDataTable(),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child: sectionsDataTable(),
+                // ),
+                for (int i = 0; i < sectionsList.length / perRowCount; i = i + 1)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (int j = 0; j < perRowCount; j++)
+                        Expanded(
+                          child:
+                              ((i * perRowCount + j) >= sectionsList.length) ? Container() : sectionCardWidget(sectionsList[(i * perRowCount + j)]),
+                        ),
+                    ],
+                  ), // ...sectionsList.map((e) => sectionCardWidget(e)),
               ],
             ),
+    );
+  }
+
+  Widget sectionCardWidget(Section section) {
+    List<StudentProfile> sectionWiseStudentsList = studentsList.where((es) => es.sectionId == section.sectionId).toList();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              sectionNameWidget(section),
+              noOfBoysWidget(sectionWiseStudentsList),
+              noOfGirlsWidget(sectionWiseStudentsList),
+              totalNoOfStudentsWidget(sectionWiseStudentsList),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget totalNoOfStudentsWidget(List<StudentProfile> sectionWiseStudentsList) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text("Total no. of students:"),
+                SizedBox(width: 10),
+                Icon(Icons.people_outline_sharp, color: Colors.green),
+              ],
+            ),
+          ),
+          Text("${sectionWiseStudentsList.length}")
+        ],
+      ),
+    );
+  }
+
+  Widget noOfGirlsWidget(List<StudentProfile> sectionWiseStudentsList) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text("No. of girls:"),
+                SizedBox(width: 10),
+                Icon(Icons.girl_sharp, color: Colors.pink),
+              ],
+            ),
+          ),
+          Text("${sectionWiseStudentsList.where((es) => es.sex == 'female').length}")
+        ],
+      ),
+    );
+  }
+
+  Padding noOfBoysWidget(List<StudentProfile> sectionWiseStudentsList) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text("No. of boys:"),
+                SizedBox(width: 10),
+                Icon(Icons.boy_sharp, color: Colors.blue),
+              ],
+            ),
+          ),
+          Text("${sectionWiseStudentsList.where((es) => es.sex == 'male').length}")
+        ],
+      ),
+    );
+  }
+
+  Row sectionNameWidget(Section section) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.all(4),
+            child: ClayContainer(
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 10,
+              depth: 40,
+              emboss: true,
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        section.sectionName ?? "-",
+                        style: const TextStyle(
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    goToSectionButton(section),
+                    const SizedBox(width: 5),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
