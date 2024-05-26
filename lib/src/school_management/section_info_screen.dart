@@ -106,14 +106,6 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Sections Info"),
-        actions: [
-          if (!_isLoading)
-            IconButton(
-              onPressed: () => setState(() => _isEditMode = !_isEditMode),
-              icon: _isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
-            ),
-          // if (!_isLoading && !_isEditMode) reorderSectionsButton(),
-        ],
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
@@ -136,8 +128,90 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                         ),
                     ],
                   ), // ...sectionsList.map((e) => sectionCardWidget(e)),
+                const SizedBox(height: 200),
               ],
             ),
+      floatingActionButton: _isLoading
+          ? null
+          : _isEditMode
+              ? fab(
+                  const Icon(Icons.check),
+                  "Done",
+                  () => setState(() => _isEditMode = !_isEditMode),
+                  color: Colors.green,
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    fab(
+                      const Icon(Icons.reorder_sharp),
+                      "Reorder",
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return SectionsReorderScreen(
+                              adminProfile: widget.adminProfile,
+                              sections: sectionsList,
+                              teachers: teachersList,
+                              students: studentsList,
+                            );
+                          },
+                        ),
+                      ).then((_) => _loadData()),
+                      color: Colors.amber,
+                    ),
+                    fab(
+                      const Icon(Icons.edit),
+                      "Edit",
+                      () => setState(() => _isEditMode = !_isEditMode),
+                      color: Colors.blue,
+                    ),
+                  ],
+                ),
+    );
+  }
+
+  Widget fab(Icon icon, String text, Function() action, {Function()? postAction, Color? color}) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: GestureDetector(
+        onTap: () {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            await action();
+          });
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (postAction != null) {
+              await postAction();
+            }
+          });
+        },
+        child: ClayButton(
+          surfaceColor: color ?? clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 20,
+          spread: 2,
+          child: Container(
+            width: 100,
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                icon,
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(text),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -156,12 +230,43 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
           child: Column(
             children: [
               sectionNameWidget(section),
+              classTeacherWidget(section),
               noOfBoysWidget(sectionWiseStudentsList),
               noOfGirlsWidget(sectionWiseStudentsList),
               totalNoOfStudentsWidget(sectionWiseStudentsList),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget classTeacherWidget(Section section) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _isEditMode
+              ? const Text(
+                  "Class Teacher:",
+                  style: TextStyle(
+                    color: Colors.blue,
+                  ),
+                )
+              : const Expanded(
+                  child: Text(
+                    "Class Teacher:",
+                    style: TextStyle(
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+          _isEditMode
+              ? Expanded(child: classTeacherPicker(section))
+              : Text(teachersList.firstWhereOrNull((et) => et.teacherId == section.classTeacherId)?.teacherName ?? " - "),
+        ],
       ),
     );
   }

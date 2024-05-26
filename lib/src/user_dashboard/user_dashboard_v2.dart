@@ -14,6 +14,7 @@ import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
+import 'package:schoolsgo_web/src/user_dashboard/academic_year_map.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -165,13 +166,18 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
         appBar: AppBar(
           title: const Text("Epsilon Diary"),
           actions: [
-            Center(
-              child: buildAcademicYearDropdownButton(),
-            ),
             logoutButton(context),
           ],
         ),
-        drawer: const DefaultAppDrawer(),
+        drawer: DefaultAppDrawer(
+          selectedAcademicYearMap: selectedAcademicYearMap,
+          academicYearsMap: academicYearsMap,
+          onAcademicYearChange: (AcademicYearMap? newAcademicYearMap) {
+            if (newAcademicYearMap == null) return;
+            setState(() => selectedAcademicYearMap = newAcademicYearMap);
+            Navigator.pop(context);
+          },
+        ),
         body: _isLoading
             ? const EpsilonDiaryLoadingWidget()
             : ListView(
@@ -292,43 +298,6 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
           color: Colors.white,
         ),
       ),
-    );
-  }
-
-  DropdownButton<AcademicYearMap> buildAcademicYearDropdownButton() {
-    return DropdownButton<AcademicYearMap>(
-      isExpanded: false,
-      underline: Container(),
-      value: selectedAcademicYearMap,
-      onChanged: (AcademicYearMap? newAcademicYearMap) {
-        if (newAcademicYearMap == null) return;
-        setState(() => selectedAcademicYearMap = newAcademicYearMap);
-      },
-      items: academicYearsMap
-          .map(
-            (e) => DropdownMenuItem(
-              value: e,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.calendar_month_sharp,
-                        size: 21,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(e.formattedString()),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
-          .toList(),
     );
   }
 
@@ -504,36 +473,4 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
       await prefs.setString('USER_FOUR_DIGIT_PIN', profile.fourDigitPin!);
     }
   }
-}
-
-class AcademicYearMap {
-  int startMonth;
-  int endMonth;
-  int startYear;
-  int endYear;
-  List<int> schoolIds;
-
-  AcademicYearMap(this.startMonth, this.endMonth, this.startYear, this.endYear, this.schoolIds);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AcademicYearMap &&
-          runtimeType == other.runtimeType &&
-          startMonth == other.startMonth &&
-          endMonth == other.endMonth &&
-          startYear == other.startYear &&
-          endYear == other.endYear;
-
-  @override
-  int get hashCode => startMonth.hashCode ^ endMonth.hashCode ^ startYear.hashCode ^ endYear.hashCode;
-
-  int get endEquivalent => endYear * 100 + endMonth;
-
-  @override
-  String toString() {
-    return 'AcademicYearMap{startMonth: $startMonth, endMonth: $endMonth, startYear: $startYear, endYear: $endYear, schoolIds: $schoolIds}';
-  }
-
-  String formattedString() => "$startYear - $endYear";
 }

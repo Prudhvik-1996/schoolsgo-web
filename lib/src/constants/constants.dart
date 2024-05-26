@@ -57,7 +57,8 @@ const String CREATE_OR_UPDATE_EVENTS = "/events/createOrUpdateEvents";
 const String CREATE_OR_UPDATE_EVENT_MEDIA = "/events/createOrUpdateEventMedia";
 
 const String GET_SECTIONS = "/commons/getSections";
-const String CREATE_OR_UPDATE_SECTIONS = "/commons/createOrUpdateSection";
+const String CREATE_OR_UPDATE_SECTION = "/commons/createOrUpdateSection";
+const String CREATE_OR_UPDATE_SECTIONS = "/commons/createOrUpdateSections";
 const String GET_SUBJECTS = "/commons/getSubjects";
 const String GET_TEACHERS = "/commons/getTeachers";
 const String GET_STUDENT_PROFILE = "/students/getStudentProfile";

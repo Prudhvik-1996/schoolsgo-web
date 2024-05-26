@@ -353,7 +353,7 @@ class CreateOrUpdateSectionResponse {
 
 Future<CreateOrUpdateSectionResponse> createOrUpdateSection(CreateOrUpdateSectionRequest createOrUpdateSectionRequest) async {
   debugPrint("Raising request to createOrUpdateSection with request ${jsonEncode(createOrUpdateSectionRequest.toJson())}");
-  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SECTIONS;
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SECTION;
 
   CreateOrUpdateSectionResponse createOrUpdateSectionResponse = await HttpUtils.post(
     _url,
@@ -363,4 +363,123 @@ Future<CreateOrUpdateSectionResponse> createOrUpdateSection(CreateOrUpdateSectio
 
   debugPrint("CreateOrUpdateSectionResponse ${createOrUpdateSectionResponse.toJson()}");
   return createOrUpdateSectionResponse;
+}
+
+class CreateOrUpdateSectionsRequest {
+/*
+{
+  "agentId": 0,
+  "schoolId": 0,
+  "sectionsList": [
+    {
+      "agent": "string",
+      "classTeacherId": 0,
+      "description": "string",
+      "franchiseId": 0,
+      "franchiseName": "string",
+      "linkedSchoolId": 0,
+      "ocrAsPerTt": true,
+      "schoolId": 0,
+      "schoolName": "string",
+      "sectionId": 0,
+      "sectionName": "string",
+      "sectionPhotoUrl": "string",
+      "seqOrder": 0
+    }
+  ]
+}
+*/
+
+  int? agentId;
+  int? schoolId;
+  List<Section?>? sectionsList;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSectionsRequest({
+    this.agentId,
+    this.schoolId,
+    this.sectionsList,
+  });
+  CreateOrUpdateSectionsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    if (json['sectionsList'] != null) {
+      final v = json['sectionsList'];
+      final arr0 = <Section>[];
+      v.forEach((v) {
+        arr0.add(Section.fromJson(v));
+      });
+      sectionsList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['schoolId'] = schoolId;
+    if (sectionsList != null) {
+      final v = sectionsList;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['sectionsList'] = arr0;
+    }
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateSectionsResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSectionsResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateSectionsResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateSectionsResponse> createOrUpdateSections(CreateOrUpdateSectionsRequest createOrUpdateSectionsRequest) async {
+  debugPrint("Raising request to createOrUpdateSections with request ${jsonEncode(createOrUpdateSectionsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SECTIONS;
+
+  CreateOrUpdateSectionsResponse createOrUpdateSectionsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateSectionsRequest.toJson(),
+    CreateOrUpdateSectionsResponse.fromJson,
+  );
+
+  debugPrint("CreateOrUpdateSectionsResponse ${createOrUpdateSectionsResponse.toJson()}");
+  return createOrUpdateSectionsResponse;
 }

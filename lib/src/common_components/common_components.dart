@@ -8,11 +8,21 @@ import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.
 import 'package:schoolsgo_web/src/settings/settings_view.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
+import 'package:schoolsgo_web/src/user_dashboard/academic_year_map.dart';
 
 import 'dashboard_widgets.dart';
 
 class DefaultAppDrawer extends Drawer {
-  const DefaultAppDrawer({Key? key}) : super(key: key);
+  final List<AcademicYearMap>? academicYearsMap;
+  final AcademicYearMap? selectedAcademicYearMap;
+  final void Function(AcademicYearMap?)? onAcademicYearChange;
+
+  const DefaultAppDrawer({
+    Key? key,
+    this.academicYearsMap,
+    this.selectedAcademicYearMap,
+    this.onAcademicYearChange,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +80,7 @@ class DefaultAppDrawer extends Drawer {
               ],
             ),
           ),
+          if (onAcademicYearChange != null) buildAcademicYearDropdownButton(academicYearsMap ?? [], selectedAcademicYearMap: selectedAcademicYearMap),
           ListTile(
             title: const Text(
               'Settings',
@@ -84,6 +95,32 @@ class DefaultAppDrawer extends Drawer {
           ),
           const Divider(),
         ],
+      ),
+    );
+  }
+
+  Widget buildAcademicYearDropdownButton(List<AcademicYearMap> academicYearsMap, {AcademicYearMap? selectedAcademicYearMap}) {
+    return ListTile(
+      leading: const Icon(
+        Icons.calendar_month_sharp,
+        size: 21,
+      ),
+      title: DropdownButton<AcademicYearMap>(
+        isExpanded: true,
+        underline: Container(),
+        value: selectedAcademicYearMap,
+        onChanged: onAcademicYearChange!,
+        items: academicYearsMap
+            .map(
+              (e) => DropdownMenuItem(
+                value: e,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(e.formattedString()),
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }
