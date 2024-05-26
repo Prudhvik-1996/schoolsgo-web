@@ -101,7 +101,6 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
     if (getSchoolWiseAcademicYearsResponse.httpStatus == "OK" && getSchoolWiseAcademicYearsResponse.responseStatus == "success") {
       academicYears = getSchoolWiseAcademicYearsResponse.academicYearBeanList?.whereNotNull().toList() ?? [];
       populateAcademicYearsMap(academicYears);
-      print("113: $academicYearsMap");
     }
     setState(() => _isLoading = false);
   }

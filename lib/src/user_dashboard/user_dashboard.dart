@@ -9,12 +9,14 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
+import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
+import 'package:schoolsgo_web/src/user_dashboard/academic_year_map.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
@@ -43,6 +45,10 @@ class _UserDashboardState extends State<UserDashboard> {
   List<OtherUserRoleProfile> _otherRoleProfile = [];
   List<MegaAdminProfile> _megaAdminProfiles = [];
   List<List<MegaAdminProfile>> _groupedMegaAdminsLists = [];
+
+  List<AcademicYearBean> academicYears = [];
+  List<AcademicYearMap> academicYearsMap = [];
+  AcademicYearMap? selectedAcademicYearMap;
 
   String? fourDigitPin;
 
@@ -95,6 +101,13 @@ class _UserDashboardState extends State<UserDashboard> {
           (MegaAdminProfile profile) => profile.franchiseId,
         ).values.toList();
       });
+      GetSchoolWiseAcademicYearsResponse getSchoolWiseAcademicYearsResponse = await getSchoolWiseAcademicYears(
+        GetSchoolWiseAcademicYearsRequest(),
+      );
+      if (getSchoolWiseAcademicYearsResponse.httpStatus == "OK" && getSchoolWiseAcademicYearsResponse.responseStatus == "success") {
+        academicYears = getSchoolWiseAcademicYearsResponse.academicYearBeanList?.whereNotNull().toList() ?? [];
+        populateAcademicYearsMap(academicYears);
+      }
     }
 
     userDetails.GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(
@@ -113,6 +126,35 @@ class _UserDashboardState extends State<UserDashboard> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void populateAcademicYearsMap(List<AcademicYearBean> academicYears) {
+    Set<int> uniqueSchoolIds = {};
+    _studentProfiles.map((e) => e.schoolId).whereNotNull().forEach((es) => uniqueSchoolIds.add(es));
+    _teacherProfiles.map((e) => e.schoolId).whereNotNull().forEach((es) => uniqueSchoolIds.add(es));
+    _adminProfiles.map((e) => e.schoolId).whereNotNull().forEach((es) => uniqueSchoolIds.add(es));
+    _otherRoleProfile.map((e) => e.schoolId).whereNotNull().forEach((es) => uniqueSchoolIds.add(es));
+    academicYears.removeWhere((ea) => !uniqueSchoolIds.contains(ea.schoolId));
+    for (AcademicYearBean eachAcademicYear in academicYears) {
+      AcademicYearMap? academicYearMap = academicYearsMap.firstWhereOrNull((eam) =>
+      eam.startMonth == eachAcademicYear.getStartMonth() &&
+          eam.endMonth == eachAcademicYear.getEndMonth() &&
+          eam.startYear == eachAcademicYear.getStartYear() &&
+          eam.endYear == eachAcademicYear.getEndYear());
+      if (academicYearMap == null) {
+        academicYearMap = AcademicYearMap(eachAcademicYear.getStartMonth(), eachAcademicYear.getEndMonth(), eachAcademicYear.getStartYear(),
+            eachAcademicYear.getEndYear(), [eachAcademicYear.schoolId!]);
+        setState(() {
+          academicYearsMap.add(academicYearMap!);
+        });
+      } else {
+        setState(() {
+          academicYearMap!.schoolIds.add(eachAcademicYear.schoolId!);
+        });
+      }
+    }
+    academicYearsMap.sort((b, a) => a.endEquivalent.compareTo(b.endEquivalent));
+    setState(() => selectedAcademicYearMap = academicYearsMap.first);
   }
 
   Widget buildUserDetailsWidget(UserDetails userDetails) {
@@ -335,7 +377,15 @@ class _UserDashboardState extends State<UserDashboard> {
             ),
           ],
         ),
-        drawer: const DefaultAppDrawer(),
+        drawer: DefaultAppDrawer(
+          selectedAcademicYearMap: selectedAcademicYearMap,
+          academicYearsMap: academicYearsMap,
+          onAcademicYearChange: (AcademicYearMap? newAcademicYearMap) {
+            if (newAcademicYearMap == null) return;
+            setState(() => selectedAcademicYearMap = newAcademicYearMap);
+            Navigator.pop(context);
+          },
+        ),
         body: SafeArea(
           child: _isLoading
               ? const EpsilonDiaryLoadingWidget()
