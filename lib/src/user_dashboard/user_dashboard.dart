@@ -390,84 +390,89 @@ class _UserDashboardState extends State<UserDashboard> {
           child: _isLoading
               ? const EpsilonDiaryLoadingWidget()
               : ListView(
-                  children: [buildUserDetailsWidget(_userDetails)] +
-                      [
-                        ..._groupedMegaAdminsLists
-                            .map((List<MegaAdminProfile> megaAdmins) => megaAdmins.isEmpty
-                                ? Container()
-                                : buildRoleButton(
-                                    context,
-                                    "Mega Admin",
-                                    ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
-                                        .split(" ")
-                                        .where((i) => i != "")
-                                        .join(" "),
-                                    "Franchise: " + (megaAdmins.firstOrNull?.franchiseName ?? "-").capitalize(),
-                                    megaAdmins,
-                                  ))
-                            .toList(),
-                      ] +
-                      _adminProfiles
-                          .map(
-                            (e) => buildRoleButton(
-                              context,
-                              "Admin",
-                              ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
-                                  .split(" ")
-                                  .where((i) => i != "")
-                                  .join(" "),
-                              e.schoolName ?? '',
-                              e,
-                            ),
-                          )
-                          .toList() +
-                      _studentProfiles
-                          .map(
-                            (e) => buildRoleButton(
-                              context,
-                              "Student",
-                              ((e.studentFirstName ?? "" ' ') + (e.studentMiddleName ?? "" ' ') + (e.studentLastName ?? "" ' '))
-                                  .split(" ")
-                                  .where((i) => i != "")
-                                  .join(" "),
-                              e.schoolName ?? '',
-                              e,
-                            ),
-                          )
-                          .toList() +
-                      _teacherProfiles
-                          .map(
-                            (e) => buildRoleButton(
-                              context,
-                              "Teacher",
-                              ((_userDetails.firstName ?? "" ' ') + (_userDetails.middleName ?? "" ' ') + (_userDetails.lastName ?? "" ' '))
-                                  .split(" ")
-                                  .where((i) => i != "")
-                                  .join(" "),
-                              e.schoolName ?? '',
-                              e,
-                            ),
-                          )
-                          .toList() +
-                      _otherRoleProfile
-                          .map(
-                            (e) => buildRoleButton(
-                              context,
-                              (e.roleName ?? "-").capitalize(),
-                              (e.userName ?? "-"),
-                              e.schoolName ?? '',
-                              e,
-                            ),
-                          )
-                          .toList() +
-                      [
-                        const SizedBox(
-                          height: 100,
-                        ),
-                      ],
-                ),
+            children: [
+              ..._groupedMegaAdminsLists
+                  .map((List<MegaAdminProfile> megaAdmins) => megaAdmins.isEmpty || doesMegaAdminSupportSelectedAcademicYear(megaAdmins)
+                  ? Container()
+                  : buildRoleButton(
+                context,
+                "Mega Admin",
+                (_groupedMegaAdminsLists.firstOrNull?.firstOrNull?.userName ?? ""),
+                "Franchise: " + (megaAdmins.firstOrNull?.franchiseName ?? "-").capitalize(),
+                megaAdmins,
+              ))
+                  .toList(),
+            ] +
+                _adminProfiles
+                    .where((e) => doesAdminSupportSelectedAcademicYear(e))
+                    .map(
+                      (e) => buildRoleButton(
+                    context,
+                    "Admin",
+                    (e.firstName ?? ""),
+                    e.schoolName ?? '',
+                    e,
+                  ),
+                )
+                    .toList() +
+                _studentProfiles
+                    .where((e) => doesStudentSupportSelectedAcademicYear(e))
+                    .map(
+                      (e) => buildRoleButton(
+                    context,
+                    "Student",
+                    ((e.studentFirstName ?? "" ' ') + (e.studentMiddleName ?? "" ' ') + (e.studentLastName ?? "" ' '))
+                        .split(" ")
+                        .where((i) => i != "")
+                        .join(" "),
+                    e.schoolName ?? '',
+                    e,
+                  ),
+                )
+                    .toList() +
+                _teacherProfiles
+                    .where((e) => doesTeacherSupportSelectedAcademicYear(e))
+                    .map(
+                      (e) => buildRoleButton(
+                    context,
+                    "Teacher",
+                    (e.firstName ?? ""),
+                    e.schoolName ?? '',
+                    e,
+                  ),
+                )
+                    .toList() +
+                _otherRoleProfile
+                    .where((e) => doesOtherUserSupportSelectedAcademicYear(e))
+                    .map(
+                      (e) => buildRoleButton(
+                    context,
+                    (e.roleName ?? "-").capitalize(),
+                    (e.userName ?? "-"),
+                    e.schoolName ?? '',
+                    e,
+                  ),
+                )
+                    .toList() +
+                [
+                  const SizedBox(
+                    height: 100,
+                  ),
+                ],
+          ),
         ),
       ),
     );
   }
+
+  bool doesAdminSupportSelectedAcademicYear(AdminProfile e) => (selectedAcademicYearMap?.schoolIds ?? []).contains(e.schoolId);
+
+  bool doesTeacherSupportSelectedAcademicYear(TeacherProfile e) => (selectedAcademicYearMap?.schoolIds ?? []).contains(e.schoolId);
+
+  bool doesStudentSupportSelectedAcademicYear(StudentProfile e) => (selectedAcademicYearMap?.schoolIds ?? []).contains(e.schoolId);
+
+  bool doesOtherUserSupportSelectedAcademicYear(OtherUserRoleProfile e) => (selectedAcademicYearMap?.schoolIds ?? []).contains(e.schoolId);
+
+  bool doesMegaAdminSupportSelectedAcademicYear(List<MegaAdminProfile> megaAdmins) =>
+      !megaAdmins.map((e) => (selectedAcademicYearMap?.schoolIds ?? []).contains(e.schoolId)).contains(true);
 }
