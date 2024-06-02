@@ -138,6 +138,10 @@ DateTime convertYYYYMMDDFormatToDateTime(String? date) {
   return date == null ? DateTime.now() : DateFormat("yyyy-MM-dd").parse(date);
 }
 
+DateTime convertDDMMYYYYFormatToDateTime(String? date) {
+  return date == null ? DateTime.now() : DateFormat("dd-MM-yyyy").parse(date);
+}
+
 String weekOfGivenDateInYYYYMMDDFormat(String date) {
   return ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"][DateTime.parse(date).weekday - 1];
 }

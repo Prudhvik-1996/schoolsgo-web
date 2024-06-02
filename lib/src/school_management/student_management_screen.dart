@@ -5,13 +5,13 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
-import 'package:schoolsgo_web/src/school_management/student_management_screen_v2.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/school_management/student_creation_in_bulk.dart';
 
 class StudentManagementScreen extends StatefulWidget {
   const StudentManagementScreen({
@@ -300,26 +300,26 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
               ]
             : [])
           ..addAll([
-            if (!_isLoading)
+            if (!_isLoading && selectedSection != null)
               PopupMenuButton<String>(
-                onSelected: (String? selectedValue) {
-                  if (selectedValue == "V2") {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return StudentManagementScreenV2(
-                            adminProfile: widget.adminProfile,
-                            studentProfiles: studentProfiles,
-                            sectionsList: sectionsList,
-                          );
-                        },
-                      ),
-                    );
+                tooltip: "Templates for student bulk upload",
+                onSelected: (String choice) async {
+                  switch (choice) {
+                    case "Download Template":
+                      await downloadTemplateAction();
+                      return;
+                    case "Upload From Template":
+                      await uploadFromTemplateAction();
+                      return;
+                    default:
+                      return;
                   }
                 },
                 itemBuilder: (BuildContext context) {
-                  return {"V2"}.map((String choice) {
+                  return {
+                    "Download Template",
+                    "Upload From Template",
+                  }.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
                       child: Text(choice),
@@ -327,6 +327,32 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                   }).toList();
                 },
               ),
+            // PopupMenuButton<String>(
+            //   onSelected: (String? selectedValue) {
+            //     if (selectedValue == "V2") {
+            //       Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (context) {
+            //             return StudentManagementScreenV2(
+            //               adminProfile: widget.adminProfile,
+            //               studentProfiles: studentProfiles,
+            //               sectionsList: sectionsList,
+            //             );
+            //           },
+            //         ),
+            //       );
+            //     }
+            //   },
+            //   itemBuilder: (BuildContext context) {
+            //     return {"V2"}.map((String choice) {
+            //       return PopupMenuItem<String>(
+            //         value: choice,
+            //         child: Text(choice),
+            //       );
+            //     }).toList();
+            //   },
+            // ),
           ]),
       ),
       body: _isLoading
@@ -403,6 +429,80 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
               ],
             ),
       floatingActionButton: _isLoading || editingStudentId != null || _isAddNew ? null : fab(context),
+    );
+  }
+
+  Future<void> downloadTemplateAction() async {
+    await CreateStudentsInBulkExcel(
+      studentProfiles.where((es) => es.sectionId == selectedSection?.sectionId).toList(),
+      selectedSection!,
+      agentId: widget.adminProfile.userId,
+      schoolId: widget.adminProfile.schoolId,
+    ).downloadTemplate();
+  }
+
+  Future<void> uploadFromTemplateAction() async {
+    List<StudentProfile>? newStudentsList = await CreateStudentsInBulkExcel(
+      studentProfiles.where((es) => es.sectionId == selectedSection?.sectionId).toList(),
+      selectedSection!,
+      agentId: widget.adminProfile.userId,
+      schoolId: widget.adminProfile.schoolId,
+    ).readAndValidateExcel(context);
+    if ((newStudentsList ?? []).isEmpty) return;
+    await showDialog(
+      context: scaffoldKey.currentContext!,
+      builder: (currentContext) {
+        return AlertDialog(
+          title: Text("Confirm to add new students to ${selectedSection?.sectionName}"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return SizedBox(
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.height / 2,
+                child: ListView(
+                  children: [
+                    ...newStudentsList?.map((e) => Text("${e.rollNumber == null ? "" : "${e.rollNumber}. "}${e.studentFirstName ?? " - "}")) ?? []
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                setState(() => _isLoading = true);
+                CreateOrUpdateBulkStudentProfilesRequest createOrUpdateBulkStudentProfilesRequest = CreateOrUpdateBulkStudentProfilesRequest(
+                  agent: widget.adminProfile.userId,
+                  schoolId: widget.adminProfile.schoolId,
+                  studentProfiles: newStudentsList,
+                );
+                CreateOrUpdateBulkStudentProfilesResponse createOrUpdateBulkStudentProfilesResponse =
+                    await createOrUpdateBulkStudentProfiles(createOrUpdateBulkStudentProfilesRequest);
+                if (createOrUpdateBulkStudentProfilesResponse.httpStatus != "OK" ||
+                    createOrUpdateBulkStudentProfilesResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                } else {
+                  _loadData();
+                }
+                setState(() => _isLoading = false);
+                await _loadData();
+              },
+              child: const Text("Confirm"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/admin_dashboard/admin_dashboard.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
@@ -19,7 +20,6 @@ import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
 import 'package:schoolsgo_web/src/user_dashboard/academic_year_map.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({
@@ -137,7 +137,7 @@ class _UserDashboardState extends State<UserDashboard> {
     academicYears.removeWhere((ea) => !uniqueSchoolIds.contains(ea.schoolId));
     for (AcademicYearBean eachAcademicYear in academicYears) {
       AcademicYearMap? academicYearMap = academicYearsMap.firstWhereOrNull((eam) =>
-      eam.startMonth == eachAcademicYear.getStartMonth() &&
+          eam.startMonth == eachAcademicYear.getStartMonth() &&
           eam.endMonth == eachAcademicYear.getEndMonth() &&
           eam.startYear == eachAcademicYear.getStartYear() &&
           eam.endYear == eachAcademicYear.getEndYear());
@@ -390,75 +390,128 @@ class _UserDashboardState extends State<UserDashboard> {
           child: _isLoading
               ? const EpsilonDiaryLoadingWidget()
               : ListView(
-            children: [
-              ..._groupedMegaAdminsLists
-                  .map((List<MegaAdminProfile> megaAdmins) => megaAdmins.isEmpty || doesMegaAdminSupportSelectedAcademicYear(megaAdmins)
-                  ? Container()
-                  : buildRoleButton(
+                  children: megaAdminProfileButtons(context) +
+                      adminProfileButtons(context) +
+                      studentProfileButtons(context) +
+                      teacherProfileButtons(context) +
+                      otherProfileButtons(context) +
+                      [
+                        const SizedBox(
+                          height: 100,
+                        ),
+                      ],
+                ),
+        ),
+        // floatingActionButton: [127, 128].contains(widget.loggedInUserId) ? addNewSchoolFab() : null,
+      ),
+    );
+  }
+
+  List<Widget> otherProfileButtons(BuildContext context) {
+    return _otherRoleProfile
+        .where((e) => doesOtherUserSupportSelectedAcademicYear(e))
+        .map(
+          (e) => buildRoleButton(
+            context,
+            (e.roleName ?? "-").capitalize(),
+            (e.userName ?? "-"),
+            e.schoolName ?? '',
+            e,
+          ),
+        )
+        .toList();
+  }
+
+  List<Widget> teacherProfileButtons(BuildContext context) {
+    return _teacherProfiles
+        .where((e) => doesTeacherSupportSelectedAcademicYear(e))
+        .map(
+          (e) => buildRoleButton(
+            context,
+            "Teacher",
+            (e.firstName ?? ""),
+            e.schoolName ?? '',
+            e,
+          ),
+        )
+        .toList();
+  }
+
+  List<Widget> studentProfileButtons(BuildContext context) {
+    return _studentProfiles
+        .where((e) => doesStudentSupportSelectedAcademicYear(e))
+        .map(
+          (e) => buildRoleButton(
+            context,
+            "Student",
+            ((e.studentFirstName ?? "" ' ') + (e.studentMiddleName ?? "" ' ') + (e.studentLastName ?? "" ' '))
+                .split(" ")
+                .where((i) => i != "")
+                .join(" "),
+            e.schoolName ?? '',
+            e,
+          ),
+        )
+        .toList();
+  }
+
+  List<Widget> adminProfileButtons(BuildContext context) {
+    return _adminProfiles
+        .where((e) => doesAdminSupportSelectedAcademicYear(e))
+        .map(
+          (e) => buildRoleButton(
+            context,
+            "Admin",
+            (e.firstName ?? ""),
+            e.schoolName ?? '',
+            e,
+          ),
+        )
+        .toList();
+  }
+
+  List<Widget> megaAdminProfileButtons(BuildContext context) {
+    return _groupedMegaAdminsLists
+        .map((List<MegaAdminProfile> megaAdmins) => megaAdmins.isEmpty || doesMegaAdminSupportSelectedAcademicYear(megaAdmins)
+            ? Container()
+            : buildRoleButton(
                 context,
                 "Mega Admin",
                 (_groupedMegaAdminsLists.firstOrNull?.firstOrNull?.userName ?? ""),
                 "Franchise: " + (megaAdmins.firstOrNull?.franchiseName ?? "-").capitalize(),
                 megaAdmins,
               ))
-                  .toList(),
-            ] +
-                _adminProfiles
-                    .where((e) => doesAdminSupportSelectedAcademicYear(e))
-                    .map(
-                      (e) => buildRoleButton(
-                    context,
-                    "Admin",
-                    (e.firstName ?? ""),
-                    e.schoolName ?? '',
-                    e,
+        .toList();
+  }
+
+  Widget addNewSchoolFab() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: GestureDetector(
+        onTap: () {
+          //  TODO
+        },
+        child: ClayButton(
+          surfaceColor: Colors.blue,
+          parentColor: clayContainerColor(context),
+          borderRadius: 20,
+          spread: 2,
+          child: Container(
+            width: 100,
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: const [
+                Icon(Icons.add),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text("Add"),
                   ),
-                )
-                    .toList() +
-                _studentProfiles
-                    .where((e) => doesStudentSupportSelectedAcademicYear(e))
-                    .map(
-                      (e) => buildRoleButton(
-                    context,
-                    "Student",
-                    ((e.studentFirstName ?? "" ' ') + (e.studentMiddleName ?? "" ' ') + (e.studentLastName ?? "" ' '))
-                        .split(" ")
-                        .where((i) => i != "")
-                        .join(" "),
-                    e.schoolName ?? '',
-                    e,
-                  ),
-                )
-                    .toList() +
-                _teacherProfiles
-                    .where((e) => doesTeacherSupportSelectedAcademicYear(e))
-                    .map(
-                      (e) => buildRoleButton(
-                    context,
-                    "Teacher",
-                    (e.firstName ?? ""),
-                    e.schoolName ?? '',
-                    e,
-                  ),
-                )
-                    .toList() +
-                _otherRoleProfile
-                    .where((e) => doesOtherUserSupportSelectedAcademicYear(e))
-                    .map(
-                      (e) => buildRoleButton(
-                    context,
-                    (e.roleName ?? "-").capitalize(),
-                    (e.userName ?? "-"),
-                    e.schoolName ?? '',
-                    e,
-                  ),
-                )
-                    .toList() +
-                [
-                  const SizedBox(
-                    height: 100,
-                  ),
-                ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

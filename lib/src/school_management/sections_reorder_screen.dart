@@ -13,13 +13,11 @@ class SectionsReorderScreen extends StatefulWidget {
     required this.adminProfile,
     required this.sections,
     required this.teachers,
-    required this.students,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
   final List<Section> sections;
   final List<Teacher> teachers;
-  final List<StudentProfile> students;
 
   @override
   State<SectionsReorderScreen> createState() => _SectionsReorderScreenState();
@@ -30,14 +28,12 @@ class _SectionsReorderScreenState extends State<SectionsReorderScreen> {
 
   List<Section> sectionsList = [];
   List<Teacher> teachersList = [];
-  List<StudentProfile> studentsList = [];
 
   @override
   void initState() {
     super.initState();
     sectionsList = widget.sections;
     teachersList = widget.teachers;
-    studentsList = widget.students;
   }
 
   @override

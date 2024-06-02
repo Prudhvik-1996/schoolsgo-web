@@ -193,3 +193,219 @@ Future<GetSubjectsResponse> getSubjects(GetSubjectsRequest getSubjectsRequest) a
   debugPrint("GetSubjectsResponse ${getSubjectsResponse.toJson()}");
   return getSubjectsResponse;
 }
+
+class CreateOrUpdateSubjectRequest {
+/*
+{
+  "agent": "string",
+  "description": "string",
+  "schoolId": 0,
+  "seqOrder": 0,
+  "subjectId": 0,
+  "subjectName": "string"
+}
+*/
+
+  String? agent;
+  String? description;
+  int? schoolId;
+  int? seqOrder;
+  int? subjectId;
+  String? subjectName;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSubjectRequest({
+    this.agent,
+    this.description,
+    this.schoolId,
+    this.seqOrder,
+    this.subjectId,
+    this.subjectName,
+  });
+  CreateOrUpdateSubjectRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toString();
+    description = json['description']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    seqOrder = json['seqOrder']?.toInt();
+    subjectId = json['subjectId']?.toInt();
+    subjectName = json['subjectName']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['description'] = description;
+    data['schoolId'] = schoolId;
+    data['seqOrder'] = seqOrder;
+    data['subjectId'] = subjectId;
+    data['subjectName'] = subjectName;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateSubjectResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSubjectResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateSubjectResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateSubjectResponse> createOrUpdateSubject(CreateOrUpdateSubjectRequest createOrUpdateSubjectRequest) async {
+  debugPrint("Raising request to createOrUpdateSubject with request ${jsonEncode(createOrUpdateSubjectRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SUBJECT;
+
+  CreateOrUpdateSubjectResponse createOrUpdateSubjectResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateSubjectRequest.toJson(),
+    CreateOrUpdateSubjectResponse.fromJson,
+  );
+
+  debugPrint("CreateOrUpdateSubjectResponse ${createOrUpdateSubjectResponse.toJson()}");
+  return createOrUpdateSubjectResponse;
+}
+
+class CreateOrUpdateSubjectsRequest {
+/*
+{
+  "agentId": 0,
+  "schoolId": 0,
+  "subjectsList": [
+    {
+      "agent": "string",
+      "description": "string",
+      "schoolId": 0,
+      "seqOrder": 0,
+      "subjectId": 0,
+      "subjectName": "string"
+    }
+  ]
+}
+*/
+
+  int? agentId;
+  int? schoolId;
+  List<Subject?>? subjectsList;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSubjectsRequest({
+    this.agentId,
+    this.schoolId,
+    this.subjectsList,
+  });
+  CreateOrUpdateSubjectsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agentId = json['agentId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    if (json['subjectsList'] != null) {
+      final v = json['subjectsList'];
+      final arr0 = <Subject>[];
+      v.forEach((v) {
+        arr0.add(Subject.fromJson(v));
+      });
+      subjectsList = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['schoolId'] = schoolId;
+    if (subjectsList != null) {
+      final v = subjectsList;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['subjectsList'] = arr0;
+    }
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class CreateOrUpdateSubjectsResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateSubjectsResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateSubjectsResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateSubjectsResponse> createOrUpdateSubjects(CreateOrUpdateSubjectsRequest createOrUpdateSubjectsRequest) async {
+  debugPrint("Raising request to createOrUpdateSubjects with request ${jsonEncode(createOrUpdateSubjectsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_SUBJECTS;
+
+  CreateOrUpdateSubjectsResponse createOrUpdateSubjectsResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateSubjectsRequest.toJson(),
+    CreateOrUpdateSubjectsResponse.fromJson,
+  );
+
+  debugPrint("CreateOrUpdateSubjectsResponse ${createOrUpdateSubjectsResponse.toJson()}");
+  return createOrUpdateSubjectsResponse;
+}

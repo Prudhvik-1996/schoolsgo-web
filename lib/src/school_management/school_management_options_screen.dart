@@ -13,6 +13,7 @@ import 'package:schoolsgo_web/src/school_management/student_login_credentials.da
 import 'package:schoolsgo_web/src/school_management/student_management_screen.dart';
 import 'package:schoolsgo_web/src/school_management/student_promotion_screen.dart';
 import 'package:schoolsgo_web/src/school_management/student_section_migration_screen.dart';
+import 'package:schoolsgo_web/src/school_management/subjects_info_screen.dart';
 
 class SchoolManagementOptionsScreen extends StatefulWidget {
   const SchoolManagementOptionsScreen({
@@ -156,6 +157,13 @@ class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsS
                   "Sections Info",
                   null,
                   SectionInfoScreen(
+                    adminProfile: widget.adminProfile,
+                  ),
+                ),
+                _getStudentManagementOption(
+                  "Subjects Info",
+                  null,
+                  SubjectInfoScreen(
                     adminProfile: widget.adminProfile,
                   ),
                 ),

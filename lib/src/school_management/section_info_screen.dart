@@ -27,6 +27,7 @@ class SectionInfoScreen extends StatefulWidget {
 
 class _SectionInfoScreenState extends State<SectionInfoScreen> {
   bool _isLoading = true;
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Section> sectionsList = [];
   List<Teacher> teachersList = [];
@@ -104,6 +105,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
   Widget build(BuildContext context) {
     int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text("Sections Info"),
       ),
@@ -134,43 +136,146 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
       floatingActionButton: _isLoading
           ? null
           : _isEditMode
-              ? fab(
-                  const Icon(Icons.check),
-                  "Done",
-                  () => setState(() => _isEditMode = !_isEditMode),
-                  color: Colors.green,
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    doneEditingButton(),
+                    addNewSectionButton(),
+                  ],
                 )
               : Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    fab(
-                      const Icon(Icons.reorder_sharp),
-                      "Reorder",
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return SectionsReorderScreen(
-                              adminProfile: widget.adminProfile,
-                              sections: sectionsList,
-                              teachers: teachersList,
-                              students: studentsList,
-                            );
-                          },
-                        ),
-                      ).then((_) => _loadData()),
-                      color: Colors.amber,
-                    ),
-                    fab(
-                      const Icon(Icons.edit),
-                      "Edit",
-                      () => setState(() => _isEditMode = !_isEditMode),
-                      color: Colors.blue,
-                    ),
+                    reorderSectionsButton(),
+                    editSectionsButton(),
                   ],
                 ),
+    );
+  }
+
+  Widget doneEditingButton() {
+    return fab(
+      const Icon(Icons.check),
+      "Done",
+      () => setState(() => _isEditMode = !_isEditMode),
+      color: Colors.green,
+    );
+  }
+
+  Widget addNewSectionButton() {
+    return fab(
+      const Icon(Icons.add),
+      "Add",
+      () async {
+        String? newTopic = "";
+        await showDialog(
+          context: scaffoldKey.currentContext!,
+          builder: (currentContext) {
+            return AlertDialog(
+              title: const Text("New Section"),
+              content: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return SizedBox(
+                    width: MediaQuery.of(context).size.width / 2,
+                    height: MediaQuery.of(context).size.height / 2,
+                    child: TextFormField(
+                      initialValue: newTopic,
+                      decoration: InputDecoration(
+                        errorText: (newTopic ?? "").isEmpty ? "Section Name cannot be empty" : "",
+                        border: const UnderlineInputBorder(),
+                        focusedBorder: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                        contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                      ),
+                      onChanged: (String? newText) => setState(() => newTopic = newText),
+                      maxLines: null,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.start,
+                    ),
+                  );
+                },
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    if ((newTopic?.trim() ?? "").isEmpty) return;
+                    Navigator.pop(context);
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    CreateOrUpdateSectionResponse createOrUpdateSectionResponse = await createOrUpdateSection(CreateOrUpdateSectionRequest(
+                      schoolId: widget.adminProfile.schoolId,
+                      agent: widget.adminProfile.userId?.toString(),
+                      sectionName: newTopic,
+                      seqOrder: sectionsList.length + 1,
+                    ));
+                    if (createOrUpdateSectionResponse.httpStatus != "OK" || createOrUpdateSectionResponse.responseStatus != "success") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Something went wrong! Try again later.."),
+                        ),
+                      );
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      return;
+                    }
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    await _loadData();
+                  },
+                  child: const Text("Add"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      color: Colors.blue,
+    );
+  }
+
+  Widget editSectionsButton() {
+    return fab(
+      const Icon(Icons.edit),
+      "Edit",
+      () => setState(() => _isEditMode = !_isEditMode),
+      color: Colors.blue,
+    );
+  }
+
+  Widget reorderSectionsButton() {
+    return fab(
+      const Icon(Icons.reorder_sharp),
+      "Reorder",
+      () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return SectionsReorderScreen(
+              adminProfile: widget.adminProfile,
+              sections: sectionsList,
+              teachers: teachersList,
+            );
+          },
+        ),
+      ).then((_) => _loadData()),
+      color: Colors.amber,
     );
   }
 
@@ -383,26 +488,6 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
     );
   }
 
-  IconButton reorderSectionsButton() {
-    return IconButton(
-      onPressed: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return SectionsReorderScreen(
-              adminProfile: widget.adminProfile,
-              sections: sectionsList,
-              teachers: teachersList,
-              students: studentsList,
-            );
-          },
-        ),
-      ).then((_) => _loadData()),
-      icon: const Icon(Icons.sort),
-      tooltip: "Rearrange sections' order",
-    );
-  }
-
   Widget sectionsDataTable() {
     return Container(
       margin: const EdgeInsets.all(10),
@@ -587,6 +672,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
             teacherProfile: null,
             section: section,
             selectedAcademicYearId: selectedAcademicYearId,
+            studentsList: studentsList.where((es) => es.sectionId == section.sectionId).toList(),
           );
         },
       ),
