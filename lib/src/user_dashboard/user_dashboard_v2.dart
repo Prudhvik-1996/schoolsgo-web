@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/ed_admin/add_new_school_button.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -38,7 +39,7 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
 
-  late UserDetails userDetails;
+  UserDetails? userDetails;
 
   List<StudentProfile> _studentProfiles = [];
   List<TeacherProfile> _teacherProfiles = [];
@@ -74,6 +75,7 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
         ),
       );
       setState(() {
+        userDetails = getUserRolesResponse.userDetails;
         _studentProfiles = (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList();
         _teacherProfiles = (getUserRolesResponse.teacherProfiles ?? [])
             .map((e) => e!)
@@ -193,7 +195,10 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
                       ],
                 ),
         ),
-        // floatingActionButton: [127, 128].contains(widget.loggedInUserId) ? addNewSchoolFab() : null,
+        floatingActionButton: AddNewSchoolButton(
+          userId: userDetails?.userId,
+          reload: _loadData,
+        ),
       ),
     );
   }
@@ -273,40 +278,6 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
                 megaAdmins,
               ))
         .toList();
-  }
-
-  Widget addNewSchoolFab() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-      child: GestureDetector(
-        onTap: () {
-          //  TODO
-        },
-        child: ClayButton(
-          surfaceColor: Colors.blue,
-          parentColor: clayContainerColor(context),
-          borderRadius: 20,
-          spread: 2,
-          child: Container(
-            width: 100,
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
-                Icon(Icons.add),
-                Expanded(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text("Add"),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   InkWell logoutButton(BuildContext context) {

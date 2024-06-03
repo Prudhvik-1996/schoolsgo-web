@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/ed_admin/add_new_school_button.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
@@ -402,7 +403,10 @@ class _UserDashboardState extends State<UserDashboard> {
                       ],
                 ),
         ),
-        // floatingActionButton: [127, 128].contains(widget.loggedInUserId) ? addNewSchoolFab() : null,
+        floatingActionButton: AddNewSchoolButton(
+          userId: widget.loggedInUserId,
+          reload: _loadData,
+        ),
       ),
     );
   }
@@ -482,40 +486,6 @@ class _UserDashboardState extends State<UserDashboard> {
                 megaAdmins,
               ))
         .toList();
-  }
-
-  Widget addNewSchoolFab() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-      child: GestureDetector(
-        onTap: () {
-          //  TODO
-        },
-        child: ClayButton(
-          surfaceColor: Colors.blue,
-          parentColor: clayContainerColor(context),
-          borderRadius: 20,
-          spread: 2,
-          child: Container(
-            width: 100,
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
-                Icon(Icons.add),
-                Expanded(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text("Add"),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   bool doesAdminSupportSelectedAcademicYear(AdminProfile e) => (selectedAcademicYearMap?.schoolIds ?? []).contains(e.schoolId);

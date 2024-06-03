@@ -22,6 +22,7 @@ const String ASSIGN_USER_WITH_ROLES = "/users/assignUserWithRoles";
 const String GET_SCHOOL_WISE_ACADEMIC_YEARS = "/commons/getSchoolWiseAcademicYears";
 const String GET_USER_ROLES_DETAILS = "/commons/getUserRolesDetails";
 const String GET_SCHOOLS_DETAILS = "/commons/getSchoolInfo";
+const String CREATE_OR_UPDATE_SCHOOL_INFO = "/commons/createOrUpdateSchoolInfo";
 const String UPDATE_USER_PIN = "/users/updateUserFourDigitPin";
 const String UPDATE_MOBILE_AND_PASSWORD = "/users/updatePhoneNumberPassword";
 const String RESET_PIN = "/auth/resetPin";
