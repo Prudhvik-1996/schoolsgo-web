@@ -31,6 +31,8 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
     newSchool = CreateOrUpdateSchoolInfoRequest(
       agent: widget.userId,
     );
+    newSchool.academicYearStartDate = "2024-06-01";
+    newSchool.academicYearEndDate = "2024-05-01";
     _loadData();
   }
 
@@ -130,7 +132,14 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
           selectedItem: schoolsList.firstWhereOrNull((e) => e.schoolId == newSchool.linkedSchoolId),
           items: schoolsList,
           itemAsString: (SchoolInfoBean? school) {
-            return school?.schoolName ?? "";
+            String schoolName = (school?.schoolName ?? "");
+            try {
+              String academicStartYear = ((school?.academicYearStartDate) ?? "").split("-")[0];
+              String academicEndYear = ((school?.academicYearEndDate) ?? "").split("-")[0];
+              return "$schoolName [$academicStartYear - $academicEndYear]";
+            } catch (_, e) {
+              return schoolName;
+            }
           },
           showSearchBox: true,
           dropdownBuilder: (BuildContext context, SchoolInfoBean? school) {
@@ -142,10 +151,8 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
               if (school == null) return;
               newSchool.agent = widget.userId;
               newSchool.schoolId = null;
-              newSchool.academicYearStartDate =
-                  convertDateTimeToYYYYMMDDFormat(convertYYYYMMDDFormatToDateTime(school.academicYearStartDate).add(const Duration(days: 365)));
-              newSchool.academicYearEndDate =
-                  convertDateTimeToYYYYMMDDFormat(convertYYYYMMDDFormatToDateTime(school.academicYearEndDate).add(const Duration(days: 365)));
+              newSchool.academicYearStartDate = "2024-06-01";
+              newSchool.academicYearEndDate = "2024-05-01";
               newSchool.linkedSchoolId = school.schoolId;
             });
           },
