@@ -31,111 +31,135 @@ class GetSchoolInfoRequest {
 }
 
 class SchoolInfoBean {
-/*
-{
-  "description": "string",
-  "displayPictureUrl": "string",
-  "estdYear": 0,
-  "faxNumber": "string",
-  "founder": "string",
-  "mailId": "string",
-  "mobile": "string",
-  "schoolDisplayName": "string",
-  "schoolId": 0,
-  "schoolName": "string",
-  "stampPhotoUrl": "string",
-  "status": "string"
-}
-*/
 
+  String? academicYearEndDate;
+  String? academicYearStartDate;
+  int? agent;
+  String? branchCode;
+  String? city;
   String? description;
+  String? detailedAddress;
   String? displayPictureUrl;
+  int? displayPictureUrlId;
   int? estdYear;
+  String? examMemoHeader;
   String? faxNumber;
   String? founder;
+  int? franchiseId;
+  int? linkedSchoolId;
+  String? loginId;
+  String? logoPhotoUrl;
+  int? logoPhotoUrlId;
   String? mailId;
   String? mobile;
+  String? principalSignature;
+  int? promotedSchoolId;
+  String? receiptHeader;
   String? schoolDisplayName;
   int? schoolId;
   String? schoolName;
   String? stampPhotoUrl;
-  String? logoPictureUrl;
+  int? stampPhotoUrlId;
   String? status;
-  String? detailedAddress;
-  String? receiptHeader;
-  String? examMemoHeader;
-  String? principalSignature;
-  int? promotedSchoolId;
-  int? linkedSchoolId;
   Map<String, dynamic> __origJson = {};
 
   SchoolInfoBean({
+    this.academicYearEndDate,
+    this.academicYearStartDate,
+    this.agent,
+    this.branchCode,
+    this.city,
     this.description,
+    this.detailedAddress,
     this.displayPictureUrl,
+    this.displayPictureUrlId,
     this.estdYear,
+    this.examMemoHeader,
     this.faxNumber,
     this.founder,
+    this.franchiseId,
+    this.linkedSchoolId,
+    this.loginId,
+    this.logoPhotoUrl,
+    this.logoPhotoUrlId,
     this.mailId,
     this.mobile,
+    this.principalSignature,
+    this.promotedSchoolId,
+    this.receiptHeader,
     this.schoolDisplayName,
     this.schoolId,
     this.schoolName,
     this.stampPhotoUrl,
-    this.logoPictureUrl,
+    this.stampPhotoUrlId,
     this.status,
-    this.detailedAddress,
-    this.receiptHeader,
-    this.examMemoHeader,
-    this.principalSignature,
-    this.promotedSchoolId,
-    this.linkedSchoolId,
   });
+
   SchoolInfoBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
+    academicYearEndDate = json['academicYearEndDate']?.toString();
+    academicYearStartDate = json['academicYearStartDate']?.toString();
+    agent = json['agent']?.toInt();
+    branchCode = json['branchCode']?.toString();
+    city = json['city']?.toString();
     description = json['description']?.toString();
+    detailedAddress = json['detailedAddress']?.toString();
     displayPictureUrl = json['displayPictureUrl']?.toString();
+    displayPictureUrlId = json['displayPictureUrlId']?.toInt();
     estdYear = json['estdYear']?.toInt();
+    examMemoHeader = json['examMemoHeader']?.toString();
     faxNumber = json['faxNumber']?.toString();
     founder = json['founder']?.toString();
+    franchiseId = json['franchiseId']?.toInt();
+    linkedSchoolId = json['linkedSchoolId']?.toInt();
+    loginId = json['loginId']?.toString();
+    logoPhotoUrl = json['logoPhotoUrl']?.toString();
+    logoPhotoUrlId = json['logoPhotoUrlId']?.toInt();
     mailId = json['mailId']?.toString();
     mobile = json['mobile']?.toString();
+    principalSignature = json['principalSignature']?.toString();
+    promotedSchoolId = json['promotedSchoolId']?.toInt();
+    receiptHeader = json['receiptHeader']?.toString();
     schoolDisplayName = json['schoolDisplayName']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
     stampPhotoUrl = json['stampPhotoUrl']?.toString();
-    logoPictureUrl = json['logoPictureUrl']?.toString();
+    stampPhotoUrlId = json['stampPhotoUrlId']?.toInt();
     status = json['status']?.toString();
-    detailedAddress = json['detailedAddress']?.toString();
-    receiptHeader = json['receiptHeader']?.toString();
-    examMemoHeader = json['examMemoHeader']?.toString();
-    principalSignature = json['principalSignature']?.toString();
-    promotedSchoolId = json['promotedSchoolId']?.toInt();
-    linkedSchoolId = json['linkedSchoolId']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
+    data['academicYearEndDate'] = academicYearEndDate;
+    data['academicYearStartDate'] = academicYearStartDate;
+    data['agent'] = agent;
+    data['branchCode'] = branchCode;
+    data['city'] = city;
     data['description'] = description;
+    data['detailedAddress'] = detailedAddress;
     data['displayPictureUrl'] = displayPictureUrl;
+    data['displayPictureUrlId'] = displayPictureUrlId;
     data['estdYear'] = estdYear;
+    data['examMemoHeader'] = examMemoHeader;
     data['faxNumber'] = faxNumber;
     data['founder'] = founder;
+    data['franchiseId'] = franchiseId;
+    data['linkedSchoolId'] = linkedSchoolId;
+    data['loginId'] = loginId;
+    data['logoPhotoUrl'] = logoPhotoUrl;
+    data['logoPhotoUrlId'] = logoPhotoUrlId;
     data['mailId'] = mailId;
     data['mobile'] = mobile;
+    data['principalSignature'] = principalSignature;
+    data['promotedSchoolId'] = promotedSchoolId;
+    data['receiptHeader'] = receiptHeader;
     data['schoolDisplayName'] = schoolDisplayName;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
     data['stampPhotoUrl'] = stampPhotoUrl;
-    data['logoPictureUrl'] = logoPictureUrl;
+    data['stampPhotoUrlId'] = stampPhotoUrlId;
     data['status'] = status;
-    data['detailedAddress'] = detailedAddress;
-    data['receiptHeader'] = receiptHeader;
-    data['examMemoHeader'] = examMemoHeader;
-    data['principalSignature'] = principalSignature;
-    data['promotedSchoolId'] = promotedSchoolId;
-    data['linkedSchoolId'] = linkedSchoolId;
     return data;
   }
-
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -241,33 +265,37 @@ class CreateOrUpdateSchoolInfoRequest {
   String? city;
   String? description;
   String? detailedAddress;
-  int? displayPictureUrl;
+  String? displayPictureUrl;
+  int? displayPictureUrlId;
   int? estdYear;
   String? examMemoHeader;
   String? faxNumber;
   String? founder;
   int? franchiseId;
+  int? linkedSchoolId;
   String? loginId;
+  String? logoPhotoUrl;
   int? logoPhotoUrlId;
   String? mailId;
   String? mobile;
-  int? principalSignature;
+  String? principalSignature;
+  int? promotedSchoolId;
   String? receiptHeader;
   String? schoolDisplayName;
   int? schoolId;
   String? schoolName;
-  int? stampPhotoUrl;
+  String? stampPhotoUrl;
+  int? stampPhotoUrlId;
   String? status;
-  int? linkedSchoolId;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController schoolNameController = TextEditingController();
   TextEditingController cityController = TextEditingController();
+  TextEditingController detailedAddressController = TextEditingController();
   TextEditingController branchCodeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController mailIdController = TextEditingController();
   TextEditingController mobileController = TextEditingController();
-
 
   CreateOrUpdateSchoolInfoRequest({
     this.academicYearEndDate,
@@ -278,23 +306,27 @@ class CreateOrUpdateSchoolInfoRequest {
     this.description,
     this.detailedAddress,
     this.displayPictureUrl,
+    this.displayPictureUrlId,
     this.estdYear,
     this.examMemoHeader,
     this.faxNumber,
     this.founder,
     this.franchiseId,
+    this.linkedSchoolId,
     this.loginId,
+    this.logoPhotoUrl,
     this.logoPhotoUrlId,
     this.mailId,
     this.mobile,
     this.principalSignature,
+    this.promotedSchoolId,
     this.receiptHeader,
     this.schoolDisplayName,
     this.schoolId,
     this.schoolName,
     this.stampPhotoUrl,
+    this.stampPhotoUrlId,
     this.status,
-    this.linkedSchoolId,
   });
   CreateOrUpdateSchoolInfoRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -305,24 +337,35 @@ class CreateOrUpdateSchoolInfoRequest {
     city = json['city']?.toString();
     description = json['description']?.toString();
     detailedAddress = json['detailedAddress']?.toString();
-    displayPictureUrl = json['displayPictureUrl']?.toInt();
+    displayPictureUrl = json['displayPictureUrl']?.toString();
+    displayPictureUrlId = json['displayPictureUrlId']?.toInt();
     estdYear = json['estdYear']?.toInt();
     examMemoHeader = json['examMemoHeader']?.toString();
     faxNumber = json['faxNumber']?.toString();
     founder = json['founder']?.toString();
     franchiseId = json['franchiseId']?.toInt();
+    linkedSchoolId = json['linkedSchoolId']?.toInt();
     loginId = json['loginId']?.toString();
+    logoPhotoUrl = json['logoPhotoUrl']?.toString();
     logoPhotoUrlId = json['logoPhotoUrlId']?.toInt();
     mailId = json['mailId']?.toString();
     mobile = json['mobile']?.toString();
-    principalSignature = json['principalSignature']?.toInt();
+    principalSignature = json['principalSignature']?.toString();
+    promotedSchoolId = json['promotedSchoolId']?.toInt();
     receiptHeader = json['receiptHeader']?.toString();
     schoolDisplayName = json['schoolDisplayName']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
-    stampPhotoUrl = json['stampPhotoUrl']?.toInt();
+    stampPhotoUrl = json['stampPhotoUrl']?.toString();
+    stampPhotoUrlId = json['stampPhotoUrlId']?.toInt();
     status = json['status']?.toString();
-    linkedSchoolId = json['linkedSchoolId']?.toInt();
+    schoolNameController.text = schoolName ?? '';
+    cityController.text = city ?? '';
+    detailedAddressController.text = detailedAddress ?? '';
+    branchCodeController.text = branchCode ?? '';
+    descriptionController.text = description ?? '';
+    mailIdController.text = mailId ?? '';
+    mobileController.text = mobile ?? '';
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -334,23 +377,27 @@ class CreateOrUpdateSchoolInfoRequest {
     data['description'] = description;
     data['detailedAddress'] = detailedAddress;
     data['displayPictureUrl'] = displayPictureUrl;
+    data['displayPictureUrlId'] = displayPictureUrlId;
     data['estdYear'] = estdYear;
     data['examMemoHeader'] = examMemoHeader;
     data['faxNumber'] = faxNumber;
     data['founder'] = founder;
     data['franchiseId'] = franchiseId;
+    data['linkedSchoolId'] = linkedSchoolId;
     data['loginId'] = loginId;
+    data['logoPhotoUrl'] = logoPhotoUrl;
     data['logoPhotoUrlId'] = logoPhotoUrlId;
     data['mailId'] = mailId;
     data['mobile'] = mobile;
     data['principalSignature'] = principalSignature;
+    data['promotedSchoolId'] = promotedSchoolId;
     data['receiptHeader'] = receiptHeader;
     data['schoolDisplayName'] = schoolDisplayName;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;
     data['stampPhotoUrl'] = stampPhotoUrl;
+    data['stampPhotoUrlId'] = stampPhotoUrlId;
     data['status'] = status;
-    data['linkedSchoolId'] = linkedSchoolId;
     return data;
   }
   Map<String, dynamic> origJson() => __origJson;

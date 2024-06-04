@@ -23,7 +23,7 @@ class _AddNewSchoolButtonState extends State<AddNewSchoolButton> {
     return isEdAdmin() ? addNewSchoolFab() : const SizedBox();
   }
 
-  bool isEdAdmin() => false;// [127, 128].contains(widget.userId);
+  bool isEdAdmin() => [127, 128].contains(widget.userId);
 
   Widget addNewSchoolFab() {
     return Container(

@@ -158,6 +158,7 @@ class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsS
                   null,
                   SectionInfoScreen(
                     adminProfile: widget.adminProfile,
+                      schoolInfoBean: schoolInfoBean,
                   ),
                 ),
                 _getStudentManagementOption(

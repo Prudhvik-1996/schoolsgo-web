@@ -1,3 +1,6 @@
+import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
+
 class AcademicYearMap {
   int startMonth;
   int endMonth;
@@ -27,5 +30,6 @@ class AcademicYearMap {
     return 'AcademicYearMap{startMonth: $startMonth, endMonth: $endMonth, startYear: $startYear, endYear: $endYear, schoolIds: $schoolIds}';
   }
 
-  String formattedString() => "$startYear - $endYear";
+  String formattedString() =>
+      "${MONTHS[startMonth - 1].substring(0, 3).toLowerCase().capitalize()} $startYear - ${MONTHS[endMonth - 1].substring(0, 3).toLowerCase().capitalize()} $endYear";
 }

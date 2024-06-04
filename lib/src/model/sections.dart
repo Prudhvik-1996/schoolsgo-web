@@ -71,6 +71,7 @@ class Section {
   bool? ocrAsPerTt;
   int? seqOrder;
   int? classTeacherId;
+  int? linkedSchoolId;
   Map<String, dynamic> __origJson = {};
 
   Section({
@@ -83,6 +84,7 @@ class Section {
     this.ocrAsPerTt,
     this.seqOrder,
     this.classTeacherId,
+    this.linkedSchoolId,
   });
 
   Section.fromJson(Map<String, dynamic> json) {
@@ -96,6 +98,7 @@ class Section {
     ocrAsPerTt = json["ocrAsPerTt"] ?? false;
     seqOrder = int.tryParse(json["seqOrder"]?.toString() ?? '');
     classTeacherId = int.tryParse(json["classTeacherId"]?.toString() ?? '');
+    linkedSchoolId = int.tryParse(json["linkedSchoolId"]?.toString() ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -109,6 +112,7 @@ class Section {
     data["ocrAsPerTt"] = ocrAsPerTt;
     data["seqOrder"] = seqOrder;
     data["classTeacherId"] = classTeacherId;
+    data["linkedSchoolId"] = linkedSchoolId;
     return data;
   }
 
@@ -248,6 +252,7 @@ class CreateOrUpdateSectionRequest {
   String? sectionName;
   String? sectionPhotoUrl;
   int? seqOrder;
+  int? linkedSchoolId;
   Map<String, dynamic> __origJson = {};
 
 
@@ -261,6 +266,7 @@ class CreateOrUpdateSectionRequest {
     sectionName = section.sectionName;
     sectionPhotoUrl = section.sectionPhotoUrl;
     seqOrder = section.seqOrder;
+    linkedSchoolId = section.linkedSchoolId;
   }
 
   CreateOrUpdateSectionRequest({
@@ -276,6 +282,7 @@ class CreateOrUpdateSectionRequest {
     this.sectionName,
     this.sectionPhotoUrl,
     this.seqOrder,
+    this.linkedSchoolId,
   });
   CreateOrUpdateSectionRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -291,6 +298,7 @@ class CreateOrUpdateSectionRequest {
     sectionName = json['sectionName']?.toString();
     sectionPhotoUrl = json['sectionPhotoUrl']?.toString();
     seqOrder = json['seqOrder']?.toInt();
+    linkedSchoolId = json['linkedSchoolId']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -306,6 +314,7 @@ class CreateOrUpdateSectionRequest {
     data['sectionName'] = sectionName;
     data['sectionPhotoUrl'] = sectionPhotoUrl;
     data['seqOrder'] = seqOrder;
+    data['linkedSchoolId'] = linkedSchoolId;
     return data;
   }
   Map<String, dynamic> origJson() => __origJson;

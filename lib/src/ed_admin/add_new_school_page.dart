@@ -76,7 +76,13 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
                   ),
                 ),
                 textBox(newSchool.schoolNameController, labelText: "School Name", hintText: "School Name"),
-                textBox(newSchool.cityController, labelText: "Sity", hintText: "Sity"),
+                textBox(newSchool.cityController, labelText: "City", hintText: "City"),
+                textBox(
+                  newSchool.detailedAddressController,
+                  labelText: "Detailed Address",
+                  hintText: "Detailed Address",
+                  multiLine: true,
+                ),
                 textBox(newSchool.branchCodeController, labelText: "Branch Code", hintText: "Branch Code"),
                 textBox(newSchool.descriptionController, labelText: "Description", hintText: "Description"),
                 textBox(newSchool.mailIdController, labelText: "Mail Id", hintText: "Mail Id"),
@@ -132,29 +138,15 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
           },
           onChanged: (SchoolInfoBean? school) {
             setState(() {
-              newSchool.linkedSchoolId = school?.schoolId;
-              newSchool.schoolName = school?.schoolName;
-              newSchool.schoolNameController.text = school?.schoolName ?? "";
-              newSchool.description = school?.description;
-              newSchool.descriptionController.text = school?.description ?? "";
-              newSchool.mailId = school?.mailId;
-              newSchool.mailIdController.text = school?.mailId ?? "";
-              newSchool.mobile = school?.mobile;
-              newSchool.mobileController.text = school?.mobile ?? "";
-              newSchool.description = school?.description;
-              newSchool.estdYear = school?.estdYear;
-              newSchool.faxNumber = school?.faxNumber;
-              newSchool.founder = school?.founder;
-              newSchool.mailId = school?.mailId;
-              newSchool.mobile = school?.mobile;
-              newSchool.schoolDisplayName = school?.schoolDisplayName;
-              newSchool.schoolId = school?.schoolId;
-              newSchool.schoolName = school?.schoolName;
-              newSchool.status = school?.status;
-              newSchool.detailedAddress = school?.detailedAddress;
-              newSchool.receiptHeader = school?.receiptHeader;
-              newSchool.examMemoHeader = school?.examMemoHeader;
-              newSchool.linkedSchoolId = school?.linkedSchoolId;
+              newSchool = CreateOrUpdateSchoolInfoRequest.fromJson(school?.origJson() ?? {});
+              if (school == null) return;
+              newSchool.agent = widget.userId;
+              newSchool.schoolId = null;
+              newSchool.academicYearStartDate =
+                  convertDateTimeToYYYYMMDDFormat(convertYYYYMMDDFormatToDateTime(school.academicYearStartDate).add(const Duration(days: 365)));
+              newSchool.academicYearEndDate =
+                  convertDateTimeToYYYYMMDDFormat(convertYYYYMMDDFormatToDateTime(school.academicYearEndDate).add(const Duration(days: 365)));
+              newSchool.linkedSchoolId = school.schoolId;
             });
           },
           showClearButton: false,
@@ -172,8 +164,59 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: GestureDetector(
-        onTap: () {
-          //  TODO
+        onTap: () async {
+          if (newSchool.academicYearStartDate == null || newSchool.academicYearEndDate == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Both academic year start date and end date are mandatory fields"),
+              ),
+            );
+            return;
+          }
+          if ((newSchool.schoolName ?? '') == '') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("School Name is mandatory"),
+              ),
+            );
+            return;
+          }
+          if ((newSchool.city ?? '') == '') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("City is mandatory"),
+              ),
+            );
+            return;
+          }
+          // if ((newSchool.mailId ?? '') == '') {
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     const SnackBar(
+          //       content: Text("Mail Id is mandatory"),
+          //     ),
+          //   );
+          //   return;
+          // }
+          if ((newSchool.mobile ?? '') == '') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Mobile is mandatory"),
+              ),
+            );
+            return;
+          }
+          setState(() => _isLoading = true);
+          CreateOrUpdateSchoolInfoResponse createOrUpdateSchoolInfoResponse = await createOrUpdateSchoolInfo(newSchool);
+          if (createOrUpdateSchoolInfoResponse.httpStatus != "OK" || createOrUpdateSchoolInfoResponse.responseStatus != "success") {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Something went wrong! Try again later.."),
+              ),
+            );
+          } else {
+            Navigator.pop(context);
+          }
+          setState(() => _isLoading = false);
         },
         child: ClayButton(
           surfaceColor: Colors.blue,
@@ -209,7 +252,7 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
         onTap: () async {
           DateTime? _newDate = await showDatePicker(
             context: context,
-            initialDate: DateTime.now(),
+            initialDate: newSchool.academicYearStartDate != null ? convertYYYYMMDDFormatToDateTime(newSchool.academicYearStartDate) : DateTime.now(),
             firstDate: DateTime.now().subtract(const Duration(days: 2 * 365)),
             lastDate: DateTime.now().add(const Duration(days: 2 * 365)),
             helpText: "Select academic year start date",
@@ -259,9 +302,11 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
         onTap: () async {
           DateTime? _newDate = await showDatePicker(
             context: context,
-            initialDate: newSchool.academicYearStartDate != null
-                ? convertYYYYMMDDFormatToDateTime(newSchool.academicYearStartDate).add(const Duration(days: 300))
-                : DateTime.now(),
+            initialDate: newSchool.academicYearEndDate != null
+                ? convertYYYYMMDDFormatToDateTime(newSchool.academicYearEndDate)
+                : newSchool.academicYearStartDate != null
+                    ? convertYYYYMMDDFormatToDateTime(newSchool.academicYearStartDate).add(const Duration(days: 300))
+                    : DateTime.now(),
             firstDate: DateTime.now().subtract(const Duration(days: 2 * 365)),
             lastDate: DateTime.now().add(const Duration(days: 2 * 365)),
             helpText: "Select academic year end date",
@@ -306,6 +351,7 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
     TextEditingController controller, {
     String? labelText,
     String? hintText,
+    bool multiLine = false,
   }) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -315,6 +361,7 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
           hintText: hintText,
         ),
         controller: controller,
+        maxLines: multiLine ? 5 : 1,
       ),
     );
   }

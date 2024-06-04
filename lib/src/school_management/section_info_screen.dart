@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/hover_effect_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -17,9 +18,11 @@ class SectionInfoScreen extends StatefulWidget {
   const SectionInfoScreen({
     Key? key,
     required this.adminProfile,
+    required this.schoolInfoBean,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
+  final SchoolInfoBean schoolInfoBean;
 
   @override
   State<SectionInfoScreen> createState() => _SectionInfoScreenState();
@@ -171,7 +174,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
       const Icon(Icons.add),
       "Add",
       () async {
-        String? newTopic = "";
+        String? newSectionName = "";
         await showDialog(
           context: scaffoldKey.currentContext!,
           builder: (currentContext) {
@@ -183,9 +186,9 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                     width: MediaQuery.of(context).size.width / 2,
                     height: MediaQuery.of(context).size.height / 2,
                     child: TextFormField(
-                      initialValue: newTopic,
+                      initialValue: newSectionName,
                       decoration: InputDecoration(
-                        errorText: (newTopic ?? "").isEmpty ? "Section Name cannot be empty" : "",
+                        errorText: (newSectionName ?? "").isEmpty ? "Section Name cannot be empty" : "",
                         border: const UnderlineInputBorder(),
                         focusedBorder: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -193,7 +196,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                         ),
                         contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
                       ),
-                      onChanged: (String? newText) => setState(() => newTopic = newText),
+                      onChanged: (String? newText) => setState(() => newSectionName = newText),
                       maxLines: null,
                       style: const TextStyle(
                         fontSize: 16,
@@ -206,7 +209,7 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
               actions: [
                 TextButton(
                   onPressed: () async {
-                    if ((newTopic?.trim() ?? "").isEmpty) return;
+                    if ((newSectionName?.trim() ?? "").isEmpty) return;
                     Navigator.pop(context);
                     setState(() {
                       _isLoading = true;
@@ -214,8 +217,9 @@ class _SectionInfoScreenState extends State<SectionInfoScreen> {
                     CreateOrUpdateSectionResponse createOrUpdateSectionResponse = await createOrUpdateSection(CreateOrUpdateSectionRequest(
                       schoolId: widget.adminProfile.schoolId,
                       agent: widget.adminProfile.userId?.toString(),
-                      sectionName: newTopic,
+                      sectionName: newSectionName,
                       seqOrder: sectionsList.length + 1,
+                      linkedSchoolId: widget.schoolInfoBean.linkedSchoolId,
                     ));
                     if (createOrUpdateSectionResponse.httpStatus != "OK" || createOrUpdateSectionResponse.responseStatus != "success") {
                       ScaffoldMessenger.of(context).showSnackBar(
