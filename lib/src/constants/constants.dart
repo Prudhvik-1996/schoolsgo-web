@@ -120,6 +120,7 @@ const String GET_SECTION_WISE_ANNUAL_FEES = "/fee/getSectionWiseAnnualFees";
 const String CREATE_OR_UPDATE_SECTION_WISE_ANNUAL_FEES = "/fee/createOrUpdateSectionFeeMap";
 const String GET_STUDENT_WISE_ANNUAL_FEES = "/fee/getStudentWiseAnnualFees";
 const String CREATE_OR_UPDATE_STUDENT_WISE_ANNUAL_FEES = "/fee/createOrUpdateStudentAnnualFeeMap";
+const String POPULATE_FEE_DUES = "/fee/populateFeeDues";
 const String GET_TERMS = "/fee/getTerms";
 const String CREATE_OR_UPDATE_TERM = "/fee/createOrUpdateTerm";
 const String GET_SECTION_WISE_TERM_FEES = "/fee/getSectionWiseTermFees";

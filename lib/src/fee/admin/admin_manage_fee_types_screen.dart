@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
@@ -26,6 +28,7 @@ class _AdminManageFeeTypesScreenState extends State<AdminManageFeeTypesScreen> {
   bool _isEditMode = true;
 
   List<FeeType> _feeTypes = [];
+  late SchoolInfoBean schoolInfoBean;
 
   final ScrollController _controller = ScrollController();
 
@@ -40,6 +43,18 @@ class _AdminManageFeeTypesScreenState extends State<AdminManageFeeTypesScreen> {
       _isLoading = true;
       bool _isEditMode = true;
     });
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      schoolInfoBean = getSchoolsResponse.schoolInfo!;
+    }
 
     GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -55,6 +70,7 @@ class _AdminManageFeeTypesScreenState extends State<AdminManageFeeTypesScreen> {
         _feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
         for (var feeType in _feeTypes) {
           setState(() {
+            feeType.isEditMode = false;
             feeType.customFeeTypesList ??= [];
             feeType.customFeeTypesList!.add(CustomFeeType(
               schoolId: feeType.schoolId,
@@ -90,20 +106,22 @@ class _AdminManageFeeTypesScreenState extends State<AdminManageFeeTypesScreen> {
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
-      body: ListView(
-        controller: _controller,
-        children: <Widget>[
-              const SizedBox(
-                height: 15,
-              )
-            ] +
-            _feeTypes.map((e) => _feeTypeWidget(e)).toList() +
-            [
-              const SizedBox(
-                height: 250,
-              )
-            ],
-      ),
+      body: _isLoading
+          ? const EpsilonDiaryLoadingWidget()
+          : ListView(
+              controller: _controller,
+              children: <Widget>[
+                    const SizedBox(
+                      height: 15,
+                    )
+                  ] +
+                  _feeTypes.map((e) => _feeTypeWidget(e)).toList() +
+                  [
+                    const SizedBox(
+                      height: 250,
+                    )
+                  ],
+            ),
       floatingActionButton: _isLoading || widget.adminProfile.isMegaAdmin ? null : _addNewButton(context),
     );
   }
@@ -193,6 +211,11 @@ class _AdminManageFeeTypesScreenState extends State<AdminManageFeeTypesScreen> {
   }
 
   Widget _feeTypeWidget(FeeType feeType) {
+    var showSyncOldDueButton = !feeType.isEditMode &&
+        (feeType.customFeeTypesList ?? []).map((e) => e?.customFeeTypeId).where((e) => e != null).isEmpty &&
+        feeType.feeTypeStatus == 'active' &&
+        schoolInfoBean.linkedSchoolId != null &&
+        feeType.feeType == "Old Due";
     return Container(
       margin: const EdgeInsets.fromLTRB(25, 10, 25, 10),
       child: ClayContainer(
@@ -252,6 +275,8 @@ class _AdminManageFeeTypesScreenState extends State<AdminManageFeeTypesScreen> {
                         const SizedBox(
                           width: 15,
                         ),
+                      if (showSyncOldDueButton) _populateOldDueButton(feeType),
+                      if (showSyncOldDueButton) const SizedBox(width: 15),
                       if (_isEditMode && feeType.feeTypeId != null) _feeTypeEditButton(feeType),
                     ],
                   ),
@@ -266,6 +291,67 @@ class _AdminManageFeeTypesScreenState extends State<AdminManageFeeTypesScreen> {
                         (!feeType.isEditMode && (e.customFeeTypeStatus != null && e.customFeeTypeStatus == "active"))))
                     .map((e) => _customFeeTypeWidget(feeType, (feeType.customFeeTypesList ?? []).indexOf(e)))
                     .toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _populateOldDueButton(FeeType feeType) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.vibrate();
+        showDialog<void>(
+          context: context,
+          builder: (BuildContext dialogContext) {
+            return AlertDialog(
+              title: const Text("Are you sure you want to populate all students with their respective old dues from previous academic year"),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    setState(() => _isLoading = true);
+                    PopulateFeeDuesRequest populateFeeDuesRequest = PopulateFeeDuesRequest(
+                      schoolId: widget.adminProfile.schoolId,
+                      agentId: widget.adminProfile.userId,
+                      oldDueFeeTypeId: feeType.feeTypeId,
+                    );
+                    CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse =
+                        await populateFeeDues(populateFeeDuesRequest);
+                    if (createOrUpdateStudentAnnualFeeMapResponse.httpStatus != "OK" ||
+                        createOrUpdateStudentAnnualFeeMapResponse.responseStatus != "success") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Something went wrong! Try again later.."),
+                        ),
+                      );
+                    }
+                    setState(() => _isLoading = false);
+                  },
+                  child: const Text("YES"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Cancel"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Tooltip(
+        message: "Populate all students with their respective old dues from previous academic year",
+        child: ClayButton(
+          color: clayContainerColor(context),
+          height: 30,
+          width: 30,
+          borderRadius: 30,
+          spread: 1,
+          child: const Icon(
+            Icons.sync,
+            size: 16,
           ),
         ),
       ),
