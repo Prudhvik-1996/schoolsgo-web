@@ -145,6 +145,7 @@ flutter:
     - assets/images/google-logo.png
     - assets/images/404_error.png
     - assets/images/401_error.png
+    - assets/images/dashboard_background.png
     - assets/images/attendance.svg
     - assets/images/chat_room.svg
     - assets/images/complainbox.svg

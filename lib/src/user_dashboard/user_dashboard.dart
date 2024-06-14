@@ -8,7 +8,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/ed_admin/add_new_school_button.dart';
+import 'package:schoolsgo_web/src/ed_admin/add_new_school_page.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
@@ -327,6 +327,15 @@ class _UserDashboardState extends State<UserDashboard> {
         appBar: AppBar(
           title: const Text("Epsilon Diary"),
           actions: [
+            if ([127, 128].contains(widget.loggedInUserId))
+              IconButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AddNewSchoolPage(
+                    userId: widget.loggedInUserId!,
+                  );
+                })).then((value) => _loadData()),
+                icon: const Icon(Icons.add),
+              ),
             InkWell(
               onTap: () {
                 showDialog(
@@ -400,12 +409,12 @@ class _UserDashboardState extends State<UserDashboard> {
                         const SizedBox(
                           height: 100,
                         ),
+                        Image.asset(
+                          "assets/images/dashboard_background.png",
+                          fit: BoxFit.cover,
+                        ),
                       ],
                 ),
-        ),
-        floatingActionButton: AddNewSchoolButton(
-          userId: widget.loggedInUserId,
-          reload: _loadData,
         ),
       ),
     );

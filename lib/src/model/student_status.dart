@@ -4,7 +4,7 @@ enum StudentStatus {
   String get description {
     switch (this) {
       case StudentStatus.active:
-        return "active";
+        return "Active";
       case StudentStatus.transferred:
         return "Transferred";
       case StudentStatus.suspended:

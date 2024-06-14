@@ -159,7 +159,9 @@ class CreateStudentsInBulkExcel {
     Excel excel = Excel.decodeBytes(bytes);
     Sheet sheet = excel['Students Data for ${section.sectionName ?? ""}'];
     for (String table in excel.tables.keys) {
-      for (int rowIndex = startIndexOfNewStudents; rowIndex <= sheet.maxCols; rowIndex++) {
+      print("162: ${table} :: ${startIndexOfNewStudents} :: ${sheet.maxCols + 4}");
+      for (int rowIndex = startIndexOfNewStudents; rowIndex <= 1000; rowIndex++) {
+        print("163: ${excel.tables[table]?.row(rowIndex).tryGet<Data?>(2)?.value.toString()}");
         bool isValid = false;
         for (int i = 0; i < headerStrings.length; i++) {
           if (excel.tables[table]?.row(rowIndex).tryGet<Data?>(i)?.value.toString() != null) {

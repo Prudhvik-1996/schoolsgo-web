@@ -38,7 +38,7 @@ class _AddNewSchoolButtonState extends State<AddNewSchoolButton> {
         },
         child: ClayButton(
           surfaceColor: Colors.blue,
-          parentColor: clayContainerColor(context),
+          parentColor: Colors.transparent,
           borderRadius: 20,
           spread: 2,
           child: Container(

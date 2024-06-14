@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
+import 'package:schoolsgo_web/src/school_management/student_enrollment_form_screen.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class StudentCardWidget extends StatefulWidget {
@@ -463,7 +464,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
             if (!widget.isEditMode)
               GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return StudentCardWidgetV2(
+                  return StudentEnrollmentFormScreen(
                     studentProfile: widget.studentProfile,
                     sections: widget.sections,
                     adminProfile: widget.adminProfile,
@@ -497,7 +498,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                 context,
                 MaterialPageRoute(
                   builder: (context) {
-                    return StudentCardWidgetV2(
+                    return StudentEnrollmentFormScreen(
                       studentProfile: widget.studentProfile,
                       sections: widget.sections,
                       adminProfile: widget.adminProfile,
@@ -506,7 +507,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                     );
                   },
                 ),
-              ),
+              ).then((value) => widget.loadAllData()),
               child: ClayButton(
                 depth: 15,
                 surfaceColor: clayContainerColor(context),
@@ -580,7 +581,7 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                   const SizedBox(height: 10),
                   Text("Mobile: ${widget.studentProfile.gaurdianMobile ?? "-"}"),
                   const SizedBox(height: 10),
-                  Text("Alternate Mobile: ${widget.studentProfile.alternateMobile ?? "-"}"),
+                  Text("Alternate Mobile: ${widget.studentProfile.otherPhoneNumbers ?? "-"}"),
                   const SizedBox(height: 10),
                   if (widget.studentProfile.studentId != null) Text("Login Id: ${widget.studentProfile.loginId ?? "-"}"),
                   if (widget.studentProfile.studentId != null) const SizedBox(height: 10),

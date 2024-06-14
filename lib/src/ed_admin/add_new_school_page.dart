@@ -32,7 +32,7 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
       agent: widget.userId,
     );
     newSchool.academicYearStartDate = "2024-06-01";
-    newSchool.academicYearEndDate = "2024-05-01";
+    newSchool.academicYearEndDate = "2025-05-01";
     _loadData();
   }
 
@@ -180,21 +180,25 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
             );
             return;
           }
-          if ((newSchool.schoolName ?? '') == '') {
+          if ((newSchool.schoolNameController.text) == '') {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("School Name is mandatory"),
               ),
             );
             return;
+          } else {
+            newSchool.schoolName = newSchool.schoolNameController.text;
           }
-          if ((newSchool.city ?? '') == '') {
+          if ((newSchool.cityController.text) == '') {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("City is mandatory"),
               ),
             );
             return;
+          } else {
+            newSchool.city = newSchool.cityController.text;
           }
           // if ((newSchool.mailId ?? '') == '') {
           //   ScaffoldMessenger.of(context).showSnackBar(
@@ -204,13 +208,15 @@ class _AddNewSchoolPageState extends State<AddNewSchoolPage> {
           //   );
           //   return;
           // }
-          if ((newSchool.mobile ?? '') == '') {
+          if ((newSchool.mobileController.text) == '') {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("Mobile is mandatory"),
               ),
             );
             return;
+          } else {
+            newSchool.mobile = newSchool.mobileController.text;
           }
           setState(() => _isLoading = true);
           CreateOrUpdateSchoolInfoResponse createOrUpdateSchoolInfoResponse = await createOrUpdateSchoolInfo(newSchool);

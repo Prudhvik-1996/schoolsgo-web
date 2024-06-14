@@ -8,10 +8,11 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/student_status.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/school_management/student_card_widget.dart';
-import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart';
 import 'package:schoolsgo_web/src/school_management/student_creation_in_bulk.dart';
+import 'package:schoolsgo_web/src/school_management/student_enrollment_form_screen.dart';
 
 class StudentManagementScreen extends StatefulWidget {
   const StudentManagementScreen({
@@ -91,199 +92,6 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
     setState(() {
       _isLoading = false;
     });
-  }
-
-  Widget sectionPicker() {
-    return AnimatedSize(
-      curve: Curves.fastOutSlowIn,
-      duration: Duration(milliseconds: isSectionPickerOpen ? 750 : 500),
-      child: Container(
-        margin: const EdgeInsets.all(10),
-        child: isSectionPickerOpen
-            ? Container(
-                margin: const EdgeInsets.all(10),
-                child: ClayContainer(
-                  depth: 40,
-                  surfaceColor: clayContainerColor(context),
-                  parentColor: clayContainerColor(context),
-                  spread: 2,
-                  borderRadius: 10,
-                  child: selectSectionExpanded(),
-                ),
-              )
-            : selectSectionCollapsed(),
-      ),
-    );
-  }
-
-  Widget buildSectionCheckBox(Section section) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.vibrate();
-          setState(() {
-            if (selectedSection != null && selectedSection!.sectionId == section.sectionId) {
-              selectedSection = null;
-            } else {
-              selectedSection = section;
-              isSectionPickerOpen = false;
-            }
-            newStudent.sectionId = selectedSection?.sectionId;
-            newStudent.sectionName = selectedSection?.sectionName;
-          });
-        },
-        child: ClayButton(
-          depth: 40,
-          spread: selectedSection != null && selectedSection!.sectionId == section.sectionId ? 0 : 2,
-          surfaceColor:
-              selectedSection != null && selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          borderRadius: 10,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              section.sectionName!,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget selectSectionExpanded() {
-    return Container(
-      width: double.infinity,
-      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
-      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
-      child: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          InkWell(
-            onTap: () {
-              HapticFeedback.vibrate();
-              setState(() {
-                isSectionPickerOpen = !isSectionPickerOpen;
-              });
-            },
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-                    child: Text(
-                      selectedSection == null ? "Select a section" : "Section: ${selectedSection!.sectionName ?? "-"}",
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                  child: const Icon(Icons.expand_less),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          GridView.count(
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.25,
-            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
-            shrinkWrap: true,
-            children: sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget selectSectionCollapsed() {
-    return ClayContainer(
-      depth: 20,
-      surfaceColor: clayContainerColor(context),
-      parentColor: clayContainerColor(context),
-      spread: 2,
-      borderRadius: 10,
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.vibrate();
-          setState(() {
-            isSectionPickerOpen = !isSectionPickerOpen;
-          });
-        },
-        child: Container(
-          margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
-          padding: const EdgeInsets.all(2),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                  child: Text(
-                    selectedSection == null ? "Select a section" : "Section: ${selectedSection!.sectionName ?? "-"}",
-                  ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                child: const Icon(Icons.expand_more),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void onStudentSelected(int? studentId) {
-    if (_isAddNew) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter the new student's details to continue"),
-        ),
-      );
-      return;
-    }
-    if (editingStudentId == null) {
-      setState(() => selectedStudentId = studentId);
-    }
-  }
-
-  void onEditSelected(int? studentId) {
-    if (_isAddNew) {
-      setState(() {
-        _isAddNew = false;
-        newStudent = StudentProfile(
-          agentId: widget.adminProfile.userId,
-          schoolId: widget.adminProfile.schoolId,
-          sectionId: selectedSection?.sectionId,
-          sectionName: selectedSection?.sectionName,
-          status: 'active',
-        );
-      });
-      return;
-    }
-    setState(() => editingStudentId = studentId);
-  }
-
-  void updateStudentProfile(int? studentId, StudentProfile updatedStudentProfile, {bool addNew = false}) {
-    if (studentId == null && !addNew) return;
-    setState(() {
-      studentProfiles.removeWhere((eachStudent) => eachStudent.studentId == studentId);
-      studentProfiles.add(updatedStudentProfile);
-    });
-  }
-
-  void _scrollDown() {
-    _controller.animateTo(
-      _controller.position.maxScrollExtent,
-      duration: const Duration(seconds: 2),
-      curve: Curves.fastOutSlowIn,
-    );
   }
 
   @override
@@ -429,6 +237,53 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
               ],
             ),
       floatingActionButton: _isLoading || editingStudentId != null || _isAddNew ? null : fab(context),
+    );
+  }
+
+  void onStudentSelected(int? studentId) {
+    if (_isAddNew) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter the new student's details to continue"),
+        ),
+      );
+      return;
+    }
+    if (editingStudentId == null) {
+      setState(() => selectedStudentId = studentId);
+    }
+  }
+
+  void onEditSelected(int? studentId) {
+    if (_isAddNew) {
+      setState(() {
+        _isAddNew = false;
+        newStudent = StudentProfile(
+          agentId: widget.adminProfile.userId,
+          schoolId: widget.adminProfile.schoolId,
+          sectionId: selectedSection?.sectionId,
+          sectionName: selectedSection?.sectionName,
+          status: 'active',
+        );
+      });
+      return;
+    }
+    setState(() => editingStudentId = studentId);
+  }
+
+  void updateStudentProfile(int? studentId, StudentProfile updatedStudentProfile, {bool addNew = false}) {
+    if (studentId == null && !addNew) return;
+    setState(() {
+      studentProfiles.removeWhere((eachStudent) => eachStudent.studentId == studentId);
+      studentProfiles.add(updatedStudentProfile);
+    });
+  }
+
+  void _scrollDown() {
+    _controller.animateTo(
+      _controller.position.maxScrollExtent,
+      duration: const Duration(seconds: 2),
+      curve: Curves.fastOutSlowIn,
     );
   }
 
@@ -628,10 +483,11 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
         });
         // StudentCardWidgetV2
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return StudentCardWidgetV2(
+          return StudentEnrollmentFormScreen(
             studentProfile: newStudent
               ..sectionId = selectedSection?.sectionId
-              ..sectionName = selectedSection?.sectionName,
+              ..sectionName = selectedSection?.sectionName
+              ..studentStatus = StudentStatus.new_admission.name,
             sections: sectionsList,
             adminProfile: widget.adminProfile,
             students: studentProfiles,
@@ -660,6 +516,152 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                 Icons.add,
               ),
             ),
+    );
+  }
+
+  Widget sectionPicker() {
+    return AnimatedSize(
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: isSectionPickerOpen ? 750 : 500),
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        child: isSectionPickerOpen
+            ? Container(
+                margin: const EdgeInsets.all(10),
+                child: ClayContainer(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 10,
+                  child: selectSectionExpanded(),
+                ),
+              )
+            : selectSectionCollapsed(),
+      ),
+    );
+  }
+
+  Widget buildSectionCheckBox(Section section) {
+    return Container(
+      margin: const EdgeInsets.all(5),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.vibrate();
+          setState(() {
+            if (selectedSection != null && selectedSection!.sectionId == section.sectionId) {
+              selectedSection = null;
+            } else {
+              selectedSection = section;
+              isSectionPickerOpen = false;
+            }
+            newStudent.sectionId = selectedSection?.sectionId;
+            newStudent.sectionName = selectedSection?.sectionName;
+          });
+        },
+        child: ClayButton(
+          depth: 40,
+          spread: selectedSection != null && selectedSection!.sectionId == section.sectionId ? 0 : 2,
+          surfaceColor:
+              selectedSection != null && selectedSection!.sectionId == section.sectionId ? Colors.blue.shade300 : clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget selectSectionExpanded() {
+    return Container(
+      width: double.infinity,
+      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
+      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
+      child: ListView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          InkWell(
+            onTap: () {
+              HapticFeedback.vibrate();
+              setState(() {
+                isSectionPickerOpen = !isSectionPickerOpen;
+              });
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                    child: Text(
+                      selectedSection == null ? "Select a section" : "Section: ${selectedSection!.sectionName ?? "-"}",
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const Icon(Icons.expand_less),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          GridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 2.25,
+            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
+            shrinkWrap: true,
+            children: sectionsList.map((e) => buildSectionCheckBox(e)).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget selectSectionCollapsed() {
+    return ClayContainer(
+      depth: 20,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.vibrate();
+          setState(() {
+            isSectionPickerOpen = !isSectionPickerOpen;
+          });
+        },
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+          padding: const EdgeInsets.all(2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  child: Text(
+                    selectedSection == null ? "Select a section" : "Section: ${selectedSection!.sectionName ?? "-"}",
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: const Icon(Icons.expand_more),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

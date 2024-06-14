@@ -70,24 +70,14 @@ class DefaultAppDrawer extends Drawer {
                 ),
                 const Align(
                   alignment: Alignment.bottomLeft,
-                  child: Text(
-                    'Epsilon Diary',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text('Epsilon Diary'),
                 ),
               ],
             ),
           ),
           if (onAcademicYearChange != null) buildAcademicYearDropdownButton(academicYearsMap ?? [], selectedAcademicYearMap: selectedAcademicYearMap),
           ListTile(
-            title: const Text(
-              'Settings',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
+            title: const Text('Settings'),
             leading: const Icon(Icons.settings),
             onTap: () {
               Navigator.restorablePushNamed(context, SettingsView.routeName);
