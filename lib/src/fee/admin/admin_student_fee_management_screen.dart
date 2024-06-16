@@ -610,7 +610,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                         );
                       },
                     ),
-                  ).then((value) => _loadData());
+                  );// .then((value) => _loadData());
                   // setState(() {
                   //   editingStudentId = studentWiseAnnualFeesBean.studentId;
                   // });

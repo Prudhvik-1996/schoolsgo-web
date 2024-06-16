@@ -7,12 +7,14 @@ class CustomVerticalDivider extends StatelessWidget {
     this.height,
     this.hasCircularBorder,
     this.color,
+    this.child,
   }) : super(key: key);
 
   final double? width;
   final double? height;
   final bool? hasCircularBorder;
   final Color? color;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class CustomVerticalDivider extends StatelessWidget {
       ),
       width: width ?? 3,
       height: height,
-      child: const Text(""),
+      child: child ?? const Text(""),
     );
   }
 }

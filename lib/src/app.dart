@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/academic_calendar/academic_calendar_screen.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_options_screen.dart';
 
 // import 'package:provider/provider.dart';
@@ -732,6 +733,36 @@ class _MyAppState extends State<MyApp> {
               try {
                 var argument = (routeSettings.arguments as AdminProfile);
                 return AdminCircularsScreen(
+                  adminProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            }
+          case AcademicCalendarScreen.routeName:
+            if (routeSettings.arguments is TeacherProfile) {
+              try {
+                var argument = (routeSettings.arguments as TeacherProfile);
+                return AcademicCalendarScreen(
+                  teacherProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            }
+            if (routeSettings.arguments is OtherUserRoleProfile) {
+              try {
+                var argument = (routeSettings.arguments as OtherUserRoleProfile);
+                return AcademicCalendarScreen(
+                  otherUserRoleProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else {
+              try {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return AcademicCalendarScreen(
                   adminProfile: argument,
                 );
               } catch (e) {

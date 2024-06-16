@@ -117,6 +117,8 @@ dependencies:
   file_picker: ^5.2.4
   adaptive_scrollbar: ^2.1.2
 
+  flutter_colorpicker: ^1.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -157,6 +159,7 @@ flutter:
     - assets/images/feedback.svg
     - assets/images/notice_board.svg
     - assets/images/circulars.svg
+    - assets/images/academic_calendar.gif
     - assets/images/ledger.svg
     - assets/images/admin_expenses.svg
     - assets/images/onlineclassroom.svg

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:schoolsgo_web/src/academic_calendar/academic_calendar_screen.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
@@ -54,6 +55,15 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         image: SvgPicture.asset("assets/images/notice_board.svg"),
         title: "Notice Board",
         routeName: StudentNoticeBoardView.routeName,
+        argument: studentProfile,
+      ),
+      DashboardWidget(
+        image: Image.asset(
+          'assets/images/academic_calendar.gif',
+          fit: BoxFit.cover,
+        ),
+        title: "Calender",
+        routeName: AcademicCalendarScreen.routeName,
         argument: studentProfile,
       ),
       DashboardWidget(
@@ -164,6 +174,15 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         argument: teacherProfile,
       ),
       DashboardWidget(
+        image: Image.asset(
+          'assets/images/academic_calendar.gif',
+          fit: BoxFit.cover,
+        ),
+        title: "Calender",
+        routeName: AcademicCalendarScreen.routeName,
+        argument: teacherProfile,
+      ),
+      DashboardWidget(
         image: SvgPicture.asset("assets/images/diary.svg"),
         title: "Diary",
         routeName: "/diary",
@@ -265,6 +284,15 @@ List<DashboardWidget<OtherUserRoleProfile>> receptionistDashBoardWidgets(OtherUs
         argument: receptionistProfile,
       ),
       DashboardWidget(
+        image: Image.asset(
+          'assets/images/academic_calendar.gif',
+          fit: BoxFit.cover,
+        ),
+        title: "Calender",
+        routeName: AcademicCalendarScreen.routeName,
+        argument: receptionistProfile,
+      ),
+      DashboardWidget(
         image: SvgPicture.asset("assets/images/attendance.svg"),
         title: "Attendance",
         routeName: StudentAttendanceViewScreen.routeName,
@@ -319,6 +347,15 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         image: SvgPicture.asset("assets/images/circulars.svg"),
         title: "Circulars",
         routeName: AdminCircularsScreen.routeName,
+        argument: adminProfile,
+      ),
+      DashboardWidget(
+        image: Image.asset(
+          'assets/images/academic_calendar.gif',
+          fit: BoxFit.cover,
+        ),
+        title: "Calender",
+        routeName: AcademicCalendarScreen.routeName,
         argument: adminProfile,
       ),
       DashboardWidget(

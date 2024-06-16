@@ -43,3 +43,43 @@ Map<String, TextTheme> textThemesMap = {
   'Trade Winds': GoogleFonts.tradeWindsTextTheme(),
   'Dancing Scripts': GoogleFonts.dancingScriptTextTheme(),
 };
+
+const List<Color> COLORS = [
+  Colors.red,
+  Colors.pink,
+  Colors.purple,
+  Colors.deepPurple,
+  Colors.indigo,
+  Colors.blue,
+  Colors.lightBlue,
+  Colors.cyan,
+  Colors.teal,
+  Colors.green,
+  Colors.lightGreen,
+  Colors.lime,
+  Colors.yellow,
+  Colors.amber,
+  Colors.orange,
+  Colors.deepOrange,
+  Colors.brown,
+  Colors.grey,
+  Colors.blueGrey,
+  Colors.black,
+];
+
+Color hexCodeToColor(String colorCode) {
+  return Color(int.parse(colorCode.substring(1, 7), radix: 16) + 0xFF000000);
+}
+
+String colorToHexCode(Color color) {
+  return '#${(color.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
+}
+
+bool isColorDark(Color color) {
+  double luminance = color.computeLuminance();
+  return luminance < 0.5;
+}
+
+Color getTextColorBasedOnBackground(Color backgroundColor) {
+  return isColorDark(backgroundColor) ? Colors.white : Colors.black;
+}

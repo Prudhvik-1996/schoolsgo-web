@@ -385,8 +385,8 @@ class CalendarState extends State<Calendar> {
                 padding: const EdgeInsets.all(0.0),
                 itemBuilder: (BuildContext context, int index) {
                   final CleanCalendarEvent event = _selectedEvents![index];
-                  final String start = DateFormat('hh:mm a').format(event.startTime).toString();
-                  final String end = DateFormat('hh:mm a').format(event.endTime).toString();
+                  final String? start = event.startTime == null ? null : DateFormat('hh:mm a').format(event.startTime!).toString();
+                  final String? end = event.startTime == null ? null : DateFormat('hh:mm a').format(event.endTime!).toString();
                   return Container(
                     margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     child: ClayButton(
@@ -439,6 +439,7 @@ class CalendarState extends State<Calendar> {
                                 ),
                               ),
                             ),
+                            if (start != null && end != null)
                             Expanded(
                               flex: 20,
                               child: Padding(

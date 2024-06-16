@@ -229,3 +229,6 @@ const String GET_INVENTORY_LOG = "/inventory/getInventoryLog";
 
 const String GET_STUDENT_POCKET_MONEY = "/students/getStudentPocketMoney";
 const String LOAD_OR_DEBIT_STUDENT_POCKET_MONEY = "/students/loadOrDebitStudentPocketMoney";
+
+const String GET_CALENDER_EVENTS = "/calender/getCalenderEvents";
+const String CREATE_OR_UPDATE_CALENDER_EVENTS = "/calender/createOrUpdateCalenderEvents";

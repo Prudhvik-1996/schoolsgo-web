@@ -688,32 +688,33 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
     }
   }
 
-  GestureDetector buildAddNewReceiptButton(BuildContext context) {
-    return GestureDetector(
-      onTap: addNewReceiptAction,
-      child: ClayButton(
-        surfaceColor: Colors.blue[300],
-        parentColor: clayContainerColor(context),
-        borderRadius: 20,
-        child: Container(
-          width: 100,
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: const [
-              Icon(Icons.add),
-              Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text("Add new"),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  Widget buildAddNewReceiptButton(BuildContext context) {
+    return Container();
+    // return GestureDetector(
+    //   onTap: addNewReceiptAction,
+    //   child: ClayButton(
+    //     surfaceColor: Colors.blue[300],
+    //     parentColor: clayContainerColor(context),
+    //     borderRadius: 20,
+    //     child: Container(
+    //       width: 100,
+    //       padding: const EdgeInsets.all(8.0),
+    //       child: Row(
+    //         mainAxisAlignment: MainAxisAlignment.start,
+    //         crossAxisAlignment: CrossAxisAlignment.center,
+    //         children: const [
+    //           Icon(Icons.add),
+    //           Expanded(
+    //             child: FittedBox(
+    //               fit: BoxFit.scaleDown,
+    //               child: Text("Add new"),
+    //             ),
+    //           ),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   void addNewReceiptToPayAction() {

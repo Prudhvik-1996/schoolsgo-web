@@ -15,9 +15,9 @@ import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/fee_support_classes.dart';
@@ -27,7 +27,6 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentWiseFeeReceiptsScreen extends StatefulWidget {
   const AdminStudentWiseFeeReceiptsScreen({Key? key, required this.adminProfile, required this.studentAnnualFeeBean}) : super(key: key);
@@ -1753,17 +1752,20 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                         .toList(),
                   ],
                 ),
-      floatingActionButton: _isLoading || _isAddNew || pdfInBytes != null
-          ? null
-          : FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  _isAddNew = !_isAddNew;
-                });
-              },
-              child: _isAddNew ? const Icon(Icons.check) : const Icon(Icons.add),
-            ),
+      floatingActionButton: _isLoading || _isAddNew || pdfInBytes != null ? null : buildAddNewReceiptWidget(),
     );
+  }
+
+  Widget buildAddNewReceiptWidget() {
+    return Container();
+    // return FloatingActionButton(
+    //   onPressed: () {
+    //     setState(() {
+    //       _isAddNew = !_isAddNew;
+    //     });
+    //   },
+    //   child: _isAddNew ? const Icon(Icons.check) : const Icon(Icons.add),
+    // );
   }
 
   Widget newReceiptWidget() {
