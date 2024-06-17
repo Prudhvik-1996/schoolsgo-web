@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/hostel/model/hostels.dart';
-import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_pocket_money/admin/admin_student_pocket_money_receipts_screen.dart';
@@ -18,7 +19,6 @@ import 'package:schoolsgo_web/src/student_pocket_money/modal/student_pocket_mone
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentPocketMoneyScreen extends StatefulWidget {
   const AdminStudentPocketMoneyScreen({
@@ -38,6 +38,7 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
   bool _isEditMode = true;
   bool _showHostelInfo = false;
 
+  late SchoolInfoBean schoolInfo;
   late DateTime academicYearStartDate;
   late DateTime academicYearEndDate;
 
@@ -69,25 +70,19 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
     setState(() => _isLoading = true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
-    GetSchoolWiseAcademicYearsResponse response = await getSchoolWiseAcademicYears(
-      GetSchoolWiseAcademicYearsRequest(schoolId: widget.adminProfile.schoolId),
-    );
-    List<AcademicYearBean> academicYears = response.academicYearBeanList?.whereNotNull().toList() ?? [];
-    if (academicYears.isNotEmpty) {
-      if (selectedAcademicYearId != null) {
-        if (academicYears.any((e) => e.academicYearId == selectedAcademicYearId)) {
-          academicYearStartDate =
-              convertYYYYMMDDFormatToDateTime(academicYears.where((e) => e.academicYearId == selectedAcademicYearId).first.academicYearStartDate);
-          academicYearEndDate =
-              convertYYYYMMDDFormatToDateTime(academicYears.where((e) => e.academicYearId == selectedAcademicYearId).first.academicYearEndDate);
-        } else {
-          academicYearStartDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearStartDate);
-          academicYearEndDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearEndDate);
-        }
-      } else {
-        academicYearStartDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearStartDate);
-        academicYearEndDate = convertYYYYMMDDFormatToDateTime(academicYears.last.academicYearEndDate);
-      }
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      schoolInfo = getSchoolsResponse.schoolInfo!;
+      academicYearStartDate = convertYYYYMMDDFormatToDateTime(schoolInfo.academicYearStartDate);
+      academicYearEndDate = convertYYYYMMDDFormatToDateTime(schoolInfo.academicYearEndDate);
     }
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -243,9 +238,7 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
           ],
         ),
         drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
-        body: _isLoading
-            ? const EpsilonDiaryLoadingWidget()
-            : studentPocketMoneyTable());
+        body: _isLoading ? const EpsilonDiaryLoadingWidget() : studentPocketMoneyTable());
   }
 
   Widget studentPocketMoneyTable() {
@@ -452,6 +445,7 @@ class _AdminStudentPocketMoneyScreenState extends State<AdminStudentPocketMoneyS
                             adminProfile: widget.adminProfile,
                             studentProfiles: [eachStudent],
                             pocketMoneyTransactions: pocketMoneyTransactions,
+                            schoolInfo: schoolInfo,
                           );
                         },
                       ),

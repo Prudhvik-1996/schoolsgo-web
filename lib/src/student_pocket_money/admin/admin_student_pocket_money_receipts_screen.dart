@@ -1,10 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_pocket_money/admin/load_or_debit_student_pocket_money_transaction_widget.dart';
 import 'package:schoolsgo_web/src/student_pocket_money/modal/student_pocket_money.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentPocketMoneyReceiptsScreen extends StatefulWidget {
   const AdminStudentPocketMoneyReceiptsScreen({
@@ -12,11 +13,13 @@ class AdminStudentPocketMoneyReceiptsScreen extends StatefulWidget {
     required this.adminProfile,
     required this.studentProfiles,
     required this.pocketMoneyTransactions,
+    required this.schoolInfo,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
   final List<StudentProfile> studentProfiles;
   final List<LoadOrDebitStudentPocketMoneyTransactionBean> pocketMoneyTransactions;
+  final SchoolInfoBean schoolInfo;
 
   @override
   State<AdminStudentPocketMoneyReceiptsScreen> createState() => _AdminStudentPocketMoneyReceiptsScreenState();
@@ -61,7 +64,9 @@ class _AdminStudentPocketMoneyReceiptsScreenState extends State<AdminStudentPock
                     context: context,
                     adminProfile: widget.adminProfile,
                     pocketMoneyTransactionBean: e,
+                    changeLoadingAction: () => setState(() => _isLoading = !_isLoading),
                     deleteAction: _isEditMode ? deletePocketMoneyTransaction : null,
+                    schoolInfo: widget.schoolInfo,
                   ),
                 ),
               ],

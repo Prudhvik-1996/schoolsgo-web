@@ -218,10 +218,10 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
         GetUserDetailsResponse getUserDetailsResponse = await getUserDetails(getUserDetailsRequest);
         UserDetails? userDetails = (getUserDetailsResponse.userDetails ?? []).firstOrNull();
         if (getUserDetailsResponse.responseStatus != "success" || getUserDetailsResponse.httpStatus != "OK" || userDetails == null) {
-          setState(() => mobileErrorText = "Invalid Credentials");
+          setState(() => mobileErrorText = "Mobile number not found");
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Invalid Credentials"),
+              content: Text("Mobile number not found"),
             ),
           );
           setState(() => _isLoading = false);
@@ -240,10 +240,10 @@ class _MobileLoginWidgetState extends State<MobileLoginWidget> {
             );
           } else {
             if (userDetails.password != passwordEditingController.text) {
-              setState(() => mobileErrorText = "Invalid Credentials");
+              setState(() => mobileErrorText = "Incorrect password");
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Invalid Credentials"),
+                  content: Text("Incorrect password"),
                 ),
               );
               setState(() => _isLoading = false);

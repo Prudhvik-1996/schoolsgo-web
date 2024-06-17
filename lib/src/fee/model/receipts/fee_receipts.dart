@@ -1160,7 +1160,7 @@ class StudentFeeReceipt {
                 child: Container(
                   margin: const EdgeInsets.fromLTRB(10, 10, 10, 8),
                   child: Text(
-                    "Date:${MediaQuery.of(context).orientation == Orientation.landscape ? " " : "\n"}${convertDateToDDMMMYYY(transactionDate)}",
+                    (MediaQuery.of(context).orientation == Orientation.landscape ? "Date: " : "") + convertDateToDDMMMYYY(transactionDate),
                     textAlign: TextAlign.end,
                     style: const TextStyle(color: Colors.blue),
                   ),
@@ -1170,7 +1170,7 @@ class StudentFeeReceipt {
           : Tooltip(
               message: convertDateToDDMMMYYYEEEE(transactionDate),
               child: Text(
-                "Date:${MediaQuery.of(context).orientation == Orientation.landscape ? " " : "\n"}${convertDateToDDMMMYYY(transactionDate)}",
+                (MediaQuery.of(context).orientation == Orientation.landscape ? "Date: " : "") + convertDateToDDMMMYYY(transactionDate),
                 textAlign: TextAlign.end,
                 style: const TextStyle(color: Colors.blue),
               ),

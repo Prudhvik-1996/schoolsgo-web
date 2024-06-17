@@ -376,30 +376,31 @@ pw.Row studentNameWidget(StudentProfile studentProfile, pw.Font font) {
 pw.Row receiptNumberAndDateWidget(pw.Font font, StudentFeeReceipt eachTransaction) {
   return pw.Row(
     children: [
-      pw.Expanded(
-        flex: 3,
-        child: pw.Row(
-          mainAxisSize: pw.MainAxisSize.min,
-          children: [
-            pw.Text(
-              "Receipt No.: ",
-              style: pw.TextStyle(font: font, fontSize: 16),
-              textAlign: pw.TextAlign.left,
-            ),
-            pw.Expanded(
-              child: pw.Text(
-                " ${eachTransaction.receiptNumber ?? ""}",
-                style: pw.TextStyle(
-                  font: font,
-                  fontSize: 16,
-                  color: PdfColors.red,
-                ),
+      if (eachTransaction.receiptNumber != null)
+        pw.Expanded(
+          flex: 3,
+          child: pw.Row(
+            mainAxisSize: pw.MainAxisSize.min,
+            children: [
+              pw.Text(
+                "Receipt No.: ",
+                style: pw.TextStyle(font: font, fontSize: 16),
                 textAlign: pw.TextAlign.left,
               ),
-            ),
-          ],
+              pw.Expanded(
+                child: pw.Text(
+                  " ${eachTransaction.receiptNumber ?? ""}",
+                  style: pw.TextStyle(
+                    font: font,
+                    fontSize: 16,
+                    color: PdfColors.red,
+                  ),
+                  textAlign: pw.TextAlign.left,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
       pw.Expanded(
         flex: 2,
         child: pw.Text(
