@@ -232,3 +232,6 @@ const String LOAD_OR_DEBIT_STUDENT_POCKET_MONEY = "/students/loadOrDebitStudentP
 
 const String GET_CALENDER_EVENTS = "/calender/getCalenderEvents";
 const String CREATE_OR_UPDATE_CALENDER_EVENTS = "/calender/createOrUpdateCalenderEvents";
+
+const String GET_NEW_RECEIPT_NUMBER = "/fee/getNewReceiptNumber?";
+String getNewReceiptNumberUrl(int schoolId) => GET_NEW_RECEIPT_NUMBER + "schoolId=$schoolId";

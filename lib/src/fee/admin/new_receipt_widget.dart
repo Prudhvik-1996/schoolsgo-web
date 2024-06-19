@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -1254,4 +1255,48 @@ class CustomFeeTypeForNewReceipt {
     // return '_TermWiseCustomFeeType{termId: $termId, feeTypeId: $feeTypeId, customFeeTypeId: $customFeeTypeId, customFeeType: $customFeeType, termWiseFee: $termWiseFee, termWiseFeePaid: $termWiseFeePaid, feePayingController: $feePayingController}';
     return "";
   }
+}
+
+Future<NewReceipt> getNewReceipt(
+  BuildContext context,
+  Function notifyParent,
+  DateTime selectedDate,
+  List<Section> sectionsList,
+  List<StudentProfile> studentProfiles,
+  List<StudentFeeDetailsBean> studentFeeDetails,
+  List<StudentTermWiseFeeSupportBean> studentTermWiseFeeBeans,
+  List<StudentAnnualFeeSupportBean> studentAnnualFeeBeanBeans,
+  List<FeeType> feeTypes,
+  int? totalBusFee,
+  int? busFeePaid,
+  List<StudentBusFeeLogBean> busFeeBeans,
+  int schoolId,
+) async {
+  // receiptNumberController.text = receiptNumber?.toString() ?? "";
+  studentProfiles.sort((a, b) => ((a.sectionId ?? 0)).compareTo((b.sectionId ?? 0)) != 0
+      ? ((a.sectionId ?? 0)).compareTo((b.sectionId ?? 0))
+      : ((int.tryParse(a.rollNumber ?? "") ?? 0)).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0)) != 0
+          ? ((int.tryParse(a.rollNumber ?? "") ?? 0)).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))
+          : (((a.studentFirstName ?? ""))).compareTo(((b.studentFirstName ?? ""))));
+  int receiptNumber = await loadLatestReceiptNumber(schoolId);
+  return NewReceipt(
+    context: context,
+    notifyParent: notifyParent,
+    receiptNumber: receiptNumber,
+    selectedDate: selectedDate,
+    sectionsList: sectionsList,
+    studentProfiles: studentProfiles,
+    studentFeeDetails: studentFeeDetails,
+    studentTermWiseFeeBeans: studentTermWiseFeeBeans,
+    studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
+    feeTypes: feeTypes,
+    totalBusFee: totalBusFee,
+    busFeePaid: busFeePaid,
+    busFeeBeans: busFeeBeans,
+  );
+}
+
+Future<int> loadLatestReceiptNumber(int schoolId) async {
+  int? receiptNumber = -1; // TODO
+  return receiptNumber;
 }

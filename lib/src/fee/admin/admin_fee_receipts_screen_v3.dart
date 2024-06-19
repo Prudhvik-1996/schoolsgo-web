@@ -21,6 +21,8 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/print_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
@@ -69,6 +71,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   List<NewReceipt> newReceipts = [];
 
   SmsTemplateBean? smsTemplate;
+
+  int? newReceiptNumber;
 
   @override
   void initState() {
@@ -126,9 +130,10 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       }
     }
     await loadReceipts();
+    newReceiptNumber = await getNewReceiptNumber();
     setState(() {
-      newReceipts[newReceipts.length - 1].receiptNumber = getNewReceiptNumber();
-      newReceipts[newReceipts.length - 1].receiptNumberController.text = "${getNewReceiptNumber()}";
+      newReceipts[newReceipts.length - 1].receiptNumber = newReceiptNumber;
+      newReceipts[newReceipts.length - 1].receiptNumberController.text = "$newReceiptNumber";
       newReceipts[newReceipts.length - 1].date = newReceipts.isEmpty
           ? studentFeeReceipts.isEmpty
               ? DateTime.now().millisecondsSinceEpoch
@@ -138,14 +143,13 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     });
   }
 
-  int getNewReceiptNumber() {
-    if (newReceipts.length > 1) {
-      return newReceipts.map((e) => e.receiptNumber ?? 0).max + 1;
+  Future<int> getNewReceiptNumber() async {
+    if (newReceiptNumber == null) {
+      newReceiptNumber = await HttpUtils.getNewReceiptNumber(widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId ?? -1);
+      return newReceiptNumber!;
+    } else {
+      return newReceiptNumber! + newReceipts.length;
     }
-    if (studentFeeReceipts.isEmpty) return 1;
-    DateTime latestDate =
-        studentFeeReceipts.where((e) => e.transactionDate != null).map((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate)).max;
-    return studentFeeReceipts.where((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate) == latestDate).map((e) => e.receiptNumber ?? 0).max + 1;
   }
 
   Future<void> loadReceipts() async {
@@ -761,6 +765,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     } else if (newReceipts.map((e) => e.status).contains("inactive")) {
       return;
     } else {
+      int latestReceiptNumber = await getNewReceiptNumber();
       setState(() {
         newReceipts.add(
           NewReceipt(
@@ -774,7 +779,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             modeOfPayment: ModeOfPayment.CASH.name,
           ),
         );
-        newReceipts.last.receiptNumber = getNewReceiptNumber();
+        newReceipts.last.receiptNumber = latestReceiptNumber;
         newReceipts.last.receiptNumberController.text = "${newReceipts.last.receiptNumber}";
         newReceiptsListViewController.animateTo(
           newReceiptsListViewController.position.minScrollExtent,

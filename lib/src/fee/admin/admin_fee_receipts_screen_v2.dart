@@ -15,6 +15,7 @@ import 'package:printing/printing.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_each_receipt_widget.dart';
@@ -30,7 +31,6 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminFeeReceiptsScreen extends StatefulWidget {
   const AdminFeeReceiptsScreen({
@@ -199,21 +199,22 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
     }
     _isAddNew = false;
     newReceipts = [];
-    newReceipts.add(NewReceipt(
-      context: _scaffoldKey.currentContext!,
-      notifyParent: setState,
-      receiptNumber: latestReceiptNumberToBeAdded,
-      selectedDate: DateTime.now(),
-      sectionsList: sectionsList,
-      studentProfiles: studentProfiles,
-      studentFeeDetails: studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList(),
-      studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-      studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
-      feeTypes: feeTypes,
-      totalBusFee: null,
-      busFeePaid: null,
-      busFeeBeans: busFeeBeans,
-    ));
+    NewReceipt newReceipt = await getNewReceipt(
+      _scaffoldKey.currentContext!,
+      setState,
+      DateTime.now(),
+      sectionsList,
+      studentProfiles,
+      studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList(),
+      studentTermWiseFeeBeans,
+      studentAnnualFeeBeanBeans,
+      feeTypes,
+      null,
+      null,
+      busFeeBeans,
+      widget.adminProfile.schoolId!,
+    );
+    newReceipts.add(newReceipt);
     await _filterData();
     setState(() => _isLoading = false);
   }
@@ -1094,7 +1095,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
             } else {
               int studentIndex = offset + index - 2;
               StudentFeeTransactionBean e = filteredList[studentIndex];
-              return  AdminFeeReceiptsEachReceiptWidget(
+              return AdminFeeReceiptsEachReceiptWidget(
                 studentFeeTransactionBean: e,
                 adminProfile: widget.adminProfile,
                 scaffoldKey: _scaffoldKey,
@@ -1190,7 +1191,7 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
               const SizedBox(width: 20),
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     setState(() {
                       if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -1200,22 +1201,27 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                         );
                         return;
                       }
+                    });
+                    setState(() => _isLoading = true);
+                    NewReceipt newReceipt = await getNewReceipt(
+                      _scaffoldKey.currentContext!,
+                      setState,
+                      newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
+                      sectionsList,
+                      studentProfiles,
+                      studentFeeDetailsBeans,
+                      studentTermWiseFeeBeans,
+                      studentAnnualFeeBeanBeans,
+                      feeTypes,
+                      null,
+                      null,
+                      busFeeBeans,
+                      widget.adminProfile.schoolId!,
+                    );
+                    setState(() {
+                      _isLoading = false;
                       newReceipts = [
-                        NewReceipt(
-                          context: _scaffoldKey.currentContext!,
-                          notifyParent: setState,
-                          receiptNumber: newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
-                          selectedDate: newReceipts.where((e) => e.status != "deleted").firstOrNull?.selectedDate ?? DateTime.now(),
-                          sectionsList: sectionsList,
-                          studentProfiles: studentProfiles,
-                          studentFeeDetails: studentFeeDetailsBeans,
-                          studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-                          studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
-                          feeTypes: feeTypes,
-                          totalBusFee: null,
-                          busFeePaid: null,
-                          busFeeBeans: busFeeBeans,
-                        ),
+                        newReceipt,
                         ...newReceipts,
                       ];
                     });

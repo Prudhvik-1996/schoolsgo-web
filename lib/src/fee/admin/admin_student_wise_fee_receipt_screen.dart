@@ -156,29 +156,30 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
     }
     _isAddNew = false;
     newReceipts = [];
+    NewReceipt newReceipt = await getNewReceipt(
+      _scaffoldKey.currentContext!,
+      setState,
+      convertYYYYMMDDFormatToDateTime(
+          (getStudentFeeDetailsSupportClassesResponse.studentMasterTransactionBeans ?? []).reversed.firstOrNull?.transactionTime),
+      [
+        Section(
+          sectionId: widget.studentAnnualFeeBean.sectionId,
+          sectionName: widget.studentAnnualFeeBean.sectionName,
+          schoolId: widget.adminProfile.schoolId,
+        )
+      ],
+      studentProfiles,
+      studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList(),
+      studentTermWiseFeeBeans,
+      studentAnnualFeeBeanBeans,
+      feeTypes,
+      null,
+      null,
+      busFeeBeans,
+      widget.adminProfile.schoolId!,
+    );
     newReceipts.add(
-      NewReceipt(
-        context: _scaffoldKey.currentContext!,
-        notifyParent: setState,
-        receiptNumber: latestReceiptNumberToBeAdded,
-        selectedDate: convertYYYYMMDDFormatToDateTime(
-            (getStudentFeeDetailsSupportClassesResponse.studentMasterTransactionBeans ?? []).reversed.firstOrNull?.transactionTime),
-        sectionsList: [
-          Section(
-            sectionId: widget.studentAnnualFeeBean.sectionId,
-            sectionName: widget.studentAnnualFeeBean.sectionName,
-            schoolId: widget.adminProfile.schoolId,
-          )
-        ],
-        studentProfiles: studentProfiles,
-        studentFeeDetails: studentFeeDetailsBeans.map((e) => StudentFeeDetailsBean.fromJson(e.toJson())).toList(),
-        studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-        studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
-        feeTypes: feeTypes,
-        totalBusFee: null,
-        busFeePaid: null,
-        busFeeBeans: busFeeBeans,
-      )
+      newReceipt
         ..selectedStudent = studentProfiles[0]
         ..selectedSection = Section(
           sectionId: widget.studentAnnualFeeBean.sectionId,
@@ -1592,7 +1593,7 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                           const SizedBox(width: 20),
                           Expanded(
                             child: GestureDetector(
-                              onTap: () {
+                              onTap: () async {
                                 setState(() {
                                   if (newReceipts.where((e) => e.status != "deleted").map((e) => e.selectedStudent).contains(null)) {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -1602,38 +1603,38 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                                     );
                                     return;
                                   }
-                                  newReceipts.add(
-                                    NewReceipt(
-                                      context: _scaffoldKey.currentContext!,
-                                      notifyParent: setState,
-                                      receiptNumber: newReceipts.isEmpty
-                                          ? studentMasterTransactionBeans.isEmpty
-                                              ? 1
-                                              : studentMasterTransactionBeans[studentMasterTransactionBeans.length - 1].receiptId
-                                          : (newReceipts[newReceipts.length - 1].receiptNumber ?? 0) + 1,
-                                      // newReceipts.where((e) => e.status != "deleted").map((e) => e.receiptNumber ?? 0).toList().reduce(max) + 1,
-                                      selectedDate: newReceipts.isEmpty
-                                          ? studentMasterTransactionBeans.isEmpty
-                                              ? DateTime.now()
-                                              : convertYYYYMMDDFormatToDateTime(
-                                                  studentMasterTransactionBeans[studentMasterTransactionBeans.length - 1].transactionTime)
-                                          : (newReceipts[newReceipts.length - 1].selectedDate),
-                                      sectionsList: [
-                                        Section(
-                                          sectionId: widget.studentAnnualFeeBean.sectionId,
-                                          sectionName: widget.studentAnnualFeeBean.sectionName,
-                                          schoolId: widget.adminProfile.schoolId,
-                                        )
-                                      ],
-                                      studentProfiles: studentProfiles,
-                                      studentFeeDetails: studentFeeDetailsBeans,
-                                      studentTermWiseFeeBeans: studentTermWiseFeeBeans,
-                                      studentAnnualFeeBeanBeans: studentAnnualFeeBeanBeans,
-                                      feeTypes: feeTypes,
-                                      totalBusFee: null,
-                                      busFeePaid: null,
-                                      busFeeBeans: busFeeBeans,
+                                });
+                                setState(() => _isLoading = true);
+                                NewReceipt newReceipt = await getNewReceipt(
+                                  _scaffoldKey.currentContext!,
+                                  setState,
+                                  newReceipts.isEmpty
+                                      ? studentMasterTransactionBeans.isEmpty
+                                          ? DateTime.now()
+                                          : convertYYYYMMDDFormatToDateTime(
+                                              studentMasterTransactionBeans[studentMasterTransactionBeans.length - 1].transactionTime)
+                                      : (newReceipts[newReceipts.length - 1].selectedDate),
+                                  [
+                                    Section(
+                                      sectionId: widget.studentAnnualFeeBean.sectionId,
+                                      sectionName: widget.studentAnnualFeeBean.sectionName,
+                                      schoolId: widget.adminProfile.schoolId,
                                     )
+                                  ],
+                                  studentProfiles,
+                                  studentFeeDetailsBeans,
+                                  studentTermWiseFeeBeans,
+                                  studentAnnualFeeBeanBeans,
+                                  feeTypes,
+                                  null,
+                                  null,
+                                  busFeeBeans,
+                                  widget.adminProfile.schoolId!,
+                                );
+                                setState(() {
+                                  _isLoading = false;
+                                  newReceipts.add(
+                                    newReceipt
                                       ..selectedStudent = studentProfiles[0]
                                       ..selectedSection = Section(
                                         sectionId: widget.studentAnnualFeeBean.sectionId,

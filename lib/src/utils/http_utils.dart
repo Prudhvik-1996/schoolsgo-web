@@ -62,4 +62,10 @@ class HttpUtils {
     var streamedResponse = await client.send(request).timeout(timeout);
     return streamedResponse.stream.first;
   }
+
+  // New method to get the receipt number
+  static Future<int> getNewReceiptNumber(int schoolId) async {
+    final url = 'https://epsiloninfinityservices.com:8000/schoolsgo/fee/getNewReceiptNumber?schoolId=$schoolId';
+    return await get(url, (data) => data as int);
+  }
 }
