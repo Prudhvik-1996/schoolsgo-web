@@ -81,37 +81,11 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
     } else {
       setState(() {
         schoolInfo = getSchoolsResponse.schoolInfo!;
-      });
-    }
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID')!;
-    GetSchoolWiseAcademicYearsResponse getAcademicYearsResponse = await getSchoolWiseAcademicYears(
-      GetSchoolWiseAcademicYearsRequest(
-        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-        academicYearId: selectedAcademicYearId,
-      ),
-    );
-    if (getAcademicYearsResponse.httpStatus == "OK" && getAcademicYearsResponse.responseStatus == "success") {
-      setState(() {
-        startDate = (getAcademicYearsResponse.academicYearBeanList ?? [])
-            .where((e) => e?.academicYearId == selectedAcademicYearId)
-            .first!
-            .academicYearStartDate!;
-        endDate = convertDateTimeToYYYYMMDDFormat(DateTime.now());
-        startDateForAttendance = (getAcademicYearsResponse.academicYearBeanList ?? [])
-            .where((e) => e?.academicYearId == selectedAcademicYearId)
-            .first!
-            .academicYearStartDate!;
+        startDate = schoolInfo.academicYearStartDate ?? convertDateTimeToYYYYMMDDFormat(DateTime.now());
+        endDate = schoolInfo.academicYearEndDate ?? convertDateTimeToYYYYMMDDFormat(DateTime.now());
+        startDateForAttendance = startDate;
         endDateForAttendance = convertDateTimeToYYYYMMDDFormat(DateTime.now());
       });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-      return;
     }
     GetSectionsResponse getSectionsResponse = await getSections(
       GetSectionsRequest(
@@ -162,7 +136,6 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
     GetStudentDateRangeAttendanceResponse getStudentDateRangeAttendanceResponse = await getStudentDateRangeAttendance(
       GetStudentDateRangeAttendanceRequest(
         schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-        academicYearId: selectedAcademicYearId,
         isAdminView: true,
         startDate: startDateForAttendance,
         endDate: endDateForAttendance,
