@@ -60,7 +60,6 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
     setState(() => _isLoading = true);
     GetFAExamsResponse getFAExamsResponse = await getFAExams(GetFAExamsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      academicYearId: widget.selectedAcademicYearId,
     ));
     if (getFAExamsResponse.httpStatus != "OK" || getFAExamsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(

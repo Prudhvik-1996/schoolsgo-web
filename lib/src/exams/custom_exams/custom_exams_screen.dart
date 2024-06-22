@@ -68,7 +68,6 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
 
     GetCustomExamsResponse getCustomExamsResponse = await getCustomExams(GetCustomExamsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      academicYearId: widget.selectedAcademicYearId,
       teacherId: widget.defaultSelectedSection != null ? null : widget.teacherProfile?.teacherId,
     ));
     if (getCustomExamsResponse.httpStatus != "OK" || getCustomExamsResponse.responseStatus != "success") {

@@ -59,7 +59,6 @@ class _ManageCustomExamsScreenState extends State<ManageCustomExamsScreen> {
     setState(() => _isLoading = true);
     GetCustomExamsResponse getCustomExamsResponse = await getCustomExams(GetCustomExamsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      academicYearId: widget.selectedAcademicYearId,
     ));
     if (getCustomExamsResponse.httpStatus != "OK" || getCustomExamsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(

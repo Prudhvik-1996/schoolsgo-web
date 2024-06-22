@@ -92,7 +92,6 @@ class _AdminExamStatsOptionsScreenState extends State<ExamStatsOptionsScreen> {
 
     GetCustomExamsResponse getCustomExamsResponse = await getCustomExams(GetCustomExamsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      academicYearId: widget.selectedAcademicYearId,
       teacherId: widget.defaultSelectedSection != null ? null : widget.teacherProfile?.teacherId,
     ));
     if (getCustomExamsResponse.httpStatus != "OK" || getCustomExamsResponse.responseStatus != "success") {
@@ -107,7 +106,6 @@ class _AdminExamStatsOptionsScreenState extends State<ExamStatsOptionsScreen> {
 
     GetFAExamsResponse getFAExamsResponse = await getFAExams(GetFAExamsRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-      academicYearId: widget.selectedAcademicYearId,
     ));
     if (getFAExamsResponse.httpStatus != "OK" || getFAExamsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
