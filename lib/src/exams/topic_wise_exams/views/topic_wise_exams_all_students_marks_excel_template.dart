@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/exam_topics.dart';
@@ -11,6 +9,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
+import 'package:schoolsgo_web/src/utils/file_utils.dart';
 
 class TopicWiseExamsAllStudentMarksUpdateTemplate {
   final AdminProfile? adminProfile;
@@ -49,7 +48,7 @@ class TopicWiseExamsAllStudentMarksUpdateTemplate {
     Uint8List excelUint8List = Uint8List.fromList(excelBytes);
 
     // Save the Excel file
-    FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Template for ${examTopic.topicName}.xlsx');
+    saveFile(excelUint8List, 'Template for ${examTopic.topicName}.xlsx');
   }
 
   void generateSheetForExam(Sheet sheet, Excel excel, {bool showRules = true}) {
@@ -144,14 +143,7 @@ class TopicWiseExamsAllStudentMarksUpdateTemplate {
   }
 
   Future<Excel?> readAndValidateExcel() async {
-    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-      allowMultiple: false,
-    );
-
-    if (pickedFile == null) return null;
-    Uint8List? bytes = pickedFile.files.single.bytes;
+    Uint8List? bytes = await pickFile();
     if (bytes == null) return null;
     List<StudentValidationCellsData> expectedStudentsOrder =
         studentsList.map((e) => StudentValidationCellsData(e.rollNumber, e.studentFirstName)).toList();

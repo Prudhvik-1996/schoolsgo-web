@@ -2,8 +2,6 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:excel/excel.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
@@ -16,6 +14,7 @@ import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
@@ -196,18 +195,11 @@ class FAExamsAllStudentsMarksExcel {
     Uint8List excelUint8List = Uint8List.fromList(excelBytes);
 
     // Save the Excel file
-    FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Template for ${faExam.faExamName}.xlsx');
+    saveFile(excelUint8List, 'Template for ${faExam.faExamName}.xlsx');
   }
 
   Future<Excel?> readAndValidateExcel() async {
-    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-      allowMultiple: false,
-    );
-
-    if (pickedFile == null) return null;
-    Uint8List? bytes = pickedFile.files.single.bytes;
+    Uint8List? bytes = await pickFile();
     if (bytes == null) return null;
     List<StudentValidationCellsData> expectedStudentsOrder =
         studentsList.map((e) => StudentValidationCellsData(e.rollNumber, e.studentFirstName)).toList();

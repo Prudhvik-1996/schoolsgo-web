@@ -1,11 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:typed_data';
 
 import 'package:download/download.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:schoolsgo_web/src/constants/constants.dart';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 enum MediaFileType {
   AUDIO_FILES,
@@ -418,3 +423,46 @@ Future<UploadFileToDriveResponse> uploadFileToDrive(
     rethrow;
   }
 }
+
+Future<Uint8List?> pickFile({String fileType = 'xlsx'}) async {
+  if (kIsWeb) {
+    // Web-specific file picker
+    final completer = Completer<Uint8List?>();
+    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+    uploadInput.accept = '.$fileType'; // Example for Excel files
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) async {
+      final files = uploadInput.files;
+      if (files != null && files.isNotEmpty) {
+        final file = files[0];
+        final reader = html.FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onLoadEnd.listen((e) {
+          if (reader.result != null) {
+            final arrayBuffer = reader.result as ByteBuffer;
+            final uint8List = arrayBuffer.asUint8List();
+            completer.complete(uint8List);
+          } else {
+            completer.complete(null);
+          }
+        });
+      } else {
+        completer.complete(null);
+      }
+    });
+
+    return completer.future;
+  } else {
+    // Mobile or desktop file picker
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: [fileType],
+      allowMultiple: false,
+    );
+
+    return result?.files.single.bytes;
+  }
+}
+
+Future<String> saveFile(Uint8List excelUint8List, String fileName) => FileSaver.instance.saveFile(bytes: excelUint8List, name: fileName);

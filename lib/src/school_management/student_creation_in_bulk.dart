@@ -1,13 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_saver/file_saver.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
 class CreateStudentsInBulkExcel {
@@ -143,18 +141,12 @@ class CreateStudentsInBulkExcel {
     Uint8List excelUint8List = Uint8List.fromList(excelBytes);
 
     // Save the Excel file
-    FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Student data bulk create ${section.sectionName}.xlsx');
+    saveFile(excelUint8List, 'Student data bulk create ${section.sectionName}.xlsx');
   }
 
   Future<List<StudentProfile>?> readAndValidateExcel(BuildContext context) async {
     List<StudentProfile> newStudentsList = [];
-    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['xlsx'],
-      allowMultiple: false,
-    );
-    if (pickedFile == null) return null;
-    Uint8List? bytes = pickedFile.files.single.bytes;
+    Uint8List? bytes = await pickFile();
     if (bytes == null) return null;
     Excel excel = Excel.decodeBytes(bytes);
     Sheet sheet = excel['Students Data for ${section.sectionName ?? ""}'];
