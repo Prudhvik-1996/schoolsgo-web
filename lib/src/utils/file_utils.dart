@@ -440,14 +440,30 @@ Future<Uint8List?> pickFile({String fileType = 'xlsx'}) async {
         reader.readAsArrayBuffer(file);
         reader.onLoadEnd.listen((e) {
           if (reader.result != null) {
-            final arrayBuffer = reader.result as ByteBuffer;
-            final uint8List = arrayBuffer.asUint8List();
-            completer.complete(uint8List);
+            try {
+              debugPrint("FileReader result type: ${reader.result.runtimeType}");
+              if (reader.result is ByteBuffer) {
+                final arrayBuffer = reader.result as ByteBuffer;
+                final uint8List = Uint8List.view(arrayBuffer);
+                completer.complete(uint8List);
+              } else if (reader.result is List<int>) {
+                final uint8List = Uint8List.fromList(reader.result as List<int>);
+                completer.complete(uint8List);
+              } else {
+                debugPrint("Error: FileReader result is not of expected type");
+                completer.complete(null);
+              }
+            } catch (error) {
+              debugPrint("Error converting result to Uint8List: $error");
+              completer.complete(null);
+            }
           } else {
+            debugPrint("Error: FileReader result is null");
             completer.complete(null);
           }
         });
       } else {
+        debugPrint("Error: No files selected");
         completer.complete(null);
       }
     });
