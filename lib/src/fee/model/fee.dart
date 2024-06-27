@@ -4269,6 +4269,7 @@ class UpdateReceiptRequest {
 
   int? agent;
   String? date;
+  String? time;
   int? receiptId;
   String? modeOfPayment;
   String? comments;
@@ -4276,12 +4277,13 @@ class UpdateReceiptRequest {
   int? transactionId;
   Map<String, dynamic> __origJson = {};
 
-  UpdateReceiptRequest({this.agent, this.date, this.receiptId, this.modeOfPayment, this.comments, this.schoolId, this.transactionId,});
+  UpdateReceiptRequest({this.agent, this.date, this.time, this.receiptId, this.modeOfPayment, this.comments, this.schoolId, this.transactionId,});
 
   UpdateReceiptRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
     date = json['date']?.toString();
+    time = json['time']?.toString();
     receiptId = json['receiptId']?.toInt();
     modeOfPayment = json['modeOfPayment']?.toString();
     comments = json['comments']?.toString();
@@ -4293,6 +4295,7 @@ class UpdateReceiptRequest {
     final data = <String, dynamic>{};
     data['agent'] = agent;
     data['date'] = date;
+    data['time'] = time;
     data['receiptId'] = receiptId;
     data['modeOfPayment'] = modeOfPayment;
     data['comments'] = comments;

@@ -236,7 +236,7 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
       _isLoading = true;
     });
     GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
-      schoolId: widget.adminProfile?.schoolId,
+      schoolId: widget.studentProfile.schoolId,
     ));
     if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -283,84 +283,21 @@ class _StudentFeeScreenV3State extends State<StudentFeeScreenV3> {
   }
 
   Future<void> makePdf({int? transactionId}) async {
-    bool isAdminCopySelected = true;
-    bool isStudentCopySelected = transactionId != null;
-    bool proceedPrint = true;
-    await showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext dialogueContext) {
-        return AlertDialog(
-          title: const Text('Download receipts'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SwitchListTile(
-                    title: const Text("Admin Copy"),
-                    selected: isAdminCopySelected,
-                    value: isAdminCopySelected,
-                    onChanged: (bool value) {
-                      setState(() => isAdminCopySelected = value);
-                    },
-                  ),
-                  SwitchListTile(
-                    title: const Text("Student Copy"),
-                    selected: isStudentCopySelected,
-                    value: isStudentCopySelected,
-                    onChanged: (bool value) {
-                      setState(() => isStudentCopySelected = value);
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("Proceed to print"),
-              onPressed: () async {
-                if (!isAdminCopySelected && !isStudentCopySelected) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("At least one in Admin Copy or Student Copy must be selected"),
-                    ),
-                  );
-                  return;
-                }
-                Navigator.pop(context);
-              },
-            ),
-            TextButton(
-              child: const Text("No"),
-              onPressed: () async {
-                setState(() => proceedPrint = false);
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-
-    if (!proceedPrint) return;
-
     if (schoolInfoBean == null) await getDataReadyToPrint();
     if (schoolInfoBean == null) return;
 
     List<StudentFeeReceipt> receiptsToPrint = studentFeeReceipts.where((e) => transactionId == null || e.transactionId == transactionId).toList();
+    setState(() => _isLoading = true);
     await printReceipts(
       context,
       schoolInfoBean!,
       receiptsToPrint,
       [widget.studentProfile],
       isTermWise,
-      isAdminCopySelected: isAdminCopySelected,
-      isStudentCopySelected: isStudentCopySelected,
+      isAdminCopySelected: false,
+      isStudentCopySelected: true,
     );
+    setState(() => _isLoading = false);
   }
 
   pw.Widget paddedText(

@@ -493,6 +493,7 @@ class StudentFeeReceipt {
   String? studentName;
   String? gaurdianName;
   String? transactionDate;
+  String? transactionTime;
   int? transactionId;
   String? comments;
   String? status;
@@ -515,6 +516,7 @@ class StudentFeeReceipt {
     this.studentName,
     this.gaurdianName,
     this.transactionDate,
+    this.transactionTime,
     this.transactionId,
     this.comments,
     this.status,
@@ -544,6 +546,7 @@ class StudentFeeReceipt {
     studentName = json['studentName']?.toString();
     gaurdianName = json['gaurdianName']?.toString();
     transactionDate = json['transactionDate']?.toString();
+    transactionTime = json['transactionTime']?.toString();
     transactionId = json['transactionId']?.toInt();
     comments = json['comments']?.toString();
     status = json['status']?.toString();
@@ -570,6 +573,7 @@ class StudentFeeReceipt {
     data['studentName'] = studentName;
     data['gaurdianName'] = gaurdianName;
     data['transactionDate'] = transactionDate;
+    data['transactionTime'] = transactionTime;
     data['transactionId'] = transactionId;
     data['comments'] = comments;
     data['status'] = status;
@@ -621,8 +625,6 @@ class StudentFeeReceipt {
                       children: [
                         Expanded(child: receiptNumberWidget(context)),
                         const SizedBox(width: 10),
-                        receiptDateWidget(context, setState),
-                        const SizedBox(width: 10),
                         if (status != "deleted" && makePdf != null) printReceiptButton(context, makePdf),
                         if (status != "deleted" && makePdf != null) const SizedBox(width: 5),
                         if (adminId != null && canSendSms) noOfTimesNotifiedWidget(context, sendReceiptSms),
@@ -673,6 +675,16 @@ class StudentFeeReceipt {
                     if (!isEditMode && comments != null) const SizedBox(height: 10),
                     commentsWidget(),
                     const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        receiptDateWidget(context, setState),
+                        const SizedBox(width: 5),
+                        receiptTimeWidget(context, setState),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
                   ],
                 ),
                 if (isLoading)
@@ -1009,6 +1021,7 @@ class StudentFeeReceipt {
     if (setState != null) setState(() {});
     if (receiptNumber != StudentFeeReceipt.fromJson(origJson()).receiptNumber ||
         transactionDate != StudentFeeReceipt.fromJson(origJson()).transactionDate ||
+        transactionTime != StudentFeeReceipt.fromJson(origJson()).transactionTime ||
         comments != StudentFeeReceipt.fromJson(origJson()).comments ||
         modeOfPayment != StudentFeeReceipt.fromJson(origJson()).modeOfPayment) {
       UpdateReceiptResponse updateReceiptResponse = await updateReceipt(UpdateReceiptRequest(
@@ -1017,6 +1030,7 @@ class StudentFeeReceipt {
         modeOfPayment: modeOfPayment,
         comments: comments,
         date: transactionDate,
+        time: transactionTime,
         agent: adminId,
         schoolId: schoolId,
       ));
@@ -1175,6 +1189,50 @@ class StudentFeeReceipt {
                 style: const TextStyle(color: Colors.blue),
               ),
             ),
+    );
+  }
+
+  Padding receiptTimeWidget(BuildContext context, Function? setState) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+      child: isEditMode
+          ? GestureDetector(
+              onTap: () async {
+                HapticFeedback.vibrate();
+                TimeOfDay? _startTimePicker = await showTimePicker(
+                  context: context,
+                  initialTime: formatHHMMSSToTimeOfDay(transactionTime ?? "00:00:00"),
+                );
+                if (_startTimePicker == null) return;
+                transactionTime = timeOfDayToHHMMSS(_startTimePicker);
+                if (setState != null) setState(() {});
+              },
+              child: ClayButton(
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 10,
+                depth: 40,
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+                  child: Text(
+                    transactionTime == null
+                        ? ''
+                        : ((MediaQuery.of(context).orientation == Orientation.landscape ? "Time: " : "") +
+                            formatHHMMSStoHHMMA(transactionTime ?? "-")),
+                    textAlign: TextAlign.end,
+                    style: const TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ),
+            )
+          : Text(
+            transactionTime == null
+                ? ''
+                : ((MediaQuery.of(context).orientation == Orientation.landscape ? "Time: " : "") + formatHHMMSStoHHMMA(transactionTime ?? "-")),
+            textAlign: TextAlign.end,
+            style: const TextStyle(color: Colors.blue),
+          ),
     );
   }
 
