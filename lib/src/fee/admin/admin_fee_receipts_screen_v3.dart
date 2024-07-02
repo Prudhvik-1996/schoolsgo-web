@@ -338,7 +338,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
   }
 
   Future<void> makePdf({int? transactionId}) async {
-    bool isAdminCopySelected = false;
+    bool isAdminCopySelected = true;
     bool isStudentCopySelected = transactionId != null;
     bool proceedPrint = true;
     await showDialog(
