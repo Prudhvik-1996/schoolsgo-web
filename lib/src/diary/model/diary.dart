@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -403,4 +402,385 @@ Future<List<int>> getDiaryReport(GetDiaryRequest getDiaryRequest) async {
   debugPrint("Raising request to getDiary with request ${jsonEncode(getDiaryRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_DIARY_REPORT;
   return await HttpUtils.postToDownloadFile(_url, getDiaryRequest.toJson());
+}
+
+class GetDiaryTopicsRequest {
+  int? schoolId;
+  int? sectionId;
+  int? subjectId;
+
+  GetDiaryTopicsRequest({
+    this.schoolId,
+    this.sectionId,
+    this.subjectId,
+  });
+
+  GetDiaryTopicsRequest.fromJson(Map<String, dynamic> json) {
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    subjectId = json['subjectId']?.toInt();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['subjectId'] = subjectId;
+    return data;
+  }
+}
+
+class DiaryTopicBean {
+  int? agentId;
+  int? diaryTopicId;
+  int? schoolId;
+  int? sectionId;
+  String? status;
+  int? subjectId;
+  String? topicName;
+
+  DiaryTopicBean({
+    this.agentId,
+    this.diaryTopicId,
+    this.schoolId,
+    this.sectionId,
+    this.status,
+    this.subjectId,
+    this.topicName,
+  });
+
+  DiaryTopicBean.fromJson(Map<String, dynamic> json) {
+    agentId = json['agentId']?.toInt();
+    diaryTopicId = json['diaryTopicId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    status = json['status']?.toString();
+    subjectId = json['subjectId']?.toInt();
+    topicName = json['topicName']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['diaryTopicId'] = diaryTopicId;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['status'] = status;
+    data['subjectId'] = subjectId;
+    data['topicName'] = topicName;
+    return data;
+  }
+}
+
+class GetDiaryTopicsResponse {
+  List<DiaryTopicBean?>? diaryTopicBeans;
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+
+  GetDiaryTopicsResponse({
+    this.diaryTopicBeans,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+
+  GetDiaryTopicsResponse.fromJson(Map<String, dynamic> json) {
+    if (json['diaryTopicBeans'] != null) {
+      final v = json['diaryTopicBeans'];
+      final arr0 = <DiaryTopicBean>[];
+      v.forEach((v) {
+        arr0.add(DiaryTopicBean.fromJson(v));
+      });
+      diaryTopicBeans = arr0;
+    }
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (diaryTopicBeans != null) {
+      final v = diaryTopicBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['diaryTopicBeans'] = arr0;
+    }
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+}
+
+Future<GetDiaryTopicsResponse> getDiaryTopics(GetDiaryTopicsRequest getDiaryTopicsRequest) async {
+  debugPrint("Raising request to getDiaryTopics with request ${jsonEncode(getDiaryTopicsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_DIARY_TOPICS;
+
+  GetDiaryTopicsResponse getDiaryTopicsResponse = await HttpUtils.post(
+    _url,
+    getDiaryTopicsRequest.toJson(),
+    GetDiaryTopicsResponse.fromJson,
+  );
+
+  debugPrint("GetDiaryTopicsResponse ${getDiaryTopicsResponse.toJson()}");
+  return getDiaryTopicsResponse;
+}
+
+class GetDiaryIssuesRequest {
+  String? date;
+  int? schoolId;
+  int? sectionId;
+  int? studentId;
+  int? subjectId;
+  int? topicId;
+
+  GetDiaryIssuesRequest({
+    this.date,
+    this.schoolId,
+    this.sectionId,
+    this.studentId,
+    this.subjectId,
+    this.topicId,
+  });
+
+  GetDiaryIssuesRequest.fromJson(Map<String, dynamic> json) {
+    date = json['date']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    studentId = json['studentId']?.toInt();
+    subjectId = json['subjectId']?.toInt();
+    topicId = json['topicId']?.toInt();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['date'] = date;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['studentId'] = studentId;
+    data['subjectId'] = subjectId;
+    data['topicId'] = topicId;
+    return data;
+  }
+}
+
+class DiaryIssueMediaBean {
+  String? agentId;
+  int? createdTime;
+  int? diaryIssueId;
+  int? diaryIssueMediaId;
+  int? lastUpdatedTime;
+  int? mediaId;
+  String? mediaType;
+  String? mediaUrl;
+  String? status;
+  String? thumbnailUrl;
+
+  DiaryIssueMediaBean({
+    this.agentId,
+    this.createdTime,
+    this.diaryIssueId,
+    this.diaryIssueMediaId,
+    this.lastUpdatedTime,
+    this.mediaId,
+    this.mediaType,
+    this.mediaUrl,
+    this.status,
+    this.thumbnailUrl,
+  });
+
+  DiaryIssueMediaBean.fromJson(Map<String, dynamic> json) {
+    agentId = json['agentId']?.toString();
+    createdTime = json['createdTime']?.toInt();
+    diaryIssueId = json['diaryIssueId']?.toInt();
+    diaryIssueMediaId = json['diaryIssueMediaId']?.toInt();
+    lastUpdatedTime = json['lastUpdatedTime']?.toInt();
+    mediaId = json['mediaId']?.toInt();
+    mediaType = json['mediaType']?.toString();
+    mediaUrl = json['mediaUrl']?.toString();
+    status = json['status']?.toString();
+    thumbnailUrl = json['thumbnailUrl']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['createdTime'] = createdTime;
+    data['diaryIssueId'] = diaryIssueId;
+    data['diaryIssueMediaId'] = diaryIssueMediaId;
+    data['lastUpdatedTime'] = lastUpdatedTime;
+    data['mediaId'] = mediaId;
+    data['mediaType'] = mediaType;
+    data['mediaUrl'] = mediaUrl;
+    data['status'] = status;
+    data['thumbnailUrl'] = thumbnailUrl;
+    return data;
+  }
+}
+
+class DiaryIssueBean {
+  int? agentId;
+  String? date;
+  int? diaryIssueId;
+  List<DiaryIssueMediaBean?>? diaryIssueMediaBeans;
+  String? topicName;
+  String? issue;
+  String? resolution;
+  int? schoolId;
+  int? sectionId;
+  String? status;
+  int? studentId;
+  int? subjectId;
+  int? topicId;
+
+  TextEditingController topicNameEditingController = TextEditingController();
+  TextEditingController issueEditingController = TextEditingController();
+  TextEditingController resolutionEditingController = TextEditingController();
+
+  DiaryIssueBean({
+    this.agentId,
+    this.date,
+    this.diaryIssueId,
+    this.diaryIssueMediaBeans,
+    this.topicName,
+    this.issue,
+    this.resolution,
+    this.schoolId,
+    this.sectionId,
+    this.status,
+    this.studentId,
+    this.subjectId,
+    this.topicId,
+  }) {
+    topicNameEditingController.text = topicName ?? "";
+    issueEditingController.text = issue ?? "";
+    resolutionEditingController.text = resolution ?? "";
+  }
+
+  DiaryIssueBean.fromJson(Map<String, dynamic> json) {
+    agentId = json['agentId']?.toInt();
+    date = json['date']?.toString();
+    diaryIssueId = json['diaryIssueId']?.toInt();
+    if (json['diaryIssueMediaBeans'] != null) {
+      final v = json['diaryIssueMediaBeans'];
+      final arr0 = <DiaryIssueMediaBean>[];
+      v.forEach((v) {
+        arr0.add(DiaryIssueMediaBean.fromJson(v));
+      });
+      diaryIssueMediaBeans = arr0;
+    }
+    topicName = json['topicName']?.toString();
+    issue = json['issue']?.toString();
+    resolution = json['resolution']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    status = json['status']?.toString();
+    studentId = json['studentId']?.toInt();
+    subjectId = json['subjectId']?.toInt();
+    topicId = json['topicId']?.toInt();
+    topicNameEditingController.text = topicName ?? "";
+    issueEditingController.text = issue ?? "";
+    resolutionEditingController.text = resolution ?? "";
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    data['date'] = date;
+    data['diaryIssueId'] = diaryIssueId;
+    if (diaryIssueMediaBeans != null) {
+      final v = diaryIssueMediaBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['diaryIssueMediaBeans'] = arr0;
+    }
+    data['topicName'] = topicName;
+    data['issue'] = issue;
+    data['resolution'] = resolution;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    data['status'] = status;
+    data['studentId'] = studentId;
+    data['subjectId'] = subjectId;
+    data['topicId'] = topicId;
+    return data;
+  }
+
+  void populateFromTextControllers() {
+    topicName = topicNameEditingController.text.trim();
+    issue = issueEditingController.text.trim();
+    resolution = resolutionEditingController.text.trim();
+  }
+}
+
+class GetDiaryIssuesResponse {
+  List<DiaryIssueBean?>? diaryIssueBeans;
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+
+  GetDiaryIssuesResponse({
+    this.diaryIssueBeans,
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+
+  GetDiaryIssuesResponse.fromJson(Map<String, dynamic> json) {
+    if (json['diaryIssueBeans'] != null) {
+      final v = json['diaryIssueBeans'];
+      final arr0 = <DiaryIssueBean>[];
+      v.forEach((v) {
+        arr0.add(DiaryIssueBean.fromJson(v));
+      });
+      diaryIssueBeans = arr0;
+    }
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (diaryIssueBeans != null) {
+      final v = diaryIssueBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['diaryIssueBeans'] = arr0;
+    }
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+}
+
+Future<GetDiaryIssuesResponse> getDiaryIssues(GetDiaryIssuesRequest getDiaryIssuesRequest) async {
+  debugPrint("Raising request to getDiaryIssues with request ${jsonEncode(getDiaryIssuesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_DIARY_ISSUES;
+
+  GetDiaryIssuesResponse getDiaryIssuesResponse = await HttpUtils.post(
+    _url,
+    getDiaryIssuesRequest.toJson(),
+    GetDiaryIssuesResponse.fromJson,
+  );
+
+  debugPrint("GetDiaryIssuesResponse ${getDiaryIssuesResponse.toJson()}");
+  return getDiaryIssuesResponse;
 }

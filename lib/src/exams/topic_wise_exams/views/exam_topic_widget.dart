@@ -24,6 +24,7 @@ class ExamTopicWidget extends StatefulWidget {
     required this.saveTopicWiseExam,
     required this.loadTopicWiseExams,
     required this.setState,
+    required this.addNewTopicWiseExam,
   }) : super(key: key);
 
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -36,6 +37,7 @@ class ExamTopicWidget extends StatefulWidget {
   final List<TopicWiseExam> topicWiseExams;
   final Future<TopicWiseExam> Function(TopicWiseExam topicWiseExam) saveTopicWiseExam;
   final Future<void> Function() loadTopicWiseExams;
+  final void Function() addNewTopicWiseExam;
   final void Function(VoidCallback fn) setState;
 
   @override
@@ -458,29 +460,7 @@ class _ExamTopicWidgetState extends State<ExamTopicWidget> {
   Widget addNewExamButton() => fab(
         const Icon(Icons.add),
         "Add New Exam",
-        () => widget.setState(() => widget.topicWiseExams.add(
-              TopicWiseExam(
-                academicYearId: widget.academicYearId,
-                schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-                subjectId: widget.tds.subjectId,
-                status: "active",
-                date: null,
-                comment: null,
-                agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
-                sectionId: widget.tds.sectionId,
-                authorisedAgent: widget.tds.teacherId,
-                endTime: null,
-                examId: null,
-                examName: "",
-                examSectionSubjectMapId: null,
-                examType: "TOPIC",
-                maxMarks: null,
-                startTime: null,
-                studentExamMarksList: [],
-                topicId: widget.examTopic.topicId,
-                topicName: widget.examTopic.topicName,
-              )..isEditMode = true,
-            )),
+        widget.addNewTopicWiseExam,
         color: Colors.blue,
       );
 

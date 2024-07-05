@@ -82,6 +82,8 @@ const String CREATE_OR_UPDATE_LOGBOOK = "/teachers/createOrUpdateTeacherLogBook"
 
 const String GET_DIARY = "/diary/getStudentDiary";
 const String CREATE_OR_UPDATE_DIARY = "/diary/createOrUpdateDiary";
+const String GET_DIARY_TOPICS = "/diary/getDiaryTopics";
+const String GET_DIARY_ISSUES = "/diary/getDiaryIssues";
 
 const String GET_SUGGESTION_BOX = "/complaintBox/getComplaintBox";
 const String CREATE_SUGGESTION = "/complaintBox/createComplaintBox";

@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/employee_attendance/admin/attendance_qr_pdf.dart';
@@ -12,7 +13,6 @@ import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminEmployeeAttendanceManagementScreen extends StatefulWidget {
   const AdminEmployeeAttendanceManagementScreen({
@@ -90,14 +90,18 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
 
   Future<void> _saveChanges() async {
     setState(() => _isLoading = true);
-    List<DateWiseEmployeeAttendanceBean> toUpdate = filteredEmployeeAttendanceBeanList
-        .map((e) => e.dateWiseEmployeeAttendanceBeanList ?? [])
-        .expand((i) => i)
-        .whereNotNull()
-        .where((e) => const DeepCollectionEquality().equals(e.toJson(), e.origJson()))
-        .toList();
+    List<DateWiseEmployeeAttendanceBean> toUpdate =
+        filteredEmployeeAttendanceBeanList.map((e) => e.dateWiseEmployeeAttendanceBeanList ?? []).expand((i) => i).whereNotNull().where((e) {
+      DateWiseEmployeeAttendanceBean org = DateWiseEmployeeAttendanceBean.fromJson(e.origJson());
+      bool isPresentChanged = e.isPresent != org.isPresent;
+      if (isPresentChanged) return true;
+      return e.dateWiseEmployeeAttendanceDetailsBeans?.length != org.dateWiseEmployeeAttendanceDetailsBeans?.length;
+    }).toList();
     if (toUpdate.isEmpty) {
-      setState(() => _isEditMode = false);
+      setState(() {
+        _isEditMode = false;
+        _isLoading = false;
+      });
       return;
     }
     CreateOrUpdateEmployeesAttendanceResponse createOrUpdateEmployeesAttendanceResponse =

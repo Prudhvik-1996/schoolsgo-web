@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/circulars/mega_admin/mega_admin_circulars_scre
 import 'package:schoolsgo_web/src/common_components/network_status/constants/network_status.dart';
 import 'package:schoolsgo_web/src/common_components/network_status/service/network_status_service.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/demo/demo_screen.dart';
 import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
 import 'package:schoolsgo_web/src/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/admin_exams_options_screen.dart';
@@ -1096,6 +1097,18 @@ class _MyAppState extends State<MyApp> {
                 var argument = (routeSettings.arguments as StudentProfile);
                 return StudentDemoScreen(
                   studentProfile: argument,
+                );
+              } catch (e) {
+                return const E404NotFoundScreen();
+              }
+            } else if (routeSettings.arguments is AdminProfile) {
+              try {
+                var argument = (routeSettings.arguments as AdminProfile);
+                return DemoScreen(
+                  adminProfile: argument,
+                  studentProfile: null,
+                  teacherProfile: null,
+                  demoFile: null,
                 );
               } catch (e) {
                 return const E404NotFoundScreen();

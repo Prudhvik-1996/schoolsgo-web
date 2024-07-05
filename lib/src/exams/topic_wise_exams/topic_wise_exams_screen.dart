@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/exam_topics.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
@@ -7,7 +8,6 @@ import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/all_topics_studen
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/views/exam_topic_widget.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TopicWiseExamsScreen extends StatefulWidget {
   const TopicWiseExamsScreen({
@@ -130,6 +130,7 @@ class _TopicWiseExamsScreenState extends State<TopicWiseExamsScreen> {
                         studentsList: widget.studentsList,
                         topicWiseExams: topicWiseExams.where((eachTopicWiseExam) => eachTopicWiseExam.topicId == eachTopic.topicId).toList(),
                         saveTopicWiseExam: (TopicWiseExam topicWiseExam) => saveTopicWiseExam(topicWiseExam),
+                        addNewTopicWiseExam: () => addNewTopicWiseExam(eachTopic),
                         loadTopicWiseExams: () => loadTopicWiseExams(),
                         setState: setState,
                       ),
@@ -263,6 +264,28 @@ class _TopicWiseExamsScreenState extends State<TopicWiseExamsScreen> {
       ),
     );
   }
+
+  void addNewTopicWiseExam(ExamTopic eachTopic) => setState(() => topicWiseExams.add(TopicWiseExam(
+        academicYearId: widget.selectedAcademicYearId,
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+        subjectId: widget.tds.subjectId,
+        status: "active",
+        date: null,
+        comment: null,
+        agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
+        sectionId: widget.tds.sectionId,
+        authorisedAgent: widget.tds.teacherId,
+        endTime: null,
+        examId: null,
+        examName: "",
+        examSectionSubjectMapId: null,
+        examType: "TOPIC",
+        maxMarks: null,
+        startTime: null,
+        studentExamMarksList: [],
+        topicId: eachTopic.topicId,
+        topicName: eachTopic.topicName,
+      )..isEditMode = true));
 
   Future<TopicWiseExam> saveTopicWiseExam(TopicWiseExam topicWiseExam) async {
     showDialog(

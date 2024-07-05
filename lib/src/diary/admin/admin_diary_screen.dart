@@ -7,16 +7,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/diary/admin/admin_student_issues_screen.dart';
 import 'package:schoolsgo_web/src/diary/model/diary.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DiaryEditScreen extends StatefulWidget {
   const DiaryEditScreen({Key? key, this.adminProfile, this.teacherProfile}) : super(key: key);
@@ -46,10 +49,12 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
   List<TeacherDealingSection> _tdsList = [];
   List<TeacherDealingSection> _filteredTdsList = [];
 
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
 
   List<DiaryEntry> _diaryList = [];
   List<DiaryEntry> _filteredDiaryList = [];
+
+  late SchoolInfoBean schoolInfoBean;
 
   @override
   void initState() {
@@ -88,7 +93,29 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
     setState(() {
       _isLoading = true;
     });
-
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      schoolInfoBean = getSchoolsResponse.schoolInfo!;
+      var startDate = convertYYYYMMDDFormatToDateTime(schoolInfoBean.academicYearStartDate);
+      int startMillis = startDate.millisecondsSinceEpoch;
+      var endDate = convertYYYYMMDDFormatToDateTime(schoolInfoBean.academicYearEndDate);
+      int endMillis = endDate.millisecondsSinceEpoch;
+      if (startMillis < DateTime.now().millisecondsSinceEpoch && DateTime.now().millisecondsSinceEpoch < endMillis) {
+        _selectedDate = DateTime.now();
+      } else if (startMillis > DateTime.now().millisecondsSinceEpoch) {
+        _selectedDate = startDate;
+      } else {
+        _selectedDate = endDate;
+      }
+    }
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
       teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
@@ -504,8 +531,8 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
           DateTime? _newDate = await showDatePicker(
             context: context,
             initialDate: _selectedDate,
-            firstDate: DateTime.now().subtract(const Duration(days: 364)),
-            lastDate: DateTime.now(),
+            firstDate: convertYYYYMMDDFormatToDateTime(schoolInfoBean.academicYearStartDate),
+            lastDate: convertYYYYMMDDFormatToDateTime(schoolInfoBean.academicYearEndDate),
             helpText: "Select a date",
           );
           if (_newDate == null) return;
@@ -523,9 +550,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
           height: 60,
           width: 60,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            // mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.center, // mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(
                 width: 10,
@@ -720,14 +745,14 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
   Container buildSubjectNameWidget(DiaryEntry diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-      child: Text("Subject: ${diary.subjectName!.capitalize()}"),
+      child: Text("Subject: ${diary.subjectName?.capitalize() ?? "-"}"),
     );
   }
 
   Container buildTeacherNameWidget(DiaryEntry diary) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-      child: Text("Teacher: ${diary.teacherFirstName!.capitalize()}"),
+      child: Text("Teacher: ${diary.teacherFirstName?.capitalize() ?? "-"}"),
     );
   }
 
@@ -860,6 +885,30 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
         title: const Text("Diary"),
         actions: [
           buildRoleButtonForAppBar(context, widget.teacherProfile == null ? widget.adminProfile! : widget.teacherProfile!),
+          if (!_isLoading)
+            IconButton(
+              icon: const Icon(Icons.assignment),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return AdminStudentIssuesScreen(
+                    adminProfile: widget.adminProfile,
+                    teacherProfile: widget.teacherProfile,
+                    teachersList: _teachersList,
+                    sectionsList: _sectionsList,
+                    subjectsList: _tdsList
+                        .map((e) => Subject(subjectId: e.subjectId, subjectName: e.subjectName, seqOrder: e.subjectSeqOrder))
+                        .toSet()
+                        .toList(),
+                    tdsList: _tdsList,
+                    selectedSection: _selectedSection,
+                    selectedSubject: null,
+                    selectedTeacher: _selectedTeacher,
+                    selectedDate: _selectedDate,
+                    schoolInfoBean: schoolInfoBean,
+                  );
+                }));
+              },
+            )
         ],
       ),
       drawer: widget.teacherProfile == null

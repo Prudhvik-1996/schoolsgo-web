@@ -79,7 +79,7 @@ class _AdminBulkEditSectionWiseTimeSlotsState extends State<AdminBulkEditSection
         child: Container(
           padding: const EdgeInsets.all(20),
           child: ClayText(
-            "The changes you make here will replace all the attendance time slots for the marked sections and weeks from now i.e., ${getCurrentDateString()}",
+            "The changes you make here will replace all the time slots for the marked sections and weeks from now i.e., ${getCurrentDateString()}",
             spread: 1,
             size: 18,
           ),

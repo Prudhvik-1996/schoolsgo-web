@@ -10,7 +10,6 @@ import 'package:schoolsgo_web/src/online_class_room/model/online_class_room.dart
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherTimeTablePreviewScreen extends StatefulWidget {
@@ -57,13 +56,9 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
       _teachersList = [];
     });
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    int? selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
-
     GetTeachersRequest getTeachersRequest = GetTeachersRequest(
       schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
       teacherId: widget.teacherProfile == null ? null : widget.teacherProfile!.teacherId,
-      academicYearId: selectedAcademicYearId,
     );
     GetTeachersResponse getTeachersResponse = await getTeachers(getTeachersRequest);
 
@@ -79,7 +74,6 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
         schoolId: widget.teacherProfile == null ? widget.adminProfile!.schoolId : widget.teacherProfile!.schoolId,
         // teacherId: widget.teacherProfile.teacherId,
         status: "active",
-        academicYearId: selectedAcademicYearId,
       ));
       if (getSectionWiseTimeSlotsResponse.httpStatus == "OK" && getSectionWiseTimeSlotsResponse.responseStatus == "success") {
         setState(() {
@@ -94,7 +88,6 @@ class _TeacherTimeTablePreviewScreenState extends State<TeacherTimeTablePreviewS
       GetOnlineClassRoomsResponse getOnlineClassRoomsResponse = await getOnlineClassRooms(GetOnlineClassRoomsRequest(
         schoolId: widget.adminProfile == null ? widget.teacherProfile!.schoolId : widget.adminProfile!.schoolId,
         teacherId: widget.adminProfile == null ? null : widget.teacherProfile!.teacherId,
-        academicYearId: selectedAcademicYearId,
       ));
       if (getOnlineClassRoomsResponse.httpStatus == "OK" && getOnlineClassRoomsResponse.responseStatus == "success") {
         setState(() {
