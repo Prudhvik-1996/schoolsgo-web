@@ -885,8 +885,7 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
         title: const Text("Diary"),
         actions: [
           buildRoleButtonForAppBar(context, widget.teacherProfile == null ? widget.adminProfile! : widget.teacherProfile!),
-          // if (!_isLoading)
-          //   goToStudentRemarksButton(context)
+          if (!_isLoading) goToStudentRemarksButton(context)
         ],
       ),
       drawer: widget.teacherProfile == null
@@ -1014,27 +1013,25 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
 
   IconButton goToStudentRemarksButton(BuildContext context) {
     return IconButton(
-            icon: const Icon(Icons.assignment),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return AdminStudentIssuesScreen(
-                  adminProfile: widget.adminProfile,
-                  teacherProfile: widget.teacherProfile,
-                  teachersList: _teachersList,
-                  sectionsList: _sectionsList,
-                  subjectsList: _tdsList
-                      .map((e) => Subject(subjectId: e.subjectId, subjectName: e.subjectName, seqOrder: e.subjectSeqOrder))
-                      .toSet()
-                      .toList(),
-                  tdsList: _tdsList,
-                  selectedSection: _selectedSection,
-                  selectedSubject: null,
-                  selectedTeacher: _selectedTeacher,
-                  selectedDate: _selectedDate,
-                  schoolInfoBean: schoolInfoBean,
-                );
-              }));
-            },
+      icon: const Icon(Icons.assignment),
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return AdminStudentIssuesScreen(
+            adminProfile: widget.adminProfile,
+            teacherProfile: widget.teacherProfile,
+            teachersList: _teachersList,
+            sectionsList: _sectionsList,
+            subjectsList:
+                _tdsList.map((e) => Subject(subjectId: e.subjectId, subjectName: e.subjectName, seqOrder: e.subjectSeqOrder)).toSet().toList(),
+            tdsList: _tdsList,
+            selectedSection: _selectedSection,
+            selectedSubject: null,
+            selectedTeacher: _selectedTeacher,
+            selectedDate: _selectedDate,
+            schoolInfoBean: schoolInfoBean,
           );
+        }));
+      },
+    );
   }
 }

@@ -123,10 +123,11 @@ class _DemoScreenState extends State<DemoScreen> {
       padding: const EdgeInsets.all(15.0),
       child: ClayContainer(
         emboss: false,
-        depth: 10,
-        color: clayContainerColor(context),
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
         spread: 1,
         borderRadius: 10,
+        depth: 40,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,17 +150,23 @@ class _DemoScreenState extends State<DemoScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: ClayContainer(
                     emboss: true,
-                    depth: 10,
-                    color: clayContainerColor(context),
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
                     spread: 1,
                     borderRadius: 10,
+                    depth: 40,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(eachSubModule.subModule ?? "-"),
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                          child: Text(
+                            eachSubModule.subModule ?? "-",
+                            style: const TextStyle(
+                              color: Colors.blue,
+                            ),
+                          ),
                         ),
                         ...(eachSubModule.actions ?? []).whereNotNull().map((ModuleAction eachAction) {
                           return Padding(
@@ -173,10 +180,11 @@ class _DemoScreenState extends State<DemoScreen> {
                                 }));
                               },
                               child: ClayButton(
-                                depth: 10,
-                                color: clayContainerColor(context),
+                                surfaceColor: clayContainerColor(context),
+                                parentColor: clayContainerColor(context),
                                 spread: 1,
                                 borderRadius: 10,
+                                depth: 40,
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Row(

@@ -44,7 +44,7 @@ Map<String, dynamic> adminModulesMap = {
               "stepByStepGuide": '''<iframe id="guidejar-embed-f58f8ecf-f582-4a3e-b7dc-87636c9681bc" src="https://www.guidejar.com/embed/f58f8ecf-f582-4a3e-b7dc-87636c9681bc?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>'''
             },
             {
-              "action": "How to edit circulars?",
+              "action": "How to delete circulars?",
               "guidedView": '''<div style="position:relative;height:0;width:100%;overflow:hidden;z-index:99999;box-sizing:border-box;padding-bottom:calc(45.75000000% + 32px)"><iframe src="https://www.guidejar.com/embed/1a2d0cda-c839-4653-8539-dacce6dfb162?type=1&controls=on" width="100%" height="100%" style="position:absolute;inset:0" allowfullscreen frameborder="0"></iframe></div>''',
               "stepByStepGuide": '''<iframe id="guidejar-embed-1a2d0cda-c839-4653-8539-dacce6dfb162" src="https://www.guidejar.com/embed/1a2d0cda-c839-4653-8539-dacce6dfb162?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>'''
             },
@@ -84,6 +84,51 @@ Map<String, dynamic> adminModulesMap = {
               "stepByStepGuide": '''<iframe id="guidejar-embed-f74fbf66-1b5d-4c1d-9658-de762e7f2893" src="https://www.guidejar.com/embed/f74fbf66-1b5d-4c1d-9658-de762e7f2893?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>''',
               "defaultToStepByStep": true
             }
+          ],
+        },
+      ],
+    },
+    {
+      "module": "Time Table",
+      "subModules": [
+        {
+          "subModule": "Teacher Dealing Sections",
+          "actions": [
+            {
+              "action": "How to add or delete a teacher-dealing-section record?",
+              "guidedView": '''<div style="position:relative;height:0;width:100%;overflow:hidden;z-index:99999;box-sizing:border-box;padding-bottom:calc(45.75000000% + 32px)"><iframe src="https://www.guidejar.com/embed/b8d764db-54e9-4859-bd6f-4af324cd0e78?type=1&controls=on" width="100%" height="100%" style="position:absolute;inset:0" allowfullscreen frameborder="0"></iframe></div>''',
+              "stepByStepGuide": '''<iframe id="guidejar-embed-b8d764db-54e9-4859-bd6f-4af324cd0e78" src="https://www.guidejar.com/embed/b8d764db-54e9-4859-bd6f-4af324cd0e78?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>''',
+              "defaultToStepByStep": false
+            }
+          ],
+        },
+        {
+          "subModule": "Time Slots",
+          "actions": [
+            {
+              "action": "How to add or delete time slots for Time Table?",
+              "guidedView": '''<div style="position:relative;height:0;width:100%;overflow:hidden;z-index:99999;box-sizing:border-box;padding-bottom:calc(45.75000000% + 32px)"><iframe src="https://www.guidejar.com/embed/8965e1bf-9d15-4564-8cd5-f113d7fc3945?type=1&controls=on" width="100%" height="100%" style="position:absolute;inset:0" allowfullscreen frameborder="0"></iframe></div>''',
+              "stepByStepGuide": '''<iframe id="guidejar-embed-8965e1bf-9d15-4564-8cd5-f113d7fc3945" src="https://www.guidejar.com/embed/8965e1bf-9d15-4564-8cd5-f113d7fc3945?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>''',
+              "defaultToStepByStep": false
+            },
+            {
+              "action": "How to create time slots for time table in bulk?",
+              "guidedView": '''<div style="position:relative;height:0;width:100%;overflow:hidden;z-index:99999;box-sizing:border-box;padding-bottom:calc(45.75000000% + 32px)"><iframe src="https://www.guidejar.com/embed/ff36adfa-684e-42de-aed8-4024d8198851?type=1&controls=on" width="100%" height="100%" style="position:absolute;inset:0" allowfullscreen frameborder="0"></iframe></div>''',
+              "stepByStepGuide": '''<iframe id="guidejar-embed-ff36adfa-684e-42de-aed8-4024d8198851" src="https://www.guidejar.com/embed/ff36adfa-684e-42de-aed8-4024d8198851?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>''',
+              "defaultToStepByStep": false
+            },
+            {
+              "action": "How to create or edit time table?",
+              "guidedView": '''<div style="position:relative;height:0;width:100%;overflow:hidden;z-index:99999;box-sizing:border-box;padding-bottom:calc(45.75000000% + 32px)"><iframe src="https://www.guidejar.com/embed/30d6011e-6f49-4a20-91ce-ad62590f41a1?type=1&controls=on" width="100%" height="100%" style="position:absolute;inset:0" allowfullscreen frameborder="0"></iframe></div>''',
+              "stepByStepGuide": '''<iframe id="guidejar-embed-30d6011e-6f49-4a20-91ce-ad62590f41a1" src="https://www.guidejar.com/embed/30d6011e-6f49-4a20-91ce-ad62590f41a1?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>''',
+              "defaultToStepByStep": true
+            },
+            {
+              "action": "How to use Teacher's time table Preview?",
+              "guidedView": '''<div style="position:relative;height:0;width:100%;overflow:hidden;z-index:99999;box-sizing:border-box;padding-bottom:calc(45.75000000% + 32px)"><iframe src="https://www.guidejar.com/embed/bdb936ac-66fd-4457-9ce4-8654cea36446?type=1&controls=on" width="100%" height="100%" style="position:absolute;inset:0" allowfullscreen frameborder="0"></iframe></div>''',
+              "stepByStepGuide": '''<iframe id="guidejar-embed-bdb936ac-66fd-4457-9ce4-8654cea36446" src="https://www.guidejar.com/embed/bdb936ac-66fd-4457-9ce4-8654cea36446?type=0&height=parent" loading="lazy" fetchpriority="auto" width="100%" height="100%" style="min-height:640px;z-index:99999;box-sizing:border-box;" allowfullscreen frameborder="0"></iframe>''',
+              "defaultToStepByStep": false
+            },
           ],
         },
       ],

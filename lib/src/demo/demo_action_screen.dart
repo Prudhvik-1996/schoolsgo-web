@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/demo/demo.dart';
 
 class DemoActionScreen extends StatefulWidget {
@@ -16,7 +17,6 @@ class DemoActionScreen extends StatefulWidget {
 
 class _DemoActionScreenState extends State<DemoActionScreen> {
   bool _isGuidedView = true;
-
 
   @override
   void initState() {
@@ -42,6 +42,9 @@ class _DemoActionScreenState extends State<DemoActionScreen> {
         child: HtmlWidget(
           _isGuidedView ? (widget.action.guidedView ?? "") : (widget.action.stepByStepGuide ?? ""),
           enableCaching: true,
+          onLoadingBuilder: (context, element, progress) => const Center(
+            child: EpsilonDiaryLoadingWidget(),
+          ),
         ),
       ),
     );
