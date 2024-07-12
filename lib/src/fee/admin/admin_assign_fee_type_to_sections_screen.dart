@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_fee_types_screen.dart';
@@ -12,7 +13,6 @@ import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminAssignFeeTypesToSectionsScreen extends StatefulWidget {
   const AdminAssignFeeTypesToSectionsScreen({
@@ -431,15 +431,15 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
   List<Widget> buildSectionWiseAnnualFeesWidgets(SectionWiseAnnualFeeMapBean sectionWiseAnnualFeeMapBean) {
     List<Widget> widgets = [];
     for (SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean in (sectionWiseAnnualFeeMapBean.feeTypes ?? [])) {
-      widgets.add(const SizedBox(
-        height: 15,
-      ));
+      if (!canNotShowFeeType(sectionWiseAnnualFeeTypeBean)) {
+        widgets.add(const SizedBox(height: 15));
+      }
       widgets.add(buildFeeTypeWidget(sectionWiseAnnualFeeTypeBean));
       for (SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean
           in (sectionWiseAnnualFeeTypeBean.sectionWiseAnnualCustomFeeTypeBeans ?? [])) {
-        widgets.add(const SizedBox(
-          height: 15,
-        ));
+        if (!canNotShowCustomFeeType(sectionWiseAnnualCustomFeeTypeBean)) {
+          widgets.add(const SizedBox(height: 15));
+        }
         widgets.add(buildCustomFeeTypeWidget(sectionWiseAnnualCustomFeeTypeBean));
       }
     }
@@ -447,7 +447,7 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
   }
 
   Widget buildFeeTypeWidget(SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean) {
-    if (!isEditMode && (sectionWiseAnnualFeeTypeBean.amount ?? 0) == 0) {
+    if (canNotShowFeeType(sectionWiseAnnualFeeTypeBean)) {
       return Container();
     }
     return Row(
@@ -525,8 +525,18 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
     );
   }
 
+  bool canNotShowFeeType(SectionWiseAnnualFeeTypeBean sectionWiseAnnualFeeTypeBean) {
+    return !isEditMode &&
+        ((sectionWiseAnnualFeeTypeBean.amount ?? 0) == 0 &&
+            (sectionWiseAnnualFeeTypeBean.sectionWiseAnnualCustomFeeTypeBeans ?? [])
+                    .map((e) => e.amount ?? 0)
+                    .whereNotNull()
+                    .fold(0, (int? b, int c) => (b ?? 0) + c) ==
+                0);
+  }
+
   Widget buildCustomFeeTypeWidget(SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean) {
-    if (!isEditMode && (sectionWiseAnnualCustomFeeTypeBean.amount ?? 0) == 0) {
+    if (canNotShowCustomFeeType(sectionWiseAnnualCustomFeeTypeBean)) {
       return Container();
     }
     return Row(
@@ -603,6 +613,9 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
       ],
     );
   }
+
+  bool canNotShowCustomFeeType(SectionWiseAnnualCustomFeeTypeBean sectionWiseAnnualCustomFeeTypeBean) =>
+      !isEditMode && (sectionWiseAnnualCustomFeeTypeBean.amount ?? 0) == 0;
 
   Widget _feeTypeWidget(FeeType feeType) {
     return Container(

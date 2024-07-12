@@ -1,6 +1,7 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:pdfx/pdfx.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -133,15 +134,41 @@ class _DemoScreenState extends State<DemoScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: Text(
-                  eachDemoModule.module ?? "-",
-                  style: const TextStyle(
-                    color: Colors.blue,
-                    fontSize: 18,
+              padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+              child: Row(
+                children: [
+                  if ((eachDemoModule.imageAsset ?? "").contains("svg")) ...[
+                    ClayContainer(
+                      emboss: true,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 1,
+                      borderRadius: 10,
+                      depth: 40,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SvgPicture.asset(eachDemoModule.imageAsset!),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10)
+                  ],
+                  Expanded(
+                    child: Text(
+                      eachDemoModule.module ?? "-",
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
             ...(eachDemoModule.subModules ?? []).whereNotNull().map(

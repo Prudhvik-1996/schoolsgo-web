@@ -65,14 +65,17 @@ class SubModule {
 class DemoModule {
 
   String? module;
+  String? imageAsset;
   List<SubModule?>? subModules;
 
   DemoModule({
     this.module,
+    this.imageAsset,
     this.subModules,
   });
   DemoModule.fromJson(Map<String, dynamic> json) {
     module = json['module']?.toString();
+    imageAsset = json['imageAsset']?.toString();
     if (json['subModules'] != null) {
       final v = json['subModules'];
       final arr0 = <SubModule>[];
@@ -85,6 +88,7 @@ class DemoModule {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['module'] = module;
+    data['imageAsset'] = imageAsset;
     if (subModules != null) {
       final v = subModules;
       final arr0 = [];
