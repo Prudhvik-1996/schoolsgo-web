@@ -594,7 +594,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                 child: SizedBox(
                   height: 150,
                   child: charts.PieChart<String>(
-                    generatePieChartData(filteredReceipts),
+                    generatePieChartData(studentFeeReceipts),
                     animate: true,
                     defaultRenderer: charts.ArcRendererConfig(
                       arcRendererDecorators: [

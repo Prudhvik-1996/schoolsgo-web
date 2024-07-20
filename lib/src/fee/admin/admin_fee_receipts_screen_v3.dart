@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
@@ -21,11 +22,9 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
-import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/print_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminFeeReceiptsScreenV3 extends StatefulWidget {
   const AdminFeeReceiptsScreenV3({
@@ -112,6 +111,22 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             .toList();
       });
     }
+
+    GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
+    ));
+    if (getFeeTypesResponse.httpStatus != "OK" || getFeeTypesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      setState(() {
+        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
+      });
+    }
+
     if (widget.adminProfile != null) {
       GetSmsTemplatesResponse getSmsTemplatesResponse = await getSmsTemplates(GetSmsTemplatesRequest(
         categoryId: 2,
@@ -229,21 +244,6 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       sections = (getSectionsResponse.sections ?? []).where((e) => e != null).map((e) => e!).toList();
     }
 
-    GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
-      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
-    ));
-    if (getFeeTypesResponse.httpStatus != "OK" || getFeeTypesResponse.responseStatus != "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-    } else {
-      setState(() {
-        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
-      });
-    }
-
     setState(() {
       _isLoading = false;
     });
@@ -282,7 +282,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             studentFeeReceipts: studentFeeReceipts
                 .where((e) => e.status == "active" && e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()))
                 .toList(),
-            selectedDate: DateTime.now(),
+            selectedDate: convertYYYYMMDDFormatToDateTime(convertDateTimeToYYYYMMDDFormat(DateTime.now())),
             routeStopWiseStudents: routeStopWiseStudents,
             feeTypes: feeTypes,
           );

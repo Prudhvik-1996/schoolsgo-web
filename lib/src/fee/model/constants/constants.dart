@@ -106,7 +106,7 @@ extension ModeOfPaymentExt on ModeOfPayment {
             width: 10,
           ),
           const SizedBox(width: 5),
-          Expanded(child: Text(modeOfPayment.description)),
+          Expanded(child: Text(modeOfPayment.description, style: const TextStyle(fontSize: 10),)),
         ],
       ),
     );
