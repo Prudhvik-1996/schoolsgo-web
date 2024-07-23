@@ -1490,6 +1490,7 @@ class NewReceipt {
   int? busFeePaidAmount;
   String? modeOfPayment;
   String? comments;
+  bool shouldSendSms = true;
   Map<String, dynamic> __origJson = {};
 
   String status = "inactive";

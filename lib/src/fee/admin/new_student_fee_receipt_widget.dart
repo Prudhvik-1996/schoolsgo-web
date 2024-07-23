@@ -303,6 +303,7 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
                   if (widget.newReceipt.studentId != null) totalFeePayingWidget(),
                   if (widget.newReceipt.studentId != null) const SizedBox(height: 20),
                   _commentsWidget(),
+                  _sendSmsCheckboxWidget(),
                   if (widget.newReceipt.studentId != null)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -328,6 +329,15 @@ class _NewStudentFeeReceiptWidgetState extends State<NewStudentFeeReceiptWidget>
             )
         ],
       ),
+    );
+  }
+
+  Widget _sendSmsCheckboxWidget() {
+    return CheckboxListTile(
+      contentPadding: const EdgeInsets.all(10),
+      value: widget.newReceipt.shouldSendSms,
+      onChanged: (bool? _) => setState(() => widget.newReceipt.shouldSendSms = _ ?? false),
+      title: const Text("Send SMS automatically"),
     );
   }
 

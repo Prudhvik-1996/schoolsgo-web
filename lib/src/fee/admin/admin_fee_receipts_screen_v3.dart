@@ -698,6 +698,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
               busFeePaidAmount: eachNewReceipt.busFeePaidAmount,
               modeOfPayment: eachNewReceipt.modeOfPayment,
               comments: eachNewReceipt.comments,
+              sendSms: eachNewReceipt.shouldSendSms ? "Y" : "N",
             ))
         .toList();
     if (newReceiptsToBePaid.isEmpty) {
@@ -711,6 +712,8 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
     }
     CreateNewReceiptsResponse createNewReceiptsResponse = await createNewReceipts(CreateNewReceiptsRequest(
       newReceiptBeans: newReceiptsToBePaid,
+      schoolId: widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId,
+      agent: widget.adminProfile?.userId ?? widget.otherRole?.userId,
     ));
     if (createNewReceiptsResponse.httpStatus != "OK" || createNewReceiptsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
