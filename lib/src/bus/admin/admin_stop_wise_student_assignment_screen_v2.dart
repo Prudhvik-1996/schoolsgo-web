@@ -97,7 +97,13 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
         actions: [
           IconButton(
             icon: Icon(_isEditMode ? Icons.check : Icons.edit),
-            onPressed: () => setState(() => _isEditMode = !_isEditMode),
+            onPressed: () async {
+              if (_isEditMode) {
+                await _loadData();
+              } else {
+                setState(() => _isEditMode = !_isEditMode);
+              }
+            },
           )
         ],
       ),
@@ -177,7 +183,7 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
                 ),
               ),
               const SizedBox(height: 12),
-              buildBusFareDetailsWidget(busRouteInfo),
+              if (!_isEditMode) buildBusFareDetailsWidget(busRouteInfo),
               const SizedBox(height: 12),
               ...(busRouteInfo.busRouteStopsList ?? []).whereNotNull().mapIndexed((index, _) => stopWiseWidget(index, busRouteInfo)),
             ],
@@ -377,9 +383,9 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
                       const DataColumn(label: Text('Roll No.')),
                       const DataColumn(label: Text('Student')),
                       if (_isEditMode) const DataColumn(label: Text('Actions')),
-                      const DataColumn(label: Text('Amount')),
-                      const DataColumn(label: Text('Amount Paid')),
-                      const DataColumn(label: Text('Due')),
+                      if (!_isEditMode) const DataColumn(label: Text('Amount')),
+                      if (!_isEditMode) const DataColumn(label: Text('Amount Paid')),
+                      if (!_isEditMode) const DataColumn(label: Text('Due')),
                     ],
                     rows: [
                       ...(stop.students ?? []).map((e) => e!).where((e) => e.status == 'active').mapIndexed(
@@ -401,30 +407,33 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
                                   DataCell(
                                     deleteStudentButton(index, stop),
                                   ),
-                                DataCell(
-                                  Text(
-                                    "$INR_SYMBOL ${doubleToStringAsFixedForINR((e.busFee ?? 0) / 100.0)} /-   ",
-                                    style: const TextStyle(
-                                      color: Colors.blue,
+                                if (!_isEditMode)
+                                  DataCell(
+                                    Text(
+                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR((e.busFee ?? 0) / 100.0)} /-   ",
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    "$INR_SYMBOL ${doubleToStringAsFixedForINR((e.busFeePaid ?? 0) / 100.0)} /-   ",
-                                    style: const TextStyle(
-                                      color: Colors.green,
+                                if (!_isEditMode)
+                                  DataCell(
+                                    Text(
+                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR((e.busFeePaid ?? 0) / 100.0)} /-   ",
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                DataCell(
-                                  Text(
-                                    "$INR_SYMBOL ${doubleToStringAsFixedForINR(((e.busFee ?? 0) - (e.busFeePaid ?? 0)) / 100.0)} /-   ",
-                                    style: const TextStyle(
-                                      color: Colors.red,
+                                if (!_isEditMode)
+                                  DataCell(
+                                    Text(
+                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR(((e.busFee ?? 0) - (e.busFeePaid ?? 0)) / 100.0)} /-   ",
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                      ),
                                     ),
                                   ),
-                                ),
                               ],
                             ),
                           ),
@@ -560,6 +569,8 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
                 routeId: stop.busRouteStopId,
                 status: 'active',
                 agent: widget.adminProfile.userId,
+                busFee: stop.fare,
+                busFeePaid: alreadyAssignedStop?.busFeePaid,
               );
               setState(() {
                 alreadyAssignedStop?.status = 'inactive';
