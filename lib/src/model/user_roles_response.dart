@@ -683,6 +683,14 @@ class StudentProfile {
 
   Map<String, dynamic> origJson() => __origJson;
 
+  String studentNameAsStringWithSectionAndRollNumber() {
+    return [((rollNumber ?? "") == "" ? "" : rollNumber! + "."), studentFirstName ?? "", studentMiddleName ?? "", studentLastName ?? ""]
+            .where((e) => e != "")
+            .join(" ")
+            .trim() +
+        " - $sectionName";
+  }
+
   @override
   int get hashCode {
     return studentId ?? -1;

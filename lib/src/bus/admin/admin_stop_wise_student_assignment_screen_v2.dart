@@ -519,7 +519,7 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: Text(
-                        "Reassigning ${studentNameAsString(newStudent)} from\n"
+                        "Reassigning ${newStudent.studentNameAsStringWithSectionAndRollNumber()} from\n"
                         "${alreadyAssignedStop.routeName} :: ${alreadyAssignedStop.busStopName} to\n"
                         "${stop.routeName} :: ${stop.terminalName}",
                       ),
@@ -651,7 +651,7 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
             selectedItem: stop.newStudentToBeAdded,
             items: students,
             itemAsString: (StudentProfile? student) {
-              return student == null ? "" : studentNameAsString(student);
+              return student == null ? "" : student.studentNameAsStringWithSectionAndRollNumber();
             },
             showSearchBox: true,
             dropdownBuilder: (BuildContext context, StudentProfile? student) {
@@ -677,16 +677,6 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
         ),
       ),
     );
-  }
-
-  String studentNameAsString(StudentProfile student) {
-    return [
-          ((student.rollNumber ?? "") == "" ? "" : student.rollNumber! + "."),
-          student.studentFirstName ?? "",
-          student.studentMiddleName ?? "",
-          student.studentLastName ?? ""
-        ].where((e) => e != "").join(" ").trim() +
-        " - ${student.sectionName}";
   }
 
   Widget buildStudentWidget(StudentProfile e) {

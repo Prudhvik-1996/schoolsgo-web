@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_pdf_download.dart';
+import 'package:schoolsgo_web/src/attendance/admin/send_sms_for_absentees_in_bulk_screen.dart';
 import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -10,7 +12,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentAbsenteesScreen extends StatefulWidget {
   const AdminStudentAbsenteesScreen({
@@ -144,7 +145,8 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
     });
 
     GetStudentAttendanceBeansResponse getStudentAttendanceBeansResponse = await getStudentAttendanceBeans(GetStudentAttendanceBeansRequest(
-      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId, date: convertDateTimeToYYYYMMDDFormat(selectedDate),
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      date: convertDateTimeToYYYYMMDDFormat(selectedDate),
       // sectionId: selectedSection!.sectionId,
       academicYearId: selectedAcademicYearId,
     ));
@@ -204,36 +206,52 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Student Absentees Screen"),
-        actions: [
-          if (!_isLoading)
-            IconButton(
-              tooltip: "Show Contact Info",
-              onPressed: () => setState(() => _showContactInfo = !_showContactInfo),
-              icon: Icon(
-                Icons.phone,
-                color: _showContactInfo ? Colors.blue : null,
-              ),
-            ),
-          if (!_isLoading)
-            IconButton(
-              tooltip: "Download Report",
-              onPressed: () async {
-                setState(() => _isLoading = true);
-                await StudentAbsenteesPdfDownload(
-                  filteredStudentsList: filteredStudentsList,
-                  studentAttendanceBeans: _studentAttendanceBeans,
-                  showContactInfo: _showContactInfo,
-                  showOnlyAbsentees: showOnlyAbsentees,
-                  schoolInfo: schoolInfo,
-                  selectedDate: selectedDate,
-                ).downloadAsPdf();
-                setState(() => _isLoading = false);
-              },
-              icon: const Icon(
-                Icons.download,
-              ),
-            ),
-        ],
+        actions: _isLoading
+            ? []
+            : [
+                IconButton(
+                  tooltip: "Show Contact Info",
+                  onPressed: () => setState(() => _showContactInfo = !_showContactInfo),
+                  icon: Icon(
+                    Icons.phone,
+                    color: _showContactInfo ? Colors.blue : null,
+                  ),
+                ),
+                IconButton(
+                  tooltip: "Download Report",
+                  onPressed: () async {
+                    setState(() => _isLoading = true);
+                    await StudentAbsenteesPdfDownload(
+                      filteredStudentsList: filteredStudentsList,
+                      studentAttendanceBeans: _studentAttendanceBeans,
+                      showContactInfo: _showContactInfo,
+                      showOnlyAbsentees: showOnlyAbsentees,
+                      schoolInfo: schoolInfo,
+                      selectedDate: selectedDate,
+                    ).downloadAsPdf();
+                    setState(() => _isLoading = false);
+                  },
+                  icon: const Icon(
+                    Icons.download,
+                  ),
+                ),
+                if (widget.adminProfile != null)
+                IconButton(
+                  icon: const Icon(Icons.sms_rounded),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return SendSmsForAbsenteesInBulkScreen(
+                          adminProfile: widget.adminProfile!,
+                          studentsList: studentsList,
+                          studentAttendanceBeans: _studentAttendanceBeans,
+                        );
+                      },
+                    ),
+                  ).then((_) => _loadData()),
+                ),
+              ],
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
@@ -637,7 +655,14 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                                       ..sort((a, b) => getSecondsEquivalentOfTimeFromWHHMMSS(a.startTime, null)
                                           .compareTo(getSecondsEquivalentOfTimeFromWHHMMSS(b.startTime, null))))
                                     .where((e) => showOnlyAbsentees ? e.isPresent == -1 : true)
-                                    .map((esab) => studentAttendanceBeanWidget(esab))
+                                    .map(
+                                      (esab) => (esab.startTime == null && esab.endTime == null)
+                                          ? Container()
+                                          : noOfTimesNotifiedWidget(
+                                              studentAttendanceBeanWidget(esab),
+                                              noOfTimesNotified: esab.noOfTimesNotified ?? 0,
+                                            ),
+                                    )
                               ],
                             ),
                           )
@@ -655,7 +680,6 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
   }
 
   Widget studentAttendanceBeanWidget(StudentAttendanceBean esab) {
-    if (esab.startTime == null && esab.endTime == null) return Container();
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
       child: Card(
@@ -672,11 +696,11 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                 tooltip: "More Options",
                 onSelected: (String choice) async {
                   if (choice == "Mark Present") {
-                    //  TODO mark present
                   } else if (choice == "Mark Absent") {
-                    //  TODO mark absent
                   } else if (choice == "Clear") {
-                    //  TODO un mark
+                  } else if (choice == "Send SMS") {
+                    await notifyStudent(esab);
+                    return;
                   } else {
                     debugPrint("Clicked on invalid choice");
                   }
@@ -751,6 +775,7 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                     if (esab.isPresent != 1) "Mark Present",
                     if (esab.isPresent != -1) "Mark Absent",
                     if (esab.isPresent != 0) "Clear",
+                    if (esab.isPresent == -1) "Send SMS",
                   }.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
@@ -767,6 +792,63 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                 ? Colors.red
                 : Colors.blue,
       ),
+    );
+  }
+
+  Future<void> notifyStudent(StudentAttendanceBean esab) async {
+    setState(() => _isLoading = true);
+    NotifyStudentsForAbsenceResponse notifyStudentsForAbsenceResponse = await notifyStudentsForAbsence(NotifyStudentsForAbsenceRequest(
+        schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+        agentId: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
+        attendanceIds: [esab.attendanceId]));
+    if (notifyStudentsForAbsenceResponse.httpStatus == "OK" && notifyStudentsForAbsenceResponse.responseStatus == "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Notified ${esab.studentName}"),
+        ),
+      );
+      _loadData();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Widget noOfTimesNotifiedWidget(Widget child, {int noOfTimesNotified = 0}) {
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.center,
+          child: child,
+        ),
+        if (noOfTimesNotified != 0)
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              height: 15,
+              width: 15,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  (noOfTimesNotified ?? 0).toString(),
+                  style: const TextStyle(
+                    color: Colors.white, fontSize: 10, // Adjust the font size as needed
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

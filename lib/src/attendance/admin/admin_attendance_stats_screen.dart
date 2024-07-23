@@ -6,17 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendence_stats_pdf_download.dart';
 import 'package:schoolsgo_web/src/attendance/student/student_attendance_view_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/date_range_attendance.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminStudentAttendanceStatsScreen extends StatefulWidget {
   const AdminStudentAttendanceStatsScreen({
@@ -84,7 +82,9 @@ class _AdminStudentAttendanceStatsScreenState extends State<AdminStudentAttendan
         startDate = schoolInfo.academicYearStartDate ?? convertDateTimeToYYYYMMDDFormat(DateTime.now());
         endDate = schoolInfo.academicYearEndDate ?? convertDateTimeToYYYYMMDDFormat(DateTime.now());
         startDateForAttendance = startDate;
-        endDateForAttendance = convertDateTimeToYYYYMMDDFormat(DateTime.now());
+        endDateForAttendance = DateTime.now().millisecondsSinceEpoch < convertYYYYMMDDFormatToDateTime(endDate).millisecondsSinceEpoch
+            ? convertDateTimeToYYYYMMDDFormat(DateTime.now())
+            : endDate;
       });
     }
     GetSectionsResponse getSectionsResponse = await getSections(

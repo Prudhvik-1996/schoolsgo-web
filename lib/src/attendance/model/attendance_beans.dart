@@ -439,6 +439,7 @@ class StudentAttendanceBean {
   String? validThrough;
   String? week;
   int? weekId;
+  int? noOfTimesNotified;
   Map<String, dynamic> __origJson = {};
 
   bool isEdited = false;
@@ -467,6 +468,7 @@ class StudentAttendanceBean {
     this.validThrough,
     this.week,
     this.weekId,
+    this.noOfTimesNotified,
   });
 
   StudentAttendanceBean.fromJson(Map<String, dynamic> json) {
@@ -494,6 +496,7 @@ class StudentAttendanceBean {
     validThrough = json['validThrough']?.toString();
     week = json['week']?.toString();
     weekId = json['weekId']?.toInt();
+    noOfTimesNotified = json['noOfTimesNotified']?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -521,6 +524,7 @@ class StudentAttendanceBean {
     data['validThrough'] = validThrough;
     data['week'] = week;
     data['weekId'] = weekId;
+    data['noOfTimesNotified'] = noOfTimesNotified;
     return data;
   }
 
@@ -715,4 +719,99 @@ Future<List<int>> getStudentAttendanceReport(GetStudentAttendanceBeansRequest ge
   debugPrint("Raising request to getStudentAttendanceReport with request ${jsonEncode(getStudentAttendanceBeansRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_ATTENDANCE_REPORT;
   return await HttpUtils.postToDownloadFile(_url, getStudentAttendanceBeansRequest.toJson());
+}
+
+class NotifyStudentsForAbsenceRequest {
+  int? agentId;
+  List<int?>? attendanceIds;
+  int? schoolId;
+
+  NotifyStudentsForAbsenceRequest({
+    this.agentId,
+    this.attendanceIds,
+    this.schoolId,
+  });
+
+  NotifyStudentsForAbsenceRequest.fromJson(Map<String, dynamic> json) {
+    agentId = json['agentId']?.toInt();
+    if (json['attendanceIds'] != null) {
+      final v = json['attendanceIds'];
+      final arr0 = <int>[];
+      v.forEach((v) {
+        arr0.add(v.toInt());
+      });
+      attendanceIds = arr0;
+    }
+    schoolId = json['schoolId']?.toInt();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agentId'] = agentId;
+    if (attendanceIds != null) {
+      final v = attendanceIds;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v);
+      });
+      data['attendanceIds'] = arr0;
+    }
+    data['schoolId'] = schoolId;
+    return data;
+  }
+}
+
+class NotifyStudentsForAbsenceResponse {
+/*
+{
+  "errorCode": "INTERNAL_SERVER_ERROR",
+  "errorMessage": "string",
+  "httpStatus": "100",
+  "responseStatus": "success"
+}
+*/
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+
+  NotifyStudentsForAbsenceResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+
+  NotifyStudentsForAbsenceResponse.fromJson(Map<String, dynamic> json) {
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+}
+
+Future<NotifyStudentsForAbsenceResponse> notifyStudentsForAbsence(NotifyStudentsForAbsenceRequest notifyStudentsForAbsenceRequest) async {
+  debugPrint("Raising request to notifyStudentsForAbsence with request ${jsonEncode(notifyStudentsForAbsenceRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + NOTIFY_STUDENTS_FOR_ABSENCE;
+  Map<String, String> _headers = {"Content-type": "application/json"};
+
+  Response response = await http.post(
+    Uri.parse(_url),
+    headers: _headers,
+    body: jsonEncode(notifyStudentsForAbsenceRequest.toJson()),
+  );
+
+  NotifyStudentsForAbsenceResponse notifyStudentsForAbsenceResponse = NotifyStudentsForAbsenceResponse.fromJson(json.decode(response.body));
+  debugPrint("NotifyStudentsForAbsenceResponse ${notifyStudentsForAbsenceResponse.toJson()}");
+  return notifyStudentsForAbsenceResponse;
 }

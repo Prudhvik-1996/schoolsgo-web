@@ -1109,14 +1109,14 @@ class StudentBusFeeBean {
     this.studentId,
     this.studentName,
   }) {
-    fareController.text = "${(fare ?? 0) / 100}";
+    fareController.text = fare == null ? "" : "${(fare!) / 100}";
   }
 
   StudentBusFeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fare = json['fare']?.toInt();
     feePaid = json['feePaid']?.toInt();
-    fareController.text = "${(fare ?? 0) / 100}";
+    fareController.text = fare == null ? "" : "${(fare!) / 100}";
     routeId = json['routeId']?.toInt();
     routeName = json['routeName']?.toString();
     schoolId = json['schoolId']?.toInt();
