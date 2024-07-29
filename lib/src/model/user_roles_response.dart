@@ -300,6 +300,7 @@ class StudentProfile {
   int? promotedSectionId;
   String? promotedSectionName;
   String? studentLastName;
+  String? studentAccommodationType;
   String? studentMailId;
   String? studentMiddleName;
   String? studentMobile;
@@ -341,6 +342,17 @@ class StudentProfile {
   TextEditingController permanentAddressController = TextEditingController();
   TextEditingController identificationMarksController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  String getAccommodationType({String? e}) {
+    e ??= studentAccommodationType;
+    return e == "D"
+      ? "Day Scholar"
+      : e == "R"
+      ? "Residential"
+      : e == "S"
+      ? "Semi Residential"
+      : "-";
+  }
 
   StudentProfile({
     this.aadhaarNo,
@@ -399,6 +411,7 @@ class StudentProfile {
     this.promotedSectionId,
     this.promotedSectionName,
     this.studentLastName,
+    this.studentAccommodationType,
     this.studentMailId,
     this.studentMiddleName,
     this.studentMobile,
@@ -410,6 +423,7 @@ class StudentProfile {
     this.createTime,
     this.lastUpdated,
   }) {
+    studentAccommodationType ??= "D";
     populateControllers();
   }
 
@@ -527,6 +541,7 @@ class StudentProfile {
     promotedSectionId = json['promotedSectionId']?.toInt();
     promotedSectionName = json['promotedSectionName']?.toString();
     studentLastName = json['studentLastName']?.toString();
+    studentAccommodationType = json['studentAccommodationType']?.toString() ?? "D";
     studentMailId = json['studentMailId']?.toString();
     studentMiddleName = json['studentMiddleName']?.toString();
     studentMobile = json['studentMobile']?.toString();
@@ -599,6 +614,7 @@ class StudentProfile {
     promotedSectionId = json['promotedSectionId']?.toInt();
     promotedSectionName = json['promotedSectionName']?.toString();
     studentLastName = json['studentLastName']?.toString();
+    studentAccommodationType = json['studentAccommodationType']?.toString();
     studentMailId = json['studentMailId']?.toString();
     studentMiddleName = json['studentMiddleName']?.toString();
     studentMobile = json['studentMobile']?.toString();
@@ -669,6 +685,7 @@ class StudentProfile {
     data['promotedSectionId'] = promotedSectionId;
     data['promotedSectionName'] = promotedSectionName;
     data['studentLastName'] = studentLastName;
+    data['studentAccommodationType'] = studentAccommodationType;
     data['studentMailId'] = studentMailId;
     data['studentMiddleName'] = studentMiddleName;
     data['studentMobile'] = studentMobile;
@@ -1436,6 +1453,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     super.studentPhotoUrl,
     super.studentPhotoThumbnailUrl,
     super.studentStatus,
+    super.studentAccommodationType,
   });
 
   CreateOrUpdateStudentProfileRequest.fromStudentProfile(this.agent, StudentProfile studentProfile) {
@@ -1496,6 +1514,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     studentPhotoUrl = studentProfile.studentPhotoUrl;
     studentPhotoThumbnailUrl = studentProfile.studentPhotoThumbnailUrl;
     studentStatus = studentProfile.studentStatus;
+    studentAccommodationType = studentProfile.studentAccommodationType;
   }
 
   @override
@@ -1559,6 +1578,7 @@ class CreateOrUpdateStudentProfileRequest extends StudentProfile {
     data['studentPhotoUrl'] = studentPhotoUrl;
     data['studentPhotoThumbnailUrl'] = studentPhotoThumbnailUrl;
     data['studentStatus'] = studentStatus;
+    data['studentAccommodationType'] = studentAccommodationType;
     return data;
   }
 }

@@ -77,7 +77,6 @@ class _StudentExamsScreenState extends State<StudentExamsScreen> {
 
     GetStudentWiseExamsResponse getStudentWiseExamsResponse = await getStudentWiseExams(GetStudentWiseExamsRequest(
       schoolId: widget.studentProfile.schoolId,
-      academicYearId: selectedAcademicYearId,
       studentIds: [widget.studentProfile.studentId],
     ));
     if (getStudentWiseExamsResponse.httpStatus != "OK" || getStudentWiseExamsResponse.responseStatus != "success") {

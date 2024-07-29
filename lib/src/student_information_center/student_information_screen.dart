@@ -7,12 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/FlippingTile.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/student/model/student_exams.dart';
+import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/basic_fee_stats_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/student_comments.dart';
@@ -40,6 +45,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
   bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _loadingStudentAttendance = true;
+  bool _loadingStudentExams = true;
   bool _isAttendanceGraphView = true;
   final _bodyController = ScrollController();
 
@@ -49,6 +55,12 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
   List<StudentFeeReceipt> studentFeeReceipts = [];
 
   List<StudentCommentBean> studentComments = [];
+
+  List<Subject> subjectsList = [];
+  List<FAExam> faExams = [];
+  List<CustomExam> customExams = [];
+  List<TopicWiseExam> topicWiseExams = [];
+  List<int> examIds = [];
 
   @override
   void initState() {
@@ -62,6 +74,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     });
     await _loadStudentAttendance();
     await _loadFeeData();
+    await _loadStudentExams();
     await _loadStudentComments();
     setState(() {
       _isLoading = false;
@@ -267,6 +280,37 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     }
 
     setState(() => _loadingStudentAttendance = false);
+  }
+
+  Future<void> _loadStudentExams() async {
+    setState(() => _loadingStudentExams = true);
+
+    GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(schoolId: widget.studentProfile.schoolId);
+    GetSubjectsResponse getSubjectsResponse = await getSubjects(getSubjectsRequest);
+    if (getSubjectsResponse.httpStatus == "OK" && getSubjectsResponse.responseStatus == "success") {
+      setState(() {
+        subjectsList = getSubjectsResponse.subjects!.map((e) => e!).toList();
+      });
+    }
+
+    GetStudentWiseExamsResponse getStudentWiseExamsResponse = await getStudentWiseExams(GetStudentWiseExamsRequest(
+      schoolId: widget.studentProfile.schoolId,
+      studentIds: [widget.studentProfile.studentId],
+    ));
+    if (getStudentWiseExamsResponse.httpStatus != "OK" || getStudentWiseExamsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      customExams = (getStudentWiseExamsResponse.customExams ?? []).map((e) => e!).toList();
+      topicWiseExams = (getStudentWiseExamsResponse.topicWiseExams ?? []).map((e) => e!).toList();
+      examIds = [...topicWiseExams.map((e) => e.examId), ...customExams.map((e) => e.customExamId)].where((e) => e != null).map((e) => e!).toList()
+        ..sort()
+        ..reversed;
+    }
+    setState(() => _loadingStudentExams = false);
   }
 
   Future<void> _loadStudentComments() async {

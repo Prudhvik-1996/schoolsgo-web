@@ -583,6 +583,8 @@ class _StudentCardWidgetState extends State<StudentCardWidget> {
                   const SizedBox(height: 10),
                   Text("Alternate Mobile: ${widget.studentProfile.otherPhoneNumbers ?? "-"}"),
                   const SizedBox(height: 10),
+                  Text("Accommodation Type: ${widget.studentProfile.getAccommodationType()}"),
+                  const SizedBox(height: 10),
                   if (widget.studentProfile.studentId != null) Text("Login Id: ${widget.studentProfile.loginId ?? "-"}"),
                   if (widget.studentProfile.studentId != null) const SizedBox(height: 10),
                 ],

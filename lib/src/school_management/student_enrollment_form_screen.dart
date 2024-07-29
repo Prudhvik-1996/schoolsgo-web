@@ -1839,10 +1839,40 @@ class _StudentEnrollmentFormScreenState extends State<StudentEnrollmentFormScree
             children: [
               headerWidget("Student Status"),
               const SizedBox(height: 20),
+              studentAccommodationTypeRow(),
+              const SizedBox(height: 20),
               studentStatusRow(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget studentAccommodationTypeRow() {
+    return InputDecorator(
+      decoration: getTextFieldInputDecoration("Primary Contact"),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: ["D", "R", "S"]
+            .map((e) => RadioListTile<String?>(
+                  value: e,
+                  groupValue: widget.studentProfile.studentAccommodationType,
+                  onChanged: !_isEditMode
+                      ? null
+                      : (String? value) {
+                          if (value == null) return;
+                          setState(() {
+                            widget.studentProfile.studentAccommodationType = e;
+                          });
+                        },
+                  title: Text(
+                    widget.studentProfile.getAccommodationType(e: e),
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ))
+            .toList(),
       ),
     );
   }
