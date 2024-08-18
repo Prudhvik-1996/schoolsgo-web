@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
@@ -171,6 +172,7 @@ class AdminExpenseBean {
   String? transactionId;
   int? transactionTime;
   int? agent;
+  String? modeOfPayment;
   Map<String, dynamic> __origJson = {};
 
   AdminExpenseBean({
@@ -191,6 +193,7 @@ class AdminExpenseBean {
     this.transactionId,
     this.transactionTime,
     this.agent,
+    this.modeOfPayment,
   }) {
     expenseTypeController.text = expenseType ?? "";
     descriptionController.text = description ?? "";
@@ -240,6 +243,7 @@ class AdminExpenseBean {
     transactionId = json['transactionId']?.toString();
     transactionTime = json['transactionTime']?.toInt();
     agent = json['agent']?.toInt();
+    modeOfPayment = json['modeOfPayment']?.toString();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -267,6 +271,7 @@ class AdminExpenseBean {
     data['transactionId'] = transactionId;
     data['transactionTime'] = transactionTime;
     data['agent'] = agent;
+    data['modeOfPayment'] = modeOfPayment;
     return data;
   }
 
@@ -422,7 +427,7 @@ class CreateOrUpdateAdminExpenseResponse {
 
 Future<CreateOrUpdateAdminExpenseResponse> createOrUpdateAdminExpense(CreateOrUpdateAdminExpenseRequest createOrUpdateAdminExpenseRequest) async {
   debugPrint("Raising request to createOrUpdateAdminExpense with request ${jsonEncode(createOrUpdateAdminExpenseRequest.toJson())}");
-  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_EXPENSES;
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_EXPENSE;
 
   CreateOrUpdateAdminExpenseResponse createOrUpdateAdminExpenseResponse = await HttpUtils.post(
     _url,
@@ -438,4 +443,86 @@ Future<List<int>> getAdminExpensesReport(GetAdminExpensesRequest getAdminExpense
   debugPrint("Raising request to getAdminExpenses with request ${jsonEncode(getAdminExpensesRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_ADMIN_EXPENSES_REPORT;
   return await HttpUtils.postToDownloadFile(_url, getAdminExpensesRequest.toJson());
+}
+
+class CreateOrUpdateAdminExpensesRequest {
+
+  List<AdminExpenseBean?>? adminExpenseBeans;
+  int? agentId;
+  int? schoolId;
+
+  CreateOrUpdateAdminExpensesRequest({
+    this.adminExpenseBeans,
+    this.agentId,
+    this.schoolId,
+  });
+  CreateOrUpdateAdminExpensesRequest.fromJson(Map<String, dynamic> json) {
+    if (json['adminExpenseBeans'] != null) {
+      final v = json['adminExpenseBeans'];
+      final arr0 = <AdminExpenseBean>[];
+      v.forEach((v) {
+        arr0.add(AdminExpenseBean.fromJson(v));
+      });
+      adminExpenseBeans = arr0;
+    }
+    agentId = json['agentId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    if (adminExpenseBeans != null) {
+      final v = adminExpenseBeans;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['adminExpenseBeans'] = arr0;
+    }
+    data['agentId'] = agentId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+}
+
+class CreateOrUpdateAdminExpensesResponse {
+
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  String? responseStatus;
+
+  CreateOrUpdateAdminExpensesResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateAdminExpensesResponse.fromJson(Map<String, dynamic> json) {
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+}
+
+Future<CreateOrUpdateAdminExpensesResponse> createOrUpdateAdminExpenses(CreateOrUpdateAdminExpensesRequest createOrUpdateAdminExpensesRequest) async {
+  debugPrint("Raising request to createOrUpdateAdminExpenses with request ${jsonEncode(createOrUpdateAdminExpensesRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_ADMIN_EXPENSES;
+
+  CreateOrUpdateAdminExpensesResponse createOrUpdateAdminExpensesResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateAdminExpensesRequest.toJson(),
+    CreateOrUpdateAdminExpensesResponse.fromJson,
+  );
+
+  debugPrint("createOrUpdateAdminExpensesResponse ${createOrUpdateAdminExpensesResponse.toJson()}");
+  return createOrUpdateAdminExpensesResponse;
 }

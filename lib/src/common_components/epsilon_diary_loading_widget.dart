@@ -55,11 +55,16 @@ class _EpsilonDiaryLoadingWidgetState extends State<EpsilonDiaryLoadingWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.asset(
-              'assets/images/eis_loader.gif',
-              height: 400,
-              width: 400,
-              fit: BoxFit.scaleDown,
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Image.asset(
+                  'assets/images/eis_loader.gif',
+                  height: 400,
+                  width: 400,
+                  fit: BoxFit.scaleDown,
+                ),
+              ),
             ),
             const SizedBox(height: 5),
             FittedBox(

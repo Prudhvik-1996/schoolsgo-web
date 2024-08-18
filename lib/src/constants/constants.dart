@@ -152,7 +152,8 @@ const String CREATE_OR_UPDATE_CIRCULAR = "/circulars/createOrUpdateCircular";
 
 const String GET_TRANSACTIONS = "/ledger/getTransactions";
 const String GET_ADMIN_EXPENSES = "/ledger/getAdminExpenses";
-const String CREATE_OR_UPDATE_ADMIN_EXPENSES = "/ledger/createOrUpdateAdminExpense";
+const String CREATE_OR_UPDATE_ADMIN_EXPENSE = "/ledger/createOrUpdateAdminExpense";
+const String CREATE_OR_UPDATE_ADMIN_EXPENSES = "/ledger/createOrUpdateAdminExpenses";
 
 const String GET_CHATS = "/chats/getChats";
 const String CREATE_OR_UPDATE_CHAT = "/chats/createOrUpdateChat";

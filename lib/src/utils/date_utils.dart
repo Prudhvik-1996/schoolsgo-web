@@ -139,7 +139,11 @@ DateTime convertYYYYMMDDFormatToDateTime(String? date) {
 }
 
 DateTime convertDDMMYYYYFormatToDateTime(String? date) {
-  return date == null ? DateTime.now() : DateFormat("dd-MM-yyyy").parse(date);
+  try {
+    return date == null ? DateTime.now() : DateFormat("dd-MM-yyyy").parse(date);
+  } catch (_) {
+    return DateTime.now();
+  }
 }
 
 String weekOfGivenDateInYYYYMMDDFormat(String date) {

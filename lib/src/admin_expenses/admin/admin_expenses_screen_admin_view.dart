@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_creation_in_bulk.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/date_wise_admin_expenses_stats_screen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -18,6 +19,7 @@ import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
@@ -134,9 +136,14 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           if (widget.adminProfile != null) buildRoleButtonForAppBar(context, widget.adminProfile!),
           if (widget.adminProfile != null)
             PopupMenuButton<String>(
-              onSelected: handleMoreOptions,
+              onSelected: (String choice) async => await handleMoreOptions(choice),
               itemBuilder: (BuildContext context) {
-                return {'Download Report', 'Date Wise Stats'}.map((String choice) {
+                return {
+                  if (!isEditMode) 'Download Report',
+                  if (widget.adminProfile != null && isEditMode) 'Download Template',
+                  if (widget.adminProfile != null && isEditMode) 'Upload from Template',
+                  if (!isEditMode) 'Date Wise Stats',
+                }.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
                     child: Text(choice),
@@ -165,78 +172,10 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           //         adminExpenses.map((e) => e.isEditMode ? _adminExpenseEditModeWidget(e) : _adminExpenseReadModeWidget(e)).toList(),
           //   ),
           : _reportDownloadStatus != null
-              ? Column(
-                  children: [
-                    const Expanded(
-                      flex: 1,
-                      child: Center(
-                        child: Text("Report download in progress"),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Image.asset(
-                        'assets/images/eis_loader.gif',
-                        fit: BoxFit.scaleDown,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Center(
-                        child: Text("$reportName"),
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(_reportDownloadStatus!),
-                      ),
-                    )
-                  ],
-                )
+              ? reportDownloadInProgressWidget()
               : _uploadingFile != null
-                  ? Column(
-                      children: [
-                        const Expanded(
-                          flex: 1,
-                          child: Center(
-                            child: Text("Uploading files"),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Image.asset(
-                            'assets/images/eis_loader.gif',
-                            fit: BoxFit.scaleDown,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Center(
-                            child: Text("Uploading file $_uploadingFile"),
-                          ),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: LinearPercentIndicator(
-                              padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
-                              alignment: MainAxisAlignment.center,
-                              width: 140.0,
-                              lineHeight: 14.0,
-                              percent: (_fileUploadProgress ?? 0) / 100,
-                              center: Text(
-                                "${(_fileUploadProgress ?? 0).toStringAsFixed(2)} %",
-                                style: const TextStyle(fontSize: 12.0),
-                              ),
-                              leading: const Icon(Icons.file_upload),
-                              linearStrokeCap: LinearStrokeCap.roundAll,
-                              backgroundColor: Colors.grey,
-                              progressColor: Colors.blue,
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  : body(),
+                  ? fileUploadInProgressWidget()
+                  : expensesListViewWidget(),
       floatingActionButton: isEditMode && !isAddNew && !(adminExpenses.map((e) => e.isEditMode).contains(true))
           ? Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -251,6 +190,82 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
               ],
             )
           : buildEditButton(),
+    );
+  }
+
+  Column fileUploadInProgressWidget() {
+    return Column(
+      children: [
+        const Expanded(
+          flex: 1,
+          child: Center(
+            child: Text("Uploading files"),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Image.asset(
+            'assets/images/eis_loader.gif',
+            fit: BoxFit.scaleDown,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Center(
+            child: Text("Uploading file $_uploadingFile"),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: LinearPercentIndicator(
+              padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+              alignment: MainAxisAlignment.center,
+              width: 140.0,
+              lineHeight: 14.0,
+              percent: (_fileUploadProgress ?? 0) / 100,
+              center: Text(
+                "${(_fileUploadProgress ?? 0).toStringAsFixed(2)} %",
+                style: const TextStyle(fontSize: 12.0),
+              ),
+              leading: const Icon(Icons.file_upload),
+              linearStrokeCap: LinearStrokeCap.roundAll,
+              backgroundColor: Colors.grey,
+              progressColor: Colors.blue,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Column reportDownloadInProgressWidget() {
+    return Column(
+      children: [
+        const Expanded(
+          flex: 1,
+          child: Center(
+            child: Text("Report download in progress"),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Image.asset(
+            'assets/images/eis_loader.gif',
+            fit: BoxFit.scaleDown,
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Center(
+            child: Text("$reportName"),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Text(_reportDownloadStatus!),
+          ),
+        )
+      ],
     );
   }
 
@@ -302,7 +317,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     );
   }
 
-  Widget body() {
+  Widget expensesListViewWidget() {
     return ListView(
       physics: const BouncingScrollPhysics(),
       children: isAddNew
@@ -320,11 +335,14 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   Widget buildEachAdminExpenseBeanReadMode(
     AdminExpenseBean eachExpense, {
     bool canEdit = true,
+    bool noMargins = false,
   }) {
     return Container(
-      margin: MediaQuery.of(context).orientation == Orientation.landscape
-          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
-          : const EdgeInsets.all(20),
+      margin: noMargins
+          ? const EdgeInsets.all(20)
+          : MediaQuery.of(context).orientation == Orientation.landscape
+              ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 20, MediaQuery.of(context).size.width / 4, 20)
+              : const EdgeInsets.all(20),
       child: ClayContainer(
         depth: 20,
         color: clayContainerColor(context),
@@ -402,7 +420,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                               crossAxisSpacing: 5.0,
                               mainAxisSpacing: 5.0,
                             ),
-                            itemCount: eachExpense.adminExpenseReceiptsList!.where((i) => i!.status != 'inactive').toList().length,
+                            itemCount: (eachExpense.adminExpenseReceiptsList ?? []).where((i) => i!.status != 'inactive').toList().length,
                             itemBuilder: (context, index) {
                               return buildMediaForReadMode(eachExpense, index);
                             },
@@ -570,10 +588,8 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
             .replaceAll("\n", " ");
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Expanded(
-          child: Text(""),
-        ),
         if (isEditMode && eachExpense.isEditMode)
           InkWell(
             onTap: () async {
@@ -602,6 +618,33 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           )
         else
           Text(txnDate),
+        const Expanded(child: Text("")),
+        if (isEditMode && eachExpense.isEditMode)
+          DropdownButton<String>(
+            value: eachExpense.modeOfPayment ?? ModeOfPayment.CASH.name,
+            items: ModeOfPayment.values
+                .map((e) => DropdownMenuItem<String>(
+                      value: e.name,
+                      child: Text(e.description),
+                      onTap: () {
+                        setState(() {
+                          eachExpense.modeOfPayment = e.name;
+                        });
+                      },
+                    ))
+                .toList(),
+            onChanged: (String? e) {
+              e ??= ModeOfPayment.CASH.name;
+              setState(() {
+                eachExpense.modeOfPayment = e;
+              });
+            },
+          )
+        else
+          Text(
+            eachExpense.modeOfPayment ?? "CASH",
+            style: const TextStyle(color: Colors.blue),
+          ),
       ],
     );
   }
@@ -890,13 +933,19 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     );
   }
 
-  void handleMoreOptions(String value) {
+  Future<void> handleMoreOptions(String value) async {
     if (widget.adminProfile == null) return;
     switch (value) {
       case "Download Report":
         if (_reportDownloadStatus == null) {
           downloadReport();
         }
+        return;
+      case "Download Template":
+        await downloadTemplateAction();
+        return;
+      case "Upload from Template":
+        await uploadFromTemplateAction();
         return;
       case "Date Wise Stats":
         Navigator.push(
@@ -911,6 +960,79 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       default:
         return;
     }
+  }
+
+  Future<void> downloadTemplateAction() async {
+    setState(() => _isLoading = true);
+    await AdminExpensesCreationInBulk(
+      adminExpenses,
+      widget.adminProfile!,
+    ).downloadTemplate();
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> uploadFromTemplateAction() async {
+    setState(() => _isLoading = true);
+    List<AdminExpenseBean>? newExpenses = await AdminExpensesCreationInBulk(
+      adminExpenses,
+      widget.adminProfile!,
+    ).readAndValidateExcel(context);
+    if ((newExpenses ?? []).isEmpty) {
+      setState(() => _isLoading = false);
+      return;
+    }
+    await showDialog(
+      context: _scaffoldKey.currentContext!,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: const Text("Confirm if the following are the new expenses"),
+          content: SizedBox(
+            height: MediaQuery.of(context).size.height - 150,
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: ListView(
+              children: newExpenses!.map((e) => buildEachAdminExpenseBeanReadMode(e, canEdit: false, noMargins: true)).toList(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () async {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() {
+                  _isLoading = true;
+                });
+                CreateOrUpdateAdminExpensesResponse createOrUpdateAdminExpensesResponse =
+                    await createOrUpdateAdminExpenses(CreateOrUpdateAdminExpensesRequest(
+                  agentId: widget.adminProfile!.userId,
+                  schoolId: widget.adminProfile!.schoolId,
+                  adminExpenseBeans: newExpenses,
+                ));
+                if (createOrUpdateAdminExpensesResponse.httpStatus != "OK" || createOrUpdateAdminExpensesResponse.responseStatus != "success") {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Something went wrong! Try again later.."),
+                    ),
+                  );
+                  setState(() => _isLoading = false);
+                  return;
+                } else {
+                  await _loadData();
+                }
+              },
+            ),
+            TextButton(
+              onPressed: () {
+                HapticFeedback.vibrate();
+                Navigator.of(context).pop();
+                setState(() => _isLoading = false);
+              },
+              child: const Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> downloadReport() async {
@@ -965,6 +1087,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   ..schoolId = eachExpense.schoolId
                   ..schoolName = eachExpense.schoolName
                   ..status = eachExpense.status
+                  ..modeOfPayment = eachExpense.modeOfPayment
                   ..transactionId = eachExpense.transactionId
                   ..transactionTime = eachExpense.transactionTime
                   ..adminExpenseReceiptsList = eachExpense.adminExpenseReceiptsList
