@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_stats_table_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_fee_stats.dart';
@@ -273,7 +274,20 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       setState(() => showOnlyDeletedReceipts = false);
     } else if (choice == "Show All Receipts") {
       // filteredStudentFeeReceipts = studentFeeReceipts.where((e) => e.status == "deleted").toList();
-      setState(() => showOnlyDeletedReceipts = null);
+      setState(() {
+        showOnlyDeletedReceipts = null;
+      });
+    } else if (choice == "Student Wise Stats") {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AdminStudentWiseFeeStatsTable(
+          adminProfile: widget.adminProfile,
+          otherRole: widget.otherRole,
+          studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
+          studentProfiles: studentProfiles,
+          feeTypes: feeTypes,
+          schoolInfoBean: schoolInfoBean,
+        );
+      }));
     } else if (choice == "Today") {
       if (widget.adminProfile != null) {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -506,6 +520,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                           .where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()))
                           .isNotEmpty)
                         "Today",
+                      "Student Wise Stats",
                       if (!isReceptionist && !(showOnlyDeletedReceipts == true)) "Show Only Deleted Receipts",
                       if (!isReceptionist && !(showOnlyDeletedReceipts == false)) "Hide Deleted Receipts",
                       if (!isReceptionist && !(showOnlyDeletedReceipts == null)) "Show All Receipts",
@@ -536,34 +551,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : isAddNew
-              ? ListView(
-                  controller: newReceiptsListViewController,
-                  children: [
-                    ...newReceipts.where((e) => e.status != "deleted").toList().reversed.map(
-                          (e) => NewStudentFeeReceiptWidget(
-                            context: _scaffoldKey.currentContext!,
-                            setState: setState,
-                            feeTypesForSelectedSection: feeTypes,
-                            newReceipt: e,
-                            schoolInfoBean: schoolInfoBean!,
-                            sections: sections,
-                            studentProfiles: studentProfiles
-                              ..sort(
-                                (a, b) {
-                                  int sectionComp = (a.sectionId ?? 0).compareTo(b.sectionId ?? 0);
-                                  int rollNumberComp = (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0);
-                                  return sectionComp == 0
-                                      ? rollNumberComp == 0
-                                          ? (a.studentFirstName ?? "").compareTo((b.studentFirstName ?? ""))
-                                          : rollNumberComp
-                                      : sectionComp;
-                                },
-                              ),
-                          ),
-                        ),
-                    SizedBox(height: MediaQuery.of(context).size.height / 2),
-                  ],
-                )
+              ? addNewListView()
               : filteredReceiptsAsPerDeletedStatus.isEmpty
                   ? const Center(
                       child: Text("No Transactions to display"),
@@ -634,6 +622,37 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                     buildAddNewReceiptButton(context),
                   ],
                 ),
+    );
+  }
+
+  ListView addNewListView() {
+    return ListView(
+      controller: newReceiptsListViewController,
+      children: [
+        ...newReceipts.where((e) => e.status != "deleted").toList().reversed.map(
+              (e) => NewStudentFeeReceiptWidget(
+                context: _scaffoldKey.currentContext!,
+                setState: setState,
+                feeTypesForSelectedSection: feeTypes,
+                newReceipt: e,
+                schoolInfoBean: schoolInfoBean!,
+                sections: sections,
+                studentProfiles: studentProfiles
+                  ..sort(
+                    (a, b) {
+                      int sectionComp = (a.sectionId ?? 0).compareTo(b.sectionId ?? 0);
+                      int rollNumberComp = (int.tryParse(a.rollNumber ?? "0") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "0") ?? 0);
+                      return sectionComp == 0
+                          ? rollNumberComp == 0
+                              ? (a.studentFirstName ?? "").compareTo((b.studentFirstName ?? ""))
+                              : rollNumberComp
+                          : sectionComp;
+                    },
+                  ),
+              ),
+            ),
+        SizedBox(height: MediaQuery.of(context).size.height / 2),
+      ],
     );
   }
 

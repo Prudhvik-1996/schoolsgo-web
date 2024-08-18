@@ -249,3 +249,62 @@ String _addOrdinalSuffix(int day) {
       return '${day}th';
   }
 }
+
+List<String> generateMmmYYYYStrings(DateTime startDate, DateTime endDate) {
+  // Assert if startDate is after endDate
+  assert(startDate.isBefore(endDate) || startDate.isAtSameMomentAs(endDate),
+  'startDate must be before or equal to endDate');
+
+  List<String> monthYearList = [];
+  DateFormat dateFormat = DateFormat('MMM-yyyy');
+
+  DateTime currentDate = DateTime(startDate.year, startDate.month);
+
+  // Iterate through each month from startDate to endDate
+  while (currentDate.isBefore(endDate) || currentDate.isAtSameMomentAs(endDate)) {
+    monthYearList.add(dateFormat.format(currentDate));
+    // Move to the next month
+    currentDate = DateTime(currentDate.year, currentDate.month + 1);
+  }
+
+  return monthYearList;
+}
+
+String convertDateTimeToMMYYYYString(DateTime date) {
+  DateFormat dateFormat = DateFormat('MMM-yyyy');
+  return dateFormat.format(DateTime(date.year, date.month));
+}
+
+DateTime minDate(List<DateTime> dates) {
+  // Assert that the list is not empty
+  assert(dates.isNotEmpty, 'The dates list must not be empty');
+
+  // Start with the first date as the minimum
+  DateTime min = dates.first;
+
+  // Iterate through the dates to find the minimum
+  for (DateTime date in dates) {
+    if (date.isBefore(min)) {
+      min = date;
+    }
+  }
+
+  return min;
+}
+
+DateTime maxDate(List<DateTime> dates) {
+  // Assert that the list is not empty
+  assert(dates.isNotEmpty, 'The dates list must not be empty');
+
+  // Start with the first date as the minimum
+  DateTime max = dates.first;
+
+  // Iterate through the dates to find the minimum
+  for (DateTime date in dates) {
+    if (date.isAfter(max)) {
+      max = date;
+    }
+  }
+
+  return max;
+}
