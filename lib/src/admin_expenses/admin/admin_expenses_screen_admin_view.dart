@@ -642,7 +642,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           )
         else
           Text(
-            eachExpense.modeOfPayment ?? "CASH",
+            ModeOfPaymentExt.fromString(eachExpense.modeOfPayment ?? "CASH").description,
             style: const TextStyle(color: Colors.blue),
           ),
       ],

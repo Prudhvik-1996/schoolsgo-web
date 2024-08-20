@@ -116,8 +116,11 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                     case "Download Template":
                       await downloadTemplateAction();
                       return;
-                    case "Upload From Template":
-                      await uploadFromTemplateAction();
+                    case "Upload From Template to Create":
+                      await uploadFromTemplateActionToCreate();
+                      return;
+                    case "Upload From Template to Edit":
+                      await uploadFromTemplateActionToEdit();
                       return;
                     default:
                       return;
@@ -126,7 +129,8 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
                 itemBuilder: (BuildContext context) {
                   return {
                     "Download Template",
-                    "Upload From Template",
+                    "Upload From Template to Create",
+                    if ([3, 127, 128].contains(widget.adminProfile.userId)) "Upload From Template to Edit",
                   }.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
@@ -296,13 +300,13 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
     ).downloadTemplate();
   }
 
-  Future<void> uploadFromTemplateAction() async {
+  Future<void> uploadFromTemplateActionToCreate() async {
     List<StudentProfile>? newStudentsList = await CreateStudentsInBulkExcel(
       studentProfiles.where((es) => es.sectionId == selectedSection?.sectionId).toList(),
       selectedSection!,
       agentId: widget.adminProfile.userId,
       schoolId: widget.adminProfile.schoolId,
-    ).readAndValidateExcel(context);
+    ).readAndValidateExcelToCreate(context);
     if ((newStudentsList ?? []).isEmpty) return;
     await showDialog(
       context: scaffoldKey.currentContext!,
@@ -326,25 +330,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context);
-                setState(() => _isLoading = true);
-                CreateOrUpdateBulkStudentProfilesRequest createOrUpdateBulkStudentProfilesRequest = CreateOrUpdateBulkStudentProfilesRequest(
-                  agent: widget.adminProfile.userId,
-                  schoolId: widget.adminProfile.schoolId,
-                  studentProfiles: newStudentsList,
-                );
-                CreateOrUpdateBulkStudentProfilesResponse createOrUpdateBulkStudentProfilesResponse =
-                    await createOrUpdateBulkStudentProfiles(createOrUpdateBulkStudentProfilesRequest);
-                if (createOrUpdateBulkStudentProfilesResponse.httpStatus != "OK" ||
-                    createOrUpdateBulkStudentProfilesResponse.responseStatus != "success") {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Something went wrong! Try again later.."),
-                    ),
-                  );
-                } else {
-                  _loadData();
-                }
-                setState(() => _isLoading = false);
+                await saveStudentsInBulk(newStudentsList!);
                 await _loadData();
               },
               child: const Text("Confirm"),
@@ -359,6 +345,74 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
         );
       },
     );
+  }
+
+  Future<void> uploadFromTemplateActionToEdit() async {
+    List<StudentProfile>? editedStudentsList = await CreateStudentsInBulkExcel(
+      studentProfiles.where((es) => es.sectionId == selectedSection?.sectionId).toList(),
+      selectedSection!,
+      agentId: widget.adminProfile.userId,
+      schoolId: widget.adminProfile.schoolId,
+    ).readAndValidateExcelToUpdate(context);
+    if ((editedStudentsList ?? []).isEmpty) return;
+    await showDialog(
+      context: scaffoldKey.currentContext!,
+      builder: (currentContext) {
+        return AlertDialog(
+          title: Text("Confirm to edit students in ${selectedSection?.sectionName}"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return SizedBox(
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.height / 2,
+                child: ListView(
+                  children: [
+                    ...editedStudentsList?.map((e) => Text("${e.rollNumber == null ? "" : "${e.rollNumber}. "}${e.studentFirstName ?? " - "}")) ?? []
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await saveStudentsInBulk(editedStudentsList!);
+                await _loadData();
+              },
+              child: const Text("Confirm"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> saveStudentsInBulk(List<StudentProfile> newStudentsList) async {
+    setState(() => _isLoading = true);
+    CreateOrUpdateBulkStudentProfilesRequest createOrUpdateBulkStudentProfilesRequest = CreateOrUpdateBulkStudentProfilesRequest(
+      agent: widget.adminProfile.userId,
+      schoolId: widget.adminProfile.schoolId,
+      studentProfiles: newStudentsList,
+    );
+    CreateOrUpdateBulkStudentProfilesResponse createOrUpdateBulkStudentProfilesResponse =
+        await createOrUpdateBulkStudentProfiles(createOrUpdateBulkStudentProfilesRequest);
+    if (createOrUpdateBulkStudentProfilesResponse.httpStatus != "OK" || createOrUpdateBulkStudentProfilesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      _loadData();
+    }
+    setState(() => _isLoading = false);
   }
 
   Widget _studentSearchableDropDown() {

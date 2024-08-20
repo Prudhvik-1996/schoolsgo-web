@@ -147,6 +147,10 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
 
     // Append the school name
     sheet.appendRow(["${widget.adminProfile.schoolName}"]);
+
+    // Define the headers for the columns
+    var columns = ['Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Accommodation Type', 'Amount Paid', 'Mode Of Payment', 'Details', 'Comments'];
+
     // Apply formatting to the school name cell
     CellStyle schoolNameStyle = CellStyle(
       bold: true,
@@ -154,7 +158,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       horizontalAlign: HorizontalAlign.Center,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).cellStyle = schoolNameStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: 0));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: columns.length-1, rowIndex: 0));
     rowIndex++;
 
     sheet.appendRow(["Date: ${(convertDateTimeToDDMMYYYYFormat(widget.selectedDate))}"]);
@@ -164,12 +168,10 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       fontSize: 18,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)).cellStyle = dateStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: 1));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: columns.length-1, rowIndex: 1));
     rowIndex++;
-
-    // Define the headers for the columns
-    sheet.appendRow(['Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Amount Paid', 'Mode Of Payment', 'Details', 'Comments']);
-    for (int i = 0; i <= 8; i++) {
+    sheet.appendRow(columns);
+    for (int i = 0; i <= columns.length - 1; i++) {
       sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
         backgroundColorHex: 'FF000000',
         fontColorHex: 'FFFFFFFF',
@@ -185,6 +187,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
         receipt.sectionName,
         studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.rollNumber ?? "-",
         receipt.studentName,
+        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.getAccommodationType(e: "D") ?? "-",
         receipt.getTotalAmountForReceipt() / 100,
         ModeOfPaymentExt.fromString(receipt.modeOfPayment).description,
         getReceiptDescription(receipt).replaceAll("\n\n", "\r\n"),
@@ -213,7 +216,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     for (var e in feeTypePaymentMap.entries) {
       sheet.appendRow([
         e.key,
-        doubleToStringAsFixedForINR(e.value / 100),
+        e.value / 100,
       ]);
       rowIndex++;
     }
@@ -221,14 +224,14 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       for (var customFeeTypeMap in feeTypeMap.value.entries) {
         sheet.appendRow([
           feeTypeMap.key + ": " + customFeeTypeMap.key,
-          doubleToStringAsFixedForINR(customFeeTypeMap.value / 100),
+          customFeeTypeMap.value / 100,
         ]);
         rowIndex++;
       }
     }
     sheet.appendRow([
       "Bus",
-      doubleToStringAsFixedForINR((widget.studentFeeReceipts.map((e) => e.busFeePaid ?? 0).fold(0, (int a, int b) => a + b)) / 100),
+      (widget.studentFeeReceipts.map((e) => e.busFeePaid ?? 0).fold(0, (int a, int b) => a + b)) / 100,
     ]);
     rowIndex++;
 

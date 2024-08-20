@@ -1,7 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
-enum ModeOfPayment { CASH, PHONEPE, GPAY, PAYTM, NETBANKING, CHEQUE, CARD, OTHER }
+enum ModeOfPayment { CASH, PHONEPE, GPAY, PAYTM, NETBANKING, CHEQUE, CARD, OTHER, ACCOUNTTRANSFER }
 
 extension ModeOfPaymentExt on ModeOfPayment {
   String toShortString() {
@@ -24,6 +24,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         return "Cheque";
       case ModeOfPayment.CARD:
         return "Card";
+      case ModeOfPayment.ACCOUNTTRANSFER:
+        return "Account Transfer";
       default:
         return "Other";
     }
@@ -45,6 +47,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         return ModeOfPayment.CHEQUE;
       case "CARD":
         return ModeOfPayment.CARD;
+      case "ACCOUNTTRANSFER":
+        return ModeOfPayment.ACCOUNTTRANSFER;
       default:
         return ModeOfPayment.OTHER;
     }
@@ -66,6 +70,8 @@ extension ModeOfPaymentExt on ModeOfPayment {
         return charts.MaterialPalette.teal.shadeDefault;
       case ModeOfPayment.CARD:
         return charts.MaterialPalette.deepOrange.shadeDefault;
+      case ModeOfPayment.ACCOUNTTRANSFER:
+        return charts.MaterialPalette.lime.shadeDefault;
       default:
         return charts.MaterialPalette.gray.shadeDefault;
     }

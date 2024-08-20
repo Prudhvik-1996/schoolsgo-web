@@ -36,7 +36,8 @@ class CreateStudentsInBulkExcel {
     "Nationality",
     "Religion",
     "Caste",
-    "Category"
+    "Category",
+    "Accommodation Type",
   ];
 
   Future<void> downloadTemplate() async {
@@ -108,6 +109,7 @@ class CreateStudentsInBulkExcel {
         eachStudent.religion ?? "",
         eachStudent.caste ?? "",
         eachStudent.category ?? "",
+        eachStudent.studentAccommodationType ?? "D",
       ]);
       rowIndex++;
     }
@@ -144,16 +146,14 @@ class CreateStudentsInBulkExcel {
     saveFile(excelUint8List, 'Student data bulk create ${section.sectionName}.xlsx');
   }
 
-  Future<List<StudentProfile>?> readAndValidateExcel(BuildContext context) async {
+  Future<List<StudentProfile>?> readAndValidateExcelToCreate(BuildContext context) async {
     List<StudentProfile> newStudentsList = [];
     Uint8List? bytes = await pickFile();
     if (bytes == null) return null;
     Excel excel = Excel.decodeBytes(bytes);
     Sheet sheet = excel['Students Data for ${section.sectionName ?? ""}'];
     for (String table in excel.tables.keys) {
-      print("162: ${table} :: ${startIndexOfNewStudents} :: ${sheet.maxCols + 4}");
       for (int rowIndex = startIndexOfNewStudents; rowIndex <= 1000; rowIndex++) {
-        print("163: ${excel.tables[table]?.row(rowIndex).tryGet<Data?>(2)?.value.toString()}");
         bool isValid = false;
         for (int i = 0; i < headerStrings.length; i++) {
           if (excel.tables[table]?.row(rowIndex).tryGet<Data?>(i)?.value.toString() != null) {
@@ -200,6 +200,7 @@ class CreateStudentsInBulkExcel {
         newStudentProfile.religion = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
         newStudentProfile.caste = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
         newStudentProfile.category = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        newStudentProfile.studentAccommodationType = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
         newStudentProfile.sectionId = section.sectionId;
         newStudentProfile.schoolId = schoolId;
         newStudentProfile.agentId = agentId;
@@ -207,5 +208,122 @@ class CreateStudentsInBulkExcel {
       }
     }
     return newStudentsList;
+  }
+
+  Future<List<StudentProfile>?> readAndValidateExcelToUpdate(BuildContext context) async {
+    List<StudentProfile> editedStudentsList = [];
+    Uint8List? bytes = await pickFile();
+    if (bytes == null) return null;
+    Excel excel = Excel.decodeBytes(bytes);
+    Sheet sheet = excel['Students Data for ${section.sectionName ?? ""}'];
+    for (String table in excel.tables.keys) {
+      for (int rowIndex = 4; rowIndex < startIndexOfNewStudents; rowIndex++) {
+        var studentIndex = rowIndex - 4;
+        StudentProfile eachStudentProfile = studentsList[studentIndex];
+        bool isUpdated = false;
+        int colIndex = 0;
+        // ["Roll  No.", "Admission  No.", "Student Name", "Parent Name", "Mobile Number", "Email Id", "Date Of Birth", "Gender", "Nationality", "Religion", "Caste", "Category"]
+        var rollNumber = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if ((rollNumber ?? '').trim() != '' && rollNumber != (eachStudentProfile.rollNumber ?? '')) {
+          eachStudentProfile.rollNumber = rollNumber;
+          isUpdated = true;
+        }
+        var admissionNo = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if ((admissionNo ?? '').trim() != '' && admissionNo != (eachStudentProfile.admissionNo ?? '')) {
+          eachStudentProfile.admissionNo = admissionNo;
+          isUpdated = true;
+        }
+        String? studentFirstName = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if (studentFirstName != (eachStudentProfile.studentFirstName ?? '')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Student Name cannot be edited in bulk :: $studentFirstName != ${eachStudentProfile.studentFirstName}"),
+            ),
+          );
+          return null;
+        }
+        var gaurdianFirstName = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if (gaurdianFirstName != (eachStudentProfile.gaurdianFirstName ?? '')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Parent Name cannot be edited in bulk :: $gaurdianFirstName != ${eachStudentProfile.gaurdianFirstName}"),
+            ),
+          );
+          return null;
+        }
+        var gaurdianMobile = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if (gaurdianMobile != (eachStudentProfile.gaurdianMobile ?? '')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Mobile cannot be edited in bulk :: $gaurdianMobile != ${eachStudentProfile.gaurdianMobile}"),
+            ),
+          );
+          return null;
+        }
+        var gaurdianEmail = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if (gaurdianEmail != (eachStudentProfile.gaurdianMailId ?? '')) {
+          eachStudentProfile.gaurdianMailId = gaurdianEmail;
+          isUpdated = true;
+        }
+        String? dateString = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        // try {
+        //   // Check if the dateString is a number and convert it to DateTime if necessary
+        //   if (dateString != null && double.tryParse(dateString) != null) {
+        //     int daysSinceEpoch = int.parse(dateString);
+        //     DateTime baseDate = DateTime(1899, 12, 30);
+        //     DateTime dateOfBirth = baseDate.add(Duration(days: daysSinceEpoch));
+        //     if (eachStudentProfile.studentDob != convertDateTimeToYYYYMMDDFormat(dateOfBirth)) {
+        //       eachStudentProfile.studentDob = convertDateTimeToYYYYMMDDFormat(dateOfBirth);
+        //       isUpdated = true;
+        //     }
+        //   } else {
+        //     if (eachStudentProfile.studentDob != convertDateTimeToYYYYMMDDFormat(convertDDMMYYYYFormatToDateTime(dateString))) {
+        //       eachStudentProfile.studentDob = convertDateTimeToYYYYMMDDFormat(convertDDMMYYYYFormatToDateTime(dateString));
+        //       isUpdated = true;
+        //     }
+        //   }
+        // } catch (e) {
+        //   debugPrint("Unable to parse Date Of Birth: $dateString, Error: $e");
+        // }
+        String? genderString = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        var extractedGender = ['male', 'female'].contains(genderString) ? genderString : null;
+        if ((extractedGender ?? '').trim() != '' && extractedGender != (eachStudentProfile.sex ?? '')) {
+          eachStudentProfile.sex = extractedGender;
+          isUpdated = true;
+        }
+        var nationality = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString() ?? "Indian";
+        if ((nationality ?? '').trim() != '' && nationality != (eachStudentProfile.nationality ?? '')) {
+          eachStudentProfile.nationality = nationality;
+          isUpdated = true;
+        }
+        var religion = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if ((religion ?? '').trim() != '' && religion != (eachStudentProfile.religion ?? '')) {
+          eachStudentProfile.religion = religion;
+          isUpdated = true;
+        }
+        var caste = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if ((caste ?? '').trim() != '' && caste != (eachStudentProfile.caste ?? '')) {
+          eachStudentProfile.caste = caste;
+          isUpdated = true;
+        }
+        var category = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if ((category ?? '').trim() != '' && category != (eachStudentProfile.category ?? '')) {
+          eachStudentProfile.category = category;
+          isUpdated = true;
+        }
+        var accommodationType = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        if ((accommodationType ?? '').trim() != '' && accommodationType != (eachStudentProfile.studentAccommodationType ?? "D")) {
+          eachStudentProfile.studentAccommodationType = accommodationType;
+          isUpdated = true;
+        }
+        eachStudentProfile.sectionId = section.sectionId;
+        eachStudentProfile.schoolId = schoolId;
+        eachStudentProfile.agentId = agentId;
+        if (isUpdated) {
+          editedStudentsList.add(eachStudentProfile);
+        }
+      }
+    }
+    return editedStudentsList;
   }
 }

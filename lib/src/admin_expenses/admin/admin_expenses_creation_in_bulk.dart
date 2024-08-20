@@ -15,7 +15,7 @@ class AdminExpensesCreationInBulk {
   int startIndexOfNewExpenses = 0;
 
   AdminExpensesCreationInBulk(this.adminExpenses, this.adminProfile) {
-    startIndexOfNewExpenses = 5 + adminExpenses.length;
+    startIndexOfNewExpenses = 4 + adminExpenses.length;
   }
 
   String templateSheetName = 'Admin Expenses';

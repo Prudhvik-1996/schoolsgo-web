@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:clay_containers/widgets/clay_container.dart';
 
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
+import 'package:excel/excel.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -56,6 +60,10 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
 
   late DateTime fromDate;
   late DateTime toDate;
+
+  List<StudentProfile> studentProfiles = [];
+  Map<String, int> feeTypePaymentMap = {};
+  Map<String, Map<String, int>> customFeeTypePaymentMap = {};
 
   @override
   void initState() {
@@ -114,6 +122,31 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
     }).toList();
     actualDateWiseAmountsCollected.sort((a, b) => b.date.compareTo(a.date));
     handleVisibilityOfNonZero();
+    feeTypePaymentMap = <String, int>{};
+    for (FeeType feeType in feeTypes) {
+      if ((feeType.customFeeTypesList ?? []).isEmpty) {
+        feeTypePaymentMap["${feeType.feeType}"] = widget.studentFeeReceipts
+            .map((e) => e.feeTypes ?? [])
+            .expand((i) => i)
+            .where((e) => e?.feeTypeId == feeType.feeTypeId && (feeType.customFeeTypesList ?? []).isEmpty)
+            .map((e) => e?.amountPaidForTheReceipt ?? 0)
+            .fold(0, (a, b) => a + b);
+      }
+    }
+    customFeeTypePaymentMap = <String, Map<String, int>>{};
+    for (CustomFeeType customFeeType in feeTypes.map((e) => e.customFeeTypesList ?? []).expand((i) => i).whereNotNull()) {
+      customFeeTypePaymentMap["${customFeeType.feeType}"] ??= {};
+      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] ??= 0;
+      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] = widget.studentFeeReceipts
+          .map((e) => e.feeTypes ?? [])
+          .expand((i) => i)
+          .where((e) => e?.feeTypeId == customFeeType.feeTypeId)
+          .map((e) => e?.customFeeTypes ?? [])
+          .expand((i) => i)
+          .where((e) => e?.customFeeTypeId == customFeeType.customFeeTypeId)
+          .map((e) => e?.amountPaidForTheReceipt ?? 0)
+          .fold(0, (a, b) => a + b);
+    }
     setState(() {
       _isLoading = false;
     });
@@ -414,17 +447,26 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  "Summary",
-                  style: GoogleFonts.archivoBlack(
-                    textStyle: TextStyle(
-                      fontSize: 36,
-                      color: clayContainerTextColor(context),
+              Row(
+                children: [
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "Summary",
+                        style: GoogleFonts.archivoBlack(
+                          textStyle: TextStyle(
+                            fontSize: 36,
+                            color: clayContainerTextColor(context),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(width: 20),
+                  downloadReportButton(),
+                  const SizedBox(width: 20),
+                ],
               ),
               const SizedBox(height: 20),
               Row(
@@ -482,7 +524,8 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
                       color: clayContainerTextColor(context),
                     ),
                   if (MediaQuery.of(context).orientation == Orientation.landscape) const SizedBox(width: 20),
-                  if (MediaQuery.of(context).orientation == Orientation.landscape) Expanded(flex: 2, child: _modeOfPaymentPieChartWidget(receiptsToBeAccounted)),
+                  if (MediaQuery.of(context).orientation == Orientation.landscape)
+                    Expanded(flex: 2, child: _modeOfPaymentPieChartWidget(receiptsToBeAccounted)),
                 ],
               ),
               if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 10),
@@ -501,6 +544,76 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
         ),
       ),
     );
+  }
+
+  Widget downloadReportButton() {
+    return Tooltip(
+      message: getReportName(),
+      textAlign: TextAlign.center,
+      child: GestureDetector(
+        onTap: () async => _downloadReport(widget.studentFeeReceipts.where((e) {
+          var transactionDate = convertYYYYMMDDFormatToDateTime(e.transactionDate);
+          return transactionDate.isAfter(fromDate.subtract(const Duration(days: 1))) && transactionDate.isBefore(toDate.add(const Duration(days: 1)));
+        }).toList()),
+        child: ClayButton(
+          depth: 40,
+          spread: 2,
+          surfaceColor: clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 100,
+          child: const Padding(
+            padding: EdgeInsets.all(8),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(Icons.download),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String getReportName() => "Download report\nfrom ${convertDateTimeToDDMMYYYYFormat(fromDate)}\nto ${convertDateTimeToDDMMYYYYFormat(toDate)}";
+
+  Future<void> _loadStudentProfiles() async {
+    setState(() => _isLoading = true);
+    GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      studentProfiles = (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList();
+    }
+    setState(() => _isLoading = false);
+  }
+
+  String getReceiptDescription(StudentFeeReceipt receipt) {
+    List<String> feeTypeWiseDescriptions = [];
+    List<String> customFeeTypeWiseDescriptions = [];
+    List<String> busFeeTypeWiseDescriptions = [];
+
+    for (FeeTypeOfReceipt eachFeeType in (receipt.feeTypes ?? []).whereNotNull()) {
+      if ((eachFeeType.customFeeTypes ?? []).whereNotNull().isEmpty && (eachFeeType.amountPaidForTheReceipt ?? 0) != 0) {
+        feeTypeWiseDescriptions.add("${eachFeeType.feeType ?? " - "}: ${(eachFeeType.amountPaidForTheReceipt ?? 0) / 100}");
+      } else {
+        for (CustomFeeTypeOfReceipt eachCustomFeeType in (eachFeeType.customFeeTypes ?? []).whereNotNull()) {
+          if ((eachCustomFeeType.amountPaidForTheReceipt ?? 0) != 0) {
+            customFeeTypeWiseDescriptions.add(
+                "${eachFeeType.feeType ?? " - "} - ${eachCustomFeeType.customFeeType ?? " - "}: ${(eachCustomFeeType.amountPaidForTheReceipt ?? 0) / 100}");
+          }
+        }
+      }
+    }
+    if ((receipt.busFeePaid ?? 0) != 0) {
+      busFeeTypeWiseDescriptions.add("Bus Fee: ${(receipt.busFeePaid ?? 0) / 100}");
+    }
+
+    return [...feeTypeWiseDescriptions, ...customFeeTypeWiseDescriptions, ...busFeeTypeWiseDescriptions].join("\n\n");
   }
 
   Widget feeTypeWiseStats(List<StudentFeeReceipt> receiptsToBeAccounted) {
@@ -703,6 +816,168 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
         ),
       ),
     );
+  }
+
+  Future<void> _downloadReport(List<StudentFeeReceipt> studentFeeReceipts) async {
+    if (studentProfiles.isEmpty) {
+      await _loadStudentProfiles();
+    }
+    setState(() => _isLoading = true);
+    // Create an Excel workbook
+    var excel = Excel.createExcel();
+
+    // Add a sheet to the workbook
+    Sheet sheet = excel['Report'];
+
+    int rowIndex = 0;
+
+    // Append the school name
+    sheet.appendRow(["${widget.adminProfile.schoolName}"]);
+
+    // Define the headers for the columns
+    var columns = ['Date', 'Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Accommodation Type', 'Amount Paid', 'Mode Of Payment', 'Details', 'Comments'];
+
+    // Apply formatting to the school name cell
+    CellStyle schoolNameStyle = CellStyle(
+      bold: true,
+      fontSize: 24,
+      horizontalAlign: HorizontalAlign.Center,
+    );
+    sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex)).cellStyle = schoolNameStyle;
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex), CellIndex.indexByColumnRow(columnIndex: columns.length - 1, rowIndex: rowIndex));
+    rowIndex++;
+    sheet.appendRow(columns);
+    for (int i = 0; i <= columns.length - 1; i++) {
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+        backgroundColorHex: 'FF000000',
+        fontColorHex: 'FFFFFFFF',
+      );
+    }
+    rowIndex++;
+
+    // Add the data rows to the sheet
+    for (StudentFeeReceipt receipt in studentFeeReceipts) {
+      sheet.appendRow([
+        convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(receipt.transactionDate)),
+        receipt.receiptNumber ?? "-",
+        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.admissionNo ?? "-",
+        receipt.sectionName,
+        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.rollNumber ?? "-",
+        receipt.studentName,
+        studentProfiles.where((e) => e.studentId == receipt.studentId).firstOrNull?.getAccommodationType(e: "D") ?? "-",
+        receipt.getTotalAmountForReceipt() / 100,
+        ModeOfPaymentExt.fromString(receipt.modeOfPayment).description,
+        getReceiptDescription(receipt).replaceAll("\n\n", "\r\n"),
+        receipt.comments ?? "",
+      ]);
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: rowIndex)).cellStyle = CellStyle(textWrapping: TextWrapping.WrapText);
+      rowIndex++;
+    }
+
+    // Deleting default sheet
+    if (excel.getDefaultSheet() != null) {
+      excel.delete(excel.getDefaultSheet()!);
+    }
+
+    sheet.appendRow([""]);
+    rowIndex++;
+
+    sheet.appendRow(["Fee Type", "Amount"]);
+    for (int i = 0; i <= 1; i++) {
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+        backgroundColorHex: 'FF000000',
+        fontColorHex: 'FFFFFFFF',
+      );
+    }
+    rowIndex++;
+    for (var e in feeTypePaymentMap.entries) {
+      sheet.appendRow([
+        e.key,
+        e.value / 100,
+      ]);
+      rowIndex++;
+    }
+    for (var feeTypeMap in customFeeTypePaymentMap.entries) {
+      for (var customFeeTypeMap in feeTypeMap.value.entries) {
+        sheet.appendRow([
+          feeTypeMap.key + ": " + customFeeTypeMap.key,
+          customFeeTypeMap.value / 100,
+        ]);
+        rowIndex++;
+      }
+    }
+    sheet.appendRow([
+      "Bus",
+      (widget.studentFeeReceipts.map((e) => e.busFeePaid ?? 0).fold(0, (int a, int b) => a + b)) / 100,
+    ]);
+    rowIndex++;
+
+    sheet.appendRow([""]);
+    rowIndex++;
+
+    sheet.appendRow(["Mode Of Payment", "Amount"]);
+    for (int i = 0; i <= 1; i++) {
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+        backgroundColorHex: 'FF000000',
+        fontColorHex: 'FFFFFFFF',
+      );
+    }
+    rowIndex++;
+    final paymentMap = <ModeOfPayment, int>{};
+    for (final receipt in studentFeeReceipts) {
+      final modeOfPayment = ModeOfPaymentExt.fromString(receipt.modeOfPayment);
+      final totalAmount = receipt.getTotalAmountForReceipt();
+      paymentMap[modeOfPayment] = (paymentMap[modeOfPayment] ?? 0) + totalAmount;
+    }
+    paymentMap.forEach((key, value) {
+      if (value != 0) {
+        sheet.appendRow([key.description, value / 100]);
+        rowIndex++;
+      }
+    });
+
+    sheet.appendRow([
+      "Total",
+      paymentMap.values.sum / 100.0,
+    ]);
+    for (int i = 0; i <= 1; i++) {
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+        backgroundColorHex: 'FFFFFF00',
+        fontColorHex: 'FF000000',
+      );
+    }
+    rowIndex++;
+
+    sheet.appendRow(["Downloaded: ${convertEpochToDDMMYYYYEEEEHHMMAA(DateTime.now().millisecondsSinceEpoch)}"]);
+    CellStyle downloadTimeStyle = CellStyle(
+      bold: true,
+      fontSize: 9,
+      horizontalAlign: HorizontalAlign.Right,
+      verticalAlign: VerticalAlign.Center,
+    );
+    sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex)).cellStyle = downloadTimeStyle;
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex), CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: rowIndex));
+
+    // Auto fit the columns
+    for (var i = 1; i < sheet.maxCols; i++) {
+      sheet.setColAutoFit(i);
+    }
+
+    // Generate the Excel file as bytes
+    var excelBytes = excel.encode();
+    if (excelBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      Uint8List excelUint8List = Uint8List.fromList(excelBytes);
+
+      // Save the Excel file
+      FileSaver.instance.saveFile(bytes: excelUint8List, name: '${getReportName().replaceAll("\n", " ")}.xlsx');
+    }
+    setState(() => _isLoading = false);
   }
 }
 
