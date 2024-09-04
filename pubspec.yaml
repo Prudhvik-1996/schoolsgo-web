@@ -204,6 +204,7 @@ flutter:
     - assets/images/EISlogo.png
     - assets/images/INR_symbol.png
     - assets/images/student.png
+    - assets/images/deleted_stamp.png
     - assets/demo/student/diary/diary.pdf
     - assets/demo/student/notice_board/notice_board.pdf
 

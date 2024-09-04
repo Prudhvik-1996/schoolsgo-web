@@ -96,12 +96,12 @@ class _FeeReportsOptionsScreenState extends State<FeeReportsOptionsScreen> {
         primary: false,
         children: <Widget>[
           _getFeeOption(
-            "Detailed Fee Receipts",
+            "Detailed Fee Reports",
             null,
             DetailedFeesReportScreen(adminProfile: widget.adminProfile),
           ),
           _getFeeOption(
-            "Due Receipts",
+            "Due Reports",
             null,
             DueReceiptsScreen(adminProfile: widget.adminProfile),
           ),

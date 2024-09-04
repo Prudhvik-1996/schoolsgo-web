@@ -31,11 +31,13 @@ class DateWiseReceiptStats extends StatefulWidget {
     required this.adminProfile,
     required this.studentFeeReceipts,
     required this.routeStopWiseStudents,
+    required this.isDefaultGraphView,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
-  final List<StudentFeeReceipt> studentFeeReceipts;
-  final List<RouteStopWiseStudent> routeStopWiseStudents;
+  final List<StudentFeeReceipt>? studentFeeReceipts;
+  final List<RouteStopWiseStudent>? routeStopWiseStudents;
+  final bool isDefaultGraphView;
 
   @override
   State<DateWiseReceiptStats> createState() => _DateWiseReceiptStatsState();
@@ -43,6 +45,10 @@ class DateWiseReceiptStats extends StatefulWidget {
 
 class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
   bool _isLoading = true;
+
+  List<StudentFeeReceipt> studentFeeReceipts = [];
+  List<RouteStopWiseStudent> routeStopWiseStudents = [];
+
   bool _isGraphView = false;
   bool _showOnlyNonZero = true;
   final ScrollController _mainBodyController = ScrollController();
@@ -68,16 +74,61 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
   @override
   void initState() {
     super.initState();
-    if (widget.studentFeeReceipts.isEmpty) return;
-    fromDate = widget.studentFeeReceipts.map((e) => e.transactionDate).whereNotNull().map((e) => convertYYYYMMDDFormatToDateTime(e)).min;
-    toDate = widget.studentFeeReceipts.map((e) => e.transactionDate).whereNotNull().map((e) => convertYYYYMMDDFormatToDateTime(e)).max;
+    _isGraphView = widget.isDefaultGraphView;
+    if (_isGraphView) {
+      _showOnlyNonZero = true;
+    }
     _loadData();
+    if (studentFeeReceipts.isEmpty) return;
   }
 
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
     });
+
+    if (widget.studentFeeReceipts != null) {
+      studentFeeReceipts = widget.studentFeeReceipts!;
+    } else {
+      GetStudentFeeReceiptsResponse studentFeeReceiptsResponse = await getStudentFeeReceipts(GetStudentFeeReceiptsRequest(
+        schoolId: widget.adminProfile.schoolId,
+      ));
+      if (studentFeeReceiptsResponse.httpStatus != "OK" || studentFeeReceiptsResponse.responseStatus != "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        studentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).where((e) => e.status == 'active').toList();
+        studentFeeReceipts.sort((b, a) {
+          int dateCom = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
+          return (dateCom == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateCom;
+        });
+      }
+    }
+
+    if (widget.routeStopWiseStudents != null) {
+      routeStopWiseStudents = widget.routeStopWiseStudents!;
+    } else {
+      GetBusRouteDetailsResponse getBusRouteDetailsResponse = await getBusRouteDetails(GetBusRouteDetailsRequest(
+        schoolId: widget.adminProfile.schoolId,
+      ));
+      if (getBusRouteDetailsResponse.httpStatus != "OK" || getBusRouteDetailsResponse.responseStatus != "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        routeStopWiseStudents = (getBusRouteDetailsResponse.busRouteInfoBeanList?.map((e) => e!).toList() ?? [])
+            .map((e) => (e.busRouteStopsList ?? []).whereNotNull())
+            .expand((i) => i)
+            .map((e) => (e.students ?? []).whereNotNull())
+            .expand((i) => i)
+            .toList();
+      }
+    }
 
     GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -94,14 +145,14 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
       });
     }
 
-    for (final receipt in widget.studentFeeReceipts) {
+    for (final receipt in studentFeeReceipts) {
       if (receipt.transactionDate != null) {
         final dateString = receipt.transactionDate!;
         dateWiseReceiptStatsMap[convertYYYYMMDDFormatToDateTime(dateString)] ??= <StudentFeeReceipt>[];
         dateWiseReceiptStatsMap[convertYYYYMMDDFormatToDateTime(dateString)]!.add(receipt);
       }
     }
-    DateTime startDate = widget.studentFeeReceipts.map((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate)).min;
+    DateTime startDate = studentFeeReceipts.map((e) => convertYYYYMMDDFormatToDateTime(e.transactionDate)).min;
     DateTime endDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(const Duration(days: 1));
     final populatedDates = populateDates(startDate, endDate);
     actualDateWiseAmountsCollected = populatedDates.map((date) {
@@ -125,7 +176,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
     feeTypePaymentMap = <String, int>{};
     for (FeeType feeType in feeTypes) {
       if ((feeType.customFeeTypesList ?? []).isEmpty) {
-        feeTypePaymentMap["${feeType.feeType}"] = widget.studentFeeReceipts
+        feeTypePaymentMap["${feeType.feeType}"] = studentFeeReceipts
             .map((e) => e.feeTypes ?? [])
             .expand((i) => i)
             .where((e) => e?.feeTypeId == feeType.feeTypeId && (feeType.customFeeTypesList ?? []).isEmpty)
@@ -137,7 +188,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
     for (CustomFeeType customFeeType in feeTypes.map((e) => e.customFeeTypesList ?? []).expand((i) => i).whereNotNull()) {
       customFeeTypePaymentMap["${customFeeType.feeType}"] ??= {};
       customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] ??= 0;
-      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] = widget.studentFeeReceipts
+      customFeeTypePaymentMap["${customFeeType.feeType}"]!["${customFeeType.customFeeType}"] = studentFeeReceipts
           .map((e) => e.feeTypes ?? [])
           .expand((i) => i)
           .where((e) => e?.feeTypeId == customFeeType.feeTypeId)
@@ -147,9 +198,15 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
           .map((e) => e?.amountPaidForTheReceipt ?? 0)
           .fold(0, (a, b) => a + b);
     }
+    fromDate = studentFeeReceipts.map((e) => e.transactionDate).whereNotNull().map((e) => convertYYYYMMDDFormatToDateTime(e)).min;
+    toDate = studentFeeReceipts.map((e) => e.transactionDate).whereNotNull().map((e) => convertYYYYMMDDFormatToDateTime(e)).max;
     setState(() {
       _isLoading = false;
     });
+    if (widget.isDefaultGraphView) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      scrollToBody();
+    }
   }
 
   void handleVisibilityOfNonZero() {
@@ -188,11 +245,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
                   _isGraphView = !_isGraphView;
                 });
                 if (_isGraphView) {
-                  _mainBodyController.animateTo(
-                    _mainBodyController.position.maxScrollExtent,
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.fastOutSlowIn,
-                  );
+                  scrollToBody();
                 }
               },
               icon: Icon(_isGraphView ? Icons.grid_view : Icons.auto_graph_sharp),
@@ -206,7 +259,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
-          : widget.studentFeeReceipts.isEmpty
+          : studentFeeReceipts.isEmpty
               ? const Center(child: Text("No transactions to display"))
               : ListView(
                   controller: _mainBodyController,
@@ -228,6 +281,14 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
                         : gridWidget(context),
                   ],
                 ),
+    );
+  }
+
+  void scrollToBody() {
+    _mainBodyController.animateTo(
+      _mainBodyController.position.maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.fastOutSlowIn,
     );
   }
 
@@ -286,9 +347,9 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return DateWiseReceiptsStatsWidget(
                 adminProfile: widget.adminProfile,
-                studentFeeReceipts: widget.studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(date)).toList(),
+                studentFeeReceipts: studentFeeReceipts.where((e) => e.transactionDate == convertDateTimeToYYYYMMDDFormat(date)).toList(),
                 selectedDate: date,
-                routeStopWiseStudents: widget.routeStopWiseStudents,
+                routeStopWiseStudents: routeStopWiseStudents,
                 feeTypes: feeTypes,
               );
             }));
@@ -425,7 +486,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
   }
 
   Widget _fromDateToDateStatsWidget() {
-    List<StudentFeeReceipt> receiptsToBeAccounted = widget.studentFeeReceipts
+    List<StudentFeeReceipt> receiptsToBeAccounted = studentFeeReceipts
         .where((e) => e.transactionDate != null)
         .where((e) =>
             convertYYYYMMDDFormatToDateTime(e.transactionDate!).millisecondsSinceEpoch >= fromDate.millisecondsSinceEpoch &&
@@ -551,7 +612,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
       message: getReportName(),
       textAlign: TextAlign.center,
       child: GestureDetector(
-        onTap: () async => _downloadReport(widget.studentFeeReceipts.where((e) {
+        onTap: () async => _downloadReport(studentFeeReceipts.where((e) {
           var transactionDate = convertYYYYMMDDFormatToDateTime(e.transactionDate);
           return transactionDate.isAfter(fromDate.subtract(const Duration(days: 1))) && transactionDate.isBefore(toDate.add(const Duration(days: 1)));
         }).toList()),
@@ -835,7 +896,19 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
     sheet.appendRow(["${widget.adminProfile.schoolName}"]);
 
     // Define the headers for the columns
-    var columns = ['Date', 'Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Accommodation Type', 'Amount Paid', 'Mode Of Payment', 'Details', 'Comments'];
+    var columns = [
+      'Date',
+      'Receipt No.',
+      'Admission No.',
+      'Class',
+      'Roll No.',
+      'Student Name',
+      'Accommodation Type',
+      'Amount Paid',
+      'Mode Of Payment',
+      'Details',
+      'Comments'
+    ];
 
     // Apply formatting to the school name cell
     CellStyle schoolNameStyle = CellStyle(
@@ -844,7 +917,8 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
       horizontalAlign: HorizontalAlign.Center,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex)).cellStyle = schoolNameStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex), CellIndex.indexByColumnRow(columnIndex: columns.length - 1, rowIndex: rowIndex));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex),
+        CellIndex.indexByColumnRow(columnIndex: columns.length - 1, rowIndex: rowIndex));
     rowIndex++;
     sheet.appendRow(columns);
     for (int i = 0; i <= columns.length - 1; i++) {
@@ -908,7 +982,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
     }
     sheet.appendRow([
       "Bus",
-      (widget.studentFeeReceipts.map((e) => e.busFeePaid ?? 0).fold(0, (int a, int b) => a + b)) / 100,
+      (studentFeeReceipts.map((e) => e.busFeePaid ?? 0).fold(0, (int a, int b) => a + b)) / 100,
     ]);
     rowIndex++;
 

@@ -605,99 +605,113 @@ class StudentFeeReceipt {
           : const EdgeInsets.all(10),
       child: AbsorbPointer(
         absorbing: isLoading || status == "deleted",
-        child: ClayContainer(
-          surfaceColor: status == "deleted" ? Colors.brown : clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          spread: 1,
-          borderRadius: 10,
-          depth: 40,
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(10, 10, 10, 8),
-            child: Stack(
-              children: [
-                ListView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+        child: Stack(
+          children: [
+            ClayContainer(
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 10,
+              depth: 40,
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+                child: Stack(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    ListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        Expanded(child: receiptNumberWidget(context)),
-                        const SizedBox(width: 10),
-                        if (status != "deleted" && makePdf != null) printReceiptButton(context, makePdf),
-                        if (status != "deleted" && makePdf != null) const SizedBox(width: 5),
-                        if (adminId != null && canSendSms) noOfTimesNotifiedWidget(context, sendReceiptSms),
-                        if (adminId != null && canSendSms) const SizedBox(width: 5),
-                        if (status != "deleted" && adminId != null)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(child: receiptNumberWidget(context)),
+                            const SizedBox(width: 10),
+                            if (status != "deleted" && makePdf != null) printReceiptButton(context, makePdf),
+                            if (status != "deleted" && makePdf != null) const SizedBox(width: 5),
+                            if (adminId != null && canSendSms) noOfTimesNotifiedWidget(context, sendReceiptSms),
+                            if (adminId != null && canSendSms) const SizedBox(width: 5),
+                            if (status != "deleted" && adminId != null)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  editReceiptButton(context, setState, reload, adminId: adminId),
+                                  const SizedBox(width: 5),
+                                  deleteReceiptButton(context, setState, reload, adminId: adminId),
+                                ],
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              editReceiptButton(context, setState, reload, adminId: adminId),
-                              const SizedBox(width: 5),
-                              deleteReceiptButton(context, setState, reload, adminId: adminId),
+                              Expanded(
+                                flex: 2,
+                                child: studentDetailsWidget(),
+                              ),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                flex: 1,
+                                child: sectionDetailsWidget(),
+                              ),
                             ],
                           ),
+                        ),
+                        const SizedBox(height: 10),
+                        guardianNameWidget(),
+                        const SizedBox(height: 10),
+                        if ((feeTypes ?? []).isNotEmpty) ...feeTypes!.map((e) => e == null ? Container() : e.widget(context, isTermWise)),
+                        const SizedBox(height: 10),
+                        if ((busFeePaid ?? 0) != 0) busFeePaidWidget(routeStopWiseStudent),
+                        if ((busFeePaid ?? 0) != 0) const SizedBox(height: 10),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                          child: receiptTotalWidget(updateModeOfPayment),
+                        ),
+                        if (!isEditMode && comments != null) const SizedBox(height: 10),
+                        commentsWidget(),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            receiptDateWidget(context, setState),
+                            const SizedBox(width: 5),
+                            receiptTimeWidget(context, setState),
+                            const SizedBox(width: 10),
+                          ],
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: studentDetailsWidget(),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            flex: 1,
-                            child: sectionDetailsWidget(),
-                          ),
-                        ],
+                    if (isLoading)
+                      Align(
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          'assets/images/gear-loader.gif',
+                          fit: BoxFit.scaleDown,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    guardianNameWidget(),
-                    const SizedBox(height: 10),
-                    if ((feeTypes ?? []).isNotEmpty) ...feeTypes!.map((e) => e == null ? Container() : e.widget(context, isTermWise)),
-                    const SizedBox(height: 10),
-                    if ((busFeePaid ?? 0) != 0) busFeePaidWidget(routeStopWiseStudent),
-                    if ((busFeePaid ?? 0) != 0) const SizedBox(height: 10),
-                    Container(
-                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      child: receiptTotalWidget(updateModeOfPayment),
-                    ),
-                    if (!isEditMode && comments != null) const SizedBox(height: 10),
-                    commentsWidget(),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        receiptDateWidget(context, setState),
-                        const SizedBox(width: 5),
-                        receiptTimeWidget(context, setState),
-                        const SizedBox(width: 10),
-                      ],
-                    ),
                   ],
                 ),
-                if (isLoading)
-                  Align(
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      'assets/images/gear-loader.gif',
-                      fit: BoxFit.scaleDown,
-                    ),
-                  ),
-              ],
+              ),
             ),
-          ),
+            if (status == "deleted")
+              Align(
+                alignment: Alignment.topRight,
+                child: Image.asset(
+                  'assets/images/deleted_stamp.png',
+                  fit: BoxFit.scaleDown,
+                  width: 100,
+                  height: 100,
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -1227,12 +1241,12 @@ class StudentFeeReceipt {
               ),
             )
           : Text(
-            transactionTime == null
-                ? ''
-                : ((MediaQuery.of(context).orientation == Orientation.landscape ? "Time: " : "") + formatHHMMSStoHHMMA(transactionTime ?? "-")),
-            textAlign: TextAlign.end,
-            style: const TextStyle(color: Colors.blue),
-          ),
+              transactionTime == null
+                  ? ''
+                  : ((MediaQuery.of(context).orientation == Orientation.landscape ? "Time: " : "") + formatHHMMSStoHHMMA(transactionTime ?? "-")),
+              textAlign: TextAlign.end,
+              style: const TextStyle(color: Colors.blue),
+            ),
     );
   }
 

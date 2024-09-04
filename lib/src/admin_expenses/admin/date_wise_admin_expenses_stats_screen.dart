@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -5,12 +7,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_for_selected_date_screen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DateWiseAdminExpensesStatsScreen extends StatefulWidget {
   const DateWiseAdminExpensesStatsScreen({
@@ -46,15 +48,18 @@ class _DateWiseAdminExpensesStatsScreenState extends State<DateWiseAdminExpenses
     if (adminExpenses.isEmpty) return;
     selectedDate = DateTime.now();
     fromDate = DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().min);
-    toDate = DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().max);
+    var currentMillis = DateTime.now().millisecondsSinceEpoch;
+    var maxDateAsPerExpenses = adminExpenses.map((e) => e.transactionTime).whereNotNull().max;
+    toDate = DateTime.fromMillisecondsSinceEpoch(math.max(currentMillis, maxDateAsPerExpenses));
     _loadData();
   }
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
-    dateWiseAmountsSpent = populateDates(DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().min),
-            DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().max))
-        .reversed
+    DateTime startDate = DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().min);
+    DateTime endDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(const Duration(days: 2));
+    List<DateTime> populatedDates = populateDates(startDate, endDate);
+    dateWiseAmountsSpent = populatedDates.reversed
         .map((eachDate) => DateWiseAmountSpent(
             eachDate,
             adminExpenses
@@ -115,8 +120,8 @@ class _DateWiseAdminExpensesStatsScreenState extends State<DateWiseAdminExpenses
     List<AdminExpenseBean> adminExpensesToBeConsidered = adminExpenses
         .where((e) => e.transactionTime != null)
         .where((e) =>
-            DateTime.fromMillisecondsSinceEpoch(e.transactionTime!).millisecondsSinceEpoch >= fromDate.millisecondsSinceEpoch &&
-            DateTime.fromMillisecondsSinceEpoch(e.transactionTime!).millisecondsSinceEpoch <= toDate.millisecondsSinceEpoch)
+            DateTime.fromMillisecondsSinceEpoch(e.transactionTime!).isAfter(fromDate) &&
+            toDate.add(const Duration(days: 1)).isAfter(DateTime.fromMillisecondsSinceEpoch(e.transactionTime!)))
         .toList();
     Set<String> uniqueExpenseTypes = adminExpensesToBeConsidered.map((e) => e.expenseType).whereNotNull().toSet();
     return Container(
@@ -275,8 +280,9 @@ class _DateWiseAdminExpensesStatsScreenState extends State<DateWiseAdminExpenses
 
   Widget gridWidget(BuildContext context) {
     List<DateWiseAmountSpent> selectedDateWiseAmountCollected = dateWiseAmountsSpentToShow
-        .where(
-            (e) => e.date.millisecondsSinceEpoch >= fromDate.millisecondsSinceEpoch && e.date.millisecondsSinceEpoch <= toDate.millisecondsSinceEpoch)
+        .where((e) =>
+            convertYYYYMMDDFormatToDateTime(convertDateTimeToYYYYMMDDFormat(e.date)).isAfter(fromDate) &&
+            toDate.add(const Duration(days: 1)).isAfter(convertYYYYMMDDFormatToDateTime(convertDateTimeToYYYYMMDDFormat(e.date))))
         .toList();
     return GridView.builder(
       physics: const NeverScrollableScrollPhysics(),

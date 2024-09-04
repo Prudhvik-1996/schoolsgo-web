@@ -315,6 +315,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             adminProfile: widget.adminProfile!,
             studentFeeReceipts: studentFeeReceipts.where((e) => e.status == "active").toList(),
             routeStopWiseStudents: routeStopWiseStudents,
+            isDefaultGraphView: false,
           );
         }));
       }

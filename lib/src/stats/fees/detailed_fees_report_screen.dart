@@ -7,12 +7,12 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class DetailedFeesReportScreen extends StatefulWidget {
   const DetailedFeesReportScreen({
@@ -28,6 +28,7 @@ class DetailedFeesReportScreen extends StatefulWidget {
 
 class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
   bool _isLoading = true;
+  bool canOpenSectionPicker = true;
   bool _isFileDownloading = false;
 
   List<Section> sectionsList = [];
@@ -246,7 +247,7 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
       borderRadius: 10,
       child: InkWell(
         onTap: () {
-          if (_isLoading) return;
+          if (_isLoading || !canOpenSectionPicker) return;
           setState(() {
             _isSectionPickerOpen = !_isSectionPickerOpen;
           });
@@ -290,6 +291,13 @@ class _DetailedFeesReportScreenState extends State<DetailedFeesReportScreen> {
         onChanged: (FeeReportType? value) {
           if (value == null) return;
           setState(() => feeReportType = value);
+          if (value == FeeReportType.detailed) {
+            selectedSectionsList = sectionsList;
+            _isSectionPickerOpen = false;
+            canOpenSectionPicker = false;
+          } else {
+            canOpenSectionPicker = true;
+          }
           refreshReportName();
         },
         title: Text(

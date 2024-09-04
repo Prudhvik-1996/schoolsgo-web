@@ -1,13 +1,14 @@
-import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/employee_attendance/admin/admin_employee_attendance_management_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v3.dart';
+import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class AdminStatsWidget extends StatefulWidget {
@@ -136,11 +137,16 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return AdminMarkStudentAttendanceScreen(
+              // return AdminMarkStudentAttendanceScreen(
+              //   adminProfile: widget.adminProfile,
+              //   teacherProfile: null,
+              //   selectedSection: null,
+              //   selectedDateTime: DateTime.now(),
+              // );
+              return AdminStudentAbsenteesScreen(
                 adminProfile: widget.adminProfile,
                 teacherProfile: null,
-                selectedSection: null,
-                selectedDateTime: DateTime.now(),
+                defaultSelectedSection: null,
               );
             },
           ),
@@ -345,8 +351,11 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return AdminFeeReceiptsScreenV3(
+              return DateWiseReceiptStats(
                 adminProfile: widget.adminProfile,
+                routeStopWiseStudents: null,
+                studentFeeReceipts: null,
+                isDefaultGraphView: true,
               );
             },
           ),
@@ -376,40 +385,43 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                     height: 100,
                   ),
                 if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 20),
-                SizedBox(
-                  height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                  width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                  child: Stack(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                        width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                        child: CircularProgressIndicator(
-                          value: ((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) /
-                              ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)),
-                          color: Colors.blue,
-                          strokeWidth: 10,
-                          semanticsLabel: "Fee collected",
-                          semanticsValue:
-                              "${doubleToStringAsFixed(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) * 100 / ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)))} %",
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                          backgroundColor: const Color(0xFFCDFCFF),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.center,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            "${doubleToStringAsFixed(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) * 100 / ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)))} %",
-                            style: TextStyle(
-                              color: clayContainerColor(widget.context),
-                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
-                            ),
+                Tooltip(
+                  message: "Total Fee Collected",
+                  child: SizedBox(
+                    height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                    width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                    child: Stack(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                          width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                          child: CircularProgressIndicator(
+                            value: ((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) /
+                                ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)),
+                            color: Colors.blue,
+                            strokeWidth: 10,
+                            semanticsLabel: "Fee collected",
+                            semanticsValue:
+                                "${doubleToStringAsFixed(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) * 100 / ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)))} %",
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                            backgroundColor: const Color(0xFFCDFCFF),
                           ),
                         ),
-                      )
-                    ],
+                        Align(
+                          alignment: Alignment.center,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              "${doubleToStringAsFixed(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) * 100 / ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)))} %",
+                              style: TextStyle(
+                                color: clayContainerColor(widget.context),
+                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 50),
@@ -420,63 +432,67 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Row(
+                      //   mainAxisSize: MainAxisSize.min,
+                      //   mainAxisAlignment: MainAxisAlignment.start,
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   children: [
+                      //     Expanded(
+                      //       child: Text(
+                      //         "Total Fee:",
+                      //         style: TextStyle(
+                      //           color: Colors.black,
+                      //           fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     Text(
+                      //       "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)) / 100.0)} /-",
+                      //       style: TextStyle(
+                      //         color: Colors.black,
+                      //         fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // Row(
+                      //   mainAxisSize: MainAxisSize.min,
+                      //   mainAxisAlignment: MainAxisAlignment.start,
+                      //   crossAxisAlignment: CrossAxisAlignment.center,
+                      //   children: [
+                      //     Expanded(
+                      //       child: Text(
+                      //         "Total Fee Collected:",
+                      //         style: TextStyle(
+                      //           color: Colors.black,
+                      //           fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     Text(
+                      //       "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) / 100.0)} /-",
+                      //       style: TextStyle(
+                      //         color: Colors.black,
+                      //         fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: Text(
-                              "Total Fee:",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)) / 100.0)} /-",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Total Fee Collected:",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) / 100.0)} /-",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Total Fee Collected Today:",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                "Total Fee Collected Today:",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                                ),
                               ),
                             ),
                           ),
@@ -488,6 +504,38 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 10),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return StatsHome(
+                                  adminProfile: widget.adminProfile,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        child: const ClayButton(
+                          width: double.infinity,
+                          surfaceColor: Colors.blue,
+                          parentColor: Colors.blue,
+                          spread: 1,
+                          borderRadius: 10,
+                          depth: 40,
+                          child: Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                "Financial Reports",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
