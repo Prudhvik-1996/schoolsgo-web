@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
 class DateWiseAdminExpensesStatsScreen extends StatefulWidget {
   const DateWiseAdminExpensesStatsScreen({
@@ -24,7 +24,7 @@ class DateWiseAdminExpensesStatsScreen extends StatefulWidget {
   });
 
   final AdminProfile adminProfile;
-  final List<AdminExpenseBean> adminExpenses;
+  final List<AdminExpenseBean>? adminExpenses;
 
   @override
   State<DateWiseAdminExpensesStatsScreen> createState() => _DateWiseAdminExpensesStatsScreenState();
@@ -46,18 +46,25 @@ class _DateWiseAdminExpensesStatsScreenState extends State<DateWiseAdminExpenses
   @override
   void initState() {
     super.initState();
-    adminExpenses = widget.adminExpenses;
-    if (adminExpenses.isEmpty) return;
-    selectedDate = DateTime.now();
-    fromDate = DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().min);
-    var currentMillis = DateTime.now().millisecondsSinceEpoch;
-    var maxDateAsPerExpenses = adminExpenses.map((e) => e.transactionTime).whereNotNull().max;
-    toDate = DateTime.fromMillisecondsSinceEpoch(math.max(currentMillis, maxDateAsPerExpenses));
     _loadData();
   }
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
+    if (widget.adminExpenses == null) {
+      await _loadAdminExpenses();
+    } else {
+      adminExpenses = widget.adminExpenses ?? [];
+    }
+    if (adminExpenses.isEmpty) {
+      setState(() => _isLoading = false);
+      return;
+    }
+    selectedDate = DateTime.now();
+    fromDate = DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().min);
+    var currentMillis = DateTime.now().millisecondsSinceEpoch;
+    var maxDateAsPerExpenses = adminExpenses.map((e) => e.transactionTime).whereNotNull().max;
+    toDate = DateTime.fromMillisecondsSinceEpoch(math.max(currentMillis, maxDateAsPerExpenses));
     DateTime startDate = DateTime.fromMillisecondsSinceEpoch(adminExpenses.map((e) => e.transactionTime).whereNotNull().min);
     DateTime endDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).add(const Duration(days: 2));
     List<DateTime> populatedDates = populateDates(startDate, endDate);
@@ -75,6 +82,31 @@ class _DateWiseAdminExpensesStatsScreenState extends State<DateWiseAdminExpenses
     dateWiseAmountsSpentToShow = dateWiseAmountsSpent.toList();
     handleVisibilityOfNonZero();
     setState(() => _isLoading = false);
+  }
+
+  Future<void> _loadAdminExpenses() async {
+    GetAdminExpensesResponse getAdminExpensesResponse = await getAdminExpenses(GetAdminExpensesRequest(
+      schoolId: widget.adminProfile.schoolId,
+      franchiseId: widget.adminProfile.franchiseId,
+    ));
+    if (getAdminExpensesResponse.httpStatus != "OK" || getAdminExpensesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      adminExpenses = getAdminExpensesResponse.adminExpenseBeanList!.map((e) => e!).toList()
+        ..sort((b, a) {
+          if (a.transactionTime != null && b.transactionTime != null) {
+            return a.transactionTime!.compareTo(b.transactionTime!);
+          }
+          if (a.adminExpenseId != null && b.adminExpenseId != null) {
+            return a.adminExpenseId!.compareTo(b.adminExpenseId!);
+          }
+          return 0;
+        });
+    }
   }
 
   void handleVisibilityOfNonZero() {
@@ -109,12 +141,14 @@ class _DateWiseAdminExpensesStatsScreenState extends State<DateWiseAdminExpenses
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
-          : ListView(
-              children: [
-                summaryWidget(),
-                gridWidget(context),
-              ],
-            ),
+          : adminExpenses.isEmpty
+              ? const Center(child: Text("No expenses added yet.."))
+              : ListView(
+                  children: [
+                    summaryWidget(),
+                    gridWidget(context),
+                  ],
+                ),
     );
   }
 

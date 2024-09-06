@@ -21,7 +21,7 @@ class DatePickerWidget extends StatefulWidget {
 class _DatePickerWidgetState extends State<DatePickerWidget> {
   DateTime? _startDate;
   DateTime? _endDate;
-  String _selectedMode = "Range"; // Default mode
+  String _selectedMode = "Single Date"; // Default mode
   final DateRangePickerController _datePickerController = DateRangePickerController();
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {

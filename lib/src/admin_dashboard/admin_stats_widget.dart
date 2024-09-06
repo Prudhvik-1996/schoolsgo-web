@@ -1,6 +1,7 @@
+import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/date_wise_admin_expenses_stats_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -9,7 +10,6 @@ import 'package:schoolsgo_web/src/employee_attendance/admin/admin_employee_atten
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/financial_reports/financial_reports_screen.dart';
-import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class AdminStatsWidget extends StatefulWidget {
@@ -27,6 +27,7 @@ class AdminStatsWidget extends StatefulWidget {
     required this.totalNoOfEmployees,
     required this.totalNoOfEmployeesMarkedForAttendance,
     required this.totalNoOfEmployeesPresent,
+    required this.totalExpensesForTheDay,
     required this.adminProfile,
   }) : super(key: key);
 
@@ -42,6 +43,7 @@ class AdminStatsWidget extends StatefulWidget {
   final int? totalNoOfEmployees;
   final int? totalNoOfEmployeesMarkedForAttendance;
   final int? totalNoOfEmployeesPresent;
+  final int? totalExpensesForTheDay;
 
   final AdminProfile adminProfile;
 
@@ -347,55 +349,56 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
       width: MediaQuery.of(widget.context).orientation == Orientation.landscape
           ? MediaQuery.of(widget.context).size.width / 2
           : MediaQuery.of(widget.context).size.width - 40,
-      child: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return DateWiseReceiptStats(
-                adminProfile: widget.adminProfile,
-                routeStopWiseStudents: null,
-                studentFeeReceipts: null,
-                isDefaultGraphView: true,
-              );
-            },
+      child: ClayContainer(
+        surfaceColor: clayContainerColor(widget.context),
+        parentColor: clayContainerColor(widget.context),
+        spread: 1,
+        borderRadius: 10,
+        depth: 40,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [Colors.blue, Colors.cyan]),
+            borderRadius: BorderRadius.circular(10),
           ),
-        ),
-        child: ClayButton(
-          surfaceColor: clayContainerColor(widget.context),
-          parentColor: clayContainerColor(widget.context),
-          spread: 1,
-          borderRadius: 10,
-          depth: 40,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Colors.blue, Colors.cyan]),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(width: 10),
-                if (MediaQuery.of(widget.context).orientation == Orientation.landscape)
-                  Image.asset(
-                    "assets/images/INR_symbol.png",
-                    fit: BoxFit.scaleDown,
-                    height: 100,
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(width: 10),
+              if (MediaQuery.of(widget.context).orientation == Orientation.landscape)
+                Image.asset(
+                  "assets/images/INR_symbol.png",
+                  fit: BoxFit.scaleDown,
+                  height: 100,
+                ),
+              if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 10),
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return DateWiseReceiptStats(
+                        adminProfile: widget.adminProfile,
+                        routeStopWiseStudents: null,
+                        studentFeeReceipts: null,
+                        isDefaultGraphView: true,
+                        showAllDates: true,
+                      );
+                    },
                   ),
-                if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 20),
-                Tooltip(
+                ),
+                child: Tooltip(
                   message: "Total Fee Collected",
                   child: SizedBox(
-                    height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                    width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                    height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 75 : 50,
+                    width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 75 : 50,
                     child: Stack(
                       children: [
                         SizedBox(
-                          height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
-                          width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+                          height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 75 : 50,
+                          width: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 75 : 50,
                           child: CircularProgressIndicator(
                             value: ((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) /
                                 ((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)),
@@ -425,125 +428,163 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                     ),
                   ),
                 ),
-                if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 50),
-                if (MediaQuery.of(widget.context).orientation != Orientation.landscape) const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Row(
-                      //   mainAxisSize: MainAxisSize.min,
-                      //   mainAxisAlignment: MainAxisAlignment.start,
-                      //   crossAxisAlignment: CrossAxisAlignment.center,
-                      //   children: [
-                      //     Expanded(
-                      //       child: Text(
-                      //         "Total Fee:",
-                      //         style: TextStyle(
-                      //           color: Colors.black,
-                      //           fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //     Text(
-                      //       "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFee ?? 0) + (widget.totalBusFee ?? 0)) / 100.0)} /-",
-                      //       style: TextStyle(
-                      //         color: Colors.black,
-                      //         fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                      // Row(
-                      //   mainAxisSize: MainAxisSize.min,
-                      //   mainAxisAlignment: MainAxisAlignment.start,
-                      //   crossAxisAlignment: CrossAxisAlignment.center,
-                      //   children: [
-                      //     Expanded(
-                      //       child: Text(
-                      //         "Total Fee Collected:",
-                      //         style: TextStyle(
-                      //           color: Colors.black,
-                      //           fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //     Text(
-                      //       "$INR_SYMBOL ${doubleToStringAsFixedForINR(((widget.totalAcademicFeeCollected ?? 0) + (widget.totalBusFeeCollected ?? 0)) / 100.0)} /-",
-                      //       style: TextStyle(
-                      //         color: Colors.black,
-                      //         fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Total Fee Collected Today:",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        // color: clayContainerColor(context),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return DateWiseReceiptStats(
+                                      adminProfile: widget.adminProfile,
+                                      routeStopWiseStudents: null,
+                                      studentFeeReceipts: null,
+                                      isDefaultGraphView: true,
+                                      showAllDates: true,
+                                    );
+                                  },
                                 ),
                               ),
-                            ),
-                          ),
-                          Text(
-                            "$INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalFeeCollectedForTheDay ?? 0) / 100.0)} /-",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return FinancialReportsScreen(
-                                  adminProfile: widget.adminProfile,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        child: const ClayButton(
-                          width: double.infinity,
-                          surfaceColor: Colors.blue,
-                          parentColor: Colors.blue,
-                          spread: 1,
-                          borderRadius: 10,
-                          depth: 40,
-                          child: Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Center(
-                              child: Text(
-                                "Financial Reports",
-                                style: TextStyle(color: Colors.black),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    width: 20,
+                                    height: 20,
+                                    child: const FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Icon(
+                                        Icons.arrow_drop_up,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Today's fee: $INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalFeeCollectedForTheDay ?? 0) / 100.0)} /-",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
+                            const SizedBox(height: 5),
+                            TextButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return DateWiseAdminExpensesStatsScreen(
+                                      adminProfile: widget.adminProfile,
+                                      adminExpenses: null,
+                                    );
+                                  },
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    width: 20,
+                                    height: 20,
+                                    child: const FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Icon(
+                                        Icons.arrow_drop_down,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "Today's expenses: $INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalExpensesForTheDay ?? 0) / 100.0)} /-",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return FinancialReportsScreen(
+                                adminProfile: widget.adminProfile,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: const ClayButton(
+                        width: double.infinity,
+                        surfaceColor: Colors.blue,
+                        parentColor: Colors.blue,
+                        spread: 1,
+                        borderRadius: 10,
+                        depth: 40,
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Center(
+                            child: Text(
+                              "Financial Reports",
+                              style: TextStyle(color: Colors.black),
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 10),
-              ],
-            ),
+              ),
+              if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 10),
+            ],
           ),
         ),
       ),

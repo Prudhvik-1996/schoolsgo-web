@@ -43,7 +43,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
   int widgetToDisplayIndex = 0;
   bool showOptions = true;
   List<String> widgetsToDisplay = ["Fee Stats", "Admin Expenses Stats"];
-  bool showStats = true;
+  bool showStats = false;
 
   List<StudentFeeReceipt> studentFeeReceipts = [];
   List<StudentFeeReceipt> studentFeeReceiptsToDisplay = [];
@@ -111,8 +111,8 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
       if (adminExpenses.isNotEmpty) adminExpenses.map((e) => DateTime.fromMillisecondsSinceEpoch(e.transactionTime!)).max.millisecondsSinceEpoch,
       DateTime.now().millisecondsSinceEpoch,
     ].max);
-    fromDate = maximumStartDate;
-    toDate = maximumEndDate;
+    fromDate = convertYYYYMMDDFormatToDateTime(convertDateTimeToYYYYMMDDFormat(DateTime.now()));
+    toDate = DateTime(fromDate.year, fromDate.month, fromDate.day, 23, 59, 59, 0, 0);
     filterStudentReceipts();
     filterAdminExpenses();
     setState(() {
@@ -197,7 +197,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
 
   void filterStudentReceipts() {
     studentFeeReceiptsToDisplay = studentFeeReceipts.map((e) => StudentFeeReceipt.fromJson(e.toJson())).where((e) {
-      DateTime transactionDate = convertYYYYMMDDFormatToDateTime(e.transactionDate);
+      DateTime transactionDate = convertYYYYMMDDFormatToDateTime(e.transactionDate).add(const Duration(minutes: 1));
       return transactionDate.isAfter(fromDate) && toDate.isAfter(transactionDate);
     }).toList();
     for (final receipt in studentFeeReceiptsToDisplay) {
@@ -257,7 +257,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
 
   void filterAdminExpenses() {
     adminExpensesToDisplay = adminExpenses.map((e) => AdminExpenseBean.fromJson(e.toJson())).where((e) {
-      DateTime transactionDate = DateTime.fromMillisecondsSinceEpoch(e.transactionTime!);
+      DateTime transactionDate = DateTime.fromMillisecondsSinceEpoch(e.transactionTime!).add(const Duration(minutes: 1));
       return transactionDate.isAfter(fromDate) && toDate.isAfter(transactionDate);
     }).toList();
     if (adminExpensesToDisplay.isEmpty) {
@@ -325,24 +325,92 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
     );
   }
 
-  TextButton buildDatePickerWidget() {
-    return TextButton(
-      onPressed: _showDatePickerDialog,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            _buttonText,
-            style: GoogleFonts.archivoBlack(
-              textStyle: const TextStyle(
-                fontSize: 36,
-                color: Colors.lightBlue,
+  Widget buildDatePickerWidget() {
+    return Row(
+      children: [
+        if (_isSingleDate)
+          GestureDetector(
+            onTap: () {
+              if (fromDate.millisecondsSinceEpoch > maximumStartDate.millisecondsSinceEpoch) {
+                setState(() {
+                  fromDate = fromDate.subtract(const Duration(days: 1));
+                  toDate = toDate.subtract(const Duration(days: 1));
+                  filterStudentReceipts();
+                  filterAdminExpenses();
+                });
+              }
+            },
+            child: ClayButton(
+              depth: 40,
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 100,
+              child: const Padding(
+                padding: EdgeInsets.all(8),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.arrow_left),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (_isSingleDate) const SizedBox(width: 10),
+        Expanded(
+          child: TextButton(
+            onPressed: _showDatePickerDialog,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  _buttonText,
+                  style: GoogleFonts.archivoBlack(
+                    textStyle: const TextStyle(
+                      fontSize: 36,
+                      color: Colors.lightBlue,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
+        if (_isSingleDate) const SizedBox(width: 10),
+        if (_isSingleDate)
+          GestureDetector(
+            onTap: () {
+              if (maximumEndDate.millisecondsSinceEpoch > fromDate.millisecondsSinceEpoch) {
+                setState(() {
+                  fromDate = fromDate.add(const Duration(days: 1));
+                  toDate = toDate.add(const Duration(days: 1));
+                  filterStudentReceipts();
+                  filterAdminExpenses();
+                });
+              }
+            },
+            child: ClayButton(
+              depth: 40,
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 100,
+              child: const Padding(
+                padding: EdgeInsets.all(8),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.center,
+                    child: Icon(Icons.arrow_right),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -696,11 +764,13 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
 
   // Default text on the button
   String get _buttonText {
-    if (convertDateTimeToYYYYMMDDFormat(fromDate) == convertDateTimeToYYYYMMDDFormat(toDate)) {
+    if (_isSingleDate) {
       return convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(fromDate)).replaceAll("\n", " ");
     }
     return '${convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(fromDate)).replaceAll("\n", " ")} - ${convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(toDate)).replaceAll("\n", " ")}';
   }
+
+  bool get _isSingleDate => convertDateTimeToYYYYMMDDFormat(fromDate) == convertDateTimeToYYYYMMDDFormat(toDate);
 
   // Method to show the DatePicker dialog
   void _showDatePickerDialog() {

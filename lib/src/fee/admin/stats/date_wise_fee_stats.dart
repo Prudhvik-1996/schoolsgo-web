@@ -32,12 +32,14 @@ class DateWiseReceiptStats extends StatefulWidget {
     required this.studentFeeReceipts,
     required this.routeStopWiseStudents,
     required this.isDefaultGraphView,
+    required this.showAllDates,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
   final List<StudentFeeReceipt>? studentFeeReceipts;
   final List<RouteStopWiseStudent>? routeStopWiseStudents;
   final bool isDefaultGraphView;
+  final bool showAllDates;
 
   @override
   State<DateWiseReceiptStats> createState() => _DateWiseReceiptStatsState();
@@ -77,6 +79,9 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
     _isGraphView = widget.isDefaultGraphView;
     if (_isGraphView) {
       _showOnlyNonZero = true;
+    }
+    if (widget.showAllDates) {
+      _showOnlyNonZero = false;
     }
     _loadData();
     if (studentFeeReceipts.isEmpty) return;

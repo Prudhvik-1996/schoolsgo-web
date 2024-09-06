@@ -45,6 +45,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int? totalNoOfEmployees;
   int? totalNoOfEmployeesMarkedForAttendance;
   int? totalNoOfEmployeesPresent;
+  int? totalExpensesForTheDay;
 
   bool showStats = true;
 
@@ -156,7 +157,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           ),
         ),
-        if (showStats)
+        if (showStats && !_isLoading)
           AdminStatsWidget(
             context: context,
             totalAcademicFee: totalAcademicFee,
@@ -170,6 +171,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             totalNoOfEmployees: totalNoOfEmployees,
             totalNoOfEmployeesMarkedForAttendance: totalNoOfEmployeesMarkedForAttendance,
             totalNoOfEmployeesPresent: totalNoOfEmployeesPresent,
+            totalExpensesForTheDay: totalExpensesForTheDay,
             adminProfile: widget.adminProfile,
           ),
         Container(
@@ -300,6 +302,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
         totalNoOfEmployees = statsResponse.totalNoOfEmployees;
         totalNoOfEmployeesPresent = statsResponse.totalNoOfEmployeesPresent;
         totalNoOfEmployeesMarkedForAttendance = statsResponse.totalNoOfEmployeesMarkedForAttendance;
+        totalExpensesForTheDay = statsResponse.totalExpensesForTheDay;
       });
     }
     setState(() => _isLoading = false);

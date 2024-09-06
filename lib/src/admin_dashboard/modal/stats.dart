@@ -69,6 +69,7 @@ class GetSchoolWiseStatsResponse {
   int? totalNoOfEmployees;
   int? totalNoOfEmployeesPresent;
   int? totalNoOfEmployeesMarkedForAttendance;
+  int? totalExpensesForTheDay;
   Map<String, dynamic> __origJson = {};
 
   GetSchoolWiseStatsResponse({
@@ -88,6 +89,7 @@ class GetSchoolWiseStatsResponse {
     this.totalNoOfEmployees,
     this.totalNoOfEmployeesPresent,
     this.totalNoOfEmployeesMarkedForAttendance,
+    this.totalExpensesForTheDay,
   });
   GetSchoolWiseStatsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -107,6 +109,7 @@ class GetSchoolWiseStatsResponse {
     totalNoOfEmployees = json['totalNoOfEmployees']?.toInt();
     totalNoOfEmployeesPresent = json['totalNoOfEmployeesPresent']?.toInt();
     totalNoOfEmployeesMarkedForAttendance = json['totalNoOfEmployeesMarkedForAttendance']?.toInt();
+    totalExpensesForTheDay = json['totalExpensesForTheDay']?.toInt();
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -126,6 +129,7 @@ class GetSchoolWiseStatsResponse {
     data['totalNoOfEmployees'] = totalNoOfEmployees;
     data['totalNoOfEmployeesPresent'] = totalNoOfEmployeesPresent;
     data['totalNoOfEmployeesMarkedForAttendance'] = totalNoOfEmployeesMarkedForAttendance;
+    data['totalExpensesForTheDay'] = totalExpensesForTheDay;
     return data;
   }
   Map<String, dynamic> origJson() => __origJson;
