@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/employee_attendance/admin/admin_employee_attendance_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/stats/financial_reports/financial_reports_screen.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
@@ -512,7 +513,7 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                             context,
                             MaterialPageRoute(
                               builder: (context) {
-                                return StatsHome(
+                                return FinancialReportsScreen(
                                   adminProfile: widget.adminProfile,
                                 );
                               },

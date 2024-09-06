@@ -91,8 +91,6 @@ dependencies:
   charts_flutter: ^0.12.0
   restart_app: ^1.1.0
 
-  syncfusion_flutter_datagrid: ^20.4.38
-
   internet_file: ^1.2.0
   pdfx: ^2.3.0
 
@@ -120,6 +118,9 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   flutter_widget_from_html: ^0.9.0
   lazy_data_table: ^0.3.1
+
+  syncfusion_flutter_datepicker: 20.4.38
+  syncfusion_flutter_datagrid: 20.4.38
 
 dev_dependencies:
   flutter_test:

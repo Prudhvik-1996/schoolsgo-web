@@ -597,7 +597,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                 child: SizedBox(
                   height: 150,
                   child: charts.PieChart<String>(
-                    generatePieChartData(studentFeeReceipts),
+                    generatePieChartDataForFee(studentFeeReceipts),
                     animate: true,
                     defaultRenderer: charts.ArcRendererConfig(
                       arcRendererDecorators: [
@@ -888,7 +888,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
   }
 }
 
-List<charts.Series<PaymentSummary, String>> generatePieChartData(List<StudentFeeReceipt> studentFeeReceipts) {
+List<charts.Series<PaymentSummary, String>> generatePieChartDataForFee(List<StudentFeeReceipt> studentFeeReceipts) {
   // Create a map to store the total amounts for each mode of payment
   final paymentMap = <ModeOfPayment, int>{};
 

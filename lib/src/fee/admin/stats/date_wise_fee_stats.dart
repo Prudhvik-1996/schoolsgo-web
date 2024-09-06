@@ -586,7 +586,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
                     ),
                   if (MediaQuery.of(context).orientation == Orientation.landscape) const SizedBox(width: 20),
                   if (MediaQuery.of(context).orientation == Orientation.landscape)
-                    Expanded(flex: 2, child: _modeOfPaymentPieChartWidget(receiptsToBeAccounted)),
+                    Expanded(flex: 2, child: modeOfPaymentPieChartWidget(receiptsToBeAccounted)),
                 ],
               ),
               if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 10),
@@ -598,7 +598,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
               if (MediaQuery.of(context).orientation == Orientation.portrait) const SizedBox(height: 10),
               if (MediaQuery.of(context).orientation == Orientation.portrait)
                 Center(
-                  child: _modeOfPaymentPieChartWidget(receiptsToBeAccounted),
+                  child: modeOfPaymentPieChartWidget(receiptsToBeAccounted),
                 ),
             ],
           ),
@@ -777,7 +777,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
     );
   }
 
-  Widget _modeOfPaymentPieChartWidget(List<StudentFeeReceipt> studentFeeReceipts) {
+  Widget modeOfPaymentPieChartWidget(List<StudentFeeReceipt> studentFeeReceipts) {
     final modeOfPaymentMap = <ModeOfPayment, int>{};
     for (final receipt in studentFeeReceipts) {
       final modeOfPayment = ModeOfPaymentExt.fromString(receipt.modeOfPayment);
@@ -798,7 +798,7 @@ class _DateWiseReceiptStatsState extends State<DateWiseReceiptStats> {
                 child: SizedBox(
                   height: 150,
                   child: charts.PieChart<String>(
-                    generatePieChartData(studentFeeReceipts),
+                    generatePieChartDataForFee(studentFeeReceipts),
                     animate: true,
                     defaultRenderer: charts.ArcRendererConfig(
                       arcRendererDecorators: [

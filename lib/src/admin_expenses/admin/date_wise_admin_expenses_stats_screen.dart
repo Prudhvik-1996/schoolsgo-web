@@ -10,9 +10,11 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class DateWiseAdminExpensesStatsScreen extends StatefulWidget {
   const DateWiseAdminExpensesStatsScreen({
@@ -373,4 +375,46 @@ class DateWiseAmountSpent {
   double amount;
 
   DateWiseAmountSpent(this.date, this.amount);
+}
+
+List<charts.Series<PaymentSummary, String>> generatePieChartDataForAdminExpenses(List<AdminExpenseBean> adminExpenses) {
+  // Create a map to store the total amounts for each mode of payment
+  final paymentMap = <ModeOfPayment, int>{};
+
+  // Calculate the total amounts for each mode of payment
+  for (final expense in adminExpenses) {
+    final modeOfPayment = ModeOfPaymentExt.fromString(expense.modeOfPayment);
+    paymentMap[modeOfPayment] = (paymentMap[modeOfPayment] ?? 0) + (expense.amount ?? 0);
+  }
+
+  // Create a list of PaymentSummary objects from the map
+  final data = paymentMap.entries.map((entry) {
+    final modeOfPayment = entry.key;
+    final totalAmount = entry.value;
+
+    return PaymentSummary(
+      modeOfPayment.description, // Use the modeOfPayment as the category label
+      totalAmount / 100.0, ModeOfPaymentExt.getChartColorForModeOfPayment(modeOfPayment), // Assign a color to each modeOfPayment
+    );
+  }).toList();
+
+  // Create a series for the pie chart
+  return [
+    charts.Series<PaymentSummary, String>(
+      id: 'PaymentSummary',
+      domainFn: (PaymentSummary summary, _) => summary.modeOfPayment,
+      measureFn: (PaymentSummary summary, _) => summary.totalAmount,
+      colorFn: (PaymentSummary summary, _) => summary.color,
+      data: data,
+      labelAccessorFn: (PaymentSummary summary, _) => '$INR_SYMBOL ${doubleToStringAsFixedForINR(summary.totalAmount)}',
+    ),
+  ];
+}
+
+class PaymentSummary {
+  final String modeOfPayment;
+  final double totalAmount;
+  final charts.Color color;
+
+  PaymentSummary(this.modeOfPayment, this.totalAmount, this.color);
 }

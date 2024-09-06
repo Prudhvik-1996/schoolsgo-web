@@ -280,7 +280,6 @@ class _AdminStudentWiseFeeStatsTableState extends State<AdminStudentWiseFeeStats
         dataCellBuilder: (int rowIndex, int columnIndex) {
           int? studentId = studentProfiles[rowIndex].studentId;
           ScrollController _scrollController = ScrollController();
-
           return clayCell(
             child: Scrollbar(
               controller: _scrollController,

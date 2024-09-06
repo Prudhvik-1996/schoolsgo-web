@@ -46,7 +46,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   int? totalNoOfEmployeesMarkedForAttendance;
   int? totalNoOfEmployeesPresent;
 
-  bool showStats = false;
+  bool showStats = true;
 
   @override
   void initState() {
