@@ -436,116 +436,100 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        // color: clayContainerColor(context),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextButton(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return DateWiseReceiptStats(
-                                      adminProfile: widget.adminProfile,
-                                      routeStopWiseStudents: null,
-                                      studentFeeReceipts: null,
-                                      isDefaultGraphView: true,
-                                      showAllDates: true,
-                                    );
-                                  },
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    width: 20,
-                                    height: 20,
-                                    child: const FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Icon(
-                                        Icons.arrow_drop_up,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Today's fee: $INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalFeeCollectedForTheDay ?? 0) / 100.0)} /-",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            TextButton(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return DateWiseAdminExpensesStatsScreen(
-                                      adminProfile: widget.adminProfile,
-                                      adminExpenses: null,
-                                    );
-                                  },
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.shade50,
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    width: 20,
-                                    height: 20,
-                                    child: const FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Icon(
-                                        Icons.arrow_drop_down,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Today's expenses: $INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalExpensesForTheDay ?? 0) / 100.0)} /-",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return DateWiseReceiptStats(
+                              adminProfile: widget.adminProfile,
+                              routeStopWiseStudents: null,
+                              studentFeeReceipts: null,
+                              isDefaultGraphView: true,
+                              showAllDates: true,
+                            );
+                          },
                         ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            width: 20,
+                            height: 20,
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Icon(
+                                Icons.arrow_drop_up,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Today's fee: $INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalFeeCollectedForTheDay ?? 0) / 100.0)} /-",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return DateWiseAdminExpensesStatsScreen(
+                              adminProfile: widget.adminProfile,
+                              adminExpenses: null,
+                            );
+                          },
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            width: 20,
+                            height: 20,
+                            child: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Icon(
+                                Icons.arrow_drop_down,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Today's expenses: $INR_SYMBOL ${doubleToStringAsFixedForINR((widget.totalExpensesForTheDay ?? 0) / 100.0)} /-",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: MediaQuery.of(widget.context).orientation == Orientation.landscape ? null : 10,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 10),
