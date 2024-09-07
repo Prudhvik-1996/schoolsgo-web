@@ -83,7 +83,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
         adminId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
         adminName: widget.adminProfile?.firstName ?? widget.receptionistProfile?.userName,
         adminPhotoUrl: widget.adminProfile?.adminPhotoUrl,
-        transactionTime: DateTime.now().millisecondsSinceEpoch,
+        transactionTime: null,
         adminExpenseReceiptsList: [],
         status: "active",
       )..isEditMode = true;
@@ -583,7 +583,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
 
   Row buildTransactionTimeWidget(AdminExpenseBean eachExpense) {
     String txnDate = eachExpense.transactionTime == null
-        ? "-"
+        ? convertDateTimeToDDMMYYYYFormat(DateTime.now())
         : convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime!)))
             .replaceAll("\n", " ");
     return Row(
@@ -1089,7 +1089,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   ..status = eachExpense.status
                   ..modeOfPayment = eachExpense.modeOfPayment
                   ..transactionId = eachExpense.transactionId
-                  ..transactionTime = eachExpense.transactionTime
+                  ..transactionTime = eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch
                   ..adminExpenseReceiptsList = eachExpense.adminExpenseReceiptsList
                       ?.where(
                           (eachReceipt) => eachReceipt != null && !const DeepCollectionEquality().equals(eachReceipt.toJson(), eachReceipt.origJson))
@@ -1107,6 +1107,11 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   });
                   return;
                 } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Changes updated successfully.."),
+                    ),
+                  );
                   await _loadData();
                 }
               },
@@ -1125,7 +1130,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                       adminId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
                       adminName: widget.adminProfile?.firstName ?? widget.receptionistProfile?.userName,
                       adminPhotoUrl: widget.adminProfile?.adminPhotoUrl,
-                      transactionTime: DateTime.now().millisecondsSinceEpoch,
+                      transactionTime: null,
                       adminExpenseReceiptsList: [],
                       status: "active",
                     )..isEditMode = true;
