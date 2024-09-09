@@ -635,13 +635,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
 
   void populateAdminExpensesDataInExcel(Excel excel, List<AdminExpenseBean> adminExpenses) {
     Sheet sheet = excel['Admin Expenses'];
-    var headers = [
-      'Date',
-      'Expense Type',
-      'Expense Description',
-      'Amount',
-      'Admin',
-    ];
+    var headers = ['Date', 'Voucher No.', 'Expense Type', 'Expense Description', 'Amount', 'Employee Name', 'Transacted from'];
 
     int rowIndex = 0;
 
@@ -676,10 +670,12 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
     for (AdminExpenseBean expense in adminExpenses) {
       sheet.appendRow([
         convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(expense.transactionTime!)),
+        expense.receiptId ?? '',
         expense.expenseType,
         expense.description,
         (expense.amount ?? 0) / 100.0,
         expense.adminName,
+        expense.getIsPocketTransaction() ? "Wallet" : "School Account",
       ]);
       rowIndex++;
     }
@@ -983,11 +979,13 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
     double defaultCellWidth = 150;
     double defaultCellHeight = 40;
     List<LazyColumn> columns = [
+      LazyColumn("Voucher No.", true, 100),
       LazyColumn("Expense Type", true, 200),
       LazyColumn("Expense Description", true, 300),
       LazyColumn("Amount", true, 100),
       LazyColumn("Mode Of Payment", true, defaultCellWidth),
-      LazyColumn("Admin Name", true, 200),
+      LazyColumn("Employee Name", true, 200),
+      LazyColumn("Transacted from", true, 200),
     ];
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -1044,6 +1042,9 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
           String cellText = "";
           LazyColumn column = columns.where((e) => e.isVisible).toList()[columnIndex];
           switch (column.columnName) {
+            case "Voucher No.":
+              cellText = "${expense.receiptId ?? "-"}";
+              break;
             case "Expense Type":
               cellText = expense.expenseType ?? "-";
               break;
@@ -1056,8 +1057,11 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
             case "Mode Of Payment":
               cellText = ModeOfPaymentExt.fromString(expense.modeOfPayment ?? "-").description;
               break;
-            case "Admin":
+            case "Employee Name":
               cellText = expense.adminName ?? "-";
+              break;
+            case "Transacted from":
+              cellText = expense.getIsPocketTransaction() ? "Wallet" : "School Account";
               break;
             default:
               cellText = "-";

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_calendar/academic_calendar_screen.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_options_screen.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_options_screen.dart';
 
 // import 'package:provider/provider.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
@@ -201,34 +202,39 @@ class _MyAppState extends State<MyApp> {
     return AnimatedBuilder(
       animation: widget.settingsController,
       builder: (BuildContext context, Widget? child) {
-        return MaterialApp(
-          title: "Epsilon Diary",
-          debugShowCheckedModeBanner: false,
-          restorationScopeId: 'app',
-          theme: ThemeData(
-            textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
-              bodyColor: Colors.black,
-              displayColor: Colors.black,
-            ),
-          ),
-          darkTheme: ThemeData.dark().copyWith(
-            textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
-            ),
-          ),
-          themeMode: widget.settingsController.themeMode,
-          onUnknownRoute: (RouteSettings routeSettings) {
-            return MaterialPageRoute<void>(
-                settings: routeSettings,
-                builder: (BuildContext context) {
-                  return const E404NotFoundScreen();
-                });
+        return WillPopScope(
+          onWillPop: () async {
+            return false;
           },
-          onGenerateRoute: (RouteSettings routeSettings) {
-            debugPrint("225 ${routeSettings.name}");
-            return buildCustomMaterialPageRoute(routeSettings);
-          },
+          child: MaterialApp(
+            title: "Epsilon Diary",
+            debugShowCheckedModeBanner: false,
+            restorationScopeId: 'app',
+            theme: ThemeData(
+              textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
+                bodyColor: Colors.black,
+                displayColor: Colors.black,
+              ),
+            ),
+            darkTheme: ThemeData.dark().copyWith(
+              textTheme: textThemesMap[widget.settingsController.textTheme]!.apply(
+                bodyColor: Colors.white,
+                displayColor: Colors.white,
+              ),
+            ),
+            themeMode: widget.settingsController.themeMode,
+            onUnknownRoute: (RouteSettings routeSettings) {
+              return MaterialPageRoute<void>(
+                  settings: routeSettings,
+                  builder: (BuildContext context) {
+                    return const E404NotFoundScreen();
+                  });
+            },
+            onGenerateRoute: (RouteSettings routeSettings) {
+              debugPrint("225 ${routeSettings.name}");
+              return buildCustomMaterialPageRoute(routeSettings);
+            },
+          ),
         );
       },
     );
@@ -791,11 +797,11 @@ class _MyAppState extends State<MyApp> {
             }
           // }
 
-          case AdminExpenseScreenAdminView.routeName:
+          case AdminExpensesOptionsScreen.routeName:
             if (routeSettings.arguments is OtherUserRoleProfile && (routeSettings.arguments as OtherUserRoleProfile).roleId == 8) {
               try {
                 var argument = (routeSettings.arguments as OtherUserRoleProfile);
-                return AdminExpenseScreenAdminView(
+                return AdminExpensesOptionsScreen(
                   receptionistProfile: argument,
                 );
               } catch (e) {
@@ -804,7 +810,7 @@ class _MyAppState extends State<MyApp> {
             } else {
               try {
                 var argument = (routeSettings.arguments as AdminProfile);
-                return AdminExpenseScreenAdminView(
+                return AdminExpensesOptionsScreen(
                   adminProfile: argument,
                 );
               } catch (e) {

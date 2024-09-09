@@ -13,6 +13,7 @@ import 'package:schoolsgo_web/src/common_components/pie_chart/widget/pie_chart_s
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/ledger/modal/ledger.dart';
+import 'package:schoolsgo_web/src/ledger/modal/transaction_type.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -142,8 +143,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
               Container(
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  // gradient: transaction.transactionKind == "CR"
+                  borderRadius: BorderRadius.circular(5), // gradient: transaction.transactionKind == "CR"
                   //     ? LinearGradient(
                   //         begin: Alignment.topCenter,
                   //         end: Alignment.bottomCenter,
@@ -164,7 +164,11 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                   //           clayContainerColor(context),
                   //         ],
                   //       ),
-                  color: transaction.transactionKind == "CR" ? Colors.green.shade300 : Colors.amber.shade300,
+                  color: transaction.transactionKind == "CR"
+                      ? Colors.green.shade300
+                      : transaction.transactionKind == "DB"
+                          ? Colors.amber.shade300
+                          : null,
                 ),
                 child: _parentTransactionRow(transaction),
               ),
@@ -841,7 +845,7 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      (eachTxn.transactionType ?? "-").replaceAll("_", " "),
+                      TransactionTypeExt.fromString(eachTxn.transactionType).description,
                       style: TextStyle(
                         fontSize: 18,
                         color: eachTxn.status == "inactive" ? clayContainerColor(context) : Colors.blue,
@@ -888,25 +892,28 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
                   const SizedBox(
                     width: 25,
                   ),
-                  Text(
-                    INR_SYMBOL + " " + (eachTxn.amount == null ? "-" : doubleToStringAsFixedForINR(eachTxn.amount! / 100, decimalPlaces: 2)),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  if ((eachTxn.amount ?? 0) != 0)
+                    Text(
+                      INR_SYMBOL + " " + (eachTxn.amount == null ? "-" : doubleToStringAsFixedForINR(eachTxn.amount! / 100, decimalPlaces: 2)),
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  eachTxn.transactionKind == "CR"
-                      ? const Icon(
-                          Icons.arrow_drop_up_outlined,
-                          color: Colors.green,
-                        )
-                      : const Icon(
-                          Icons.arrow_drop_down_outlined,
-                          color: Colors.red,
-                        ),
+                  if ((eachTxn.amount ?? 0) != 0)
+                    const SizedBox(
+                      width: 5,
+                    ),
+                  if ((eachTxn.amount ?? 0) != 0)
+                    eachTxn.transactionKind == "CR"
+                        ? const Icon(
+                            Icons.arrow_drop_up_outlined,
+                            color: Colors.green,
+                          )
+                        : const Icon(
+                            Icons.arrow_drop_down_outlined,
+                            color: Colors.red,
+                          ),
                   const SizedBox(
                     width: 10,
                   ),

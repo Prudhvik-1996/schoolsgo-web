@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:html' as html;
-import 'dart:html';
 import 'dart:ui' as ui;
 
 import 'package:clay_containers/widgets/clay_container.dart';
@@ -13,6 +12,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_creation_in_bulk.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/date_wise_admin_expenses_stats_screen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
+import 'package:schoolsgo_web/src/admin_expenses/modal/pocket_balances.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
@@ -36,8 +36,6 @@ class AdminExpenseScreenAdminView extends StatefulWidget {
   final AdminProfile? adminProfile;
   final OtherUserRoleProfile? receptionistProfile;
 
-  static const String routeName = "/admin_expenses";
-
   @override
   State<AdminExpenseScreenAdminView> createState() => _AdminExpenseScreenAdminViewState();
 }
@@ -47,6 +45,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   bool _isLoading = true;
 
   List<AdminExpenseBean> adminExpenses = [];
+  late PocketBalanceBean pocketBalanceBean;
   bool isEditMode = false;
   bool isAddNew = false;
   late AdminExpenseBean newAdminExpenseBean;
@@ -54,7 +53,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   String? _reportDownloadStatus;
   final ScrollController _scrollViewController = ScrollController();
   double headerHeight = 200;
-  List<String> uniqueExpenseTypes = [];
+  Set<String> uniqueExpenseTypes = {};
 
   String? _uploadingFile;
   double? _fileUploadProgress;
@@ -115,6 +114,26 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       });
       _loadExpenseTypes();
     }
+    GetPocketBalancesResponse getPocketBalancesResponse = await getPocketBalances(GetPocketBalancesRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+      employeeId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+    ));
+    if (getPocketBalancesResponse.httpStatus != "OK" || getPocketBalancesResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      pocketBalanceBean = getPocketBalancesResponse.pocketBalanceBeanList?.firstOrNull ??
+          PocketBalanceBean(
+            employeeId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+            schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+            employeeName: widget.adminProfile?.firstName ?? widget.receptionistProfile?.userName,
+            balanceAmount: 0,
+            lastTransactionDate: null,
+          );
+    }
     setState(() {
       _isLoading = false;
     });
@@ -122,7 +141,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
 
   _loadExpenseTypes() {
     setState(() {
-      uniqueExpenseTypes = adminExpenses.map((e) => e.expenseType ?? "-").where((e) => e != "-").toList();
+      uniqueExpenseTypes = adminExpenses.map((e) => e.expenseType ?? "-").where((e) => e != "-").toList().toSet();
     });
   }
 
@@ -165,8 +184,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           // : ListView(
           //     children: [
           //           const SizedBox(
-          //             height: 10,
-          //           ),
+          //             height: 10       //           ),
           //           _adminExpenseReadModeHeaderWidget(),
           //         ] +
           //         adminExpenses.map((e) => e.isEditMode ? _adminExpenseEditModeWidget(e) : _adminExpenseReadModeWidget(e)).toList(),
@@ -183,9 +201,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
               mainAxisSize: MainAxisSize.min,
               children: [
                 buildAddNewButton(),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 10),
                 buildEditButton(),
               ],
             )
@@ -348,116 +364,179 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
         color: clayContainerColor(context),
         spread: 2,
         borderRadius: 10,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Text(
-                      eachExpense.expenseType ?? "-",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.blue,
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: buildReadModeExpenseVoucherWidget(eachExpense),
                       ),
-                    ),
+                      if (canEdit)
+                        const SizedBox(
+                          width: 10,
+                        ),
+                      if (canEdit) buildEditButtonForExpense(eachExpense),
+                      if (canEdit)
+                        const SizedBox(
+                          width: 10,
+                        ),
+                    ],
                   ),
-                  if (canEdit)
-                    const SizedBox(
-                      width: 10,
-                    ),
-                  if (canEdit) buildEditButtonForExpense(eachExpense),
-                  if (canEdit)
-                    const SizedBox(
-                      width: 10,
-                    ),
-                ],
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: buildReadModeExpenseTypeWidget(eachExpense)),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: buildReadModeExpenseDescriptionWidget(eachExpense),
+                      ),
+                      buildReadModeExpenseAmountWidget(eachExpense),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  if ((eachExpense.adminExpenseReceiptsList ?? []).isNotEmpty)
+                    Row(
                       children: [
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                eachExpense.description ?? "-",
-                                style: const TextStyle(fontSize: 14),
-                                textAlign: (eachExpense.description ?? "").length > 120 ? TextAlign.justify : TextAlign.left,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          // height: 150,
-                          padding: const EdgeInsets.all(10),
-                          margin: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-                          child: GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 5,
-                              crossAxisSpacing: 5.0,
-                              mainAxisSpacing: 5.0,
-                            ),
-                            itemCount: (eachExpense.adminExpenseReceiptsList ?? []).where((i) => i!.status != 'inactive').toList().length,
-                            itemBuilder: (context, index) {
-                              return buildMediaForReadMode(eachExpense, index);
-                            },
-                          ),
-                        ),
+                        const SizedBox(width: 10),
+                        Expanded(child: buildReadModeExpenseMedia(eachExpense)),
+                        const SizedBox(width: 10),
                       ],
                     ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  Text(
-                    INR_SYMBOL + " " + (eachExpense.amount == null ? "-" : doubleToStringAsFixed(eachExpense.amount! / 100, decimalPlaces: 2)),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  if ((eachExpense.adminExpenseReceiptsList ?? []).isNotEmpty) const SizedBox(height: 10),
+                  if (eachExpense.comments != null)
+                    Row(
+                      children: [
+                        Expanded(child: buildReadModeExpenseCommentsWidget(eachExpense)),
+                      ],
                     ),
+                  if (eachExpense.comments != null) const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: buildReadModeExpenseModeOfPaymentWidget(eachExpense)),
+                      const SizedBox(width: 10),
+                      buildReadModeExpenseDateOfPaymentWidget(eachExpense),
+                    ],
                   ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  const Icon(
-                    Icons.arrow_drop_down_outlined,
-                    color: Colors.red,
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(height: 10),
                 ],
               ),
-              buildTransactionTimeWidget(eachExpense),
-              const SizedBox(
-                height: 10,
+            ),
+            if (eachExpense.getIsPocketTransaction()) const SizedBox(height: 10),
+            if (eachExpense.getIsPocketTransaction())
+              Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  color: Colors.yellow,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          "This expense is spent from ${eachExpense.adminName ?? "-"}'s Wallet",
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Row buildReadModeExpenseAmountWidget(AdminExpenseBean eachExpense) {
+    return Row(
+      children: [
+        Text(
+          INR_SYMBOL + " " + (eachExpense.amount == null ? "-" : doubleToStringAsFixed(eachExpense.amount! / 100, decimalPlaces: 2)),
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
+        const SizedBox(
+          width: 5,
+        ),
+        const Icon(
+          Icons.arrow_drop_down_outlined,
+          color: Colors.red,
+        ),
+      ],
+    );
+  }
+
+  Widget buildReadModeExpenseMedia(AdminExpenseBean eachExpense) {
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5,
+        crossAxisSpacing: 5.0,
+        mainAxisSpacing: 5.0,
+      ),
+      itemCount: (eachExpense.adminExpenseReceiptsList ?? []).where((i) => i!.status != 'inactive').toList().length,
+      itemBuilder: (context, index) {
+        return buildMediaForReadMode(eachExpense, index);
+      },
+    );
+  }
+
+  Widget buildReadModeExpenseVoucherWidget(AdminExpenseBean eachExpense) {
+    return Text(
+      "Voucher No. ${eachExpense.receiptId ?? "-"}",
+      style: const TextStyle(color: Colors.red),
+    );
+  }
+
+  Text buildReadModeExpenseCommentsWidget(AdminExpenseBean eachExpense) {
+    return Text(
+      "Comments: ${eachExpense.comments ?? "-"}",
+      style: const TextStyle(fontSize: 12),
+      textAlign: (eachExpense.description ?? "").length > 120 ? TextAlign.justify : TextAlign.left,
+    );
+  }
+
+  Text buildReadModeExpenseDescriptionWidget(AdminExpenseBean eachExpense) {
+    return Text(
+      eachExpense.description ?? "-",
+      style: const TextStyle(fontSize: 14),
+      textAlign: (eachExpense.description ?? "").length > 120 ? TextAlign.justify : TextAlign.left,
+    );
+  }
+
+  Widget buildReadModeExpenseTypeWidget(AdminExpenseBean eachExpense) {
+    return Text(
+      eachExpense.expenseType ?? "-",
+      style: const TextStyle(
+        color: Colors.blue,
       ),
     );
   }
@@ -477,34 +556,23 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Expanded(
-                    // child: buildExpenseTypeTextField(eachExpense),
-                    // child: buildAutoCompleteExpenseTypeTextField(eachExpense),
-                    child: buildSimpleAutoCompleteTextFieldForExpenseType(eachExpense),
+                    child: buildVoucherTextField(eachExpense),
                   ),
-                  if (eachExpense.adminExpenseId != null)
-                    const SizedBox(
-                      width: 10,
-                    ),
+                  if (eachExpense.adminExpenseId != null) const SizedBox(width: 10),
                   if (eachExpense.adminExpenseId != null) buildDeleteButtonForExpense(eachExpense),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   buildEditButtonForExpense(eachExpense),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                 ],
               ),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(height: 10),
+              buildSimpleAutoCompleteTextFieldForExpenseType(eachExpense),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
@@ -513,9 +581,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -524,9 +590,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                             ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         Container(
                           // height: 150,
                           padding: const EdgeInsets.all(10),
@@ -565,15 +629,45 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                     Icons.arrow_drop_down_outlined,
                     color: Colors.red,
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                 ],
               ),
-              buildTransactionTimeWidget(eachExpense),
-              const SizedBox(
-                height: 10,
+              const SizedBox(height: 10),
+              buildCommentsTextField(eachExpense),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: buildEditModeExpenseModeOfPaymentWidget(eachExpense)),
+                  const SizedBox(width: 10),
+                  buildExpenseDatePicker(eachExpense),
+                  const SizedBox(width: 10),
+                  buildExpenseTimePicker(eachExpense),
+                  const SizedBox(width: 10),
+                ],
               ),
+              const SizedBox(height: 10),
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                value: (eachExpense.isPocketTransaction ?? "N") == "Y",
+                onChanged: (bool? newValue) {
+                  if (!(eachExpense.getIsPocketTransaction()) && (newValue ?? false) && (pocketBalanceBean.balanceAmount ?? 0) < (eachExpense.amount ?? 0)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("You do not have enough balance to pay for this expense.."),
+                      ),
+                    );
+                    return;
+                  }
+                  setState(() {
+                    eachExpense.isPocketTransaction = newValue ?? false ? "Y" : "N";
+                  });
+                },
+                title: Text(
+                  "Paying from ${eachExpense.adminName ?? "-"}'s Wallet\nCurrent Balance: $INR_SYMBOL ${(pocketBalanceBean.balanceAmount ?? 0) / 100} /-",
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -581,71 +675,105 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     );
   }
 
-  Row buildTransactionTimeWidget(AdminExpenseBean eachExpense) {
+  Widget buildExpenseTimePicker(AdminExpenseBean eachExpense) {
+    return GestureDetector(
+      onTap: () async {
+        HapticFeedback.vibrate();
+        TimeOfDay? expenseTimePicker = await showTimePicker(
+          context: context,
+          initialTime:
+              convertDateTimeToTimeOfDay(DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch)),
+        );
+        if (expenseTimePicker == null) return;
+        DateTime existingDate = DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch);
+        DateTime newDateTime = DateTime(existingDate.year, existingDate.month, existingDate.day, expenseTimePicker.hour, expenseTimePicker.minute);
+        setState(() {
+          eachExpense.transactionTime = newDateTime.millisecondsSinceEpoch;
+        });
+      },
+      child: ClayButton(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        borderRadius: 10,
+        spread: 1,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            convertDateTimeToHHMMA(DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildExpenseDatePicker(AdminExpenseBean eachExpense) {
     String txnDate = eachExpense.transactionTime == null
         ? convertDateTimeToDDMMYYYYFormat(DateTime.now())
         : convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime!)))
             .replaceAll("\n", " ");
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        if (isEditMode && eachExpense.isEditMode)
-          InkWell(
-            onTap: () async {
-              DateTime? _newDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now().subtract(const Duration(days: 364)),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
-                helpText: "Select a date",
-              );
-              if (_newDate == null) return;
-              setState(() {
-                eachExpense.transactionTime = _newDate.millisecondsSinceEpoch;
-              });
-            },
-            child: ClayButton(
-              surfaceColor: clayContainerColor(context),
-              parentColor: clayContainerColor(context),
-              borderRadius: 10,
-              spread: 1,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(txnDate),
-              ),
-            ),
-          )
-        else
-          Text(txnDate),
-        const Expanded(child: Text("")),
-        if (isEditMode && eachExpense.isEditMode)
-          DropdownButton<String>(
-            value: eachExpense.modeOfPayment ?? ModeOfPayment.CASH.name,
-            items: ModeOfPayment.values
-                .map((e) => DropdownMenuItem<String>(
-                      value: e.name,
-                      child: Text(e.description),
-                      onTap: () {
-                        setState(() {
-                          eachExpense.modeOfPayment = e.name;
-                        });
-                      },
-                    ))
-                .toList(),
-            onChanged: (String? e) {
-              e ??= ModeOfPayment.CASH.name;
-              setState(() {
-                eachExpense.modeOfPayment = e;
-              });
-            },
-          )
-        else
-          Text(
-            ModeOfPaymentExt.fromString(eachExpense.modeOfPayment ?? "CASH").description,
-            style: const TextStyle(color: Colors.blue),
-          ),
-      ],
+    return InkWell(
+      onTap: () async {
+        DateTime? _newDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime.now().subtract(const Duration(days: 364)),
+          lastDate: DateTime.now().add(const Duration(days: 365)),
+          helpText: "Select a date",
+        );
+        if (_newDate == null) return;
+        int existingMillis = eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch;
+        TimeOfDay existingTime = convertDateTimeToTimeOfDay(DateTime.fromMillisecondsSinceEpoch(existingMillis));
+        _newDate = DateTime(_newDate.year, _newDate.month, _newDate.day, existingTime.hour, existingTime.minute);
+        setState(() {
+          eachExpense.transactionTime = _newDate!.millisecondsSinceEpoch;
+        });
+      },
+      child: ClayButton(
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        borderRadius: 10,
+        spread: 1,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(txnDate),
+        ),
+      ),
+    );
+  }
+
+  Widget buildReadModeExpenseDateOfPaymentWidget(AdminExpenseBean eachExpense) {
+    DateTime txnDateTime = eachExpense.transactionTime == null ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime!);
+    String txnDate = convertEpochToDDMMYYYYEEEEHHMMAA(txnDateTime.millisecondsSinceEpoch);
+    return Text(txnDate);
+  }
+
+  Widget buildEditModeExpenseModeOfPaymentWidget(AdminExpenseBean eachExpense) {
+    return DropdownButton<String>(
+      value: eachExpense.modeOfPayment ?? ModeOfPayment.CASH.name,
+      items: ModeOfPayment.values
+          .map((e) => DropdownMenuItem<String>(
+                value: e.name,
+                child: Text(e.description),
+                onTap: () {
+                  setState(() {
+                    eachExpense.modeOfPayment = e.name;
+                  });
+                },
+              ))
+          .toList(),
+      onChanged: (String? e) {
+        e ??= ModeOfPayment.CASH.name;
+        setState(() {
+          eachExpense.modeOfPayment = e;
+        });
+      },
+    );
+  }
+
+  Text buildReadModeExpenseModeOfPaymentWidget(AdminExpenseBean eachExpense) {
+    return Text(
+      ModeOfPaymentExt.fromString(eachExpense.modeOfPayment ?? "CASH").description,
+      style: const TextStyle(color: Colors.blue),
     );
   }
 
@@ -835,23 +963,17 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   expense.description ?? "-",
                 ),
               ),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   InkWell(
                     child: const Icon(Icons.download_rounded),
                     onTap: () {
@@ -863,9 +985,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                       );
                     },
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   InkWell(
                     child: const Icon(Icons.open_in_new),
                     onTap: () {
@@ -875,9 +995,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                       );
                     },
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                 ],
               )
             ],
@@ -1043,7 +1161,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     List<int> bytes = await getAdminExpensesReport(GetAdminExpensesRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
     ));
-    AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+    html.AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
       ..setAttribute("download", reportName!)
       ..click();
     setState(() {
@@ -1089,7 +1207,10 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   ..status = eachExpense.status
                   ..modeOfPayment = eachExpense.modeOfPayment
                   ..transactionId = eachExpense.transactionId
+                  ..comments = eachExpense.comments
+                  ..receiptId = eachExpense.receiptId
                   ..transactionTime = eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch
+                  ..isPocketTransaction = eachExpense.isPocketTransaction
                   ..adminExpenseReceiptsList = eachExpense.adminExpenseReceiptsList
                       ?.where(
                           (eachReceipt) => eachReceipt != null && !const DeepCollectionEquality().equals(eachReceipt.toJson(), eachReceipt.origJson))
@@ -1236,7 +1357,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     return EasyAutocomplete(
       autofocus: true,
       controller: eachExpense.expenseTypeController,
-      suggestions: uniqueExpenseTypes,
+      suggestions: uniqueExpenseTypes.toList(),
       decoration: InputDecoration(
         border: const UnderlineInputBorder(),
         focusedBorder: const OutlineInputBorder(
@@ -1273,10 +1394,87 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     );
   }
 
-  TextField buildDescriptionTextField(AdminExpenseBean eachExpense) {
+  Widget buildVoucherTextField(AdminExpenseBean eachExpense) {
+    return TextField(
+      controller: eachExpense.receiptIdController,
+      keyboardType: TextInputType.number,
+      maxLines: null,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+        border: UnderlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        labelText: 'Voucher No.',
+        hintText: 'Voucher No.',
+      ),
+      style: const TextStyle(
+        fontSize: 12,
+      ),
+      inputFormatters: [
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          try {
+            final text = newValue.text;
+            if (text.isNotEmpty) int.parse(text);
+            return newValue;
+          } catch (e) {
+            debugPrintStack();
+          }
+          return oldValue;
+        }),
+      ],
+      textAlign: TextAlign.left,
+      autofocus: true,
+      onChanged: (String e) {
+        print("1352: $e");
+        if (e.trim() == "") {
+          setState(() {
+            eachExpense.receiptId = null;
+          });
+        }
+        print("1358: $e");
+        if (int.tryParse(e) == null) return;
+        print("1360: $e");
+        setState(() {
+          eachExpense.receiptId = int.parse(e);
+        });
+        print("1364: $e");
+      },
+    );
+  }
+
+  Widget buildCommentsTextField(AdminExpenseBean eachExpense) {
+    return TextField(
+      controller: eachExpense.commentsController,
+      keyboardType: TextInputType.multiline,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+        border: UnderlineInputBorder(),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderSide: BorderSide(color: Colors.blue),
+        ),
+        labelText: 'Comments',
+        hintText: 'Comments',
+      ),
+      style: const TextStyle(
+        fontSize: 12,
+      ),
+      autofocus: true,
+      onChanged: (String e) {
+        setState(() {
+          eachExpense.comments = e;
+        });
+      },
+    );
+  }
+
+  Widget buildDescriptionTextField(AdminExpenseBean eachExpense) {
     return TextField(
       controller: eachExpense.descriptionController,
       keyboardType: TextInputType.multiline,
+      minLines: 2,
       maxLines: null,
       decoration: const InputDecoration(
         contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),

@@ -154,6 +154,9 @@ const String GET_TRANSACTIONS = "/ledger/getTransactions";
 const String GET_ADMIN_EXPENSES = "/ledger/getAdminExpenses";
 const String CREATE_OR_UPDATE_ADMIN_EXPENSE = "/ledger/createOrUpdateAdminExpense";
 const String CREATE_OR_UPDATE_ADMIN_EXPENSES = "/ledger/createOrUpdateAdminExpenses";
+const String GET_POCKET_BALANCES = "/ledger/getPocketBalances";
+const String GET_POCKET_TRANSACTIONS = "/ledger/getPocketTransactions";
+const String CREATE_OR_UPDATE_POCKET_TRANSACTION = "/ledger/createOrUpdatePocketTransaction";
 
 const String GET_CHATS = "/chats/getChats";
 const String CREATE_OR_UPDATE_CHAT = "/chats/createOrUpdateChat";

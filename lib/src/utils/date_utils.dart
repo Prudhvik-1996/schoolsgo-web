@@ -312,3 +312,11 @@ DateTime maxDate(List<DateTime> dates) {
 
   return max;
 }
+
+TimeOfDay convertDateTimeToTimeOfDay(DateTime dateTime) {
+  return TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
+}
+
+String convertDateTimeToHHMMA(DateTime dateTime) {
+  return DateFormat("hh:mm a").format(dateTime).toLowerCase();
+}

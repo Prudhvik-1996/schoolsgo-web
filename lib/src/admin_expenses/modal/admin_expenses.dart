@@ -154,6 +154,8 @@ class AdminExpenseBean {
   TextEditingController expenseTypeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController amountController = TextEditingController();
+  TextEditingController receiptIdController = TextEditingController();
+  TextEditingController commentsController = TextEditingController();
 
   int? adminExpenseId;
   List<AdminExpenseReceiptBean?>? adminExpenseReceiptsList;
@@ -173,6 +175,9 @@ class AdminExpenseBean {
   int? transactionTime;
   int? agent;
   String? modeOfPayment;
+  int? receiptId;
+  String? comments;
+  String? isPocketTransaction;
   Map<String, dynamic> __origJson = {};
 
   AdminExpenseBean({
@@ -194,11 +199,18 @@ class AdminExpenseBean {
     this.transactionTime,
     this.agent,
     this.modeOfPayment,
+    this.receiptId,
+    this.comments,
+    this.isPocketTransaction,
   }) {
     expenseTypeController.text = expenseType ?? "";
     descriptionController.text = description ?? "";
     amountController.text = amount == null ? "" : doubleToStringAsFixed(amount! / 100.0, decimalPlaces: 2);
+    receiptIdController.text = "${receiptId ?? ""}";
+    commentsController.text = comments ?? "";
   }
+
+  bool getIsPocketTransaction () => (isPocketTransaction ?? "N") == "Y";
 
   String? get errorTextForExpenseType {
     if ((expenseType ?? "").trim().isEmpty) {
@@ -244,6 +256,11 @@ class AdminExpenseBean {
     transactionTime = json['transactionTime']?.toInt();
     agent = json['agent']?.toInt();
     modeOfPayment = json['modeOfPayment']?.toString();
+    receiptId = json['receiptId']?.toInt();
+    comments = json['comments']?.toString();
+    isPocketTransaction = json['isPocketTransaction']?.toString() ?? "N";
+    receiptIdController.text = "${receiptId ?? ""}";
+    commentsController.text = comments ?? "";
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -272,6 +289,9 @@ class AdminExpenseBean {
     data['transactionTime'] = transactionTime;
     data['agent'] = agent;
     data['modeOfPayment'] = modeOfPayment;
+    data['receiptId'] = receiptId;
+    data['comments'] = comments;
+    data['isPocketTransaction'] = isPocketTransaction;
     return data;
   }
 

@@ -366,14 +366,13 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(width: 10),
-              if (MediaQuery.of(widget.context).orientation == Orientation.landscape)
-                Image.asset(
-                  "assets/images/INR_symbol.png",
-                  fit: BoxFit.scaleDown,
-                  height: 100,
-                ),
               if (MediaQuery.of(widget.context).orientation == Orientation.landscape) const SizedBox(width: 10),
+              Image.asset(
+                "assets/images/INR_symbol.png",
+                fit: BoxFit.scaleDown,
+                height: MediaQuery.of(widget.context).orientation == Orientation.landscape ? 100 : 50,
+              ),
+              const SizedBox(width: 10),
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -485,7 +484,7 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    if (MediaQuery.of(context).orientation == Orientation.landscape) const SizedBox(height: 5),
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
@@ -532,7 +531,7 @@ class _AdminStatsWidgetState extends State<AdminStatsWidget> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    if (MediaQuery.of(context).orientation == Orientation.landscape) const SizedBox(height: 10) else const SizedBox(height: 5),
                     InkWell(
                       onTap: () {
                         Navigator.push(

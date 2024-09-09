@@ -54,7 +54,7 @@ class _AdminExpensesForSelectedDateScreenState extends State<AdminExpensesForSel
       horizontalAlign: HorizontalAlign.Center,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).cellStyle = schoolNameStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 0));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 0));
     rowIndex++;
 
     sheet.appendRow(["Date: ${(convertDateTimeToDDMMYYYYFormat(widget.selectedDate))}"]);
@@ -63,16 +63,18 @@ class _AdminExpensesForSelectedDateScreenState extends State<AdminExpensesForSel
       fontSize: 18,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)).cellStyle = dateStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 1));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 1));
     rowIndex++;
 
     sheet.appendRow([
+      'Voucher No.',
       'Expense Type',
       'Expense Description',
       'Amount',
       'Admin',
+      'Transacted from',
     ]);
-    for (int i = 0; i <= 3; i++) {
+    for (int i = 0; i <= 5; i++) {
       sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
         backgroundColorHex: 'FF000000',
         fontColorHex: 'FFFFFFFF',
@@ -82,10 +84,12 @@ class _AdminExpensesForSelectedDateScreenState extends State<AdminExpensesForSel
 
     for (AdminExpenseBean expense in widget.adminExpenses) {
       sheet.appendRow([
+        "${expense.receiptId ?? ""}",
         expense.expenseType,
         expense.description,
         (expense.amount ?? 0) / 100.0,
         expense.adminName,
+        expense.getIsPocketTransaction() ? "Wallet" : "School Account",
       ]);
       rowIndex++;
     }
@@ -193,19 +197,23 @@ class _AdminExpensesForSelectedDateScreenState extends State<AdminExpensesForSel
               controller: _controller,
               child: DataTable(
                 columns: const [
+                  DataColumn(label: Text('Voucher No.', style: TextStyle(fontWeight: FontWeight.bold))),
                   DataColumn(label: Text('Expense Type', style: TextStyle(fontWeight: FontWeight.bold))),
                   DataColumn(label: Text('Expense Description', style: TextStyle(fontWeight: FontWeight.bold))),
                   DataColumn(label: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold))),
                   DataColumn(label: Text('Admin', style: TextStyle(fontWeight: FontWeight.bold))),
+                  DataColumn(label: Text('Transacted from', style: TextStyle(fontWeight: FontWeight.bold))),
                 ],
                 rows: [
                   ...widget.adminExpenses.map(
                     (eachExpense) => DataRow(
                       cells: [
+                        DataCell(Text("${eachExpense.receiptId ?? "-"}")),
                         DataCell(Text(eachExpense.expenseType ?? "-")),
                         DataCell(Text(eachExpense.description ?? "-")),
                         DataCell(Text("$INR_SYMBOL ${doubleToStringAsFixedForINR((eachExpense.amount ?? 0) / 100)} /-")),
-                        DataCell(Text(eachExpense.adminName ?? "-"))
+                        DataCell(Text(eachExpense.adminName ?? "-")),
+                        DataCell(Text(eachExpense.getIsPocketTransaction() ? "Wallet" : "School Account")),
                       ],
                     ),
                   ),
