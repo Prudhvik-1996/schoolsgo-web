@@ -164,11 +164,14 @@ class PocketTransactionBean {
   int? agent;
   int? amount;
   String? comments;
+  String? expenseType;
+  String? description;
   int? date;
   int? employeeId;
   String? modeOfPayment;
   int? pocketTransactionId;
   String? pocketTransactionType;
+  String? isAdminExpense;
   int? receiptId;
   int? schoolId;
   String? status;
@@ -183,11 +186,14 @@ class PocketTransactionBean {
     this.agent,
     this.amount,
     this.comments,
+    this.expenseType,
+    this.description,
     this.date,
     this.employeeId,
     this.modeOfPayment,
     this.pocketTransactionId,
     this.pocketTransactionType,
+    this.isAdminExpense,
     this.receiptId,
     this.schoolId,
     this.status,
@@ -202,11 +208,14 @@ class PocketTransactionBean {
     agent = json['agent']?.toInt();
     amount = json['amount']?.toInt();
     comments = json['comments']?.toString();
+    expenseType = json['expenseType']?.toString();
+    description = json['description']?.toString();
     date = json['date']?.toInt();
     employeeId = json['employeeId']?.toInt();
     modeOfPayment = json['modeOfPayment']?.toString();
     pocketTransactionId = json['pocketTransactionId']?.toInt();
     pocketTransactionType = json['pocketTransactionType']?.toString();
+    isAdminExpense = json['isAdminExpense']?.toString();
     receiptId = json['receiptId']?.toInt();
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
@@ -222,17 +231,22 @@ class PocketTransactionBean {
     data['agent'] = agent;
     data['amount'] = amount;
     data['comments'] = comments;
+    data['expenseType'] = expenseType;
+    data['description'] = description;
     data['date'] = date;
     data['employeeId'] = employeeId;
     data['modeOfPayment'] = modeOfPayment;
     data['pocketTransactionId'] = pocketTransactionId;
     data['pocketTransactionType'] = pocketTransactionType;
+    data['isAdminExpense'] = isAdminExpense;
     data['receiptId'] = receiptId;
     data['schoolId'] = schoolId;
     data['status'] = status;
     data['transactionId'] = transactionId;
     return data;
   }
+
+  String getExpenseType() => expenseType ?? (pocketTransactionType == "LOAD" ? "Add funds to Employee Wallet" : "Transfer funds to School");
 
   Map<String, dynamic> origJson() => __origJson;
 }

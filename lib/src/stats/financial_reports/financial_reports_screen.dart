@@ -367,7 +367,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  _buttonText,
+                  dateText,
                   style: GoogleFonts.archivoBlack(
                     textStyle: const TextStyle(
                       fontSize: 36,
@@ -492,7 +492,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
     // Append the school name
     sheet.appendRow(["${widget.adminProfile.schoolName}"]);
 
-    sheet.appendRow([_buttonText]);
+    sheet.appendRow([dateText]);
     CellStyle dateStyle = CellStyle(
       bold: true,
       fontSize: 18,
@@ -635,7 +635,16 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
 
   void populateAdminExpensesDataInExcel(Excel excel, List<AdminExpenseBean> adminExpenses) {
     Sheet sheet = excel['Admin Expenses'];
-    var headers = ['Date', 'Voucher No.', 'Expense Type', 'Expense Description', 'Amount', 'Employee Name', 'Transacted from'];
+    var headers = [
+      'Date',
+      'Voucher No.',
+      'Expense Type',
+      'Expense Description',
+      'Amount',
+      'Mode Of Payment',
+      'Employee Name',
+      'Transacted from',
+    ];
 
     int rowIndex = 0;
 
@@ -649,7 +658,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
     sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: headers.length - 1, rowIndex: 0));
     rowIndex++;
 
-    sheet.appendRow([_buttonText]);
+    sheet.appendRow([dateText]);
     CellStyle dateStyle = CellStyle(
       bold: true,
       fontSize: 18,
@@ -674,6 +683,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
         expense.expenseType,
         expense.description,
         (expense.amount ?? 0) / 100.0,
+        ModeOfPaymentExt.fromString(expense.modeOfPayment).description,
         expense.adminName,
         expense.getIsPocketTransaction() ? "Wallet" : "School Account",
       ]);
@@ -759,7 +769,7 @@ class _FinancialReportsScreenState extends State<FinancialReportsScreen> {
   }
 
   // Default text on the button
-  String get _buttonText {
+  String get dateText {
     if (_isSingleDate) {
       return convertDateToDDMMMYYYY(convertDateTimeToYYYYMMDDFormat(fromDate)).replaceAll("\n", " ");
     }

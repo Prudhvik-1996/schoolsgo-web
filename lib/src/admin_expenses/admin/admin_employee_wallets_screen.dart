@@ -1,9 +1,12 @@
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:excel/excel.dart';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/admin_pocket_transactions_screen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/pocket_balances.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
@@ -13,6 +16,7 @@ import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminEmployeeWalletsScreen extends StatefulWidget {
   const AdminEmployeeWalletsScreen({
@@ -89,7 +93,6 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
     }
     GetPocketTransactionsResponse getPocketTransactionsResponse = await getPocketTransactions(GetPocketTransactionsRequest(
       schoolId: widget.adminProfile.schoolId,
-      employeeId: widget.adminProfile.userId,
     ));
     if (getPocketTransactionsResponse.httpStatus != "OK" || getPocketTransactionsResponse.responseStatus != "success") {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,12 +106,186 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
     setState(() => _isLoading = false);
   }
 
+  Future<void> _downloadReport(List<PocketTransactionBean> pocketTransactionsList) async {
+    var excel = Excel.createExcel();
+    Sheet sheet = excel['Wallet Transactions'];
+    var headers = [
+      'Date',
+      'Employee Name',
+      'Voucher No.',
+      'Amount',
+      'Transaction Kind',
+      'Expense Type',
+      'Expense Description',
+      'Mode Of Payment',
+      'Comments',
+    ];
+
+    int rowIndex = 0;
+
+    sheet.appendRow(["${widget.adminProfile.schoolName}"]);
+    CellStyle schoolNameStyle = CellStyle(
+      bold: true,
+      fontSize: 24,
+      horizontalAlign: HorizontalAlign.Center,
+    );
+    sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).cellStyle = schoolNameStyle;
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: headers.length - 1, rowIndex: 0));
+    rowIndex++;
+
+    sheet.appendRow(headers);
+    for (int i = 0; i <= headers.length; i++) {
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+        backgroundColorHex: 'FF000000',
+        fontColorHex: 'FFFFFFFF',
+      );
+    }
+    rowIndex++;
+
+    for (PocketTransactionBean transaction in pocketTransactionsList) {
+      SchoolWiseEmployeeBean employeeBean = employeesList.firstWhere((e) => e.employeeId == transaction.employeeId);
+      sheet.appendRow([
+        convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(transaction.date ?? DateTime.now().millisecondsSinceEpoch)),
+        (employeeBean.employeeName ?? "-").capitalize(),
+        "${transaction.receiptId ?? " - "}",
+        (transaction.amount ?? 0) / 100.0,
+        transaction.pocketTransactionType == "LOAD" ? "Credit" : "Debit",
+        transaction.getExpenseType().capitalize(),
+        (transaction.description ?? "").capitalize(),
+        ModeOfPaymentExt.fromString(transaction.modeOfPayment).description,
+        (transaction.comments ?? "").capitalize(),
+      ]);
+      rowIndex++;
+    }
+
+    if (excel.getDefaultSheet() != null) {
+      excel.delete(excel.getDefaultSheet()!);
+    }
+
+    sheet.appendRow([""]);
+    rowIndex++;
+
+    sheet.appendRow(["Expense Type", "Amount"]);
+    for (int i = 0; i <= 1; i++) {
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+        backgroundColorHex: 'FF000000',
+        fontColorHex: 'FFFFFFFF',
+      );
+    }
+    rowIndex++;
+    Map<String, int> expenseTypePaymentMap = {};
+    for (PocketTransactionBean eachTransaction in pocketTransactionsList) {
+      expenseTypePaymentMap[eachTransaction.getExpenseType()] ??= 0;
+      expenseTypePaymentMap[eachTransaction.getExpenseType()] =
+          expenseTypePaymentMap[eachTransaction.getExpenseType()]! + (eachTransaction.amount ?? 0);
+    }
+    for (var e in expenseTypePaymentMap.entries) {
+      sheet.appendRow([
+        e.key,
+        e.value / 100,
+      ]);
+      rowIndex++;
+    }
+
+    sheet.appendRow([""]);
+    rowIndex++;
+
+    // sheet.appendRow(["Mode Of Payment", "Amount"]);
+    // for (int i = 0; i <= 1; i++) {
+    //   sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+    //     backgroundColorHex: 'FF000000',
+    //     fontColorHex: 'FFFFFFFF',
+    //   );
+    // }
+    // rowIndex++;
+    // final paymentMap = <ModeOfPayment, int>{};
+    // for (final expense in pocketTransactionsList) {
+    //   final modeOfPayment = ModeOfPaymentExt.fromString(expense.modeOfPayment);
+    //   final totalAmount = expense.amount ?? 0;
+    //   paymentMap[modeOfPayment] = (paymentMap[modeOfPayment] ?? 0) + totalAmount;
+    // }
+    // paymentMap.forEach((key, value) {
+    //   if (value != 0) {
+    //     sheet.appendRow([key.description, value / 100.0]);
+    //     rowIndex++;
+    //   }
+    // });
+    //
+    // sheet.appendRow([
+    //   "Total",
+    //   paymentMap.values.sum / 100.0,
+    // ]);
+    // for (int i = 0; i <= 1; i++) {
+    //   sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: rowIndex)).cellStyle = CellStyle(
+    //     backgroundColorHex: 'FFFFFF00',
+    //     fontColorHex: 'FF000000',
+    //   );
+    // }
+    // rowIndex++;
+
+    sheet.appendRow([""]);
+    rowIndex++;
+
+    sheet.appendRow(["Downloaded: ${convertEpochToDDMMYYYYEEEEHHMMAA(DateTime.now().millisecondsSinceEpoch)}"]);
+    CellStyle downloadTimeStyle = CellStyle(
+      bold: true,
+      fontSize: 9,
+      horizontalAlign: HorizontalAlign.Right,
+      verticalAlign: VerticalAlign.Center,
+    );
+    sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex)).cellStyle = downloadTimeStyle;
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: rowIndex),
+        CellIndex.indexByColumnRow(columnIndex: headers.length - 1, rowIndex: rowIndex));
+
+    // Generate the Excel file as bytes
+    var excelBytes = excel.encode();
+    if (excelBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      Uint8List excelUint8List = Uint8List.fromList(excelBytes);
+
+      // Save the Excel file
+      FileSaver.instance.saveFile(bytes: excelUint8List, name: 'Wallet Transactions ${convertDateTimeToDDMMYYYYFormat(DateTime.now())}.xlsx');
+    }
+    for (var i = 1; i < sheet.maxCols; i++) {
+      sheet.setColAutoFit(i);
+    }
+  }
+
+  Future<void> handleClick(String choice) async {
+    if (choice == "Download Report") {
+      setState(() => _isLoading = true);
+      await _downloadReport(pocketTransactionsList.where((e) => e.status == 'active').toList());
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Employee Wallets"),
+        actions: [
+          if (!_isLoading)
+            PopupMenuButton<String>(
+              onSelected: (String choice) async => await handleClick(choice),
+              itemBuilder: (BuildContext context) {
+                return {
+                 "Download Report",
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+        ],
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
@@ -117,12 +294,14 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
                 _pocketBalancesTable(pocketBalancesList),
               ],
             ),
-      floatingActionButton: fab(
-        const Icon(Icons.payments_outlined),
-        "Fund Transfer",
-        () async => addNewTransaction(newPocketTransactionBean),
-        color: Colors.green,
-      ),
+      floatingActionButton: _isLoading
+          ? null
+          : fab(
+              const Icon(Icons.payments_outlined),
+              "Fund Transfer",
+              () async => addNewTransaction(newPocketTransactionBean),
+              color: Colors.green,
+            ),
     );
   }
 
@@ -139,18 +318,39 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
                 width: MediaQuery.of(context).size.width * 0.8,
                 child: ListView(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(child: employeePickerForPocketTransaction(pocketTransaction, setState)),
-                        const SizedBox(width: 10),
-                        SizedBox(width: 120, child: amountTextFieldForPocketTransaction(pocketTransaction, setState)),
-                        // Amount
-                      ],
-                    ), // Employee Picker
-                    const SizedBox(height: 10), commentsForPocketTransaction(pocketTransaction, setState), // Comments
+                    if (MediaQuery.of(context).orientation == Orientation.landscape)
+                      Row(
+                        children: [
+                          Expanded(child: employeePickerForPocketTransaction(pocketTransaction, setState)),
+                          const SizedBox(width: 10),
+                          SizedBox(width: 120, child: amountTextFieldForPocketTransaction(pocketTransaction, setState)),
+                          // Amount
+                        ],
+                      ),
+                    if (MediaQuery.of(context).orientation != Orientation.landscape) ...[
+                      employeePickerForPocketTransaction(pocketTransaction, setState),
+                      const SizedBox(height: 10),
+                      amountTextFieldForPocketTransaction(pocketTransaction, setState),
+                    ],
                     const SizedBox(height: 10),
-                    radioButtonsForCrOrDbForPocketTransaction(pocketTransaction, setState), // Radio buttons to load or debit
-                    const SizedBox(height: 10), dateTimePicker(pocketTransaction, setState), // Radio buttons to load or debit
+                    commentsForPocketTransaction(pocketTransaction, setState),
+                    const SizedBox(height: 10),
+                    radioButtonsForCrOrDbForPocketTransaction(pocketTransaction, setState),
+                    const SizedBox(height: 10),
+                    if (MediaQuery.of(context).orientation == Orientation.landscape)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          buildModeOfPaymentDropdown(pocketTransaction, setState),
+                          dateTimePicker(pocketTransaction, setState),
+                        ],
+                      ),
+                    if (MediaQuery.of(context).orientation != Orientation.landscape) ...[
+                      buildModeOfPaymentDropdown(pocketTransaction, setState),
+                      const SizedBox(height: 10),
+                      dateTimePicker(pocketTransaction, setState),
+                    ]
                   ],
                 ),
               );
@@ -204,6 +404,7 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 icon,
+                const SizedBox(width: 5),
                 Expanded(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
@@ -243,6 +444,7 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
                   DataColumn(label: Text('Actions')),
                 ],
                 rows: pocketBalances.sorted((a, b) => (a.balanceAmount ?? 0).compareTo(b.balanceAmount ?? 0)).map((pocketBalanceBean) {
+                  SchoolWiseEmployeeBean employeeBean = employeesList.firstWhere((e) => e.employeeId == pocketBalanceBean.employeeId);
                   return DataRow(
                     cells: [
                       DataCell(Text(pocketBalanceBean.employeeName ?? "-")),
@@ -252,7 +454,18 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
                           : convertEpochToDDMMYYYYEEEEHHMMAA(pocketBalanceBean.lastTransactionDate!))),
                       DataCell(
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return AdminPocketTransactionsScreen(
+                                  employeeBean: employeeBean,
+                                  pocketTransactionsList: pocketTransactionsList.where((e) => e.employeeId == employeeBean.employeeId).toList(),
+                                  pocketBalanceBean: pocketBalanceBean,
+                                );
+                              },
+                            ),
+                          ).then((_) => _loadData()),
                           child: ClayButton(
                             depth: 40,
                             color: clayContainerColor(context),
@@ -448,6 +661,35 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
           title: const Text("Transfer funds to School"),
         ),
       ],
+    );
+  }
+
+  Widget buildModeOfPaymentDropdown(PocketTransactionBean pocketTransactionBean, StateSetter localStateSetter) {
+    return ClayContainer(
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 1,
+      borderRadius: 10,
+      depth: 40,
+      emboss: false,
+      child: DropdownButton<String>(
+        value: pocketTransactionBean.modeOfPayment,
+        items: ModeOfPayment.values
+            .map((e) => DropdownMenuItem<String>(
+                  value: e.name,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text(e.description),
+                  ),
+                  onTap: () {
+                    setState(() => localStateSetter(() => pocketTransactionBean.modeOfPayment = e.name));
+                  },
+                ))
+            .toList(),
+        onChanged: (String? e) {
+          setState(() => localStateSetter(() => pocketTransactionBean.modeOfPayment = e ?? ModeOfPayment.CASH.name));
+        },
+      ),
     );
   }
 
