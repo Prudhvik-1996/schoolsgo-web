@@ -11,12 +11,14 @@ class SearchWidget extends StatefulWidget {
     required this.onComplete,
     required this.receiptNumbers,
     required this.isSearchButtonSelected,
+    this.searchType,
   }) : super(key: key);
 
   final bool isSearchBarSelectedByDefault;
   final Function onComplete;
   final List<String> receiptNumbers;
   final Function isSearchButtonSelected;
+  final String? searchType;
 
   @override
   State<SearchWidget> createState() => _SearchWidgetState();
@@ -28,6 +30,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   int? foundIndex;
   bool _isLoading = false;
   List<int> foundIndices = [];
+  late String searchType;
 
   @override
   void initState() {
@@ -35,6 +38,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     _isSelected = widget.isSearchBarSelectedByDefault;
     _searchKeyController = TextEditingController();
     _isLoading = false;
+    searchType = widget.searchType ?? "Receipt";
   }
 
   @override
@@ -62,7 +66,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             ),
           ),
           label: Text(
-            isKeyFound ? "Receipt Number" : "Receipt Number not found",
+            isKeyFound ? "$searchType Number" : "$searchType Number not found",
             style: TextStyle(
               color: isKeyFound
                   ? Colors.blue
@@ -156,13 +160,13 @@ class _SearchWidgetState extends State<SearchWidget> {
       keyboardType: TextInputType.text,
       maxLines: 1,
       textAlignVertical: TextAlignVertical.center,
-      decoration: const InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 18),
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 18),
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
         disabledBorder: InputBorder.none,
-        hintText: "Receipt Number",
-        hintStyle: TextStyle(fontSize: 12),
+        hintText: "$searchType Number",
+        hintStyle: const TextStyle(fontSize: 12),
       ),
       textAlign: TextAlign.left,
     );

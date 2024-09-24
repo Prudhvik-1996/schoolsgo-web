@@ -89,13 +89,11 @@ Future<Uint8List> printReceipts(
       );
       widgets.addAll([
         amountPayingInWordsWidget((eachTransaction.getTotalAmountForReceipt()) ~/ 100, font),
-        pw.SizedBox(
-          height: 5,
-        ),
-        modeOfPaymentWidget(eachTransaction, font),
-        pw.SizedBox(
-          height: 5,
-        ),
+        pw.SizedBox(height: 5),
+        if ((eachTransaction.comments ?? "").trim() == "") modeOfPaymentWidget(eachTransaction, font),
+        if ((eachTransaction.comments ?? "").trim() == "") pw.SizedBox(height: 5),
+        if ((eachTransaction.comments ?? "").trim() != "") commentsAndModeOfPaymentWidget(eachTransaction, font),
+        if ((eachTransaction.comments ?? "").trim() != "") pw.SizedBox(height: 5),
         noteWidget(font),
       ]);
       widgets.add(
@@ -146,6 +144,28 @@ Future<Uint8List> printReceipts(
   }
   anchorElement.click();
   return x;
+}
+
+pw.Widget commentsAndModeOfPaymentWidget(StudentFeeReceipt eachTransaction, pw.Font font) {
+  return pw.Row(
+    children: [
+      pw.Expanded(
+        child: paddedText(
+          "Comments: ${eachTransaction.comments ?? " - "}",
+          font,
+          fontSize: 10,
+          align: pw.TextAlign.left,
+          textColor: PdfColors.black,
+          padding: const pw.EdgeInsets.fromLTRB(50, 6, 6, 6),
+        ),
+      ),
+      pw.SizedBox(width: 10),
+      pw.Expanded(
+        child: modeOfPaymentWidget(eachTransaction, font),
+      ),
+      pw.SizedBox(width: 20),
+    ],
+  );
 }
 
 pw.Widget amountPayingInWordsWidget(int amount, pw.Font font) {
@@ -361,9 +381,7 @@ pw.Row studentNameWidget(StudentProfile studentProfile, pw.Font font) {
           style: pw.TextStyle(font: font, fontSize: 14),
         ),
       ),
-      pw.SizedBox(
-        width: 10,
-      ),
+      pw.SizedBox(width: 10),
       if (studentProfile.admissionNo != null)
         pw.Text(
           "Admission No.: ${studentProfile.admissionNo ?? "-"}",

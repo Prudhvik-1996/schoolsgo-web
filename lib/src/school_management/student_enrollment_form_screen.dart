@@ -1587,7 +1587,6 @@ class _StudentEnrollmentFormScreenState extends State<StudentEnrollmentFormScree
                             });
                             try {
                               UploadFileToDriveResponse uploadFileResponse = await uploadFileToDrive(reader.result!, file.name);
-                              print("1276: ${uploadFileResponse.mediaBean?.mediaId}");
                               setState(() {
                                 widget.studentProfile.aadhaarPhotoUrlId = uploadFileResponse.mediaBean!.mediaId!;
                                 widget.studentProfile.aadhaarPhotoUrl = uploadFileResponse.mediaBean!.mediaUrl!;
@@ -1869,7 +1868,7 @@ class _StudentEnrollmentFormScreenState extends State<StudentEnrollmentFormScree
                         },
                   title: Text(
                     widget.studentProfile.getAccommodationType(e: e),
-                    style: TextStyle(fontSize: 12),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ))
             .toList(),

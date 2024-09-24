@@ -20,7 +20,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_each_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_stats_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
+import 'package:schoolsgo_web/src/common_components/search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/fee_support_classes.dart';

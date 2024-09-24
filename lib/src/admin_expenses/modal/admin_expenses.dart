@@ -203,6 +203,10 @@ class AdminExpenseBean {
     this.comments,
     this.isPocketTransaction,
   }) {
+    populateControllers();
+  }
+
+  void populateControllers() {
     expenseTypeController.text = expenseType ?? "";
     descriptionController.text = description ?? "";
     amountController.text = amount == null ? "" : doubleToStringAsFixed(amount! / 100.0, decimalPlaces: 2);

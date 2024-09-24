@@ -10,7 +10,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_stats_table_screen.dart';
-import 'package:schoolsgo_web/src/fee/admin/fee_receipts_search_widget.dart';
+import 'package:schoolsgo_web/src/common_components/search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_receipts_stats.dart';

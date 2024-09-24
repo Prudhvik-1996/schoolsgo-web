@@ -17,13 +17,16 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
+import 'package:schoolsgo_web/src/common_components/search_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
+import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:substring_highlight/substring_highlight.dart';
 
 class AdminExpenseScreenAdminView extends StatefulWidget {
@@ -43,21 +46,25 @@ class AdminExpenseScreenAdminView extends StatefulWidget {
 class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
+  bool isSearchBarSelected = false;
 
   List<AdminExpenseBean> adminExpenses = [];
+  List<AdminExpenseBean> filteredAdminExpenses = [];
   late PocketBalanceBean pocketBalanceBean;
   bool isEditMode = false;
   bool isAddNew = false;
   late AdminExpenseBean newAdminExpenseBean;
 
   String? _reportDownloadStatus;
-  final ScrollController _scrollViewController = ScrollController();
+  final ItemScrollController _itemScrollController = ItemScrollController();
   double headerHeight = 200;
   Set<String> uniqueExpenseTypes = {};
 
   String? _uploadingFile;
   double? _fileUploadProgress;
   String? reportName;
+
+  late int newVoucherNumber;
 
   @override
   void initState() {
@@ -67,7 +74,6 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
 
   @override
   void dispose() {
-    _scrollViewController.dispose();
     super.dispose();
   }
 
@@ -75,19 +81,20 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     setState(() {
       _isLoading = true;
       isAddNew = false;
-      newAdminExpenseBean = AdminExpenseBean(
-        franchiseId: widget.adminProfile?.franchiseId,
-        schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
-        agent: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
-        adminId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
-        adminName: widget.adminProfile?.firstName ?? widget.receptionistProfile?.userName,
-        adminPhotoUrl: widget.adminProfile?.adminPhotoUrl,
-        transactionTime: null,
-        adminExpenseReceiptsList: [],
-        status: "active",
-      )..isEditMode = true;
     });
-    // await myGoogleSheet();
+    newVoucherNumber = await getNewVoucherNumber();
+    newAdminExpenseBean = AdminExpenseBean(
+      franchiseId: widget.adminProfile?.franchiseId,
+      schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+      agent: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+      adminId: widget.adminProfile?.userId ?? widget.receptionistProfile?.userId,
+      adminName: widget.adminProfile?.firstName ?? widget.receptionistProfile?.userName,
+      adminPhotoUrl: widget.adminProfile?.adminPhotoUrl,
+      transactionTime: null,
+      adminExpenseReceiptsList: [],
+      receiptId: newVoucherNumber,
+      status: "active",
+    )..isEditMode = true;
     GetAdminExpensesResponse getAdminExpensesResponse = await getAdminExpenses(GetAdminExpensesRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
       franchiseId: widget.adminProfile?.franchiseId,
@@ -100,19 +107,23 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
         ),
       );
     } else {
-      setState(() {
-        adminExpenses = getAdminExpensesResponse.adminExpenseBeanList!.map((e) => e!).toList()
-          ..sort((b, a) {
-            if (a.transactionTime != null && b.transactionTime != null) {
-              return a.transactionTime!.compareTo(b.transactionTime!);
-            }
-            if (a.adminExpenseId != null && b.adminExpenseId != null) {
-              return a.adminExpenseId!.compareTo(b.adminExpenseId!);
-            }
-            return 0;
-          });
-      });
-      _loadExpenseTypes();
+      adminExpenses = getAdminExpensesResponse.adminExpenseBeanList!.map((e) => e!).toList();
+      filteredAdminExpenses = getAdminExpensesResponse.adminExpenseBeanList!.map((e) => e!).toList()
+        ..sort((b, a) {
+          DateTime aDateTime = DateTime.fromMillisecondsSinceEpoch(a.transactionTime!);
+          DateTime bDateTime = DateTime.fromMillisecondsSinceEpoch(b.transactionTime!);
+          if (convertDateTimeToDDMMYYYYFormat(aDateTime) == convertDateTimeToDDMMYYYYFormat(bDateTime)) {
+            return (a.receiptId ?? 0).compareTo(a.receiptId ?? 0);
+          }
+          if (a.transactionTime != null && b.transactionTime != null) {
+            return a.transactionTime!.compareTo(b.transactionTime!);
+          }
+          if (a.adminExpenseId != null && b.adminExpenseId != null) {
+            return a.adminExpenseId!.compareTo(b.adminExpenseId!);
+          }
+          return 0;
+        });
+      uniqueExpenseTypes = filteredAdminExpenses.map((e) => e.expenseType ?? "-").where((e) => e != "-").toList().toSet();
     }
     GetPocketBalancesResponse getPocketBalancesResponse = await getPocketBalances(GetPocketBalancesRequest(
       schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
@@ -139,10 +150,14 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     });
   }
 
-  _loadExpenseTypes() {
+  void isSearchButtonSelected(bool isSelected) {
     setState(() {
-      uniqueExpenseTypes = adminExpenses.map((e) => e.expenseType ?? "-").where((e) => e != "-").toList().toSet();
+      isSearchBarSelected = isSelected;
     });
+  }
+
+  Future<int> getNewVoucherNumber() async {
+    return await HttpUtils.getNewVoucherNumber(widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId ?? -1);
   }
 
   @override
@@ -152,16 +167,25 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       appBar: AppBar(
         title: const Text("Admin Expenses"),
         actions: [
-          if (widget.adminProfile != null) buildRoleButtonForAppBar(context, widget.adminProfile!),
+          if (!isSearchBarSelected)
+            SearchWidget(
+              isSearchBarSelectedByDefault: false,
+              onComplete: scrollToIndex,
+              receiptNumbers: filteredAdminExpenses.map((e) => "${e.receiptId ?? ""}").toList(),
+              isSearchButtonSelected: isSearchButtonSelected,
+              searchType: "Voucher",
+            ),
           if (widget.adminProfile != null)
             PopupMenuButton<String>(
               onSelected: (String choice) async => await handleMoreOptions(choice),
               itemBuilder: (BuildContext context) {
                 return {
-                  if (!isEditMode) 'Download Report',
+                  if (!isEditMode && filteredAdminExpenses.isNotEmpty) 'Download Report',
                   if (widget.adminProfile != null && isEditMode) 'Download Template',
                   if (widget.adminProfile != null && isEditMode) 'Upload from Template',
-                  if (!isEditMode) 'Date Wise Stats',
+                  if (!isEditMode && filteredAdminExpenses.isNotEmpty) 'Date Wise Stats',
+                  if (filteredAdminExpenses.isNotEmpty) 'Go to date',
+                  if (filteredAdminExpenses.isNotEmpty) 'Search',
                 }.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
@@ -181,20 +205,21 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
             ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
-          // : ListView(
-          //     children: [
-          //           const SizedBox(
-          //             height: 10       //           ),
-          //           _adminExpenseReadModeHeaderWidget(),
-          //         ] +
-          //         adminExpenses.map((e) => e.isEditMode ? _adminExpenseEditModeWidget(e) : _adminExpenseReadModeWidget(e)).toList(),
-          //   ),
           : _reportDownloadStatus != null
               ? reportDownloadInProgressWidget()
               : _uploadingFile != null
                   ? fileUploadInProgressWidget()
-                  : expensesListViewWidget(),
-      floatingActionButton: isEditMode && !isAddNew && !(adminExpenses.map((e) => e.isEditMode).contains(true))
+                  : Stack(
+                      children: [
+                        expensesListViewWidget(),
+                        if (isSearchBarSelected)
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: searchBar(),
+                          ),
+                      ],
+                    ),
+      floatingActionButton: isEditMode && !isAddNew && !(filteredAdminExpenses.map((e) => e.isEditMode).contains(true))
           ? Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -206,6 +231,24 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
               ],
             )
           : buildEditButton(),
+    );
+  }
+
+  Container searchBar() {
+    return Container(
+      height: 75,
+      padding: const EdgeInsets.fromLTRB(8, 0, 0, 8),
+      child: Container(
+        color: clayContainerColor(context),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        child: SearchWidget(
+          isSearchBarSelectedByDefault: true,
+          onComplete: scrollToIndex,
+          receiptNumbers: filteredAdminExpenses.map((e) => "${e.receiptId ?? ""}").toList(),
+          isSearchButtonSelected: isSearchButtonSelected,
+          searchType: "Voucher",
+        ),
+      ),
     );
   }
 
@@ -308,12 +351,13 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   GestureDetector buildEditButton() {
     return GestureDetector(
       onTap: () {
-        if (adminExpenses.map((e) => e.isEditMode).contains(true) || isAddNew) {
+        if (filteredAdminExpenses.map((e) => e.isEditMode).contains(true) || isAddNew) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Save changes to continue.."),
             ),
           );
+          scrollToIndex(filteredAdminExpenses.indexWhere((e) => e.isEditMode));
           return;
         }
         setState(() {
@@ -334,17 +378,22 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   }
 
   Widget expensesListViewWidget() {
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      children: isAddNew
-          ? [buildEachAdminExpenseBeanEditMode(newAdminExpenseBean)]
-          : [
-              ...adminExpenses
-                  .map((e) => e.isEditMode
-                      ? buildEachAdminExpenseBeanEditMode(e)
-                      : buildEachAdminExpenseBeanReadMode(e, canEdit: isEditMode && adminExpenses.where((e) => e.isEditMode).isEmpty))
-                  .toList(),
-            ],
+    if (!isAddNew) {
+      return ScrollablePositionedList.builder(
+        initialScrollIndex: 0,
+        physics: const BouncingScrollPhysics(),
+        itemScrollController: _itemScrollController,
+        itemCount: filteredAdminExpenses.length,
+        itemBuilder: (BuildContext context, int index) {
+          AdminExpenseBean e = filteredAdminExpenses[index];
+          return e.isEditMode
+              ? buildEachAdminExpenseBeanEditMode(e)
+              : buildEachAdminExpenseBeanReadMode(e, canEdit: isEditMode && filteredAdminExpenses.where((e) => e.isEditMode).isEmpty);
+        },
+      );
+    }
+    return SingleChildScrollView(
+      child: buildEachAdminExpenseBeanEditMode(newAdminExpenseBean),
     );
   }
 
@@ -453,7 +502,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   children: [
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "This expense is spent from ${eachExpense.adminName ?? "-"}'s Wallet",
                           style: const TextStyle(
@@ -650,7 +699,9 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                 controlAffinity: ListTileControlAffinity.leading,
                 value: (eachExpense.isPocketTransaction ?? "N") == "Y",
                 onChanged: (bool? newValue) {
-                  if (!(eachExpense.getIsPocketTransaction()) && (newValue ?? false) && (pocketBalanceBean.balanceAmount ?? 0) < (eachExpense.amount ?? 0)) {
+                  if (!(eachExpense.getIsPocketTransaction()) &&
+                      (newValue ?? false) &&
+                      (pocketBalanceBean.balanceAmount ?? 0) < (eachExpense.amount ?? 0)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("You do not have enough balance to pay for this expense.."),
@@ -1065,12 +1116,18 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       case "Upload from Template":
         await uploadFromTemplateAction();
         return;
+      case "Go to date":
+        await showGoToDateAction();
+        return;
+      case "Search":
+        await showGoToDateAction();
+        return;
       case "Date Wise Stats":
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) {
-              return DateWiseAdminExpensesStatsScreen(adminProfile: widget.adminProfile!, adminExpenses: adminExpenses);
+              return DateWiseAdminExpensesStatsScreen(adminProfile: widget.adminProfile!, adminExpenses: filteredAdminExpenses);
             },
           ),
         );
@@ -1080,10 +1137,51 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     }
   }
 
+  Future<void> showGoToDateAction() async {
+    DateTime currentDate = DateTime.now();
+
+    DateTime parseDateTime(int? timestamp) => DateTime.fromMillisecondsSinceEpoch(timestamp ?? currentDate.millisecondsSinceEpoch);
+
+    DateTime firstDate = filteredAdminExpenses.map((e) => parseDateTime(e.transactionTime)).reduce((a, b) => a.isBefore(b) ? a : b);
+
+    DateTime lastDate = filteredAdminExpenses.map((e) => parseDateTime(e.transactionTime)).reduce((a, b) => a.isAfter(b) ? a : b);
+
+    DateTime initialDate = currentDate.isBefore(lastDate) ? currentDate : lastDate;
+
+    DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      selectableDayPredicate: (DateTime? eachDate) {
+        String formattedDate = convertDateTimeToDDMMYYYYFormat(eachDate ?? currentDate);
+        return filteredAdminExpenses.map((e) => convertDateTimeToDDMMYYYYFormat(parseDateTime(e.transactionTime))).contains(formattedDate);
+      },
+    );
+
+    if (selectedDate == null) return;
+
+    int scrollIndex = filteredAdminExpenses
+        .map((e) => e.transactionTime)
+        .toList()
+        .indexWhere((time) => convertDateTimeToDDMMYYYYFormat(selectedDate) == convertDateTimeToDDMMYYYYFormat(parseDateTime(time)));
+
+    scrollToIndex(scrollIndex);
+  }
+
+  void scrollToIndex(int e) {
+    if (e == -1) return;
+    _itemScrollController.scrollTo(
+      index: e,
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.bounceInOut,
+    );
+  }
+
   Future<void> downloadTemplateAction() async {
     setState(() => _isLoading = true);
     await AdminExpensesCreationInBulk(
-      adminExpenses,
+      filteredAdminExpenses,
       widget.adminProfile!,
     ).downloadTemplate();
     setState(() => _isLoading = false);
@@ -1092,7 +1190,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   Future<void> uploadFromTemplateAction() async {
     setState(() => _isLoading = true);
     List<AdminExpenseBean>? newExpenses = await AdminExpensesCreationInBulk(
-      adminExpenses,
+      filteredAdminExpenses,
       widget.adminProfile!,
     ).readAndValidateExcel(context);
     if ((newExpenses ?? []).isEmpty) {
@@ -1275,7 +1373,9 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                       ..status = AdminExpenseBean.fromJson(eachExpense.origJson()).status
                       ..transactionId = AdminExpenseBean.fromJson(eachExpense.origJson()).transactionId
                       ..transactionTime = AdminExpenseBean.fromJson(eachExpense.origJson()).transactionTime
+                      ..receiptId = AdminExpenseBean.fromJson(eachExpense.origJson()).receiptId
                       ..adminExpenseReceiptsList = AdminExpenseBean.fromJson(eachExpense.origJson()).adminExpenseReceiptsList;
+                    eachExpense.populateControllers();
                     eachExpense.isEditMode = false;
                   });
                 }

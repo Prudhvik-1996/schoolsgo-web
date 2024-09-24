@@ -68,4 +68,10 @@ class HttpUtils {
     final url = 'https://epsiloninfinityservices.com:8000/schoolsgo/fee/getNewReceiptNumber?schoolId=$schoolId';
     return await get(url, (data) => data as int);
   }
+
+  // New method to get the voucher number
+  static Future<int> getNewVoucherNumber(int schoolId) async {
+    final url = 'https://epsiloninfinityservices.com:8000/schoolsgo/ledger/getNewVoucherNumber?schoolId=$schoolId';
+    return await get(url, (data) => data as int);
+  }
 }
