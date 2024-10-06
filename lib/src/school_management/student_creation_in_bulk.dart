@@ -234,6 +234,11 @@ class CreateStudentsInBulkExcel {
           isUpdated = true;
         }
         String? studentFirstName = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        // eachStudentProfile.studentFirstName = studentFirstName;
+        // String? parentName =excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        // eachStudentProfile.gaurdianFirstName = parentName;
+        // String? gaurdianName =excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        // eachStudentProfile.gaurdianMobile = gaurdianName;
         if (studentFirstName != (eachStudentProfile.studentFirstName ?? '')) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

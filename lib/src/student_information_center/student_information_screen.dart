@@ -19,7 +19,7 @@ import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
+import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/student_comments.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_base_widget.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';

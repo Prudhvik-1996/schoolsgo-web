@@ -247,7 +247,15 @@ class _EditCustomExamWidgetState extends State<EditCustomExamWidget> {
                                   : Center(child: Text(e))))
                       .toList(),
                   rows: [
-                    ...examSectionSubjectMapList
+                    ...(examSectionSubjectMapList
+                          ..sort((a, b) {
+                            int aSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => a.sectionId == e.sectionId)?.seqOrder ?? -1;
+                            int bSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => b.sectionId == e.sectionId)?.seqOrder ?? -1;
+                            int aSubjectSeqOrder = widget.tdsList.firstWhereOrNull((e) => a.subjectId == e.subjectId)?.subjectSeqOrder ?? -1;
+                            int bSubjectSeqOrder = widget.tdsList.firstWhereOrNull((e) => b.subjectId == e.subjectId)?.subjectSeqOrder ?? -1;
+                            if (aSectionSeqOrder == bSectionSeqOrder) return aSubjectSeqOrder.compareTo(bSubjectSeqOrder);
+                            return aSectionSeqOrder.compareTo(bSectionSeqOrder);
+                          }))
                         .where((eachExamSectionSubjectMap) => selectedSections.map((e) => e.sectionId).contains(eachExamSectionSubjectMap.sectionId))
                         .map(
                           (eachExamSectionSubjectMap) => DataRow(

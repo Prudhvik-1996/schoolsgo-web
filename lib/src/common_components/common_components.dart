@@ -1319,3 +1319,11 @@ class ClayTable2DWidgetV2 extends StatelessWidget {
     );
   }
 }
+
+class LazyColumn {
+  String columnName;
+  bool isVisible;
+  double width;
+
+  LazyColumn(this.columnName, this.isVisible, this.width);
+}

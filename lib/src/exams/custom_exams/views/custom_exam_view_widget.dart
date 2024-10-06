@@ -19,7 +19,7 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
-import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
+import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -465,7 +465,6 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                             downloadMessage = "Getting attendance report";
                           });
                           await Future.delayed(const Duration(seconds: 1));
-                          List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
                           GetStudentMonthWiseAttendanceResponse getStudentMonthWiseAttendanceResponse =
                               await getStudentMonthWiseAttendance(GetStudentMonthWiseAttendanceRequest(
                             schoolId: widget.schoolInfo.schoolId,

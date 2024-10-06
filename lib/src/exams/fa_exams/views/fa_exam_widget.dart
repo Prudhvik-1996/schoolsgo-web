@@ -22,7 +22,7 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
-import 'package:schoolsgo_web/src/student_information_center/modal/month_wise_attendance.dart';
+import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
@@ -148,6 +148,14 @@ class _FAExamWidgetState extends State<FAExamWidget> {
           .where((e) => e.examId == eachInternal.faInternalExamId && e.masterExamId == eachInternal.masterExamId)
           .where((e) => widget.isClassTeacher || widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))
           .toList();
+      essmListForInternal.sort((a, b) {
+        int aSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => a.sectionId == e.sectionId)?.seqOrder ?? -1;
+        int bSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => b.sectionId == e.sectionId)?.seqOrder ?? -1;
+        int aSubjectSeqOrder = widget.subjectsList.firstWhereOrNull((e) => a.subjectId == e.subjectId)?.seqOrder ?? -1;
+        int bSubjectSeqOrder = widget.subjectsList.firstWhereOrNull((e) => b.subjectId == e.subjectId)?.seqOrder ?? -1;
+        if (aSectionSeqOrder == bSectionSeqOrder) return aSubjectSeqOrder.compareTo(bSubjectSeqOrder);
+        return aSectionSeqOrder.compareTo(bSectionSeqOrder);
+      });
       widgetsOfEachInternal.add(Container(
         margin: const EdgeInsets.all(15),
         child: ClayContainer(

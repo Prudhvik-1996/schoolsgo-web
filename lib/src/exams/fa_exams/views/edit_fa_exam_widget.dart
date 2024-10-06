@@ -322,19 +322,12 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
     for (FaInternalExam eachInternal in (widget.faExam.faInternalExams ?? []).map((e) => e!).where((e) => e.status == 'active')) {
       List<ExamSectionSubjectMap> examSectionSubjectMapList = (eachInternal.examSectionSubjectMapList ?? []).map((e) => e!).toList();
       examSectionSubjectMapList.sort((a, b) {
-        Section aSection = widget.sectionsList.firstWhere((e) => e.sectionId == a.sectionId);
-        Section bSection = widget.sectionsList.firstWhere((e) => e.sectionId == b.sectionId);
-        if ((aSection.seqOrder ?? 0) == (bSection.seqOrder ?? 0)) {
-          Subject aSubject = widget.subjectsList
-              .where((e) => e.subjectId == a.subjectId)
-              .first;
-          Subject bSubject = widget.subjectsList
-              .where((e) => e.subjectId == b.subjectId)
-              .first;
-          return (aSubject.subjectId ?? 0).compareTo(bSubject.subjectId ?? 0);
-        } else {
-          return (aSection.seqOrder ?? 0).compareTo(bSection.seqOrder ?? 0);
-        }
+        int aSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => a.sectionId == e.sectionId)?.seqOrder ?? -1;
+        int bSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => b.sectionId == e.sectionId)?.seqOrder ?? -1;
+        int aSubjectSeqOrder = widget.subjectsList.firstWhereOrNull((e) => a.subjectId == e.subjectId)?.seqOrder ?? -1;
+        int bSubjectSeqOrder = widget.subjectsList.firstWhereOrNull((e) => b.subjectId == e.subjectId)?.seqOrder ?? -1;
+        if (aSectionSeqOrder == bSectionSeqOrder) return aSubjectSeqOrder.compareTo(bSubjectSeqOrder);
+        return aSectionSeqOrder.compareTo(bSectionSeqOrder);
       });
       ScrollController scrollController = ScrollController();
       widgetsForEachInternal.add(Container(

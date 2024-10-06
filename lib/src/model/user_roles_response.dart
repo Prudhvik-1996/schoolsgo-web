@@ -708,6 +708,13 @@ class StudentProfile {
         " - $sectionName";
   }
 
+  String studentNameAsStringWithRollNumber() {
+    return [((rollNumber ?? "") == "" ? "" : rollNumber! + "."), studentFirstName ?? "", studentMiddleName ?? "", studentLastName ?? ""]
+            .where((e) => e != "")
+            .join(" ")
+            .trim();
+  }
+
   @override
   int get hashCode {
     return studentId ?? -1;

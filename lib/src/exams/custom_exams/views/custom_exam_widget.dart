@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/edit_custom_exams_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -13,7 +14,6 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class CustomExamWidget extends StatefulWidget {
   const CustomExamWidget({
@@ -132,7 +132,17 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
                     "End Time",
                   ].map((e) => DataColumn(label: Center(child: Text(e)))).toList(),
                   rows: [
-                    ...examSectionSubjectMapList.where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId).map(
+                    ...(examSectionSubjectMapList
+                          ..sort((a, b) {
+                            int aSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => a.sectionId == e.sectionId)?.seqOrder ?? -1;
+                            int bSectionSeqOrder = widget.sectionsList.firstWhereOrNull((e) => b.sectionId == e.sectionId)?.seqOrder ?? -1;
+                            int aSubjectSeqOrder = widget.subjectsList.firstWhereOrNull((e) => a.subjectId == e.subjectId)?.seqOrder ?? -1;
+                            int bSubjectSeqOrder = widget.subjectsList.firstWhereOrNull((e) => b.subjectId == e.subjectId)?.seqOrder ?? -1;
+                            if (aSectionSeqOrder == bSectionSeqOrder) return aSubjectSeqOrder.compareTo(bSubjectSeqOrder);
+                            return aSectionSeqOrder.compareTo(bSectionSeqOrder);
+                          }))
+                        .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
+                        .map(
                           (eachExamSectionSubjectMap) => DataRow(
                             onSelectChanged: (bool? selected) {
                               if (selected ?? false) {

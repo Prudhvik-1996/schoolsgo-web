@@ -14,6 +14,7 @@ import 'package:lazy_data_table/lazy_data_table.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
 import 'package:schoolsgo_web/src/common_components/date_range_picker.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
@@ -1739,14 +1740,6 @@ class DateWiseAmountSpent {
   double amount;
 
   DateWiseAmountSpent(this.date, this.amount);
-}
-
-class LazyColumn {
-  String columnName;
-  bool isVisible;
-  double width;
-
-  LazyColumn(this.columnName, this.isVisible, this.width);
 }
 
 class PaymentSummary {

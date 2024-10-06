@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_stats_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_mark_student_attendance_screen.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_student_absentees_screen.dart';
+import 'package:schoolsgo_web/src/attendance/admin/admin_student_month_wise_attendacne_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
@@ -123,12 +124,11 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
                 ),
               ),
               _getAttendanceOption(
-                "Attendance Stats",
+                "Student Month Wise Attendance",
                 null,
-                AdminStudentAttendanceStatsScreen(
+                AdminStudentMonthWiseAttendanceScreen(
                   adminProfile: widget.adminProfile,
                   teacherProfile: null,
-                  defaultSelectedSection: null,
                 ),
               ),
               _getAttendanceOption(
@@ -144,6 +144,15 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
                 EmployeeMarkAttendanceScreen(
                   employeeId: widget.adminProfile.userId!,
                   schoolId: widget.adminProfile.schoolId!,
+                ),
+              ),
+              _getAttendanceOption(
+                "Attendance Stats",
+                null,
+                AdminStudentAttendanceStatsScreen(
+                  adminProfile: widget.adminProfile,
+                  teacherProfile: null,
+                  defaultSelectedSection: null,
                 ),
               ),
             ],
