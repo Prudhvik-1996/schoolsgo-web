@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/admin/generate_memos/generate_memos_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/stats/exam_stats_options_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
@@ -141,6 +142,13 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
                     adminProfile: widget.adminProfile,
                     teacherProfile: null,
                     selectedAcademicYearId: selectedAcademicYearId,
+                  ),
+                ),
+                _getExamsOption(
+                  "Memos",
+                  null,
+                  GenerateMemosScreen(
+                    adminProfile: widget.adminProfile,
                   ),
                 ),
                 _getExamsOption(

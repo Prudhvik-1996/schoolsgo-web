@@ -217,6 +217,9 @@ const String CREATE_OR_UPDATE_CUSTOM_EXAMS = "/exams/createOrUpdateCustomExam";
 const String GET_STUDENT_WISE_EXAMS = "/exams/getStudentWiseExams";
 const String GET_FA_EXAMS = "/exams/getFAExams";
 const String CREATE_OR_UPDATE_FA_EXAMS = "/exams/createOrUpdateFAExam";
+const String GET_ALL_EXAMS = "/exams/getAllExams";
+const String DOWNLOAD_MEMOS_FOR_MAIN_EXAM_WITH_INTERNALS = "/memo/downloadMemosForMainExamWithInternals";
+const String DOWNLOAD_MEMOS_FOR_MAIN_EXAM_WITH_OUT_INTERNALS = "/memo/downloadMemosForMainExamWithoutInternals";
 
 const String GET_SCHOOL_WISE_SMS_COUNTER = "/sms/getSchoolWiseSmsCounter";
 const String GET_SMS_CATEGORIES = "/sms/getSmsCategories";

@@ -6,7 +6,9 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class EpsilonDiaryLoadingWidget extends StatefulWidget {
-  const EpsilonDiaryLoadingWidget({super.key});
+  const EpsilonDiaryLoadingWidget({super.key, this.defaultLoadingText});
+
+  final String? defaultLoadingText;
 
   @override
   State<EpsilonDiaryLoadingWidget> createState() => _EpsilonDiaryLoadingWidgetState();
@@ -66,12 +68,25 @@ class _EpsilonDiaryLoadingWidgetState extends State<EpsilonDiaryLoadingWidget> {
                 ),
               ),
             ),
+            if (widget.defaultLoadingText != null) const SizedBox(height: 5),
+            if (widget.defaultLoadingText != null)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    widget.defaultLoadingText ?? (_networkSpeed == null ? "Loading..." : "Epsilon Diary is loading\nat a speed of $_networkSpeed"),
+                  ),
+                ),
+              ),
             const SizedBox(height: 5),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(_networkSpeed == null ? "Loading..." : "Epsilon Diary is loading\nat a speed of $_networkSpeed"),
+                child: Text(
+                  (_networkSpeed == null ? "Loading..." : "Epsilon Diary is loading\nat a speed of $_networkSpeed"),
+                ),
               ),
             ),
           ],

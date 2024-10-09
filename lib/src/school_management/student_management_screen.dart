@@ -85,9 +85,7 @@ class StudentManagementScreenState extends State<StudentManagementScreen> {
       ),
     );
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
-      setState(() {
-        sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
-      });
+      sectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
     }
     setState(() {
       _isLoading = false;
