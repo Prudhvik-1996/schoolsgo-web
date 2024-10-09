@@ -6,6 +6,7 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
+import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/fa_cumulative_exam_marks_screen.dart';
@@ -22,7 +23,6 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
-import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
@@ -234,91 +234,6 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                                       Icon(Icons.download),
                                       SizedBox(width: 10),
                                       Text("Hall Tickets"),
-                                      SizedBox(width: 10),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (widget.selectedSection != null && widget.adminProfile != null && widget.smsTemplate != null)
-                      Container(
-                        margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                        child: Tooltip(
-                          message: "Send SMS",
-                          child: GestureDetector(
-                            onTap: () async {
-                              Map<StudentProfile, String> studentSmsMap = {};
-                              widget.studentsList
-                                  .where((eachStudentProfile) => eachStudentProfile.sectionId == widget.selectedSection?.sectionId)
-                                  .forEach((eachStudentProfile) {
-                                if (eachStudentProfile.gaurdianMobile == null) return;
-                                String phoneNumber = eachStudentProfile.gaurdianMobile ?? "";
-                                String studentName = (eachStudentProfile.studentFirstName ?? "-").getShortenedMessage(shortLength: 29);
-                                String shortExamName = (widget.faExam.faExamName ?? "").split(" ").map((e) => e[0].toUpperCase()).join("");
-                                List<MapEntry<String, String>> marksPerSubject =
-                                    widget.faExam.overAllEssmList.where((essm) => essm.sectionId == widget.selectedSection?.sectionId).map((essm) {
-                                          String subjectName = (widget.subjectsList
-                                                      .firstWhereOrNull((eachSubject) => essm.subjectId == eachSubject.subjectId)
-                                                      ?.subjectName ??
-                                                  "-")
-                                              .replaceAll(".", "")
-                                              .substring(0, 2)
-                                              .toUpperCase();
-                                          String marksObtained = "";
-                                          StudentExamMarks? esm = (essm.studentExamMarksList ?? [])
-                                              .firstWhereOrNull((esm) => esm?.studentId == eachStudentProfile.studentId);
-                                          if (esm == null) {
-                                            marksObtained = "-";
-                                          } else if (esm.isAbsent == "N") {
-                                            marksObtained = "A";
-                                          } else if (esm.marksObtained == null) {
-                                            marksObtained = "-";
-                                          } else {
-                                            marksObtained = doubleToStringAsFixed(esm.marksObtained);
-                                          }
-                                          return MapEntry(subjectName, marksObtained);
-                                        }).toList() ??
-                                        [];
-                                String marksData = marksPerSubject.map((eachEntry) => "${eachEntry.key}:${eachEntry.value}").join("\n");
-                                String message = "Dear parent,\n"
-                                    "$studentName's Exam marks are\n"
-                                    "\n${("$shortExamName:\n$marksData").getShortenedMessage(shortLength: 60)}\n"
-                                    "\n-EISPL";
-                                studentSmsMap[eachStudentProfile] = message;
-                              });
-                              setState(() {
-                                _isExpanded = true;
-                              });
-                              // await Future.delayed(const Duration(seconds: 1));
-                              // studentSmsMap.forEach((eachStudentProfile, message) {
-                              //   print("${eachStudentProfile.gaurdianMobile}: $message\n");
-                              // });
-                              await getStudentExamMarksForSmsFromAlertDialogue(context, studentSmsMap);
-                              setState(() {
-                                _isExpanded = false;
-                              });
-                            },
-                            child: ClayButton(
-                              color: clayContainerColor(context),
-                              height: 50,
-                              borderRadius: 10,
-                              surfaceColor: clayContainerColor(context),
-                              spread: 1,
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: const [
-                                      Icon(Icons.message),
-                                      SizedBox(width: 10),
-                                      Text("Send Message"),
                                       SizedBox(width: 10),
                                     ],
                                   ),
@@ -651,7 +566,89 @@ class _FAExamWidgetState extends State<FAExamWidget> {
             ),
           ),
         ),
-        if (widget.selectedSection != null) const SizedBox(width: 15),
+        if (widget.selectedSection != null)
+          Container(
+            margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+            child: Tooltip(
+              message: "Send SMS",
+              child: GestureDetector(
+                onTap: () async {
+                  Map<StudentProfile, String> studentSmsMap = {};
+                  widget.studentsList
+                      .where((eachStudentProfile) => eachStudentProfile.sectionId == widget.selectedSection?.sectionId)
+                      .forEach((eachStudentProfile) {
+                    if (eachStudentProfile.gaurdianMobile == null) return;
+                    String phoneNumber = eachStudentProfile.gaurdianMobile ?? "";
+                    String studentName = (eachStudentProfile.studentFirstName ?? "-").getShortenedMessage(shortLength: 29);
+                    String shortExamName = (widget.faExam.faExamName ?? "").split(" ").map((e) => e[0].toUpperCase()).join("");
+                    List<MapEntry<String, String>> marksPerSubject =
+                        widget.faExam.overAllEssmList.where((essm) => essm.sectionId == widget.selectedSection?.sectionId).map((essm) {
+                              String subjectName =
+                                  (widget.subjectsList.firstWhereOrNull((eachSubject) => essm.subjectId == eachSubject.subjectId)?.subjectName ?? "-")
+                                      .replaceAll(".", "")
+                                      .substring(0, 2)
+                                      .toUpperCase();
+                              String marksObtained = "";
+                              StudentExamMarks? esm =
+                                  (essm.studentExamMarksList ?? []).firstWhereOrNull((esm) => esm?.studentId == eachStudentProfile.studentId);
+                              if (esm == null) {
+                                marksObtained = "-";
+                              } else if (esm.isAbsent == "N") {
+                                marksObtained = "A";
+                              } else if (esm.marksObtained == null) {
+                                marksObtained = "-";
+                              } else {
+                                marksObtained = doubleToStringAsFixed(esm.marksObtained);
+                              }
+                              return MapEntry(subjectName, marksObtained);
+                            }).toList() ??
+                            [];
+                    String marksData = marksPerSubject.map((eachEntry) => "${eachEntry.key}:${eachEntry.value}").join("\n");
+                    String message = "Dear parent,\n"
+                        "$studentName's Exam marks are\n"
+                        "\n${("$shortExamName:\n$marksData").getShortenedMessage(shortLength: 60)}\n"
+                        "\n-EISPL";
+                    studentSmsMap[eachStudentProfile] = message;
+                  });
+                  setState(() {
+                    _isExpanded = true;
+                  });
+                  // await Future.delayed(const Duration(seconds: 1));
+                  // studentSmsMap.forEach((eachStudentProfile, message) {
+                  //   print("${eachStudentProfile.gaurdianMobile}: $message\n");
+                  // });
+                  await getStudentExamMarksForSmsFromAlertDialogue(context, studentSmsMap);
+                  setState(() {
+                    _isExpanded = false;
+                  });
+                },
+                child: ClayButton(
+                  color: clayContainerColor(context),
+                  height: 50,
+                  borderRadius: 10,
+                  surfaceColor: clayContainerColor(context),
+                  spread: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.message),
+                          SizedBox(width: 10),
+                          Text("Send Message"),
+                          SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         if (widget.selectedSection != null)
           Container(
             margin: const EdgeInsets.fromLTRB(15, 0, 15, 0),
