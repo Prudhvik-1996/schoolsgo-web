@@ -6,6 +6,8 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/user_roles.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/school_management/employee_card_view_widget.dart';
+import 'package:schoolsgo_web/src/school_management/employee_enrollment_form_screen.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -90,6 +92,11 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
               height: MediaQuery.of(context).size.height - 10,
               child: employeesTable(filteredEmployees),
             ),
+    //         : ListView(
+    // children: [
+    // ...employees.map((e) => _eachEmployeeWidget(e)),
+    // ],
+    // ),
       floatingActionButton: !_isLoading && selectedEmployeeId == null && !isAddingNewEmployee
           ? fab(
               const Icon(Icons.add),
@@ -112,6 +119,27 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
             )
           : null,
     );
+  }
+
+  Widget _eachEmployeeWidget(SchoolWiseEmployeeBean e) {
+    return EmployeeCardViewWidget(
+      adminProfile: widget.adminProfile,
+      employeeProfile: e,
+      isEmployeeSelected: selectedEmployeeId == e.employeeId,
+      onEmployeeSelected: onEmployeeSelected,
+      isEditEnabled: true,
+      onEditSelected: onEditSelected,
+    );
+  }
+
+  void onEditSelected(SchoolWiseEmployeeBean e) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return EmployeeEnrollmentFormScreen(
+        employeeProfile: e,
+        adminProfile: widget.adminProfile,
+        isEditMode: true,
+      );
+    })).then((value) => _loadData());
   }
 
   Widget fab(Icon icon, String text, Function() action, {Function()? postAction, Color? color}) {

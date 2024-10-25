@@ -5,7 +5,7 @@ import 'package:schoolsgo_web/src/common_components/update_mobile_number_and_pas
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/school_management/employee_card_widget.dart';
+import 'package:schoolsgo_web/src/school_management/employee_card_view_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
@@ -98,7 +98,7 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
       )
           : ListView(
         children: employees
-            .map((e) => EmployeeCardWidget(
+            .map((e) => EmployeeCardViewWidget(
           adminProfile: widget.adminProfile,
           employeeProfile: e,
           isEmployeeSelected: selectedEmployeeId == e.employeeId,

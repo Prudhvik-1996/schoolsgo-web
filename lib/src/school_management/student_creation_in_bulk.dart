@@ -215,7 +215,6 @@ class CreateStudentsInBulkExcel {
     Uint8List? bytes = await pickFile();
     if (bytes == null) return null;
     Excel excel = Excel.decodeBytes(bytes);
-    Sheet sheet = excel['Students Data for ${section.sectionName ?? ""}'];
     for (String table in excel.tables.keys) {
       for (int rowIndex = 4; rowIndex < startIndexOfNewStudents; rowIndex++) {
         var studentIndex = rowIndex - 4;

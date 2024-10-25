@@ -130,6 +130,8 @@ class SchoolWiseEmployeeBean {
   }
 
   Map<String, dynamic> origJson() => __origJson;
+
+  bool get hasAdminRole => roles?.contains("ADMIN") ?? false;
 }
 
 class GetSchoolWiseEmployeesResponse {

@@ -6,13 +6,15 @@ import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
-class EmployeeCardWidget extends StatefulWidget {
-  const EmployeeCardWidget({
+class EmployeeCardViewWidget extends StatefulWidget {
+  const EmployeeCardViewWidget({
     Key? key,
     required this.adminProfile,
     required this.employeeProfile,
     required this.isEmployeeSelected,
     required this.onEmployeeSelected,
+    this.onEditSelected,
+    this.isEditEnabled = false,
   }) : super(key: key);
 
   final AdminProfile adminProfile;
@@ -21,11 +23,14 @@ class EmployeeCardWidget extends StatefulWidget {
   final bool isEmployeeSelected;
   final Function onEmployeeSelected;
 
+  final Function? onEditSelected;
+  final bool isEditEnabled;
+
   @override
-  State<EmployeeCardWidget> createState() => _EmployeeCardWidgetState();
+  State<EmployeeCardViewWidget> createState() => _EmployeeCardViewWidgetState();
 }
 
-class _EmployeeCardWidgetState extends State<EmployeeCardWidget> {
+class _EmployeeCardViewWidgetState extends State<EmployeeCardViewWidget> {
   bool _isLoading = false;
 
   @override
@@ -68,34 +73,35 @@ class _EmployeeCardWidgetState extends State<EmployeeCardWidget> {
             Expanded(
               child: Text(
                 widget.employeeProfile.employeeName ?? "-",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
-                  color: Colors.blue,
+                  color: widget.isEditEnabled && widget.employeeProfile.hasAdminRole ? Colors.red : Colors.blue,
                 ),
               ),
             ),
-            // const SizedBox(width: 10),
-            // GestureDetector(
-            //   onTap: () => widget.onEditSelected(widget.isEditMode ? null : widget.studentProfile.studentId),
-            //   child: ClayButton(
-            //     depth: 15,
-            //     surfaceColor: clayContainerColor(context),
-            //     parentColor: clayContainerColor(context),
-            //     spread: 2,
-            //     borderRadius: 100,
-            //     child: SizedBox(
-            //       height: 25,
-            //       width: 25,
-            //       child: Padding(
-            //         padding: const EdgeInsets.all(4),
-            //         child: FittedBox(
-            //           fit: BoxFit.scaleDown,
-            //           child: widget.isEditMode ? const Icon(Icons.check) : const Icon(Icons.edit),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            if (widget.isEditEnabled) const SizedBox(width: 10),
+            if (widget.isEditEnabled)
+              GestureDetector(
+                onTap: () => widget.onEditSelected == null ? {} : widget.onEditSelected!(widget.employeeProfile),
+                child: ClayButton(
+                  depth: 15,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 100,
+                  child: const SizedBox(
+                    height: 25,
+                    width: 25,
+                    child: Padding(
+                      padding: EdgeInsets.all(4),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Icon(Icons.edit),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             const SizedBox(width: 10),
             GestureDetector(
               onTap: () => widget.onEmployeeSelected(null),
@@ -134,7 +140,10 @@ class _EmployeeCardWidgetState extends State<EmployeeCardWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
-                  Text((widget.employeeProfile.roles ?? []).isEmpty ? "Role: -" : ((widget.employeeProfile.roles ?? []).length == 1 ? "Role: " : "Roles: ") + (widget.employeeProfile.roles ?? []).map((e) => e?.replaceAll("_", " ").toLowerCase().capitalize()).join(", ")),
+                  Text((widget.employeeProfile.roles ?? []).isEmpty
+                      ? "Role: -"
+                      : ((widget.employeeProfile.roles ?? []).length == 1 ? "Role: " : "Roles: ") +
+                          (widget.employeeProfile.roles ?? []).map((e) => e?.replaceAll("_", " ").toLowerCase().capitalize()).join(", ")),
                   const SizedBox(height: 10),
                   Text("Email: ${widget.employeeProfile.emailId ?? "-"}"),
                   const SizedBox(height: 10),
@@ -153,13 +162,13 @@ class _EmployeeCardWidgetState extends State<EmployeeCardWidget> {
               height: 75,
               child: widget.employeeProfile.photoUrl == null
                   ? Image.asset(
-                "assets/images/avatar.png",
-                fit: BoxFit.contain,
-              )
+                      "assets/images/avatar.png",
+                      fit: BoxFit.contain,
+                    )
                   : Image.network(
-                widget.employeeProfile.photoUrl!,
-                fit: BoxFit.contain,
-              ),
+                      widget.employeeProfile.photoUrl!,
+                      fit: BoxFit.contain,
+                    ),
             ),
             const SizedBox(width: 10),
           ],
@@ -189,13 +198,16 @@ class _EmployeeCardWidgetState extends State<EmployeeCardWidget> {
                     const SizedBox(height: 10),
                     Text(
                       widget.employeeProfile.employeeName?.capitalize() ?? "-",
-                      style: const TextStyle(
-                        color: Colors.blue,
+                      style: TextStyle(
+                        color: widget.isEditEnabled && widget.employeeProfile.hasAdminRole ? Colors.red : Colors.blue,
                         fontSize: 24,
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Text((widget.employeeProfile.roles ?? []).isEmpty ? "Role: -" : ((widget.employeeProfile.roles ?? []).length == 1 ? "Role: " : "Roles: ") + (widget.employeeProfile.roles ?? []).map((e) => e?.replaceAll("_", " ").toLowerCase().capitalize()).join(", ")),
+                    Text((widget.employeeProfile.roles ?? []).isEmpty
+                        ? "Role: -"
+                        : ((widget.employeeProfile.roles ?? []).length == 1 ? "Role: " : "Roles: ") +
+                            (widget.employeeProfile.roles ?? []).map((e) => e?.replaceAll("_", " ").toLowerCase().capitalize()).join(", ")),
                     const SizedBox(height: 10),
                   ],
                 ),

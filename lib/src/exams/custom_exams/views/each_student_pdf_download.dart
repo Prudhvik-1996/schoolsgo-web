@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
+import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/constants.dart';
@@ -16,7 +17,6 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -541,6 +541,7 @@ class EachStudentPdfDownloadForCustomExam {
       });
       Set<ExamSectionSubjectMap> essmList =
           (customExamForStudent.examSectionSubjectMapList ?? []).whereNotNull().where((e) => e.sectionId == selectedSection.sectionId).toSet();
+      bool hasTime = essmList.map((e) => e.startTime == null && e.endTime == null).contains(false);
       pdf.addPage(
         MultiPage(
           pageTheme: PageTheme(
@@ -697,7 +698,7 @@ class EachStudentPdfDownloadForCustomExam {
                           ),
                           children: [
                             paddedText("Date"),
-                            paddedText("Time"),
+                            if (hasTime) paddedText("Time"),
                             paddedText("Subject", textAlign: TextAlign.center),
                             paddedText("Invigilator's Signature", textAlign: TextAlign.center),
                           ],
@@ -727,7 +728,7 @@ class EachStudentPdfDownloadForCustomExam {
                           return TableRow(
                             children: [
                               paddedText(essm.examDate, textAlign: TextAlign.center),
-                              paddedText("${essm.startTimeSlot} - ${essm.endTimeSlot}", textAlign: TextAlign.center),
+                              if (hasTime) paddedText("${essm.startTimeSlot} - ${essm.endTimeSlot}", textAlign: TextAlign.center),
                               paddedText(
                                 subjectsList.where((es) => essm.subjectId == es.subjectId).firstOrNull?.subjectName ?? " - ",
                                 textAlign: TextAlign.left,

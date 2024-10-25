@@ -17,6 +17,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_receipt_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/edit_student_fee_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/update_section_wise_student_fee_in_bulk.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/fee/student/student_fee_screen_v3.dart';
@@ -434,6 +435,79 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
     setState(() => _isLoading = false);
   }
 
+  Future<void> downloadTemplateAction() async {
+    await UpdateSectionWiseStudentFeeInBulk(
+      studentsList: studentsList.where((es) => es.sectionId == selectedSection?.sectionId).toList(),
+      studentAnnualFeeList: studentAnnualFeeBeans..where((e) => e.sectionId == selectedSection?.sectionId).toList(),
+      selectedSection: selectedSection!,
+      agentId: widget.adminProfile.userId!,
+      schoolId: widget.adminProfile.schoolId!,
+      feeTypesForSelectedSection: feeTypesForSelectedSection,
+    ).downloadTemplate();
+  }
+
+  Future<void> uploadFromTemplateActionToEdit() async {
+    CreateOrUpdateStudentAnnualFeeMapRequest? createOrUpdateStudentAnnualFeeMapRequest = await UpdateSectionWiseStudentFeeInBulk(
+      studentsList: studentsList.where((es) => es.sectionId == selectedSection?.sectionId).toList(),
+      studentAnnualFeeList: studentAnnualFeeBeans.where((e) => e.sectionId == selectedSection?.sectionId).toList(),
+      selectedSection: selectedSection!,
+      agentId: widget.adminProfile.userId!,
+      schoolId: widget.adminProfile.schoolId!,
+      feeTypesForSelectedSection: feeTypesForSelectedSection,
+    ).uploadFromTemplateActionToEdit(context);
+    if (createOrUpdateStudentAnnualFeeMapRequest == null) {
+      // Validation Failed
+    } else if ((createOrUpdateStudentAnnualFeeMapRequest.studentRouteStopFares ?? []).isEmpty &&
+        (createOrUpdateStudentAnnualFeeMapRequest.studentAnnualFeeMapBeanList ?? []).isEmpty) {
+      // Nothing to edit
+    } else {
+      showDialog(
+        context: _scaffoldKey.currentContext!,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Student Fee Management'),
+            content: const Text('Are you sure you want to proceed with the changes?'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("YES"),
+                onPressed: () async {
+                  HapticFeedback.vibrate();
+                  Navigator.of(context).pop();
+                  setState(() => _isLoading = true);
+                  CreateOrUpdateStudentAnnualFeeMapResponse createOrUpdateStudentAnnualFeeMapResponse =
+                      await createOrUpdateStudentAnnualFeeMap(createOrUpdateStudentAnnualFeeMapRequest);
+                  if (createOrUpdateStudentAnnualFeeMapResponse.httpStatus == "OK" &&
+                      createOrUpdateStudentAnnualFeeMapResponse.responseStatus == "success") {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Changes updated successfully"),
+                      ),
+                    );
+                    await _loadData();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Something went wrong, Please try again later.."),
+                      ),
+                    );
+                  }
+                  setState(() => _isLoading = false);
+                },
+              ),
+              TextButton(
+                child: const Text("No"),
+                onPressed: () {
+                  HapticFeedback.vibrate();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
@@ -452,6 +526,33 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                 setState(() => _isLoading = true);
                 await downloadStudentFeeData();
                 setState(() => _isLoading = false);
+              },
+            ),
+          if (!_isLoading && selectedSection != null)
+            PopupMenuButton<String>(
+              tooltip: "Templates for student bulk upload",
+              onSelected: (String choice) async {
+                switch (choice) {
+                  case "Download Template":
+                    await downloadTemplateAction();
+                    return;
+                  case "Upload From Template":
+                    await uploadFromTemplateActionToEdit();
+                    return;
+                  default:
+                    return;
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {
+                  "Download Template",
+                  "Upload From Template",
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
               },
             ),
         ],
@@ -610,7 +711,7 @@ class _AdminStudentFeeManagementScreenState extends State<AdminStudentFeeManagem
                         );
                       },
                     ),
-                  );// .then((value) => _loadData());
+                  ); // .then((value) => _loadData());
                   // setState(() {
                   //   editingStudentId = studentWiseAnnualFeesBean.studentId;
                   // });
