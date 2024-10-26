@@ -208,6 +208,33 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                     children: [
                                       CheckboxListTile(
                                         controlAffinity: ListTileControlAffinity.leading,
+                                        value: showGraph,
+                                        onChanged: (bool? change) {
+                                          if (change != null) {
+                                            setState(() => showGraph = !showGraph);
+                                          }
+                                        },
+                                        title: const Text("Show graph for main exam"),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            if (mainExamId != null) const SizedBox(height: 10),
+                            if (mainExamId != null)
+                              ClayContainer(
+                                depth: 20,
+                                surfaceColor: clayContainerColor(context),
+                                parentColor: clayContainerColor(context),
+                                spread: 2,
+                                borderRadius: 10,
+                                emboss: true,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      CheckboxListTile(
+                                        controlAffinity: ListTileControlAffinity.leading,
                                         value: showAttendanceTable,
                                         onChanged: (bool? change) {
                                           if (change != null) {
