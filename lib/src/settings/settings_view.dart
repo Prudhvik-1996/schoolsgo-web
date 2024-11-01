@@ -2,12 +2,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/generate_new_login_pin_screen.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
+import 'package:schoolsgo_web/src/settings/app_udates_log/app_updates_log_screen.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import 'settings_controller.dart';
 
@@ -73,6 +74,8 @@ class _SettingsViewState extends State<SettingsView> {
                 if (loggedInUserId != null) const Divider(),
                 if (loggedInUserId != null) _buildUpdatePasswordWidget(),
                 const Divider(),
+                _buildUpdateLogsWidget(),
+                const Divider(),
               ],
             ),
       bottomSheet: Column(
@@ -86,6 +89,19 @@ class _SettingsViewState extends State<SettingsView> {
           if (fcmToken != null) _buildFcmTokenSection(),
           if (fcmToken != null) const SizedBox(height: 10),
         ],
+      ),
+    );
+  }
+
+  Widget _buildUpdateLogsWidget() {
+    return ListTile(
+      leading: const Icon(Icons.update),
+      title: const Text("Update Log"),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return const AppUpdatesLogScreen();
+        }),
       ),
     );
   }

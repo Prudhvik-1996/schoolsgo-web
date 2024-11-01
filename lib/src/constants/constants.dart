@@ -204,6 +204,7 @@ const String CREATE_OR_UPDATE_EMPLOYEES_ATTENDANCE = "/attendance/createOrUpdate
 
 const String GET_APP_VERSION_URL = "/commons/latestAppVersion?appName=EpsilonDiary";
 String getAppVersionUrl(String? versionName) => GET_APP_VERSION_URL + (versionName == null ? "" : "&versionName=$versionName");
+const String GET_APP_UPDATE_LOG_URL = "/commons/getAppUpdateLog?appName=EpsilonDiary";
 
 const String GET_HOSTELS = "/hostel/getHostels";
 
