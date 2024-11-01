@@ -27,22 +27,26 @@ class StudentAnnualFeeBean {
     this.sectionName,
     this.status,
   }) {
-    totalFee = ((studentAnnualFeeTypeBeans ?? [])
-                .map((e) => (e.studentAnnualCustomFeeTypeBeans ?? []).isEmpty
-                    ? [e.amount]
-                    : (e.studentAnnualCustomFeeTypeBeans ?? []).map((e) => e.amount).toList())
-                .expand((i) => i)
-                .reduce((a, b) => (a ?? 0) + (b ?? 0)) ??
-            0) +
-        (studentBusFeeBean?.fare ?? 0);
-    totalFeePaid = ((studentAnnualFeeTypeBeans ?? [])
-                .map((e) => (e.studentAnnualCustomFeeTypeBeans ?? []).isEmpty
-                    ? [e.amountPaid]
-                    : (e.studentAnnualCustomFeeTypeBeans ?? []).map((e) => e.amountPaid).toList())
-                .expand((i) => i)
-                .reduce((a, b) => (a ?? 0) + (b ?? 0)) ??
-            0) +
-        (studentBusFeeBean?.feePaid ?? 0);
+    try {
+      totalFee = ((studentAnnualFeeTypeBeans ?? [])
+                  .map((e) => (e.studentAnnualCustomFeeTypeBeans ?? []).isEmpty
+                      ? [e.amount]
+                      : (e.studentAnnualCustomFeeTypeBeans ?? []).map((e) => e.amount).toList())
+                  .expand((i) => i)
+                  .reduce((a, b) => (a ?? 0) + (b ?? 0)) ??
+              0) +
+          (studentBusFeeBean?.fare ?? 0);
+      totalFeePaid = ((studentAnnualFeeTypeBeans ?? [])
+                  .map((e) => (e.studentAnnualCustomFeeTypeBeans ?? []).isEmpty
+                      ? [e.amountPaid]
+                      : (e.studentAnnualCustomFeeTypeBeans ?? []).map((e) => e.amountPaid).toList())
+                  .expand((i) => i)
+                  .reduce((a, b) => (a ?? 0) + (b ?? 0)) ??
+              0) +
+          (studentBusFeeBean?.feePaid ?? 0);
+    } catch (_, e) {
+      debugPrintStack(label: "Could not compute totalFee and totalFeePaid", stackTrace: e);
+    }
   }
 
   @override
