@@ -18,6 +18,8 @@ class GenerateStudentMemosRequest {
   bool? showOnlyCumulativeExams;
   bool? showRemarks;
   List<int?>? studentIds;
+  List<String>? monthYearsForAttendance;
+
   Map<String, dynamic> __origJson = {};
 
   String? mainExamType;
@@ -35,6 +37,7 @@ class GenerateStudentMemosRequest {
     this.showRemarks,
     this.studentIds,
     this.mainExamType,
+    this.monthYearsForAttendance,
   });
   GenerateStudentMemosRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -63,6 +66,14 @@ class GenerateStudentMemosRequest {
       });
       studentIds = arr0;
     }
+    if (json['monthYearsForAttendance'] != null) {
+      final v = json['monthYearsForAttendance'];
+      final arr0 = <String>[];
+      v.forEach((v) {
+        arr0.add(v.toInt());
+      });
+      monthYearsForAttendance = arr0;
+    }
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -90,6 +101,14 @@ class GenerateStudentMemosRequest {
         arr0.add(v);
       }
       data['studentIds'] = arr0;
+    }
+    if (monthYearsForAttendance != null) {
+      final v = monthYearsForAttendance;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v);
+      }
+      data['monthYearsForAttendance'] = arr0;
     }
     return data;
   }

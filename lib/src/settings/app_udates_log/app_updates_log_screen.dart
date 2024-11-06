@@ -65,13 +65,12 @@ class _AppUpdatesLogScreenState extends State<AppUpdatesLogScreen> {
         borderRadius: 10,
         emboss: true,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(15),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -110,7 +109,6 @@ class _AppUpdatesLogScreenState extends State<AppUpdatesLogScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 5),
             ],
           ),
         ),

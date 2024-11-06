@@ -4,7 +4,9 @@ import 'package:excel/excel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/admin/populate_inter_exam_marks/populate_internal_exam_marks_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/each_marks_cell_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_memo_view.dart';
@@ -21,7 +23,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class FaCumulativeExamMarksScreen extends StatefulWidget {
   const FaCumulativeExamMarksScreen({
@@ -75,20 +76,27 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
 
   StudentExamMarks? editingCell;
 
+  late FAExam faExam;
+  bool showPopulateInternalMarksWidget = false;
+
   @override
   void initState() {
     super.initState();
-    (widget.faExam.faInternalExams ?? []).whereNotNull().forEach(
+    faExam = widget.faExam;
+    (faExam.faInternalExams ?? []).whereNotNull().forEach(
         (eachInternal) => eachInternal.examSectionSubjectMapList?.removeWhere((essm) => essm?.sectionId != widget.selectedSection.sectionId));
     _loadData();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData({bool loadCurrentExam = false}) async {
     setState(() => _isLoading = true);
+    if (loadCurrentExam) {
+      await _loadCurrentExam();
+    }
     setState(() {
       studentsList = <StudentProfile>{
         ...widget.studentsList.where((e) => e.sectionId == widget.selectedSection.sectionId),
-        ...widget.studentsList.where((e) => (widget.faExam.faInternalExams ?? [])
+        ...widget.studentsList.where((e) => (faExam.faInternalExams ?? [])
             .map((e) => e?.examSectionSubjectMapList ?? [])
             .expand((i) => i)
             .whereNotNull()
@@ -100,7 +108,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
       }.toList();
       studentsList.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
       for (StudentProfile eachStudent in studentsList) {
-        for (FaInternalExam eachInternal in (widget.faExam.faInternalExams ?? []).whereNotNull()) {
+        for (FaInternalExam eachInternal in (faExam.faInternalExams ?? []).whereNotNull()) {
           for (ExamSectionSubjectMap examSectionSubjectMap in (eachInternal.examSectionSubjectMapList ?? []).whereNotNull()) {
             examMarks[examSectionSubjectMap.examSectionSubjectMapId!] ??= [];
             if ((examSectionSubjectMap.studentExamMarksList ?? []).where((e) => e?.studentId == eachStudent.studentId).isNotEmpty) {
@@ -126,44 +134,58 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
     setState(() => _isLoading = false);
   }
 
+  Future<void> _loadCurrentExam() async {
+    setState(() => _isLoading = true);
+    GetFAExamsResponse getFAExamsResponse = await getFAExams(GetFAExamsRequest(
+      schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+      faExamId: faExam.faExamId,
+    ));
+    if (getFAExamsResponse.httpStatus != "OK" || getFAExamsResponse.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      faExam = (getFAExamsResponse.exams ?? []).map((e) => e!).toList()[0];
+    }
+    setState(() => _isLoading = false);
+  }
+
   void _handleArrowKeyNavigation(RawKeyDownEvent event, StudentExamMarks eachStudentExamMarks) {
     if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
       try {
         setState(() => editingCell = examMarks[eachStudentExamMarks.examSectionSubjectMapId!]![
             examMarks[eachStudentExamMarks.examSectionSubjectMapId!]!.indexWhere((esm) => esm.studentId == eachStudentExamMarks.studentId) - 1]);
       } catch (_) {
-        debugPrint("Tried crossing bounds");
+        // debugPrint("Tried crossing bounds");
       }
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       try {
         setState(() => editingCell = examMarks[eachStudentExamMarks.examSectionSubjectMapId!]![
             examMarks[eachStudentExamMarks.examSectionSubjectMapId!]!.indexWhere((esm) => esm.studentId == eachStudentExamMarks.studentId) + 1]);
       } catch (_) {
-        debugPrint("Tried crossing bounds");
+        // debugPrint("Tried crossing bounds");
       }
     } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
       try {
-        setState(() => editingCell = examMarks[examMarks.keys.toList()[examMarks.keys
-                    .toList()
-                    .indexWhere((e) => e == eachStudentExamMarks.examSectionSubjectMapId) -
-                (widget.faExam.faInternalExams?.firstWhere((ei) => ei?.faInternalExamId == eachStudentExamMarks.examId)?.examSectionSubjectMapList ??
-                        [])
-                    .length]]!
+        setState(() => editingCell = examMarks[examMarks.keys.toList()[
+                examMarks.keys.toList().indexWhere((e) => e == eachStudentExamMarks.examSectionSubjectMapId) -
+                    (faExam.faInternalExams?.firstWhere((ei) => ei?.faInternalExamId == eachStudentExamMarks.examId)?.examSectionSubjectMapList ?? [])
+                        .length]]!
             .firstWhere((e) => e.studentId == eachStudentExamMarks.studentId));
       } catch (_) {
-        debugPrint("Tried crossing bounds");
+        // debugPrint("Tried crossing bounds");
       }
     } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
       try {
-        setState(() => editingCell = examMarks[examMarks.keys.toList()[examMarks.keys
-                    .toList()
-                    .indexWhere((e) => e == eachStudentExamMarks.examSectionSubjectMapId) +
-                (widget.faExam.faInternalExams?.firstWhere((ei) => ei?.faInternalExamId == eachStudentExamMarks.examId)?.examSectionSubjectMapList ??
-                        [])
-                    .length]]!
+        setState(() => editingCell = examMarks[examMarks.keys.toList()[
+                examMarks.keys.toList().indexWhere((e) => e == eachStudentExamMarks.examSectionSubjectMapId) +
+                    (faExam.faInternalExams?.firstWhere((ei) => ei?.faInternalExamId == eachStudentExamMarks.examId)?.examSectionSubjectMapList ?? [])
+                        .length]]!
             .firstWhere((e) => e.studentId == eachStudentExamMarks.studentId));
       } catch (_) {
-        debugPrint("Tried crossing bounds");
+        // debugPrint("Tried crossing bounds");
       }
     }
   }
@@ -173,7 +195,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.faExam.faExamName ?? " - "),
+        title: Text(faExam.faExamName ?? " - "),
         actions: [
           // IconButton(
           //   icon: const Icon(Icons.info_outline),
@@ -193,6 +215,16 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                 }
               },
             ),
+          if (!_isLoading && showPopulateInternalMarksWidget)
+            Tooltip(
+              message: "Cancel",
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () async {
+                  setState(() => showPopulateInternalMarksWidget = false);
+                },
+              ),
+            ),
           if (!_isLoading && !_isEditMode)
             Tooltip(
               message: "Download report",
@@ -210,7 +242,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                     subjectsList: widget.subjectsList,
                     tdsList: widget.tdsList,
                     markingAlgorithm: widget.markingAlgorithm,
-                    faExam: widget.faExam,
+                    faExam: faExam,
                     studentsList: widget.studentsList,
                     selectedSection: widget.selectedSection,
                   ).downloadAsPdf();
@@ -234,7 +266,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                     subjectsList: widget.subjectsList,
                     tdsList: widget.tdsList,
                     markingAlgorithm: widget.markingAlgorithm,
-                    faExam: widget.faExam,
+                    faExam: faExam,
                     studentsList: widget.studentsList,
                     selectedSection: widget.selectedSection,
                     examMarks: examMarks,
@@ -252,7 +284,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                     subjectsList: widget.subjectsList,
                     tdsList: widget.tdsList,
                     markingAlgorithm: widget.markingAlgorithm,
-                    faExam: widget.faExam,
+                    faExam: faExam,
                     studentsList: widget.studentsList,
                     selectedSection: widget.selectedSection,
                     examMarks: examMarks,
@@ -268,14 +300,17 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                   }
                   faExamsAllStudentsMarksExcel.readExamMarks(excel);
                   setState(() => _isLoading = false);
+                } else if (choice == "Populate Internal Marks") {
+                  setState(() => showPopulateInternalMarksWidget = true);
                 } else {
-                  debugPrint("Invalid choice");
+                  // debugPrint("Invalid choice");
                 }
               },
               itemBuilder: (BuildContext context) {
                 return {
                   "Download Template",
                   "Upload From Template",
+                  if (widget.adminProfile != null) "Populate Internal Marks",
                 }.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
@@ -288,13 +323,23 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: stickyHeaderTable()),
-              ],
-            ),
+          : showPopulateInternalMarksWidget
+              ? PopulateInternalExamMarksWidget(
+                  faExam: faExam,
+                  adminProfile: widget.adminProfile!,
+                  loadData: () {
+                    Navigator.pop(context);
+                  },
+                  selectedSectionId: widget.selectedSection.sectionId!,
+                  scaffoldKey: scaffoldKey,
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: stickyHeaderTable()),
+                  ],
+                ),
     );
   }
 
@@ -303,7 +348,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
       context: scaffoldKey.currentContext!,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(widget.faExam.faExamName ?? " - "),
+          title: Text(faExam.faExamName ?? " - "),
           content: const Text("Are you sure to save changes?"),
           actions: <Widget>[
             TextButton(
@@ -367,14 +412,14 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
     for (Subject eachSubject in subjectsList) {
       List<ExamSectionSubjectMap?> subjectWiseEssmList = [];
       List<String> subjectWiseHeaderStrings = [];
-      (widget.faExam.faInternalExams ?? []).whereNotNull().forEach((eachInternal) {
+      (faExam.faInternalExams ?? []).whereNotNull().forEach((eachInternal) {
         var x = (eachInternal.examSectionSubjectMapList ?? [])
             .where((essm) =>
                 essm?.subjectId == eachSubject.subjectId &&
                 essm?.sectionId == widget.selectedSection.sectionId &&
                 (widget.teacherProfile == null || widget.isClassTeacher || widget.teacherProfile?.teacherId == essm?.authorisedAgent))
             .firstOrNull;
-        print("356:\n${x?.toJson()}\n${eachSubject.toJson()}\n");
+        // print("356:\n${x?.toJson()}\n${eachSubject.toJson()}\n");
         subjectWiseEssmList.add(x);
         if (x != null) {
           subjectWiseHeaderStrings.add("${eachSubject.subjectName}|${eachInternal.faInternalExamName ?? "-"}");
@@ -448,7 +493,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                                 subjectsList: widget.subjectsList,
                                 tdsList: widget.tdsList,
                                 markingAlgorithm: widget.markingAlgorithm,
-                                faExam: widget.faExam,
+                                faExam: faExam,
                                 studentProfile: studentsList[rowIndex],
                                 selectedSection: widget.selectedSection,
                               );
@@ -501,7 +546,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                         .expand((i) => i)
                         .where((e) => e.studentId == studentId)
                         .where((eachMarks) {
-                          int? eachMarksSubjectId = (widget.faExam.faInternalExams ?? [])
+                          int? eachMarksSubjectId = (faExam.faInternalExams ?? [])
                               .map((e) => e?.examSectionSubjectMapList ?? [])
                               .expand((i) => i)
                               .where((e) => e?.examSectionSubjectMapId == eachMarks.examSectionSubjectMapId)
@@ -591,7 +636,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
     var essmIdIndex = examMarks.keys.toList().indexWhere((e) => e == essm.examSectionSubjectMapId);
     if (_isEditMode) {
       if (editingCell == eachStudentExamMarks) {
-        print("369: $studentId, $essmIdIndex");
+        // print("369: $studentId, $essmIdIndex");
         return EachMarksCellWidget(
           studentId: studentId,
           essmIdIndex: essmIdIndex,
@@ -661,7 +706,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                 children: [
                   Expanded(
                     child: Text(
-                      widget.faExam.faExamName ?? " - ",
+                      faExam.faExamName ?? " - ",
                       style: const TextStyle(fontSize: 24),
                     ),
                   ),

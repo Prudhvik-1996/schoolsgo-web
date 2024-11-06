@@ -13,8 +13,10 @@ import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/admin/generate_memos/generate_memos.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 class GenerateMemosScreen extends StatefulWidget {
   const GenerateMemosScreen({
@@ -50,6 +52,11 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
   bool showRemarks = true;
   List<StudentProfile> selectedStudents = [];
 
+  List<String> monthYears = [];
+  Set<String> selectedMonthYears = {};
+
+  final ScrollController _controller = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +79,24 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         ),
       );
       return;
+    }
+    GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
+      schoolId: widget.adminProfile.schoolId,
+    ));
+    if (getSchoolsResponse.httpStatus != "OK" || getSchoolsResponse.responseStatus != "success" || getSchoolsResponse.schoolInfo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+      Navigator.pop(context);
+      return;
+    } else {
+      SchoolInfoBean schoolInfo = getSchoolsResponse.schoolInfo!;
+      DateTime startDate = convertYYYYMMDDFormatToDateTime(schoolInfo.academicYearStartDate);
+      DateTime endDate = convertYYYYMMDDFormatToDateTime(schoolInfo.academicYearEndDate);
+      monthYears = generateMmmYYYYStrings(startDate, endDate);
+      selectedMonthYears = generateMmmYYYYStrings(startDate, DateTime.now()).toSet();
     }
     setState(() => _isLoading = false);
   }
@@ -109,6 +134,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         showOnlyCumulativeExams: showOnlyCumulativeExams,
         showRemarks: showRemarks,
         studentIds: selectedStudents.map((e) => e.studentId).toList(),
+        monthYearsForAttendance: selectedMonthYears.toList(),
       );
 
   @override
@@ -237,9 +263,13 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                         controlAffinity: ListTileControlAffinity.leading,
                                         value: showAttendanceTable,
                                         onChanged: (bool? change) {
-                                          if (change != null) {
-                                            setState(() => showAttendanceTable = !showAttendanceTable);
-                                          }
+                                          if (change == null) return;
+                                          setState(() {
+                                            showAttendanceTable = !showAttendanceTable;
+                                            if (!showAttendanceTable) {
+                                              selectedMonthYears = {};
+                                            }
+                                          });
                                         },
                                         title: const Text("Show Attendance table"),
                                       ),
@@ -255,6 +285,48 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                               });
                                             },
                                             title: Text(e ? "Show Blank Attendance" : "Show Populated Attendance"),
+                                          ),
+                                        ),
+                                      if (mainExamId != null && showAttendanceTable) const SizedBox(height: 10),
+                                      if (mainExamId != null && showAttendanceTable)
+                                        Scrollbar(
+                                          thumbVisibility: true,
+                                          controller: _controller,
+                                          child: SingleChildScrollView(
+                                            controller: _controller,
+                                            scrollDirection: Axis.horizontal,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                ...["Select All", ...monthYears].map(
+                                                  (e) => SizedBox(
+                                                    width: 150,
+                                                    height: 60,
+                                                    child: CheckboxListTile(
+                                                      controlAffinity: ListTileControlAffinity.leading,
+                                                      value: selectedMonthYears.contains(e),
+                                                      onChanged: (bool? change) {
+                                                        if (change == null) return;
+                                                        setState(() {
+                                                          if (e == "Select All") {
+                                                            selectedMonthYears.clear();
+                                                            selectedMonthYears = monthYears.toSet();
+                                                          }
+                                                          if (change) {
+                                                            selectedMonthYears.add(e);
+                                                          } else {
+                                                            selectedMonthYears.remove(e);
+                                                          }
+                                                        });
+                                                      },
+                                                      title: Text(e, style: const TextStyle(fontSize: 14)), // Adjust font size if needed
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                     ],

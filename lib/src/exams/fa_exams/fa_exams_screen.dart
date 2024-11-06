@@ -64,7 +64,7 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _selectedSection = widget.defaultSelectedSection;
+      _selectedSection = _selectedSection ?? widget.defaultSelectedSection;
     });
 
     GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(

@@ -64,6 +64,7 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
       employeeAttendanceBeanList = (getEmployeeAttendanceResponse.employeeAttendanceBeanList ?? []).map((e) => e!).toList();
     }
     filterEmployeesList();
+    await _loadSchoolInfo();
     setState(() => _isLoading = false);
   }
 
@@ -154,12 +155,14 @@ class _AdminEmployeeAttendanceManagementScreenState extends State<AdminEmployeeA
   }
 
   Future<void> handleClick(String choice) async {
-    await _loadSchoolInfo();
     if (choice == "Print QR") {
       setState(() => _isLoading = true);
-      await downloadAttendanceQRPdf(
-          "$QR_BASE_URL${getQRCodeData(widget.adminProfile.schoolId!, false, DateTime.now().millisecondsSinceEpoch, widget.adminProfile.userId!)}&size=250x250",
-          schoolInfo!);
+      var qrBaseUrl = QR_BASE_URL;
+      var qrCodeData = getQRCodeData(widget.adminProfile.schoolId!, false, DateTime.now().millisecondsSinceEpoch, widget.adminProfile.userId!);
+      var qrUrl = "$qrBaseUrl$qrCodeData&size=250x250";
+      debugPrint("162: QR generation URL: $qrUrl");
+      String printStatus = await downloadAttendanceQRPdf(qrUrl, schoolInfo!);
+      debugPrint("165: $printStatus");
       setState(() => _isLoading = false);
     } else {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
