@@ -19,6 +19,7 @@ class GenerateStudentMemosRequest {
   bool? showRemarks;
   List<int?>? studentIds;
   List<String>? monthYearsForAttendance;
+  String? studentPhotoSize;
 
   Map<String, dynamic> __origJson = {};
 
@@ -38,6 +39,7 @@ class GenerateStudentMemosRequest {
     this.studentIds,
     this.mainExamType,
     this.monthYearsForAttendance,
+    this.studentPhotoSize,
   });
   GenerateStudentMemosRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -74,6 +76,7 @@ class GenerateStudentMemosRequest {
       });
       monthYearsForAttendance = arr0;
     }
+    studentPhotoSize = json['studentPhotoSize'];
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -110,6 +113,7 @@ class GenerateStudentMemosRequest {
       }
       data['monthYearsForAttendance'] = arr0;
     }
+    data['studentPhotoSize'] = studentPhotoSize;
     return data;
   }
   Map<String, dynamic> origJson() => __origJson;

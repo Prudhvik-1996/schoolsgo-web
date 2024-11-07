@@ -32,7 +32,7 @@ class GenerateMemosScreen extends StatefulWidget {
 
 class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
   bool _isLoading = true;
-  bool _isReportDownlading = false;
+  bool _isReportDownloading = false;
 
   List<Section> sectionsList = [];
   Section? selectedSection;
@@ -50,6 +50,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
   bool showCumulativeExams = false;
   bool showOnlyCumulativeExams = false;
   bool showRemarks = true;
+  String studentPhotoSize = "S";
   List<StudentProfile> selectedStudents = [];
 
   List<String> monthYears = [];
@@ -135,6 +136,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         showRemarks: showRemarks,
         studentIds: selectedStudents.map((e) => e.studentId).toList(),
         monthYearsForAttendance: selectedMonthYears.toList(),
+        studentPhotoSize: studentPhotoSize,
       );
 
   @override
@@ -143,7 +145,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
       appBar: AppBar(
         title: const Text("Memos"),
       ),
-      body: _isReportDownlading
+      body: _isReportDownloading
           ? const EpsilonDiaryLoadingWidget(
               defaultLoadingText: "Downloading Memos",
             )
@@ -334,6 +336,8 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                 ),
                               ),
                             if (mainExamId != null) const SizedBox(height: 10),
+                            if (mainExamId != null) buildStudentPhotoSizeBuilder(),
+                            if (mainExamId != null) const SizedBox(height: 10),
                             if (mainExamId != null) buildGenerateMemoButton(),
                             const SizedBox(height: 100),
                           ],
@@ -344,12 +348,38 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
     );
   }
 
+  Widget buildStudentPhotoSizeBuilder() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: Row(
+        children: [
+          const Text("Student Photo Size"),
+          ...["S", "M", "L"].map(
+            (e) => Expanded(
+              child: RadioListTile<String?>(
+                value: e,
+                groupValue: studentPhotoSize,
+                onChanged: (newValue) {
+                  if (newValue == null) return;
+                  setState(() {
+                    studentPhotoSize = newValue;
+                  });
+                },
+                title: Text(e),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget buildGenerateMemoButton() {
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: GestureDetector(
         onTap: () async {
-          setState(() => _isReportDownlading = true);
+          setState(() => _isReportDownloading = true);
           CustomExam? mainExam = exams.firstWhereOrNull((e) => e.customExamId == mainExamId);
           bool isMainExamFA = mainExam?.examType == "FA";
           GenerateStudentMemosRequest generateStudentMemosRequest = fetchGenerateStudentMemosRequest;
@@ -362,7 +392,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
           html.AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
             ..setAttribute("download", "${selectedSection?.sectionName}_${mainExam?.customExamName}_Memos.pdf")
             ..click();
-          setState(() => _isReportDownlading = false);
+          setState(() => _isReportDownloading = false);
         },
         child: ClayButton(
           surfaceColor: Colors.green,

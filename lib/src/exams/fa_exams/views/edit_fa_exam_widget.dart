@@ -109,7 +109,6 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
       return;
     }
     for (ExamSectionSubjectMap eachExamSectionSubjectMap in (widget.faExam.faInternalExams ?? [])
-        .where((e) => e?.status == 'active')
         .map((e) => e?.examSectionSubjectMapList ?? [])
         .expand((i) => i)
         .map((e) => e!)) {
@@ -1110,9 +1109,9 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
             comment: null,
             date: null,
             endTime: null,
-            examId: widget.faExam.faExamId,
+            examId: eachInternal.faInternalExamId,
             examSectionSubjectMapId: null,
-            masterExamId: null,
+            masterExamId: widget.faExam.faExamId,
             maxMarks: null,
             sectionId: eachTds.sectionId,
             startTime: null,
