@@ -144,6 +144,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
     for (FaInternalExam eachInternal in internals) {
       ScrollController controller = ScrollController();
       List<ExamSectionSubjectMap> essmListForInternal = examSectionSubjectMapList
+          .where((e) => e.status == 'active')
           .where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)
           .where((e) => e.examId == eachInternal.faInternalExamId && e.masterExamId == eachInternal.masterExamId)
           .where((e) => widget.isClassTeacher || widget.teacherProfile == null || e.authorisedAgent == (widget.teacherProfile?.teacherId))

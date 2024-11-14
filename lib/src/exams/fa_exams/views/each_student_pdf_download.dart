@@ -671,8 +671,10 @@ class EachStudentPdfDownloadForFaExam {
       faInternalExam.examSectionSubjectMapList?.forEach((essm) {
         essm?.studentExamMarksList = [];
       });
-      Set<ExamSectionSubjectMap> essmList =
-          (faInternalExam.examSectionSubjectMapList ?? []).whereNotNull().where((e) => e.sectionId == selectedSection.sectionId).toSet();
+      Set<ExamSectionSubjectMap> essmList = (faInternalExam.examSectionSubjectMapList ?? [])
+          .whereNotNull()
+          .where((e) => e.sectionId == selectedSection.sectionId && e.status == 'active')
+          .toSet();
       bool hasTime = essmList.map((e) => e.startTime == null && e.endTime == null).contains(false);
       pdf.addPage(
         MultiPage(

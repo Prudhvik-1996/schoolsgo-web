@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/admin/exams_v2/exams_v2_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/generate_memos/generate_memos_screen.dart';
-import 'package:schoolsgo_web/src/exams/admin/stats/exam_stats_options_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
+import 'package:schoolsgo_web/src/exams/admin/stats/exam_stats_options_screen.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exams_tds_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminExamOptionsScreen extends StatefulWidget {
   const AdminExamOptionsScreen({
@@ -142,6 +143,13 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
                     adminProfile: widget.adminProfile,
                     teacherProfile: null,
                     selectedAcademicYearId: selectedAcademicYearId,
+                  ),
+                ),
+                _getExamsOption(
+                  "Exams",
+                  null,
+                  ExamsV2Screen(
+                    adminProfile: widget.adminProfile,
                   ),
                 ),
                 _getExamsOption(

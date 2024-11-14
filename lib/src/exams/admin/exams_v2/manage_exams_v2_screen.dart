@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
@@ -12,10 +13,9 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
-class ManageFAExamsScreen extends StatefulWidget {
-  const ManageFAExamsScreen({
+class ManageExamsV2Screen extends StatefulWidget {
+  const ManageExamsV2Screen({
     super.key,
     required this.schoolInfo,
     required this.adminProfile,
@@ -41,10 +41,10 @@ class ManageFAExamsScreen extends StatefulWidget {
   final List<MarkingAlgorithmBean> markingAlgorithms;
 
   @override
-  State<ManageFAExamsScreen> createState() => _ManageFAExamsScreenState();
+  State<ManageExamsV2Screen> createState() => _ManageExamsV2ScreenState();
 }
 
-class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
+class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
 
@@ -80,20 +80,12 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
       appBar: AppBar(
         title: const Text("Exams With Internals"),
         actions: [
-          if (widget.adminProfile != null)
-            buildRoleButtonForAppBar(
-              context,
-              widget.adminProfile!,
-            )
-          else
-            buildRoleButtonForAppBar(
-              context,
-              widget.teacherProfile!,
-            ),
+          buildRoleButtonForAppBar(
+            context,
+            widget.adminProfile!,
+          ),
         ],
       ),
-      drawer:
-          widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : faExams.isEmpty
@@ -101,26 +93,7 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
               : ListView(
                   children: [
                     ...faExams.map(
-                      (faExam) => FAExamWidget(
-                        scaffoldKey: _scaffoldKey,
-                        schoolInfo: widget.schoolInfo,
-                        adminProfile: widget.adminProfile,
-                        teacherProfile: widget.teacherProfile,
-                        selectedAcademicYearId: widget.selectedAcademicYearId,
-                        sectionsList: widget.sectionsList,
-                        teachersList: widget.teachersList,
-                        subjectsList: widget.subjectsList,
-                        tdsList: widget.tdsList,
-                        faExam: faExam,
-                        studentsList: widget.studentsList,
-                        loadData: _loadData,
-                        editingEnabled: true,
-                        selectedSection: null,
-                        setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
-                        markingAlgorithms: widget.markingAlgorithms,
-                        isClassTeacher: false,
-                        smsTemplate: null,
-                      ),
+                      (faExam) => faExamWidget(faExam),
                     ),
                     const SizedBox(height: 100),
                   ],
@@ -197,6 +170,29 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget faExamWidget(FAExam faExam) {
+    return FAExamWidget(
+      scaffoldKey: _scaffoldKey,
+      schoolInfo: widget.schoolInfo,
+      adminProfile: widget.adminProfile,
+      teacherProfile: widget.teacherProfile,
+      selectedAcademicYearId: widget.selectedAcademicYearId,
+      sectionsList: widget.sectionsList,
+      teachersList: widget.teachersList,
+      subjectsList: widget.subjectsList,
+      tdsList: widget.tdsList,
+      faExam: faExam,
+      studentsList: widget.studentsList,
+      loadData: _loadData,
+      editingEnabled: true,
+      selectedSection: null,
+      setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
+      markingAlgorithms: widget.markingAlgorithms,
+      isClassTeacher: false,
+      smsTemplate: null,
     );
   }
 }

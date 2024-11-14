@@ -16,6 +16,7 @@ class ExamSectionSubjectMap {
   String? startTime;
   String? status;
   List<StudentExamMarks?>? studentExamMarksList;
+  double? averageMarksObtained;
   int? subjectId;
   Map<String, dynamic> __origJson = {};
 
@@ -35,9 +36,10 @@ class ExamSectionSubjectMap {
     this.startTime,
     this.status,
     this.studentExamMarksList,
+    this.averageMarksObtained,
     this.subjectId,
   }) {
-    maxMarksController.text = "${maxMarks ?? ''}";
+    maxMarksController.text = status == 'active' ? "${maxMarks ?? ''}" : '';
   }
 
   ExamSectionSubjectMap.fromJson(Map<String, dynamic> json) {
@@ -51,7 +53,6 @@ class ExamSectionSubjectMap {
     examSectionSubjectMapId = json['examSectionSubjectMapId']?.toInt();
     masterExamId = json['masterExamId']?.toInt();
     maxMarks = json['maxMarks']?.toDouble();
-    maxMarksController.text = "${maxMarks ?? ''}";
     sectionId = json['sectionId']?.toInt();
     startTime = json['startTime']?.toString();
     status = json['status']?.toString();
@@ -63,7 +64,9 @@ class ExamSectionSubjectMap {
       });
       studentExamMarksList = arr0;
     }
+    averageMarksObtained = json['averageMarksObtained']?.toDouble();
     subjectId = json['subjectId']?.toInt();
+    maxMarksController.text = status == 'active' ? "${maxMarks ?? ''}" : '';
   }
 
   double? get classAverage => (studentExamMarksList ?? []).where((e) => e?.marksObtained != null && e?.isAbsent != 'N').isEmpty
@@ -85,8 +88,7 @@ class ExamSectionSubjectMap {
     // Calculate the total marks obtained by students who are not absent.
     double totalMarksObtained =
         studentExamMarksList!.where((e) => e?.marksObtained != null && e?.isAbsent != 'N').map((e) => e!.marksObtained!).fold(0.0, (a, b) => a + b);
-    double totalMaxMarks =
-        studentExamMarksList!.where((e) => e?.marksObtained != null && e?.isAbsent != 'N').length * maxMarks!;
+    double totalMaxMarks = studentExamMarksList!.where((e) => e?.marksObtained != null && e?.isAbsent != 'N').length * maxMarks!;
 
     // Calculate the average percentage and round it to two decimal places.
     return (totalMarksObtained / totalMaxMarks) * 100;
@@ -114,6 +116,7 @@ class ExamSectionSubjectMap {
       }
       data['studentExamMarksList'] = arr0;
     }
+    data['averageMarksObtained'] = averageMarksObtained;
     data['subjectId'] = subjectId;
     return data;
   }

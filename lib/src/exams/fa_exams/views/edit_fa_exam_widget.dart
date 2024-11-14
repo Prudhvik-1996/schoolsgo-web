@@ -13,6 +13,7 @@ import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
+import 'package:uuid/uuid.dart';
 
 class EditFAExamWidget extends StatefulWidget {
   const EditFAExamWidget({
@@ -172,12 +173,6 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                 setState(() {
                   _isLoading = true;
                 });
-                for (FaInternalExam eachInternal
-                    in (widget.faExam.faInternalExams ?? []).where((e) => !(e?.faInternalExamId == null && e?.status == 'inactive')).map((e) => e!)) {
-                  setState(() {
-                    eachInternal.examSectionSubjectMapList?.removeWhere((e) => e?.examSectionSubjectMapId == null && e?.status == 'inactive');
-                  });
-                }
                 CreateOrUpdateFAExamRequest createOrUpdateFAExamRequest = CreateOrUpdateFAExamRequest(
                   academicYearId: widget.selectedAcademicYearId,
                   schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
@@ -322,27 +317,53 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
           },
         ),
         if (hasInternals) const SizedBox(height: 8),
-        if (hasInternals)
-          ...(widget.faExam.faInternalExams ?? []).map(
-            (e) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: e?.status == 'active',
-                    onChanged: (bool? newValue) {
-                      setState(() => e?.status = (newValue ?? false) ? 'active' : 'inactive');
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(child: faInternalExamNameWidget(e!, margin: const EdgeInsets.fromLTRB(15, 8, 15, 8))),
-                ],
-              ),
-            ),
-          ),
+        if (hasInternals) buildReOrderableListViewForInternals(),
         if (hasInternals) const SizedBox(height: 8),
         if (hasInternals) addNewInternalButton(),
       ],
+    );
+  }
+
+  ReorderableListView buildReOrderableListViewForInternals() {
+    return ReorderableListView(
+      shrinkWrap: true,
+      buildDefaultDragHandles: true,
+      physics: const NeverScrollableScrollPhysics(),
+      onReorder: (int oldIndex, int newIndex) async {
+        if (newIndex > oldIndex) {
+          newIndex -= 1;
+        }
+        setState(() {
+          final FaInternalExam? removedItem = (widget.faExam.faInternalExams ?? []).removeAt(oldIndex);
+          (widget.faExam.faInternalExams ?? []).insert(newIndex, removedItem);
+          (widget.faExam.faInternalExams ?? []).forEachIndexed((index, eachInternal) {
+            eachInternal?.seqOrder = index + 1;
+          });
+        });
+      },
+      children: [
+        for (int index = 0; index < (widget.faExam.faInternalExams ?? []).length; index++)
+          internalExamNameWidget((widget.faExam.faInternalExams ?? [])[index]),
+      ],
+    );
+  }
+
+  Padding internalExamNameWidget(FaInternalExam? e) {
+    return Padding(
+      key: e?.key ?? Key(const Uuid().v1()),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          Checkbox(
+            value: e?.status == 'active',
+            onChanged: (bool? newValue) {
+              setState(() => e?.status = (newValue ?? false) ? 'active' : 'inactive');
+            },
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: faInternalExamNameWidget(e!, margin: const EdgeInsets.fromLTRB(15, 8, 15, 8))),
+        ],
+      ),
     );
   }
 
@@ -622,13 +643,13 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
 
   Widget buildCheckBoxForTds(TeacherDealingSection eachTds) {
     return Checkbox(
-        value: !(widget.faExam.faInternalExams ?? [])
+        value: (widget.faExam.faInternalExams ?? [])
             .map((e) => e?.examSectionSubjectMapList ?? [])
             .expand((i) => i)
             .where(
                 (essm) => essm?.sectionId == eachTds.sectionId && essm?.subjectId == eachTds.subjectId && essm?.authorisedAgent == eachTds.teacherId)
             .map((e) => e?.status)
-            .contains("inactive"),
+            .contains("active"),
         onChanged: (bool? checkStatus) {
           if (checkStatus == null) return;
           setState(() {
@@ -1099,7 +1120,6 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
         if (newText == "") {
           eachExamSectionSubjectMap.maxMarks = null;
           eachExamSectionSubjectMap.status = 'inactive';
-          print("876: Set to inactive");
         }
         double? newMaxMarks = double.tryParse(newText ?? "");
         if (newMaxMarks != null) {
@@ -1283,17 +1303,40 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
             ),
           ),
           const SizedBox(width: 15),
-          DropdownButton<MarkingAlgorithmBean?>(
-            hint: const Text("Marking Algorithm"),
-            value: widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
-            items: [null, ...widget.markingAlgorithms]
-                .map((e) => DropdownMenuItem<MarkingAlgorithmBean?>(
-                      child: Text(e?.algorithmName ?? "-"),
-                      value: e,
-                    ))
-                .toList(),
-            onChanged: (MarkingAlgorithmBean? newMarkingAlgorithm) =>
-                setState(() => widget.faExam.markingAlgorithmId = newMarkingAlgorithm?.markingAlgorithmId),
+          SizedBox(
+            width: 180,
+            height: 50,
+            child: InputDecorator(
+              isFocused: false,
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.blue),
+                ),
+                label: Text(
+                  "Marking Algorithm",
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+              child: DropdownButton<MarkingAlgorithmBean?>(
+                underline: Container(),
+                hint: const Text("Marking Algorithm"),
+                value: widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.faExam.markingAlgorithmId).firstOrNull,
+                items: [null, ...widget.markingAlgorithms]
+                    .map((e) => DropdownMenuItem<MarkingAlgorithmBean?>(
+                          child: Text(e?.algorithmName ?? "-"),
+                          value: e,
+                        ))
+                    .toList(),
+                onChanged: (MarkingAlgorithmBean? newMarkingAlgorithm) =>
+                    setState(() => widget.faExam.markingAlgorithmId = newMarkingAlgorithm?.markingAlgorithmId),
+              ),
+            ),
           ),
         ],
       ),

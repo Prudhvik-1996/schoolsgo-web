@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
+import 'package:uuid/uuid.dart';
 
 class GetFAExamsRequest {
   int? academicYearId;
@@ -57,6 +58,8 @@ class FaInternalExam {
   String? faInternalExamName;
   int? masterExamId;
   String? status;
+  int? seqOrder;
+  Key? key;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController internalExamNameController = TextEditingController();
@@ -69,8 +72,10 @@ class FaInternalExam {
     this.faInternalExamName,
     this.masterExamId,
     this.status,
+    this.seqOrder,
   }) {
     internalExamNameController.text = faInternalExamName ?? '';
+    key = Key(const Uuid().v1());
   }
 
   FaInternalExam.fromJson(Map<String, dynamic> json) {
@@ -90,6 +95,8 @@ class FaInternalExam {
     internalExamNameController.text = faInternalExamName ?? '';
     masterExamId = json['masterExamId']?.toInt();
     status = json['status']?.toString();
+    seqOrder = json['seqOrder']?.toInt();
+    key = Key(const Uuid().v1());
   }
 
   Map<String, dynamic> toJson() {
@@ -108,6 +115,7 @@ class FaInternalExam {
     data['faInternalExamName'] = faInternalExamName;
     data['masterExamId'] = masterExamId;
     data['status'] = status;
+    data['seqOrder'] = seqOrder;
     return data;
   }
 
@@ -325,6 +333,20 @@ class GetFAExamsResponse {
 Future<GetFAExamsResponse> getFAExams(GetFAExamsRequest getFAExamsRequest) async {
   debugPrint("Raising request to getFAExams with request ${jsonEncode(getFAExamsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_FA_EXAMS;
+
+  GetFAExamsResponse getFAExamsResponse = await HttpUtils.post(
+    _url,
+    getFAExamsRequest.toJson(),
+    GetFAExamsResponse.fromJson,
+  );
+
+  debugPrint("GetFAExamsResponse ${getFAExamsResponse.toJson()}");
+  return getFAExamsResponse;
+}
+
+Future<GetFAExamsResponse> getFAExamsWithStats(GetFAExamsRequest getFAExamsRequest) async {
+  debugPrint("Raising request to getFAExams with request ${jsonEncode(getFAExamsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_ALL_EXAMS_WITH_STATS;
 
   GetFAExamsResponse getFAExamsResponse = await HttpUtils.post(
     _url,

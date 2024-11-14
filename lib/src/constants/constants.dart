@@ -217,6 +217,7 @@ const String GET_CUSTOM_EXAMS = "/exams/getCustomExams";
 const String CREATE_OR_UPDATE_CUSTOM_EXAMS = "/exams/createOrUpdateCustomExam";
 const String GET_STUDENT_WISE_EXAMS = "/exams/getStudentWiseExams";
 const String GET_FA_EXAMS = "/exams/getFAExams";
+const String GET_ALL_EXAMS_WITH_STATS = "/exams/getAllExamsWithStats";
 const String CREATE_OR_UPDATE_FA_EXAMS = "/exams/createOrUpdateFAExam";
 const String GET_ALL_EXAMS = "/exams/getAllExams";
 const String POPULATE_INTERNAL_EXAM_MARKS = "/exams/populateExamMarksAsPerOtherExams";
