@@ -3,9 +3,9 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/admin/exams_v2/fa_exam_v2_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
-import 'package:schoolsgo_web/src/exams/fa_exams/views/fa_exam_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -78,7 +78,7 @@ class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Exams With Internals"),
+        title: const Text("Manage Exams"),
         actions: [
           buildRoleButtonForAppBar(
             context,
@@ -174,25 +174,19 @@ class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
   }
 
   Widget faExamWidget(FAExam faExam) {
-    return FAExamWidget(
-      scaffoldKey: _scaffoldKey,
+    return FaExamV2Widget(
       schoolInfo: widget.schoolInfo,
-      adminProfile: widget.adminProfile,
-      teacherProfile: widget.teacherProfile,
-      selectedAcademicYearId: widget.selectedAcademicYearId,
+      adminProfile: widget.adminProfile!,
       sectionsList: widget.sectionsList,
       teachersList: widget.teachersList,
       subjectsList: widget.subjectsList,
       tdsList: widget.tdsList,
-      faExam: faExam,
+      exam: faExam,
       studentsList: widget.studentsList,
-      loadData: _loadData,
-      editingEnabled: true,
+      editingEnabled: false,
       selectedSection: null,
-      setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
       markingAlgorithms: widget.markingAlgorithms,
-      isClassTeacher: false,
-      smsTemplate: null,
+      showMoreOptions: false,
     );
   }
 }

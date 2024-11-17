@@ -224,6 +224,8 @@ class _ExamsV2ScreenState extends State<ExamsV2Screen> {
                           markingAlgorithms: markingAlgorithms,
                           schoolInfo: schoolInfo,
                           studentsList: studentsList.where((es) => es.sectionId == _selectedSection?.sectionId).toList(),
+                          editingEnabled: false,
+                          showMoreOptions: true,
                         ),
                       ),
                 const SizedBox(height: 100),

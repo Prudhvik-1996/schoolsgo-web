@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:html' as html;
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:pdf/pdf.dart';
@@ -99,23 +100,24 @@ class SectionWiseMarkListPdf {
       int? aSeqOrder = a.seqOrder;
       int? bSeqOrder = b.seqOrder;
       return (aSeqOrder ?? 0).compareTo(bSeqOrder ?? 0);
-    })
-    .toList();
-    List<ExamSectionSubjectMap?> essmList = ((faExam.faInternalExams ?? []).map((e) => (e?.examSectionSubjectMapList ?? []).sorted((a, b) {
-      Subject? aSubject = subjectsList.where((e) => e.subjectId == a?.subjectId).firstOrNull;
-      Subject? bSubject = subjectsList.where((e) => e.subjectId == b?.subjectId).firstOrNull;
-      return (aSubject?.seqOrder ?? 0).compareTo(bSubject?.seqOrder ?? 0);
-    }))).expand((i) => i).toList();
+    }).toList();
+    List<ExamSectionSubjectMap?> essmList = [];
+    for (Subject es in tempSubjectsList) {
+      for (FaInternalExam eachInternal in (faExam.faInternalExams ?? []).whereNotNull()) {
+        essmList.add(
+            (eachInternal.examSectionSubjectMapList ?? []).firstWhereOrNull((essm) => essm?.status == 'active' && essm?.subjectId == es.subjectId));
+      }
+    }
     List<String> headerStrings = [];
     List<Subject> subjectsForExam = [];
     double totalMaxMarks = 0;
-    for (FaInternalExam eachInternal in (faExam.faInternalExams ?? []).whereNotNull()) {
-      for (Subject es in tempSubjectsList) {
+    for (Subject es in tempSubjectsList) {
+      for (FaInternalExam eachInternal in (faExam.faInternalExams ?? []).whereNotNull()) {
         ExamSectionSubjectMap? essm =
             essmList.where((essm) => essm?.examId == eachInternal.faInternalExamId && essm?.subjectId == es.subjectId).firstOrNull;
         if (essm != null) {
           subjectsForExam.add(es);
-          headerStrings.add("${eachInternal.faInternalExamName ?? "-"}\n${es.subjectName?.split(" ").join("\n") ?? " - "}\n(${essm.maxMarks})");
+          headerStrings.add("${eachInternal.faInternalExamName?.trim() ?? "-"}\n${es.subjectName?.trim() ?? "-"} (${essm.maxMarks})");
           totalMaxMarks += essm.maxMarks ?? 0;
         }
       }
@@ -150,11 +152,16 @@ class SectionWiseMarkListPdf {
         header: (_) => schoolInfo.examMemoHeader != null
             ? Padding(
                 padding: const EdgeInsets.all(4),
-                child: Image(
-                  MemoryImage(
-                    const Base64Decoder().convert(schoolInfo.examMemoHeader!),
+                child: Center(
+                  child: Image(
+                    MemoryImage(
+                      const Base64Decoder().convert(schoolInfo.examMemoHeader!),
+                    ),
+                    fit: BoxFit.scaleDown,
+                    width: 300,
+                    height: 150,
+                    alignment: Alignment.topCenter,
                   ),
-                  fit: BoxFit.scaleDown,
                 ),
               )
             : Row(
@@ -184,7 +191,7 @@ class SectionWiseMarkListPdf {
               ),
         build: (context) {
           return [
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Center(
               child: Text(
                 faExam.faExamName ?? "-",
@@ -192,7 +199,7 @@ class SectionWiseMarkListPdf {
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 1),
             Container(
               margin: const EdgeInsets.all(10),
               child: Table(
@@ -204,9 +211,9 @@ class SectionWiseMarkListPdf {
                     repeat: true,
                     verticalAlignment: TableCellVerticalAlignment.middle,
                     children: [
-                      cellText("Roll No.", isCenter: false),
-                      cellText("Student Name", isCenter: false),
-                      ...headerStrings.map((e) => cellText(e, fontSize: 7)),
+                      headerCellText("R.No.", fontSize: 6, isBold: true, isCenter: false),
+                      headerCellText("Student Name", fontSize: 6, isBold: true, isCenter: false),
+                      ...headerStrings.map((e) => headerCellText(e, fontSize: 6, isBold: true, isVertical: true)),
                     ].toList(),
                   ),
                   ...studentsList.map(
@@ -291,7 +298,7 @@ class SectionWiseMarkListPdf {
                                     .toStringAsFixed(2)));
                           } else {
                             return Center(
-                              child: cellText(eachStudentExamMarks?.isAbsent == 'N' ? "Absent" : "${eachStudentExamMarks?.marksObtained ?? ""}"),
+                              child: cellText(eachStudentExamMarks?.isAbsent == 'N' ? "A" : "${eachStudentExamMarks?.marksObtained ?? ""}"),
                             );
                           }
                         })
@@ -401,20 +408,56 @@ class SectionWiseMarkListPdf {
     return faExamForStudent;
   }
 
-  Widget cellText(
+  Widget headerCellText(
     String e, {
     bool isCenter = true,
-    double fontSize = 5,
+    double fontSize = 8,
+    bool isVertical = false,
+    bool isBold = false,
   }) {
     final textWidget = Text(
       e,
-      style: TextStyle(fontSize: fontSize),
+      style: TextStyle(fontSize: fontSize, fontWeight: isBold ? FontWeight.bold : null),
       textAlign: isCenter ? TextAlign.center : TextAlign.left,
     );
 
     return Padding(
       padding: const EdgeInsets.all(3),
-      child: isCenter ? Center(child: textWidget) : textWidget,
+      child: SizedBox(
+        height: 50,
+        child: isVertical
+            ? FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Transform.rotateBox(angle: pi / 2, child: textWidget),
+              )
+            : isCenter
+                ? Center(child: textWidget)
+                : Align(alignment: Alignment.bottomLeft, child: textWidget),
+      ),
+    );
+  }
+
+  Widget cellText(
+    String e, {
+    bool isCenter = true,
+    double fontSize = 8,
+    bool isVertical = false,
+    bool isBold = false,
+  }) {
+    final textWidget = Text(
+      e,
+      style: TextStyle(fontSize: fontSize, fontWeight: isBold ? FontWeight.bold : null),
+      textAlign: isCenter ? TextAlign.center : TextAlign.left,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.all(3),
+      child: isVertical
+          ? Center(child: Transform.rotateBox(angle: pi / 2, child: textWidget))
+          : isCenter
+              ? Center(child: textWidget)
+              : textWidget,
     );
   }
 }

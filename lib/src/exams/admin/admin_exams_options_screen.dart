@@ -127,24 +127,24 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
                     selectedAcademicYearId: selectedAcademicYearId,
                   ),
                 ),
-                _getExamsOption(
-                  "Exams Without Internals",
-                  null,
-                  CustomExamsScreen(
-                    adminProfile: widget.adminProfile,
-                    teacherProfile: null,
-                    selectedAcademicYearId: selectedAcademicYearId,
-                  ),
-                ),
-                _getExamsOption(
-                  "Exams With Internals",
-                  null,
-                  FAExamsScreen(
-                    adminProfile: widget.adminProfile,
-                    teacherProfile: null,
-                    selectedAcademicYearId: selectedAcademicYearId,
-                  ),
-                ),
+                // _getExamsOption(
+                //   "Exams Without Internals",
+                //   null,
+                //   CustomExamsScreen(
+                //     adminProfile: widget.adminProfile,
+                //     teacherProfile: null,
+                //     selectedAcademicYearId: selectedAcademicYearId,
+                //   ),
+                // ),
+                // _getExamsOption(
+                //   "Exams With Internals",
+                //   null,
+                //   FAExamsScreen(
+                //     adminProfile: widget.adminProfile,
+                //     teacherProfile: null,
+                //     selectedAcademicYearId: selectedAcademicYearId,
+                //   ),
+                // ),
                 _getExamsOption(
                   "Exams",
                   null,

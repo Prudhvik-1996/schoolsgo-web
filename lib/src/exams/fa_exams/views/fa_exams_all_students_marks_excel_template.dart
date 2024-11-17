@@ -88,7 +88,7 @@ class FAExamsAllStudentsMarksExcel {
                   ?.faInternalExamName ??
               "-";
           subjectsForExam.add(es);
-          headerStrings.add("${es.subjectName?.split(" ").join("\n") ?? " - "}\n$examName\n${essm.sectionId}\n(${essm.maxMarks})");
+          headerStrings.add("${es.subjectName?.split(" ").join("\n") ?? " - "}\n$examName (${essm.maxMarks})");
           totalMaxMarks += essm.maxMarks ?? 0;
         }
       });

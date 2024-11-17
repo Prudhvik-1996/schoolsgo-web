@@ -427,12 +427,12 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
       });
       essmList.addAll(subjectWiseEssmList);
       headerStrings.addAll(subjectWiseHeaderStrings);
-      if (subjectWiseHeaderStrings.isNotEmpty) {
-        headerStrings.add("${eachSubject.subjectName}\nTotal");
-        essmList.add(ExamSectionSubjectMap(
-          subjectId: eachSubject.subjectId,
-        ));
-      }
+      // if (subjectWiseHeaderStrings.isNotEmpty) {
+      //   headerStrings.add("${eachSubject.subjectName}\nTotal");
+      //   essmList.add(ExamSectionSubjectMap(
+      //     subjectId: eachSubject.subjectId,
+      //   ));
+      // }
     }
     return Container(
       margin: const EdgeInsets.all(15),

@@ -160,13 +160,13 @@ class _CustomExamWidgetState extends State<CustomExamWidget> {
                               ),
                               dataCellWidget(
                                 Text(
-                                  tdsList.firstWhere((e) => e.subjectId == eachExamSectionSubjectMap.subjectId).subjectName ?? "-",
+                                  tdsList.firstWhereOrNull((e) => e.subjectId == eachExamSectionSubjectMap.subjectId)?.subjectName ?? "-",
                                 ),
                                 isCenter: false,
                               ),
                               dataCellWidget(
                                 Text(
-                                  tdsList.firstWhere((e) => e.teacherId == eachExamSectionSubjectMap.authorisedAgent).teacherName ?? "-",
+                                  tdsList.firstWhereOrNull((e) => e.teacherId == eachExamSectionSubjectMap.authorisedAgent)?.teacherName ?? "-",
                                 ),
                                 isCenter: false,
                               ),

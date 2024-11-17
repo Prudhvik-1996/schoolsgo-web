@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/exams/fa_exams/fa_cumulative_exam_marks_screen
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_pdf_download.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
@@ -37,6 +38,8 @@ class FaExamV2Widget extends StatefulWidget {
     required this.markingAlgorithms,
     required this.schoolInfo,
     required this.studentsList,
+    required this.editingEnabled,
+    required this.showMoreOptions,
   });
 
   final AdminProfile adminProfile;
@@ -52,6 +55,9 @@ class FaExamV2Widget extends StatefulWidget {
 
   final SchoolInfoBean schoolInfo;
   final List<StudentProfile> studentsList;
+
+  final bool editingEnabled;
+  final bool showMoreOptions;
 
   @override
   State<FaExamV2Widget> createState() => _FaExamV2WidgetState();
@@ -79,17 +85,17 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
     setState(() => _isLoading = true);
     for (TeacherDealingSection eachTds in widget.tdsList) {
       List<double?> tdsWiseMarks = [];
+      List<double?> maxMarks = [];
       for (FaInternalExam? eachInternal in (widget.exam.faInternalExams ?? [])) {
-        tdsWiseMarks.add((eachInternal?.examSectionSubjectMapList ?? [])
-            .where((essm) =>
-                essm?.status == 'active' &&
-                essm?.sectionId == eachTds.sectionId &&
-                essm?.subjectId == eachTds.subjectId &&
-                essm?.authorisedAgent == eachTds.teacherId)
-            .firstOrNull
-            ?.averageMarksObtained);
+        ExamSectionSubjectMap? examSectionSubjectMap = (eachInternal?.examSectionSubjectMapList ?? [])
+            .where(
+                (essm) => essm?.sectionId == eachTds.sectionId && essm?.subjectId == eachTds.subjectId && essm?.authorisedAgent == eachTds.teacherId)
+            .firstOrNull;
+        if (examSectionSubjectMap == null) continue;
+        tdsWiseMarks.add(examSectionSubjectMap.status == 'active' ? examSectionSubjectMap.averageMarksObtained : null);
+        maxMarks.add(examSectionSubjectMap.status == 'active' ? examSectionSubjectMap.maxMarks : null);
       }
-      tdsWiseList.add(TdsWiseMarksStats(eachTds.subjectId, eachTds.sectionId, eachTds.teacherId, tdsWiseMarks));
+      tdsWiseList.add(TdsWiseMarksStats.fromAverageMarksAndMaxMarks(eachTds.subjectId, eachTds.sectionId, eachTds.teacherId, tdsWiseMarks, maxMarks));
     }
     tdsWiseList = tdsWiseList.toSet().toList();
     setState(() => _isLoading = false);
@@ -157,7 +163,7 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
                       ),
                     ),
                   ),
-                if (!_isLoading && isExpanded) moreOptionsWidget(),
+                if (!_isLoading && isExpanded && widget.showMoreOptions) moreOptionsWidget(),
                 if (!_isLoading && isExpanded) internalsStatsWidget(),
               ],
             ),
@@ -172,8 +178,8 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          editExamButton(),
-          const SizedBox(width: 12),
+          // editExamButton(),
+          // const SizedBox(width: 12),
           updateMarksButton(),
           const SizedBox(width: 12),
           sendSmsButton(),
@@ -314,12 +320,18 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
     );
   }
 
-  Tooltip updateMarksButton() {
+  Widget updateMarksButton() {
+    if (faExam == null) Container();
     return Tooltip(
       message: "Update Marks",
       child: GestureDetector(
         onTap: () async {
           if (faExam == null) await _loadExam();
+          FAExam faExamToUpdate = FAExam.fromJson(faExam!.origJson());
+          for (FaInternalExam? eachInternal in (faExamToUpdate.faInternalExams ?? [])) {
+            (eachInternal?.examSectionSubjectMapList ?? [])
+                .removeWhere((essm) => essm?.status != 'active' || essm?.sectionId != widget.selectedSection?.sectionId);
+          }
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return FaCumulativeExamMarksScreen(
               schoolInfo: widget.schoolInfo,
@@ -329,9 +341,9 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
               sectionsList: widget.sectionsList,
               teachersList: widget.teachersList,
               subjectsList: widget.subjectsList,
-              tdsList: widget.tdsList,
+              tdsList: widget.tdsList.where((e) => e.sectionId == widget.selectedSection?.sectionId).toList(),
               markingAlgorithm: widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.exam.markingAlgorithmId).firstOrNull,
-              faExam: faExam!,
+              faExam: faExamToUpdate,
               selectedSection: widget.selectedSection!,
               loadData: _loadExam,
               studentsList: widget.studentsList,
@@ -402,15 +414,16 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
   }
 
   Widget internalsStatsWidget() {
-    List<DataColumn> headers = ["Section", "Subject", "Teacher", ...(widget.exam.faInternalExams ?? []).map((e) => e?.faInternalExamName ?? "-")]
-        .map((e) => DataColumn(label: Text(e)))
-        .toList();
+    List<DataColumn> headers =
+        ["Section", "Subject", "Teacher", ...(widget.exam.faInternalExams ?? []).map((e) => e?.faInternalExamName ?? "-")].map((e) {
+      return DataColumn(label: Text(e));
+    }).toList();
 
     List<DataRow> dataRows = [];
     for (TdsWiseMarksStats eachTdsWiseList
         in tdsWiseList.where((e) => widget.selectedSection == null || e.sectionId == widget.selectedSection?.sectionId)) {
-      if (eachTdsWiseList.averageMarks.isEmpty ||
-          (eachTdsWiseList.averageMarks.toSet().length == 1 && eachTdsWiseList.averageMarks.toSet().firstOrNull == null)) {
+      if (eachTdsWiseList.averageMarksStrings.isEmpty ||
+          (eachTdsWiseList.averageMarksStrings.toSet().length == 1 && eachTdsWiseList.averageMarksStrings.toSet().firstOrNull == null)) {
         continue;
       }
       TeacherDealingSection? tds = widget.tdsList.firstWhereOrNull(
@@ -421,13 +434,9 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
           DataCell(Text(tds.sectionName ?? "-")),
           DataCell(Text(tds.subjectName ?? "-")),
           DataCell(Text(tds.teacherName ?? "-")),
-          ...eachTdsWiseList.averageMarks.map(
+          ...eachTdsWiseList.averageMarksStrings.map(
             (e) => DataCell(
-              Center(
-                child: Text(
-                  e == null ? "N/A" : doubleToStringAsFixed(e),
-                ),
-              ),
+              Center(child: Text(e)),
             ),
           ),
         ],
@@ -486,6 +495,8 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
               Expanded(
                 child: Text(widget.exam.faExamName ?? "-"),
               ),
+              if (!widget.showMoreOptions) editExamButton(),
+              if (!widget.showMoreOptions) const SizedBox(width: 8),
               GestureDetector(
                 onTap: () async {
                   setState(() => isExpanded = !isExpanded);
@@ -658,9 +669,19 @@ class TdsWiseMarksStats {
   int? subjectId;
   int? sectionId;
   int? teacherId;
-  List<double?> averageMarks = [];
+  List<String> averageMarksStrings = [];
 
-  TdsWiseMarksStats(this.subjectId, this.sectionId, this.teacherId, this.averageMarks);
+  TdsWiseMarksStats(this.subjectId, this.sectionId, this.teacherId, this.averageMarksStrings);
+
+  TdsWiseMarksStats.fromAverageMarksAndMaxMarks(this.subjectId, this.sectionId, this.teacherId, List<double?> averageMarks, List<double?> maxMarks) {
+    for (int i = 0; i < averageMarks.length; i++) {
+      averageMarksStrings.add(maxMarks[i] == null
+          ? "-"
+          : averageMarks[i] == null
+              ? "- / ${doubleToStringAsFixed(maxMarks[i])}"
+              : "${doubleToStringAsFixed(averageMarks[i])} / ${doubleToStringAsFixed(maxMarks[i])}");
+    }
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -673,4 +694,9 @@ class TdsWiseMarksStats {
 
   @override
   int get hashCode => subjectId.hashCode ^ sectionId.hashCode ^ teacherId.hashCode;
+
+  @override
+  String toString() {
+    return 'TdsWiseMarksStats{subjectId: $subjectId, sectionId: $sectionId, teacherId: $teacherId, averageMarksStrings: $averageMarksStrings}';
+  }
 }
