@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/fa_exams/views/exam_time_slot_selector_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
@@ -47,6 +48,8 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isLoading = true;
   bool hasInternals = false;
+  bool _tdsPickerExpanded = true;
+  ScrollController scrollController = ScrollController();
 
   List<Section> selectedSections = [];
   bool _isSectionPickerOpen = false;
@@ -185,6 +188,7 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                   faExamName: widget.faExam.faExamName,
                   markingAlgorithmId: widget.faExam.markingAlgorithmId,
                   faInternalExams: widget.faExam.faInternalExams,
+                  examTimeSlots: widget.faExam.examTimeSlots,
                 );
                 CreateOrUpdateFAExamResponse createOrUpdateFAExamResponse = await createOrUpdateFAExam(createOrUpdateFAExamRequest);
                 if (createOrUpdateFAExamResponse.httpStatus == "OK" && createOrUpdateFAExamResponse.responseStatus == "success") {
@@ -202,6 +206,13 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
               },
             ),
             TextButton(
+              child: const Text("NO"),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
               child: const Text("Cancel"),
               onPressed: () async {
                 Navigator.of(context).pop();
@@ -215,71 +226,85 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        title: Text(widget.faExam.faExamName ?? "-"),
-        actions: [
-          if (!_isLoading)
-            IconButton(
-              icon: const Icon(Icons.save),
-              onPressed: saveChanges,
-            )
-        ],
-      ),
-      body: _isLoading
-          ? const EpsilonDiaryLoadingWidget()
-          : ListView(
-              children: [
-                Container(
-                  margin: const EdgeInsets.all(15),
-                  child: ClayContainer(
-                    emboss: true,
-                    depth: 40,
-                    surfaceColor: clayContainerColor(context),
-                    parentColor: clayContainerColor(context),
-                    spread: 1,
-                    borderRadius: 10,
-                    child: Container(
-                      margin: const EdgeInsets.all(15),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          faExamNameWidget(),
-                          const SizedBox(height: 15),
-                          Container(
-                            margin: const EdgeInsets.all(15),
-                            child: ClayContainer(
-                              emboss: false,
-                              depth: 40,
-                              surfaceColor: clayContainerColor(context),
-                              parentColor: clayContainerColor(context),
-                              spread: 1,
-                              borderRadius: 10,
-                              child: Container(
-                                margin: const EdgeInsets.all(8),
-                                width: double.infinity,
-                                child: internalsWidget(),
+    return WillPopScope(
+      onWillPop: () async => saveChanges().then((_) => true),
+      child: Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          title: Text(widget.faExam.faExamName ?? "-"),
+          actions: [
+            if (!_isLoading)
+              IconButton(
+                icon: const Icon(Icons.save),
+                onPressed: saveChanges,
+              )
+          ],
+        ),
+        body: _isLoading
+            ? const EpsilonDiaryLoadingWidget()
+            : ListView(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(15),
+                    child: ClayContainer(
+                      emboss: true,
+                      depth: 40,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 1,
+                      borderRadius: 10,
+                      child: Container(
+                        margin: const EdgeInsets.all(15),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            faExamNameWidget(),
+                            const SizedBox(height: 15),
+                            Container(
+                              margin: const EdgeInsets.all(15),
+                              child: ClayContainer(
+                                emboss: false,
+                                depth: 40,
+                                surfaceColor: clayContainerColor(context),
+                                parentColor: clayContainerColor(context),
+                                spread: 1,
+                                borderRadius: 10,
+                                child: Container(
+                                  margin: const EdgeInsets.all(8),
+                                  width: double.infinity,
+                                  child: internalsWidget(),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 15),
-                          _sectionPicker(),
-                          const SizedBox(height: 15),
-                          // ...populatedTdsList(),
-                          populatedTdsListV2(),
-                          const SizedBox(height: 15),
-                        ],
+                            const SizedBox(height: 15),
+                            _sectionPicker(),
+                            const SizedBox(height: 15),
+                            // ...populatedTdsList(),
+                            populatedTdsListV2(),
+                            const SizedBox(height: 100),
+                            // timeSlotSelectorWidget(),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                )
-              ],
-            ),
+                  )
+                ],
+              ),
+      ),
     );
   }
+
+  // Widget timeSlotSelectorWidget() {
+  //   // TODO
+  //   return ExamTimeSlotSelectorWidget(
+  //     exam: widget.faExam,
+  //     subjectsList: widget.subjectsList,
+  //     sectionsList: widget.sectionsList,
+  //     teachersList: widget.teachersList,
+  //   );
+  // }
 
   Widget internalsWidget() {
     return Column(
@@ -419,7 +444,6 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
   Widget populatedTdsListV2() {
     List<FaInternalExam> internalExams = (widget.faExam.faInternalExams ?? []).map((e) => e!).where((e) => e.status == 'active').toList();
     if (internalExams.isEmpty) return const Center(child: Text("Add internals to continue"));
-    ScrollController scrollController = ScrollController();
     List<DataColumn> headers = [];
     List<String> headerStrings = [
       "",
@@ -434,73 +458,14 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
           return DataColumn(
             label: index < 4
                 ? index == 0
-                    ? PopupMenuButton<String>(
-                        onSelected: (String choice) {
-                          // showOnlyInactiveTds: If null -> show only checked; If false -> show all; If true -> show only unchecked
-                          switch (choice) {
-                            case 'Check all':
-                              setState(() {
-                                (widget.faExam.faInternalExams ?? [])
-                                    .map((e) => e?.examSectionSubjectMapList ?? [])
-                                    .expand((i) => i)
-                                    .where((essm) => tdsList
-                                        .where((e) => (e.subjectName ?? "").toLowerCase().contains(subjectNameSearchController.text.toLowerCase()))
-                                        .map((e) => e.subjectId)
-                                        .contains(essm?.subjectId))
-                                    .where((essm) => tdsList
-                                        .where((e) => (e.sectionName ?? "").toLowerCase().contains(sectionNameSearchController.text.toLowerCase()))
-                                        .map((e) => e.sectionId)
-                                        .contains(essm?.sectionId))
-                                    .forEach((essm) {
-                                  essm?.status = 'active';
-                                });
-                              });
-                              break;
-                            case 'Uncheck all':
-                              setState(() {
-                                (widget.faExam.faInternalExams ?? [])
-                                    .map((e) => e?.examSectionSubjectMapList ?? [])
-                                    .expand((i) => i)
-                                    .where((essm) => tdsList
-                                        .where((e) => (e.subjectName ?? "").toLowerCase().contains(subjectNameSearchController.text.toLowerCase()))
-                                        .map((e) => e.subjectId)
-                                        .contains(essm?.subjectId))
-                                    .where((essm) => tdsList
-                                        .where((e) => (e.sectionName ?? "").toLowerCase().contains(sectionNameSearchController.text.toLowerCase()))
-                                        .map((e) => e.sectionId)
-                                        .contains(essm?.sectionId))
-                                    .forEach((essm) {
-                                  essm?.status = 'inactive';
-                                });
-                              });
-                              break;
-                            case 'Show only unchecked':
-                              setState(() => showOnlyInactiveTds = true);
-                              break;
-                            case 'Show only checked':
-                              setState(() => showOnlyInactiveTds = null);
-                              break;
-                            case 'Show all':
-                              setState(() => showOnlyInactiveTds = false);
-                              break;
-                            default:
-                              break;
-                          }
-                        },
-                        itemBuilder: (BuildContext context) {
-                          return {
-                            'Check all',
-                            'Uncheck all',
-                            'Show only unchecked',
-                            'Show only checked',
-                            'Show all',
-                          }.map((String choice) {
-                            return PopupMenuItem<String>(
-                              value: choice,
-                              child: Text(choice),
-                            );
-                          }).toList();
-                        },
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          showTdsPickerToggle(),
+                          const SizedBox(width: 8),
+                          showMoreOptionsInTdsPickerButton(),
+                        ],
                       )
                     : index == 1
                         ? sectionFilter()
@@ -582,8 +547,103 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
             columnSpacing: 12,
             showCheckboxColumn: false,
             columns: headers,
-            rows: dataRows,
+            rows: _tdsPickerExpanded ? dataRows : [],
           ),
+        ),
+      ),
+    );
+  }
+
+  SizedBox showMoreOptionsInTdsPickerButton() {
+    return SizedBox(
+      height: 24,
+      width: 24,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: PopupMenuButton<String>(
+          onSelected: (String choice) {
+            // showOnlyInactiveTds: If null -> show only checked; If false -> show all; If true -> show only unchecked
+            switch (choice) {
+              case 'Check all':
+                setState(() {
+                  (widget.faExam.faInternalExams ?? [])
+                      .map((e) => e?.examSectionSubjectMapList ?? [])
+                      .expand((i) => i)
+                      .where((essm) => tdsList
+                          .where((e) => (e.subjectName ?? "").toLowerCase().contains(subjectNameSearchController.text.toLowerCase()))
+                          .map((e) => e.subjectId)
+                          .contains(essm?.subjectId))
+                      .where((essm) => tdsList
+                          .where((e) => (e.sectionName ?? "").toLowerCase().contains(sectionNameSearchController.text.toLowerCase()))
+                          .map((e) => e.sectionId)
+                          .contains(essm?.sectionId))
+                      .forEach((essm) {
+                    essm?.status = 'active';
+                  });
+                });
+                break;
+              case 'Uncheck all':
+                setState(() {
+                  (widget.faExam.faInternalExams ?? [])
+                      .map((e) => e?.examSectionSubjectMapList ?? [])
+                      .expand((i) => i)
+                      .where((essm) => tdsList
+                          .where((e) => (e.subjectName ?? "").toLowerCase().contains(subjectNameSearchController.text.toLowerCase()))
+                          .map((e) => e.subjectId)
+                          .contains(essm?.subjectId))
+                      .where((essm) => tdsList
+                          .where((e) => (e.sectionName ?? "").toLowerCase().contains(sectionNameSearchController.text.toLowerCase()))
+                          .map((e) => e.sectionId)
+                          .contains(essm?.sectionId))
+                      .forEach((essm) {
+                    essm?.status = 'inactive';
+                  });
+                });
+                break;
+              case 'Show only unchecked':
+                setState(() => showOnlyInactiveTds = true);
+                break;
+              case 'Show only checked':
+                setState(() => showOnlyInactiveTds = null);
+                break;
+              case 'Show all':
+                setState(() => showOnlyInactiveTds = false);
+                break;
+              default:
+                break;
+            }
+          },
+          itemBuilder: (BuildContext context) {
+            return {
+              'Check all',
+              'Uncheck all',
+              'Show only unchecked',
+              'Show only checked',
+              'Show all',
+            }.map((String choice) {
+              return PopupMenuItem<String>(
+                value: choice,
+                child: Text(choice),
+              );
+            }).toList();
+          },
+        ),
+      ),
+    );
+  }
+
+  GestureDetector showTdsPickerToggle() {
+    return GestureDetector(
+      onTap: () => setState(() => _tdsPickerExpanded = !_tdsPickerExpanded),
+      child: ClayButton(
+        width: 24,
+        depth: 20,
+        color: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 100,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Icon(_tdsPickerExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down),
         ),
       ),
     );
@@ -1335,6 +1395,37 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
                     .toList(),
                 onChanged: (MarkingAlgorithmBean? newMarkingAlgorithm) =>
                     setState(() => widget.faExam.markingAlgorithmId = newMarkingAlgorithm?.markingAlgorithmId),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return ExamTimeSlotSelectorWidget(
+                  exam: widget.faExam,
+                  subjectsList: widget.subjectsList,
+                  sectionsList: widget.sectionsList,
+                  teachersList: widget.teachersList,
+                );
+              })).then((_) => setState(() {}));
+            },
+            child: Tooltip(
+              message: "Set Time Table",
+              child: ClayButton(
+                width: 50,
+                height: 50,
+                depth: 20,
+                color: clayContainerColor(context),
+                spread: 2,
+                borderRadius: 100,
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(Icons.timer_outlined),
+                  ),
+                ),
               ),
             ),
           ),

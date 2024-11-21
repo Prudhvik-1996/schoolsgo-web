@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:math';
 
 import 'package:clay_containers/widgets/clay_container.dart';
@@ -10,7 +12,6 @@ import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/fa_cumulative_exam_marks_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
-import 'package:schoolsgo_web/src/exams/fa_exams/views/each_student_pdf_download.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
@@ -91,9 +92,9 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
             .where(
                 (essm) => essm?.sectionId == eachTds.sectionId && essm?.subjectId == eachTds.subjectId && essm?.authorisedAgent == eachTds.teacherId)
             .firstOrNull;
-        if (examSectionSubjectMap == null) continue;
-        tdsWiseMarks.add(examSectionSubjectMap.status == 'active' ? examSectionSubjectMap.averageMarksObtained : null);
-        maxMarks.add(examSectionSubjectMap.status == 'active' ? examSectionSubjectMap.maxMarks : null);
+        // if (examSectionSubjectMap == null) continue;
+        tdsWiseMarks.add(examSectionSubjectMap?.status == 'active' ? examSectionSubjectMap?.averageMarksObtained : null);
+        maxMarks.add(examSectionSubjectMap?.status == 'active' ? examSectionSubjectMap?.maxMarks : null);
       }
       tdsWiseList.add(TdsWiseMarksStats.fromAverageMarksAndMaxMarks(eachTds.subjectId, eachTds.sectionId, eachTds.teacherId, tdsWiseMarks, maxMarks));
     }
@@ -183,8 +184,8 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
           updateMarksButton(),
           const SizedBox(width: 12),
           sendSmsButton(),
-          const SizedBox(width: 12),
-          downloadHallTicketsButton(),
+          if ((widget.exam.examTimeSlots ?? []).isNotEmpty) const SizedBox(width: 12),
+          if ((widget.exam.examTimeSlots ?? []).isNotEmpty) downloadHallTicketsButton(),
         ],
       ),
     );
@@ -195,71 +196,20 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
       message: "Download Hall Tickets",
       child: GestureDetector(
         onTap: () async {
-          int? selectedExamId;
-          await showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (BuildContext dialogueContext) {
-              return AlertDialog(
-                title: const Text('Select exam to download hall tickets.'),
-                content: StatefulBuilder(
-                  builder: (BuildContext context, StateSetter setState) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      child: ListView(
-                        children: [
-                          ...(widget.exam.faInternalExams ?? []).map((e) => RadioListTile<int?>(
-                              title: Text(e?.faInternalExamName ?? "-"),
-                              value: e?.faInternalExamId,
-                              groupValue: selectedExamId,
-                              onChanged: (int? newThing) => setState(() => selectedExamId = newThing))),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text("Proceed to print"),
-                    onPressed: () async {
-                      if (selectedExamId == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Select the exam you want to print the hall tickets for."),
-                          ),
-                        );
-                        return;
-                      }
-                      Navigator.pop(context);
-                    },
-                  ),
-                  TextButton(
-                    child: const Text("No"),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            },
+          setState(() {
+            downloadMessage = "Downloading Hall Tickets";
+            _isLoading = true;
+          });
+          GenerateExamHallTicketsRequest generateStudentMemosRequest = GenerateExamHallTicketsRequest(
+            examId: widget.exam.faExamId,
+            sectionId: widget.selectedSection?.sectionId,
+            schoolId: widget.adminProfile.schoolId,
+            studentPhotoSize: "S",
           );
-          setState(() => _isLoading = true);
-          await EachStudentPdfDownloadForFaExam(
-            schoolInfo: widget.schoolInfo,
-            adminProfile: widget.adminProfile,
-            teacherProfile: null,
-            selectedAcademicYearId: -1,
-            teachersList: widget.teachersList,
-            subjectsList: widget.subjectsList,
-            tdsList: widget.tdsList,
-            markingAlgorithm: widget.markingAlgorithms.where((em) => em.markingAlgorithmId == widget.exam.markingAlgorithmId).firstOrNull,
-            faExam: widget.exam,
-            selectedInternal: (widget.exam.faInternalExams ?? []).firstWhereOrNull((e) => e?.faInternalExamId == selectedExamId),
-            studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
-            selectedSection: widget.selectedSection!,
-            updateMessage: (String? e) => setState(() => downloadMessage = e),
-          ).downloadHallTickets();
+          List<int>? bytes = await downloadHallTicketsForExam(generateStudentMemosRequest);
+          html.AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+            ..setAttribute("download", "${widget.selectedSection?.sectionName ?? ""}_${widget.exam.faExamName}_HallTickets.pdf")
+            ..click();
           setState(() {
             downloadMessage = null;
             _isLoading = false;
@@ -678,8 +628,8 @@ class TdsWiseMarksStats {
       averageMarksStrings.add(maxMarks[i] == null
           ? "-"
           : averageMarks[i] == null
-              ? "- / ${doubleToStringAsFixed(maxMarks[i])}"
-              : "${doubleToStringAsFixed(averageMarks[i])} / ${doubleToStringAsFixed(maxMarks[i])}");
+              ? "-/${doubleToStringAsFixed(maxMarks[i])}"
+              : "${doubleToStringAsFixed(averageMarks[i])}/${doubleToStringAsFixed(maxMarks[i])}");
     }
   }
 

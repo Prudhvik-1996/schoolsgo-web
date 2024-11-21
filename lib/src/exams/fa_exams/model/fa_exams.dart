@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
+import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:uuid/uuid.dart';
 
@@ -122,6 +123,65 @@ class FaInternalExam {
   Map<String, dynamic> origJson() => __origJson;
 }
 
+class ExamTimeSlotBean {
+
+  int? authorisedAgentId;
+  String? date;
+  String? endTime;
+  int? examId;
+  int? sectionId;
+  String? startTime;
+  String? status;
+  int? subjectId;
+
+  ExamTimeSlotBean({
+    this.authorisedAgentId,
+    this.date,
+    this.endTime,
+    this.examId,
+    this.sectionId,
+    this.startTime,
+    this.status,
+    this.subjectId,
+  });
+  ExamTimeSlotBean.fromJson(Map<String, dynamic> json) {
+    authorisedAgentId = json['authorisedAgentId']?.toInt();
+    date = json['date']?.toString();
+    endTime = json['endTime']?.toString();
+    examId = json['examId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    startTime = json['startTime']?.toString();
+    status = json['status']?.toString();
+    subjectId = json['subjectId']?.toInt();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['authorisedAgentId'] = authorisedAgentId;
+    data['date'] = date;
+    data['endTime'] = endTime;
+    data['examId'] = examId;
+    data['sectionId'] = sectionId;
+    data['startTime'] = startTime;
+    data['status'] = status;
+    data['subjectId'] = subjectId;
+    return data;
+  }
+
+  String formattedString() {
+    return "$formattedDateString\n$formattedStartTime\n$formattedEndTime";
+  }
+
+  String get formattedDateString => date == null ? "Date" : convertDateTimeToDDMMYYYYFormat(convertYYYYMMDDFormatToDateTime(date));
+
+  String get formattedStartTime => startTime == null ? "Start Time" : formatHHMMSStoHHMMA(startTime!);
+
+  String get formattedEndTime => endTime == null ? "End Time" : formatHHMMSStoHHMMA(endTime!);
+
+  String get mapKey => "${sectionId??"-"}|${subjectId??"-"}";
+
+}
+
 class FAExam {
   int? academicYearId;
   int? markingAlgorithmId;
@@ -132,6 +192,7 @@ class FAExam {
   int? faExamId;
   String? faExamName;
   List<FaInternalExam?>? faInternalExams;
+  List<ExamTimeSlotBean?>? examTimeSlots;
   int? schoolId;
   String? status;
   Map<String, dynamic> __origJson = {};
@@ -148,6 +209,7 @@ class FAExam {
     this.faExamId,
     this.faExamName,
     this.faInternalExams,
+    this.examTimeSlots,
     this.schoolId,
     this.status,
   });
@@ -170,6 +232,14 @@ class FAExam {
       });
       faInternalExams = arr0;
     }
+    if (json['examTimeSlots'] != null) {
+      final v = json['examTimeSlots'];
+      final arr0 = <ExamTimeSlotBean>[];
+      v.forEach((v) {
+        arr0.add(ExamTimeSlotBean.fromJson(v));
+      });
+      examTimeSlots = arr0;
+    }
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
@@ -191,6 +261,14 @@ class FAExam {
         arr0.add(v!.toJson());
       }
       data['faInternalExams'] = arr0;
+    }
+    if (examTimeSlots != null) {
+      final v = examTimeSlots;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v?.toJson());
+      }
+      data['examTimeSlots'] = arr0;
     }
     data['schoolId'] = schoolId;
     data['status'] = status;
@@ -368,6 +446,7 @@ class CreateOrUpdateFAExamRequest {
   String? faExamName;
   int? markingAlgorithmId;
   List<FaInternalExam?>? faInternalExams;
+  List<ExamTimeSlotBean?>? examTimeSlots;
   int? schoolId;
   String? status;
   Map<String, dynamic> __origJson = {};
@@ -382,6 +461,7 @@ class CreateOrUpdateFAExamRequest {
     this.faExamName,
     this.markingAlgorithmId,
     this.faInternalExams,
+    this.examTimeSlots,
     this.schoolId,
     this.status,
   });
@@ -404,6 +484,14 @@ class CreateOrUpdateFAExamRequest {
       });
       faInternalExams = arr0;
     }
+    if (json['examTimeSlots'] != null) {
+      final v = json['examTimeSlots'];
+      final arr0 = <ExamTimeSlotBean>[];
+      v.forEach((v) {
+        arr0.add(ExamTimeSlotBean.fromJson(v));
+      });
+      examTimeSlots = arr0;
+    }
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
@@ -425,6 +513,14 @@ class CreateOrUpdateFAExamRequest {
         arr0.add(v!.toJson());
       });
       data['faInternalExams'] = arr0;
+    }
+    if (examTimeSlots != null) {
+      final v = examTimeSlots;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['examTimeSlots'] = arr0;
     }
     data['schoolId'] = schoolId;
     data['status'] = status;
@@ -501,4 +597,60 @@ Future<List<int>> downloadHallTicketsFromWeb(int schoolId, int academicYearId, L
       }).query;
   debugPrint("URL: $_url");
   return await HttpUtils.postToDownloadFile(_url, {});
+}
+
+class GenerateExamHallTicketsRequest {
+
+  int? examId;
+  int? schoolId;
+  int? sectionId;
+  List<int?>? studentIds;
+  String? studentPhotoSize;
+  Map<String, dynamic> __origJson = {};
+
+  GenerateExamHallTicketsRequest({
+    this.examId,
+    this.schoolId,
+    this.sectionId,
+    this.studentIds,
+    this.studentPhotoSize,
+  });
+  GenerateExamHallTicketsRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    examId = json['examId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    sectionId = json['sectionId']?.toInt();
+    if (json['studentIds'] != null) {
+      final v = json['studentIds'];
+      final arr0 = <int>[];
+      v.forEach((v) {
+        arr0.add(v.toInt());
+      });
+      studentIds = arr0;
+    }
+    studentPhotoSize = json['studentPhotoSize']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['examId'] = examId;
+    data['schoolId'] = schoolId;
+    data['sectionId'] = sectionId;
+    if (studentIds != null) {
+      final v = studentIds;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v);
+      });
+      data['studentIds'] = arr0;
+    }
+    data['studentPhotoSize'] = studentPhotoSize;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<List<int>> downloadHallTicketsForExam(GenerateExamHallTicketsRequest generateExamHallTicketsRequest) async {
+  debugPrint("Raising request to downloadMemosForMainExamWithInternals with request ${jsonEncode(generateExamHallTicketsRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + DOWNLOAD_HALL_TICKETS;
+  return await HttpUtils.postToDownloadFile(_url, generateExamHallTicketsRequest.toJson());
 }

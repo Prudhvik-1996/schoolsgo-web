@@ -122,6 +122,8 @@ dependencies:
   syncfusion_flutter_datepicker: 20.4.38
   syncfusion_flutter_datagrid: 20.4.38
 
+  select_dialog: ^2.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
