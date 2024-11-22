@@ -69,6 +69,25 @@ class ExamSectionSubjectMap {
     maxMarksController.text = status == 'active' ? "${maxMarks ?? ''}" : '';
   }
 
+  ExamSectionSubjectMap.cloneFrom(ExamSectionSubjectMap essm, {int? agent}) {
+    agent = agent;
+    authorisedAgent = essm.authorisedAgent;
+    comment = essm.comment;
+    date = null;
+    endTime = null;
+    examId = null;
+    examSectionSubjectMapId = null;
+    masterExamId = null;
+    maxMarks = essm.maxMarks;
+    sectionId = essm.sectionId;
+    startTime = null;
+    status = essm.status;
+    studentExamMarksList = [];
+    averageMarksObtained = null;
+    subjectId = essm.subjectId;
+    maxMarksController.text = status == 'active' ? "${maxMarks ?? ''}" : '';
+  }
+
   double? get classAverage => (studentExamMarksList ?? []).where((e) => e?.marksObtained != null && e?.isAbsent != 'N').isEmpty
       ? null
       : (((studentExamMarksList ?? [])

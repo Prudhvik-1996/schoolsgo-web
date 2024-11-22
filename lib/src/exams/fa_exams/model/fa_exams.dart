@@ -16,6 +16,7 @@ class GetFAExamsRequest {
   int? sectionId;
   int? subjectId;
   int? teacherId;
+  String? status;
   Map<String, dynamic> __origJson = {};
 
   GetFAExamsRequest({
@@ -25,6 +26,7 @@ class GetFAExamsRequest {
     this.sectionId,
     this.subjectId,
     this.teacherId,
+    this.status,
   });
 
   GetFAExamsRequest.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class GetFAExamsRequest {
     sectionId = json['sectionId']?.toInt();
     subjectId = json['subjectId']?.toInt();
     teacherId = json['teacherId']?.toInt();
+    status = json['status']?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -45,6 +48,7 @@ class GetFAExamsRequest {
     data['sectionId'] = sectionId;
     data['subjectId'] = subjectId;
     data['teacherId'] = teacherId;
+    data['status'] = status ?? 'active';
     return data;
   }
 
@@ -100,6 +104,19 @@ class FaInternalExam {
     key = Key(const Uuid().v1());
   }
 
+  FaInternalExam.cloneFrom(FaInternalExam internalExam, {int? agent}) {
+    agent = agent;
+    examSectionSubjectMapList =
+        internalExam.examSectionSubjectMapList?.map((e) => e == null ? null : ExamSectionSubjectMap.cloneFrom(e, agent: agent)).toList();
+    examType = internalExam.examType;
+    faInternalExamId = null;
+    faInternalExamName = internalExam.faInternalExamName;
+    masterExamId = null;
+    status = internalExam.status;
+    seqOrder = internalExam.seqOrder;
+    internalExamNameController.text = faInternalExamName ?? '';
+  }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -124,7 +141,6 @@ class FaInternalExam {
 }
 
 class ExamTimeSlotBean {
-
   int? authorisedAgentId;
   String? date;
   String? endTime;
@@ -144,6 +160,7 @@ class ExamTimeSlotBean {
     this.status,
     this.subjectId,
   });
+
   ExamTimeSlotBean.fromJson(Map<String, dynamic> json) {
     authorisedAgentId = json['authorisedAgentId']?.toInt();
     date = json['date']?.toString();
@@ -178,8 +195,7 @@ class ExamTimeSlotBean {
 
   String get formattedEndTime => endTime == null ? "End Time" : formatHHMMSStoHHMMA(endTime!);
 
-  String get mapKey => "${sectionId??"-"}|${subjectId??"-"}";
-
+  String get mapKey => "${sectionId ?? "-"}|${subjectId ?? "-"}";
 }
 
 class FAExam {
@@ -242,6 +258,21 @@ class FAExam {
     }
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
+  }
+
+  FAExam.cloneFrom(FAExam exam, {int? agent}) {
+    academicYearId = exam.academicYearId;
+    markingAlgorithmId = exam.markingAlgorithmId;
+    agent = agent;
+    comment = null;
+    date = null;
+    examType = exam.examType;
+    faExamId = null;
+    faExamName = "Clone - ${exam.faExamName}";
+    faInternalExams = exam.faInternalExams?.map((e) => e == null ? null : FaInternalExam.cloneFrom(e, agent: agent)).toList();
+    examTimeSlots = exam.examTimeSlots;
+    schoolId = exam.schoolId;
+    status = exam.status;
   }
 
   Map<String, dynamic> toJson() {
@@ -323,7 +354,7 @@ class FAExam {
       Set<int> studentIdAbsentOrUnMarkedSet = studentExamMarksList
           .where((examMarks) => examMarks?.isAbsent == "N" || examMarks?.marksObtained != null)
           .map((examMarks) => examMarks?.studentId)
-      .whereNotNull()
+          .whereNotNull()
           .toSet();
 
       studentExamMarksList.removeWhere((examMarks) => !studentIdAbsentOrUnMarkedSet.contains(examMarks?.studentId));
@@ -337,9 +368,10 @@ class FAExam {
           .toList();
 
       double actualMaxMarks = 0.0;
-      for (FaInternalExam? internalExam in faInternalExams ??[]) {
+      for (FaInternalExam? internalExam in faInternalExams ?? []) {
         if (internalExam == null) continue;
-        for (ExamSectionSubjectMap? essm in (internalExam.examSectionSubjectMapList ?? []).where((essm) => essm?.sectionId == sectionId && essm?.subjectId == subjectId)) {
+        for (ExamSectionSubjectMap? essm
+            in (internalExam.examSectionSubjectMapList ?? []).where((essm) => essm?.sectionId == sectionId && essm?.subjectId == subjectId)) {
           actualMaxMarks += essm?.maxMarks ?? 0;
         }
       }
@@ -600,7 +632,6 @@ Future<List<int>> downloadHallTicketsFromWeb(int schoolId, int academicYearId, L
 }
 
 class GenerateExamHallTicketsRequest {
-
   int? examId;
   int? schoolId;
   int? sectionId;
@@ -615,6 +646,7 @@ class GenerateExamHallTicketsRequest {
     this.studentIds,
     this.studentPhotoSize,
   });
+
   GenerateExamHallTicketsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     examId = json['examId']?.toInt();
@@ -630,6 +662,7 @@ class GenerateExamHallTicketsRequest {
     }
     studentPhotoSize = json['studentPhotoSize']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['examId'] = examId;
@@ -646,6 +679,7 @@ class GenerateExamHallTicketsRequest {
     data['studentPhotoSize'] = studentPhotoSize;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

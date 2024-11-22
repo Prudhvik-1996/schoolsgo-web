@@ -363,6 +363,32 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
     );
   }
 
+  Widget circularFab(Icon icon, String text, {Color? color}) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: Tooltip(
+        message: text,
+        child: ClayButton(
+          surfaceColor: color ?? clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 100,
+          spread: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: icon,
+              ),
+              height: 16,
+              width: 16,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget internalsStatsWidget() {
     List<DataColumn> headers =
         ["Section", "Subject", "Teacher", ...(widget.exam.faInternalExams ?? []).map((e) => e?.faInternalExamName ?? "-")].map((e) {
@@ -445,8 +471,12 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
               Expanded(
                 child: Text(widget.exam.faExamName ?? "-"),
               ),
-              if (!widget.showMoreOptions) editExamButton(),
-              if (!widget.showMoreOptions) const SizedBox(width: 8),
+              if (!widget.showMoreOptions && widget.exam.status != 'inactive') editExamButton(),
+              if (!widget.showMoreOptions && widget.exam.status != 'inactive') const SizedBox(width: 8),
+              if (!_isLoading && isExpanded && !widget.showMoreOptions && widget.exam.status == 'active') deleteExamButton(),
+              if (!_isLoading && isExpanded && !widget.showMoreOptions && widget.exam.status == 'active') const SizedBox(width: 8),
+              if (!_isLoading && isExpanded && !widget.showMoreOptions && widget.exam.status != 'active') recoverExamButton(),
+              if (!_isLoading && isExpanded && !widget.showMoreOptions && widget.exam.status != 'active') const SizedBox(width: 8),
               GestureDetector(
                 onTap: () async {
                   setState(() => isExpanded = !isExpanded);
@@ -469,6 +499,174 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget deleteExamButton() {
+    return Tooltip(
+      message: "Delete Exam",
+      child: GestureDetector(
+        onTap: () async {
+          TextEditingController reasonToDeleteController = TextEditingController();
+          await showDialog(
+            context: context,
+            builder: (BuildContext dialogueContext) {
+              return AlertDialog(
+                title: const Text('Are you sure you want to delete the exam?'),
+                content: TextField(
+                  onChanged: (value) {},
+                  controller: reasonToDeleteController,
+                  decoration: InputDecoration(
+                    hintText: "Reason to delete",
+                    errorText: reasonToDeleteController.text.trim() == "" ? "Reason cannot be empty!" : "",
+                  ),
+                  autofocus: true,
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text("Yes"),
+                    onPressed: () async {
+                      if (_isLoading) return;
+                      if (reasonToDeleteController.text.trim() == "") {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Reason to delete cannot be empty.."),
+                          ),
+                        );
+                        Navigator.pop(context);
+                        return;
+                      }
+                      Navigator.pop(context);
+                      setState(() => _isLoading = true);
+                      CreateOrUpdateFAExamResponse createOrUpdateFAExamResponse = await createOrUpdateFAExam(CreateOrUpdateFAExamRequest(
+                        academicYearId: widget.exam.academicYearId,
+                        agent: widget.adminProfile.userId,
+                        comment: reasonToDeleteController.text,
+                        date: widget.exam.date,
+                        examType: widget.exam.examType,
+                        faExamId: widget.exam.faExamId,
+                        faExamName: widget.exam.faExamName,
+                        markingAlgorithmId: widget.exam.markingAlgorithmId,
+                        faInternalExams: widget.exam.faInternalExams,
+                        examTimeSlots: widget.exam.examTimeSlots,
+                        schoolId: widget.exam.schoolId,
+                        status: 'inactive',
+                      ));
+                      if (createOrUpdateFAExamResponse.httpStatus == "OK" && createOrUpdateFAExamResponse.responseStatus == "success") {
+                        Navigator.of(context).pop();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Something went wrong! Try again later.."),
+                          ),
+                        );
+                      }
+                      setState(() => _isLoading = false);
+                    },
+                  ),
+                  TextButton(
+                    child: const Text("No"),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: circularFab(
+          const Icon(
+            Icons.delete,
+            color: Colors.red,
+          ),
+          "Delete exam",
+        ),
+      ),
+    );
+  }
+
+  Widget recoverExamButton() {
+    return Tooltip(
+      message: "Recover Exam",
+      child: GestureDetector(
+        onTap: () async {
+          TextEditingController reasonToRecoverController = TextEditingController();
+          await showDialog(
+            context: context,
+            builder: (BuildContext dialogueContext) {
+              return AlertDialog(
+                title: const Text('Are you sure you want to recover the exam?'),
+                content: TextField(
+                  onChanged: (value) {},
+                  controller: reasonToRecoverController,
+                  decoration: InputDecoration(
+                    hintText: "Reason to recover",
+                    errorText: reasonToRecoverController.text.trim() == "" ? "Reason cannot be empty!" : "",
+                  ),
+                  autofocus: true,
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text("Yes"),
+                    onPressed: () async {
+                      if (_isLoading) return;
+                      if (reasonToRecoverController.text.trim() == "") {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Reason to recover cannot be empty.."),
+                          ),
+                        );
+                        Navigator.pop(context);
+                        return;
+                      }
+                      Navigator.pop(context);
+                      setState(() => _isLoading = true);
+                      CreateOrUpdateFAExamResponse createOrUpdateFAExamResponse = await createOrUpdateFAExam(CreateOrUpdateFAExamRequest(
+                        academicYearId: widget.exam.academicYearId,
+                        agent: widget.adminProfile.userId,
+                        comment: reasonToRecoverController.text,
+                        date: widget.exam.date,
+                        examType: widget.exam.examType,
+                        faExamId: widget.exam.faExamId,
+                        faExamName: widget.exam.faExamName,
+                        markingAlgorithmId: widget.exam.markingAlgorithmId,
+                        faInternalExams: widget.exam.faInternalExams,
+                        examTimeSlots: widget.exam.examTimeSlots,
+                        schoolId: widget.exam.schoolId,
+                        status: 'active',
+                      ));
+                      if (createOrUpdateFAExamResponse.httpStatus == "OK" && createOrUpdateFAExamResponse.responseStatus == "success") {
+                        Navigator.of(context).pop();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Something went wrong! Try again later.."),
+                          ),
+                        );
+                      };
+                      setState(() => _isLoading = false);
+                    },
+                  ),
+                  TextButton(
+                    child: const Text("No"),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: fab(
+          const Icon(
+            Icons.undo,
+            color: Colors.green,
+          ),
+          "Recover exam",
         ),
       ),
     );

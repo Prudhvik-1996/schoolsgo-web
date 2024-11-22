@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/admin/exams_v2/deleted_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/exams_v2/fa_exam_v2_widget.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/edit_fa_exam_widget.dart';
@@ -13,6 +14,8 @@ import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
+import 'package:select_dialog/select_dialog.dart';
+import 'package:simple_speed_dial/simple_speed_dial.dart';
 
 class ManageExamsV2Screen extends StatefulWidget {
   const ManageExamsV2Screen({
@@ -73,6 +76,30 @@ class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
     setState(() => _isLoading = false);
   }
 
+  Future<void> handleClick(String choice) async {
+    if (choice == "Deleted exams") {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return DeletedExamsScreen(
+          schoolInfo: widget.schoolInfo,
+          adminProfile: widget.adminProfile!,
+          selectedAcademicYearId: -1,
+          sectionsList: widget.sectionsList,
+          teachersList: widget.teachersList,
+          subjectsList: widget.subjectsList,
+          tdsList: widget.tdsList,
+          studentsList: widget.studentsList,
+          markingAlgorithms: widget.markingAlgorithms,
+        );
+      })).then((value) async {
+        setState(() => _isLoading = true);
+        await _loadData();
+        setState(() => _isLoading = false);
+      });
+    } else {
+      debugPrint("Clicked on $choice");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +111,20 @@ class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
             context,
             widget.adminProfile!,
           ),
+          if (!_isLoading && widget.adminProfile != null)
+            PopupMenuButton<String>(
+              onSelected: (String choice) async => await handleClick(choice),
+              itemBuilder: (BuildContext context) {
+                return {
+                  "Deleted exams",
+                }.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
         ],
       ),
       body: _isLoading
@@ -100,23 +141,88 @@ class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
                 ),
       floatingActionButton: faExams.map((e) => e.isEditMode).contains(true) || _isLoading
           ? null
-          : fab(
-              const Icon(Icons.add),
-              "Add",
-              () async => goToEditMode(
-                context,
-                FAExam(
-                  status: "active",
-                  academicYearId: widget.selectedAcademicYearId,
-                  agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
-                  schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
-                  examType: "FA",
+          : faExams.isEmpty
+              ? createNewExamButton()
+              : SpeedDial(
+                  child: const Icon(Icons.add, color: Colors.white),
+                  closedForegroundColor: Colors.grey,
+                  openForegroundColor: Colors.blue,
+                  closedBackgroundColor: Colors.grey,
+                  openBackgroundColor: Colors.blue,
+                  labelsBackgroundColor: Colors.blue,
+                  speedDialChildren: <SpeedDialChild>[
+                    SpeedDialChild(
+                      child: const Icon(Icons.copy),
+                      foregroundColor: clayContainerTextColor(context),
+                      backgroundColor: clayContainerColor(context),
+                      label: 'Clone from Exam',
+                      onPressed: cloneFromExamAction,
+                      closeSpeedDialOnPressed: true,
+                    ),
+                    SpeedDialChild(
+                      child: const Icon(Icons.add),
+                      foregroundColor: clayContainerTextColor(context),
+                      backgroundColor: clayContainerColor(context),
+                      label: 'Create New Exam',
+                      onPressed: createNewExamAction,
+                      closeSpeedDialOnPressed: true,
+                    ),
+                    //  Your other SpeedDialChildren go here.
+                  ],
                 ),
-              ),
-              color: Colors.blue,
-            ),
     );
   }
+
+  Widget createNewExamButton() {
+    return fab(
+      const Icon(Icons.add),
+      "Add",
+      createNewExamAction,
+      color: Colors.blue,
+    );
+  }
+
+  cloneFromExamAction() async {
+    FAExam? cloningFrom;
+    await SelectDialog.showModal<FAExam>(
+      context,
+      label: "Select Exam",
+      selectedValue: cloningFrom,
+      items: faExams,
+      onChange: (FAExam selected) {
+        cloningFrom = selected;
+      },
+      itemBuilder: (BuildContext context, FAExam exam, bool isSelected) {
+        return ListTile(
+          title: Text(
+            exam.faExamName ?? "-",
+            style: TextStyle(
+              color: isSelected ? Colors.blue : null,
+            ),
+          ),
+        );
+      },
+    );
+    if (cloningFrom == null) return;
+    return goToEditMode(
+      context,
+      FAExam.cloneFrom(
+        cloningFrom!,
+        agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
+      ),
+    );
+  }
+
+  createNewExamAction() async => goToEditMode(
+        context,
+        FAExam(
+          status: "active",
+          academicYearId: widget.selectedAcademicYearId,
+          agent: widget.adminProfile?.userId ?? widget.teacherProfile?.teacherId,
+          schoolId: widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId,
+          examType: "FA",
+        ),
+      );
 
   Future<void> goToEditMode(BuildContext context, FAExam faExam) {
     return Navigator.push(context, MaterialPageRoute(builder: (context) {
