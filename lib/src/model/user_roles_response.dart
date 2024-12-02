@@ -346,12 +346,23 @@ class StudentProfile {
   String getAccommodationType({String? e}) {
     e ??= studentAccommodationType;
     return e == "D"
-      ? "Day Scholar"
-      : e == "R"
-      ? "Residential"
-      : e == "S"
-      ? "Semi Residential"
-      : "-";
+        ? "Day Scholar"
+        : e == "R"
+            ? "Residential"
+            : e == "S"
+                ? "Semi Residential"
+                : "-";
+  }
+
+  Icon getAccommodationTypeIcon({String? e}) {
+    e ??= studentAccommodationType;
+    return e == "D"
+        ? const Icon(Icons.directions_walk)
+        : e == "R"
+            ? const Icon(Icons.home)
+            : e == "S"
+                ? const Icon(Icons.weekend)
+                : const Icon(Icons.account_box_outlined);
   }
 
   StudentProfile({
@@ -710,9 +721,9 @@ class StudentProfile {
 
   String studentNameAsStringWithRollNumber() {
     return [((rollNumber ?? "") == "" ? "" : rollNumber! + "."), studentFirstName ?? "", studentMiddleName ?? "", studentLastName ?? ""]
-            .where((e) => e != "")
-            .join(" ")
-            .trim();
+        .where((e) => e != "")
+        .join(" ")
+        .trim();
   }
 
   @override

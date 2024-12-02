@@ -270,7 +270,7 @@ class FAExam {
     faExamId = null;
     faExamName = "Clone - ${exam.faExamName}";
     faInternalExams = exam.faInternalExams?.map((e) => e == null ? null : FaInternalExam.cloneFrom(e, agent: agent)).toList();
-    examTimeSlots = exam.examTimeSlots;
+    examTimeSlots = [];
     schoolId = exam.schoolId;
     status = exam.status;
   }
@@ -313,13 +313,13 @@ class FAExam {
     Set<String> subjectSectionIds = {};
 
     // Iterate through the internal exams and their associated sections and subjects.
-    (faInternalExams ?? []).forEach((FaInternalExam? internalExam) {
-      (internalExam?.examSectionSubjectMapList ?? []).forEach((essm) {
+    for (var internalExam in (faInternalExams ?? [])) {
+      for (var essm in (internalExam?.examSectionSubjectMapList ?? [])) {
         // Create a unique identifier for subject and section.
         String subjectSectionId = "${essm?.subjectId ?? "-"}|${essm?.sectionId ?? "-"}";
         subjectSectionIds.add(subjectSectionId);
-      });
-    });
+      }
+    }
 
     // Create a list of ExamSectionSubjectMap based on unique subject-section IDs.
     return subjectSectionIds.map((subjectSectionId) {
@@ -541,17 +541,21 @@ class CreateOrUpdateFAExamRequest {
     if (faInternalExams != null) {
       final v = faInternalExams;
       final arr0 = [];
-      v!.forEach((v) {
-        arr0.add(v!.toJson());
-      });
+      for (var v in v!) {
+        if (v != null) {
+          arr0.add(v.toJson());
+        }
+      }
       data['faInternalExams'] = arr0;
     }
     if (examTimeSlots != null) {
       final v = examTimeSlots;
       final arr0 = [];
-      v!.forEach((v) {
-        arr0.add(v!.toJson());
-      });
+      for (var v in v!) {
+        if (v != null) {
+          arr0.add(v.toJson());
+        }
+      }
       data['examTimeSlots'] = arr0;
     }
     data['schoolId'] = schoolId;
@@ -637,6 +641,7 @@ class GenerateExamHallTicketsRequest {
   int? sectionId;
   List<int?>? studentIds;
   String? studentPhotoSize;
+  bool? showStudentPhoto;
   Map<String, dynamic> __origJson = {};
 
   GenerateExamHallTicketsRequest({
@@ -645,6 +650,7 @@ class GenerateExamHallTicketsRequest {
     this.sectionId,
     this.studentIds,
     this.studentPhotoSize,
+    this.showStudentPhoto,
   });
 
   GenerateExamHallTicketsRequest.fromJson(Map<String, dynamic> json) {
@@ -661,6 +667,7 @@ class GenerateExamHallTicketsRequest {
       studentIds = arr0;
     }
     studentPhotoSize = json['studentPhotoSize']?.toString();
+    showStudentPhoto = json['showStudentPhoto'];
   }
 
   Map<String, dynamic> toJson() {
@@ -671,12 +678,13 @@ class GenerateExamHallTicketsRequest {
     if (studentIds != null) {
       final v = studentIds;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v);
-      });
+      }
       data['studentIds'] = arr0;
     }
     data['studentPhotoSize'] = studentPhotoSize;
+    data['showStudentPhoto'] = showStudentPhoto;
     return data;
   }
 

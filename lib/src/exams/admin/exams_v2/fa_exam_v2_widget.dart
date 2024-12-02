@@ -76,9 +76,16 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
 
   String? downloadMessage;
 
+  List<StudentProfile> studentsForSelectedSection = [];
+  Map<int, bool> studentHallTicketMap = {};
+
   @override
   void initState() {
     super.initState();
+    studentsForSelectedSection = widget.studentsList.where((e) => e.sectionId == widget.selectedSection?.sectionId).toList();
+    studentsForSelectedSection.forEach((es) {
+      studentHallTicketMap[es.studentId!] = true;
+    });
     _loadData();
   }
 
@@ -185,40 +192,278 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
           const SizedBox(width: 12),
           sendSmsButton(),
           if ((widget.exam.examTimeSlots ?? []).isNotEmpty) const SizedBox(width: 12),
-          if ((widget.exam.examTimeSlots ?? []).isNotEmpty) downloadHallTicketsButton(),
+          if ((widget.exam.examTimeSlots ?? []).isNotEmpty) buildStudentsSelectorWidgetToDownloadHallTickets(),
         ],
       ),
     );
   }
 
-  Widget downloadHallTicketsButton() {
+  Widget buildStudentsSelectorWidgetToDownloadHallTickets() {
     return Tooltip(
       message: "Download Hall Tickets",
       child: GestureDetector(
-        onTap: () async {
-          setState(() {
-            downloadMessage = "Downloading Hall Tickets";
-            _isLoading = true;
-          });
-          GenerateExamHallTicketsRequest generateStudentMemosRequest = GenerateExamHallTicketsRequest(
-            examId: widget.exam.faExamId,
-            sectionId: widget.selectedSection?.sectionId,
-            schoolId: widget.adminProfile.schoolId,
-            studentPhotoSize: "S",
-          );
-          List<int>? bytes = await downloadHallTicketsForExam(generateStudentMemosRequest);
-          html.AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
-            ..setAttribute("download", "${widget.selectedSection?.sectionName ?? ""}_${widget.exam.faExamName}_HallTickets.pdf")
-            ..click();
-          setState(() {
-            downloadMessage = null;
-            _isLoading = false;
-          });
-        },
+        onTap: () async => await showStudentsPickerDialogue(),
         child: fab(const Icon(Icons.download), "Hall Tickets"),
       ),
     );
   }
+
+  Future<void> downloadHallTicketsAction() async {
+    setState(() {
+      downloadMessage = "Downloading Hall Tickets";
+      _isLoading = true;
+    });
+    GenerateExamHallTicketsRequest generateStudentMemosRequest = GenerateExamHallTicketsRequest(
+      examId: widget.exam.faExamId,
+      sectionId: widget.selectedSection?.sectionId,
+      schoolId: widget.adminProfile.schoolId,
+      studentPhotoSize: "S",
+      showStudentPhoto: false,
+      studentIds: studentsForSelectedSection.where((es) => studentHallTicketMap[es.studentId!] ?? false).map((e) => e.studentId).toList(),
+    );
+    List<int>? bytes = await downloadHallTicketsForExam(generateStudentMemosRequest);
+    html.AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+      ..setAttribute("download", "${widget.selectedSection?.sectionName ?? ""}_${widget.exam.faExamName}_HallTickets.pdf")
+      ..click();
+    setState(() {
+      downloadMessage = null;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> showStudentsPickerDialogue() async {
+    await showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext dialogueContext) {
+        return AlertDialog(
+          title: const Text("Students' Hall Tickets"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              var horizontalScrollView = ScrollController();
+              return SizedBox(
+                height: MediaQuery.of(context).size.height - 100,
+                width: MediaQuery.of(context).size.width - 100,
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  controller: horizontalScrollView,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: horizontalScrollView,
+                    child: SizedBox(
+                      width: max(500, MediaQuery.of(context).size.width - 150),
+                      child: ListView(
+                        children: [
+                          MediaQuery.of(context).orientation == Orientation.landscape
+                              ? Row(
+                                  children: selectAllCheckBoxes(setState).map((e) => Expanded(child: e)).toList(),
+                                )
+                              : Column(
+                                  children: selectAllCheckBoxes(setState),
+                                ),
+                          ...studentHallTicketMap.entries.map((eachEntry) {
+                            int eachStudentId = eachEntry.key;
+                            StudentProfile eachStudentProfile = studentsForSelectedSection.firstWhere((e) => e.studentId == eachStudentId);
+                            return CheckboxListTile(
+                              controlAffinity: ListTileControlAffinity.leading,
+                              title: Row(
+                                children: [
+                                  Text(
+                                    eachStudentProfile.rollNumber ?? "-",
+                                    style: TextStyle(color: clayContainerTextColor(context)),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Expanded(
+                                    child: Text(
+                                      eachStudentProfile.studentFirstName ?? "-",
+                                      style: TextStyle(color: clayContainerTextColor(context)),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Tooltip(
+                                    message: eachStudentProfile.getAccommodationType(),
+                                    child: ClayContainer(
+                                      depth: 20,
+                                      surfaceColor: clayContainerColor(context),
+                                      parentColor: clayContainerColor(context),
+                                      spread: 2,
+                                      borderRadius: 2,
+                                      width: 20,
+                                      height: 20,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.center,
+                                            child: Text(eachStudentProfile.studentAccommodationType ?? "-"),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              selected: studentHallTicketMap[eachStudentId] ?? false,
+                              value: studentHallTicketMap[eachStudentId] ?? false,
+                              onChanged: (bool? selectStatus) {
+                                if (selectStatus == null) return;
+                                setState(() => studentHallTicketMap[eachStudentId] = selectStatus);
+                              },
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          actions: <Widget>[
+            studentHallTicketMap.values.contains(true)
+                ? TextButton(
+                    child: const Text("Done"),
+                    onPressed: () async {
+                      if (studentHallTicketMap.values.contains(true)) {
+                        Navigator.pop(context);
+                      }
+                      await downloadHallTicketsAction();
+                    },
+                  )
+                : const Text("Select at least one student to continue"),
+          ],
+        );
+      },
+    );
+  }
+
+  List<CheckboxListTile> selectAllCheckBoxes(StateSetter setState) {
+    return [
+      CheckboxListTile(
+        controlAffinity: ListTileControlAffinity.leading,
+        isThreeLine: false,
+        title: autoSizeText("Select All"),
+        selected: !studentHallTicketMap.values.contains(false),
+        value: !studentHallTicketMap.values.contains(false),
+        onChanged: (bool? selectStatus) {
+          if (selectStatus == null) return;
+          setState(() {
+            if (selectStatus) {
+              for (var eachStudentProfile in studentHallTicketMap.keys) {
+                studentHallTicketMap[eachStudentProfile] = true;
+              }
+            } else {
+              for (var eachStudentProfile in studentHallTicketMap.keys) {
+                studentHallTicketMap[eachStudentProfile] = false;
+              }
+            }
+          });
+        },
+      ),
+      CheckboxListTile(
+        controlAffinity: ListTileControlAffinity.leading,
+        isThreeLine: false,
+        title: autoSizeText("Clear All"),
+        selected: !studentHallTicketMap.values.contains(true),
+        value: !studentHallTicketMap.values.contains(true),
+        onChanged: (bool? selectStatus) {
+          if (selectStatus == null) return;
+          setState(() {
+            if (selectStatus) {
+              for (var eachStudentProfile in studentHallTicketMap.keys) {
+                studentHallTicketMap[eachStudentProfile] = false;
+              }
+            }
+          });
+        },
+      ),
+      CheckboxListTile(
+        enabled: studentsForSelectedSection.where((es) => es.studentAccommodationType == "D").isNotEmpty,
+        controlAffinity: ListTileControlAffinity.leading,
+        isThreeLine: false,
+        title: autoSizeText("Day Scholar"),
+        selected: !studentsForSelectedSection
+            .where((es) => es.studentAccommodationType == "D")
+            .map((e) => e.studentId)
+            .map((e) => studentHallTicketMap[e])
+            .contains(false),
+        value: !studentsForSelectedSection
+            .where((es) => es.studentAccommodationType == "D")
+            .map((e) => e.studentId)
+            .map((e) => studentHallTicketMap[e])
+            .contains(false),
+        onChanged: (bool? selectStatus) {
+          if (selectStatus == null) return;
+          if (selectStatus) {
+            setState(() {
+              studentsForSelectedSection.where((es) => es.studentAccommodationType == "D").map((e) => e.studentId!).forEach((e) {
+                studentHallTicketMap[e] = true;
+              });
+            });
+          }
+        },
+      ),
+      CheckboxListTile(
+        enabled: studentsForSelectedSection.where((es) => es.studentAccommodationType == "R").isNotEmpty,
+        controlAffinity: ListTileControlAffinity.leading,
+        isThreeLine: false,
+        title: autoSizeText("Residential"),
+        selected: !studentsForSelectedSection
+            .where((es) => es.studentAccommodationType == "R")
+            .map((e) => e.studentId)
+            .map((e) => studentHallTicketMap[e])
+            .contains(false),
+        value: !studentsForSelectedSection
+            .where((es) => es.studentAccommodationType == "R")
+            .map((e) => e.studentId)
+            .map((e) => studentHallTicketMap[e])
+            .contains(false),
+        onChanged: (bool? selectStatus) {
+          if (selectStatus == null) return;
+          if (selectStatus) {
+            setState(() {
+              studentsForSelectedSection.where((es) => es.studentAccommodationType == "R").map((e) => e.studentId!).forEach((e) {
+                studentHallTicketMap[e] = true;
+              });
+            });
+          }
+        },
+      ),
+      CheckboxListTile(
+        enabled: studentsForSelectedSection.where((es) => es.studentAccommodationType == "S").isNotEmpty,
+        controlAffinity: ListTileControlAffinity.leading,
+        isThreeLine: false,
+        title: autoSizeText("Semi Residential"),
+        selected: !studentsForSelectedSection
+            .where((es) => es.studentAccommodationType == "S")
+            .map((e) => e.studentId)
+            .map((e) => studentHallTicketMap[e])
+            .contains(false),
+        value: !studentsForSelectedSection
+            .where((es) => es.studentAccommodationType == "S")
+            .map((e) => e.studentId)
+            .map((e) => studentHallTicketMap[e])
+            .contains(false),
+        onChanged: (bool? selectStatus) {
+          if (selectStatus == null) return;
+          if (selectStatus) {
+            setState(() {
+              studentsForSelectedSection.where((es) => es.studentAccommodationType == "S").map((e) => e.studentId!).forEach((e) {
+                studentHallTicketMap[e] = true;
+              });
+            });
+          }
+        },
+      ),
+    ];
+  }
+
+  Widget autoSizeText(String s) => FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Text(s),
+      );
 
   Widget sendSmsButton() {
     return Tooltip(
@@ -646,7 +891,8 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
                             content: Text("Something went wrong! Try again later.."),
                           ),
                         );
-                      };
+                      }
+                      ;
                       setState(() => _isLoading = false);
                     },
                   ),

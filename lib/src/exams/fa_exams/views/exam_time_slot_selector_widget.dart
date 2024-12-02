@@ -636,7 +636,11 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
       onTap: () async {
         if (isSelectionMode) {
           setState(() {
-            checkedSlots.add(e.mapKey);
+            if (checkedSlots.contains(e.mapKey)) {
+              checkedSlots.remove(e.mapKey);
+            } else {
+              checkedSlots.add(e.mapKey);
+            }
           });
         } else {
           setState(() {
