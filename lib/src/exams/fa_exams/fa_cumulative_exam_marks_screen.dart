@@ -300,6 +300,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                   }
                   faExamsAllStudentsMarksExcel.readExamMarks(excel);
                   setState(() => _isLoading = false);
+                  await saveChangesAlert(context);
                 } else if (choice == "Populate Internal Marks") {
                   setState(() => showPopulateInternalMarksWidget = true);
                 } else {

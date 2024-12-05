@@ -1,21 +1,25 @@
 import 'dart:convert';
 import 'dart:html';
 
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
+import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
+import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class SectionWiseFeeStats extends StatefulWidget {
   const SectionWiseFeeStats({
@@ -33,14 +37,806 @@ class SectionWiseFeeStats extends StatefulWidget {
 
 class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
   bool _isLoading = true;
+  bool _isCardView = false;
+  List<FeeType> feeTypes = [];
+
   List<Section> sections = [];
   List<StudentProfile> studentProfiles = [];
   List<StudentAnnualFeeBean> studentAnnualFeeBeans = [];
 
+  List<StudentFeeReceipt> studentFeeReceipts = [];
+  Map<Section, StudentAnnualFeeBean> sectionWiseFeeMap = {};
+  Map<Section, Map<String, Map<ModeOfPayment, int>>> sectionWiseModeOfPaymentMap = {};
+
+  Map<Section, ScrollController> sectionWiseScrollControllerForTotalFeeTable = {};
+  Map<Section, ScrollController> sectionWiseScrollControllerForModeOfPayments = {};
+  final double columnSpacing = 3;
+  final double rowHeight = 45;
+  final double columnWidth = 90;
+
   @override
   void initState() {
     super.initState();
+    studentFeeReceipts = widget.studentFeeReceipts;
     _loadData();
+  }
+
+  Future<void> handleMoreOptions(String value) async {
+    switch (value) {
+      case 'Switch to table view':
+        setState(() => _isCardView = false);
+        return;
+      case 'Switch to card view':
+        setState(() => _isCardView = true);
+        return;
+      case 'Download report':
+        await downloadReport();
+        return;
+      default:
+        return;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Section wise Fee Stats"),
+        actions: _isLoading
+            ? []
+            : [
+                PopupMenuButton<String>(
+                  onSelected: handleMoreOptions,
+                  itemBuilder: (BuildContext context) {
+                    return {
+                      (_isCardView ? 'Switch to table view' : 'Switch to card view'),
+                      'Download report',
+                    }.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
+                const SizedBox(width: 8),
+              ],
+      ),
+      drawer: AdminAppDrawer(
+        adminProfile: widget.adminProfile,
+      ),
+      body: _isLoading
+          ? const EpsilonDiaryLoadingWidget()
+          : studentFeeReceipts.isEmpty
+              ? const Center(child: Text("No transactions to display"))
+              : _isLoading
+                  ? const EpsilonDiaryLoadingWidget()
+                  : _isCardView
+                      ? cardViewWidget()
+                      : tableViewListWidget(),
+      // : cardViewWidget(),
+    );
+  }
+
+  Widget tableViewListWidget() {
+    return ListView(
+      children: [
+        ...sections.map((e) => tableViewWidget(e)),
+        const SizedBox(height: 200),
+      ],
+    );
+  }
+
+  Widget tableViewWidget(Section section) {
+    String sectionName = section.sectionName ?? "-";
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              embossedClayTitleWidget(schoolNameText(sectionName)),
+              const SizedBox(height: 8),
+              feeTypeWiseTotalCollectedTable(section),
+              const SizedBox(height: 8),
+              modeOfPaymentsHeader(),
+              feeTypeWiseModeOfPaymentTable(section),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding modeOfPaymentsHeader() {
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Text(
+        "Mode Of Payments",
+        style: TextStyle(fontSize: 12),
+      ),
+    );
+  }
+
+  Widget feeTypeWiseModeOfPaymentTable(Section section) {
+    ScrollController horizontalScrollController = sectionWiseScrollControllerForModeOfPayments[section]!;
+    StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
+    Map<String, Map<ModeOfPayment, int>> feeTypeWiseModeOfPaymentMap = sectionWiseModeOfPaymentMap[section]!;
+    Map<ModeOfPayment, int> modeWiseTotal = {};
+    ModeOfPayment.values.forEach((eachModeOfPayment) {
+      modeWiseTotal[eachModeOfPayment] = 0;
+      (sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).forEach((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+        if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+          String feeTypeKey = "${sectionAnnualFeeTypeBean.feeTypeId}|-";
+          modeWiseTotal[eachModeOfPayment] = modeWiseTotal[eachModeOfPayment]! + feeTypeWiseModeOfPaymentMap[feeTypeKey]![eachModeOfPayment]!;
+        } else {
+          (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).forEach((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+            String feeTypeKey = "${sectionAnnualFeeTypeBean.feeTypeId}|${sectionAnnualCustomFeeTypeBean.customFeeTypeId}";
+            modeWiseTotal[eachModeOfPayment] = modeWiseTotal[eachModeOfPayment]! + feeTypeWiseModeOfPaymentMap[feeTypeKey]![eachModeOfPayment]!;
+          });
+        }
+      });
+      modeWiseTotal[eachModeOfPayment] = modeWiseTotal[eachModeOfPayment]! + feeTypeWiseModeOfPaymentMap["-|-"]![eachModeOfPayment]!;
+    });
+    modeWiseTotal.removeWhere((key, value) => value == 0);
+    List<String> columns = getDataTableColumns(section, sectionWiseBusFeeBean);
+    List<List<Widget>> rows = modeWiseTotal.keys.map((ModeOfPayment eachModeOfPayment) {
+      return [
+        eachModeOfPayment.description,
+        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? [])
+            .map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+              if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+                String feeTypeKey = "${sectionAnnualFeeTypeBean.feeTypeId}|-";
+                return [feeTypeWiseModeOfPaymentMap[feeTypeKey]![eachModeOfPayment]!];
+              } else {
+                return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
+                    .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+                  String feeTypeKey = "${sectionAnnualFeeTypeBean.feeTypeId}|${sectionAnnualCustomFeeTypeBean.customFeeTypeId}";
+                  return feeTypeWiseModeOfPaymentMap[feeTypeKey]![eachModeOfPayment]!;
+                });
+              }
+            })
+            .expand((i) => i)
+            .map((e) => "$INR_SYMBOL ${(doubleToStringAsFixedForINR(e / 100.0))}")
+            .toList(),
+        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0)
+          "$INR_SYMBOL ${doubleToStringAsFixedForINR(feeTypeWiseModeOfPaymentMap["-|-"]![eachModeOfPayment]! / 100.0)}",
+        "$INR_SYMBOL ${(doubleToStringAsFixedForINR(modeWiseTotal[eachModeOfPayment]! / 100.0))}",
+      ].map((e) => clayCellChild(e)).toList();
+    }).toList();
+    return clayDataTable(horizontalScrollController, columnSpacing, rowHeight, columnWidth, columns, rows);
+  }
+
+  List<String> getDataTableColumns(Section section, StudentBusFeeBean? sectionWiseBusFeeBean) {
+    List<String> columns = [
+      "",
+      ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+        if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+          return [sectionAnnualFeeTypeBean.feeType ?? "-"];
+        } else {
+          return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).map(
+              (StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) =>
+                  "${sectionAnnualFeeTypeBean.feeType ?? "-"} \n ${sectionAnnualCustomFeeTypeBean.customFeeType ?? "-"}");
+        }
+      }).expand((i) => i),
+      if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) "Bus",
+      "Total",
+    ];
+    return columns;
+  }
+
+  Widget feeTypeWiseTotalCollectedTable(Section section) {
+    StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
+    ScrollController horizontalScrollController = sectionWiseScrollControllerForTotalFeeTable[section]!;
+    List<String> columns = getDataTableColumns(section, sectionWiseBusFeeBean);
+    List<Widget> feeRow = [
+      "Fee",
+      ...[
+        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+          if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+            double amount = (sectionAnnualFeeTypeBean.amount ?? 0) / 100.0;
+            return ["$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}"];
+          } else {
+            return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
+                .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+              double amount = (sectionAnnualCustomFeeTypeBean.amount ?? 0) / 100.0;
+              return "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}";
+            });
+          }
+        }),
+        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) ["$INR_SYMBOL ${doubleToStringAsFixedForINR(((sectionWiseBusFeeBean?.fare ?? 0) / 100.0))}"],
+        [
+          "$INR_SYMBOL ${doubleToStringAsFixedForINR((sectionWiseFeeMap[section]!.totalFee ?? 0.0) / 100.0)}",
+        ],
+      ].expand((i) => i),
+    ].map((e) => clayCellChild(e)).toList();
+    List<Widget> collectedRow = [
+      "Collected",
+      ...[
+        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+          if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+            double amount = (sectionAnnualFeeTypeBean.amountPaid ?? 0) / 100.0;
+            return ["$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}"];
+          } else {
+            return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
+                .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+              double amount = (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0) / 100.0;
+              return "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}";
+            });
+          }
+        }),
+        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) ["$INR_SYMBOL ${doubleToStringAsFixedForINR(((sectionWiseBusFeeBean?.feePaid ?? 0) / 100.0))}"],
+        [
+          "$INR_SYMBOL ${doubleToStringAsFixedForINR((sectionWiseFeeMap[section]!.totalFeePaid ?? 0.0) / 100.0)}",
+        ],
+      ].expand((i) => i),
+    ].map((e) => clayCellChild(e)).toList();
+    List<Widget> dueRow = [
+      "Due",
+      ...[
+        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+          if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+            double amount = ((sectionAnnualFeeTypeBean.amount ?? 0) - (sectionAnnualFeeTypeBean.amountPaid ?? 0)) / 100.0;
+            return ["$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}"];
+          } else {
+            return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
+                .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+              double amount = ((sectionAnnualCustomFeeTypeBean.amount ?? 0) - (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0)) / 100.0;
+              return "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}";
+            });
+          }
+        }),
+        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0)
+          ["$INR_SYMBOL ${doubleToStringAsFixedForINR((((sectionWiseBusFeeBean?.fare ?? 0) - (sectionWiseBusFeeBean?.feePaid ?? 0)) / 100.0))}"],
+        [
+          "$INR_SYMBOL ${doubleToStringAsFixedForINR(((sectionWiseFeeMap[section]!.totalFee ?? 0.0) - (sectionWiseFeeMap[section]!.totalFeePaid ?? 0.0)) / 100.0)}",
+        ],
+      ].expand((i) => i),
+    ].map((e) => clayCellChild(e)).toList();
+    Map<String, List<double>> feeTpeWiseMap = {};
+    for (FeeType eachFeeType in feeTypes) {
+      if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
+        String key = "${eachFeeType.feeTypeId}|-";
+        StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean = (sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? [])
+            .where((sectionAnnualFeeTypeBean) =>
+                (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty &&
+                sectionAnnualFeeTypeBean.feeTypeId == eachFeeType.feeTypeId)
+            .first;
+        feeTpeWiseMap[key] = [
+          (sectionAnnualFeeTypeBean.amountPaid ?? 0) / 100.0,
+          ((sectionAnnualFeeTypeBean.amount ?? 0) - (sectionAnnualFeeTypeBean.amountPaid ?? 0)) / 100.0,
+        ];
+      } else {
+        for (CustomFeeType eachCustomFeeType in (eachFeeType.customFeeTypesList ?? []).whereNotNull()) {
+          String key = "${eachFeeType.feeTypeId}|${eachCustomFeeType.customFeeTypeId}";
+          StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean = (sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? [])
+              .where((sectionAnnualFeeTypeBean) =>
+                  (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isNotEmpty &&
+                  sectionAnnualFeeTypeBean.feeTypeId == eachFeeType.feeTypeId)
+              .map((e) => e.studentAnnualCustomFeeTypeBeans ?? [])
+              .expand((i) => i)
+              .where((e) => e.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+              .first;
+          feeTpeWiseMap[key] = [
+            (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0) / 100.0,
+            ((sectionAnnualCustomFeeTypeBean.amount ?? 0) - (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0)) / 100.0,
+          ];
+        }
+      }
+    }
+    if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) {
+      feeTpeWiseMap["-|-"] = [
+        (sectionWiseBusFeeBean?.feePaid ?? 0) / 100.0,
+        ((sectionWiseBusFeeBean?.fare ?? 0) - (sectionWiseBusFeeBean?.feePaid ?? 0)) / 100.0,
+      ];
+    }
+    feeTpeWiseMap["|||"] = [
+      feeTpeWiseMap.values.map((e) => e[0]).fold(0.0, (double? a, b) => (a ?? 0.0) + b),
+      feeTpeWiseMap.values.map((e) => e[1]).fold(0.0, (double? a, b) => (a ?? 0.0) + b),
+    ];
+    List<Widget> graphsRow = [
+      clayCellChild("Graph"),
+      ...feeTpeWiseMap.values.map((List<double> feeStats) {
+        if (feeStats[0] == 0 && feeStats[1] == 0) {
+          return clayCellChild("-");
+        } else {
+          return pieChart(feeStats);
+        }
+        // return clayCellChild("${feeStats[0]} - ${feeStats[1]} = ${feeStats[2]}");
+      }).toList()
+    ];
+    List<List<Widget>> rows = [feeRow, collectedRow, dueRow];
+    return clayDataTable(horizontalScrollController, columnSpacing, rowHeight, columnWidth, columns, rows, graphRow: graphsRow);
+  }
+
+  Widget pieChart(List<double> feeStats) {
+    double feePaid = feeStats[0];
+    double feeDue = feeStats[1];
+    List<PaymentSummary> paymentSummary = [
+      PaymentSummary("Due", feeDue, const charts.Color(r: 241, g: 196, b: 15)),
+      PaymentSummary("Collected", feePaid, const charts.Color(r: 46, g: 204, b: 113)),
+    ];
+    return Container(
+      // decoration: BoxDecoration(
+      //   border: Border.all(color: Colors.red),
+      // ),
+      height: 40,
+      width: 40,
+      child: charts.PieChart<String>(
+        [
+          charts.Series<PaymentSummary, String>(
+            id: 'PaymentSummary',
+            domainFn: (PaymentSummary summary, _) => summary.type,
+            measureFn: (PaymentSummary summary, _) => summary.amount,
+            colorFn: (PaymentSummary summary, _) => summary.color,
+            data: paymentSummary,
+            labelAccessorFn: (PaymentSummary summary, _) => '$INR_SYMBOL ${doubleToStringAsFixedForINR(summary.amount)}',
+          ),
+        ],
+        layoutConfig: charts.LayoutConfig(
+          topMarginSpec: charts.MarginSpec.fromPixel(minPixel: 1),
+          bottomMarginSpec: charts.MarginSpec.fromPixel(minPixel: 1),
+          leftMarginSpec: charts.MarginSpec.fromPixel(minPixel: 1),
+          rightMarginSpec: charts.MarginSpec.fromPixel(minPixel: 1),
+        ),
+        animate: true,
+        defaultRenderer: charts.ArcRendererConfig(
+          strokeWidthPx: 0.01,
+          arcRendererDecorators: [
+            charts.ArcLabelDecorator(
+              labelPosition: charts.ArcLabelPosition.inside,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Scrollbar clayDataTable(
+    ScrollController horizontalScrollController,
+    double columnSpacing,
+    double rowHeight,
+    double columnWidth,
+    List<String> columns,
+    List<List<Widget>> rows, {
+    List<Widget> graphRow = const [],
+  }) {
+    return Scrollbar(
+      thumbVisibility: true,
+      thickness: 8,
+      controller: horizontalScrollController,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: horizontalScrollController,
+        child: SingleChildScrollView(
+          child: Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: DataTable(
+              horizontalMargin: 0,
+              dividerThickness: 0,
+              columnSpacing: columnSpacing,
+              dataRowHeight: rowHeight + 2 * columnSpacing,
+              headingRowHeight: rowHeight + 2 * columnSpacing,
+              columns: columns.map((e) => DataColumn(label: clayCell(text: e, height: rowHeight, width: columnWidth))).toList(),
+              rows: [
+                ...rows.map((e) => DataRow(cells: e.map((e) => DataCell(clayCell(child: e, height: rowHeight, width: columnWidth))).toList())),
+                if (graphRow.isNotEmpty)
+                  DataRow(
+                    cells: graphRow
+                        .map((e) =>
+                            DataCell(clayCell(child: e, height: rowHeight, width: columnWidth, padding: const EdgeInsets.fromLTRB(0, 2, 0, 2))))
+                        .toList(),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget clayCell({
+    String? text,
+    Widget? child,
+    EdgeInsetsGeometry margin = const EdgeInsets.all(2),
+    EdgeInsetsGeometry padding = const EdgeInsets.all(8),
+    bool emboss = true,
+    TextStyle textStyle = const TextStyle(fontSize: 12),
+    double height = 45,
+    double width = 90,
+    TextAlign alignment = TextAlign.center,
+  }) {
+    return Container(
+      margin: margin,
+      child: text != null
+          ? Tooltip(
+              message: text,
+              child: clayCellClayChild(emboss, height, width, padding, text, alignment, child),
+            )
+          : clayCellClayChild(emboss, height, width, padding, text, alignment, child),
+    );
+  }
+
+  ClayContainer clayCellClayChild(
+      bool emboss, double height, double width, EdgeInsetsGeometry padding, String? text, TextAlign alignment, Widget? child) {
+    return ClayContainer(
+      depth: 40,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 1,
+      borderRadius: 5,
+      emboss: emboss,
+      height: height,
+      width: width,
+      child: Padding(
+        padding: padding,
+        child: text != null ? clayCellChild(text, alignment: alignment) : child!,
+      ),
+    );
+  }
+
+  Widget clayCellChild(
+    String text, {
+    TextAlign alignment = TextAlign.center,
+  }) {
+    return Center(
+      child: AutoSizeText(
+        text,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        minFontSize: 7,
+        maxFontSize: 12,
+        softWrap: true,
+        textAlign: alignment,
+      ),
+    );
+  }
+
+  Widget cardViewWidget() {
+    int perRowCount = MediaQuery.of(context).orientation == Orientation.landscape ? 3 : 1;
+    return ListView(
+      children: [
+        for (int i = 0; i < sections.length / perRowCount; i = i + 1)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int j = 0; j < perRowCount; j++)
+                Expanded(
+                  child: ((i * perRowCount + j) >= sections.length) ? Container() : sectionCard(sections[(i * perRowCount + j)]),
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget sectionCard(Section section) {
+    String sectionName = section.sectionName ?? "-";
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              embossedClayTitleWidget(schoolNameText(sectionName)),
+              const SizedBox(height: 8),
+              ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+                if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+                  return feeTypeWiseWidget(
+                    sectionAnnualFeeTypeBean,
+                    sectionWiseModeOfPaymentMap[section]!,
+                  );
+                } else {
+                  return customFeeTypeWiseWidgets(sectionAnnualFeeTypeBean, sectionWiseModeOfPaymentMap[section]!);
+                }
+              }).expand((i) => i.whereNotNull()),
+              ...busFeeTypeWidget(sectionWiseFeeMap[section]!, sectionWiseModeOfPaymentMap[section]!).whereNotNull(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget embossedClayTitleWidget(Widget child) {
+    return ClayContainer(
+      depth: 40,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 1,
+      borderRadius: 10,
+      emboss: true,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  Text schoolNameText(String sectionName) {
+    return Text(
+      sectionName,
+      style: GoogleFonts.archivoBlack(
+        textStyle: const TextStyle(
+          fontSize: 24,
+          color: Colors.blue,
+        ),
+      ),
+    );
+  }
+
+  List<Widget?> busFeeTypeWidget(
+    StudentAnnualFeeBean sectionAnnualFeeBean,
+    Map<String, Map<ModeOfPayment, int>> modeOfPaymentMap,
+  ) {
+    String feeTypeKey = "-|-";
+    String feeType = "Bus";
+    double totalAmount = (sectionAnnualFeeBean.studentBusFeeBean?.fare ?? 0) / 100.0;
+    double totalAmountPaid = (sectionAnnualFeeBean.studentBusFeeBean?.feePaid ?? 0) / 100.0;
+    double totalAmountToBePaid =
+        ((sectionAnnualFeeBean.studentBusFeeBean?.fare ?? 0) - (sectionAnnualFeeBean.studentBusFeeBean?.feePaid ?? 0)) / 100.0;
+    if (totalAmount == 0) return [null];
+    return [
+      feeTypeWiseAmountPaidWidgetForSection(
+        feeType,
+        totalAmount,
+        totalAmountPaid,
+        totalAmountToBePaid,
+        feeTypeKey,
+        modeOfPaymentMap[feeTypeKey]!,
+      )
+    ];
+  }
+
+  List<Widget?> customFeeTypeWiseWidgets(
+    StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean,
+    Map<String, Map<ModeOfPayment, int>> modeOfPaymentMap,
+  ) {
+    return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+      String feeTypeKey = "${sectionAnnualFeeTypeBean.feeTypeId}|${sectionAnnualCustomFeeTypeBean.customFeeTypeId}";
+      String feeType = "${sectionAnnualFeeTypeBean.feeType} : ${sectionAnnualCustomFeeTypeBean.customFeeType ?? " - "}";
+      double totalAmount = (sectionAnnualCustomFeeTypeBean.amount ?? 0) / 100.0;
+      double totalAmountPaid = (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0) / 100.0;
+      double totalAmountToBePaid = ((sectionAnnualCustomFeeTypeBean.amount ?? 0) - (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0)) / 100.0;
+      if (totalAmount == 0) return null;
+      return feeTypeWiseAmountPaidWidgetForSection(
+        feeType,
+        totalAmount,
+        totalAmountPaid,
+        totalAmountToBePaid,
+        feeTypeKey,
+        modeOfPaymentMap[feeTypeKey]!,
+      );
+    }).toList();
+  }
+
+  List<Widget?> feeTypeWiseWidget(
+    StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean,
+    Map<String, Map<ModeOfPayment, int>> modeOfPaymentMap,
+  ) {
+    String feeTypeKey = "${sectionAnnualFeeTypeBean.feeTypeId}|-";
+    String feeType = sectionAnnualFeeTypeBean.feeType ?? "-";
+    double totalAmount = (sectionAnnualFeeTypeBean.amount ?? 0) / 100.0;
+    double totalAmountPaid = (sectionAnnualFeeTypeBean.amountPaid ?? 0) / 100.0;
+    double totalAmountToBePaid = ((sectionAnnualFeeTypeBean.amount ?? 0) - (sectionAnnualFeeTypeBean.amountPaid ?? 0)) / 100.0;
+    if (totalAmount == 0) return [null];
+    return [
+      feeTypeWiseAmountPaidWidgetForSection(
+        feeType,
+        totalAmount,
+        totalAmountPaid,
+        totalAmountToBePaid,
+        feeTypeKey,
+        modeOfPaymentMap[feeTypeKey]!,
+      )
+    ];
+  }
+
+  Widget feeTypeWiseAmountPaidWidgetForSection(
+    String feeType,
+    double totalAmount,
+    double totalAmountPaid,
+    double totalAmountToBePaid,
+    String feeTypeKey,
+    Map<ModeOfPayment, int> modeOfPaymentMap,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        emboss: true,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(feeType),
+              ),
+              const SizedBox(height: 8),
+              feePaidAndToBePaidWidget(totalAmount, totalAmountPaid, totalAmountToBePaid),
+              const SizedBox(height: 8),
+              ClayContainer(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 10,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      ...modeOfPaymentMap.keys.map((ModeOfPayment modeOfPayment) {
+                        double amount = (modeOfPaymentMap[modeOfPayment] ?? 0) / 100.0;
+                        if (amount == 0) return null;
+                        return modeOfPaymentWiseAmountPaidWidget(modeOfPayment, amount);
+                      }).whereNotNull(),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget feePaidAndToBePaidWidget(double totalAmount, double totalAmountPaid, double totalAmountToBePaid) {
+    return ClayContainer(
+      depth: 40,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 1,
+      borderRadius: 10,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: const [
+                SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    "Total",
+                    style: TextStyle(color: Colors.blue, fontSize: 8),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Text("-"),
+                SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    "Collected",
+                    style: TextStyle(color: Colors.green, fontSize: 8),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Text("="),
+                SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    "Due",
+                    style: TextStyle(color: Colors.red, fontSize: 8),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(width: 4),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalAmount)}",
+                    style: const TextStyle(color: Colors.blue),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Text("-"),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalAmountPaid)}",
+                    style: const TextStyle(color: Colors.green),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Text("="),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalAmountToBePaid)}",
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Padding modeOfPaymentWiseAmountPaidWidget(ModeOfPayment modeOfPayment, double amount) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              modeOfPayment.description,
+              style: const TextStyle(
+                // color: ModeOfPaymentExt.getColorForModeOfPayment(modeOfPayment),
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Text(
+            "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}",
+            style: const TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget oldDownloadButton() {
+    return GestureDetector(
+      onTap: () async {
+        await downloadReport();
+      },
+      child: const Icon(Icons.download),
+    );
+  }
+
+  Future<void> downloadReport() async {
+    List<int> bytes = await detailedFeeReport(
+      GetStudentWiseAnnualFeesRequest(
+        schoolId: widget.adminProfile.schoolId,
+      ),
+      FeeReportType.sectionWiseTermWiseForAllStudents,
+    );
+    AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
+      ..setAttribute("download", "Section wise due report")
+      ..click();
   }
 
   Future<void> _loadData() async {
@@ -53,6 +849,10 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       setState(() {
         sections = getSectionsResponse.sections!.map((e) => e!).toList();
+        sections.forEach((eachSection) {
+          sectionWiseScrollControllerForTotalFeeTable[eachSection] = ScrollController();
+          sectionWiseScrollControllerForModeOfPayments[eachSection] = ScrollController();
+        });
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -75,12 +875,163 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
     } else {
       studentProfiles = (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList();
     }
+    if (studentFeeReceipts.isEmpty) {
+      GetStudentFeeReceiptsResponse studentFeeReceiptsResponse = await getStudentFeeReceipts(GetStudentFeeReceiptsRequest(
+        schoolId: widget.adminProfile.schoolId,
+      ));
+      if (studentFeeReceiptsResponse.httpStatus != "OK" || studentFeeReceiptsResponse.responseStatus != "success") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Something went wrong! Try again later.."),
+          ),
+        );
+      } else {
+        studentFeeReceipts = studentFeeReceiptsResponse.studentFeeReceipts!.map((e) => e!).where((er) => er.status == "active").toList();
+        studentFeeReceipts.sort((b, a) {
+          int dateCom = convertYYYYMMDDFormatToDateTime(a.transactionDate).compareTo(convertYYYYMMDDFormatToDateTime(b.transactionDate));
+          return (dateCom == 0) ? (a.receiptNumber ?? 0).compareTo(b.receiptNumber ?? 0) : dateCom;
+        });
+      }
+    }
     await generateStudentMap();
+    await generateSectionMap();
+    await generateModeOfPaymentMap();
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> generateModeOfPaymentMap() async {
+    setState(() => _isLoading = true);
+    sectionWiseModeOfPaymentMap = {};
+    for (Section eachSection in sections) {
+      List<StudentFeeReceipt> sectionWiseReceipts = studentFeeReceipts.where((e) => e.sectionId == eachSection.sectionId).toList();
+      Map<ModeOfPayment, Map<String, int>> x = {};
+      ModeOfPayment.values.forEach((eachModeOfPayment) {
+        x[eachModeOfPayment] = {};
+        feeTypes.forEach((eachFeeType) {
+          if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
+            String key = "${eachFeeType.feeTypeId}|-";
+            x[eachModeOfPayment]![key] = 0;
+          } else {
+            (eachFeeType.customFeeTypesList ?? []).forEach((eachCustomFeeType) {
+              String key = "${eachFeeType.feeTypeId}|${eachCustomFeeType?.customFeeTypeId}";
+              x[eachModeOfPayment]![key] = 0;
+            });
+          }
+        });
+        x[eachModeOfPayment]!["-|-"] = 0;
+      });
+      sectionWiseReceipts.forEach((eachReceipt) {
+        ModeOfPayment modeOfPayment = ModeOfPaymentExt.fromString(eachReceipt.modeOfPayment);
+        (eachReceipt.feeTypes ?? []).forEach((eachFeeType) {
+          if ((eachFeeType?.customFeeTypes ?? []).isEmpty) {
+            String key = "${eachFeeType?.feeTypeId}|-";
+            x[modeOfPayment]![key] = x[modeOfPayment]![key]! + (eachFeeType?.amountPaidForTheReceipt ?? 0);
+          } else {
+            (eachFeeType?.customFeeTypes ?? []).forEach((eachCustomFeeType) {
+              String key = "${eachFeeType?.feeTypeId}|${eachCustomFeeType?.customFeeTypeId}";
+              x[modeOfPayment]![key] = x[modeOfPayment]![key]! + (eachCustomFeeType?.amountPaidForTheReceipt ?? 0);
+            });
+          }
+        });
+        x[modeOfPayment]!["-|-"] = x[modeOfPayment]!["-|-"]! + (eachReceipt.busFeePaid ?? 0);
+      });
+      sectionWiseModeOfPaymentMap[eachSection] = transformMap(x);
+    }
+    setState(() => _isLoading = false);
+  }
+
+  Map<String, Map<ModeOfPayment, int>> transformMap(Map<ModeOfPayment, Map<String, int>> inputMap) {
+    // Create the result map
+    Map<String, Map<ModeOfPayment, int>> resultMap = {};
+
+    // Iterate through the outer map
+    inputMap.forEach((modeOfPayment, sectionMap) {
+      sectionMap.forEach((section, value) {
+        // Get the map for the section from the result map or create a new one
+        resultMap.putIfAbsent(section, () => {});
+        // Add the value to the corresponding ModeOfPayment in the section
+        resultMap[section]![modeOfPayment] = (resultMap[section]![modeOfPayment] ?? 0) + value;
+      });
+    });
+
+    return resultMap;
+  }
+
+  Future<void> generateSectionMap() async {
+    setState(() => _isLoading = true);
+    for (Section eachSection in sections) {
+      var sectionWiseStudentsList = studentAnnualFeeBeans.where((e) => e.sectionId == eachSection.sectionId).toList();
+      List<StudentAnnualFeeTypeBean> feeTypeWiseFeePaidList = [];
+      for (FeeType eachFeeType in feeTypes) {
+        List<StudentAnnualCustomFeeTypeBean> customFeeTypeWiseFeePaidList = [];
+        if ((eachFeeType.customFeeTypesList ?? []).isNotEmpty) {
+          List<StudentAnnualCustomFeeTypeBean> customFeeTypeList = sectionWiseStudentsList
+              .map((e) => e.studentAnnualFeeTypeBeans ?? [])
+              .expand((i) => i)
+              .where((e) => e.feeTypeId == eachFeeType.feeTypeId)
+              .map((e) => e.studentAnnualCustomFeeTypeBeans ?? [])
+              .expand((i) => i)
+              .toList();
+          for (CustomFeeType eachCustomFeeType in (eachFeeType.customFeeTypesList ?? []).whereNotNull()) {
+            customFeeTypeWiseFeePaidList.add(StudentAnnualCustomFeeTypeBean(
+              customFeeTypeId: eachCustomFeeType.customFeeTypeId,
+              customFeeType: eachCustomFeeType.customFeeType,
+              amount: customFeeTypeList
+                  .where((e) => e.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                  .map((e) => e.amount ?? 0)
+                  .fold(0, (int? a, b) => (a ?? 0) + b),
+              amountPaid: customFeeTypeList
+                  .where((e) => e.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                  .map((e) => e.amountPaid ?? 0)
+                  .fold(0, (int? a, b) => (a ?? 0) + b),
+              discount: customFeeTypeList
+                  .where((e) => e.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
+                  .map((e) => e.discount ?? 0)
+                  .fold(0, (int? a, b) => (a ?? 0) + b),
+            ));
+          }
+        }
+        feeTypeWiseFeePaidList.add(StudentAnnualFeeTypeBean(
+          feeTypeId: eachFeeType.feeTypeId,
+          feeType: eachFeeType.feeType,
+          amount: sectionWiseStudentsList
+              .map((e) => e.studentAnnualFeeTypeBeans ?? [])
+              .expand((i) => i)
+              .where((e) => e.feeTypeId == eachFeeType.feeTypeId)
+              .map((e) => e.amount ?? 0)
+              .fold(0, (int? a, b) => (a ?? 0) + b),
+          amountPaid: sectionWiseStudentsList
+              .map((e) => e.studentAnnualFeeTypeBeans ?? [])
+              .expand((i) => i)
+              .where((e) => e.feeTypeId == eachFeeType.feeTypeId)
+              .map((e) => e.amountPaid ?? 0)
+              .fold(0, (int? a, b) => (a ?? 0) + b),
+          discount: sectionWiseStudentsList
+              .map((e) => e.studentAnnualFeeTypeBeans ?? [])
+              .expand((i) => i)
+              .where((e) => e.feeTypeId == eachFeeType.feeTypeId)
+              .map((e) => e.discount ?? 0)
+              .fold(0, (int? a, b) => (a ?? 0) + b),
+          studentAnnualCustomFeeTypeBeans: customFeeTypeWiseFeePaidList,
+        ));
+      }
+      sectionWiseFeeMap[eachSection] = StudentAnnualFeeBean(
+        sectionId: eachSection.sectionId,
+        status: 'computed',
+        studentAnnualFeeTypeBeans: feeTypeWiseFeePaidList,
+        studentBusFeeBean: StudentBusFeeBean(
+          fare: sectionWiseStudentsList.map((e) => e.studentBusFeeBean).whereNotNull().map((e) => e.fare ?? 0).fold(0, (int? a, b) => (a ?? 0) + b),
+          feePaid:
+              sectionWiseStudentsList.map((e) => e.studentBusFeeBean).whereNotNull().map((e) => e.feePaid ?? 0).fold(0, (int? a, b) => (a ?? 0) + b),
+        ),
+        totalFee: sectionWiseStudentsList.map((e) => e.totalFee ?? 0).fold(0, (int? a, b) => (a ?? 0) + b),
+        totalFeePaid: sectionWiseStudentsList.map((e) => e.totalFeePaid ?? 0).fold(0, (int? a, b) => (a ?? 0) + b),
+      );
+    }
     setState(() => _isLoading = false);
   }
 
   Future<void> generateStudentMap() async {
-    List<FeeType> feeTypes = [];
     List<StudentWiseAnnualFeesBean> studentWiseAnnualFeesBeans = [];
     List<SectionWiseAnnualFeesBean> sectionWiseAnnualFeeBeansList = [];
     setState(() {
@@ -96,9 +1047,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
         ),
       );
     } else {
-      setState(() {
-        sectionWiseAnnualFeeBeansList = (getSectionWiseAnnualFeesResponse.sectionWiseAnnualFeesBeanList ?? []).map((e) => e!).toList();
-      });
+      sectionWiseAnnualFeeBeansList = (getSectionWiseAnnualFeesResponse.sectionWiseAnnualFeesBeanList ?? []).map((e) => e!).toList();
     }
     GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -110,9 +1059,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
         ),
       );
     } else {
-      setState(() {
-        feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
-      });
+      feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
     }
     GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = await getStudentWiseAnnualFees(GetStudentWiseAnnualFeesRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -125,9 +1072,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
         ),
       );
     } else {
-      setState(() {
-        studentWiseAnnualFeesBeans = getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList();
-      });
+      studentWiseAnnualFeesBeans = getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList();
     }
     studentAnnualFeeBeans = [];
     studentWiseAnnualFeesBeans.sort((a, b) => ((int.tryParse(a.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))));
@@ -221,7 +1166,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
         ),
       );
     }
-    studentAnnualFeeBeans = studentAnnualFeeBeans.where((e) => e.status != "inactive").toList();
+    // studentAnnualFeeBeans = studentAnnualFeeBeans.where((e) => e.status != "inactive").toList();
     studentAnnualFeeBeans.sort(
       (a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0),
     );
@@ -229,214 +1174,12 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       _isLoading = false;
     });
   }
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Section wise Fee Stats"),
-        actions: _isLoading ? [] : [
-          const SizedBox(width: 10),
-          GestureDetector(
-            onTap: () async {
-              List<int> bytes = await detailedFeeReport(
-                GetStudentWiseAnnualFeesRequest(
-                  schoolId: widget.adminProfile.schoolId,
-                ),
-                FeeReportType.sectionWiseTermWiseForAllStudents,
-              );
-              AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
-                ..setAttribute("download", "Section wise due report")
-                ..click();
-            },
-            child: ClayButton(
-              depth: 40,
-              color: clayContainerColor(context),
-              spread: 2,
-              borderRadius: 10,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
-                child: const FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    "Download",
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-        ],
-      ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
-      body: widget.studentFeeReceipts.isEmpty
-          ? const Center(child: Text("No transactions to display"))
-          : _isLoading
-              ? const EpsilonDiaryLoadingWidget()
-              : ListView.builder(
-                  itemCount: sections.length,
-                  itemBuilder: (context, index) {
-                    Section section = sections[index];
-                    List<StudentProfile> sectionStudentProfiles =
-                        studentProfiles.where((studentProfile) => studentProfile.sectionId == section.sectionId).toList();
-                    List<StudentAnnualFeeBean> sectionAnnualFeeBeans = studentAnnualFeeBeans
-                        .where((feeBean) => sectionStudentProfiles.any((profile) => profile.studentId == feeBean.studentId))
-                        .toList();
-                    int actualTotalFee = sectionAnnualFeeBeans.map((e) => e.totalFee ?? 0).sum;
-                    int totalFeesPaid = sectionAnnualFeeBeans.map((e) => e.totalFeePaid ?? 0).sum;
-                    int totalFeesPending = actualTotalFee - totalFeesPaid;
+class PaymentSummary {
+  final String type;
+  final double amount;
+  final charts.Color color;
 
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      child: ClayButton(
-                        depth: 40,
-                        color: clayContainerColor(context),
-                        spread: 2,
-                        borderRadius: 10,
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            dividerColor: Colors.transparent,
-                          ),
-                          child: ExpansionTile(
-                            tilePadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            childrenPadding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            title: Text(
-                              section.sectionName ?? '-',
-                              style: GoogleFonts.archivoBlack(
-                                textStyle: const TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ),
-                            subtitle: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Expanded(
-                                      child: Text("Total Fee"),
-                                    ),
-                                    Text(
-                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR(actualTotalFee / 100)}",
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Expanded(
-                                      child: Text("Fee Paid"),
-                                    ),
-                                    Text(
-                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeesPaid / 100)}",
-                                      style: const TextStyle(
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Expanded(
-                                      child: Text("Fee to be collected"),
-                                    ),
-                                    Text(
-                                      "$INR_SYMBOL ${doubleToStringAsFixedForINR(totalFeesPending / 100)}",
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            children: [
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: SingleChildScrollView(
-                                  child: DataTable(
-                                    columnSpacing: 30, // Adjust this value as needed
-                                    columns: const [
-                                      DataColumn(label: Text('Student Name')),
-                                      DataColumn(label: Text('Total Fee')),
-                                      DataColumn(label: Text('Fee Paid')),
-                                      // DataColumn(label: Text('Discount')),
-                                      DataColumn(label: Text('Fee Pending')),
-                                    ],
-                                    rows: sectionAnnualFeeBeans.map((feeBean) {
-                                      return DataRow(
-                                        cells: [
-                                          DataCell(
-                                            Text(
-                                              "${feeBean.rollNumber ?? ''}${feeBean.rollNumber != null ? '. ' : ''}${feeBean.studentName ?? ''}",
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              feeBean.totalFee == null
-                                                  ? "-"
-                                                  : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.totalFee ?? 0) / 100)}",
-                                              style: const TextStyle(
-                                                color: Colors.blue,
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              feeBean.totalFeePaid == null
-                                                  ? "-"
-                                                  : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.totalFeePaid ?? 0) / 100)}",
-                                              style: const TextStyle(
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                          ),
-                                          // DataCell(
-                                          //   Text(
-                                          //     feeBean.totalFeePaid == null
-                                          //         ? "-"
-                                          //         : "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeBean.discount ?? 0) / 100)}",
-                                          //   ),
-                                          // ),
-                                          DataCell(
-                                            Text(
-                                              feeBean.totalFee == null
-                                                  ? "-"
-                                                  : "$INR_SYMBOL ${doubleToStringAsFixedForINR(((feeBean.totalFee ?? 0) - (feeBean.totalFeePaid ?? 0)) / 100)}",
-                                              style: const TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-    );
-  }
+  PaymentSummary(this.type, this.amount, this.color);
 }

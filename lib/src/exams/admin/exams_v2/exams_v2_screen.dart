@@ -333,6 +333,7 @@ class _ExamsV2ScreenState extends State<ExamsV2Screen> {
       child: GestureDetector(
         onTap: () {
           if (_isLoading) return;
+          setState(() => _isLoading = true);
           setState(() {
             if (_selectedSection != null && _selectedSection!.sectionId == section.sectionId) {
               _selectedSection = null;
@@ -341,6 +342,7 @@ class _ExamsV2ScreenState extends State<ExamsV2Screen> {
             }
             _isSectionPickerOpen = false;
           });
+          setState(() => _isLoading = false);
         },
         child: ClayButton(
           depth: 40,

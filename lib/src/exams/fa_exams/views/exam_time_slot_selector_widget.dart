@@ -118,8 +118,6 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
 
   Future<void> dateTimePickerAlert({String? date, String? startTime, String? endTime}) async {
     date ??= convertDateTimeToYYYYMMDDFormat(DateTime.now());
-    startTime ??= "09:00:00";
-    endTime ??= "10:00:00";
     await showDialog(
       barrierDismissible: false,
       context: context,
@@ -206,7 +204,7 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
                                       Icons.timer_sharp,
                                     ),
                                     Text(
-                                      formatHHMMSStoHHMMA(startTime!),
+                                      startTime == null ? "-" : formatHHMMSStoHHMMA(startTime!),
                                     ),
                                   ],
                                 ),
@@ -247,8 +245,43 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
                                       Icons.timer_sharp,
                                     ),
                                     Text(
-                                      formatHHMMSStoHHMMA(endTime!),
+                                      endTime == null ? "-" : formatHHMMSStoHHMMA(endTime!),
                                     ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Expanded(child: Text("")),
+                        GestureDetector(
+                          onTap: () async {
+                            setState(() {
+                              date = null;
+                              startTime = null;
+                              endTime = null;
+                            });
+                          },
+                          child: ClayButton(
+                            depth: 20,
+                            color: clayContainerColor(context),
+                            spread: 2,
+                            borderRadius: 30,
+                            child: Container(
+                              margin: const EdgeInsets.all(10),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  children: const [
+                                    Icon(
+                                      Icons.clear,
+                                    ),
+                                    Text("Clear Date & Time"),
                                   ],
                                 ),
                               ),
@@ -266,7 +299,7 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
             TextButton(
               child: const Text("Apply"),
               onPressed: () async {
-                setDateAndTime(date!, startTime!, endTime!);
+                setDateAndTime(date!, startTime, endTime);
                 Navigator.pop(context);
               },
             ),
@@ -282,7 +315,7 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
     );
   }
 
-  void setDateAndTime(String date, String startTime, String endTime) => setState(() {
+  void setDateAndTime(String date, String? startTime, String? endTime) => setState(() {
         timeSlotMap.values.map((e) => e.values).expand((i) => i).whereNotNull().where((e) => checkedSlots.contains(e.mapKey)).forEach((e) {
           e.date = date;
           e.startTime = startTime;

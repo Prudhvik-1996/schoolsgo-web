@@ -1051,35 +1051,6 @@ class StudentBusFeeLogBean {
 }
 
 class StudentBusFeeBean {
-/*
-{
-  "fare": 0,
-  "routeId": 0,
-  "routeName": "string",
-  "schoolId": 0,
-  "schoolName": "string",
-  "stopId": 0,
-  "stopName": "string",
-  "studentBusFeeLogBeans": [
-    {
-      "fare": 0,
-      "rollNumber": "string",
-      "routeId": 0,
-      "routeName": "string",
-      "schoolId": 0,
-      "schoolName": "string",
-      "stopId": 0,
-      "stopName": "string",
-      "studentId": 0,
-      "studentName": "string",
-      "validFrom": "string",
-      "validThrough": "string"
-    }
-  ],
-  "studentId": 0,
-  "studentName": "string"
-}
-*/
 
   int? fare;
   int? feePaid;
@@ -1156,6 +1127,12 @@ class StudentBusFeeBean {
     data['studentId'] = studentId;
     data['studentName'] = studentName;
     return data;
+  }
+
+
+  @override
+  String toString() {
+    return 'StudentBusFeeBean{fare: $fare, feePaid: $feePaid, routeId: $routeId, routeName: $routeName, schoolId: $schoolId, schoolName: $schoolName, stopId: $stopId, stopName: $stopName, studentId: $studentId, studentName: $studentName}';
   }
 
   Map<String, dynamic> origJson() => __origJson;

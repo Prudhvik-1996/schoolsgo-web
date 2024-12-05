@@ -81,16 +81,13 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
 
   @override
   void initState() {
-    super.initState();
-    studentsForSelectedSection = widget.studentsList.where((e) => e.sectionId == widget.selectedSection?.sectionId).toList();
-    studentsForSelectedSection.forEach((es) {
-      studentHallTicketMap[es.studentId!] = true;
-    });
     _loadData();
+    super.initState();
   }
 
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
+    print("85: ${widget.selectedSection?.sectionName}");
     for (TeacherDealingSection eachTds in widget.tdsList) {
       List<double?> tdsWiseMarks = [];
       List<double?> maxMarks = [];
@@ -232,6 +229,11 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
   }
 
   Future<void> showStudentsPickerDialogue() async {
+    studentsForSelectedSection = widget.studentsList.where((e) => e.sectionId == widget.selectedSection?.sectionId).toList();
+    studentHallTicketMap = {};
+    for (StudentProfile es in studentsForSelectedSection) {
+      studentHallTicketMap[es.studentId!] = true;
+    }
     await showDialog(
       barrierDismissible: false,
       context: context,
@@ -332,6 +334,12 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
                     },
                   )
                 : const Text("Select at least one student to continue"),
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () async {
+                Navigator.pop(context);
+              },
+            ),
           ],
         );
       },

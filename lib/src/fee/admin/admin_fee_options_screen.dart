@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_assign_fee_type_to_sections_sc
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v3.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
+import 'package:schoolsgo_web/src/fee/admin/stats/section_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/fees/due_reports_screen.dart';
 
@@ -41,8 +42,7 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
           spread: 1,
           borderRadius: 10,
           child: Container(
-            padding: const EdgeInsets.all(10),
-            // margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10), // margin: const EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -133,18 +133,19 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
               adminProfile: widget.adminProfile,
             ),
           ),
-          // _getFeeOption(
-          //   "Fee Receipts",
-          //   null,
-          //   AdminFeeReceiptsScreen(
-          //     adminProfile: widget.adminProfile,
-          //   ),
-          // ),
           _getFeeOption(
             "Fee Receipts",
             null,
             AdminFeeReceiptsScreenV3(
               adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getFeeOption(
+            "Section wise fee stats",
+            null,
+            SectionWiseFeeStats(
+              adminProfile: widget.adminProfile,
+              studentFeeReceipts: [],
             ),
           ),
           _getFeeOption(

@@ -51,7 +51,11 @@ class StudentAnnualFeeBean {
 
   @override
   String toString() {
-    return "\n{\n\t'studentId': $studentId, \n\t'studentName': $studentName, \n\t'rollNumber': $rollNumber, \n\t'studentAnnualFeeTypeBeans': $studentAnnualFeeTypeBeans, \n\t'studentBusFeeBean': $studentBusFeeBean, \n\t'totalFee': $totalFee, \n\t'totalFeePaid': $totalFeePaid,\n\t'walletBalance': $walletBalance}";
+    return "{'studentId': $studentId, 'studentName': $studentName, 'rollNumber': $rollNumber, 'studentAnnualFeeTypeBeans': $studentAnnualFeeTypeBeans, 'studentBusFeeBean': $studentBusFeeBean, 'totalFee': $totalFee, 'totalFeePaid': $totalFeePaid,'walletBalance': $walletBalance}";
+  }
+
+  String moddedToStringForSection() {
+    return "{'studentAnnualFeeTypeBeans': $studentAnnualFeeTypeBeans, 'studentBusFeeBean': $studentBusFeeBean, 'totalFee': $totalFee, 'totalFeePaid': $totalFeePaid,'walletBalance': $walletBalance}";
   }
 
   int get discount =>
@@ -95,7 +99,7 @@ class StudentAnnualFeeTypeBean {
 
   @override
   String toString() {
-    return "\n{\n\t'feeTypeId': $feeTypeId, \n\t'feeType': $feeType, \n\t'amount': $amount, \n\t'discount': $discount, \n\t'amountPaid': $amountPaid, \n\t'studentFeeMapId': $studentFeeMapId, \n\t'studentAnnualCustomFeeTypeBeans': $studentAnnualCustomFeeTypeBeans \n}";
+    return "{'feeTypeId': $feeTypeId, 'feeType': $feeType, 'amount': $amount, 'discount': $discount, 'amountPaid': $amountPaid, 'studentFeeMapId': $studentFeeMapId, 'studentAnnualCustomFeeTypeBeans': $studentAnnualCustomFeeTypeBeans }";
   }
 }
 
@@ -130,6 +134,6 @@ class StudentAnnualCustomFeeTypeBean {
 
   @override
   String toString() {
-    return "\n{\n\t'customFeeTypeId': $customFeeTypeId, \n\t'customFeeType': $customFeeType, \n\t'amount': $amount, \n\t'discount': $discount, \n\t'amountPaid': $amountPaid, \n\t'studentFeeMapId': $studentFeeMapId \n}";
+    return "{'customFeeTypeId': $customFeeTypeId, 'customFeeType': $customFeeType, 'amount': $amount, 'discount': $discount, 'amountPaid': $amountPaid, 'studentFeeMapId': $studentFeeMapId }";
   }
 }
