@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v3.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_manage_terms_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/section_wise_fee_stats.dart';
+import 'package:schoolsgo_web/src/fee/admin/stats/student_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/fees/due_reports_screen.dart';
 
@@ -137,6 +138,13 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
             "Fee Receipts",
             null,
             AdminFeeReceiptsScreenV3(
+              adminProfile: widget.adminProfile,
+            ),
+          ),
+          _getFeeOption(
+            "Student wise fee stats",
+            null,
+            StudentWiseFeeStats(
               adminProfile: widget.adminProfile,
             ),
           ),

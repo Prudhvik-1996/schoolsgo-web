@@ -1063,6 +1063,7 @@ class StudentBusFeeBean {
   List<StudentBusFeeLogBean?>? studentBusFeeLogBeans;
   int? studentId;
   String? studentName;
+  int? terminalNumber;
   Map<String, dynamic> __origJson = {};
 
   TextEditingController fareController = TextEditingController();
@@ -1079,6 +1080,7 @@ class StudentBusFeeBean {
     this.studentBusFeeLogBeans,
     this.studentId,
     this.studentName,
+    this.terminalNumber,
   }) {
     fareController.text = fare == null ? "" : "${(fare!) / 100}";
   }
@@ -1104,6 +1106,7 @@ class StudentBusFeeBean {
     }
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
+    terminalNumber = json['terminalNumber']?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -1126,13 +1129,14 @@ class StudentBusFeeBean {
     }
     data['studentId'] = studentId;
     data['studentName'] = studentName;
+    data['terminalNumber'] = terminalNumber;
     return data;
   }
 
 
   @override
   String toString() {
-    return 'StudentBusFeeBean{fare: $fare, feePaid: $feePaid, routeId: $routeId, routeName: $routeName, schoolId: $schoolId, schoolName: $schoolName, stopId: $stopId, stopName: $stopName, studentId: $studentId, studentName: $studentName}';
+    return 'StudentBusFeeBean{fare: $fare, feePaid: $feePaid, routeId: $routeId, routeName: $routeName, schoolId: $schoolId, schoolName: $schoolName, stopId: $stopId, stopName: $stopName, studentId: $studentId, studentName: $studentName, terminalNumber: $terminalNumber}';
   }
 
   Map<String, dynamic> origJson() => __origJson;

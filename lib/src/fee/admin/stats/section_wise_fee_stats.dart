@@ -38,6 +38,7 @@ class SectionWiseFeeStats extends StatefulWidget {
 class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
   bool _isLoading = true;
   bool _isCardView = false;
+  String studentStatusFilterType = "A"; // "A" - only active students, "-" - all students, "D" - only dropout students
   List<FeeType> feeTypes = [];
 
   List<Section> sections = [];
@@ -47,9 +48,12 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
   List<StudentFeeReceipt> studentFeeReceipts = [];
   Map<Section, StudentAnnualFeeBean> sectionWiseFeeMap = {};
   Map<Section, Map<String, Map<ModeOfPayment, int>>> sectionWiseModeOfPaymentMap = {};
+  Map<String, Map<ModeOfPayment, int>> schoolWiseModeOfPaymentMap = {};
 
   Map<Section, ScrollController> sectionWiseScrollControllerForTotalFeeTable = {};
   Map<Section, ScrollController> sectionWiseScrollControllerForModeOfPayments = {};
+  ScrollController feeTypeScrollControllerForSchool = ScrollController();
+  ScrollController modeOfPaymentScrollController = ScrollController();
   final double columnSpacing = 3;
   final double rowHeight = 45;
   final double columnWidth = 90;
@@ -68,6 +72,21 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
         return;
       case 'Switch to card view':
         setState(() => _isCardView = true);
+        return;
+      case 'Only dropout students':
+        setState(() => studentStatusFilterType = "D");
+        generateSectionMap();
+        generateModeOfPaymentMap();
+        return;
+      case 'Only active students':
+        setState(() => studentStatusFilterType = "A");
+        generateSectionMap();
+        generateModeOfPaymentMap();
+        return;
+      case 'All students':
+        setState(() => studentStatusFilterType = "-");
+        generateSectionMap();
+        generateModeOfPaymentMap();
         return;
       case 'Download report':
         await downloadReport();
@@ -90,6 +109,9 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
                   itemBuilder: (BuildContext context) {
                     return {
                       (_isCardView ? 'Switch to table view' : 'Switch to card view'),
+                      'Only dropout students',
+                      'Only active students',
+                      'All students',
                       'Download report',
                     }.map((String choice) {
                       return PopupMenuItem<String>(
@@ -121,10 +143,66 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
   Widget tableViewListWidget() {
     return ListView(
       children: [
-        ...sections.map((e) => tableViewWidget(e)),
+        schoolWiseTableWidget(),
+        ...sections.where((e) => (sectionWiseFeeMap[e]?.totalFee ?? 0) > 0).map((e) => tableViewWidget(e)),
         const SizedBox(height: 200),
       ],
     );
+  }
+
+  Widget schoolWiseTableWidget() {
+    Map<String, double> schoolWiseTotalFeeMap = {};
+    Map<String, double> schoolWiseTotalFeeCollectedMap = {};
+    Map<String, double> schoolWiseTotalFeeDueMap = {};
+    Map<String, String> feeTypeNameMap = {};
+    populateMapForSchool(schoolWiseTotalFeeMap, schoolWiseTotalFeeCollectedMap, schoolWiseTotalFeeDueMap, feeTypeNameMap);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 1,
+        borderRadius: 10,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              embossedClayTitleWidget(schoolNameText(widget.adminProfile.schoolName ?? "-")),
+              const SizedBox(height: 8),
+              schoolWiseStatsFeeTypeTable(schoolWiseTotalFeeMap, schoolWiseTotalFeeCollectedMap, schoolWiseTotalFeeDueMap, feeTypeNameMap),
+              const SizedBox(height: 8),
+              modeOfPaymentsHeader(),
+              schoolWiseStatsModeOfPaymentTable(feeTypeNameMap),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget schoolWiseStatsModeOfPaymentTable(Map<String, String> feeTypeNameMap) {
+    List<String> columnNames = ["", ...feeTypeNameMap.values.toList()];
+    Set<ModeOfPayment> modes = schoolWiseModeOfPaymentMap.values.map((e) => e.keys).expand((i) => i).toSet();
+    List<List<Widget>> rows = modes
+        .map((ModeOfPayment eachModeOfPayment) {
+          double totalAmount =
+              schoolWiseModeOfPaymentMap.values.map((e) => (e[eachModeOfPayment] ?? 0) / 100.0).fold(0.0, (double? a, b) => (a ?? 0) + b);
+          if (totalAmount == 0) return null;
+          return [
+            eachModeOfPayment.description,
+            ...schoolWiseModeOfPaymentMap.values.map((e) {
+              double amount = (e[eachModeOfPayment] ?? 0) / 100.0;
+              return "$INR_SYMBOL ${(doubleToStringAsFixedForINR(amount))}";
+            }),
+            "$INR_SYMBOL ${(doubleToStringAsFixedForINR(totalAmount))}",
+          ].map((e) => clayCellChild(e)).toList();
+        })
+        .whereNotNull()
+        .toList();
+    return clayDataTable(modeOfPaymentScrollController, columnSpacing, rowHeight, columnWidth, columnNames, rows);
   }
 
   Widget tableViewWidget(Section section) {
@@ -147,7 +225,6 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
               const SizedBox(height: 8),
               feeTypeWiseTotalCollectedTable(section),
               const SizedBox(height: 8),
-              modeOfPaymentsHeader(),
               feeTypeWiseModeOfPaymentTable(section),
             ],
           ),
@@ -166,9 +243,130 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
     );
   }
 
+  Widget schoolWiseStatsFeeTypeTable(
+    Map<String, double> schoolWiseTotalFeeMap,
+    Map<String, double> schoolWiseTotalFeeCollectedMap,
+    Map<String, double> schoolWiseTotalFeeDueMap,
+    Map<String, String> feeTypeNameMap,
+  ) {
+    List<String> columnNames = ["", ...feeTypeNameMap.values.toList()];
+    // schoolWiseTotalFeeMap.keys.mapIndexed((i, e) => schoolWiseTotalFeeMap[e]! == 0 ? null : i).whereNotNull().toList();
+    List<Widget> feeRow = [
+      "Fee",
+      ...schoolWiseTotalFeeMap.values.map((e) => "$INR_SYMBOL ${doubleToStringAsFixedForINR(e)}"),
+    ].map((e) => clayCellChild(e)).toList();
+    List<Widget> collectedRow = [
+      "Collected",
+      ...schoolWiseTotalFeeCollectedMap.values.map((e) => "$INR_SYMBOL ${doubleToStringAsFixedForINR(e)}"),
+    ].map((e) => clayCellChild(e)).toList();
+    List<Widget> dueRow = [
+      "Due",
+      ...schoolWiseTotalFeeDueMap.values.map((e) => "$INR_SYMBOL ${doubleToStringAsFixedForINR(e)}"),
+    ].map((e) => clayCellChild(e)).toList();
+    List<List<double>> feeStatsForSection = schoolWiseTotalFeeMap.values.mapIndexed((index, totalFee) {
+      double feeCollected = schoolWiseTotalFeeCollectedMap.values.toList()[index];
+      double feeDue = schoolWiseTotalFeeDueMap.values.toList()[index];
+      return [feeCollected, feeDue];
+    }).toList();
+    List<Widget> graphsRow = [
+      clayCellChild("Graph"),
+      ...feeStatsForSection.map((List<double> feeStats) {
+        if (feeStats[0] == 0 && feeStats[1] == 0) {
+          return clayCellChild("-");
+        } else {
+          return pieChart(feeStats);
+        }
+        // return clayCellChild("${feeStats[0]} - ${feeStats[1]} = ${feeStats[2]}");
+      }).toList()
+    ];
+    List<List<Widget>> rows = [feeRow, collectedRow, dueRow];
+    return clayDataTable(feeTypeScrollControllerForSchool, columnSpacing, rowHeight, columnWidth, columnNames, rows, graphRow: graphsRow);
+  }
+
+  void populateMapForSchool(
+    Map<String, double> schoolWiseTotalFeeMap,
+    Map<String, double> schoolWiseTotalFeeCollectedMap,
+    Map<String, double> schoolWiseTotalFeeDueMap,
+    Map<String, String> feeTypeNameMap,
+  ) {
+    for (FeeType eachFeeType in feeTypes) {
+      if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
+        String key = "${eachFeeType.feeTypeId}|-";
+        schoolWiseTotalFeeMap[key] = 0.0;
+        schoolWiseTotalFeeCollectedMap[key] = 0.0;
+        schoolWiseTotalFeeDueMap[key] = 0.0;
+        feeTypeNameMap[key] = eachFeeType.feeType ?? "-";
+      } else {
+        for (CustomFeeType eachCustomFeeType in (eachFeeType.customFeeTypesList ?? []).whereNotNull()) {
+          String key = "${eachFeeType.feeTypeId}|${eachCustomFeeType.customFeeTypeId}";
+          schoolWiseTotalFeeMap[key] = 0.0;
+          schoolWiseTotalFeeCollectedMap[key] = 0.0;
+          schoolWiseTotalFeeDueMap[key] = 0.0;
+          feeTypeNameMap[key] = "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}";
+        }
+      }
+    }
+    String busFeeKey = "-|-";
+    schoolWiseTotalFeeMap[busFeeKey] = 0.0;
+    schoolWiseTotalFeeCollectedMap[busFeeKey] = 0.0;
+    schoolWiseTotalFeeDueMap[busFeeKey] = 0.0;
+    feeTypeNameMap[busFeeKey] = "Bus";
+    String totalKey = "|||";
+    schoolWiseTotalFeeMap[totalKey] = 0.0;
+    schoolWiseTotalFeeCollectedMap[totalKey] = 0.0;
+    schoolWiseTotalFeeDueMap[totalKey] = 0.0;
+    feeTypeNameMap[totalKey] = "Total";
+    for (int i = 0; i < sections.length; i++) {
+      Section section = sections[i];
+      StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
+      (sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).forEach((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+        if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+          String key = "${sectionAnnualFeeTypeBean.feeTypeId}|-";
+          double amount = (sectionAnnualFeeTypeBean.amount ?? 0) / 100.0;
+          double amountPaid = (sectionAnnualFeeTypeBean.amountPaid ?? 0) / 100.0;
+          double amountDue = amount - amountPaid;
+          schoolWiseTotalFeeMap[key] = (schoolWiseTotalFeeMap[key] ?? 0) + amount;
+          schoolWiseTotalFeeCollectedMap[key] = (schoolWiseTotalFeeCollectedMap[key] ?? 0) + amountPaid;
+          schoolWiseTotalFeeDueMap[key] = (schoolWiseTotalFeeDueMap[key] ?? 0) + amountDue;
+          schoolWiseTotalFeeMap["|||"] = (schoolWiseTotalFeeMap["|||"] ?? 0) + amount;
+          schoolWiseTotalFeeCollectedMap["|||"] = (schoolWiseTotalFeeCollectedMap["|||"] ?? 0) + amountPaid;
+          schoolWiseTotalFeeDueMap["|||"] = (schoolWiseTotalFeeDueMap["|||"] ?? 0) + amountDue;
+        } else {
+          (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).forEach((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+            String key = "${sectionAnnualFeeTypeBean.feeTypeId}|${sectionAnnualCustomFeeTypeBean.customFeeTypeId}";
+            double amount = (sectionAnnualCustomFeeTypeBean.amount ?? 0) / 100.0;
+            double amountPaid = (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0) / 100.0;
+            double amountDue = amount - amountPaid;
+            schoolWiseTotalFeeMap[key] = (schoolWiseTotalFeeMap[key] ?? 0) + amount;
+            schoolWiseTotalFeeCollectedMap[key] = (schoolWiseTotalFeeCollectedMap[key] ?? 0) + amountPaid;
+            schoolWiseTotalFeeDueMap[key] = (schoolWiseTotalFeeDueMap[key] ?? 0) + amountDue;
+            schoolWiseTotalFeeMap["|||"] = (schoolWiseTotalFeeMap["|||"] ?? 0) + amount;
+            schoolWiseTotalFeeCollectedMap["|||"] = (schoolWiseTotalFeeCollectedMap["|||"] ?? 0) + amountPaid;
+            schoolWiseTotalFeeDueMap["|||"] = (schoolWiseTotalFeeDueMap["|||"] ?? 0) + amountDue;
+          });
+        }
+      });
+      String busFeeKey = "-|-";
+      double busFee = (sectionWiseFeeMap[section]!.studentBusFeeBean?.fare ?? 0) / 100.0;
+      double busFeePaid = (sectionWiseFeeMap[section]!.studentBusFeeBean?.feePaid ?? 0) / 100.0;
+      double busFeeDue = busFee - busFeePaid;
+      schoolWiseTotalFeeMap[busFeeKey] = (schoolWiseTotalFeeMap[busFeeKey] ?? 0) + busFee;
+      schoolWiseTotalFeeCollectedMap[busFeeKey] = (schoolWiseTotalFeeCollectedMap[busFeeKey] ?? 0) + busFeePaid;
+      schoolWiseTotalFeeDueMap[busFeeKey] = (schoolWiseTotalFeeDueMap[busFeeKey] ?? 0) + busFeeDue;
+      schoolWiseTotalFeeMap["|||"] = (schoolWiseTotalFeeMap["|||"] ?? 0) + busFee;
+      schoolWiseTotalFeeCollectedMap["|||"] = (schoolWiseTotalFeeCollectedMap["|||"] ?? 0) + busFeePaid;
+      schoolWiseTotalFeeDueMap["|||"] = (schoolWiseTotalFeeDueMap["|||"] ?? 0) + busFeeDue;
+    }
+    if ((schoolWiseTotalFeeMap["-|-"] ?? 0) <= 0) {
+      schoolWiseTotalFeeMap.remove("-|-");
+      schoolWiseTotalFeeCollectedMap.remove("-|-");
+      schoolWiseTotalFeeDueMap.remove("-|-");
+      feeTypeNameMap.remove("-|-");
+    }
+  }
+
   Widget feeTypeWiseModeOfPaymentTable(Section section) {
     ScrollController horizontalScrollController = sectionWiseScrollControllerForModeOfPayments[section]!;
-    StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
     Map<String, Map<ModeOfPayment, int>> feeTypeWiseModeOfPaymentMap = sectionWiseModeOfPaymentMap[section]!;
     Map<ModeOfPayment, int> modeWiseTotal = {};
     ModeOfPayment.values.forEach((eachModeOfPayment) {
@@ -187,7 +385,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       modeWiseTotal[eachModeOfPayment] = modeWiseTotal[eachModeOfPayment]! + feeTypeWiseModeOfPaymentMap["-|-"]![eachModeOfPayment]!;
     });
     modeWiseTotal.removeWhere((key, value) => value == 0);
-    List<String> columns = getDataTableColumns(section, sectionWiseBusFeeBean);
+    List<String> columns = getDataTableColumns(section, (sectionWiseFeeMap[section]!.studentBusFeeBean?.fare ?? 0) > 0);
     List<List<Widget>> rows = modeWiseTotal.keys.map((ModeOfPayment eachModeOfPayment) {
       return [
         eachModeOfPayment.description,
@@ -207,144 +405,70 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
             .expand((i) => i)
             .map((e) => "$INR_SYMBOL ${(doubleToStringAsFixedForINR(e / 100.0))}")
             .toList(),
-        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0)
+        if ((sectionWiseFeeMap[section]!.studentBusFeeBean?.fare ?? 0) > 0)
           "$INR_SYMBOL ${doubleToStringAsFixedForINR(feeTypeWiseModeOfPaymentMap["-|-"]![eachModeOfPayment]! / 100.0)}",
         "$INR_SYMBOL ${(doubleToStringAsFixedForINR(modeWiseTotal[eachModeOfPayment]! / 100.0))}",
       ].map((e) => clayCellChild(e)).toList();
     }).toList();
-    return clayDataTable(horizontalScrollController, columnSpacing, rowHeight, columnWidth, columns, rows);
+    if (rows.isEmpty) return Container();
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        modeOfPaymentsHeader(),
+        clayDataTable(horizontalScrollController, columnSpacing, rowHeight, columnWidth, columns, rows),
+      ],
+    );
   }
 
-  List<String> getDataTableColumns(Section section, StudentBusFeeBean? sectionWiseBusFeeBean) {
-    List<String> columns = [
-      "",
-      ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
-        if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
-          return [sectionAnnualFeeTypeBean.feeType ?? "-"];
-        } else {
-          return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).map(
-              (StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) =>
-                  "${sectionAnnualFeeTypeBean.feeType ?? "-"} \n ${sectionAnnualCustomFeeTypeBean.customFeeType ?? "-"}");
-        }
-      }).expand((i) => i),
-      if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) "Bus",
-      "Total",
-    ];
-    return columns;
+  List<String> getDataTableColumns(Section? section, bool showBusFee) {
+    if (section == null) {
+      return [];
+    } else {
+      List<String> columns = [
+        "",
+        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+          if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+            return [sectionAnnualFeeTypeBean.feeType ?? "-"];
+          } else {
+            return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).map(
+                (StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) =>
+                    "${sectionAnnualFeeTypeBean.feeType ?? "-"} \n ${sectionAnnualCustomFeeTypeBean.customFeeType ?? "-"}");
+          }
+        }).expand((i) => i),
+        if (showBusFee) "Bus",
+        "Total",
+      ];
+      return columns;
+    }
   }
 
   Widget feeTypeWiseTotalCollectedTable(Section section) {
-    StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
     ScrollController horizontalScrollController = sectionWiseScrollControllerForTotalFeeTable[section]!;
-    List<String> columns = getDataTableColumns(section, sectionWiseBusFeeBean);
+    List<String> columns = getDataTableColumns(section, (sectionWiseFeeMap[section]!.studentBusFeeBean?.fare ?? 0) > 0);
+    List<double> sectionWiseTotalFeeRowValues = sectionWiseTotalFeeRow(section);
+    List<double> sectionWiseTotalFeeCollectedRowValues = sectionWiseTotalFeeCollectedRow(section);
+    List<double> sectionWiseDueRowValues = sectionWiseDueRow(section);
     List<Widget> feeRow = [
       "Fee",
-      ...[
-        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
-          if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
-            double amount = (sectionAnnualFeeTypeBean.amount ?? 0) / 100.0;
-            return ["$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}"];
-          } else {
-            return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
-                .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
-              double amount = (sectionAnnualCustomFeeTypeBean.amount ?? 0) / 100.0;
-              return "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}";
-            });
-          }
-        }),
-        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) ["$INR_SYMBOL ${doubleToStringAsFixedForINR(((sectionWiseBusFeeBean?.fare ?? 0) / 100.0))}"],
-        [
-          "$INR_SYMBOL ${doubleToStringAsFixedForINR((sectionWiseFeeMap[section]!.totalFee ?? 0.0) / 100.0)}",
-        ],
-      ].expand((i) => i),
+      ...sectionWiseTotalFeeRowValues.map((e) => "$INR_SYMBOL ${doubleToStringAsFixedForINR(e)}"),
     ].map((e) => clayCellChild(e)).toList();
     List<Widget> collectedRow = [
       "Collected",
-      ...[
-        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
-          if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
-            double amount = (sectionAnnualFeeTypeBean.amountPaid ?? 0) / 100.0;
-            return ["$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}"];
-          } else {
-            return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
-                .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
-              double amount = (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0) / 100.0;
-              return "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}";
-            });
-          }
-        }),
-        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) ["$INR_SYMBOL ${doubleToStringAsFixedForINR(((sectionWiseBusFeeBean?.feePaid ?? 0) / 100.0))}"],
-        [
-          "$INR_SYMBOL ${doubleToStringAsFixedForINR((sectionWiseFeeMap[section]!.totalFeePaid ?? 0.0) / 100.0)}",
-        ],
-      ].expand((i) => i),
+      ...sectionWiseTotalFeeCollectedRowValues.map((e) => "$INR_SYMBOL ${doubleToStringAsFixedForINR(e)}"),
     ].map((e) => clayCellChild(e)).toList();
     List<Widget> dueRow = [
       "Due",
-      ...[
-        ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
-          if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
-            double amount = ((sectionAnnualFeeTypeBean.amount ?? 0) - (sectionAnnualFeeTypeBean.amountPaid ?? 0)) / 100.0;
-            return ["$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}"];
-          } else {
-            return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
-                .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
-              double amount = ((sectionAnnualCustomFeeTypeBean.amount ?? 0) - (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0)) / 100.0;
-              return "$INR_SYMBOL ${doubleToStringAsFixedForINR(amount)}";
-            });
-          }
-        }),
-        if ((sectionWiseBusFeeBean?.fare ?? 0) > 0)
-          ["$INR_SYMBOL ${doubleToStringAsFixedForINR((((sectionWiseBusFeeBean?.fare ?? 0) - (sectionWiseBusFeeBean?.feePaid ?? 0)) / 100.0))}"],
-        [
-          "$INR_SYMBOL ${doubleToStringAsFixedForINR(((sectionWiseFeeMap[section]!.totalFee ?? 0.0) - (sectionWiseFeeMap[section]!.totalFeePaid ?? 0.0)) / 100.0)}",
-        ],
-      ].expand((i) => i),
+      ...sectionWiseDueRowValues.map((e) => "$INR_SYMBOL ${doubleToStringAsFixedForINR(e)}"),
     ].map((e) => clayCellChild(e)).toList();
-    Map<String, List<double>> feeTpeWiseMap = {};
-    for (FeeType eachFeeType in feeTypes) {
-      if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
-        String key = "${eachFeeType.feeTypeId}|-";
-        StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean = (sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? [])
-            .where((sectionAnnualFeeTypeBean) =>
-                (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty &&
-                sectionAnnualFeeTypeBean.feeTypeId == eachFeeType.feeTypeId)
-            .first;
-        feeTpeWiseMap[key] = [
-          (sectionAnnualFeeTypeBean.amountPaid ?? 0) / 100.0,
-          ((sectionAnnualFeeTypeBean.amount ?? 0) - (sectionAnnualFeeTypeBean.amountPaid ?? 0)) / 100.0,
-        ];
-      } else {
-        for (CustomFeeType eachCustomFeeType in (eachFeeType.customFeeTypesList ?? []).whereNotNull()) {
-          String key = "${eachFeeType.feeTypeId}|${eachCustomFeeType.customFeeTypeId}";
-          StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean = (sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? [])
-              .where((sectionAnnualFeeTypeBean) =>
-                  (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isNotEmpty &&
-                  sectionAnnualFeeTypeBean.feeTypeId == eachFeeType.feeTypeId)
-              .map((e) => e.studentAnnualCustomFeeTypeBeans ?? [])
-              .expand((i) => i)
-              .where((e) => e.customFeeTypeId == eachCustomFeeType.customFeeTypeId)
-              .first;
-          feeTpeWiseMap[key] = [
-            (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0) / 100.0,
-            ((sectionAnnualCustomFeeTypeBean.amount ?? 0) - (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0)) / 100.0,
-          ];
-        }
-      }
-    }
-    if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) {
-      feeTpeWiseMap["-|-"] = [
-        (sectionWiseBusFeeBean?.feePaid ?? 0) / 100.0,
-        ((sectionWiseBusFeeBean?.fare ?? 0) - (sectionWiseBusFeeBean?.feePaid ?? 0)) / 100.0,
-      ];
-    }
-    feeTpeWiseMap["|||"] = [
-      feeTpeWiseMap.values.map((e) => e[0]).fold(0.0, (double? a, b) => (a ?? 0.0) + b),
-      feeTpeWiseMap.values.map((e) => e[1]).fold(0.0, (double? a, b) => (a ?? 0.0) + b),
-    ];
+    List<List<double>> feeStatsForSection = sectionWiseTotalFeeRowValues.mapIndexed((index, totalFee) {
+      double feeCollected = sectionWiseTotalFeeCollectedRowValues[index];
+      double feeDue = sectionWiseDueRowValues[index];
+      return [feeCollected, feeDue];
+    }).toList();
     List<Widget> graphsRow = [
       clayCellChild("Graph"),
-      ...feeTpeWiseMap.values.map((List<double> feeStats) {
+      ...feeStatsForSection.map((List<double> feeStats) {
         if (feeStats[0] == 0 && feeStats[1] == 0) {
           return clayCellChild("-");
         } else {
@@ -357,6 +481,72 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
     return clayDataTable(horizontalScrollController, columnSpacing, rowHeight, columnWidth, columns, rows, graphRow: graphsRow);
   }
 
+  List<double> sectionWiseDueRow(Section section) {
+    StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
+    return [
+      ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+        if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+          double amount = ((sectionAnnualFeeTypeBean.amount ?? 0) - (sectionAnnualFeeTypeBean.amountPaid ?? 0)) / 100.0;
+          return [amount];
+        } else {
+          return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
+              .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+            double amount = ((sectionAnnualCustomFeeTypeBean.amount ?? 0) - (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0)) / 100.0;
+            return amount;
+          });
+        }
+      }),
+      if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) [((((sectionWiseBusFeeBean?.fare ?? 0) - (sectionWiseBusFeeBean?.feePaid ?? 0)) / 100.0))],
+      [
+        (((sectionWiseFeeMap[section]!.totalFee ?? 0.0) - (sectionWiseFeeMap[section]!.totalFeePaid ?? 0.0)) / 100.0),
+      ],
+    ].expand((i) => i).toList();
+  }
+
+  List<double> sectionWiseTotalFeeCollectedRow(Section section) {
+    StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
+    return [
+      ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+        if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+          double amount = (sectionAnnualFeeTypeBean.amountPaid ?? 0) / 100.0;
+          return [amount];
+        } else {
+          return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
+              .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+            double amount = (sectionAnnualCustomFeeTypeBean.amountPaid ?? 0) / 100.0;
+            return amount;
+          });
+        }
+      }),
+      if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) [(((sectionWiseBusFeeBean?.feePaid ?? 0) / 100.0))],
+      [
+        ((sectionWiseFeeMap[section]!.totalFeePaid ?? 0.0) / 100.0),
+      ],
+    ].expand((i) => i).toList();
+  }
+
+  List<double> sectionWiseTotalFeeRow(Section section) {
+    StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
+    return [
+      ...(sectionWiseFeeMap[section]!.studentAnnualFeeTypeBeans ?? []).map((StudentAnnualFeeTypeBean sectionAnnualFeeTypeBean) {
+        if ((sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? []).isEmpty) {
+          double amount = (sectionAnnualFeeTypeBean.amount ?? 0) / 100.0;
+          return [amount];
+        } else {
+          return (sectionAnnualFeeTypeBean.studentAnnualCustomFeeTypeBeans ?? [])
+              .map((StudentAnnualCustomFeeTypeBean sectionAnnualCustomFeeTypeBean) {
+            double amount = (sectionAnnualCustomFeeTypeBean.amount ?? 0) / 100.0;
+            return amount;
+          });
+        }
+      }),
+      if ((sectionWiseBusFeeBean?.fare ?? 0) > 0) [(((sectionWiseBusFeeBean?.fare ?? 0) / 100.0))],
+      [
+        ((sectionWiseFeeMap[section]!.totalFee ?? 0.0) / 100.0),
+      ],
+    ].expand((i) => i).toList();
+  }
+
   Widget pieChart(List<double> feeStats) {
     double feePaid = feeStats[0];
     double feeDue = feeStats[1];
@@ -364,12 +554,9 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       PaymentSummary("Due", feeDue, const charts.Color(r: 241, g: 196, b: 15)),
       PaymentSummary("Collected", feePaid, const charts.Color(r: 46, g: 204, b: 113)),
     ];
-    return Container(
-      // decoration: BoxDecoration(
-      //   border: Border.all(color: Colors.red),
-      // ),
-      height: 40,
-      width: 40,
+    return SizedBox(
+      height: 35,
+      width: 35,
       child: charts.PieChart<String>(
         [
           charts.Series<PaymentSummary, String>(
@@ -431,8 +618,16 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
                 if (graphRow.isNotEmpty)
                   DataRow(
                     cells: graphRow
-                        .map((e) =>
-                            DataCell(clayCell(child: e, height: rowHeight, width: columnWidth, padding: const EdgeInsets.fromLTRB(0, 2, 0, 2))))
+                        .map(
+                          (e) => DataCell(
+                            clayCell(
+                              child: e,
+                              height: rowHeight,
+                              width: columnWidth,
+                              padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                            ),
+                          ),
+                        )
                         .toList(),
                   ),
               ],
@@ -847,12 +1042,10 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       ),
     );
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
-      setState(() {
-        sections = getSectionsResponse.sections!.map((e) => e!).toList();
-        sections.forEach((eachSection) {
-          sectionWiseScrollControllerForTotalFeeTable[eachSection] = ScrollController();
-          sectionWiseScrollControllerForModeOfPayments[eachSection] = ScrollController();
-        });
+      sections = getSectionsResponse.sections!.map((e) => e!).toList();
+      sections.forEach((eachSection) {
+        sectionWiseScrollControllerForTotalFeeTable[eachSection] = ScrollController();
+        sectionWiseScrollControllerForModeOfPayments[eachSection] = ScrollController();
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -861,19 +1054,6 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
         ),
       );
       return;
-    }
-    GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
-      schoolId: widget.adminProfile.schoolId,
-    ));
-    if (getStudentProfileResponse.httpStatus != "OK" || getStudentProfileResponse.responseStatus != "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-      return;
-    } else {
-      studentProfiles = (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList();
     }
     if (studentFeeReceipts.isEmpty) {
       GetStudentFeeReceiptsResponse studentFeeReceiptsResponse = await getStudentFeeReceipts(GetStudentFeeReceiptsRequest(
@@ -894,16 +1074,18 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       }
     }
     await generateStudentMap();
-    await generateSectionMap();
-    await generateModeOfPaymentMap();
+    generateSectionMap();
+    generateModeOfPaymentMap();
     setState(() => _isLoading = false);
   }
 
-  Future<void> generateModeOfPaymentMap() async {
+  void generateModeOfPaymentMap() {
     setState(() => _isLoading = true);
     sectionWiseModeOfPaymentMap = {};
     for (Section eachSection in sections) {
-      List<StudentFeeReceipt> sectionWiseReceipts = studentFeeReceipts.where((e) => e.sectionId == eachSection.sectionId).toList();
+      List<StudentFeeReceipt> sectionWiseReceipts = studentFeeReceipts.where((e) {
+        return e.sectionId == eachSection.sectionId && filterStudents(e.studentId ?? -1);
+      }).toList();
       Map<ModeOfPayment, Map<String, int>> x = {};
       ModeOfPayment.values.forEach((eachModeOfPayment) {
         x[eachModeOfPayment] = {};
@@ -937,7 +1119,37 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       });
       sectionWiseModeOfPaymentMap[eachSection] = transformMap(x);
     }
+    sectionWiseModeOfPaymentMap.forEach((_, sectionMap) {
+      sectionMap.forEach((feeTypeKey, modeOfPaymentMap) {
+        if (!schoolWiseModeOfPaymentMap.containsKey(feeTypeKey)) {
+          schoolWiseModeOfPaymentMap[feeTypeKey] = {};
+        }
+        modeOfPaymentMap.forEach((modeOfPayment, amount) {
+          schoolWiseModeOfPaymentMap[feeTypeKey]![modeOfPayment] = (schoolWiseModeOfPaymentMap[feeTypeKey]![modeOfPayment] ?? 0) + amount;
+        });
+      });
+    });
+    double busFee = 0.0;
+    for (int i = 0; i < sections.length; i++) {
+      Section section = sections[i];
+      StudentBusFeeBean? sectionWiseBusFeeBean = sectionWiseFeeMap[section]!.studentBusFeeBean;
+      busFee += (sectionWiseBusFeeBean?.fare ?? 0) / 100.0;
+    }
+    if (busFee == 0) {
+      schoolWiseModeOfPaymentMap.remove("-|-");
+    }
     setState(() => _isLoading = false);
+  }
+
+  bool filterStudents(int studentId) {
+    // return true;
+    StudentProfile? es = studentProfiles.firstWhereOrNull((es) => es.studentId == studentId);
+    bool studentsStatusFilter = studentStatusFilterType == "A"
+        ? es?.status == "active"
+        : studentStatusFilterType == "D"
+            ? es?.status == "inactive"
+            : true;
+    return studentsStatusFilter;
   }
 
   Map<String, Map<ModeOfPayment, int>> transformMap(Map<ModeOfPayment, Map<String, int>> inputMap) {
@@ -957,10 +1169,14 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
     return resultMap;
   }
 
-  Future<void> generateSectionMap() async {
+  void generateSectionMap() {
     setState(() => _isLoading = true);
     for (Section eachSection in sections) {
-      var sectionWiseStudentsList = studentAnnualFeeBeans.where((e) => e.sectionId == eachSection.sectionId).toList();
+      List<StudentAnnualFeeBean> sectionWiseStudentsList = studentAnnualFeeBeans.where((e) {
+        bool sectionFilter = e.sectionId == eachSection.sectionId;
+        bool studentsStatusFilter = filterStudents(e.studentId ?? -1);
+        return sectionFilter && studentsStatusFilter;
+      }).toList();
       List<StudentAnnualFeeTypeBean> feeTypeWiseFeePaidList = [];
       for (FeeType eachFeeType in feeTypes) {
         List<StudentAnnualCustomFeeTypeBean> customFeeTypeWiseFeePaidList = [];
@@ -1033,22 +1249,9 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
 
   Future<void> generateStudentMap() async {
     List<StudentWiseAnnualFeesBean> studentWiseAnnualFeesBeans = [];
-    List<SectionWiseAnnualFeesBean> sectionWiseAnnualFeeBeansList = [];
     setState(() {
       _isLoading = true;
     });
-    GetSectionWiseAnnualFeesResponse getSectionWiseAnnualFeesResponse = await getSectionWiseAnnualFees(GetSectionWiseAnnualFeesRequest(
-      schoolId: widget.adminProfile.schoolId,
-    ));
-    if (getSectionWiseAnnualFeesResponse.httpStatus != "OK" || getSectionWiseAnnualFeesResponse.responseStatus != "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-    } else {
-      sectionWiseAnnualFeeBeansList = (getSectionWiseAnnualFeesResponse.sectionWiseAnnualFeesBeanList ?? []).map((e) => e!).toList();
-    }
     GetFeeTypesResponse getFeeTypesResponse = await getFeeTypes(GetFeeTypesRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
@@ -1073,6 +1276,16 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
       );
     } else {
       studentWiseAnnualFeesBeans = getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList();
+      studentProfiles = studentWiseAnnualFeesBeans
+          .map((e) => StudentProfile(
+                studentId: e.studentId,
+                studentFirstName: e.studentName,
+                sectionId: e.sectionId,
+                sectionName: e.sectionName,
+                status: e.status,
+                rollNumber: e.rollNumber,
+              ))
+          .toList();
     }
     studentAnnualFeeBeans = [];
     studentWiseAnnualFeesBeans.sort((a, b) => ((int.tryParse(a.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))));

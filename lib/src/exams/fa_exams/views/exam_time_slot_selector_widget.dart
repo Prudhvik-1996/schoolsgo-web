@@ -181,7 +181,7 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
                           onTap: () async {
                             TimeOfDay? _startTimePicker = await showTimePicker(
                               context: context,
-                              initialTime: formatHHMMSSToTimeOfDay(startTime!),
+                              initialTime: formatHHMMSSToTimeOfDay(startTime ?? "09:00:00"),
                             );
 
                             if (_startTimePicker == null) return;
@@ -222,7 +222,7 @@ class _ExamTimeSlotSelectorWidgetState extends State<ExamTimeSlotSelectorWidget>
                           onTap: () async {
                             TimeOfDay? _endTimePicker = await showTimePicker(
                               context: context,
-                              initialTime: formatHHMMSSToTimeOfDay(endTime!),
+                              initialTime: formatHHMMSSToTimeOfDay(endTime ?? "11:00:00"),
                             );
 
                             if (_endTimePicker == null) return;

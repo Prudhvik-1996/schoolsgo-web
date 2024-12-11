@@ -125,6 +125,8 @@ dependencies:
   select_dialog: ^2.0.2
   simple_speed_dial: ^0.1.7
 
+  data_table_2: ^2.3.11
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
