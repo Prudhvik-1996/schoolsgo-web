@@ -12,9 +12,9 @@ import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:table_sticky_headers/table_sticky_headers.dart';
 
-import 'new.dart';
+import 'custom_pager.dart';
+import 'student_wise_fee_stats_data_source.dart';
 
 class StudentWiseFeeStats extends StatefulWidget {
   const StudentWiseFeeStats({
@@ -41,6 +41,10 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
 
   Map<String, String> feeTypeHeaderMap = {};
 
+  final PaginatorController _controller = PaginatorController();
+  int? selectedIndex;
+  bool areColumnsFrozen = false;
+
   @override
   void initState() {
     _loadData();
@@ -57,179 +61,222 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
-      body: _isLoading
-          ? const EpsilonDiaryLoadingWidget()
-          : Column(
-              children: [
-                if (_showFilter && !_isLoading) filterWidget(),
-                Expanded(
-                  // child: studentFeeDetailsTable(),
-                  child: newTable(),
-                ),
-              ],
-            ),
+      body: _isLoading ? const EpsilonDiaryLoadingWidget() : newTable(),
       // floatingActionButton: fab(Icon(Icons.settings), "Filters", () => null),
     );
   }
 
   Widget newTable() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: PaginatedDataTable2(
-        smRatio: 0.5,
-        lmRatio: 2,
-        horizontalMargin: 0,
-        columnSpacing: 20,
-        wrapInCard: false,
-        renderEmptyRowsInTheEnd: false,
-        fixedLeftColumns: 2,
-        fixedTopRows: 1,
-        minWidth: 2400,
-        dataRowHeight: 30,
-        fit: FlexFit.loose,
-        autoRowsToHeight: true,
-        border: TableBorder(
-          top: BorderSide(color: Colors.grey[300]!),
-          bottom: BorderSide(color: Colors.grey[300]!),
-          left: BorderSide(color: Colors.grey[300]!),
-          right: BorderSide(color: Colors.grey[300]!),
-          verticalInside: BorderSide(color: Colors.grey[300]!),
-          horizontalInside: const BorderSide(color: Colors.grey, width: 1),
-        ),
-        columns: [
-          "Section",
-          "Student Name",
-          ...feeTypeHeaderMap.values,
-        ]
-            .mapIndexed(
-              (i, e) => DataColumn2(
-                size: i == 0
-                    ? ColumnSize.S
-                    : i == 1
-                        ? ColumnSize.L
-                        : ColumnSize.M,
-                label: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      e,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 36),
+          child: PaginatedDataTable2(
+            header: tableHeader(),
+            controller: _controller,
+            hidePaginator: true,
+            smRatio: 0.5,
+            lmRatio: 2,
+            horizontalMargin: 0,
+            columnSpacing: 20,
+            wrapInCard: false,
+            renderEmptyRowsInTheEnd: true,
+            fixedLeftColumns: areColumnsFrozen ? 2 : 0,
+            fixedTopRows: 1,
+            minWidth: 2400,
+            dataRowHeight: 30,
+            fit: FlexFit.loose,
+            autoRowsToHeight: true,
+            border: tableBorder(),
+            empty: Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                color: Colors.grey[200],
+                child: const Text('No data'),
               ),
-            )
-            .toList(),
-        source: StudentRowDataSource(
-          context,
-          studentAnnualFeeBeans.map((e) {
-            Map<String, String> studentMap = {};
-            studentMap["Section"] = e.sectionName ?? "-";
-            studentMap["Student Name"] = "${e.rollNumber ?? "-"}. ${e.studentName ?? " - "}";
-            for (String eachKey in feeTypeHeaderMap.keys) {
-              int? feeTypeId = int.tryParse(eachKey.split("|")[0]);
-              int? customFeeTypeId = int.tryParse(eachKey.split("|")[1]);
-              String kind = eachKey.split("|")[2];
-              studentMap[eachKey] = getStudentFeeDetail(e, feeTypeId, customFeeTypeId, kind);
-            }
-            return studentMap;
-          }).toList(),
-          false,
-          true,
+            ),
+            columns: getTableColumns(),
+            source: getStudentsDataSource(),
+          ),
         ),
-      ),
+        Positioned(
+          bottom: 0,
+          child: CustomPager(_controller),
+        ),
+      ],
     );
   }
 
-  Widget studentFeeDetailsTable() {
-    List<String> feeTypeKeys = feeTypeHeaderMap.keys.toList();
-    List<String> columnNames = ["Section", ...feeTypeHeaderMap.values];
-    double marksObtainedCellWidth = 150;
-    double legendCellWidth = MediaQuery.of(context).orientation == Orientation.landscape ? 300 : 150;
-    double stickyLegendHeight = 80;
-    double defaultCellHeight = 40;
-    List<StudentAnnualFeeBean> studentsToShow = studentAnnualFeeBeans.getRange(0, 10).toList();
-    return StickyHeadersTable(
-      cellDimensions: CellDimensions.variableColumnWidth(
-        columnWidths: [...columnNames.map((e) => marksObtainedCellWidth)],
-        contentCellHeight: defaultCellHeight,
-        stickyLegendWidth: legendCellWidth,
-        stickyLegendHeight: stickyLegendHeight,
-      ),
-      showHorizontalScrollbar: true,
-      showVerticalScrollbar: true,
-      columnsLength: columnNames.length,
-      rowsLength: studentsToShow.length + 1,
-      legendCell: clayCell(
-        child: const Center(
-          child: Text(
-            "Student",
-            style: TextStyle(fontSize: 12),
-          ),
-        ),
-        emboss: true,
-      ),
-      columnsTitleBuilder: (int colIndex) => clayCell(
-        child: Center(
-          child: Text(
-            columnNames[colIndex],
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ),
-        emboss: true,
-      ),
-      rowsTitleBuilder: (int rowIndex) {
-        if (rowIndex == studentsToShow.length) {
-          return const Text("");
+  StudentRowDataSource getStudentsDataSource() {
+    return StudentRowDataSource(
+      context,
+      studentAnnualFeeBeans.map((eachStudentAnnualFeeBean) {
+        StudentProfile? eachStudent = studentProfiles.firstWhereOrNull((es) => eachStudentAnnualFeeBean.studentId == es.studentId);
+        Map<String, String> studentMap = {};
+        studentMap["Section"] = eachStudentAnnualFeeBean.sectionName ?? "-";
+        studentMap["Student Name"] = "${eachStudentAnnualFeeBean.rollNumber ?? "-"}. ${eachStudentAnnualFeeBean.studentName ?? " - "}";
+        for (String eachKey in feeTypeHeaderMap.keys) {
+          int? feeTypeId = int.tryParse(eachKey.split("|")[0]);
+          int? customFeeTypeId = int.tryParse(eachKey.split("|")[1]);
+          String kind = eachKey.split("|")[2];
+          studentMap[eachKey] = getStudentFeeDetail(eachStudentAnnualFeeBean, feeTypeId, customFeeTypeId, kind);
         }
-        StudentAnnualFeeBean eachStudent = studentsToShow[rowIndex];
-        return clayCell(
-          emboss: true,
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: Text("${eachStudent.rollNumber}. ${eachStudent.studentName}")),
-              ],
-            ),
-          ),
-        );
-      },
-      contentCellBuilder: (int columnIndex, int rowIndex) {
-        if (rowIndex == studentsToShow.length) {
-          return const Text("");
-        }
-        StudentAnnualFeeBean eachStudent = studentsToShow[rowIndex];
-        if (columnIndex == 0) {
-          return clayCell(
-            emboss: true,
-            child: Center(
-              child: Text(eachStudent.sectionName ?? "-"),
-            ),
-          );
-        }
-        String feeTypeKeyIndex = feeTypeKeys[columnIndex - 1];
-        int? feeTypeId = int.tryParse(feeTypeKeyIndex.split("|")[0]);
-        int? customFeeTypeId = int.tryParse(feeTypeKeyIndex.split("|")[1]);
-        String kind = feeTypeKeyIndex.split("|")[2];
-        return clayCell(
-          emboss: true,
-          child: Center(
-            child: Text(
-              getStudentFeeDetail(eachStudent, feeTypeId, customFeeTypeId, kind),
-            ),
-          ),
-        );
-      },
+        return StudentWiseFeeStatsMap(eachStudent, studentMap, eachStudentAnnualFeeBean.studentBusFeeBean);
+      }).toList(),
+      (int index) => setState(() => selectedIndex == index ? selectedIndex = null : selectedIndex = index),
+      selectedIndex,
+      false,
+      true,
     );
+  }
+
+  List<DataColumn2> getTableColumns() {
+    return [
+      "Section",
+      "Student Name",
+      ...feeTypeHeaderMap.values,
+    ]
+        .mapIndexed(
+          (i, e) => DataColumn2(
+            size: i == 0
+                ? ColumnSize.S
+                : i == 1
+                    ? ColumnSize.L
+                    : ColumnSize.M,
+            label: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: i == 1
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                e,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.push_pin,
+                            color: areColumnsFrozen ? Colors.blue : Colors.grey,
+                            size: 12,
+                          ),
+                          onPressed: () => setState(() => areColumnsFrozen = !areColumnsFrozen),
+                        ),
+                      ],
+                    )
+                  : Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          e,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  TableBorder tableBorder() {
+    return const TableBorder(
+      top: BorderSide(color: Colors.grey, width: 1),
+      bottom: BorderSide(color: Colors.grey, width: 1),
+      left: BorderSide(color: Colors.grey, width: 1),
+      right: BorderSide(color: Colors.grey, width: 1),
+      verticalInside: BorderSide(color: Colors.grey, width: 1),
+      horizontalInside: BorderSide(color: Colors.grey, width: 1),
+    );
+  }
+
+  Widget tableHeader() {
+    return Row(
+      children: [
+        const SizedBox(width: 4),
+        GestureDetector(
+          onTap: () async {
+            await showFiltersAction();
+          },
+          child: ClayButton(
+            depth: 40,
+            surfaceColor: clayContainerColor(context),
+            parentColor: clayContainerColor(context),
+            spread: 1,
+            borderRadius: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: const [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(
+                      Icons.filter_list,
+                      size: 12,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    "Filter",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: ClayContainer(
+            depth: 40,
+            surfaceColor: clayContainerColor(context),
+            parentColor: clayContainerColor(context),
+            spread: 1,
+            borderRadius: 5,
+            emboss: false,
+            child: const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                "Student Fee Stats",
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 4),
+      ],
+    );
+  }
+
+  Future<void> showFiltersAction() async {
+    //  TODO
   }
 
   String getStudentFeeDetail(StudentAnnualFeeBean eachStudent, int? feeTypeId, int? customFeeTypeId, String kind) {
     double amount = 0.0;
-    if (feeTypeId == null && customFeeTypeId == null) {
+    if (feeTypeId == -2 && customFeeTypeId == -2) {
+      switch (kind) {
+        case "fee":
+          amount = (eachStudent.totalFee ?? 0) / 100.0;
+          break;
+        case "collected":
+          amount = (eachStudent.totalFeePaid ?? 0) / 100.0;
+          break;
+        case "due":
+          amount = ((eachStudent.totalFee ?? 0) - (eachStudent.totalFeePaid ?? 0)) / 100.0;
+          break;
+      }
+    } else if (feeTypeId == null && customFeeTypeId == null) {
       switch (kind) {
         case "fee":
           amount = (eachStudent.studentBusFeeBean?.fare ?? 0) / 100.0;
@@ -308,51 +355,8 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
     );
   }
 
-  Widget filterWidget() => Container();
-
   bool filterStudents(int i) {
     return true;
-  }
-
-  Widget fab(Icon icon, String text, Function() action, {Function()? postAction, Color? color}) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-      child: GestureDetector(
-        onTap: () {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            await action();
-          });
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            if (postAction != null) {
-              await postAction();
-            }
-          });
-        },
-        child: ClayButton(
-          surfaceColor: color ?? clayContainerColor(context),
-          parentColor: clayContainerColor(context),
-          borderRadius: 20,
-          spread: 2,
-          child: Container(
-            width: 100,
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                icon,
-                Expanded(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(text),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Future<void> _loadData() async {
@@ -545,8 +549,17 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
       feeTypeHeaderMap[collectedKey(null, null)] = "Bus Fee\nCollected";
       feeTypeHeaderMap[dueKey(null, null)] = "Bus Fee\nDue";
     }
+    feeTypeHeaderMap[totalFeeKey()] = "Total\nFee";
+    feeTypeHeaderMap[totalFeeCollectedKey()] = "Total\nCollected";
+    feeTypeHeaderMap[totalFeeDueKey()] = "Total\nDue";
     setState(() => _isLoading = false);
   }
+
+  String totalFeeKey() => "-2|-2|fee";
+
+  String totalFeeCollectedKey() => "-2|-2|collected";
+
+  String totalFeeDueKey() => "-2|-2|due";
 
   String feeKey(int? feeTypeId, int? customFeeTypeId) {
     return feeTypeId == null && customFeeTypeId == null ? "-|-|fee" : "${feeTypeId ?? "-"}|${customFeeTypeId ?? "-"}|fee";
@@ -559,4 +572,16 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
   String dueKey(int? feeTypeId, int? customFeeTypeId) {
     return feeTypeId == null && customFeeTypeId == null ? "-|-|due" : "${feeTypeId ?? "-"}|${customFeeTypeId ?? "-"}|due";
   }
+}
+
+class StudentWiseFeeStatsMap {
+  StudentProfile? studentProfile;
+  Map<String, String> values;
+  StudentBusFeeBean? studentBusFeeBean;
+
+  StudentWiseFeeStatsMap(
+    this.studentProfile,
+    this.values,
+    this.studentBusFeeBean,
+  );
 }
