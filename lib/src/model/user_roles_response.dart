@@ -351,7 +351,9 @@ class StudentProfile {
             ? "Residential"
             : e == "S"
                 ? "Semi Residential"
-                : "-";
+                : e == "A"
+                    ? "All Students"
+                    : "-";
   }
 
   Icon getAccommodationTypeIcon({String? e}) {

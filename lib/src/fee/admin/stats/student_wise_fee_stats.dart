@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/fee/model/student_annual_fee_bean.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 import 'custom_pager.dart';
 import 'student_wise_fee_stats_data_source.dart';
@@ -34,6 +35,18 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
   bool _isBusFeeApplicable = false;
 
   List<Section> sections = [];
+  List<Section> selectedSectionsList = [];
+  bool _isSectionPickerOpen = false;
+  final Set<String> _selectedAccommodationTypes = {"D", "R", "S"}; // "D" - Day Scholars, "R" - Residential, "S" - Semi Residential
+  Map<String, bool> selectedFeeTypeKeysMap = {};
+  Map<String, String> selectedFeeTypeValueMap = {};
+  Set<String> selectedFeeKinds = {"fee", "collected", "due"};
+  bool applyBusFilter = false;
+  Map<int, Map<int, bool>> selectedRouteStopMap = {};
+  Map<int, bool> routeExpandedMap = {};
+  Map<int, String> routeNamesMap = {};
+  Map<int, String> stopNamesMap = {};
+
   List<FeeType> feeTypes = [];
   List<StudentProfile> studentProfiles = [];
   List<StudentWiseAnnualFeesBean> studentWiseAnnualFeesBeans = [];
@@ -61,8 +74,331 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
       drawer: AdminAppDrawer(
         adminProfile: widget.adminProfile,
       ),
-      body: _isLoading ? const EpsilonDiaryLoadingWidget() : newTable(),
-      // floatingActionButton: fab(Icon(Icons.settings), "Filters", () => null),
+      body: _isLoading
+          ? const EpsilonDiaryLoadingWidget()
+          : _showFilter
+              ? filtersWidget()
+              : newTable(),
+      // floatingActionButton: _showFilter ? applyUnapplyFiltersRow() : null,
+    );
+  }
+
+  Widget filtersWidget() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ListView(
+        children: [
+          _sectionPicker(),
+          const SizedBox(height: 8),
+          _accommodationTypeFilter(),
+          const SizedBox(height: 8),
+          _feeTypeFilter(),
+          const SizedBox(height: 8),
+          _busWiseFilter(),
+          const SizedBox(height: 8),
+          applyUnapplyFiltersRow(),
+          const SizedBox(height: 100),
+        ],
+      ),
+    );
+  }
+
+  Widget _busWiseFilter() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        emboss: false,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                value: applyBusFilter,
+                onChanged: (bool? newSelection) {
+                  setState(() => applyBusFilter = newSelection ?? false);
+                },
+                title: const Text("Filter by Bus"),
+                secondary: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      child: GestureDetector(
+                        onTap: () => setState(() => selectedRouteStopMap.keys.forEach((eachRouteId) =>
+                            selectedRouteStopMap[eachRouteId]?.keys.forEach((eachStopId) => selectedRouteStopMap[eachRouteId]![eachStopId] = true))),
+                        child: ClayButton(
+                          depth: 40,
+                          surfaceColor: clayContainerColor(context),
+                          parentColor: clayContainerColor(context),
+                          spread: 1,
+                          borderRadius: 25,
+                          child: Container(
+                            margin: const EdgeInsets.all(10),
+                            child: const Text("Select All"),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      child: GestureDetector(
+                        onTap: () => setState(() => selectedRouteStopMap.keys.forEach((eachRouteId) =>
+                            selectedRouteStopMap[eachRouteId]?.keys.forEach((eachStopId) => selectedRouteStopMap[eachRouteId]![eachStopId] = false))),
+                        child: ClayButton(
+                          depth: 40,
+                          surfaceColor: clayContainerColor(context),
+                          parentColor: clayContainerColor(context),
+                          spread: 1,
+                          borderRadius: 25,
+                          child: Container(
+                            margin: const EdgeInsets.all(10),
+                            child: const Text("Clear"),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ...routeNamesMap.keys
+                  .map(
+                    (eachRouteId) => [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 2, 2, 2),
+                        child: CheckboxListTile(
+                          secondary: IconButton(
+                            icon: (routeExpandedMap[eachRouteId] ?? false) ? const Icon(Icons.arrow_drop_up) : const Icon(Icons.arrow_drop_down),
+                            onPressed: () => setState(
+                              () => routeExpandedMap[eachRouteId] = !(routeExpandedMap[eachRouteId] ?? false),
+                            ),
+                          ),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text(routeNamesMap[eachRouteId]!),
+                          value: !selectedRouteStopMap[eachRouteId]!.values.contains(false),
+                          enabled: applyBusFilter,
+                          onChanged: (bool? newSelection) => setState(() {
+                            Map<int, bool> stopMap = selectedRouteStopMap[eachRouteId]!;
+                            for (int eachStopKey in stopMap.keys) {
+                              stopMap[eachStopKey] = newSelection ?? false;
+                            }
+                          }),
+                        ),
+                      ),
+                      if (routeExpandedMap[eachRouteId] ?? false)
+                        ...selectedRouteStopMap[eachRouteId]!.keys.map(
+                              (eachStopId) => Padding(
+                                padding: const EdgeInsets.fromLTRB(20, 2, 2, 2),
+                                child: CheckboxListTile(
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  title: Text(stopNamesMap[eachStopId]!),
+                                  value: selectedRouteStopMap[eachRouteId]![eachStopId] ?? false,
+                                  enabled: applyBusFilter,
+                                  onChanged: (bool? newSelection) => setState(() {
+                                    selectedRouteStopMap[eachRouteId]![eachStopId] = newSelection ?? false;
+                                  }),
+                                ),
+                              ),
+                            ),
+                    ],
+                  )
+                  .expand((i) => i),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _feeTypeFilter() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        emboss: false,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Filter by fee types"),
+              ),
+              ...selectedFeeTypeValueMap.keys.map(
+                (e) => Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: CheckboxListTile(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Text(selectedFeeTypeValueMap[e] ?? " - "),
+                    value: selectedFeeTypeKeysMap[e] ?? false,
+                    onChanged: (bool? newSelection) => setState(() => selectedFeeTypeKeysMap[e] = newSelection ?? false),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Filter by kind"),
+              ),
+              Row(
+                children: [
+                  ...["fee", "collected", "due"].map(
+                    (e) => Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: CheckboxListTile(
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text(e.capitalize()),
+                          value: selectedFeeKinds.contains(e),
+                          onChanged: (bool? newSelection) =>
+                              setState(() => newSelection ?? false ? selectedFeeKinds.add(e) : selectedFeeKinds.remove(e)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _accommodationTypeFilter() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ClayContainer(
+        depth: 40,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        emboss: false,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Filter by accommodation"),
+              ),
+              ...["D", "R", "S"].map(
+                (e) => Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: CheckboxListTile(
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Text(StudentProfile().getAccommodationType(e: e)),
+                    value: _selectedAccommodationTypes.contains(e),
+                    onChanged: (bool? newSelection) =>
+                        setState(() => newSelection ?? false ? _selectedAccommodationTypes.add(e) : _selectedAccommodationTypes.remove(e)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget applyUnapplyFiltersRow() {
+    return Row(
+      // mainAxisAlignment: MainAxisAlignment.end,
+      // crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () {
+            generateSectionMap();
+            setState(() => _showFilter = false);
+          },
+          child: ClayButton(
+            depth: 40,
+            surfaceColor: clayContainerColor(context),
+            parentColor: clayContainerColor(context),
+            spread: 1,
+            borderRadius: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: const [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(
+                      Icons.filter_list,
+                      size: 12,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    "Apply Filters",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () {
+            setState(() => _showFilter = false);
+          },
+          child: ClayButton(
+            depth: 40,
+            surfaceColor: clayContainerColor(context),
+            parentColor: clayContainerColor(context),
+            spread: 1,
+            borderRadius: 5,
+            child: Container(
+              width: 75,
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: const [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(
+                      Icons.filter_list,
+                      size: 12,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    "Cancel",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+      ],
     );
   }
 
@@ -92,7 +428,6 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
             empty: Center(
               child: Container(
                 padding: const EdgeInsets.all(20),
-                color: Colors.grey[200],
                 child: const Text('No data'),
               ),
             ),
@@ -203,9 +538,7 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
       children: [
         const SizedBox(width: 4),
         GestureDetector(
-          onTap: () async {
-            await showFiltersAction();
-          },
+          onTap: () => setState(() => _showFilter = true),
           child: ClayButton(
             depth: 40,
             surfaceColor: clayContainerColor(context),
@@ -256,10 +589,6 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
         const SizedBox(width: 4),
       ],
     );
-  }
-
-  Future<void> showFiltersAction() async {
-    //  TODO
   }
 
   String getStudentFeeDetail(StudentAnnualFeeBean eachStudent, int? feeTypeId, int? customFeeTypeId, String kind) {
@@ -355,8 +684,17 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
     );
   }
 
-  bool filterStudents(int i) {
-    return true;
+  void filterStudents() {
+    String? selectedStudentStatus = 'active';
+    studentAnnualFeeBeans.removeWhere((e) {
+      StudentProfile eachStudent = studentProfiles.firstWhere((es) => es.studentId == e.studentId);
+      bool studentsStatusFilter = e.status == selectedStudentStatus;
+      bool selectedSectionStatus = selectedSectionsList.map((e) => e.sectionId).contains(e.sectionId);
+      bool accommodationTypeFilter = _selectedAccommodationTypes.contains(eachStudent.studentAccommodationType);
+      bool busStopFilter = applyBusFilter ? (selectedRouteStopMap[e.studentBusFeeBean?.routeId]?[e.studentBusFeeBean?.stopId] ?? false) : true;
+      bool result = studentsStatusFilter && selectedSectionStatus && accommodationTypeFilter && busStopFilter;
+      return !result;
+    });
   }
 
   Future<void> _loadData() async {
@@ -368,6 +706,7 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
     );
     if (getSectionsResponse.httpStatus == "OK" && getSectionsResponse.responseStatus == "success") {
       sections = getSectionsResponse.sections!.map((e) => e!).toList();
+      selectedSectionsList = getSectionsResponse.sections!.map((e) => e!).toList();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -399,6 +738,21 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
       );
     } else {
       feeTypes = getFeeTypesResponse.feeTypesList!.map((e) => e!).toList();
+      selectedFeeTypeKeysMap = {};
+      for (FeeType eachFeeType in feeTypes) {
+        if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
+          selectedFeeTypeKeysMap[feeTypeKey(eachFeeType.feeTypeId, null)] = true;
+          selectedFeeTypeValueMap[feeTypeKey(eachFeeType.feeTypeId, null)] = eachFeeType.feeType ?? " - ";
+        } else {
+          for (CustomFeeType eachCustomFeeType in eachFeeType.customFeeTypesList!.whereNotNull()) {
+            selectedFeeTypeKeysMap[feeTypeKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] = true;
+            selectedFeeTypeValueMap[feeTypeKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] =
+                "${eachFeeType.feeType ?? " - "} - ${eachCustomFeeType.customFeeType ?? " - "}";
+          }
+        }
+      }
+      selectedFeeTypeKeysMap[feeTypeKey(null, null)] = true;
+      selectedFeeTypeValueMap[feeTypeKey(null, null)] = "Bus";
     }
     GetStudentWiseAnnualFeesResponse getStudentWiseAnnualFeesResponse = await getStudentWiseAnnualFees(GetStudentWiseAnnualFeesRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -413,6 +767,17 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
     } else {
       studentWiseAnnualFeesBeans = getStudentWiseAnnualFeesResponse.studentWiseAnnualFeesBeanList!.map((e) => e!).toList();
       studentWiseAnnualFeesBeans.sort((a, b) => ((int.tryParse(a.rollNumber ?? "") ?? 0).compareTo((int.tryParse(b.rollNumber ?? "") ?? 0))));
+      studentWiseAnnualFeesBeans.map((e) => e.studentBusFeeBean).whereNotNull().forEach((eachStudentBusBean) {
+        if (eachStudentBusBean.routeId != null) {
+          selectedRouteStopMap[eachStudentBusBean.routeId!] ??= {};
+          routeExpandedMap[eachStudentBusBean.routeId!] = false;
+          routeNamesMap[eachStudentBusBean.routeId!] = eachStudentBusBean.routeName ?? " - ";
+          if (eachStudentBusBean.stopId != null) {
+            selectedRouteStopMap[eachStudentBusBean.routeId!]![eachStudentBusBean.stopId!] = true;
+            stopNamesMap[eachStudentBusBean.stopId!] = eachStudentBusBean.stopName ?? " - ";
+          }
+        }
+      });
     }
     generateSectionMap();
     setState(() => _isLoading = false);
@@ -511,10 +876,7 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
         ),
       );
     }
-    studentAnnualFeeBeans.removeWhere((e) {
-      bool studentsStatusFilter = e.status == 'active' && filterStudents(e.studentId ?? -1);
-      return !studentsStatusFilter;
-    });
+    filterStudents();
     // studentAnnualFeeBeans = studentAnnualFeeBeans.where((e) => e.status != "inactive").toList();
     studentAnnualFeeBeans.sort(
       (a, b) {
@@ -526,32 +888,62 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
         return aRollNo.compareTo(bRollNo);
       },
     );
+    feeTypeHeaderMap = {};
     _isBusFeeApplicable = (studentAnnualFeeBeans.map((e) => e.studentBusFeeBean?.fare ?? 0).fold(0, (int? a, b) => (a ?? 0) + b)) > 0;
-    // feeTypeHeaderMap
     for (FeeType eachFeeType in feeTypes) {
       if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
-        feeTypeHeaderMap[feeKey(eachFeeType.feeTypeId, null)] = eachFeeType.feeType ?? "-";
-        feeTypeHeaderMap[collectedKey(eachFeeType.feeTypeId, null)] = "${eachFeeType.feeType ?? " - "}\nCollected";
-        feeTypeHeaderMap[dueKey(eachFeeType.feeTypeId, null)] = "${eachFeeType.feeType ?? " - "}\nDue";
+        String eachFeeTypeKey = feeTypeKey(eachFeeType.feeTypeId, null);
+        if (selectedFeeTypeKeysMap[eachFeeTypeKey] ?? false) {
+          if (selectedFeeKinds.contains("fee")) {
+            feeTypeHeaderMap[feeKey(eachFeeType.feeTypeId, null)] = eachFeeType.feeType ?? "-";
+          }
+          if (selectedFeeKinds.contains("collected")) {
+            feeTypeHeaderMap[collectedKey(eachFeeType.feeTypeId, null)] = "${eachFeeType.feeType ?? " - "}\nCollected";
+          }
+          if (selectedFeeKinds.contains("due")) {
+            feeTypeHeaderMap[dueKey(eachFeeType.feeTypeId, null)] = "${eachFeeType.feeType ?? " - "}\nDue";
+          }
+        }
       } else {
         for (CustomFeeType eachCustomFeeType in (eachFeeType.customFeeTypesList ?? []).whereNotNull()) {
-          feeTypeHeaderMap[feeKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] =
-              "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}";
-          feeTypeHeaderMap[collectedKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] =
-              "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}\nCollected";
-          feeTypeHeaderMap[dueKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] =
-              "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}\nDue";
+          String eachCustomFeeTypeKey = feeTypeKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId);
+          if (selectedFeeTypeKeysMap[eachCustomFeeTypeKey] ?? false) {
+            if (selectedFeeKinds.contains("fee")) {
+              feeTypeHeaderMap[feeKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] =
+                  "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}";
+            }
+            if (selectedFeeKinds.contains("collected")) {
+              feeTypeHeaderMap[collectedKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] =
+                  "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}\nCollected";
+            }
+            if (selectedFeeKinds.contains("due")) {
+              feeTypeHeaderMap[dueKey(eachFeeType.feeTypeId, eachCustomFeeType.customFeeTypeId)] =
+                  "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}\nDue";
+            }
+          }
         }
       }
     }
-    if (_isBusFeeApplicable) {
-      feeTypeHeaderMap[feeKey(null, null)] = "Bus Fee";
-      feeTypeHeaderMap[collectedKey(null, null)] = "Bus Fee\nCollected";
-      feeTypeHeaderMap[dueKey(null, null)] = "Bus Fee\nDue";
+    if (_isBusFeeApplicable && (selectedFeeTypeKeysMap[feeTypeKey(null, null)] ?? false)) {
+      if (selectedFeeKinds.contains("fee")) {
+        feeTypeHeaderMap[feeKey(null, null)] = "Bus Fee";
+      }
+      if (selectedFeeKinds.contains("collected")) {
+        feeTypeHeaderMap[collectedKey(null, null)] = "Bus Fee\nCollected";
+      }
+      if (selectedFeeKinds.contains("due")) {
+        feeTypeHeaderMap[dueKey(null, null)] = "Bus Fee\nDue";
+      }
     }
-    feeTypeHeaderMap[totalFeeKey()] = "Total\nFee";
-    feeTypeHeaderMap[totalFeeCollectedKey()] = "Total\nCollected";
-    feeTypeHeaderMap[totalFeeDueKey()] = "Total\nDue";
+    if (selectedFeeKinds.contains("fee")) {
+      feeTypeHeaderMap[totalFeeKey()] = "Total\nFee";
+    }
+    if (selectedFeeKinds.contains("collected")) {
+      feeTypeHeaderMap[totalFeeCollectedKey()] = "Total\nCollected";
+    }
+    if (selectedFeeKinds.contains("due")) {
+      feeTypeHeaderMap[totalFeeDueKey()] = "Total\nDue";
+    }
     setState(() => _isLoading = false);
   }
 
@@ -560,6 +952,10 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
   String totalFeeCollectedKey() => "-2|-2|collected";
 
   String totalFeeDueKey() => "-2|-2|due";
+
+  String feeTypeKey(int? feeTypeId, int? customFeeTypeId) {
+    return feeTypeId == null && customFeeTypeId == null ? "-|-" : "${feeTypeId ?? "-"}|${customFeeTypeId ?? "-"}";
+  }
 
   String feeKey(int? feeTypeId, int? customFeeTypeId) {
     return feeTypeId == null && customFeeTypeId == null ? "-|-|fee" : "${feeTypeId ?? "-"}|${customFeeTypeId ?? "-"}|fee";
@@ -571,6 +967,204 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
 
   String dueKey(int? feeTypeId, int? customFeeTypeId) {
     return feeTypeId == null && customFeeTypeId == null ? "-|-|due" : "${feeTypeId ?? "-"}|${customFeeTypeId ?? "-"}|due";
+  }
+
+  Widget _sectionPicker() {
+    return AnimatedSize(
+      curve: Curves.fastOutSlowIn,
+      duration: Duration(milliseconds: _isSectionPickerOpen ? 750 : 500),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: _isSectionPickerOpen
+            ? Container(
+                margin: const EdgeInsets.all(10),
+                child: ClayContainer(
+                  depth: 40,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 10,
+                  child: _selectSectionExpanded(),
+                ),
+              )
+            : _selectSectionCollapsed(),
+      ),
+    );
+  }
+
+  Widget _buildSectionCheckBox(Section section) {
+    return Container(
+      margin: const EdgeInsets.all(5),
+      child: GestureDetector(
+        onTap: () {
+          if (_isLoading) return;
+          setState(() {
+            if (selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId)) {
+              selectedSectionsList.removeWhere((e) => e.sectionId == section.sectionId);
+            } else {
+              selectedSectionsList.add(section);
+            }
+          });
+          // filterStudents();
+        },
+        child: ClayButton(
+          depth: 40,
+          spread: selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId) ? 0 : 2,
+          surfaceColor:
+              selectedSectionsList.map((e) => e.sectionId!).contains(section.sectionId) ? Colors.blue.shade300 : clayContainerColor(context),
+          parentColor: clayContainerColor(context),
+          borderRadius: 10,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              section.sectionName!,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectSectionExpanded() {
+    return Container(
+      width: double.infinity,
+      // margin: const EdgeInsets.fromLTRB(17, 17, 17, 12),
+      padding: const EdgeInsets.fromLTRB(17, 12, 17, 12),
+      child: ListView(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          InkWell(
+            onTap: () {
+              if (_isLoading) return;
+              setState(() {
+                _isSectionPickerOpen = !_isSectionPickerOpen;
+              });
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+                    child: Text(
+                      selectedSectionsList.isEmpty
+                          ? "Select a section"
+                          : "Selected sections: ${selectedSectionsList.length == sections.length ? "All" : selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}",
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                  child: const Icon(Icons.expand_less),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          GridView.count(
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 2.25,
+            crossAxisCount: MediaQuery.of(context).size.width ~/ 100,
+            shrinkWrap: true,
+            children: sections.map((e) => _buildSectionCheckBox(e)).toList(),
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: GestureDetector(
+                  onTap: () => setState(() {
+                    selectedSectionsList.clear();
+                    selectedSectionsList.addAll(sections.map((e) => e).toList());
+                  }),
+                  child: ClayButton(
+                    depth: 40,
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 25,
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: const Text("Select All"),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                child: GestureDetector(
+                  onTap: () => setState(() => selectedSectionsList = []),
+                  child: ClayButton(
+                    depth: 40,
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
+                    spread: 1,
+                    borderRadius: 25,
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: const Text("Clear"),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _selectSectionCollapsed() {
+    return ClayContainer(
+      depth: 20,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      child: InkWell(
+        onTap: () {
+          if (_isLoading) return;
+          setState(() {
+            _isSectionPickerOpen = !_isSectionPickerOpen;
+          });
+        },
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+          padding: const EdgeInsets.all(2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      selectedSectionsList.isEmpty
+                          ? "Select Section"
+                          : "Selected sections: ${selectedSectionsList.map((e) => e.sectionName ?? "-").join(", ")}",
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                child: const Icon(Icons.expand_more),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

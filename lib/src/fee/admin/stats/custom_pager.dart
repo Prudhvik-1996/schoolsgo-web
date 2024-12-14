@@ -64,9 +64,13 @@ class CustomPagerState extends State<CustomPager> {
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(() {
-      setState(() {});
-    });
+    // try {
+    //   widget.controller.addListener(() {
+    //     setState(() {});
+    //   });
+    // } catch (_, e) {
+    //   debugPrint("Something went wrong");
+    // }
   }
 
   @override
