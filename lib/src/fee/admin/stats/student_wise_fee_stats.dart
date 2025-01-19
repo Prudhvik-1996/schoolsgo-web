@@ -53,10 +53,16 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
   List<StudentAnnualFeeBean> studentAnnualFeeBeans = [];
 
   Map<String, String> feeTypeHeaderMap = {};
+  Map<String, String> feeTypeValueMapForOverallStats = {};
+  Map<String, double> feeTypeTotalFeeMapForOverallStats = {};
+  Map<String, double> feeTypeTotalCollectedMapForOverallStats = {};
+  Map<String, double> feeTypeTotalDueMapForOverallStats = {};
+  ScrollController statsHorizontalScrollController = ScrollController();
 
   final PaginatorController _controller = PaginatorController();
   int? selectedIndex;
   bool areColumnsFrozen = false;
+  bool _showStats = false;
 
   @override
   void initState() {
@@ -76,10 +82,109 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
-          : _showFilter
-              ? filtersWidget()
-              : newTable(),
+          : _showStats
+              ? statsWidget()
+              : _showFilter
+                  ? filtersWidget()
+                  : newTable(),
       // floatingActionButton: _showFilter ? applyUnapplyFiltersRow() : null,
+    );
+  }
+
+  Widget statsWidget() {
+    return ListView(
+      children: [
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const SizedBox(width: 8),
+            Expanded(
+              child: ClayContainer(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 5,
+                child: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text("Stats for applied filters"),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              child: ClayButton(
+                depth: 40,
+                surfaceColor: clayContainerColor(context),
+                parentColor: clayContainerColor(context),
+                spread: 1,
+                borderRadius: 100,
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Icon(Icons.close),
+                  ),
+                ),
+              ),
+              onTap: () => setState(() => _showStats = false),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ClayContainer(
+            depth: 40,
+            surfaceColor: clayContainerColor(context),
+            parentColor: clayContainerColor(context),
+            spread: 1,
+            borderRadius: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Scrollbar(
+                thumbVisibility: true,
+                thickness: 8,
+                controller: statsHorizontalScrollController,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: statsHorizontalScrollController,
+                  child: SingleChildScrollView(
+                    child: DataTable(
+                      columns: ["", "Fee", "Collected", "Due"]
+                          .map(
+                            (e) => DataColumn(
+                              label: Text(e),
+                            ),
+                          )
+                          .toList(),
+                      rows: [
+                        ...feeTypeValueMapForOverallStats.keys.map(
+                          (e) => DataRow(
+                            cells: [
+                              feeTypeValueMapForOverallStats[e] ?? "-",
+                              "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeTypeTotalFeeMapForOverallStats[e] ?? 0))}",
+                              "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeTypeTotalCollectedMapForOverallStats[e] ?? 0))}",
+                              "$INR_SYMBOL ${doubleToStringAsFixedForINR((feeTypeTotalDueMapForOverallStats[e] ?? 0))}"
+                            ]
+                                .map(
+                                  (e) => DataCell(
+                                    FittedBox(fit: BoxFit.scaleDown, child: Text(e)),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 100),
+      ],
     );
   }
 
@@ -364,9 +469,10 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
         ),
         const SizedBox(width: 8),
         GestureDetector(
-          onTap: () {
-            setState(() => _showFilter = false);
-          },
+          onTap: () => setState(() {
+            _showFilter = false;
+            _showStats = false;
+          }),
           child: ClayButton(
             depth: 40,
             surfaceColor: clayContainerColor(context),
@@ -536,7 +642,6 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
   Widget tableHeader() {
     return Row(
       children: [
-        const SizedBox(width: 4),
         GestureDetector(
           onTap: () => setState(() => _showFilter = true),
           child: ClayButton(
@@ -570,23 +675,32 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: ClayContainer(
-            depth: 40,
-            surfaceColor: clayContainerColor(context),
-            parentColor: clayContainerColor(context),
-            spread: 1,
-            borderRadius: 5,
-            emboss: false,
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Student Fee Stats",
-                style: TextStyle(fontSize: 12),
+          child: GestureDetector(
+            onTap: () => setState(() => _showStats = true),
+            child: ClayButton(
+              depth: 40,
+              surfaceColor: clayContainerColor(context),
+              parentColor: clayContainerColor(context),
+              spread: 1,
+              borderRadius: 5,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: const [
+                    Expanded(
+                      child: Text(
+                        "Student Fee Stats",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.info_outline, size: 15),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 4),
       ],
     );
   }
@@ -944,7 +1058,70 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
     if (selectedFeeKinds.contains("due")) {
       feeTypeHeaderMap[totalFeeDueKey()] = "Total\nDue";
     }
+    refreshStatsMap();
     setState(() => _isLoading = false);
+  }
+
+  void refreshStatsMap() {
+    feeTypeValueMapForOverallStats.clear();
+    feeTypeTotalFeeMapForOverallStats.clear();
+    feeTypeTotalCollectedMapForOverallStats.clear();
+    feeTypeTotalDueMapForOverallStats.clear();
+    for (FeeType eachFeeType in feeTypes) {
+      if ((eachFeeType.customFeeTypesList ?? []).isEmpty) {
+        feeTypeValueMapForOverallStats["${eachFeeType.feeTypeId}|-"] = eachFeeType.feeType ?? "-";
+      } else {
+        for (CustomFeeType eachCustomFeeType in (eachFeeType.customFeeTypesList ?? []).whereNotNull()) {
+          feeTypeValueMapForOverallStats["${eachFeeType.feeTypeId}|${eachCustomFeeType.customFeeTypeId}"] =
+              "${eachFeeType.feeType ?? " - "}\n${eachCustomFeeType.customFeeType ?? " - "}";
+        }
+      }
+    }
+    if (_isBusFeeApplicable) {
+      feeTypeValueMapForOverallStats["-|-"] = "Bus";
+    }
+    feeTypeValueMapForOverallStats["-2|-2"] = "Total";
+    for (StudentAnnualFeeBean eachStudent in studentAnnualFeeBeans) {
+      for (String eachKey in feeTypeValueMapForOverallStats.keys) {
+        int? feeTypeId = int.tryParse(eachKey.split("|")[0]);
+        int? customFeeTypeId = int.tryParse(eachKey.split("|")[1]);
+        if (feeTypeId == -2 && customFeeTypeId == -2) {
+          double totalFee = (eachStudent.totalFee ?? 0) / 100.0;
+          double totalFeeCollected = (eachStudent.totalFeePaid ?? 0) / 100.0;
+          double totalFeeDue = totalFee = totalFeeCollected;
+          feeTypeTotalFeeMapForOverallStats[eachKey] = (feeTypeTotalFeeMapForOverallStats[eachKey] ?? 0) + totalFee;
+          feeTypeTotalCollectedMapForOverallStats[eachKey] = (feeTypeTotalCollectedMapForOverallStats[eachKey] ?? 0) + totalFeeCollected;
+          feeTypeTotalDueMapForOverallStats[eachKey] = (feeTypeTotalDueMapForOverallStats[eachKey] ?? 0) + totalFeeDue;
+        } else if (feeTypeId == null && customFeeTypeId == null) {
+          double totalFee = (eachStudent.studentBusFeeBean?.fare ?? 0) / 100.0;
+          double totalFeeCollected = (eachStudent.studentBusFeeBean?.feePaid ?? 0) / 100.0;
+          double totalFeeDue = totalFee = totalFeeCollected;
+          feeTypeTotalFeeMapForOverallStats[eachKey] = (feeTypeTotalFeeMapForOverallStats[eachKey] ?? 0) + totalFee;
+          feeTypeTotalCollectedMapForOverallStats[eachKey] = (feeTypeTotalCollectedMapForOverallStats[eachKey] ?? 0) + totalFeeCollected;
+          feeTypeTotalDueMapForOverallStats[eachKey] = (feeTypeTotalDueMapForOverallStats[eachKey] ?? 0) + totalFeeDue;
+        } else if (customFeeTypeId == null) {
+          StudentAnnualFeeTypeBean? annualFeeTypeBean = (eachStudent.studentAnnualFeeTypeBeans ?? [])
+              .firstWhereOrNull((eft) => eft.feeTypeId == feeTypeId && (eft.studentAnnualCustomFeeTypeBeans ?? []).isEmpty);
+          double fee = (annualFeeTypeBean?.amount ?? 0) / 100.0;
+          double feeCollected = (annualFeeTypeBean?.amountPaid ?? 0) / 100.0;
+          double due = fee - feeCollected;
+          feeTypeTotalFeeMapForOverallStats[eachKey] = (feeTypeTotalFeeMapForOverallStats[eachKey] ?? 0) + fee;
+          feeTypeTotalCollectedMapForOverallStats[eachKey] = (feeTypeTotalCollectedMapForOverallStats[eachKey] ?? 0) + feeCollected;
+          feeTypeTotalDueMapForOverallStats[eachKey] = (feeTypeTotalDueMapForOverallStats[eachKey] ?? 0) + due;
+        } else {
+          StudentAnnualFeeTypeBean? annualFeeTypeBean = (eachStudent.studentAnnualFeeTypeBeans ?? [])
+              .firstWhereOrNull((eft) => eft.feeTypeId == feeTypeId && (eft.studentAnnualCustomFeeTypeBeans ?? []).isNotEmpty);
+          StudentAnnualCustomFeeTypeBean? annualCustomFeeTypeBean =
+              (annualFeeTypeBean?.studentAnnualCustomFeeTypeBeans ?? []).firstWhereOrNull((ect) => ect.customFeeTypeId == customFeeTypeId);
+          double fee = (annualCustomFeeTypeBean?.amount ?? 0) / 100.0;
+          double feeCollected = (annualCustomFeeTypeBean?.amountPaid ?? 0) / 100.0;
+          double due = fee - feeCollected;
+          feeTypeTotalFeeMapForOverallStats[eachKey] = (feeTypeTotalFeeMapForOverallStats[eachKey] ?? 0) + fee;
+          feeTypeTotalCollectedMapForOverallStats[eachKey] = (feeTypeTotalCollectedMapForOverallStats[eachKey] ?? 0) + feeCollected;
+          feeTypeTotalDueMapForOverallStats[eachKey] = (feeTypeTotalDueMapForOverallStats[eachKey] ?? 0) + due;
+        }
+      }
+    }
   }
 
   String totalFeeKey() => "-2|-2|fee";
