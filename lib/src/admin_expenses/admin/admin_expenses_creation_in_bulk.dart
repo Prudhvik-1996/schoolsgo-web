@@ -23,6 +23,7 @@ class AdminExpensesCreationInBulk {
   List<String> headerStrings = [
     "Date",
     "Admin Name",
+    "Voucher No.",
     "Expense Type",
     "Description",
     "Amount",
@@ -88,6 +89,7 @@ class AdminExpensesCreationInBulk {
       sheet.appendRow([
         convertDateTimeToDDMMYYYYFormat(DateTime.fromMillisecondsSinceEpoch(eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch)),
         eachExpense.adminName,
+        eachExpense.receiptId,
         eachExpense.expenseType,
         eachExpense.description,
         (eachExpense.amount ?? 0) / 100,
@@ -151,6 +153,7 @@ class AdminExpensesCreationInBulk {
         newAdminExpense.transactionTime =
             convertDDMMYYYYFormatToDateTime(excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString()).millisecondsSinceEpoch;
         newAdminExpense.adminName = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
+        newAdminExpense.receiptId = int.tryParse(excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString() ?? "");
         newAdminExpense.expenseType = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
         newAdminExpense.description = excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString();
         newAdminExpense.amount = (int.tryParse(excel.tables[table]?.row(rowIndex).tryGet<Data?>(colIndex++)?.value.toString() ?? "") ?? 0) * 100;
