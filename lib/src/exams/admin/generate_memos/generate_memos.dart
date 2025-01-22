@@ -5,6 +5,46 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
+class MergeSubjectsForMemoBean {
+
+  int? subjectId;
+  List<int?>? childrenSubjectIds;
+  Map<String, dynamic> __origJson = {};
+
+  ScrollController scrollController = ScrollController();
+
+  MergeSubjectsForMemoBean({
+    this.subjectId,
+    this.childrenSubjectIds,
+  });
+  MergeSubjectsForMemoBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    subjectId = json['subjectId']?.toInt();
+    if (json['childrenSubjectIds'] != null) {
+      final v = json['childrenSubjectIds'];
+      final arr0 = <int>[];
+      v.forEach((v) {
+        arr0.add(v.toInt());
+      });
+      childrenSubjectIds = arr0;
+    }
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['subjectId'] = subjectId;
+    if (childrenSubjectIds != null) {
+      final v = childrenSubjectIds;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v);
+      }
+      data['childrenSubjectIds'] = arr0;
+    }
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
 class GenerateStudentMemosRequest {
 
   int? mainExamId;
@@ -18,9 +58,9 @@ class GenerateStudentMemosRequest {
   bool? showOnlyCumulativeExams;
   bool? showRemarks;
   List<int?>? studentIds;
-  List<String>? monthYearsForAttendance;
+  List<String?>? monthYearsForAttendance;
   String? studentPhotoSize;
-
+  List<MergeSubjectsForMemoBean?>? mergeSubjectsForMemoBeans;
   Map<String, dynamic> __origJson = {};
 
   String? mainExamType;
@@ -40,6 +80,7 @@ class GenerateStudentMemosRequest {
     this.mainExamType,
     this.monthYearsForAttendance,
     this.studentPhotoSize,
+    this.mergeSubjectsForMemoBeans,
   });
   GenerateStudentMemosRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
@@ -77,6 +118,14 @@ class GenerateStudentMemosRequest {
       monthYearsForAttendance = arr0;
     }
     studentPhotoSize = json['studentPhotoSize'];
+    if (json['mergeSubjectsForMemoBeans'] != null) {
+      final v = json['mergeSubjectsForMemoBeans'];
+      final arr0 = <MergeSubjectsForMemoBean>[];
+      v.forEach((v) {
+        arr0.add(MergeSubjectsForMemoBean.fromJson(v));
+      });
+      mergeSubjectsForMemoBeans = arr0;
+    }
   }
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
@@ -114,6 +163,14 @@ class GenerateStudentMemosRequest {
       data['monthYearsForAttendance'] = arr0;
     }
     data['studentPhotoSize'] = studentPhotoSize;
+    if (mergeSubjectsForMemoBeans != null) {
+      final v = mergeSubjectsForMemoBeans;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['mergeSubjectsForMemoBeans'] = arr0;
+    }
     return data;
   }
   Map<String, dynamic> origJson() => __origJson;

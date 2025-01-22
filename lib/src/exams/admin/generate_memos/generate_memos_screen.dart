@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/exams/admin/generate_memos/generate_memos.dart
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
+import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
@@ -37,6 +38,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
 
   List<Section> sectionsList = [];
   Section? selectedSection;
+  List<Subject> subjectsList = [];
   bool isSectionPickerOpen = false;
 
   List<CustomExam> exams = [];
@@ -58,6 +60,8 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
 
   List<StudentProfile> studentsForSelectedSection = [];
   Map<int, bool> studentMemoMap = {};
+  List<MergeSubjectsForMemoBean> mergeSubjectsForMemoBeans = [];
+  bool isMergeSubjectsChecked = false;
 
   final ScrollController _controller = ScrollController();
 
@@ -83,6 +87,11 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         ),
       );
       return;
+    }
+    GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(schoolId: widget.adminProfile.schoolId);
+    GetSubjectsResponse getSubjectsResponse = await getSubjects(getSubjectsRequest);
+    if (getSubjectsResponse.httpStatus == "OK" && getSubjectsResponse.responseStatus == "success") {
+      subjectsList = getSubjectsResponse.subjects!.map((e) => e!).toList();
     }
     GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -158,6 +167,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         studentIds: studentsForSelectedSection.where((e) => studentMemoMap[e.studentId!] ?? false).map((e) => e.studentId).toList(),
         monthYearsForAttendance: selectedMonthYears.toList(),
         studentPhotoSize: studentPhotoSize,
+        mergeSubjectsForMemoBeans: isMergeSubjectsChecked ? mergeSubjectsForMemoBeans : [],
       );
 
   @override
@@ -214,148 +224,13 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                 title: const Text("Show Remarks"),
                               ),
                             if (mainExamId != null) const SizedBox(height: 10),
-                            if (mainExamId != null)
-                              ClayContainer(
-                                depth: 20,
-                                surfaceColor: clayContainerColor(context),
-                                parentColor: clayContainerColor(context),
-                                spread: 2,
-                                borderRadius: 10,
-                                emboss: true,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      CheckboxListTile(
-                                        controlAffinity: ListTileControlAffinity.leading,
-                                        value: showCumulativeExams,
-                                        onChanged: (bool? change) {
-                                          if (change != null) {
-                                            setState(() => showCumulativeExams = !showCumulativeExams);
-                                          }
-                                        },
-                                        title: const Text("Pick other exams for Cumulative report"),
-                                      ),
-                                      if (showCumulativeExams) const SizedBox(height: 10),
-                                      if (showCumulativeExams) buildCumulativeExamPicker(),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            if (mainExamId != null) mergeSubjectsWidget(),
                             if (mainExamId != null) const SizedBox(height: 10),
-                            if (mainExamId != null)
-                              ClayContainer(
-                                depth: 20,
-                                surfaceColor: clayContainerColor(context),
-                                parentColor: clayContainerColor(context),
-                                spread: 2,
-                                borderRadius: 10,
-                                emboss: true,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      CheckboxListTile(
-                                        controlAffinity: ListTileControlAffinity.leading,
-                                        value: showGraph,
-                                        onChanged: (bool? change) {
-                                          if (change != null) {
-                                            setState(() => showGraph = !showGraph);
-                                          }
-                                        },
-                                        title: const Text("Show graph for main exam"),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            if (mainExamId != null) pickCumulativeExamsWidget(context),
                             if (mainExamId != null) const SizedBox(height: 10),
-                            if (mainExamId != null)
-                              ClayContainer(
-                                depth: 20,
-                                surfaceColor: clayContainerColor(context),
-                                parentColor: clayContainerColor(context),
-                                spread: 2,
-                                borderRadius: 10,
-                                emboss: true,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      CheckboxListTile(
-                                        controlAffinity: ListTileControlAffinity.leading,
-                                        value: showAttendanceTable,
-                                        onChanged: (bool? change) {
-                                          if (change == null) return;
-                                          setState(() {
-                                            showAttendanceTable = !showAttendanceTable;
-                                            if (!showAttendanceTable) {
-                                              selectedMonthYears = {};
-                                            }
-                                          });
-                                        },
-                                        title: const Text("Show Attendance table"),
-                                      ),
-                                      if (mainExamId != null && showAttendanceTable)
-                                        ...[true, false].map(
-                                          (e) => RadioListTile<bool?>(
-                                            value: e,
-                                            groupValue: showBlankAttendance,
-                                            onChanged: (newValue) {
-                                              if (newValue == null) return;
-                                              setState(() {
-                                                showBlankAttendance = newValue;
-                                              });
-                                            },
-                                            title: Text(e ? "Show Blank Attendance" : "Show Populated Attendance"),
-                                          ),
-                                        ),
-                                      if (mainExamId != null && showAttendanceTable) const SizedBox(height: 10),
-                                      if (mainExamId != null && showAttendanceTable)
-                                        Scrollbar(
-                                          thumbVisibility: true,
-                                          controller: _controller,
-                                          child: SingleChildScrollView(
-                                            controller: _controller,
-                                            scrollDirection: Axis.horizontal,
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                ...["Select All", ...monthYears].map(
-                                                  (e) => SizedBox(
-                                                    width: 150,
-                                                    height: 60,
-                                                    child: CheckboxListTile(
-                                                      controlAffinity: ListTileControlAffinity.leading,
-                                                      value: selectedMonthYears.contains(e),
-                                                      onChanged: (bool? change) {
-                                                        if (change == null) return;
-                                                        setState(() {
-                                                          if (e == "Select All") {
-                                                            selectedMonthYears.clear();
-                                                            selectedMonthYears = monthYears.toSet();
-                                                          }
-                                                          if (change) {
-                                                            selectedMonthYears.add(e);
-                                                          } else {
-                                                            selectedMonthYears.remove(e);
-                                                          }
-                                                        });
-                                                      },
-                                                      title: Text(e, style: const TextStyle(fontSize: 14)), // Adjust font size if needed
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                            if (mainExamId != null) showGraphCheckboxWidget(context),
+                            if (mainExamId != null) const SizedBox(height: 10),
+                            if (mainExamId != null) showAttendanceCheckboxWidget(context),
                             if (mainExamId != null) const SizedBox(height: 10),
                             if (mainExamId != null) buildStudentPhotoSizeBuilder(),
                             if (mainExamId != null) const SizedBox(height: 10),
@@ -368,6 +243,406 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                       ),
                   ],
                 ),
+    );
+  }
+
+  Widget mergeSubjectsWidget() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: ClayContainer(
+        depth: 20,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        emboss: true,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                value: isMergeSubjectsChecked,
+                onChanged: (bool? change) {
+                  if (change != null) {
+                    setState(() => isMergeSubjectsChecked = !isMergeSubjectsChecked);
+                  }
+                },
+                title: const Text("Merge Subjects"),
+              ),
+              if (isMergeSubjectsChecked) const SizedBox(height: 8),
+              if (isMergeSubjectsChecked) ...mergeSubjectsForMemoBeans.mapIndexed((i, e) => mergeSubjectWidget(i)),
+              if (isMergeSubjectsChecked) const SizedBox(height: 8),
+              if (isMergeSubjectsChecked)
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      mergeSubjectsForMemoBeans.add(MergeSubjectsForMemoBean());
+                    });
+                  },
+                  child: ClayButton(
+                    depth: 20,
+                    surfaceColor: clayContainerColor(context),
+                    parentColor: clayContainerColor(context),
+                    spread: 2,
+                    borderRadius: 10,
+                    child: const Padding(
+                      padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                      child: Text("Add"),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget mergeSubjectWidget(int i) {
+    MergeSubjectsForMemoBean e = mergeSubjectsForMemoBeans[i];
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+      child: Scrollbar(
+        thumbVisibility: true,
+        controller: e.scrollController,
+        child: SingleChildScrollView(
+          controller: e.scrollController,
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.cancel,
+                  color: Colors.red,
+                ),
+                onPressed: () {
+                  setState(() {
+                    mergeSubjectsForMemoBeans.removeAt(i);
+                    if (mergeSubjectsForMemoBeans.isEmpty) {
+                      mergeSubjectsForMemoBeans.add(MergeSubjectsForMemoBean());
+                    }
+                  });
+                },
+              ),
+              const SizedBox(width: 4),
+              e.subjectId != null
+                  ? ClayContainer(
+                      depth: 20,
+                      surfaceColor: clayContainerColor(context),
+                      parentColor: clayContainerColor(context),
+                      spread: 2,
+                      borderRadius: 10,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(subjectsList.firstWhereOrNull((es) => es.subjectId == e.subjectId)?.subjectName ?? "-"),
+                      ),
+                    )
+                  : SizedBox(
+                      width: 150,
+                      height: 50,
+                      child: ClayButton(
+                        depth: 20,
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        spread: 2,
+                        borderRadius: 10,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Center(
+                            child: DropdownSearch<Subject?>(
+                              mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+                              selectedItem: subjectsList.firstWhereOrNull((es) => e.subjectId == es.subjectId),
+                              items: subjectsList
+                                  .where((es) => !mergeSubjectsForMemoBeans
+                                      .map((e) => [e.subjectId, ...e.childrenSubjectIds ?? []])
+                                      .expand((i) => i)
+                                      .contains(es.subjectId))
+                                  .toList(),
+                              itemAsString: (Subject? subject) {
+                                return subject?.subjectName ?? "-";
+                              },
+                              showSearchBox: true,
+                              dropdownBuilder: (BuildContext context, Subject? subject) {
+                                return Text(subject?.subjectName ?? "-");
+                              },
+                              onChanged: (Subject? subject) {
+                                if (subject?.subjectId == null) return;
+                                setState(() => e.subjectId = subject?.subjectId);
+                              },
+                              compareFn: (item, selectedItem) => item?.subjectId == selectedItem?.subjectId,
+                              dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+                              filterFn: (Subject? subject, String? key) {
+                                return (subject?.subjectName ?? "-").toLowerCase().trim().contains(key!.toLowerCase());
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+              const SizedBox(width: 8),
+              const Text("="),
+              const SizedBox(width: 8),
+              ...(e.childrenSubjectIds ?? []).mapIndexed(
+                (i, ecs) => (ecs == null)
+                    ? SizedBox(
+                        width: 150,
+                        height: 50,
+                        child: ClayButton(
+                          depth: 20,
+                          surfaceColor: clayContainerColor(context),
+                          parentColor: clayContainerColor(context),
+                          spread: 2,
+                          borderRadius: 10,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: DropdownSearch<Subject?>(
+                                mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+                                selectedItem: null,
+                                items: subjectsList
+                                    .where((es) => !mergeSubjectsForMemoBeans
+                                        .map((e) => [e.subjectId, ...e.childrenSubjectIds ?? []])
+                                        .expand((i) => i)
+                                        .contains(es.subjectId))
+                                    .toList(),
+                                itemAsString: (Subject? subject) {
+                                  return subject?.subjectName ?? "-";
+                                },
+                                showSearchBox: true,
+                                dropdownBuilder: (BuildContext context, Subject? subject) {
+                                  return Text(subject?.subjectName ?? "-");
+                                },
+                                onChanged: (Subject? subject) {
+                                  if (subject?.subjectId == null) return;
+                                  setState(() {
+                                    e.childrenSubjectIds ??= [];
+                                    e.childrenSubjectIds!.add(subject?.subjectId);
+                                    e.childrenSubjectIds!.remove(null);
+                                  });
+                                },
+                                compareFn: (item, selectedItem) => item?.subjectId == selectedItem?.subjectId,
+                                dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+                                filterFn: (Subject? subject, String? key) {
+                                  return (subject?.subjectName ?? "-").toLowerCase().trim().contains(key!.toLowerCase());
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                        child: Row(
+                          children: [
+                            ClayContainer(
+                              depth: 20,
+                              surfaceColor: clayContainerColor(context),
+                              parentColor: clayContainerColor(context),
+                              spread: 2,
+                              borderRadius: 10,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    Text(subjectsList.firstWhereOrNull((es) => es.subjectId == ecs)?.subjectName ?? "-"),
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.cancel,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          (e.childrenSubjectIds ?? []).removeAt(i);
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text("+"),
+                            const SizedBox(width: 8),
+                          ],
+                        ),
+                      ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    e.childrenSubjectIds ??= [];
+                    e.childrenSubjectIds!.add(null);
+                  });
+                },
+                child: ClayButton(
+                  depth: 20,
+                  surfaceColor: clayContainerColor(context),
+                  parentColor: clayContainerColor(context),
+                  spread: 2,
+                  borderRadius: 10,
+                  child: const Padding(
+                    padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                    child: Text("Add"),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  ClayContainer pickCumulativeExamsWidget(BuildContext context) {
+    return ClayContainer(
+      depth: 20,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      emboss: true,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            CheckboxListTile(
+              controlAffinity: ListTileControlAffinity.leading,
+              value: showCumulativeExams,
+              onChanged: (bool? change) {
+                if (change != null) {
+                  setState(() => showCumulativeExams = !showCumulativeExams);
+                }
+              },
+              title: const Text("Pick other exams for Cumulative report"),
+            ),
+            if (showCumulativeExams) const SizedBox(height: 10),
+            if (showCumulativeExams) buildCumulativeExamPicker(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ClayContainer showGraphCheckboxWidget(BuildContext context) {
+    return ClayContainer(
+      depth: 20,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      emboss: true,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            CheckboxListTile(
+              controlAffinity: ListTileControlAffinity.leading,
+              value: showGraph,
+              onChanged: (bool? change) {
+                if (change != null) {
+                  setState(() => showGraph = !showGraph);
+                }
+              },
+              title: const Text("Show graph for main exam"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ClayContainer showAttendanceCheckboxWidget(BuildContext context) {
+    return ClayContainer(
+      depth: 20,
+      surfaceColor: clayContainerColor(context),
+      parentColor: clayContainerColor(context),
+      spread: 2,
+      borderRadius: 10,
+      emboss: true,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            CheckboxListTile(
+              controlAffinity: ListTileControlAffinity.leading,
+              value: showAttendanceTable,
+              onChanged: (bool? change) {
+                if (change == null) return;
+                setState(() {
+                  showAttendanceTable = !showAttendanceTable;
+                  if (!showAttendanceTable) {
+                    selectedMonthYears = {};
+                  }
+                });
+              },
+              title: const Text("Show Attendance table"),
+            ),
+            if (mainExamId != null && showAttendanceTable)
+              ...[true, false].map(
+                (e) => RadioListTile<bool?>(
+                  value: e,
+                  groupValue: showBlankAttendance,
+                  onChanged: (newValue) {
+                    if (newValue == null) return;
+                    setState(() {
+                      showBlankAttendance = newValue;
+                    });
+                  },
+                  title: Text(e ? "Show Blank Attendance" : "Show Populated Attendance"),
+                ),
+              ),
+            if (mainExamId != null && showAttendanceTable) const SizedBox(height: 10),
+            if (mainExamId != null && showAttendanceTable)
+              Scrollbar(
+                thumbVisibility: true,
+                controller: _controller,
+                child: SingleChildScrollView(
+                  controller: _controller,
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ...["Select All", ...monthYears].map(
+                        (e) => SizedBox(
+                          width: 150,
+                          height: 60,
+                          child: CheckboxListTile(
+                            controlAffinity: ListTileControlAffinity.leading,
+                            value: selectedMonthYears.contains(e),
+                            onChanged: (bool? change) {
+                              if (change == null) return;
+                              setState(() {
+                                if (e == "Select All") {
+                                  selectedMonthYears.clear();
+                                  selectedMonthYears = monthYears.toSet();
+                                }
+                                if (change) {
+                                  selectedMonthYears.add(e);
+                                } else {
+                                  selectedMonthYears.remove(e);
+                                }
+                              });
+                            },
+                            title: Text(e, style: const TextStyle(fontSize: 14)), // Adjust font size if needed
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -402,6 +677,29 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: GestureDetector(
         onTap: () async {
+          if (isMergeSubjectsChecked && mergeSubjectsForMemoBeans.isNotEmpty) {
+            if (mergeSubjectsForMemoBeans.map((e) => e.subjectId).contains(null)) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("When merge subjects is checks ou must check at least one subject."),
+                ),
+              );
+              return;
+            }
+            for (MergeSubjectsForMemoBean eachMergeSubjectsForMemoBean in mergeSubjectsForMemoBeans) {
+              if ((eachMergeSubjectsForMemoBean.childrenSubjectIds ?? []).isEmpty ||
+                  (eachMergeSubjectsForMemoBean.childrenSubjectIds ?? []).contains(null)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Select all the children subjects for the subject ${subjectsList.firstWhereOrNull((es) => es.subjectId == eachMergeSubjectsForMemoBean.subjectId)?.subjectName ?? "-"} to continue",
+                    ),
+                  ),
+                );
+                return;
+              }
+            }
+          }
           setState(() => _isReportDownloading = true);
           CustomExam? mainExam = exams.firstWhereOrNull((e) => e.customExamId == mainExamId);
           bool isMainExamFA = mainExam?.examType == "FA";
