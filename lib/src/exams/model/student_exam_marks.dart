@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
+import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class StudentExamMediaBean {
 /*
@@ -77,6 +78,8 @@ class StudentExamMarks {
   Map<String, dynamic> __origJson = {};
 
   ScrollController mediaScrollController = ScrollController();
+
+  String getMarksObtained() => isAbsent == 'N' ? "Absent" : marksObtained == null ? "-" : doubleToStringAsFixed(marksObtained, decimalPlaces: 2);
 
   StudentExamMarks({
     this.agent,

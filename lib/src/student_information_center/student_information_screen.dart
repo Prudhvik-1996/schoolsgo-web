@@ -1,17 +1,27 @@
+import 'dart:html';
+import 'dart:typed_data';
+
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
 
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:d_chart/d_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
+import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/common_components/FlippingTile.dart';
+import 'package:schoolsgo_web/src/common_components/PdfViewerWidget.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/exams/admin/generate_memos/generate_memos.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
+import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
 import 'package:schoolsgo_web/src/exams/student/model/student_exams.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/model/topic_wise_exams.dart';
-import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.dart';
 import 'package:schoolsgo_web/src/fee/admin/basic_fee_stats_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
@@ -22,6 +32,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/attendance/model/month_wise_attendance.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/student_comments.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_base_widget.dart';
+import 'package:schoolsgo_web/src/exams/student/student_exam_summary_widget.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -46,7 +57,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _loadingStudentAttendance = true;
   bool _loadingStudentExams = true;
-  bool _isAttendanceGraphView = true;
+  bool _isAttendanceGraphView = false;
   final _bodyController = ScrollController();
 
   List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList = [];
@@ -55,12 +66,6 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
   List<StudentFeeReceipt> studentFeeReceipts = [];
 
   List<StudentCommentBean> studentComments = [];
-
-  List<Subject> subjectsList = [];
-  List<FAExam> faExams = [];
-  List<CustomExam> customExams = [];
-  List<TopicWiseExam> topicWiseExams = [];
-  List<int> examIds = [];
 
   @override
   void initState() {
@@ -74,7 +79,6 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     });
     await _loadStudentAttendance();
     await _loadFeeData();
-    await _loadStudentExams();
     await _loadStudentComments();
     setState(() {
       _isLoading = false;
@@ -282,37 +286,6 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
     setState(() => _loadingStudentAttendance = false);
   }
 
-  Future<void> _loadStudentExams() async {
-    setState(() => _loadingStudentExams = true);
-
-    GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(schoolId: widget.studentProfile.schoolId);
-    GetSubjectsResponse getSubjectsResponse = await getSubjects(getSubjectsRequest);
-    if (getSubjectsResponse.httpStatus == "OK" && getSubjectsResponse.responseStatus == "success") {
-      setState(() {
-        subjectsList = getSubjectsResponse.subjects!.map((e) => e!).toList();
-      });
-    }
-
-    GetStudentWiseExamsResponse getStudentWiseExamsResponse = await getStudentWiseExams(GetStudentWiseExamsRequest(
-      schoolId: widget.studentProfile.schoolId,
-      studentIds: [widget.studentProfile.studentId],
-    ));
-    if (getStudentWiseExamsResponse.httpStatus != "OK" || getStudentWiseExamsResponse.responseStatus != "success") {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Something went wrong! Try again later.."),
-        ),
-      );
-    } else {
-      customExams = (getStudentWiseExamsResponse.customExams ?? []).map((e) => e!).toList();
-      topicWiseExams = (getStudentWiseExamsResponse.topicWiseExams ?? []).map((e) => e!).toList();
-      examIds = [...topicWiseExams.map((e) => e.examId), ...customExams.map((e) => e.customExamId)].where((e) => e != null).map((e) => e!).toList()
-        ..sort()
-        ..reversed;
-    }
-    setState(() => _loadingStudentExams = false);
-  }
-
   Future<void> _loadStudentComments() async {
     setState(() => _isLoading = true);
     GetStudentCommentsResponse getStudentCommentsResponse = await getStudentComments(GetStudentCommentsRequest(
@@ -366,6 +339,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                 const SizedBox(height: 5),
                 studentFeeReceiptsButton(),
                 const SizedBox(height: 20),
+                studentExamsSummaryWidget(),
                 studentCommentsWidget(),
                 const SizedBox(height: 100),
               ],
@@ -380,12 +354,23 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   _scrollToBottomButton(),
-                  if (!(_isLoading || studentComments.map((e) => e.isEditMode).contains(true)))
-                    const SizedBox(height: 20),
+                  if (!(_isLoading || studentComments.map((e) => e.isEditMode).contains(true))) const SizedBox(height: 20),
                   if (!(_isLoading || studentComments.map((e) => e.isEditMode).contains(true))) _buildAddNewFAB(),
                 ],
               ),
             ),
+    );
+  }
+
+  Widget studentExamsSummaryWidget() {
+    return Padding(
+      padding: MediaQuery.of(context).orientation == Orientation.portrait
+          ? const EdgeInsets.all(10)
+          : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 10, MediaQuery.of(context).size.width / 4, 10),
+      child: StudentExamSummaryWidget(
+        adminProfile: widget.adminProfile,
+        studentProfile: widget.studentProfile,
+      ),
     );
   }
 
@@ -523,7 +508,11 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                             ),
                             const SizedBox(width: 10),
                             GestureDetector(
-                              onTap: () => setState(() => _isAttendanceGraphView = !_isAttendanceGraphView),
+                              onTap: () {
+                                if (studentMonthWiseAttendanceList.firstWhereOrNull((e) => e.totalWorkingDays == 0) == null) {
+                                  setState(() => _isAttendanceGraphView = !_isAttendanceGraphView);
+                                }
+                              },
                               child: ClayButton(
                                 depth: 40,
                                 spread: 2,
@@ -765,7 +754,7 @@ class _StudentInformationScreenState extends State<StudentInformationScreen> {
                 ),
                 children: [
                   TextSpan(
-                    text: doubleToStringAsFixed(percentage) + " %",
+                    text: ((e.present ?? 0.0) + (e.absent ?? 0.0)) > 0 ? doubleToStringAsFixed(percentage) + " %" : " - ",
                     style: TextStyle(
                       color: percentage >= 75
                           ? Colors.green

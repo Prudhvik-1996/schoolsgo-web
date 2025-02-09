@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 // ignore: implementation_imports
@@ -164,7 +165,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
       newReceiptNumber = await HttpUtils.getNewReceiptNumber(widget.adminProfile?.schoolId ?? widget.otherRole?.schoolId ?? -1);
       return newReceiptNumber!;
     } else {
-      return newReceiptNumber! + newReceipts.length;
+      return newReceipts.map((e) => e.receiptNumber ?? 0).reduce(max) + 1;
     }
   }
 
@@ -748,6 +749,7 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
           content: Text("Receipts submitted successfully, Please wait while we load your data.."),
         ),
       );
+      newReceiptNumber = null;
       await _loadData();
     }
     setState(() => isAddNew = false);

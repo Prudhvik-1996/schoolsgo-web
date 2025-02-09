@@ -38,7 +38,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
 
   List<Section> sectionsList = [];
   Section? selectedSection;
-  List<Subject> subjectsList = [];
+  List<Subject> allSubjectsList = [];
   bool isSectionPickerOpen = false;
 
   List<CustomExam> exams = [];
@@ -62,8 +62,11 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
   Map<int, bool> studentMemoMap = {};
   List<MergeSubjectsForMemoBean> mergeSubjectsForMemoBeans = [];
   bool isMergeSubjectsChecked = false;
+  List<int?> otherSubjectIds = [];
+  bool isOtherSubjectsChecked = false;
 
   final ScrollController _controller = ScrollController();
+  final ScrollController _otherExamsScrollController = ScrollController();
 
   @override
   void initState() {
@@ -91,7 +94,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
     GetSubjectsRequest getSubjectsRequest = GetSubjectsRequest(schoolId: widget.adminProfile.schoolId);
     GetSubjectsResponse getSubjectsResponse = await getSubjects(getSubjectsRequest);
     if (getSubjectsResponse.httpStatus == "OK" && getSubjectsResponse.responseStatus == "success") {
-      subjectsList = getSubjectsResponse.subjects!.map((e) => e!).toList();
+      allSubjectsList = getSubjectsResponse.subjects!.map((e) => e!).toList();
     }
     GetSchoolInfoResponse getSchoolsResponse = await getSchools(GetSchoolInfoRequest(
       schoolId: widget.adminProfile.schoolId,
@@ -168,6 +171,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         monthYearsForAttendance: selectedMonthYears.toList(),
         studentPhotoSize: studentPhotoSize,
         mergeSubjectsForMemoBeans: isMergeSubjectsChecked ? mergeSubjectsForMemoBeans : [],
+        otherSubjectIds: isOtherSubjectsChecked ? otherSubjectIds : [],
       );
 
   @override
@@ -215,7 +219,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                             if (mainExamId != null)
                               CheckboxListTile(
                                 controlAffinity: ListTileControlAffinity.leading,
-                                value: showRemarks,
+                                value: otherSubjectIds.isNotEmpty || showRemarks,
                                 onChanged: (bool? change) {
                                   if (change != null) {
                                     setState(() => showRemarks = !showRemarks);
@@ -225,6 +229,8 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                               ),
                             if (mainExamId != null) const SizedBox(height: 10),
                             if (mainExamId != null) mergeSubjectsWidget(),
+                            if (mainExamId != null) const SizedBox(height: 10),
+                            if (mainExamId != null) otherSubjectsWidget(),
                             if (mainExamId != null) const SizedBox(height: 10),
                             if (mainExamId != null) pickCumulativeExamsWidget(context),
                             if (mainExamId != null) const SizedBox(height: 10),
@@ -243,6 +249,159 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                       ),
                   ],
                 ),
+    );
+  }
+
+  Widget otherSubjectsWidget() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: ClayContainer(
+        depth: 20,
+        surfaceColor: clayContainerColor(context),
+        parentColor: clayContainerColor(context),
+        spread: 2,
+        borderRadius: 10,
+        emboss: true,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                value: isOtherSubjectsChecked,
+                onChanged: (bool? change) {
+                  if (change != null) {
+                    setState(() => isOtherSubjectsChecked = !isOtherSubjectsChecked);
+                  }
+                },
+                title: const Text("Mark Other Subjects"),
+              ),
+              if (isOtherSubjectsChecked) const SizedBox(height: 8),
+              if (isOtherSubjectsChecked)
+                Scrollbar(
+                  thumbVisibility: true,
+                  controller: _otherExamsScrollController,
+                  child: SingleChildScrollView(
+                    controller: _otherExamsScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ...(otherSubjectIds).mapIndexed(
+                          (i, eos) => (eos == null)
+                              ? SizedBox(
+                                  width: 150,
+                                  height: 50,
+                                  child: ClayButton(
+                                    depth: 20,
+                                    surfaceColor: clayContainerColor(context),
+                                    parentColor: clayContainerColor(context),
+                                    spread: 2,
+                                    borderRadius: 10,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Center(
+                                        child: DropdownSearch<Subject?>(
+                                          mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+                                          selectedItem: null,
+                                          items: subjectsList
+                                              .where((es) =>
+                                                  !otherSubjectIds.contains(es.subjectId) &&
+                                                  !mergeSubjectsForMemoBeans
+                                                      .map((e) => [e.subjectId, ...e.childrenSubjectIds ?? []])
+                                                      .expand((i) => i)
+                                                      .contains(es.subjectId))
+                                              .toList(),
+                                          itemAsString: (Subject? subject) {
+                                            return subject?.subjectName ?? "-";
+                                          },
+                                          showSearchBox: true,
+                                          dropdownBuilder: (BuildContext context, Subject? subject) {
+                                            return Text(subject?.subjectName ?? "-");
+                                          },
+                                          onChanged: (Subject? subject) {
+                                            if (subject?.subjectId == null) return;
+                                            setState(() {
+                                              otherSubjectIds.add(subject?.subjectId);
+                                              otherSubjectIds.remove(null);
+                                            });
+                                          },
+                                          compareFn: (item, selectedItem) => item?.subjectId == selectedItem?.subjectId,
+                                          dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+                                          filterFn: (Subject? subject, String? key) {
+                                            return (subject?.subjectName ?? "-").toLowerCase().trim().contains(key!.toLowerCase());
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                                  padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                                  child: Row(
+                                    children: [
+                                      ClayContainer(
+                                        depth: 20,
+                                        surfaceColor: clayContainerColor(context),
+                                        parentColor: clayContainerColor(context),
+                                        spread: 2,
+                                        borderRadius: 10,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            children: [
+                                              Text(allSubjectsList.firstWhereOrNull((es) => es.subjectId == eos)?.subjectName ?? "-"),
+                                              const SizedBox(width: 4),
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.cancel,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    otherSubjectIds.removeAt(i);
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              otherSubjectIds.add(null);
+                            });
+                          },
+                          child: ClayButton(
+                            depth: 20,
+                            surfaceColor: clayContainerColor(context),
+                            parentColor: clayContainerColor(context),
+                            spread: 2,
+                            borderRadius: 10,
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+                              child: Text("Add"),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -339,7 +498,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                       borderRadius: 10,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(subjectsList.firstWhereOrNull((es) => es.subjectId == e.subjectId)?.subjectName ?? "-"),
+                        child: Text(allSubjectsList.firstWhereOrNull((es) => es.subjectId == e.subjectId)?.subjectName ?? "-"),
                       ),
                     )
                   : SizedBox(
@@ -357,11 +516,13 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                             child: DropdownSearch<Subject?>(
                               mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
                               selectedItem: subjectsList.firstWhereOrNull((es) => e.subjectId == es.subjectId),
-                              items: subjectsList
-                                  .where((es) => !mergeSubjectsForMemoBeans
-                                      .map((e) => [e.subjectId, ...e.childrenSubjectIds ?? []])
-                                      .expand((i) => i)
-                                      .contains(es.subjectId))
+                              items: allSubjectsList
+                                  .where((es) =>
+                                      !otherSubjectIds.contains(es.subjectId) &&
+                                      !mergeSubjectsForMemoBeans
+                                          .map((e) => [e.subjectId, ...e.childrenSubjectIds ?? []])
+                                          .expand((i) => i)
+                                          .contains(es.subjectId))
                                   .toList(),
                               itemAsString: (Subject? subject) {
                                 return subject?.subjectName ?? "-";
@@ -405,10 +566,12 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                 mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
                                 selectedItem: null,
                                 items: subjectsList
-                                    .where((es) => !mergeSubjectsForMemoBeans
-                                        .map((e) => [e.subjectId, ...e.childrenSubjectIds ?? []])
-                                        .expand((i) => i)
-                                        .contains(es.subjectId))
+                                    .where((es) =>
+                                        !otherSubjectIds.contains(es.subjectId) &&
+                                        !mergeSubjectsForMemoBeans
+                                            .map((e) => [e.subjectId, ...e.childrenSubjectIds ?? []])
+                                            .expand((i) => i)
+                                            .contains(es.subjectId))
                                     .toList(),
                                 itemAsString: (Subject? subject) {
                                   return subject?.subjectName ?? "-";
@@ -450,7 +613,7 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Row(
                                   children: [
-                                    Text(subjectsList.firstWhereOrNull((es) => es.subjectId == ecs)?.subjectName ?? "-"),
+                                    Text(allSubjectsList.firstWhereOrNull((es) => es.subjectId == ecs)?.subjectName ?? "-"),
                                     const SizedBox(width: 4),
                                     IconButton(
                                       icon: const Icon(
@@ -469,11 +632,11 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                             ),
                             const SizedBox(width: 8),
                             const Text("+"),
-                            const SizedBox(width: 8),
                           ],
                         ),
                       ),
               ),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -677,6 +840,14 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
       margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
       child: GestureDetector(
         onTap: () async {
+          if (isOtherSubjectsChecked && (otherSubjectIds.contains(null) || otherSubjectIds.isEmpty)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("When checked on \"Mark other subjects\" you must put in at least one subject"),
+              ),
+            );
+            return;
+          }
           if (isMergeSubjectsChecked && mergeSubjectsForMemoBeans.isNotEmpty) {
             if (mergeSubjectsForMemoBeans.map((e) => e.subjectId).contains(null)) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -699,6 +870,34 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                 return;
               }
             }
+          }
+          List<int> selectedSubjectsForMerge = !isMergeSubjectsChecked
+              ? []
+              : mergeSubjectsForMemoBeans.map((e) => (e.childrenSubjectIds ?? []).whereNotNull()).expand((i) => i).toList();
+          List<int> selectedSubjectsForOther = !isOtherSubjectsChecked ? [] : otherSubjectIds.whereNotNull().toList();
+          List<int> subjectsUnavailableForMerge =
+              selectedSubjectsForMerge.map((e) => !subjectsList.map((es) => es.subjectId).contains(e) ? e : null).whereNotNull().toList();
+          List<int> subjectsUnavailableForOther =
+              selectedSubjectsForOther.map((e) => !subjectsList.map((es) => es.subjectId).contains(e) ? e : null).whereNotNull().toList();
+          if (subjectsUnavailableForMerge.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "${subjectsUnavailableForMerge.map((e) => allSubjectsList.firstWhereOrNull((es) => es.subjectId == e)?.subjectName).join(", ")} are not available for this exam to merge",
+                ),
+              ),
+            );
+            return;
+          }
+          if (subjectsUnavailableForOther.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "${subjectsUnavailableForOther.map((e) => allSubjectsList.firstWhereOrNull((es) => es.subjectId == e)?.subjectName).join(", ")} are not available for this exam to mark as other exams",
+                ),
+              ),
+            );
+            return;
           }
           setState(() => _isReportDownloading = true);
           CustomExam? mainExam = exams.firstWhereOrNull((e) => e.customExamId == mainExamId);
@@ -1283,4 +1482,23 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         alignment: Alignment.centerLeft,
         child: Text(s),
       );
+
+  List<Subject> get subjectsList => allSubjectsList.where((es) {
+        CustomExam? mainExam = exams.firstWhereOrNull((e) => e.customExamId == mainExamId);
+        if (mainExamId == null) return true;
+        List<CustomExam> cumulativeExamsSelected = exams.where((e) => cumulativeExams.contains(e.customExamId)).toList();
+        List<int> availableSubjectIds = (mainExam?.examSectionSubjectMapList ?? [])
+                .where((e) => e?.sectionId == selectedSection?.sectionId)
+                .map((e) => e?.subjectId)
+                .whereNotNull()
+                .toList() +
+            cumulativeExamsSelected
+                .map((e) => (e.examSectionSubjectMapList ?? [])
+                    .where((e) => e?.sectionId == selectedSection?.sectionId)
+                    .map((e) => e?.subjectId)
+                    .whereNotNull())
+                .expand((i) => i)
+                .toList();
+        return availableSubjectIds.contains(es.subjectId);
+      }).toList();
 }

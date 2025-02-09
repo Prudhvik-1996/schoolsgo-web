@@ -6,7 +6,6 @@ import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class MergeSubjectsForMemoBean {
-
   int? subjectId;
   List<int?>? childrenSubjectIds;
   Map<String, dynamic> __origJson = {};
@@ -17,6 +16,7 @@ class MergeSubjectsForMemoBean {
     this.subjectId,
     this.childrenSubjectIds,
   });
+
   MergeSubjectsForMemoBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     subjectId = json['subjectId']?.toInt();
@@ -29,6 +29,7 @@ class MergeSubjectsForMemoBean {
       childrenSubjectIds = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['subjectId'] = subjectId;
@@ -42,11 +43,11 @@ class MergeSubjectsForMemoBean {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GenerateStudentMemosRequest {
-
   int? mainExamId;
   List<int?>? otherExamIds;
   int? schoolId;
@@ -61,6 +62,7 @@ class GenerateStudentMemosRequest {
   List<String?>? monthYearsForAttendance;
   String? studentPhotoSize;
   List<MergeSubjectsForMemoBean?>? mergeSubjectsForMemoBeans;
+  List<int?>? otherSubjectIds;
   Map<String, dynamic> __origJson = {};
 
   String? mainExamType;
@@ -81,7 +83,9 @@ class GenerateStudentMemosRequest {
     this.monthYearsForAttendance,
     this.studentPhotoSize,
     this.mergeSubjectsForMemoBeans,
+    this.otherSubjectIds,
   });
+
   GenerateStudentMemosRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     mainExamId = json['mainExamId']?.toInt();
@@ -126,7 +130,16 @@ class GenerateStudentMemosRequest {
       });
       mergeSubjectsForMemoBeans = arr0;
     }
+    if (json['otherSubjectIds'] != null) {
+      final v = json['otherSubjectIds'];
+      final arr0 = <int>[];
+      v.forEach((v) {
+        arr0.add(v.toInt());
+      });
+      otherSubjectIds = arr0;
+    }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['mainExamId'] = mainExamId;
@@ -171,8 +184,17 @@ class GenerateStudentMemosRequest {
       });
       data['mergeSubjectsForMemoBeans'] = arr0;
     }
+    if (otherSubjectIds != null) {
+      final v = otherSubjectIds;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v);
+      }
+      data['otherSubjectIds'] = arr0;
+    }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -200,4 +222,76 @@ Future<GetCustomExamsResponse> getAllExams(GetCustomExamsRequest getCustomExamsR
 
   debugPrint("GetCustomExamsResponse ${getCustomExamsResponse.toJson()}");
   return getCustomExamsResponse;
+}
+
+Future<List<int>> downloadExamSummaryForStudent(GenerateStudentMemosRequest getStudentMemosRequest) async {
+  debugPrint("Raising request to downloadExamSummaryForStudent with request ${jsonEncode(getStudentMemosRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + DOWNLOAD_STUDENT_EXAM_SUMAMRY;
+  return await HttpUtils.postToDownloadFile(_url, getStudentMemosRequest.toJson());
+}
+
+class GetCustomExamsForStudentsSummaryResponse {
+  String? errorCode;
+  String? errorMessage;
+  String? httpStatus;
+  List<CustomExam?>? mainExams;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  GetCustomExamsForStudentsSummaryResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.httpStatus,
+    this.mainExams,
+    this.responseStatus,
+  });
+
+  GetCustomExamsForStudentsSummaryResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    httpStatus = json['httpStatus']?.toString();
+    if (json['mainExams'] != null) {
+      final v = json['mainExams'];
+      final arr0 = <CustomExam>[];
+      v.forEach((v) {
+        arr0.add(CustomExam.fromJson(v));
+      });
+      mainExams = arr0;
+    }
+    responseStatus = json['responseStatus']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['httpStatus'] = httpStatus;
+    if (mainExams != null) {
+      final v = mainExams;
+      final arr0 = [];
+      v!.forEach((v) {
+        arr0.add(v!.toJson());
+      });
+      data['mainExams'] = arr0;
+    }
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetCustomExamsForStudentsSummaryResponse> getExamsForStudentsSummary(GenerateStudentMemosRequest getExamsForStudentsSummary) async {
+  debugPrint("Raising request to getFeeTypes with request ${jsonEncode(getExamsForStudentsSummary.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_EXAMS_FOR_STUDENTS_SUMMARY;
+
+  GetCustomExamsForStudentsSummaryResponse getFeeTypesResponse = await HttpUtils.post(
+    _url,
+    getExamsForStudentsSummary.toJson(),
+    GetCustomExamsForStudentsSummaryResponse.fromJson,
+  );
+
+  debugPrint("GetCustomExamsForStudentsSummaryResponse ${getFeeTypesResponse.toJson()}");
+  return getFeeTypesResponse;
 }

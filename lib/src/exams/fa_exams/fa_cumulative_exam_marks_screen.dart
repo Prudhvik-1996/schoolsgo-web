@@ -153,39 +153,47 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
   }
 
   void _handleArrowKeyNavigation(RawKeyDownEvent event, StudentExamMarks eachStudentExamMarks) {
+    List<int> keysList = examMarks.keys.toList();
+    int currentKeyIndex = keysList.indexOf(eachStudentExamMarks.examSectionSubjectMapId!);
+
     if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-      try {
-        setState(() => editingCell = examMarks[eachStudentExamMarks.examSectionSubjectMapId!]![
-            examMarks[eachStudentExamMarks.examSectionSubjectMapId!]!.indexWhere((esm) => esm.studentId == eachStudentExamMarks.studentId) - 1]);
-      } catch (_) {
-        // debugPrint("Tried crossing bounds");
+      // Move up within the same subject
+      int currentIndex =
+          examMarks[eachStudentExamMarks.examSectionSubjectMapId!]!.indexWhere((esm) => esm.studentId == eachStudentExamMarks.studentId);
+      if (currentIndex > 0) {
+        setState(() {
+          editingCell = examMarks[eachStudentExamMarks.examSectionSubjectMapId!]![currentIndex - 1];
+        });
       }
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-      try {
-        setState(() => editingCell = examMarks[eachStudentExamMarks.examSectionSubjectMapId!]![
-            examMarks[eachStudentExamMarks.examSectionSubjectMapId!]!.indexWhere((esm) => esm.studentId == eachStudentExamMarks.studentId) + 1]);
-      } catch (_) {
-        // debugPrint("Tried crossing bounds");
+      // Move down within the same subject
+      int currentIndex =
+          examMarks[eachStudentExamMarks.examSectionSubjectMapId!]!.indexWhere((esm) => esm.studentId == eachStudentExamMarks.studentId);
+      if (currentIndex < examMarks[eachStudentExamMarks.examSectionSubjectMapId!]!.length - 1) {
+        setState(() {
+          editingCell = examMarks[eachStudentExamMarks.examSectionSubjectMapId!]![currentIndex + 1];
+        });
       }
     } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-      try {
-        setState(() => editingCell = examMarks[examMarks.keys.toList()[
-                examMarks.keys.toList().indexWhere((e) => e == eachStudentExamMarks.examSectionSubjectMapId) -
-                    (faExam.faInternalExams?.firstWhere((ei) => ei?.faInternalExamId == eachStudentExamMarks.examId)?.examSectionSubjectMapList ?? [])
-                        .length]]!
-            .firstWhere((e) => e.studentId == eachStudentExamMarks.studentId));
-      } catch (_) {
-        // debugPrint("Tried crossing bounds");
+      // Move to the previous subject
+      if (currentKeyIndex > 0) {
+        int previousKey = keysList[currentKeyIndex - 1];
+        if (examMarks.containsKey(previousKey)) {
+          setState(() {
+            editingCell =
+                examMarks[previousKey]!.firstWhere((e) => e.studentId == eachStudentExamMarks.studentId, orElse: () => eachStudentExamMarks);
+          });
+        }
       }
     } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-      try {
-        setState(() => editingCell = examMarks[examMarks.keys.toList()[
-                examMarks.keys.toList().indexWhere((e) => e == eachStudentExamMarks.examSectionSubjectMapId) +
-                    (faExam.faInternalExams?.firstWhere((ei) => ei?.faInternalExamId == eachStudentExamMarks.examId)?.examSectionSubjectMapList ?? [])
-                        .length]]!
-            .firstWhere((e) => e.studentId == eachStudentExamMarks.studentId));
-      } catch (_) {
-        // debugPrint("Tried crossing bounds");
+      // Move to the next subject
+      if (currentKeyIndex < keysList.length - 1) {
+        int nextKey = keysList[currentKeyIndex + 1];
+        if (examMarks.containsKey(nextKey)) {
+          setState(() {
+            editingCell = examMarks[nextKey]!.firstWhere((e) => e.studentId == eachStudentExamMarks.studentId, orElse: () => eachStudentExamMarks);
+          });
+        }
       }
     }
   }

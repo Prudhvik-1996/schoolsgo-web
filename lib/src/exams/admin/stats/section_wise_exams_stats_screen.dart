@@ -121,7 +121,7 @@ class _SectionWiseExamsStatsScreenState extends State<SectionWiseExamsStatsScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Class Wise Stats"),
+        title: const Text("Class Wise Exam Stats"),
       ),
       body: ListView(
         children: [

@@ -79,7 +79,9 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
     } else {
       setState(() {
         students = getStudentProfileResponse.studentProfiles?.where((e) => e != null).map((e) => e!).toList() ?? [];
-        students.sort((a, b) => (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0));
+        students.sort((a, b) => (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0) == 0
+            ? (int.tryParse(a.rollNumber ?? "") ?? 0).compareTo(int.tryParse(b.rollNumber ?? "") ?? 0)
+            : (a.sectionSeqOrder ?? 0).compareTo(b.sectionSeqOrder ?? 0));
       });
     }
 

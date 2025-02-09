@@ -223,7 +223,9 @@ const String GET_ALL_EXAMS = "/exams/getAllExams";
 const String POPULATE_INTERNAL_EXAM_MARKS = "/exams/populateExamMarksAsPerOtherExams";
 const String DOWNLOAD_MEMOS_FOR_MAIN_EXAM_WITH_INTERNALS = "/memo/downloadMemosForMainExamWithInternals";
 const String DOWNLOAD_MEMOS_FOR_MAIN_EXAM_WITH_OUT_INTERNALS = "/memo/downloadMemosForMainExamWithoutInternals";
+const String DOWNLOAD_STUDENT_EXAM_SUMAMRY = "/memo/downloadExamSummaryForStudent";
 const String DOWNLOAD_HALL_TICKETS = "/memo/downloadExamHallTickets";
+const String GET_EXAMS_FOR_STUDENTS_SUMMARY = "/exams/getExamsForStudentsSummary";
 
 const String GET_SCHOOL_WISE_SMS_COUNTER = "/sms/getSchoolWiseSmsCounter";
 const String GET_SMS_CATEGORIES = "/sms/getSmsCategories";
