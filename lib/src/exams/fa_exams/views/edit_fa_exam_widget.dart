@@ -137,6 +137,9 @@ class _EditFAExamWidgetState extends State<EditFAExamWidget> {
       );
       return;
     }
+    if ((widget.faExam.faInternalExams ?? []).length == 1) {
+      widget.faExam.faInternalExams?[0]?.faInternalExamName = widget.faExam.faExamName;
+    }
     if ((widget.faExam.faInternalExams ?? [])
         .where((e) => e?.status == 'active')
         .map((e) => (e?.examSectionSubjectMapList ?? []).isEmpty)

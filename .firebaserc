@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "web-epsilon-diary"
+    "default": "web-epsilon-diary",
+    "epsilondiary": "epsilondiary"
   }
 }

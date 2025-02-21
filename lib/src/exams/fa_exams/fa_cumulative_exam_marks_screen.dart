@@ -591,21 +591,32 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
               children: [
                 Expanded(
                   child: Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                    decoration: BoxDecoration(
+                      borderRadius: (widget.faExam.faInternalExams ?? []).length > 1
+                          ? const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            )
+                          : const BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                              bottomLeft: Radius.circular(10),
+                              bottomRight: Radius.circular(10),
+                            ),
                       color: Colors.blue,
                     ),
                     child: Center(child: Text(headerStrings[columnIndex].split("|")[0])),
                   ),
                 ),
-                Expanded(
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+                if ((widget.faExam.faInternalExams ?? []).length > 1)
+                  Expanded(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+                      ),
+                      child: Center(child: Text(headerStrings[columnIndex].split("|")[1])),
                     ),
-                    child: Center(child: Text(headerStrings[columnIndex].split("|")[1])),
                   ),
-                ),
               ],
             )
           : headerStrings[columnIndex].contains("\nTotal")
