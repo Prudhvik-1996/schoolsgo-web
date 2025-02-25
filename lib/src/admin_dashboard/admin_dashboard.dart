@@ -269,9 +269,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
     if (getUserDetailsResponse.userDetails!.first.mailId == null) {
       goToDashboardAction();
     }
-    setState(() {
-      fourDigitPin = prefs.getString('USER_FOUR_DIGIT_PIN');
-    });
+    fourDigitPin = prefs.getString('USER_FOUR_DIGIT_PIN');
+    if (fourDigitPin == null) {
+      canGoToDashBoard = true;
+    }
     setState(() {
       _isLoading = false;
     });

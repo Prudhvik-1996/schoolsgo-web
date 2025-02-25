@@ -1,3 +1,7 @@
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_calendar/academic_calendar_screen.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_options_screen.dart';
@@ -32,6 +36,7 @@ import 'package:schoolsgo_web/src/hostel/admin/hostel_options_screen.dart';
 import 'package:schoolsgo_web/src/inventory/admin/admin_inventory_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
 import 'package:schoolsgo_web/src/login/login_screen_v2.dart';
+import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
@@ -42,6 +47,7 @@ import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.d
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/school_management/school_management_options_screen.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
+import 'package:schoolsgo_web/src/settings/notification_preference_settings.dart';
 import 'package:schoolsgo_web/src/sms/admin/admin_sms_options_screen.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
@@ -115,6 +121,9 @@ class _MyAppState extends State<MyApp> {
   bool _isLoading = true;
   late bool isUserLoggedIn;
   int? loggedInUserId;
+  String? loggedInEmail;
+  String? loggedInMobile;
+  String? fcmToken;
 
   NetworkStatus networkStatus = NetworkStatus.Offline;
 
@@ -263,7 +272,14 @@ class _MyAppState extends State<MyApp> {
           // case "manifest.json":
           //   return
           case SettingsView.routeName:
-            return SettingsView(controller: widget.settingsController);
+            AdminProfile? argument;
+            try {
+              argument = (routeSettings.arguments as AdminProfile);
+            } catch (_, e) {}
+            return SettingsView(
+              controller: widget.settingsController,
+              adminProfile: argument,
+            );
           case SplashScreen.routeName:
             return const SplashScreen();
           case LoginScreen.routeName:

@@ -1,21 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
+import 'package:collection/collection.dart';
+import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class GetAdminExpensesRequest {
-/*
-{
-  "agent": 0,
-  "franchiseId": 0,
-  "schoolId": 0
-}
-*/
-
   int? agent;
   int? franchiseId;
   int? schoolId;
@@ -30,6 +22,7 @@ class GetAdminExpensesRequest {
     this.startDate,
     this.endDate,
   });
+
   GetAdminExpensesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -38,6 +31,7 @@ class GetAdminExpensesRequest {
     startDate = json['startDate']?.toInt();
     endDate = json['endDate']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -52,19 +46,6 @@ class GetAdminExpensesRequest {
 }
 
 class AdminExpenseReceiptBean {
-/*
-{
-  "adminId": 0,
-  "expenseId": 0,
-  "franchiseId": 0,
-  "mediaId": 0,
-  "mediaType": "string",
-  "mediaUrl": "string",
-  "receiptId": 0,
-  "schoolId": 0
-}
-*/
-
   int? adminId;
   int? expenseId;
   int? franchiseId;
@@ -88,6 +69,7 @@ class AdminExpenseReceiptBean {
     this.schoolId,
     this.status,
   });
+
   AdminExpenseReceiptBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     adminId = json['adminId']?.toInt();
@@ -100,6 +82,7 @@ class AdminExpenseReceiptBean {
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['adminId'] = adminId;
@@ -118,38 +101,6 @@ class AdminExpenseReceiptBean {
 }
 
 class AdminExpenseBean {
-/*
-{
-  "adminExpenseId": 0,
-  "adminExpenseReceiptsList": [
-    {
-      "adminId": 0,
-      "expenseId": 0,
-      "franchiseId": 0,
-      "mediaId": 0,
-      "mediaType": "string",
-      "mediaUrl": "string",
-      "receiptId": 0,
-      "schoolId": 0
-    }
-  ],
-  "adminId": 0,
-  "adminName": "string",
-  "adminPhotoUrl": "string",
-  "amount": 0,
-  "branchCode": "string",
-  "description": "string",
-  "expenseType": "string",
-  "franchiseId": 0,
-  "franchiseName": "string",
-  "schoolId": 0,
-  "schoolName": "string",
-  "status": "active",
-  "transactionId": "string",
-  "transactionTime": 0
-}
-*/
-
   bool isEditMode = false;
   TextEditingController expenseTypeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -174,6 +125,7 @@ class AdminExpenseBean {
   String? transactionId;
   int? transactionTime;
   int? agent;
+  int? planId;
   String? modeOfPayment;
   int? receiptId;
   String? comments;
@@ -198,6 +150,7 @@ class AdminExpenseBean {
     this.transactionId,
     this.transactionTime,
     this.agent,
+    this.planId,
     this.modeOfPayment,
     this.receiptId,
     this.comments,
@@ -214,7 +167,7 @@ class AdminExpenseBean {
     commentsController.text = comments ?? "";
   }
 
-  bool getIsPocketTransaction () => (isPocketTransaction ?? "N") == "Y";
+  bool getIsPocketTransaction() => (isPocketTransaction ?? "N") == "Y";
 
   String? get errorTextForExpenseType {
     if ((expenseType ?? "").trim().isEmpty) {
@@ -259,6 +212,7 @@ class AdminExpenseBean {
     transactionId = json['transactionId']?.toString();
     transactionTime = json['transactionTime']?.toInt();
     agent = json['agent']?.toInt();
+    planId = json['planId']?.toInt();
     modeOfPayment = json['modeOfPayment']?.toString();
     receiptId = json['receiptId']?.toInt();
     comments = json['comments']?.toString();
@@ -266,15 +220,16 @@ class AdminExpenseBean {
     receiptIdController.text = "${receiptId ?? ""}";
     commentsController.text = comments ?? "";
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['adminExpenseId'] = adminExpenseId;
     if (adminExpenseReceiptsList != null) {
       final v = adminExpenseReceiptsList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['adminExpenseReceiptsList'] = arr0;
     }
     data['adminId'] = adminId;
@@ -292,6 +247,7 @@ class AdminExpenseBean {
     data['transactionId'] = transactionId;
     data['transactionTime'] = transactionTime;
     data['agent'] = agent;
+    data['planId'] = planId;
     data['modeOfPayment'] = modeOfPayment;
     data['receiptId'] = receiptId;
     data['comments'] = comments;
@@ -303,46 +259,6 @@ class AdminExpenseBean {
 }
 
 class GetAdminExpensesResponse {
-/*
-{
-  "adminExpenseBeanList": [
-    {
-      "adminExpenseId": 0,
-      "adminExpenseReceiptsList": [
-        {
-          "adminId": 0,
-          "expenseId": 0,
-          "franchiseId": 0,
-          "mediaId": 0,
-          "mediaType": "string",
-          "mediaUrl": "string",
-          "receiptId": 0,
-          "schoolId": 0
-        }
-      ],
-      "adminId": 0,
-      "adminName": "string",
-      "adminPhotoUrl": "string",
-      "amount": 0,
-      "branchCode": "string",
-      "description": "string",
-      "expenseType": "string",
-      "franchiseId": 0,
-      "franchiseName": "string",
-      "schoolId": 0,
-      "schoolName": "string",
-      "status": "active",
-      "transactionId": "string",
-      "transactionTime": 0
-    }
-  ],
-  "errorCode": "INTERNAL_SERVER_ERROR",
-  "errorMessage": "string",
-  "httpStatus": "100",
-  "responseStatus": "success"
-}
-*/
-
   List<AdminExpenseBean?>? adminExpenseBeanList;
   String? errorCode;
   String? errorMessage;
@@ -357,6 +273,7 @@ class GetAdminExpensesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetAdminExpensesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['adminExpenseBeanList'] != null) {
@@ -372,14 +289,15 @@ class GetAdminExpensesResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (adminExpenseBeanList != null) {
       final v = adminExpenseBeanList;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['adminExpenseBeanList'] = arr0;
     }
     data['errorCode'] = errorCode;
@@ -409,15 +327,6 @@ Future<GetAdminExpensesResponse> getAdminExpenses(GetAdminExpensesRequest getAdm
 class CreateOrUpdateAdminExpenseRequest extends AdminExpenseBean {}
 
 class CreateOrUpdateAdminExpenseResponse {
-/*
-{
-  "errorCode": "INTERNAL_SERVER_ERROR",
-  "errorMessage": "string",
-  "httpStatus": "100",
-  "responseStatus": "success"
-}
-*/
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -430,6 +339,7 @@ class CreateOrUpdateAdminExpenseResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateAdminExpenseResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -437,6 +347,7 @@ class CreateOrUpdateAdminExpenseResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -470,7 +381,6 @@ Future<List<int>> getAdminExpensesReport(GetAdminExpensesRequest getAdminExpense
 }
 
 class CreateOrUpdateAdminExpensesRequest {
-
   List<AdminExpenseBean?>? adminExpenseBeans;
   int? agentId;
   int? schoolId;
@@ -480,6 +390,7 @@ class CreateOrUpdateAdminExpensesRequest {
     this.agentId,
     this.schoolId,
   });
+
   CreateOrUpdateAdminExpensesRequest.fromJson(Map<String, dynamic> json) {
     if (json['adminExpenseBeans'] != null) {
       final v = json['adminExpenseBeans'];
@@ -492,14 +403,15 @@ class CreateOrUpdateAdminExpensesRequest {
     agentId = json['agentId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (adminExpenseBeans != null) {
       final v = adminExpenseBeans;
       final arr0 = [];
-      v!.forEach((v) {
+      for (var v in v!) {
         arr0.add(v!.toJson());
-      });
+      }
       data['adminExpenseBeans'] = arr0;
     }
     data['agentId'] = agentId;
@@ -509,7 +421,6 @@ class CreateOrUpdateAdminExpensesRequest {
 }
 
 class CreateOrUpdateAdminExpensesResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -521,12 +432,14 @@ class CreateOrUpdateAdminExpensesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateAdminExpensesResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json['errorCode']?.toString();
     errorMessage = json['errorMessage']?.toString();
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -549,4 +462,341 @@ Future<CreateOrUpdateAdminExpensesResponse> createOrUpdateAdminExpenses(CreateOr
 
   debugPrint("createOrUpdateAdminExpensesResponse ${createOrUpdateAdminExpensesResponse.toJson()}");
   return createOrUpdateAdminExpensesResponse;
+}
+
+class GetExpenseInstallmentPlansRequest {
+  int? franchiseId;
+  int? planId;
+  int? schoolId;
+  Map<String, dynamic> __origJson = {};
+
+  GetExpenseInstallmentPlansRequest({
+    this.franchiseId,
+    this.planId,
+    this.schoolId,
+  });
+
+  GetExpenseInstallmentPlansRequest.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    franchiseId = json['franchiseId']?.toInt();
+    planId = json['planId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['franchiseId'] = franchiseId;
+    data['planId'] = planId;
+    data['schoolId'] = schoolId;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class ExpenseInstallmentBean {
+  int? agent;
+  int? amount;
+  int? createTime;
+  String? dueDate;
+  int? expenseInstallmentId;
+  int? lastUpdated;
+  int? planId;
+  int? schoolId;
+  String? status;
+  Map<String, dynamic> __origJson = {};
+
+  TextEditingController amountEditingController = TextEditingController();
+
+  String? get amountErrorText => null;
+
+  ExpenseInstallmentBean({
+    this.agent,
+    this.amount,
+    this.createTime,
+    this.dueDate,
+    this.expenseInstallmentId,
+    this.lastUpdated,
+    this.planId,
+    this.schoolId,
+    this.status,
+  }) {
+    amountEditingController.text = "${(amount ?? 0) / 100}";
+  }
+
+  ExpenseInstallmentBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    amount = json['amount']?.toInt();
+    createTime = json['createTime']?.toInt();
+    dueDate = json['dueDate']?.toString();
+    expenseInstallmentId = json['expenseInstallmentId']?.toInt();
+    lastUpdated = json['lastUpdated']?.toInt();
+    planId = json['planId']?.toInt();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    amountEditingController.text = "${(amount ?? 0) / 100}";
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['amount'] = amount;
+    data['createTime'] = createTime;
+    data['dueDate'] = dueDate;
+    data['expenseInstallmentId'] = expenseInstallmentId;
+    data['lastUpdated'] = lastUpdated;
+    data['planId'] = planId;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class ExpenseInstallmentPlanBean {
+  int? agent;
+  int? amount;
+  int? createTime;
+  List<AdminExpenseBean?>? expenseBeans;
+  List<ExpenseInstallmentBean?>? expenseInstallments;
+  int? lastUpdated;
+  String? planDescription;
+  int? planId;
+  String? planTitle;
+  int? schoolId;
+  String? status;
+  Map<String, dynamic> __origJson = {};
+
+  bool isEditMode = false;
+  TextEditingController titleEditingController = TextEditingController();
+  TextEditingController descriptionEditingController = TextEditingController();
+  TextEditingController amountEditingController = TextEditingController();
+
+  String? get titleErrorText => (planTitle ?? "").trim().isEmpty ? "Title cannot be empty" : null;
+  String? get descriptionErrorText => null;
+  String? get amountErrorText => (amount ?? 0) == 0 ? "Amount must be greater than 0" : null;
+
+  int get totalPaidAmount =>
+      (expenseBeans ?? []).isEmpty ? 0 : (expenseBeans ?? []).where((e) => e?.status == 'active').map((e) => e?.amount ?? 0).reduce((a, b) => a + b);
+
+  int get installmentsTotal => (expenseInstallments ?? []).isEmpty ? 0 : (expenseInstallments ?? []).where((e) => e?.status == 'active').map((e) => e?.amount ?? 0).reduce((a, b) => a + b);
+
+  List<ExpenseInstallmentBean> get activeInstallments =>
+      (expenseInstallments ?? []).where((e) => e?.status == 'active').whereNotNull().sorted((a, b) {
+        DateTime? aDueDate = a.dueDate == null ? null : convertYYYYMMDDFormatToDateTime(a.dueDate);
+        DateTime? bDueDate = b.dueDate == null ? null : convertYYYYMMDDFormatToDateTime(b.dueDate);
+        int aAmount = a.amount ?? 0;
+        int bAmount = b.amount ?? 0;
+        // if (aDueDate != null && bDueDate == null) {
+        //   return 1;
+        // } else
+        if (aDueDate != null && bDueDate != null) {
+          return aDueDate.compareTo(bDueDate);
+        } else {
+          // return aAmount.compareTo(bAmount);
+          return 0;
+        }
+      }).toList();
+
+  ExpenseInstallmentPlanBean({
+    this.agent,
+    this.amount,
+    this.createTime,
+    this.expenseBeans,
+    this.expenseInstallments,
+    this.lastUpdated,
+    this.planDescription,
+    this.planId,
+    this.planTitle,
+    this.schoolId,
+    this.status,
+  }) {
+    titleEditingController.text = planTitle ?? "";
+    descriptionEditingController.text = planDescription ?? "";
+    amountEditingController.text = "${(amount ?? 0) / 100}";
+  }
+
+  ExpenseInstallmentPlanBean.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    agent = json['agent']?.toInt();
+    amount = json['amount']?.toInt();
+    createTime = json['createTime']?.toInt();
+    if (json['expenseBeans'] != null) {
+      final v = json['expenseBeans'];
+      final arr0 = <AdminExpenseBean>[];
+      v.forEach((v) {
+        arr0.add(AdminExpenseBean.fromJson(v));
+      });
+      expenseBeans = arr0;
+    }
+    if (json['expenseInstallments'] != null) {
+      final v = json['expenseInstallments'];
+      final arr0 = <ExpenseInstallmentBean>[];
+      v.forEach((v) {
+        arr0.add(ExpenseInstallmentBean.fromJson(v));
+      });
+      expenseInstallments = arr0;
+    }
+    lastUpdated = json['lastUpdated']?.toInt();
+    planDescription = json['planDescription']?.toString();
+    planId = json['planId']?.toInt();
+    planTitle = json['planTitle']?.toString();
+    schoolId = json['schoolId']?.toInt();
+    status = json['status']?.toString();
+    titleEditingController.text = planTitle ?? "";
+    descriptionEditingController.text = planDescription ?? "";
+    amountEditingController.text = "${(amount ?? 0) / 100}";
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['agent'] = agent;
+    data['amount'] = amount;
+    data['createTime'] = createTime;
+    if (expenseBeans != null) {
+      final v = expenseBeans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['expenseBeans'] = arr0;
+    }
+    if (expenseInstallments != null) {
+      final v = expenseInstallments;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['expenseInstallments'] = arr0;
+    }
+    data['lastUpdated'] = lastUpdated;
+    data['planDescription'] = planDescription;
+    data['planId'] = planId;
+    data['planTitle'] = planTitle;
+    data['schoolId'] = schoolId;
+    data['status'] = status;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+class GetExpenseInstallmentPlansResponse {
+  String? errorCode;
+  String? errorMessage;
+  List<ExpenseInstallmentPlanBean?>? expenseInstallmentPlans;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  GetExpenseInstallmentPlansResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.expenseInstallmentPlans,
+    this.httpStatus,
+    this.responseStatus,
+  });
+
+  GetExpenseInstallmentPlansResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    if (json['expenseInstallmentPlans'] != null) {
+      final v = json['expenseInstallmentPlans'];
+      final arr0 = <ExpenseInstallmentPlanBean>[];
+      v.forEach((v) {
+        arr0.add(ExpenseInstallmentPlanBean.fromJson(v));
+      });
+      expenseInstallmentPlans = arr0;
+    }
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    if (expenseInstallmentPlans != null) {
+      final v = expenseInstallmentPlans;
+      final arr0 = [];
+      for (var v in v!) {
+        arr0.add(v!.toJson());
+      }
+      data['expenseInstallmentPlans'] = arr0;
+    }
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<GetExpenseInstallmentPlansResponse> getExpenseInstallmentPlans(GetExpenseInstallmentPlansRequest getExpenseInstallmentPlansRequest) async {
+  debugPrint("Raising request to getExpenseInstallmentPlans with request ${jsonEncode(getExpenseInstallmentPlansRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + GET_EXPENSE_INSTALLMENT_PLANS;
+
+  GetExpenseInstallmentPlansResponse getExpenseInstallmentPlansResponse = await HttpUtils.post(
+    _url,
+    getExpenseInstallmentPlansRequest.toJson(),
+    GetExpenseInstallmentPlansResponse.fromJson,
+  );
+
+  debugPrint("GetExpenseInstallmentPlansResponse ${getExpenseInstallmentPlansResponse.toJson()}");
+  return getExpenseInstallmentPlansResponse;
+}
+
+class CreateOrUpdateExpenseInstallmentPlanRequest extends ExpenseInstallmentPlanBean {}
+
+class CreateOrUpdateExpenseInstallmentPlanResponse {
+
+  String? errorCode;
+  String? errorMessage;
+  int? expenseInstallmentPlanId;
+  String? httpStatus;
+  String? responseStatus;
+  Map<String, dynamic> __origJson = {};
+
+  CreateOrUpdateExpenseInstallmentPlanResponse({
+    this.errorCode,
+    this.errorMessage,
+    this.expenseInstallmentPlanId,
+    this.httpStatus,
+    this.responseStatus,
+  });
+  CreateOrUpdateExpenseInstallmentPlanResponse.fromJson(Map<String, dynamic> json) {
+    __origJson = json;
+    errorCode = json['errorCode']?.toString();
+    errorMessage = json['errorMessage']?.toString();
+    expenseInstallmentPlanId = json['expenseInstallmentPlanId']?.toInt();
+    httpStatus = json['httpStatus']?.toString();
+    responseStatus = json['responseStatus']?.toString();
+  }
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{};
+    data['errorCode'] = errorCode;
+    data['errorMessage'] = errorMessage;
+    data['expenseInstallmentPlanId'] = expenseInstallmentPlanId;
+    data['httpStatus'] = httpStatus;
+    data['responseStatus'] = responseStatus;
+    return data;
+  }
+  Map<String, dynamic> origJson() => __origJson;
+}
+
+Future<CreateOrUpdateExpenseInstallmentPlanResponse> createOrUpdateExpenseInstallmentPlan(CreateOrUpdateExpenseInstallmentPlanRequest createOrUpdateExpenseInstallmentPlanRequest) async {
+  debugPrint("Raising request to createOrUpdateExpenseInstallmentPlan with request ${jsonEncode(createOrUpdateExpenseInstallmentPlanRequest.toJson())}");
+  String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EXPENSE_INSTALLMENT_PLAN;
+
+  CreateOrUpdateExpenseInstallmentPlanResponse createOrUpdateExpenseInstallmentPlanResponse = await HttpUtils.post(
+    _url,
+    createOrUpdateExpenseInstallmentPlanRequest.toJson(),
+    CreateOrUpdateExpenseInstallmentPlanResponse.fromJson,
+  );
+
+  debugPrint("createOrUpdateExpenseInstallmentPlanResponse ${createOrUpdateExpenseInstallmentPlanResponse.toJson()}");
+  return createOrUpdateExpenseInstallmentPlanResponse;
 }

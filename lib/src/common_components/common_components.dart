@@ -591,7 +591,11 @@ class AdminAppDrawer extends Drawer {
                   ),
                   leading: const Icon(Icons.settings),
                   onTap: () {
-                    Navigator.restorablePushNamed(context, SettingsView.routeName);
+                    Navigator.pushNamed(
+                      context,
+                      SettingsView.routeName,
+                      arguments: adminProfile,
+                    );
                   },
                 ),
               ),

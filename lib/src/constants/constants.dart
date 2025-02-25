@@ -158,6 +158,8 @@ const String CREATE_OR_UPDATE_ADMIN_EXPENSES = "/ledger/createOrUpdateAdminExpen
 const String GET_POCKET_BALANCES = "/ledger/getPocketBalances";
 const String GET_POCKET_TRANSACTIONS = "/ledger/getPocketTransactions";
 const String CREATE_OR_UPDATE_POCKET_TRANSACTION = "/ledger/createOrUpdatePocketTransaction";
+const String GET_EXPENSE_INSTALLMENT_PLANS = "/ledger/getExpenseInstallmentPlans";
+const String CREATE_OR_UPDATE_EXPENSE_INSTALLMENT_PLAN = "/ledger/createOrUpdateExpenseInstallmentPlan";
 
 const String GET_CHATS = "/chats/getChats";
 const String CREATE_OR_UPDATE_CHAT = "/chats/createOrUpdateChat";

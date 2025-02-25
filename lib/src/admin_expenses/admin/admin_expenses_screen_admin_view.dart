@@ -1527,19 +1527,15 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
       textAlign: TextAlign.left,
       autofocus: true,
       onChanged: (String e) {
-        print("1352: $e");
         if (e.trim() == "") {
           setState(() {
             eachExpense.receiptId = null;
           });
         }
-        print("1358: $e");
         if (int.tryParse(e) == null) return;
-        print("1360: $e");
         setState(() {
           eachExpense.receiptId = int.parse(e);
         });
-        print("1364: $e");
       },
     );
   }

@@ -4,10 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
+import 'package:schoolsgo_web/src/login/generate_new_four_digit_pin_screen.dart';
 import 'package:schoolsgo_web/src/login/generate_new_login_pin_screen.dart';
 import 'package:schoolsgo_web/src/login/model/login.dart';
+import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/settings/app_udates_log/app_updates_log_screen.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
+import 'package:schoolsgo_web/src/settings/notification_preference_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_controller.dart';
@@ -16,9 +19,11 @@ class SettingsView extends StatefulWidget {
   const SettingsView({
     Key? key,
     required this.controller,
+    this.adminProfile,
   }) : super(key: key);
 
   final SettingsController controller;
+  final AdminProfile? adminProfile;
 
   static const routeName = "/settings";
 
@@ -71,6 +76,8 @@ class _SettingsViewState extends State<SettingsView> {
                 _buildTextThemeDropdown(),
                 const Divider(),
                 _buildNotificationToggle(),
+                if (widget.adminProfile != null) const Divider(),
+                if (widget.adminProfile != null) showResetFourDigitPinOption(),
                 if (loggedInUserId != null) const Divider(),
                 if (loggedInUserId != null) _buildUpdatePasswordWidget(),
                 const Divider(),
@@ -216,64 +223,16 @@ class _SettingsViewState extends State<SettingsView> {
       title: const Text("Notifications"),
       trailing: Switch(
         onChanged: (bool enableNotifications) async {
-          if (enableNotifications) {
-            if (fcmToken == null) {
-              await FirebaseMessaging.instance.requestPermission();
-              fcmToken = await FirebaseMessaging.instance.getToken();
-            }
-            if (fcmToken != null) {
-              CreateOrUpdateFcmTokenResponse createOrUpdateFcmTokenResponse = await createOrUpdateFcmToken(
-                CreateOrUpdateFcmTokenRequest(
-                  fcmBean: FcmBean(
-                    status: "active",
-                    userId: loggedInUserId,
-                    fcmToken: fcmToken,
-                  ),
-                ),
-              );
-
-              if (createOrUpdateFcmTokenResponse.httpStatus == "OK" && createOrUpdateFcmTokenResponse.responseStatus == "success") {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setString('USER_FCM_TOKEN', fcmToken!);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Something went wrong..\nPlease try again later"),
-                  ),
-                );
-              }
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Something went wrong..\nPlease try again later"),
-                ),
-              );
-            }
-            await _loadData();
+          setState(() => _isLoading = true);
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          NotificationPreferenceSettings notificationPreferenceSettings = NotificationPreferenceSettings(prefs, context, true);
+          if (!enableNotifications) {
+            await notificationPreferenceSettings.turnOffNotifications();
           } else {
-            CreateOrUpdateFcmTokenResponse createOrUpdateFcmTokenResponse = await createOrUpdateFcmToken(
-              CreateOrUpdateFcmTokenRequest(
-                fcmBean: FcmBean(
-                  status: "inactive",
-                  userId: loggedInUserId,
-                  fcmToken: fcmToken,
-                ),
-              ),
-            );
-
-            if (createOrUpdateFcmTokenResponse.httpStatus == "OK" && createOrUpdateFcmTokenResponse.responseStatus == "success") {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.remove('USER_FCM_TOKEN');
-              await FirebaseMessaging.instance.requestPermission();
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Something went wrong..\nPlease try again later"),
-                ),
-              );
-            }
-            await _loadData();
+            await notificationPreferenceSettings.init();
           }
+          await _loadData();
+          setState(() => _isLoading = false);
         },
         value: fcmToken != null,
       ),
@@ -303,6 +262,21 @@ class _SettingsViewState extends State<SettingsView> {
           width: 15,
         ),
       ],
+    );
+  }
+
+  Widget showResetFourDigitPinOption() {
+    return ListTile(
+      leading: const Icon(Icons.password),
+      title: const Text("Update Four Digit Pin"),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return GenerateNewFourDigitPinScreen(
+            adminProfile: widget.adminProfile!,
+          );
+        }),
+      ),
     );
   }
 }

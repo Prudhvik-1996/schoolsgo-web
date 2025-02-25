@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
+import 'package:schoolsgo_web/src/settings/notification_preference_settings.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
@@ -56,6 +57,12 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
   void initState() {
     super.initState();
     _loadData();
+    _initNotifications();
+  }
+
+  Future<void> _initNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await NotificationPreferenceSettings(prefs, context, false).init();
   }
 
   Future<void> _loadData() async {
@@ -150,7 +157,7 @@ class _UserDashboardV2State extends State<UserDashboardV2> {
     if (academicYearId == null) {
       prefs.remove('SELECTED_ACADEMIC_YEAR_ID');
     } else {
-      prefs.setInt('SELECTED_ACADEMIC_YEAR_ID', academicYearId);
+      prefs.setInt('SELECTED_ACADEMIC_YEAR_ID', academicYearId ?? -1);
     }
   }
 

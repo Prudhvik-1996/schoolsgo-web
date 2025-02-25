@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_employee_wallets_screen.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expense_installments_plan_screen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
@@ -100,6 +101,14 @@ class _AdminExpensesOptionsScreenState extends State<AdminExpensesOptionsScreen>
             "Admin Expenses",
             null,
             AdminExpenseScreenAdminView(
+              adminProfile: widget.adminProfile,
+              receptionistProfile: widget.receptionistProfile,
+            ),
+          ),
+          _getAdminExpensesOption(
+            "Expense Installments Plan",
+            null,
+            AdminInstallmentsPlanScreen(
               adminProfile: widget.adminProfile,
               receptionistProfile: widget.receptionistProfile,
             ),

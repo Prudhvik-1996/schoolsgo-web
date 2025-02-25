@@ -27,7 +27,7 @@ class AdminExamOptionsScreen extends StatefulWidget {
 }
 
 class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
-  late int selectedAcademicYearId;
+  int? selectedAcademicYearId;
   bool _isLoading = true;
 
   @override
@@ -39,7 +39,7 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID')!;
+    selectedAcademicYearId = prefs.getInt('SELECTED_ACADEMIC_YEAR_ID');
     setState(() => _isLoading = false);
   }
 
@@ -124,7 +124,7 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
                   TopicWiseExamsTdsScreen(
                     adminProfile: widget.adminProfile,
                     teacherProfile: null,
-                    selectedAcademicYearId: selectedAcademicYearId,
+                    selectedAcademicYearId: selectedAcademicYearId ?? -1,
                   ),
                 ),
                 // _getExamsOption(
@@ -165,7 +165,7 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
                   ExamStatsOptionsScreen(
                     adminProfile: widget.adminProfile,
                     teacherProfile: null,
-                    selectedAcademicYearId: selectedAcademicYearId,
+                    selectedAcademicYearId: selectedAcademicYearId ?? -1,
                   ),
                 ),
                 _getExamsOption(

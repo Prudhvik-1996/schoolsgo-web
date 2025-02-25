@@ -44,7 +44,7 @@ class _LoginScreenV2State extends State<LoginScreenV2> {
   /// login with google
   ///
 
-  String loginMode = "email";
+  String loginMode = "mobile";
 
   @override
   void initState() {
@@ -243,7 +243,7 @@ class _LoginScreenV2State extends State<LoginScreenV2> {
         DropdownButton(
           isExpanded: false,
           value: loginMode,
-          items: ["email", "mobile", "unique Id", "google"]
+          items: ["mobile", "unique Id", "email", "google"]
               .map((e) => DropdownMenuItem(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(8,0,8,0),

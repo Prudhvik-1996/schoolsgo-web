@@ -96,6 +96,7 @@ class FcmBean {
   int? fcmTokenId;
   String? requestedDevice;
   String? status;
+  String? mobileNumber;
   int? userId;
   String? userName;
   Map<String, dynamic> __origJson = {};
@@ -105,6 +106,7 @@ class FcmBean {
     this.fcmTokenId,
     this.requestedDevice,
     this.status,
+    this.mobileNumber,
     this.userId,
     this.userName,
   });
@@ -114,6 +116,7 @@ class FcmBean {
     fcmTokenId = json['fcmTokenId']?.toInt();
     requestedDevice = json['requestedDevice']?.toString();
     status = json['status']?.toString();
+    mobileNumber = json['mobileNumber']?.toString();
     userId = json['userId']?.toInt();
     userName = json['userName']?.toString();
   }
@@ -123,6 +126,7 @@ class FcmBean {
     data['fcmTokenId'] = fcmTokenId;
     data['requestedDevice'] = requestedDevice;
     data['status'] = status;
+    data['mobileNumber'] = mobileNumber;
     data['userId'] = userId;
     data['userName'] = userName;
     return data;

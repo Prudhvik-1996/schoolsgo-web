@@ -15,6 +15,7 @@ import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as userDetails;
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
+import 'package:schoolsgo_web/src/settings/notification_preference_settings.dart';
 import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
@@ -59,6 +60,12 @@ class _UserDashboardState extends State<UserDashboard> {
   void initState() {
     super.initState();
     _loadData();
+    _initNotifications();
+  }
+
+  Future<void> _initNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await NotificationPreferenceSettings(prefs, context, false).init();
   }
 
   Future<void> _loadData() async {
