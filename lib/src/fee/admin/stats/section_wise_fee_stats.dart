@@ -112,7 +112,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
                       'Only dropout students',
                       'Only active students',
                       'All students',
-                      'Download report',
+                      // 'Download report',
                     }.map((String choice) {
                       return PopupMenuItem<String>(
                         value: choice,
@@ -1023,6 +1023,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
   }
 
   Future<void> downloadReport() async {
+    setState(() => _isLoading = true);
     List<int> bytes = await detailedFeeReport(
       GetStudentWiseAnnualFeesRequest(
         schoolId: widget.adminProfile.schoolId,
@@ -1032,6 +1033,7 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
     AnchorElement(href: "data:application/octet-stream;charset=utf-16le;base64,${base64.encode(bytes)}")
       ..setAttribute("download", "Section wise due report")
       ..click();
+    setState(() => _isLoading = false);
   }
 
   Future<void> _loadData() async {

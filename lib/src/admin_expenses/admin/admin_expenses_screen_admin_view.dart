@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:collection/collection.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:easy_autocomplete/easy_autocomplete.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,8 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
   String? reportName;
 
   late int newVoucherNumber;
+
+  List<ExpenseInstallmentPlanBean> expenseInstallmentPlans = [];
 
   @override
   void initState() {
@@ -144,6 +147,20 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
             balanceAmount: 0,
             lastTransactionDate: null,
           );
+    }
+    GetExpenseInstallmentPlansResponse response = await getExpenseInstallmentPlans(
+      GetExpenseInstallmentPlansRequest(
+        schoolId: widget.adminProfile?.schoolId ?? widget.receptionistProfile?.schoolId,
+      ),
+    );
+    if (response.httpStatus != "OK" || response.responseStatus != "success") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Something went wrong! Try again later.."),
+        ),
+      );
+    } else {
+      expenseInstallmentPlans = (response.expenseInstallmentPlans ?? []).whereNotNull().toList();
     }
     setState(() {
       _isLoading = false;
@@ -402,6 +419,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
     bool canEdit = true,
     bool noMargins = false,
   }) {
+    ExpenseInstallmentPlanBean? plan = getInstallmentPlanForExpense(eachExpense);
     return Container(
       margin: noMargins
           ? const EdgeInsets.all(20)
@@ -488,7 +506,35 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                 ],
               ),
             ),
-            if (eachExpense.getIsPocketTransaction()) const SizedBox(height: 10),
+            if (eachExpense.getIsPartOfExpenseInstallments() || eachExpense.getIsPocketTransaction()) const SizedBox(height: 10),
+            if (eachExpense.getIsPartOfExpenseInstallments())
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: eachExpense.getIsPocketTransaction()
+                      ? null
+                      : const BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                  color: Colors.blue,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "This expense is part of \"${plan?.planTitle ?? " - "}\" installment plan",
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             if (eachExpense.getIsPocketTransaction())
               Container(
                 decoration: const BoxDecoration(
@@ -519,6 +565,11 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
         ),
       ),
     );
+  }
+
+  ExpenseInstallmentPlanBean? getInstallmentPlanForExpense(AdminExpenseBean eachExpense) {
+    return expenseInstallmentPlans
+        .firstWhereOrNull((eachPlan) => (eachPlan.expenseBeans ?? []).map((e) => e?.adminExpenseId).contains(eachExpense.adminExpenseId));
   }
 
   Row buildReadModeExpenseAmountWidget(AdminExpenseBean eachExpense) {
@@ -719,10 +770,51 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                 ),
               ),
               const SizedBox(height: 10),
+              if (expenseInstallmentPlans.isNotEmpty) choosePlanDropdown(eachExpense),
+              if (expenseInstallmentPlans.isNotEmpty) const SizedBox(height: 10),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget choosePlanDropdown(AdminExpenseBean eachExpense) {
+    return Column(
+      children: [
+        Row(
+          children: const [Expanded(child: Text("Choose Installment Plan:"))],
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownSearch<ExpenseInstallmentPlanBean?>(
+                clearButton: null,
+                enabled: true,
+                mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
+                selectedItem: getInstallmentPlanForExpense(eachExpense),
+                items: expenseInstallmentPlans,
+                itemAsString: (ExpenseInstallmentPlanBean? plan) {
+                  return plan?.planTitle ?? "-";
+                },
+                showSearchBox: true,
+                dropdownBuilder: (BuildContext context, ExpenseInstallmentPlanBean? plan) {
+                  return Text(plan?.planTitle ?? "-");
+                },
+                onChanged: (ExpenseInstallmentPlanBean? plan) {
+                  setState(() => eachExpense.planId = plan?.planId);
+                },
+                showClearButton: true,
+                compareFn: (item, selectedItem) => item?.planId == selectedItem?.planId,
+                dropdownSearchDecoration: const InputDecoration(border: InputBorder.none),
+                filterFn: (ExpenseInstallmentPlanBean? plan, String? key) {
+                  return (plan?.planTitle ?? "").toLowerCase().contains(key!.toLowerCase());
+                },
+              ),
+            ),
+          ],
+        )
+      ],
     );
   }
 
@@ -1309,6 +1401,7 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
                   ..receiptId = eachExpense.receiptId
                   ..transactionTime = eachExpense.transactionTime ?? DateTime.now().millisecondsSinceEpoch
                   ..isPocketTransaction = eachExpense.isPocketTransaction
+                  ..planId = eachExpense.planId
                   ..adminExpenseReceiptsList = eachExpense.adminExpenseReceiptsList
                       ?.where(
                           (eachReceipt) => eachReceipt != null && !const DeepCollectionEquality().equals(eachReceipt.toJson(), eachReceipt.origJson))

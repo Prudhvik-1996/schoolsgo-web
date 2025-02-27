@@ -801,10 +801,10 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
   void filterStudents() {
     String? selectedStudentStatus = 'active';
     studentAnnualFeeBeans.removeWhere((e) {
-      StudentProfile eachStudent = studentProfiles.firstWhere((es) => es.studentId == e.studentId);
+      StudentProfile? eachStudent = studentProfiles.firstWhereOrNull((es) => es.studentId == e.studentId);
       bool studentsStatusFilter = e.status == selectedStudentStatus;
       bool selectedSectionStatus = selectedSectionsList.map((e) => e.sectionId).contains(e.sectionId);
-      bool accommodationTypeFilter = _selectedAccommodationTypes.contains(eachStudent.studentAccommodationType);
+      bool accommodationTypeFilter = _selectedAccommodationTypes.contains(eachStudent?.studentAccommodationType);
       bool busStopFilter = applyBusFilter ? (selectedRouteStopMap[e.studentBusFeeBean?.routeId]?[e.studentBusFeeBean?.stopId] ?? false) : true;
       bool result = studentsStatusFilter && selectedSectionStatus && accommodationTypeFilter && busStopFilter;
       return !result;

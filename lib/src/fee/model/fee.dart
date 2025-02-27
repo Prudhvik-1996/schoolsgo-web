@@ -1356,7 +1356,8 @@ Future<GetStudentWiseAnnualFeesResponse> getStudentWiseAnnualFees(GetStudentWise
     GetStudentWiseAnnualFeesResponse.fromJson,
   );
 
-  debugPrint("GetStudentWiseAnnualFeesResponse ${getStudentWiseAnnualFeesResponse.toJson()}");
+  // debugPrint("GetStudentWiseAnnualFeesResponse ${getStudentWiseAnnualFeesResponse.toJson()}");
+  debugPrint("Got the response for GetStudentWiseAnnualFeesResponse");
   return getStudentWiseAnnualFeesResponse;
 }
 

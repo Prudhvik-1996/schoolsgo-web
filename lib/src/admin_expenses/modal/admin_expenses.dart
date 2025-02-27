@@ -168,6 +168,7 @@ class AdminExpenseBean {
   }
 
   bool getIsPocketTransaction() => (isPocketTransaction ?? "N") == "Y";
+  bool getIsPartOfExpenseInstallments() => planId != null;
 
   String? get errorTextForExpenseType {
     if ((expenseType ?? "").trim().isEmpty) {
