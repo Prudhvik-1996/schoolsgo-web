@@ -40,6 +40,7 @@ class _SettingsViewState extends State<SettingsView> {
   String? currentAppVersion;
 
   AppVersion? latestAppVersion;
+  bool isAppDrawerEnabled = false;
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _SettingsViewState extends State<SettingsView> {
     loggedInUserId = prefs.getInt('LOGGED_IN_USER_ID');
     fcmToken = prefs.getString('USER_FCM_TOKEN');
     currentAppVersion = prefs.getString('CURRENT_APP_VERSION');
+    isAppDrawerEnabled = prefs.getBool('IS_APP_DRAWER_ENABLED') ?? false;
 
     latestAppVersion = await getAppVersion(null);
 
@@ -76,6 +78,8 @@ class _SettingsViewState extends State<SettingsView> {
                 _buildTextThemeDropdown(),
                 const Divider(),
                 _buildNotificationToggle(),
+                const Divider(),
+                _buildAppDrawerToggle(),
                 if (widget.adminProfile != null) const Divider(),
                 if (widget.adminProfile != null) showResetFourDigitPinOption(),
                 if (loggedInUserId != null) const Divider(),
@@ -231,6 +235,24 @@ class _SettingsViewState extends State<SettingsView> {
           } else {
             await notificationPreferenceSettings.init();
           }
+          await _loadData();
+          setState(() => _isLoading = false);
+        },
+        value: fcmToken != null,
+      ),
+    );
+  }
+
+  // Builds the notification toggle
+  Widget _buildAppDrawerToggle() {
+    return ListTile(
+      leading: fcmToken == null ? const Icon(Icons.notifications) : const Icon(Icons.notifications_active),
+      title: const Text("App Drawer"),
+      trailing: Switch(
+        onChanged: (bool enableAppDrawer) async {
+          setState(() => _isLoading = true);
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool('IS_APP_DRAWER_ENABLED', enableAppDrawer);
           await _loadData();
           setState(() => _isLoading = false);
         },

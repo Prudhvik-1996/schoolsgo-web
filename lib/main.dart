@@ -3,6 +3,7 @@ import 'dart:html' as html;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/custom_routing_strategy.dart';
 
 import 'firebase_options_primary.dart';
@@ -22,6 +23,7 @@ void main() async {
   await initialiseFirebase();
   final settingsController = SettingsController(SettingsService());
   await settingsController.loadSettings();
+  await AppDrawerHelper.instance.init();
   runApp(MyApp(settingsController: settingsController));
   html.window.onBeforeUnload.listen((event) {
     event.preventDefault(); // Disable browser back
