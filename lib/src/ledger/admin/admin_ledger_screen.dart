@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/ledger/modal/ledger.dart';
 import 'package:schoolsgo_web/src/ledger/modal/transaction_type.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
@@ -88,9 +89,11 @@ class _AdminLedgerScreenState extends State<AdminLedgerScreen> {
           buildRoleButtonForAppBar(context, widget.adminProfile),
         ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

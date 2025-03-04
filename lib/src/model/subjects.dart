@@ -222,6 +222,7 @@ class CreateOrUpdateSubjectRequest {
     this.subjectId,
     this.subjectName,
   });
+
   CreateOrUpdateSubjectRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toString();
@@ -231,6 +232,7 @@ class CreateOrUpdateSubjectRequest {
     subjectId = json['subjectId']?.toInt();
     subjectName = json['subjectName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -241,6 +243,7 @@ class CreateOrUpdateSubjectRequest {
     data['subjectName'] = subjectName;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -266,6 +269,7 @@ class CreateOrUpdateSubjectResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateSubjectResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -273,6 +277,7 @@ class CreateOrUpdateSubjectResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -281,6 +286,7 @@ class CreateOrUpdateSubjectResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -326,6 +332,7 @@ class CreateOrUpdateSubjectsRequest {
     this.schoolId,
     this.subjectsList,
   });
+
   CreateOrUpdateSubjectsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -339,6 +346,7 @@ class CreateOrUpdateSubjectsRequest {
       subjectsList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -353,6 +361,7 @@ class CreateOrUpdateSubjectsRequest {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -378,6 +387,7 @@ class CreateOrUpdateSubjectsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateSubjectsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -385,6 +395,7 @@ class CreateOrUpdateSubjectsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -393,6 +404,7 @@ class CreateOrUpdateSubjectsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

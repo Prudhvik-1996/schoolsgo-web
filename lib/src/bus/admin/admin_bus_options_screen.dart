@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_management_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_route_management.dart';
-// import 'package:schoolsgo_web/src/bus/admin/admin_bus_tracking_screen.dart';
-import 'package:schoolsgo_web/src/bus/admin/admin_stop_wise_student_assignment_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_stop_wise_student_assignment_screen_v2.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class AdminBusOptionsScreen extends StatefulWidget {
   const AdminBusOptionsScreen({
@@ -90,9 +89,11 @@ class _AdminBusOptionsScreenState extends State<AdminBusOptionsScreen> {
       appBar: AppBar(
         title: const Text("Bus"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

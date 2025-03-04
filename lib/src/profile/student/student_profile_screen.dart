@@ -8,6 +8,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/profile/student/profile_picture_screen.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   const StudentProfileScreen({Key? key, required this.studentProfile}) : super(key: key);
@@ -47,9 +48,11 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
           buildRoleButtonForAppBar(context, widget.studentProfile),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : StudentAppDrawer(
+              studentProfile: widget.studentProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

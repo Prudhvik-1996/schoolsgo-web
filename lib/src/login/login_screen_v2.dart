@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/login/email_login_widget.dart';
 import 'package:schoolsgo_web/src/login/google_login_in_widget.dart';
 import 'package:schoolsgo_web/src/login/mobile_login_widget.dart';
@@ -15,7 +16,6 @@ import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class LoginScreenV2 extends StatefulWidget {
   const LoginScreenV2({Key? key}) : super(key: key);
@@ -246,7 +246,7 @@ class _LoginScreenV2State extends State<LoginScreenV2> {
           items: ["mobile", "unique Id", "email", "google"]
               .map((e) => DropdownMenuItem(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
                       child: Text(e.capitalize()),
                     ),
                     value: e,

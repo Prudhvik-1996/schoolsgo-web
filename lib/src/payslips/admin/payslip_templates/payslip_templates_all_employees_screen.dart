@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslip_templates/payslips_templates_screen.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class PayslipTemplatesAllEmployeeScreen extends StatefulWidget {
   const PayslipTemplatesAllEmployeeScreen({

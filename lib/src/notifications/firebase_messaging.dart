@@ -5,12 +5,15 @@ import 'package:firebase/firebase.dart' as firebase;
 
 class FBMessaging {
   FBMessaging._();
+
   static FBMessaging _instance = FBMessaging._();
+
   static FBMessaging get instance => _instance;
   late firebase.Messaging _mc;
   String? _token;
 
   final _controller = StreamController<Map<String, dynamic>>.broadcast();
+
   Stream<Map<String, dynamic>> get stream => _controller.stream;
 
   void close() {

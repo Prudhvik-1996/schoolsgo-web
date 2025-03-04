@@ -73,50 +73,50 @@ class _SubjectsReorderScreenState extends State<SubjectsReorderScreen> {
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ReorderableListView(
-        buildDefaultDragHandles: false,
-        onReorder: (int oldIndex, int newIndex) {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
-          Subject reorderedSubject = subjectsList.removeAt(oldIndex);
-          setState(() {
-            subjectsList.insert(newIndex, reorderedSubject);
-            for (int index = 0; index < subjectsList.length; index++) {
-              subjectsList[index].seqOrder = index + 1;
-            }
-          });
-        },
-        children: [
-          for (int index = 0; index < subjectsList.length; index++)
-            ReorderableDragStartListener(
-              key: ValueKey(subjectsList[index].subjectId),
-              index: index,
-              child: Padding(
-                padding: MediaQuery.of(context).orientation == Orientation.landscape
-                    ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 8, MediaQuery.of(context).size.width / 4, 8)
-                    : const EdgeInsets.all(8),
-                child: ClayButton(
-                  surfaceColor: clayContainerColor(context),
-                  parentColor: clayContainerColor(context),
-                  borderRadius: 10,
-                  spread: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Text("${index + 1}."),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(subjectsList[index].subjectName ?? " "),
+              buildDefaultDragHandles: false,
+              onReorder: (int oldIndex, int newIndex) {
+                if (newIndex > oldIndex) {
+                  newIndex -= 1;
+                }
+                Subject reorderedSubject = subjectsList.removeAt(oldIndex);
+                setState(() {
+                  subjectsList.insert(newIndex, reorderedSubject);
+                  for (int index = 0; index < subjectsList.length; index++) {
+                    subjectsList[index].seqOrder = index + 1;
+                  }
+                });
+              },
+              children: [
+                for (int index = 0; index < subjectsList.length; index++)
+                  ReorderableDragStartListener(
+                    key: ValueKey(subjectsList[index].subjectId),
+                    index: index,
+                    child: Padding(
+                      padding: MediaQuery.of(context).orientation == Orientation.landscape
+                          ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 4, 8, MediaQuery.of(context).size.width / 4, 8)
+                          : const EdgeInsets.all(8),
+                      child: ClayButton(
+                        surfaceColor: clayContainerColor(context),
+                        parentColor: clayContainerColor(context),
+                        borderRadius: 10,
+                        spread: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Text("${index + 1}."),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(subjectsList[index].subjectName ?? " "),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }

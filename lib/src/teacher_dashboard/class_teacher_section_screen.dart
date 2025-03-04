@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/stats/fees/due_reports_screen.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_exams_options_screen.dart';
@@ -132,11 +133,13 @@ class _ClassTeacherSectionScreenState extends State<ClassTeacherSectionScreen> {
       appBar: AppBar(
         elevation: 0,
       ),
-      drawer: widget.adminProfile != null
-          ? AdminAppDrawer(adminProfile: widget.adminProfile!)
-          : widget.teacherProfile != null
-              ? TeacherAppDrawer(teacherProfile: widget.teacherProfile!)
-              : null,
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : widget.teacherProfile != null
+                  ? TeacherAppDrawer(teacherProfile: widget.teacherProfile!)
+                  : null,
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

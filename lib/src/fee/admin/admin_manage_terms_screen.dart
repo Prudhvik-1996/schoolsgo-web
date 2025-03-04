@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_section_wise_term_fee_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminManageTermsScreen extends StatefulWidget {
   const AdminManageTermsScreen({
@@ -67,9 +68,11 @@ class _AdminManageTermsScreenState extends State<AdminManageTermsScreen> {
       appBar: AppBar(
         title: const Text("Terms Management"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

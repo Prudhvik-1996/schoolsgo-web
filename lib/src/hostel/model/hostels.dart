@@ -73,6 +73,7 @@ class StudentBedInfo {
   }) {
     bedInfoTextEditor.text = bedInfo ?? "";
   }
+
   StudentBedInfo.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     bedInfo = json['bedInfo']?.toString();
@@ -84,6 +85,7 @@ class StudentBedInfo {
     studentId = json['studentId']?.toInt();
     wardenId = json['wardenId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['bedInfo'] = bedInfo;
@@ -95,6 +97,7 @@ class StudentBedInfo {
     data['wardenId'] = wardenId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -142,6 +145,7 @@ class HostelRoom {
     this.studentBedInfoList,
     this.wardenId,
   });
+
   HostelRoom.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     comment = json['comment']?.toString();
@@ -160,6 +164,7 @@ class HostelRoom {
     }
     wardenId = json['wardenId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['comment'] = comment;
@@ -179,6 +184,7 @@ class HostelRoom {
     data['wardenId'] = wardenId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -231,6 +237,7 @@ class Hostel {
     this.rooms,
     this.status,
   });
+
   Hostel.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     comment = json['comment']?.toString();
@@ -247,6 +254,7 @@ class Hostel {
     }
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['comment'] = comment;
@@ -264,6 +272,7 @@ class Hostel {
     data['status'] = status;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -322,6 +331,7 @@ class GetHostelsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetHostelsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -337,6 +347,7 @@ class GetHostelsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -353,6 +364,7 @@ class GetHostelsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

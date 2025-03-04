@@ -1,7 +1,9 @@
 import 'package:clay_containers/widgets/clay_container.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/manage_fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
@@ -12,10 +14,9 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
-import 'package:collection/collection.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class FAExamsScreen extends StatefulWidget {
   const FAExamsScreen({
@@ -401,8 +402,11 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
                   ),
               ],
       ),
-      drawer:
-          widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

@@ -1,5 +1,4 @@
 class ModuleAction {
-
   String? action;
   String? guidedView;
   String? stepByStepGuide;
@@ -11,12 +10,14 @@ class ModuleAction {
     this.stepByStepGuide,
     this.defaultToStepByStep,
   });
+
   ModuleAction.fromJson(Map<String, dynamic> json) {
     action = json['action']?.toString();
     guidedView = json['guidedView']?.toString();
     stepByStepGuide = json['stepByStepGuide']?.toString();
     defaultToStepByStep = json['defaultToStepByStep'];
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['action'] = action;
@@ -28,7 +29,6 @@ class ModuleAction {
 }
 
 class SubModule {
-
   String? subModule;
   List<ModuleAction?>? actions;
 
@@ -36,6 +36,7 @@ class SubModule {
     this.subModule,
     this.actions,
   });
+
   SubModule.fromJson(Map<String, dynamic> json) {
     subModule = json['subModule']?.toString();
     if (json['actions'] != null) {
@@ -47,6 +48,7 @@ class SubModule {
       actions = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['subModule'] = subModule;
@@ -63,7 +65,6 @@ class SubModule {
 }
 
 class DemoModule {
-
   String? module;
   String? imageAsset;
   List<SubModule?>? subModules;
@@ -73,6 +74,7 @@ class DemoModule {
     this.imageAsset,
     this.subModules,
   });
+
   DemoModule.fromJson(Map<String, dynamic> json) {
     module = json['module']?.toString();
     imageAsset = json['imageAsset']?.toString();
@@ -85,6 +87,7 @@ class DemoModule {
       subModules = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['module'] = module;
@@ -102,12 +105,12 @@ class DemoModule {
 }
 
 class DemoObject {
-
   List<DemoModule?>? modules;
 
   DemoObject({
     this.modules,
   });
+
   DemoObject.fromJson(Map<String, dynamic> json) {
     if (json['modules'] != null) {
       final v = json['modules'];
@@ -118,6 +121,7 @@ class DemoObject {
       modules = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (modules != null) {

@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/widgets/clay_container.dart';
-
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -12,6 +11,7 @@ import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/list_utils.dart';
 
@@ -109,9 +109,11 @@ class _AdminStopWiseStudentAssignmentScreenV2State extends State<AdminStopWiseSt
           )
         ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

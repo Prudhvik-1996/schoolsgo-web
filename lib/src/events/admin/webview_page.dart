@@ -22,6 +22,7 @@ class _WebViewXPageState extends State<WebViewXPage> {
       '(read the documentation to find out why).';
 
   bool _isLoading = true;
+
   Size get screenSize => MediaQuery.of(context).size;
 
   @override

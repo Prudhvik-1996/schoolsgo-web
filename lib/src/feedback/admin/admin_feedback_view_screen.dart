@@ -6,15 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/feedback/model/admin_feedback.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminFeedbackViewScreen extends StatefulWidget {
   const AdminFeedbackViewScreen({Key? key, required this.adminProfile}) : super(key: key);
@@ -125,7 +126,7 @@ class _AdminFeedbackViewScreenState extends State<AdminFeedbackViewScreen> {
           ),
         ],
       ),
-      drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : AdminAppDrawer(adminProfile: widget.adminProfile),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

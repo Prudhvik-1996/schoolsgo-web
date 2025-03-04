@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.da
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/events_finishing_today.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/local_clean_calender/flutter_clean_calendar.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
@@ -18,7 +19,6 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class PlannerViewForAllTdsScreen extends StatefulWidget {
   const PlannerViewForAllTdsScreen({
@@ -398,12 +398,14 @@ class _PlannerViewForAllTdsScreenState extends State<PlannerViewForAllTdsScreen>
       height: 60,
       width: 60,
       child: DropdownSearch<Teacher>(
-        clearButton: widget.adminProfile != null ? IconButton(
-          onPressed: () {
-            setState(() => _selectedTeacher = null);
-          },
-          icon: const Icon(Icons.clear),
-        ) : Container(),
+        clearButton: widget.adminProfile != null
+            ? IconButton(
+                onPressed: () {
+                  setState(() => _selectedTeacher = null);
+                },
+                icon: const Icon(Icons.clear),
+              )
+            : Container(),
         enabled: widget.adminProfile != null,
         mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
         selectedItem: _selectedTeacher,

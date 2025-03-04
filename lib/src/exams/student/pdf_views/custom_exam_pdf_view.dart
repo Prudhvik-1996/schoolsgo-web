@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
+import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 
 class CustomExamPdfView extends StatefulWidget {
   const CustomExamPdfView({
@@ -27,7 +27,6 @@ class CustomExamPdfView extends StatefulWidget {
 }
 
 class _CustomExamPdfViewState extends State<CustomExamPdfView> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,7 +169,7 @@ class _CustomExamPdfViewState extends State<CustomExamPdfView> {
         const SizedBox(width: 15),
         Expanded(
           child: Text(
-            "${((widget.customExam.examSectionSubjectMapList ?? []).map((e) => e?.studentExamMarksList ?? [])).expand((i) => i).map((e) => e?.marksObtained ?? 0).fold<double>(0.0, (double a, double b) => a + b)} / ${(widget.customExam.examSectionSubjectMapList??[]).map((e) => e?.maxMarks ?? 0).fold<double>(0.0, (double a, double b) => a + b)}",
+            "${((widget.customExam.examSectionSubjectMapList ?? []).map((e) => e?.studentExamMarksList ?? [])).expand((i) => i).map((e) => e?.marksObtained ?? 0).fold<double>(0.0, (double a, double b) => a + b)} / ${(widget.customExam.examSectionSubjectMapList ?? []).map((e) => e?.maxMarks ?? 0).fold<double>(0.0, (double a, double b) => a + b)}",
             style: const TextStyle(color: Colors.black),
           ),
         ),
@@ -242,44 +241,43 @@ class _CustomExamPdfViewState extends State<CustomExamPdfView> {
           color: Colors.grey,
         ),
         ...[
-          for (ExamSectionSubjectMap eachExamSectionSubjectMap in (widget.customExam.examSectionSubjectMapList ?? []).map((e) => e!))
-            ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Expanded(
-                    flex: 3,
+          for (ExamSectionSubjectMap eachExamSectionSubjectMap in (widget.customExam.examSectionSubjectMapList ?? []).map((e) => e!)) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    widget.subjects.where((e) => e.subjectId == eachExamSectionSubjectMap.subjectId).firstOrNull?.subjectName ?? "-",
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Center(
                     child: Text(
-                      widget.subjects.where((e) => e.subjectId == eachExamSectionSubjectMap.subjectId).firstOrNull?.subjectName ?? "-",
+                      "${eachExamSectionSubjectMap.maxMarks ?? " - "}",
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: Center(
-                      child: Text(
-                        "${eachExamSectionSubjectMap.maxMarks ?? " - "}",
-                        style: const TextStyle(color: Colors.black),
-                      ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Text(
+                      "${(eachExamSectionSubjectMap.studentExamMarksList ?? []).where((e) => e?.studentId == widget.studentProfile.studentId).firstOrNull?.marksObtained ?? " - "}",
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: Center(
-                      child: Text(
-                        "${(eachExamSectionSubjectMap.studentExamMarksList??[]).where((e) => e?.studentId == widget.studentProfile.studentId).firstOrNull?.marksObtained ?? " - "}",
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(
-                color: Colors.grey,
-              ),
-            ]
+                ),
+              ],
+            ),
+            const Divider(
+              color: Colors.grey,
+            ),
+          ]
         ],
       ],
     );

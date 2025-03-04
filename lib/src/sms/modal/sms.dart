@@ -20,22 +20,24 @@ class GetSchoolWiseSmsCounterRequest {
     this.franchiseId,
     this.schoolId,
   });
+
   GetSchoolWiseSmsCounterRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['franchiseId'] = franchiseId;
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class SmsCounterLogBean {
-
   int? id;
   int? franchiseId;
   int? schoolId;
@@ -56,6 +58,7 @@ class SmsCounterLogBean {
     this.agent,
     this.createTime,
   });
+
   SmsCounterLogBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     id = json['id']?.toInt();
@@ -67,6 +70,7 @@ class SmsCounterLogBean {
     agent = json['agent']?.toInt();
     createTime = json['createTime']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['id'] = id;
@@ -79,11 +83,11 @@ class SmsCounterLogBean {
     data['createTime'] = createTime;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetSchoolWiseSmsCounterResponse {
-
   String? responseStatus;
   String? httpStatus;
   int? schoolWiseCount;
@@ -96,6 +100,7 @@ class GetSchoolWiseSmsCounterResponse {
     this.schoolWiseCount,
     this.smsCounterLogList,
   });
+
   GetSchoolWiseSmsCounterResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     responseStatus = json['responseStatus']?.toString();
@@ -110,6 +115,7 @@ class GetSchoolWiseSmsCounterResponse {
       smsCounterLogList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['responseStatus'] = responseStatus;
@@ -125,6 +131,7 @@ class GetSchoolWiseSmsCounterResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -143,7 +150,6 @@ Future<GetSchoolWiseSmsCounterResponse> getSchoolWiseSmsCounter(GetSchoolWiseSms
 }
 
 class GetSmsCategoriesRequest {
-
   int? categoryId;
   int? franchiseId;
   int? schoolId;
@@ -154,12 +160,14 @@ class GetSmsCategoriesRequest {
     this.franchiseId,
     this.schoolId,
   });
+
   GetSmsCategoriesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     categoryId = json['categoryId']?.toInt();
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['categoryId'] = categoryId;
@@ -167,6 +175,7 @@ class GetSmsCategoriesRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -204,6 +213,7 @@ class SmsCategoryBean {
     this.status,
     this.subCategory,
   });
+
   SmsCategoryBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -215,6 +225,7 @@ class SmsCategoryBean {
     status = json['status']?.toString();
     subCategory = json['subCategory']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -227,11 +238,11 @@ class SmsCategoryBean {
     data['subCategory'] = subCategory;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetSmsCategoriesResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -246,6 +257,7 @@ class GetSmsCategoriesResponse {
     this.responseStatus,
     this.smsCategoryList,
   });
+
   GetSmsCategoriesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -261,6 +273,7 @@ class GetSmsCategoriesResponse {
       smsCategoryList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -277,6 +290,7 @@ class GetSmsCategoriesResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -295,7 +309,6 @@ Future<GetSmsCategoriesResponse> getSmsCategories(GetSmsCategoriesRequest getSms
 }
 
 class GetSmsConfigRequest {
-
   int? categoryId;
   int? franchiseId;
   int? schoolId;
@@ -306,12 +319,14 @@ class GetSmsConfigRequest {
     this.franchiseId,
     this.schoolId,
   });
+
   GetSmsConfigRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     categoryId = json['categoryId']?.toInt();
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['categoryId'] = categoryId;
@@ -319,11 +334,11 @@ class GetSmsConfigRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class SmsConfigBean {
-
   int? agent;
   bool? automatic;
   int? categoryId;
@@ -340,6 +355,7 @@ class SmsConfigBean {
     this.schoolId,
     this.status,
   });
+
   SmsConfigBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -349,6 +365,7 @@ class SmsConfigBean {
     schoolId = json['schoolId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -359,11 +376,11 @@ class SmsConfigBean {
     data['status'] = status;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetSmsConfigResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -378,6 +395,7 @@ class GetSmsConfigResponse {
     this.responseStatus,
     this.smsConfigBeans,
   });
+
   GetSmsConfigResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -393,6 +411,7 @@ class GetSmsConfigResponse {
       smsConfigBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -409,6 +428,7 @@ class GetSmsConfigResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -427,7 +447,6 @@ Future<GetSmsConfigResponse> getSmsConfig(GetSmsConfigRequest getSmsConfigReques
 }
 
 class UpdateSmsConfigRequest {
-
   int? agent;
   bool? automatic;
   int? categoryId;
@@ -444,6 +463,7 @@ class UpdateSmsConfigRequest {
     this.franchiseId,
     this.schoolId,
   });
+
   UpdateSmsConfigRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -453,6 +473,7 @@ class UpdateSmsConfigRequest {
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -463,11 +484,11 @@ class UpdateSmsConfigRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class UpdateSmsConfigResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -480,6 +501,7 @@ class UpdateSmsConfigResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   UpdateSmsConfigResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -487,6 +509,7 @@ class UpdateSmsConfigResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -495,6 +518,7 @@ class UpdateSmsConfigResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -513,7 +537,6 @@ Future<UpdateSmsConfigResponse> updateSmsConfig(UpdateSmsConfigRequest updateSms
 }
 
 class GetSmsLogsRequest {
-
   int? categoryId;
   int? franchiseId;
   String? fromDate;
@@ -532,6 +555,7 @@ class GetSmsLogsRequest {
     this.templateWiseLogId,
     this.toDate,
   });
+
   GetSmsLogsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     categoryId = json['categoryId']?.toInt();
@@ -542,6 +566,7 @@ class GetSmsLogsRequest {
     templateWiseLogId = json['templateWiseLogId']?.toInt();
     toDate = json['toDate']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['categoryId'] = categoryId;
@@ -553,11 +578,11 @@ class GetSmsLogsRequest {
     data['toDate'] = toDate;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class SmsLogBean {
-
   int? agent;
   String? createTime;
   String? failureReason;
@@ -582,6 +607,7 @@ class SmsLogBean {
     this.studentId,
     this.userId,
   });
+
   SmsLogBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -595,6 +621,7 @@ class SmsLogBean {
     studentId = json['studentId']?.toInt();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -609,11 +636,11 @@ class SmsLogBean {
     data['userId'] = userId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetSmsLogsResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -628,6 +655,7 @@ class GetSmsLogsResponse {
     this.responseStatus,
     this.smsLogBeans,
   });
+
   GetSmsLogsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -643,6 +671,7 @@ class GetSmsLogsResponse {
       smsLogBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -659,6 +688,7 @@ class GetSmsLogsResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -677,7 +707,6 @@ Future<GetSmsLogsResponse> getSmsLogs(GetSmsLogsRequest getSmsLogsRequest) async
 }
 
 class GetSmsTemplatesRequest {
-
   int? categoryId;
   int? franchiseId;
   int? schoolId;
@@ -690,6 +719,7 @@ class GetSmsTemplatesRequest {
     this.schoolId,
     this.templateId,
   });
+
   GetSmsTemplatesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     categoryId = json['categoryId']?.toInt();
@@ -697,6 +727,7 @@ class GetSmsTemplatesRequest {
     schoolId = json['schoolId']?.toInt();
     templateId = json['templateId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['categoryId'] = categoryId;
@@ -705,11 +736,11 @@ class GetSmsTemplatesRequest {
     data['templateId'] = templateId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class SmsTemplateBean {
-
   int? agent;
   int? categoryId;
   bool? isDefault;
@@ -740,6 +771,7 @@ class SmsTemplateBean {
     this.textLocalTemplateName,
     this.variablesList,
   });
+
   SmsTemplateBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -756,6 +788,7 @@ class SmsTemplateBean {
     textLocalTemplateName = json['textLocalTemplateName']?.toString();
     variablesList = json['variablesList']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -773,11 +806,11 @@ class SmsTemplateBean {
     data['variablesList'] = variablesList;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetSmsTemplatesResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -792,6 +825,7 @@ class GetSmsTemplatesResponse {
     this.responseStatus,
     this.smsTemplateBeans,
   });
+
   GetSmsTemplatesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -807,6 +841,7 @@ class GetSmsTemplatesResponse {
       smsTemplateBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -823,6 +858,7 @@ class GetSmsTemplatesResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -841,7 +877,6 @@ Future<GetSmsTemplatesResponse> getSmsTemplates(GetSmsTemplatesRequest getSmsTem
 }
 
 class GetSmsTemplateWiseLogRequest {
-
   int? categoryId;
   int? franchiseId;
   String? fromDate;
@@ -858,6 +893,7 @@ class GetSmsTemplateWiseLogRequest {
     this.templateId,
     this.toDate,
   });
+
   GetSmsTemplateWiseLogRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     categoryId = json['categoryId']?.toInt();
@@ -867,6 +903,7 @@ class GetSmsTemplateWiseLogRequest {
     templateId = json['templateId']?.toInt();
     toDate = json['toDate']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['categoryId'] = categoryId;
@@ -877,11 +914,11 @@ class GetSmsTemplateWiseLogRequest {
     data['toDate'] = toDate;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class SmsTemplateWiseLogBean {
-
   int? agent;
   int? categoryId;
   String? createTime;
@@ -906,6 +943,7 @@ class SmsTemplateWiseLogBean {
     this.templateId,
     this.templateWiseLogId,
   });
+
   SmsTemplateWiseLogBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -919,6 +957,7 @@ class SmsTemplateWiseLogBean {
     templateId = json['templateId']?.toInt();
     templateWiseLogId = json['templateWiseLogId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -933,11 +972,11 @@ class SmsTemplateWiseLogBean {
     data['templateWiseLogId'] = templateWiseLogId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetSmsTemplateWiseLogResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -952,6 +991,7 @@ class GetSmsTemplateWiseLogResponse {
     this.responseStatus,
     this.smsTemplateWiseLogBeans,
   });
+
   GetSmsTemplateWiseLogResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -967,6 +1007,7 @@ class GetSmsTemplateWiseLogResponse {
       smsTemplateWiseLogBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -983,6 +1024,7 @@ class GetSmsTemplateWiseLogResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -1001,7 +1043,6 @@ Future<GetSmsTemplateWiseLogResponse> getSmsTemplateWiseLog(GetSmsTemplateWiseLo
 }
 
 class SendSmsRequest {
-
   int? agent;
   int? categoryId;
   int? franchiseId;
@@ -1020,6 +1061,7 @@ class SendSmsRequest {
     this.smsLogBeans,
     this.templateId,
   });
+
   SendSmsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1037,6 +1079,7 @@ class SendSmsRequest {
     }
     templateId = json['templateId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1055,11 +1098,11 @@ class SendSmsRequest {
     data['templateId'] = templateId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class SendSmsResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -1074,6 +1117,7 @@ class SendSmsResponse {
     this.responseStatus,
     this.smsLogBeans,
   });
+
   SendSmsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1089,6 +1133,7 @@ class SendSmsResponse {
       smsLogBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1105,6 +1150,7 @@ class SendSmsResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

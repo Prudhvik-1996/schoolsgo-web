@@ -4,13 +4,14 @@ import 'dart:ui' as ui;
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import '../model/notice_board.dart';
 
@@ -315,9 +316,11 @@ class _StudentNoticeBoardViewState extends State<StudentNoticeBoardView> {
           buildRoleButtonForAppBar(context, widget.studentProfile),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : StudentAppDrawer(
+              studentProfile: widget.studentProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ScrollablePositionedList.builder(

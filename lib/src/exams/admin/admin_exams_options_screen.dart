@@ -7,10 +7,9 @@ import 'package:schoolsgo_web/src/exams/admin/exams_v2/exams_v2_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/generate_memos/generate_memos_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/grading_algorithms/admin_grading_algorithms_screen.dart';
 import 'package:schoolsgo_web/src/exams/admin/stats/exam_stats_options_screen.dart';
-import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
-import 'package:schoolsgo_web/src/exams/fa_exams/fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exams_tds_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminExamOptionsScreen extends StatefulWidget {
@@ -109,9 +108,11 @@ class _AdminExamOptionsScreenState extends State<AdminExamOptionsScreen> {
       appBar: AppBar(
         title: const Text("Exams"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

@@ -15,6 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_controller.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class SettingsView extends StatefulWidget {
   const SettingsView({
     Key? key,
@@ -76,10 +78,10 @@ class _SettingsViewState extends State<SettingsView> {
                 _buildThemeDropdown(),
                 const Divider(),
                 _buildTextThemeDropdown(),
-                const Divider(),
-                _buildNotificationToggle(),
-                const Divider(),
-                _buildAppDrawerToggle(),
+                if (loggedInUserId != null) const Divider(),
+                if (loggedInUserId != null) _buildNotificationToggle(),
+                if (loggedInUserId != null) const Divider(),
+                if (loggedInUserId != null) _buildAppDrawerToggle(),
                 if (widget.adminProfile != null) const Divider(),
                 if (widget.adminProfile != null) showResetFourDigitPinOption(),
                 if (loggedInUserId != null) const Divider(),
@@ -246,17 +248,17 @@ class _SettingsViewState extends State<SettingsView> {
   // Builds the notification toggle
   Widget _buildAppDrawerToggle() {
     return ListTile(
-      leading: fcmToken == null ? const Icon(Icons.notifications) : const Icon(Icons.notifications_active),
+      leading: isAppDrawerEnabled ? const Icon(Icons.menu) : const Icon(Icons.menu_open_outlined),
       title: const Text("App Drawer"),
       trailing: Switch(
         onChanged: (bool enableAppDrawer) async {
           setState(() => _isLoading = true);
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setBool('IS_APP_DRAWER_ENABLED', enableAppDrawer);
+          await AppDrawerHelper.instance.updateAppDrawerState(enableAppDrawer);
+          isAppDrawerEnabled = enableAppDrawer;
           await _loadData();
           setState(() => _isLoading = false);
         },
-        value: fcmToken != null,
+        value: isAppDrawerEnabled,
       ),
     );
   }

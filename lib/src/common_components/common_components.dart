@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/settings/settings_view.dart';
 import 'package:schoolsgo_web/src/student_dashboard/student_dashboard.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/teacher_dashboard.dart';
@@ -495,7 +496,7 @@ class TeacherAppDrawer extends Drawer {
   }
 }
 
-class AdminAppDrawer extends Drawer {
+class AdminAppDrawer extends StatelessWidget {
   const AdminAppDrawer({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;

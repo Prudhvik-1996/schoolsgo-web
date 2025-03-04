@@ -1,16 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 
-enum TransactionType {
-  FEE,
-  ADMIN_EXPENSE,
-  SALARIES,
-  INVENTORY,
-  HOSTEL_INVENTORY,
-  STUDENT_POCKET_MONEY,
-  LOAD_EXPENSE_POCKET,
-  DEBIT_EXPENSE_POCKET
-}
+enum TransactionType { FEE, ADMIN_EXPENSE, SALARIES, INVENTORY, HOSTEL_INVENTORY, STUDENT_POCKET_MONEY, LOAD_EXPENSE_POCKET, DEBIT_EXPENSE_POCKET }
 
 extension TransactionTypeExt on TransactionType {
   String toShortString() {

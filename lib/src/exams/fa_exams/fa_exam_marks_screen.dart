@@ -19,6 +19,8 @@ import 'package:table_sticky_headers/table_sticky_headers.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class FAExamMarksScreen extends StatefulWidget {
   const FAExamMarksScreen({
     super.key,

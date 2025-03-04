@@ -16,6 +16,7 @@ import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
@@ -888,11 +889,13 @@ class _DiaryEditScreenState extends State<DiaryEditScreen> {
           if (!_isLoading) goToStudentRemarksButton(context)
         ],
       ),
-      drawer: widget.teacherProfile == null
-          ? AdminAppDrawer(adminProfile: widget.adminProfile!)
-          : TeacherAppDrawer(
-              teacherProfile: widget.teacherProfile!,
-            ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.teacherProfile == null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : TeacherAppDrawer(
+                  teacherProfile: widget.teacherProfile!,
+                ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

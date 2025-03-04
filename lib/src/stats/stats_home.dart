@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/stats/admin_expenses/admin_expenses_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/attendance/student_attendance_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/diary/diary_report_screen.dart';
-import 'package:schoolsgo_web/src/stats/fees/detailed_fees_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/fees/fee_reports_options_screen.dart';
 import 'package:schoolsgo_web/src/stats/ledger/ledger_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/student_time_table/student_time_table_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/suggestion_box/suggestion_box_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/teacher_logbook/teacher_logbook_report_screen.dart';
 import 'package:schoolsgo_web/src/stats/under_development_screen.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StatsHome extends StatefulWidget {
   const StatsHome({
@@ -67,9 +67,11 @@ class _StatsHomeState extends State<StatsHome> {
           buildRoleButtonForAppBar(context, widget.adminProfile),
         ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

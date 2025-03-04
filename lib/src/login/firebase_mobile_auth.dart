@@ -17,8 +17,6 @@ class FirebaseAuthentication {
 
   authenticateMe(ConfirmationResult confirmationResult, String otp) async {
     UserCredential userCredential = await confirmationResult.confirm(otp);
-    userCredential.additionalUserInfo!.isNewUser
-        ? debugPrint("Successful Authentication")
-        : debugPrint("User already exists");
+    userCredential.additionalUserInfo!.isNewUser ? debugPrint("Successful Authentication") : debugPrint("User already exists");
   }
 }

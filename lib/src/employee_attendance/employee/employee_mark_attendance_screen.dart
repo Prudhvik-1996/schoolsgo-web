@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/employee_attendance/admin/employee_attendance_utils.dart';
@@ -11,7 +12,6 @@ import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class EmployeeMarkAttendanceScreen extends StatefulWidget {
   const EmployeeMarkAttendanceScreen({
@@ -146,8 +146,9 @@ class _EmployeeMarkAttendanceScreenState extends State<EmployeeMarkAttendanceScr
         status: "active",
         attendanceId: null,
         clockedIn: (employeeAttendanceBeanList.firstOrNull?.dateWiseEmployeeAttendanceBeanList ?? [])
-            .firstWhereOrNull((e) => e?.date == convertDateTimeToYYYYMMDDFormat(DateTime.now()))
-            ?.isNextClockIn() ?? true,
+                .firstWhereOrNull((e) => e?.date == convertDateTimeToYYYYMMDDFormat(DateTime.now()))
+                ?.isNextClockIn() ??
+            true,
         clockedTime: DateTime.now().millisecondsSinceEpoch,
         comment: null,
         employeeId: widget.employeeId,
@@ -186,15 +187,15 @@ class _EmployeeMarkAttendanceScreenState extends State<EmployeeMarkAttendanceScr
                 ),
               ],
       ),
-      body: _isLoading
-          ? const EpsilonDiaryLoadingWidget()
-          : dateWiseStatsTable(context),
-      floatingActionButton: _isLoading ? null : fab(
-        const Icon(Icons.qr_code_scanner),
-        "Scan",
-            () => goToScanQRScreen(),
-        color: Colors.blue,
-      ),
+      body: _isLoading ? const EpsilonDiaryLoadingWidget() : dateWiseStatsTable(context),
+      floatingActionButton: _isLoading
+          ? null
+          : fab(
+              const Icon(Icons.qr_code_scanner),
+              "Scan",
+              () => goToScanQRScreen(),
+              color: Colors.blue,
+            ),
     );
   }
 

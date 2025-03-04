@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/hostel/admin/views/hostel_room_compact_widget.dart';
 import 'package:schoolsgo_web/src/hostel/model/hostels.dart';
 import 'package:schoolsgo_web/src/model/employees.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class HostelRoomsScreen extends StatefulWidget {
   const HostelRoomsScreen({
@@ -62,7 +63,7 @@ class _HostelRoomsScreenState extends State<HostelRoomsScreen> {
           buildRoleButtonForAppBar(context, widget.adminProfile),
         ],
       ),
-      drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : AdminAppDrawer(adminProfile: widget.adminProfile),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : (widget.hostel.rooms ?? []).isEmpty

@@ -16,8 +16,7 @@ class ExpandableFab extends StatefulWidget {
   _ExpandableFabState createState() => _ExpandableFabState();
 }
 
-class _ExpandableFabState extends State<ExpandableFab>
-    with SingleTickerProviderStateMixin {
+class _ExpandableFabState extends State<ExpandableFab> with SingleTickerProviderStateMixin {
   bool isOpened = false;
   late AnimationController _animationController;
   late Animation<Color?> _buttonColor;
@@ -36,8 +35,7 @@ class _ExpandableFabState extends State<ExpandableFab>
           setState(() {});
         },
       );
-    _animateIcon =
-        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    _animateIcon = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
     _buttonColor = ColorTween(
       begin: Colors.blue,
       end: Colors.grey,
@@ -95,8 +93,7 @@ class _ExpandableFabState extends State<ExpandableFab>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.axis == null &&
-        MediaQuery.of(context).orientation == Orientation.landscape) {
+    if (widget.axis == null && MediaQuery.of(context).orientation == Orientation.landscape) {
       widget.axis = Axis.horizontal;
     }
     if (widget.axis == Axis.horizontal) {
@@ -110,8 +107,7 @@ class _ExpandableFabState extends State<ExpandableFab>
                     index,
                     Transform(
                       transform: Matrix4.translationValues(
-                        _translateButton.value *
-                            (widget.expandedWidgets.length - index),
+                        _translateButton.value * (widget.expandedWidgets.length - index),
                         0.0,
                         0.0,
                       ),
@@ -135,8 +131,7 @@ class _ExpandableFabState extends State<ExpandableFab>
                     Transform(
                       transform: Matrix4.translationValues(
                         0.0,
-                        _translateButton.value *
-                            (widget.expandedWidgets.length - index),
+                        _translateButton.value * (widget.expandedWidgets.length - index),
                         0.0,
                       ),
                       child: e,

@@ -21,6 +21,8 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class DueReceiptsScreen extends StatefulWidget {
   const DueReceiptsScreen({
     Key? key,
@@ -995,9 +997,11 @@ class _DueReceiptsScreenState extends State<DueReceiptsScreen> {
                     ),
                   ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _renderingReceiptText != null

@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/employee_attendance/admin/admin_employee_attendance_management_screen.dart';
 import 'package:schoolsgo_web/src/employee_attendance/employee/employee_mark_attendance_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 import 'admin_attendance_management_screen.dart';
 
@@ -88,9 +89,11 @@ class _AdminAttendanceOptionsScreenState extends State<AdminAttendanceOptionsScr
       appBar: AppBar(
         title: const Text("Attendance"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: Stack(
         children: <Widget>[
           ListView(

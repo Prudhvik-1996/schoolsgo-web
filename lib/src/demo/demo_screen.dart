@@ -11,6 +11,7 @@ import 'package:schoolsgo_web/src/demo/demo.dart';
 import 'package:schoolsgo_web/src/demo/demo_action_screen.dart';
 import 'package:schoolsgo_web/src/demo/demo_json.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class DemoScreen extends StatefulWidget {
   const DemoScreen({
@@ -58,11 +59,13 @@ class _DemoScreenState extends State<DemoScreen> {
             ),
         ],
       ),
-      drawer: widget.studentProfile != null
-          ? StudentAppDrawer(
-              studentProfile: widget.studentProfile!,
-            )
-          : null, // body: widget.demoFile == null
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.studentProfile != null
+              ? StudentAppDrawer(
+                  studentProfile: widget.studentProfile!,
+                )
+              : null, // body: widget.demoFile == null
       //     ? const Center(child: Text("We are coming soon.."))
       //     : PdfViewPinch(
       //         builders: PdfViewPinchBuilders<DefaultBuilderOptions>(

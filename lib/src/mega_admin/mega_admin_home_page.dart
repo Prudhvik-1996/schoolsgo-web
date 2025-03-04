@@ -18,6 +18,8 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class MegaAdminHomePage extends StatefulWidget {
   const MegaAdminHomePage({
     Key? key,
@@ -97,11 +99,13 @@ class _MegaAdminHomePageState extends State<MegaAdminHomePage> {
           ),
         ],
       ),
-      drawer: canGoToDashBoard
-          ? MegaAdminAppDrawer(
-              megaAdminProfile: widget.megaAdminProfile,
-            )
-          : const DefaultAppDrawer(),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : canGoToDashBoard
+              ? MegaAdminAppDrawer(
+                  megaAdminProfile: widget.megaAdminProfile,
+                )
+              : const DefaultAppDrawer(),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : canGoToDashBoard

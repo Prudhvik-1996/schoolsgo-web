@@ -8,11 +8,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:schoolsgo_web/src/bus/modal/bus_positions.dart';
 import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/map_widgets/map_widget.dart';
 import 'package:schoolsgo_web/src/common_components/map_widgets/modal/bus_lat_long.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class StudentBusScreen extends StatefulWidget {
   const StudentBusScreen({
@@ -160,9 +161,11 @@ class _StudentBusScreenState extends State<StudentBusScreen> {
             ),
           ],
         ),
-        drawer: StudentAppDrawer(
-          studentProfile: widget.studentProfile,
-        ),
+        drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+            ? null
+            : StudentAppDrawer(
+                studentProfile: widget.studentProfile,
+              ),
         body: _isLoading
             ? const EpsilonDiaryLoadingWidget()
             : busBaseDetails == null || busRouteInfo == null

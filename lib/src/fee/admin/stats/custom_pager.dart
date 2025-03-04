@@ -113,7 +113,7 @@ class CustomPagerState extends State<CustomPager> {
                   ),
                   IconButton(
                     onPressed: () => widget.controller.goToPreviousPage(),
-                    icon:  const FittedBox(fit: BoxFit.scaleDown, child: Icon(Icons.chevron_left_sharp)),
+                    icon: const FittedBox(fit: BoxFit.scaleDown, child: Icon(Icons.chevron_left_sharp)),
                   ),
                   SizedBox(
                     width: 50,
@@ -126,11 +126,11 @@ class CustomPagerState extends State<CustomPager> {
                   ),
                   IconButton(
                     onPressed: () => widget.controller.goToNextPage(),
-                    icon:  const FittedBox(fit: BoxFit.scaleDown, child: Icon(Icons.chevron_right_sharp)),
+                    icon: const FittedBox(fit: BoxFit.scaleDown, child: Icon(Icons.chevron_right_sharp)),
                   ),
                   IconButton(
                     onPressed: () => widget.controller.goToLastPage(),
-                    icon:  const FittedBox(fit: BoxFit.scaleDown, child: Icon(Icons.skip_next)),
+                    icon: const FittedBox(fit: BoxFit.scaleDown, child: Icon(Icons.skip_next)),
                   ),
                 ],
               ),

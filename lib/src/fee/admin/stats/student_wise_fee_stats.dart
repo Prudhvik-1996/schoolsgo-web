@@ -16,6 +16,9 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 import 'custom_pager.dart';
 import 'student_wise_fee_stats_data_source.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class StudentWiseFeeStats extends StatefulWidget {
   const StudentWiseFeeStats({
@@ -77,9 +80,11 @@ class _StudentWiseFeeStatsState extends State<StudentWiseFeeStats> {
         title: const Text("Student wise Fee Stats"),
         actions: _isLoading ? [] : [],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _showStats

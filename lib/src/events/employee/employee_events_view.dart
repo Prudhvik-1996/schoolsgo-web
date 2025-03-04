@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/events/model/events.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 
@@ -331,11 +332,13 @@ class _EmployeesEventsViewState extends State<EmployeesEventsView> {
         title: const Text("Events"),
         actions: [buildRoleButtonForAppBar(context, (widget.teacherProfile ?? widget.otherUserRoleProfile)!)],
       ),
-      drawer: widget.teacherProfile == null
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
           ? null
-          : TeacherAppDrawer(
-              teacherProfile: widget.teacherProfile!,
-            ),
+          : widget.teacherProfile == null
+              ? null
+              : TeacherAppDrawer(
+                  teacherProfile: widget.teacherProfile!,
+                ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : Container(

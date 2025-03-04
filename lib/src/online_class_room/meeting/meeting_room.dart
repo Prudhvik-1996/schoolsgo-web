@@ -30,8 +30,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
   final subjectText = TextEditingController(text: "");
   final nameText = TextEditingController(text: "");
   final emailText = TextEditingController(text: "");
-  final iosAppBarRGBAColor =
-      TextEditingController(text: "#0080FF80"); //transparent blue
+  final iosAppBarRGBAColor = TextEditingController(text: "#0080FF80"); //transparent blue
   bool? isAudioOnly = false;
   bool? isAudioMuted = true;
   bool? isVideoMuted = true;
@@ -213,9 +212,7 @@ class _MeetingRoomState extends State<MeetingRoom> {
                 "Join Meeting",
                 style: TextStyle(color: Colors.white),
               ),
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateColor.resolveWith((states) => Colors.blue)),
+              style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blue)),
             ),
           ),
           const SizedBox(

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/constants/colors.dart';
-import './date_utils.dart';
-import './clean_calendar_event.dart';
 import "package:intl/intl.dart";
+import 'package:schoolsgo_web/src/constants/colors.dart';
+
+import './clean_calendar_event.dart';
+import './date_utils.dart';
 
 /// [CalendarTile] is responsible for displaying one calendar event entry below
 /// the week view or the month view. The events are displayed in a list of [CalendarTile].
@@ -113,8 +114,7 @@ class CalendarTile extends StatelessWidget {
                               ? todayColor
                               : inMonth
                                   ? clayContainerTextColor(context)
-                                  : Colors
-                                      .grey), // Grey color for previous or next months dates
+                                  : Colors.grey), // Grey color for previous or next months dates
                 ),
                 // Dots for the events
                 events != null && events!.length > 0
@@ -125,8 +125,7 @@ class CalendarTile extends StatelessWidget {
                           // Show a maximum of 3 dots.
                           if (eventCount > 3) return Container();
                           return Container(
-                            margin: EdgeInsets.only(
-                                left: 2.0, right: 2.0, top: 1.0),
+                            margin: EdgeInsets.only(left: 2.0, right: 2.0, top: 1.0),
                             width: 5.0,
                             height: 5.0,
                             decoration: BoxDecoration(
@@ -138,12 +137,9 @@ class CalendarTile extends StatelessWidget {
                                 // color property of the CleanCalendarEvent. If both aren't set, then
                                 // the accent color of the theme get used.
                                 color: (() {
-                                  if (event.isApproved)
-                                    return eventDoneColor ??
-                                        Theme.of(context).primaryColor;
+                                  if (event.isApproved) return eventDoneColor ?? Theme.of(context).primaryColor;
                                   if (isSelected) return Colors.white;
-                                  return eventColor ??
-                                      Theme.of(context).accentColor;
+                                  return eventColor ?? Theme.of(context).accentColor;
                                 }())),
                           );
                         }).toList())

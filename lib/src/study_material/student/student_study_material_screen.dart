@@ -17,6 +17,8 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class StudentStudyMaterialScreen extends StatefulWidget {
   const StudentStudyMaterialScreen({
     Key? key,

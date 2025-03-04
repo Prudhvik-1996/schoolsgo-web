@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
-import 'package:schoolsgo_web/src/common_components/dashboard_widgets.dart';
 import 'package:schoolsgo_web/src/common_components/demo_widgets.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/demo/demo_screen.dart';
@@ -21,7 +20,6 @@ class StudentDemoScreen extends StatefulWidget {
 }
 
 class _StudentDemoScreenState extends State<StudentDemoScreen> {
-
   late List<DemoWidget<StudentProfile>> demoWidgets;
 
   @override
@@ -102,13 +100,13 @@ class _StudentDemoScreenState extends State<StudentDemoScreen> {
                           ),
                         ),
                         if (e.description != null)
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Center(
-                            child: Text("${e.description}"),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Center(
+                              child: Text("${e.description}"),
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),

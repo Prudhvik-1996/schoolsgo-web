@@ -41,19 +41,19 @@ Future<AttendanceType> getAttendanceTypeFromAlertDialogue(BuildContext context) 
               mainAxisSize: MainAxisSize.min,
               children: [
                 ...AttendanceType.values.map((e) => RadioListTile(
-                  title: e == AttendanceType.WITH
-                      ? const Text("With Actual Attendance Report")
-                      : e == AttendanceType.BLANK
-                      ? const Text("With Empty Attendance Report")
-                      : const Text("With No Attendance Report"),
-                  selected: attendanceType == e,
-                  value: e,
-                  onChanged: (AttendanceType? value) {
-                    if (value == null) return;
-                    setState(() => attendanceType = value);
-                  },
-                  groupValue: attendanceType,
-                )),
+                      title: e == AttendanceType.WITH
+                          ? const Text("With Actual Attendance Report")
+                          : e == AttendanceType.BLANK
+                              ? const Text("With Empty Attendance Report")
+                              : const Text("With No Attendance Report"),
+                      selected: attendanceType == e,
+                      value: e,
+                      onChanged: (AttendanceType? value) {
+                        if (value == null) return;
+                        setState(() => attendanceType = value);
+                      },
+                      groupValue: attendanceType,
+                    )),
               ],
             );
           },

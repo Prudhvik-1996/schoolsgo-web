@@ -1,19 +1,12 @@
-import 'package:clay_containers/widgets/clay_container.dart';
-import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/installment_plan_widgets.dart';
-
-// Your custom imports
-import 'package:schoolsgo_web/src/admin_expenses/admin/installment_progress_bar.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/utils/date_utils.dart';
-import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
 class AdminInstallmentsPlanScreen extends StatefulWidget {
   const AdminInstallmentsPlanScreen({

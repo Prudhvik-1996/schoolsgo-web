@@ -79,8 +79,11 @@ Widget getRoleWidget(role) {
 }
 
 bool isAppliedForAdmin(CircularBean circular) => ['A', 'C', 'D', 'E', 'I', 'J', 'K', 'O'].contains(circular.circularType);
+
 bool isAppliedForTeacher(CircularBean circular) => ['A', 'B', 'D', 'E', 'G', 'H', 'K', 'N'].contains(circular.circularType);
+
 bool isAppliedForNonTeachingStaff(CircularBean circular) => ['A', 'B', 'C', 'E', 'F', 'H', 'J', 'M'].contains(circular.circularType);
+
 bool isAppliedForDriver(CircularBean circular) => ['A', 'B', 'C', 'D', 'F', 'G', 'I', 'L'].contains(circular.circularType);
 
 void changeCircularType(CircularBean circular, bool newValue, String role) {

@@ -14,6 +14,8 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class AdminTeacherDealingSectionsV2 extends StatefulWidget {
   const AdminTeacherDealingSectionsV2({
     Key? key,

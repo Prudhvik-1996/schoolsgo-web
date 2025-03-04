@@ -30,6 +30,8 @@ import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:substring_highlight/substring_highlight.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class AdminExpenseScreenAdminView extends StatefulWidget {
   const AdminExpenseScreenAdminView({
     Key? key,
@@ -213,13 +215,15 @@ class _AdminExpenseScreenAdminViewState extends State<AdminExpenseScreenAdminVie
             ),
         ],
       ),
-      drawer: widget.adminProfile != null
-          ? AdminAppDrawer(
-              adminProfile: widget.adminProfile!,
-            )
-          : ReceptionistAppDrawer(
-              receptionistProfile: widget.receptionistProfile!,
-            ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(
+                  adminProfile: widget.adminProfile!,
+                )
+              : ReceptionistAppDrawer(
+                  receptionistProfile: widget.receptionistProfile!,
+                ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _reportDownloadStatus != null

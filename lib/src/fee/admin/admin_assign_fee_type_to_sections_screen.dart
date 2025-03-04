@@ -12,6 +12,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_manage_fee_types_screen.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class AdminAssignFeeTypesToSectionsScreen extends StatefulWidget {
@@ -274,9 +275,11 @@ class _AdminAssignFeeTypesToSectionsScreenState extends State<AdminAssignFeeType
                 )
               ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

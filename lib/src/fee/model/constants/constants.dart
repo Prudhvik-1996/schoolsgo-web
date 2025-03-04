@@ -100,7 +100,7 @@ extension ModeOfPaymentExt on ModeOfPayment {
 
   static Widget getChartLedgerRow(ModeOfPayment modeOfPayment) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4,2,4,2),
+      padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -112,7 +112,11 @@ extension ModeOfPaymentExt on ModeOfPayment {
             width: 10,
           ),
           const SizedBox(width: 5),
-          Expanded(child: Text(modeOfPayment.description, style: const TextStyle(fontSize: 10),)),
+          Expanded(
+              child: Text(
+            modeOfPayment.description,
+            style: const TextStyle(fontSize: 10),
+          )),
         ],
       ),
     );

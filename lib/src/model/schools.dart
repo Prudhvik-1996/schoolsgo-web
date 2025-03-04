@@ -17,10 +17,12 @@ class GetSchoolInfoRequest {
   GetSchoolInfoRequest({
     this.schoolId,
   });
+
   GetSchoolInfoRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['schoolId'] = schoolId;
@@ -31,7 +33,6 @@ class GetSchoolInfoRequest {
 }
 
 class SchoolInfoBean {
-
   String? academicYearEndDate;
   String? academicYearStartDate;
   int? agent;
@@ -127,6 +128,7 @@ class SchoolInfoBean {
     stampPhotoUrlId = json['stampPhotoUrlId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearEndDate'] = academicYearEndDate;
@@ -160,6 +162,7 @@ class SchoolInfoBean {
     data['status'] = status;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -203,6 +206,7 @@ class GetSchoolInfoResponse {
     this.schoolInfo,
     this.schoolsInfo,
   });
+
   GetSchoolInfoResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -219,6 +223,7 @@ class GetSchoolInfoResponse {
       schoolsInfo = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -257,7 +262,6 @@ Future<GetSchoolInfoResponse> getSchools(GetSchoolInfoRequest getSchoolsRequest)
 }
 
 class CreateOrUpdateSchoolInfoRequest {
-
   String? academicYearEndDate;
   String? academicYearStartDate;
   int? agent;
@@ -328,6 +332,7 @@ class CreateOrUpdateSchoolInfoRequest {
     this.stampPhotoUrlId,
     this.status,
   });
+
   CreateOrUpdateSchoolInfoRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     academicYearEndDate = json['academicYearEndDate']?.toString();
@@ -367,6 +372,7 @@ class CreateOrUpdateSchoolInfoRequest {
     mailIdController.text = mailId ?? '';
     mobileController.text = mobile ?? '';
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearEndDate'] = academicYearEndDate;
@@ -400,11 +406,11 @@ class CreateOrUpdateSchoolInfoRequest {
     data['status'] = status;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateOrUpdateSchoolInfoResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -417,6 +423,7 @@ class CreateOrUpdateSchoolInfoResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateSchoolInfoResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -424,6 +431,7 @@ class CreateOrUpdateSchoolInfoResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -432,6 +440,7 @@ class CreateOrUpdateSchoolInfoResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

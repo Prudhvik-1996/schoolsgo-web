@@ -366,6 +366,7 @@ class CreateOrUpdateTaskCommentRequest {
     this.status,
     this.taskId,
   });
+
   CreateOrUpdateTaskCommentRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -375,6 +376,7 @@ class CreateOrUpdateTaskCommentRequest {
     status = json['status']?.toString();
     taskId = json['taskId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -385,6 +387,7 @@ class CreateOrUpdateTaskCommentRequest {
     data['taskId'] = taskId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -413,6 +416,7 @@ class CreateOrUpdateTaskCommentResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateTaskCommentResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     commentId = json['commentId']?.toInt();
@@ -421,6 +425,7 @@ class CreateOrUpdateTaskCommentResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['commentId'] = commentId;
@@ -430,6 +435,7 @@ class CreateOrUpdateTaskCommentResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -490,6 +496,7 @@ class CreateOrUpdateTaskRequest {
     this.taskStatus,
     this.title,
   });
+
   CreateOrUpdateTaskRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -504,6 +511,7 @@ class CreateOrUpdateTaskRequest {
     taskStatus = json['taskStatus']?.toString();
     title = json['title']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -519,6 +527,7 @@ class CreateOrUpdateTaskRequest {
     data['title'] = title;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -547,6 +556,7 @@ class CreateOrUpdateTaskResponse {
     this.responseStatus,
     this.taskId,
   });
+
   CreateOrUpdateTaskResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -555,6 +565,7 @@ class CreateOrUpdateTaskResponse {
     responseStatus = json['responseStatus']?.toString();
     taskId = json['taskId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -564,6 +575,7 @@ class CreateOrUpdateTaskResponse {
     data['taskId'] = taskId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

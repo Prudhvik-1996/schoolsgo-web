@@ -2,6 +2,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pdfx/pdfx.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class PdfViewerWidget extends StatefulWidget {
   final List<int> pdfBytes;
   final double? height;

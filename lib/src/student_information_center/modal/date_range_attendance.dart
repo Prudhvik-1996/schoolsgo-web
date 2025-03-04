@@ -5,7 +5,6 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetStudentDateRangeAttendanceRequest {
-
   int? academicYearId;
   String? endDate;
   bool? isAdminView;
@@ -24,6 +23,7 @@ class GetStudentDateRangeAttendanceRequest {
     this.startDate,
     this.studentId,
   });
+
   GetStudentDateRangeAttendanceRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     academicYearId = json['academicYearId']?.toInt();
@@ -34,6 +34,7 @@ class GetStudentDateRangeAttendanceRequest {
     startDate = json['startDate']?.toString();
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearId'] = academicYearId;
@@ -45,11 +46,11 @@ class GetStudentDateRangeAttendanceRequest {
     data['studentId'] = studentId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class StudentDateRangeAttendanceBean {
-
   double? absentDays;
   double? presentDays;
   int? studentId;
@@ -60,12 +61,14 @@ class StudentDateRangeAttendanceBean {
     this.presentDays,
     this.studentId,
   });
+
   StudentDateRangeAttendanceBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     absentDays = json['absentDays']?.toDouble();
     presentDays = json['presentDays']?.toDouble();
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['absentDays'] = absentDays;
@@ -73,6 +76,7 @@ class StudentDateRangeAttendanceBean {
     data['studentId'] = studentId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 
   double get totalWorkingDays => (presentDays ?? 0) + (absentDays ?? 0);
@@ -81,7 +85,6 @@ class StudentDateRangeAttendanceBean {
 }
 
 class GetStudentDateRangeAttendanceResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -96,6 +99,7 @@ class GetStudentDateRangeAttendanceResponse {
     this.responseStatus,
     this.studentDateRangeAttendanceBeanList,
   });
+
   GetStudentDateRangeAttendanceResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -111,6 +115,7 @@ class GetStudentDateRangeAttendanceResponse {
       studentDateRangeAttendanceBeanList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -127,6 +132,7 @@ class GetStudentDateRangeAttendanceResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

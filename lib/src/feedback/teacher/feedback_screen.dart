@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/feedback/model/feedback.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class TeacherFeedbackScreen extends StatefulWidget {
   const TeacherFeedbackScreen({
@@ -166,9 +167,11 @@ class _TeacherFeedbackScreenState extends State<TeacherFeedbackScreen> {
           buildRoleButtonForAppBar(context, widget.teacherProfile),
         ],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

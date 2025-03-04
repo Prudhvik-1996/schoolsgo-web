@@ -1,4 +1,3 @@
-import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/custom_vertical_divider.dart';
@@ -60,17 +59,13 @@ class _SearchWidgetState extends State<SearchWidget> {
           focusedBorder: OutlineInputBorder(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             borderSide: BorderSide(
-              color: isKeyFound
-                  ? Colors.blue
-                  : Colors.red,
+              color: isKeyFound ? Colors.blue : Colors.red,
             ),
           ),
           label: Text(
             isKeyFound ? "$searchType Number" : "$searchType Number not found",
             style: TextStyle(
-              color: isKeyFound
-                  ? Colors.blue
-                  : Colors.red,
+              color: isKeyFound ? Colors.blue : Colors.red,
             ),
           ),
           contentPadding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
@@ -92,17 +87,20 @@ class _SearchWidgetState extends State<SearchWidget> {
               width: 5,
             ),
             if (isKeyFound) buildSearchButton(),
-            if (isKeyFound) const SizedBox(
-              width: 5,
-            ),
-            if (isKeyFound) const CustomVerticalDivider(
-              hasCircularBorder: false,
-              color: Colors.grey,
-              width: 1,
-            ),
-            if (isKeyFound) const SizedBox(
-              width: 5,
-            ),
+            if (isKeyFound)
+              const SizedBox(
+                width: 5,
+              ),
+            if (isKeyFound)
+              const CustomVerticalDivider(
+                hasCircularBorder: false,
+                color: Colors.grey,
+                width: 1,
+              ),
+            if (isKeyFound)
+              const SizedBox(
+                width: 5,
+              ),
             if (_isLoading)
               Center(
                 child: Image.asset(
@@ -198,7 +196,10 @@ class _SearchWidgetState extends State<SearchWidget> {
                   size: 15,
                 ),
                 SizedBox(width: 5),
-                Text("Search", style: TextStyle(fontSize: 12),),
+                Text(
+                  "Search",
+                  style: TextStyle(fontSize: 12),
+                ),
                 SizedBox(width: 5),
               ],
             ),

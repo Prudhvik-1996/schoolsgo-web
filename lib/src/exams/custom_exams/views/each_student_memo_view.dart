@@ -17,6 +17,8 @@ import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class EachStudentMemoView extends StatefulWidget {
   const EachStudentMemoView({
     Key? key,

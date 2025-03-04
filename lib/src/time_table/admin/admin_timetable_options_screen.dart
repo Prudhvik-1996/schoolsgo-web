@@ -3,6 +3,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/time_table/admin/admin_teacher_dealing_sections_v2.dart';
 
 import 'admin_all_teachers_preview_time_table_screens.dart';
@@ -106,9 +107,11 @@ class _AdminTimeTableOptionsState extends State<AdminTimeTableOptions> {
       appBar: AppBar(
         title: const Text("Time Table"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

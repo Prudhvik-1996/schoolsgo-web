@@ -276,7 +276,7 @@ class _AdminEmployeeWalletsScreenState extends State<AdminEmployeeWalletsScreen>
               onSelected: (String choice) async => await handleClick(choice),
               itemBuilder: (BuildContext context) {
                 return {
-                 "Download Report",
+                  "Download Report",
                 }.map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,

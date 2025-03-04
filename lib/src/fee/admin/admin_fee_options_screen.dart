@@ -10,6 +10,7 @@ import 'package:schoolsgo_web/src/fee/admin/admin_student_fee_management_screen.
 import 'package:schoolsgo_web/src/fee/admin/stats/section_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/student_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/stats/fees/due_reports_screen.dart';
 
 class AdminFeeOptionsScreen extends StatefulWidget {
@@ -92,9 +93,11 @@ class _AdminFeeOptionsScreenState extends State<AdminFeeOptionsScreen> {
       appBar: AppBar(
         title: const Text("Fee"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

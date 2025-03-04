@@ -6,6 +6,8 @@ import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class EmployeeAttendanceQRScreen extends StatefulWidget {
   const EmployeeAttendanceQRScreen({
     Key? key,

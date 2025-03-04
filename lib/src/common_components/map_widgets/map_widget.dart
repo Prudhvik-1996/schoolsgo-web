@@ -42,6 +42,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   Offset? _dragStart;
   double _scaleStart = 1.0;
+
   void _onScaleStart(ScaleStartDetails details) {
     _dragStart = details.focalPoint;
     _scaleStart = 1.0;

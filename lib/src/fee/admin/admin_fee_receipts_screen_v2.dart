@@ -31,6 +31,9 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class AdminFeeReceiptsScreen extends StatefulWidget {
   const AdminFeeReceiptsScreen({
@@ -987,9 +990,11 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
                 ),
               ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _renderingReceiptText != null

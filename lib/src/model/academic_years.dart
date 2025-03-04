@@ -90,9 +90,11 @@ class AcademicYearBean {
   }
 
   int getStartYear() => convertYYYYMMDDFormatToDateTime(academicYearStartDate).year;
+
   int getStartMonth() => convertYYYYMMDDFormatToDateTime(academicYearStartDate).month;
 
   int getEndYear() => convertYYYYMMDDFormatToDateTime(academicYearEndDate).year;
+
   int getEndMonth() => convertYYYYMMDDFormatToDateTime(academicYearEndDate).month;
 }
 

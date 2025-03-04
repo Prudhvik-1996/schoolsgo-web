@@ -18,14 +18,11 @@ class TimeSlot {
       other is TimeSlot &&
           runtimeType == other.runtimeType &&
           weekId == other.weekId &&
-          timeToDouble(stringToTimeOfDay(startTime!)) ==
-              timeToDouble(stringToTimeOfDay(other.startTime!)) &&
-          timeToDouble(stringToTimeOfDay(endTime!)) ==
-              timeToDouble(stringToTimeOfDay(other.endTime!));
+          timeToDouble(stringToTimeOfDay(startTime!)) == timeToDouble(stringToTimeOfDay(other.startTime!)) &&
+          timeToDouble(stringToTimeOfDay(endTime!)) == timeToDouble(stringToTimeOfDay(other.endTime!));
 
   int compareTo(TimeSlot other) {
-    return getSecondsEquivalentOfTimeFromWHHMMA(startTime!, weekId).compareTo(
-        getSecondsEquivalentOfTimeFromWHHMMA(other.startTime!, other.weekId));
+    return getSecondsEquivalentOfTimeFromWHHMMA(startTime!, weekId).compareTo(getSecondsEquivalentOfTimeFromWHHMMA(other.startTime!, other.weekId));
   }
 
   TimeSlot.fromJson(Map<String, dynamic> json) {
@@ -41,8 +38,5 @@ class TimeSlot {
   }
 
   @override
-  int get hashCode =>
-      weekId! ^
-      timeToDouble(stringToTimeOfDay(startTime!)).hashCode ^
-      timeToDouble(stringToTimeOfDay(endTime!)).hashCode;
+  int get hashCode => weekId! ^ timeToDouble(stringToTimeOfDay(startTime!)).hashCode ^ timeToDouble(stringToTimeOfDay(endTime!)).hashCode;
 }

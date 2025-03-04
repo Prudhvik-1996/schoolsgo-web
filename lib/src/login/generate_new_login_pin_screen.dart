@@ -73,14 +73,10 @@ class _GenerateNewLoginPinScreenState extends State<GenerateNewLoginPinScreen> {
             roles.add(eachRole?.roleName ?? "-");
           });
         }
-        List<String?> schoolNameFromAdminProfiles =
-            ((getUserRolesResponse.adminProfiles ?? []).map((e) => e?.schoolName)).toList();
-        List<String?> schoolNameFromTeacherProfiles =
-            ((getUserRolesResponse.teacherProfiles ?? []).map((e) => e?.schoolName)).toList();
-        List<String?> schoolNameFromMegaAdminProfiles =
-            ((getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e?.schoolName)).toList();
-        List<String?> schoolNameFromOtherUserRoleProfiles =
-            ((getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e?.schoolName)).toList();
+        List<String?> schoolNameFromAdminProfiles = ((getUserRolesResponse.adminProfiles ?? []).map((e) => e?.schoolName)).toList();
+        List<String?> schoolNameFromTeacherProfiles = ((getUserRolesResponse.teacherProfiles ?? []).map((e) => e?.schoolName)).toList();
+        List<String?> schoolNameFromMegaAdminProfiles = ((getUserRolesResponse.megaAdminProfiles ?? []).map((e) => e?.schoolName)).toList();
+        List<String?> schoolNameFromOtherUserRoleProfiles = ((getUserRolesResponse.otherUserRoleProfiles ?? []).map((e) => e?.schoolName)).toList();
 
         schoolName = [
               ...schoolNameFromAdminProfiles,

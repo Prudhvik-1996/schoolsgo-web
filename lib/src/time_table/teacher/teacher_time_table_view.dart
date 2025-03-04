@@ -3,15 +3,16 @@ import 'dart:math';
 import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/online_class_room/model/online_class_room.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/time_table/admin/admin_all_teachers_preview_time_table_screens.dart';
 import 'package:schoolsgo_web/src/time_table/modal/section_wise_time_slots.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherTimeTableView extends StatefulWidget {
   const TeacherTimeTableView({Key? key, required this.teacherProfile}) : super(key: key);
@@ -299,9 +300,11 @@ class _TeacherTimeTableViewState extends State<TeacherTimeTableView> with Single
           buildRoleButtonForAppBar(context, widget.teacherProfile),
         ],
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _previewMode

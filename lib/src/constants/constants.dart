@@ -205,6 +205,7 @@ const String CREATE_OR_UPDATE_EMPLOYEE_ATTENDANCE_CLOCK = "/attendance/createOrU
 const String CREATE_OR_UPDATE_EMPLOYEES_ATTENDANCE = "/attendance/createOrUpdateEmployeesAttendance";
 
 const String GET_APP_VERSION_URL = "/commons/latestAppVersion?appName=EpsilonDiary";
+
 String getAppVersionUrl(String? versionName) => GET_APP_VERSION_URL + (versionName == null ? "" : "&versionName=$versionName");
 const String GET_APP_UPDATE_LOG_URL = "/commons/getAppUpdateLog?appName=EpsilonDiary";
 
@@ -253,4 +254,5 @@ const String GET_CALENDER_EVENTS = "/calender/getCalenderEvents";
 const String CREATE_OR_UPDATE_CALENDER_EVENTS = "/calender/createOrUpdateCalenderEvents";
 
 const String GET_NEW_RECEIPT_NUMBER = "/fee/getNewReceiptNumber?";
+
 String getNewReceiptNumberUrl(int schoolId) => GET_NEW_RECEIPT_NUMBER + "schoolId=$schoolId";

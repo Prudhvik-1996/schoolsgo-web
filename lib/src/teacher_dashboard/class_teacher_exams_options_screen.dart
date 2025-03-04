@@ -7,8 +7,11 @@ import 'package:schoolsgo_web/src/exams/fa_exams/fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class ClassTeacherExamsOptionScreen extends StatefulWidget {
-  const ClassTeacherExamsOptionScreen({super.key,
+  const ClassTeacherExamsOptionScreen({
+    super.key,
     required this.teacherProfile,
     required this.section,
     required this.selectedAcademicYearId,
@@ -89,9 +92,11 @@ class _ClassTeacherExamsOptionScreenState extends State<ClassTeacherExamsOptionS
       appBar: AppBar(
         title: const Text("Attendance"),
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile,
+            ),
       body: ListView(
         children: [
           _getExamsOption(

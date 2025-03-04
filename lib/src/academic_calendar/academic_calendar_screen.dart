@@ -328,7 +328,7 @@ class _AcademicCalendarScreenState extends State<AcademicCalendarScreen> {
           _selectedDate = date;
           showCalendar = false;
         });
-        if ((calendarEventDataMap[date]??[]).isNotEmpty) {
+        if ((calendarEventDataMap[date] ?? []).isNotEmpty) {
           // await Future.delayed(const Duration(seconds: 2));
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             navigateToDate(date);

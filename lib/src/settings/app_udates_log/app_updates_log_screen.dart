@@ -6,6 +6,8 @@ import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class AppUpdatesLogScreen extends StatefulWidget {
   const AppUpdatesLogScreen({super.key});
 

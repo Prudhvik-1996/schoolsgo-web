@@ -6,15 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/suggestion_box/model/suggestion_box.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class MegaAdminSuggestionBox extends StatefulWidget {
   const MegaAdminSuggestionBox({
@@ -744,7 +745,7 @@ class _MegaAdminSuggestionBoxState extends State<MegaAdminSuggestionBox> {
           ),
         ],
       ),
-      drawer: MegaAdminAppDrawer(megaAdminProfile: widget.megaAdminProfile),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : MegaAdminAppDrawer(megaAdminProfile: widget.megaAdminProfile),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

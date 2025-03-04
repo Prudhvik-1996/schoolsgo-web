@@ -9,6 +9,8 @@ import 'package:schoolsgo_web/src/school_management/employee_card_view_widget.da
 import 'package:url_launcher/url_launcher.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class EmployeesLoginCredentialsScreen extends StatefulWidget {
   const EmployeesLoginCredentialsScreen({
     Key? key,
@@ -91,21 +93,21 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _tableView
-          ? SizedBox(
-        width: MediaQuery.of(context).size.width - 10,
-        height: MediaQuery.of(context).size.height - 10,
-        child: credentialsTable(filteredEmployees),
-      )
-          : ListView(
-        children: employees
-            .map((e) => EmployeeCardViewWidget(
-          adminProfile: widget.adminProfile,
-          employeeProfile: e,
-          isEmployeeSelected: selectedEmployeeId == e.employeeId,
-          onEmployeeSelected: onEmployeeSelected,
-        ))
-            .toList(),
-      ),
+              ? SizedBox(
+                  width: MediaQuery.of(context).size.width - 10,
+                  height: MediaQuery.of(context).size.height - 10,
+                  child: credentialsTable(filteredEmployees),
+                )
+              : ListView(
+                  children: employees
+                      .map((e) => EmployeeCardViewWidget(
+                            adminProfile: widget.adminProfile,
+                            employeeProfile: e,
+                            isEmployeeSelected: selectedEmployeeId == e.employeeId,
+                            onEmployeeSelected: onEmployeeSelected,
+                          ))
+                      .toList(),
+                ),
     );
   }
 
@@ -133,29 +135,29 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
                       children: [
                         searchingWith == "S. No."
                             ? SizedBox(
-                          width: 100,
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'S. No.',
-                              hintText: 'S. No.',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue),
-                              ),
-                              contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                            ),
-                            style: const TextStyle(
-                              fontSize: 12,
-                            ),
-                            controller: sNoSearchController,
-                            autofocus: true,
-                            onChanged: (_) => setState(() {}),
-                          ),
-                        )
+                                width: 100,
+                                child: TextField(
+                                  decoration: const InputDecoration(
+                                    border: UnderlineInputBorder(),
+                                    labelText: 'S. No.',
+                                    hintText: 'S. No.',
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.blue),
+                                    ),
+                                    contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                  ),
+                                  controller: sNoSearchController,
+                                  autofocus: true,
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                              )
                             : const Text(
-                          "S. No.",
-                          style: TextStyle(color: Colors.blue),
-                        ),
+                                "S. No.",
+                                style: TextStyle(color: Colors.blue),
+                              ),
                         const SizedBox(width: 10),
                         IconButton(
                           onPressed: () {
@@ -174,29 +176,29 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
                       children: [
                         searchingWith == "Name"
                             ? SizedBox(
-                          width: 100,
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'Name',
-                              hintText: 'Name',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue),
-                              ),
-                              contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                            ),
-                            style: const TextStyle(
-                              fontSize: 12,
-                            ),
-                            controller: nameSearchController,
-                            autofocus: true,
-                            onChanged: (_) => setState(() {}),
-                          ),
-                        )
+                                width: 100,
+                                child: TextField(
+                                  decoration: const InputDecoration(
+                                    border: UnderlineInputBorder(),
+                                    labelText: 'Name',
+                                    hintText: 'Name',
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.blue),
+                                    ),
+                                    contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                  ),
+                                  controller: nameSearchController,
+                                  autofocus: true,
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                              )
                             : const Text(
-                          "Name",
-                          style: TextStyle(color: Colors.blue),
-                        ),
+                                "Name",
+                                style: TextStyle(color: Colors.blue),
+                              ),
                         const SizedBox(width: 10),
                         IconButton(
                           onPressed: () {
@@ -221,29 +223,29 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
                       children: [
                         searchingWith == "Mobile"
                             ? SizedBox(
-                          width: 100,
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'Mobile',
-                              hintText: 'Mobile',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.blue),
-                              ),
-                              contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
-                            ),
-                            style: const TextStyle(
-                              fontSize: 12,
-                            ),
-                            controller: mobileSearchController,
-                            autofocus: true,
-                            onChanged: (_) => setState(() {}),
-                          ),
-                        )
+                                width: 100,
+                                child: TextField(
+                                  decoration: const InputDecoration(
+                                    border: UnderlineInputBorder(),
+                                    labelText: 'Mobile',
+                                    hintText: 'Mobile',
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.blue),
+                                    ),
+                                    contentPadding: EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                  ),
+                                  controller: mobileSearchController,
+                                  autofocus: true,
+                                  onChanged: (_) => setState(() {}),
+                                ),
+                              )
                             : const Text(
-                          "Mobile",
-                          style: TextStyle(color: Colors.blue),
-                        ),
+                                "Mobile",
+                                style: TextStyle(color: Colors.blue),
+                              ),
                         const SizedBox(width: 10),
                         IconButton(
                           onPressed: () {
@@ -277,7 +279,7 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
                 ],
                 rows: [
                   ...employees.map(
-                        (eachEmployee) => DataRow(
+                    (eachEmployee) => DataRow(
                       cells: [
                         DataCell(Text("${employees.indexWhere((e) => e == eachEmployee) + 1}")),
                         DataCell(Text(eachEmployee.employeeName ?? " - ")),
@@ -304,16 +306,16 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
                                 .whereNotNull()
                                 .sorted((a, b) => a.compareTo(b))
                                 .map((e) => Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(e.replaceAll("_", " ")),
-                              ),
-                              // color: e == "ADMIN"
-                              //     ? Colors.red
-                              //     : e == "TEACHER"
-                              //         ? Colors.blue
-                              //         : null,
-                            ))
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(e.replaceAll("_", " ")),
+                                      ),
+                                      // color: e == "ADMIN"
+                                      //     ? Colors.red
+                                      //     : e == "TEACHER"
+                                      //         ? Colors.blue
+                                      //         : null,
+                                    ))
                                 .toList(),
                           ),
                         ),
@@ -393,9 +395,9 @@ class _EmployeesLoginCredentialsScreenState extends State<EmployeesLoginCredenti
   }
 
   void editSearchingWith(String? newSearchingWith) => setState(() {
-    sNoSearchController.text = "";
-    nameSearchController.text = "";
-    mobileSearchController.text = "";
-    searchingWith = newSearchingWith;
-  });
+        sNoSearchController.text = "";
+        nameSearchController.text = "";
+        mobileSearchController.text = "";
+        searchingWith = newSearchingWith;
+      });
 }

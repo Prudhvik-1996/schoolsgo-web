@@ -1,6 +1,7 @@
 const String _jsonKeyPlannerCommentBeanCommenter = 'a';
 const String _jsonKeyPlannerCommentBeanComment = 'c';
 const String _jsonKeyPlannerCommentBeanDate = 'd';
+
 class PlannerCommentBean {
 /*
 {
@@ -20,12 +21,14 @@ class PlannerCommentBean {
     this.comment,
     this.date,
   });
+
   PlannerCommentBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     commenter = json[_jsonKeyPlannerCommentBeanCommenter]?.toString();
     comment = json[_jsonKeyPlannerCommentBeanComment]?.toString();
     date = json[_jsonKeyPlannerCommentBeanDate]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data[_jsonKeyPlannerCommentBeanCommenter] = commenter;
@@ -33,6 +36,6 @@ class PlannerCommentBean {
     data[_jsonKeyPlannerCommentBeanDate] = date;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
-

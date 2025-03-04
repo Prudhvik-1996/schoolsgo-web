@@ -13,6 +13,8 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class TopicWiseExamsTdsScreen extends StatefulWidget {
   const TopicWiseExamsTdsScreen({
     Key? key,
@@ -624,8 +626,11 @@ class _TopicWiseExamsTdsScreenState extends State<TopicWiseExamsTdsScreen> {
             ),
         ],
       ),
-      drawer:
-          widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

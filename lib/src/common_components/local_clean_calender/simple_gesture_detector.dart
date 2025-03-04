@@ -5,6 +5,8 @@ library simple_gesture_detector;
 
 import 'package:flutter/material.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class SimpleGestureDetector extends StatefulWidget {
   final Widget child;
   final SimpleSwipeConfig swipeConfig;
@@ -40,8 +42,7 @@ class _SimpleGestureDetectorState extends State<SimpleGestureDetector> {
   void _onVerticalDragUpdate(DragUpdateDetails details) {
     _finalSwipeOffset = details.globalPosition;
 
-    if (widget.swipeConfig.swipeDetectionMoment ==
-        SwipeDetectionMoment.onUpdate) {
+    if (widget.swipeConfig.swipeDetectionMoment == SwipeDetectionMoment.onUpdate) {
       if (_initialSwipeOffset != null) {
         final offsetDifference = _initialSwipeOffset!.dy - _finalSwipeOffset.dy;
 
@@ -59,8 +60,7 @@ class _SimpleGestureDetectorState extends State<SimpleGestureDetector> {
   }
 
   void _onVerticalDragEnd(DragEndDetails details) {
-    if (widget.swipeConfig.swipeDetectionMoment ==
-        SwipeDetectionMoment.onUpdate) {
+    if (widget.swipeConfig.swipeDetectionMoment == SwipeDetectionMoment.onUpdate) {
       return;
     }
 
@@ -86,8 +86,7 @@ class _SimpleGestureDetectorState extends State<SimpleGestureDetector> {
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
     _finalSwipeOffset = details.globalPosition;
 
-    if (widget.swipeConfig.swipeDetectionMoment ==
-        SwipeDetectionMoment.onUpdate) {
+    if (widget.swipeConfig.swipeDetectionMoment == SwipeDetectionMoment.onUpdate) {
       if (_initialSwipeOffset != null) {
         final offsetDifference = _initialSwipeOffset!.dx - _finalSwipeOffset.dx;
 
@@ -105,8 +104,7 @@ class _SimpleGestureDetectorState extends State<SimpleGestureDetector> {
   }
 
   void _onHorizontalDragEnd(DragEndDetails details) {
-    if (widget.swipeConfig.swipeDetectionMoment ==
-        SwipeDetectionMoment.onUpdate) {
+    if (widget.swipeConfig.swipeDetectionMoment == SwipeDetectionMoment.onUpdate) {
       return;
     }
 
@@ -139,15 +137,11 @@ class _SimpleGestureDetectorState extends State<SimpleGestureDetector> {
       behavior: widget.behavior,
       child: widget.child,
       onVerticalDragStart: _canSwipeVertically() ? _onVerticalDragStart : null,
-      onVerticalDragUpdate:
-          _canSwipeVertically() ? _onVerticalDragUpdate : null,
+      onVerticalDragUpdate: _canSwipeVertically() ? _onVerticalDragUpdate : null,
       onVerticalDragEnd: _canSwipeVertically() ? _onVerticalDragEnd : null,
-      onHorizontalDragStart:
-          _canSwipeHorizontally() ? _onHorizontalDragStart : null,
-      onHorizontalDragUpdate:
-          _canSwipeHorizontally() ? _onHorizontalDragUpdate : null,
-      onHorizontalDragEnd:
-          _canSwipeHorizontally() ? _onHorizontalDragEnd : null,
+      onHorizontalDragStart: _canSwipeHorizontally() ? _onHorizontalDragStart : null,
+      onHorizontalDragUpdate: _canSwipeHorizontally() ? _onHorizontalDragUpdate : null,
+      onHorizontalDragEnd: _canSwipeHorizontally() ? _onHorizontalDragEnd : null,
     );
   }
 }

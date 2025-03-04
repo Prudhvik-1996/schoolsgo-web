@@ -12,6 +12,8 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class StudentOnlineClassroomScreen extends StatefulWidget {
   const StudentOnlineClassroomScreen({
     Key? key,
@@ -484,9 +486,11 @@ class _StudentOnlineClassroomScreenState extends State<StudentOnlineClassroomScr
           buildRoleButtonForAppBar(context, widget.studentProfile),
         ],
       ),
-      drawer: StudentAppDrawer(
-        studentProfile: widget.studentProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : StudentAppDrawer(
+              studentProfile: widget.studentProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : MediaQuery.of(context).orientation == Orientation.landscape

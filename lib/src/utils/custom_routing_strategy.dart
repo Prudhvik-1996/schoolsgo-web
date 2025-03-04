@@ -1,5 +1,6 @@
 import 'dart:html' as html;
 import 'dart:ui';
+
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 class HybridUrlStrategy extends UrlStrategy {

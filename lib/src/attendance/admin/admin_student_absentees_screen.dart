@@ -236,21 +236,21 @@ class _AdminStudentAbsenteesScreenState extends State<AdminStudentAbsenteesScree
                   ),
                 ),
                 if (widget.adminProfile != null)
-                IconButton(
-                  icon: const Icon(Icons.sms_rounded),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return SendSmsForAbsenteesInBulkScreen(
-                          adminProfile: widget.adminProfile!,
-                          studentsList: studentsList,
-                          studentAttendanceBeans: _studentAttendanceBeans,
-                        );
-                      },
-                    ),
-                  ).then((_) => _loadData()),
-                ),
+                  IconButton(
+                    icon: const Icon(Icons.sms_rounded),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return SendSmsForAbsenteesInBulkScreen(
+                            adminProfile: widget.adminProfile!,
+                            studentsList: studentsList,
+                            studentAttendanceBeans: _studentAttendanceBeans,
+                          );
+                        },
+                      ),
+                    ).then((_) => _loadData()),
+                  ),
               ],
       ),
       body: _isLoading

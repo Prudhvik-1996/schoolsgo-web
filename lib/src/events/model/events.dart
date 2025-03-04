@@ -18,6 +18,7 @@ class GetEventsRequest {
     this.offset,
     this.schoolId,
   });
+
   GetEventsRequest.fromJson(Map<String, dynamic> json) {
     eventDate = int.tryParse(json["eventDate"]?.toString() ?? '');
     eventId = int.tryParse(json["eventId"]?.toString() ?? '');
@@ -25,6 +26,7 @@ class GetEventsRequest {
     offset = int.tryParse(json["offset"]?.toString() ?? '');
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["eventDate"] = eventDate;
@@ -81,6 +83,7 @@ class Event {
     this.schoolId,
     this.status,
   });
+
   Event.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json["agent"]?.toString();
@@ -95,6 +98,7 @@ class Event {
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
     status = json["status"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
@@ -143,6 +147,7 @@ class GetEventsResponse {
     this.responseStatus,
     this.totalNoOfEvents,
   });
+
   GetEventsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json["errorCode"]?.toString();
     errorMessage = json["errorMessage"]?.toString();
@@ -158,6 +163,7 @@ class GetEventsResponse {
     responseStatus = json["responseStatus"]?.toString();
     totalNoOfEvents = int.tryParse(json["totalNoOfEvents"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
@@ -201,11 +207,13 @@ class GetEventMediaRequest {
     this.limit,
     this.offset,
   });
+
   GetEventMediaRequest.fromJson(Map<String, dynamic> json) {
     eventId = int.tryParse(json["eventId"]?.toString() ?? '');
     limit = int.tryParse(json["limit"]?.toString() ?? '');
     offset = int.tryParse(json["offset"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["eventId"] = eventId;
@@ -235,6 +243,7 @@ class EventMedia {
     this.mediaUrl,
     this.status,
   });
+
   EventMedia.fromJson(Map<String, dynamic> json) {
     agent = json["agent"]?.toString();
     description = json["description"]?.toString();
@@ -245,6 +254,7 @@ class EventMedia {
     mediaUrl = json["mediaUrl"]?.toString();
     status = json["status"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
@@ -275,6 +285,7 @@ class GetEventMediaResponse {
     this.responseStatus,
     this.totalNoOfEventMedia,
   });
+
   GetEventMediaResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json["errorCode"]?.toString();
     errorMessage = json["errorMessage"]?.toString();
@@ -290,6 +301,7 @@ class GetEventMediaResponse {
     responseStatus = json["responseStatus"]?.toString();
     totalNoOfEventMedia = int.tryParse(json["totalNoOfEventMedia"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
@@ -354,6 +366,7 @@ class CreateOrUpdateEventsRequest {
     this.eventBeans,
     this.schoolId,
   });
+
   CreateOrUpdateEventsRequest.fromJson(Map<String, dynamic> json) {
     agent = json["agent"]?.toString();
     if (json["eventBeans"] != null && (json["eventBeans"] is List)) {
@@ -366,6 +379,7 @@ class CreateOrUpdateEventsRequest {
     }
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
@@ -403,12 +417,14 @@ class CreateOrUpdateEventsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateEventsResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json["errorCode"]?.toString();
     errorMessage = json["errorMessage"]?.toString();
     httpStatus = json["httpStatus"]?.toString();
     responseStatus = json["responseStatus"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;
@@ -463,6 +479,7 @@ class CreateOrUpdateEventMediaRequest {
     this.eventMediaBeans,
     this.schoolId,
   });
+
   CreateOrUpdateEventMediaRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json["agent"]?.toString();
@@ -476,6 +493,7 @@ class CreateOrUpdateEventMediaRequest {
     }
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["agent"] = agent;
@@ -515,12 +533,14 @@ class CreateOrUpdateEventMediaResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateEventMediaResponse.fromJson(Map<String, dynamic> json) {
     errorCode = json["errorCode"]?.toString();
     errorMessage = json["errorMessage"]?.toString();
     httpStatus = json["httpStatus"]?.toString();
     responseStatus = json["responseStatus"]?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["errorCode"] = errorCode;

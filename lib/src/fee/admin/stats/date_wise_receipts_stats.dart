@@ -24,6 +24,9 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class DateWiseReceiptsStatsWidget extends StatefulWidget {
   const DateWiseReceiptsStatsWidget({
@@ -149,7 +152,18 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
     sheet.appendRow(["${widget.adminProfile.schoolName}"]);
 
     // Define the headers for the columns
-    var columns = ['Receipt No.', 'Admission No.', 'Class', 'Roll No.', 'Student Name', 'Accommodation Type', 'Amount Paid', 'Mode Of Payment', 'Details', 'Comments'];
+    var columns = [
+      'Receipt No.',
+      'Admission No.',
+      'Class',
+      'Roll No.',
+      'Student Name',
+      'Accommodation Type',
+      'Amount Paid',
+      'Mode Of Payment',
+      'Details',
+      'Comments'
+    ];
 
     // Apply formatting to the school name cell
     CellStyle schoolNameStyle = CellStyle(
@@ -158,7 +172,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       horizontalAlign: HorizontalAlign.Center,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0)).cellStyle = schoolNameStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: columns.length-1, rowIndex: 0));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0), CellIndex.indexByColumnRow(columnIndex: columns.length - 1, rowIndex: 0));
     rowIndex++;
 
     sheet.appendRow(["Date: ${(convertDateTimeToDDMMYYYYFormat(widget.selectedDate))}"]);
@@ -168,7 +182,7 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
       fontSize: 18,
     );
     sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1)).cellStyle = dateStyle;
-    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: columns.length-1, rowIndex: 1));
+    sheet.merge(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1), CellIndex.indexByColumnRow(columnIndex: columns.length - 1, rowIndex: 1));
     rowIndex++;
     sheet.appendRow(columns);
     for (int i = 0; i <= columns.length - 1; i++) {
@@ -324,9 +338,11 @@ class _DateWiseReceiptsStatsWidgetState extends State<DateWiseReceiptsStatsWidge
                 const SizedBox(width: 10),
               ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: filteredReceipts.isEmpty
           ? const Center(child: Text("No transactions to display"))
           : _isLoading

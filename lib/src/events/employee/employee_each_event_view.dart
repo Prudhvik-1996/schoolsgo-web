@@ -4,12 +4,13 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 import '../model/events.dart';
 
@@ -195,9 +196,13 @@ class _EmployeeEachEventViewState extends State<EmployeeEachEventView> {
           ),
         ],
       ),
-      drawer: widget.teacherProfile == null ? null : TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile!,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.teacherProfile == null
+              ? null
+              : TeacherAppDrawer(
+                  teacherProfile: widget.teacherProfile!,
+                ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : previewingIndex == null

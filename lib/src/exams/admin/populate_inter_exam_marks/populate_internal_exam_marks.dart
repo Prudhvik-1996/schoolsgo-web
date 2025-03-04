@@ -40,6 +40,7 @@ class PopulateInternalExamMarksRequest {
     this.schoolId,
     this.sectionId,
   });
+
   PopulateInternalExamMarksRequest.fromJson(Map<String, dynamic> json) {
     agent = json['agent']?.toInt();
     computingStrategy = json['computingStrategy']?.toString();
@@ -57,6 +58,7 @@ class PopulateInternalExamMarksRequest {
     schoolId = json['schoolId']?.toInt();
     sectionId = json['sectionId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;

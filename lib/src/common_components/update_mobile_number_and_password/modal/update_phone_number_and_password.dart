@@ -91,27 +91,28 @@ Future<UpdatePhoneNumberPasswordResponse> updatePhoneNumberPassword(UpdatePhoneN
 }
 
 class ResetPinRequest {
-
   String? loginUserId;
   Map<String, dynamic> __origJson = {};
 
   ResetPinRequest({
     this.loginUserId,
   });
+
   ResetPinRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     loginUserId = json['loginUserId']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['loginUserId'] = loginUserId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class ResetPinResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -124,6 +125,7 @@ class ResetPinResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   ResetPinResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -131,6 +133,7 @@ class ResetPinResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -139,6 +142,7 @@ class ResetPinResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

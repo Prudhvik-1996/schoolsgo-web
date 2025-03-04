@@ -26,6 +26,7 @@ class GetExamTopicsRequest {
     this.tdsId,
     this.topicId,
   });
+
   GetExamTopicsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     academicYearId = json['academicYearId']?.toInt();
@@ -33,6 +34,7 @@ class GetExamTopicsRequest {
     tdsId = json['tdsId']?.toInt();
     topicId = json['topicId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearId'] = academicYearId;
@@ -41,6 +43,7 @@ class GetExamTopicsRequest {
     data['topicId'] = topicId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -77,6 +80,7 @@ class ExamTopic {
     this.topicId,
     this.topicName,
   });
+
   ExamTopic.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     academicYearId = json['academicYearId']?.toInt();
@@ -87,6 +91,7 @@ class ExamTopic {
     topicId = json['topicId']?.toInt();
     topicName = json['topicName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['academicYearId'] = academicYearId;
@@ -98,9 +103,8 @@ class ExamTopic {
     data['topicName'] = topicName;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
-
-
 }
 
 class GetExamTopicsResponse {
@@ -138,6 +142,7 @@ class GetExamTopicsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetExamTopicsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -153,6 +158,7 @@ class GetExamTopicsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -169,6 +175,7 @@ class GetExamTopicsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -215,6 +222,7 @@ class CreateOrUpdateExamTopicsRequest {
     this.examTopics,
     this.schoolId,
   });
+
   CreateOrUpdateExamTopicsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -228,6 +236,7 @@ class CreateOrUpdateExamTopicsRequest {
     }
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -242,6 +251,7 @@ class CreateOrUpdateExamTopicsRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -267,6 +277,7 @@ class CreateOrUpdateExamTopicsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateExamTopicsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -274,6 +285,7 @@ class CreateOrUpdateExamTopicsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -282,6 +294,7 @@ class CreateOrUpdateExamTopicsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

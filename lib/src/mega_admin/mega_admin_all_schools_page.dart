@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
 class MegaAdminAllSchoolsPage extends StatefulWidget {
@@ -94,7 +95,7 @@ class _MegaAdminAllSchoolsPageState extends State<MegaAdminAllSchoolsPage> {
       appBar: AppBar(
         title: const Text("Epsilon Diary"),
       ),
-      drawer: const DefaultAppDrawer(),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : const DefaultAppDrawer(),
       body: ListView(
         children: widget.megaAdminProfile.adminProfiles!
             .map(

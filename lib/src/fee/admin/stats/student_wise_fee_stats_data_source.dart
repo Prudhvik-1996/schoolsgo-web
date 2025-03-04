@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:data_table_2/paginated_data_table_2.dart';
 import 'package:flutter/material.dart';
-import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/clay_hovered_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/student_wise_fee_stats.dart';
@@ -93,7 +92,7 @@ class StudentRowDataSource extends DataTableSource {
                   Align(
                     alignment: Alignment.topRight,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0,2,0,2),
+                      padding: const EdgeInsets.fromLTRB(0, 2, 0, 2),
                       child: Row(
                         children: [
                           const Expanded(child: Text("")),

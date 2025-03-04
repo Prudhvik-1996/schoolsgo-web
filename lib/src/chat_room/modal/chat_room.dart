@@ -17,10 +17,12 @@ class GetChatsRequest {
   GetChatsRequest({
     this.chatRoomId,
   });
+
   GetChatsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     chatRoomId = json['chatRoomId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['chatRoomId'] = chatRoomId;
@@ -34,9 +36,11 @@ class ChatAttachmentBean {
   Map<String, dynamic> __origJson = {};
 
   ChatAttachmentBean();
+
   ChatAttachmentBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     return data;
@@ -93,6 +97,7 @@ class ChatBean {
   }) {
     chatMessageController.text = chatMessage ?? "";
   }
+
   ChatBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -115,6 +120,7 @@ class ChatBean {
     senderRole = json['senderRole']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -188,6 +194,7 @@ class GetChatsResponse {
     this.totalNoOfChats,
     this.totalNoOfUnreadChats,
   });
+
   GetChatsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['chats'] != null) {
@@ -205,6 +212,7 @@ class GetChatsResponse {
     totalNoOfChats = json['totalNoOfChats']?.toInt();
     totalNoOfUnreadChats = json['totalNoOfUnreadChats']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (chats != null) {
@@ -266,6 +274,7 @@ class CreateOrUpdateChatResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateChatResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     chatId = json['chatId']?.toInt();
@@ -274,6 +283,7 @@ class CreateOrUpdateChatResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['chatId'] = chatId;
@@ -332,6 +342,7 @@ class GetChatRoomsRequest {
     this.tdsId,
     this.teacherId,
   });
+
   GetChatRoomsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     franchiseId = json['franchiseId']?.toInt();
@@ -342,6 +353,7 @@ class GetChatRoomsRequest {
     tdsId = json['tdsId']?.toInt();
     teacherId = json['teacherId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['franchiseId'] = franchiseId;
@@ -435,6 +447,7 @@ class ChatRoomBean {
     this.teacherName,
     this.lastMessageTime,
   });
+
   ChatRoomBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     isAdminRoom = json['adminRoom'];
@@ -461,6 +474,7 @@ class ChatRoomBean {
     teacherName = json['teacherName']?.toString();
     lastMessageTime = json['lastMessageTime']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['adminRoom'] = isAdminRoom;
@@ -541,6 +555,7 @@ class GetChatRoomsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetChatRoomsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['chatRooms'] != null) {
@@ -556,6 +571,7 @@ class GetChatRoomsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (chatRooms != null) {

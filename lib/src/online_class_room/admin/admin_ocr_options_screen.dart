@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/online_class_room/admin/admin_manage_online_class_rooms_screen.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 import 'admin_monitor_online_class_rooms_screen.dart';
 
@@ -86,9 +87,11 @@ class _AdminOnlineClassRoomsOptionsScreenState extends State<AdminOnlineClassRoo
       appBar: AppBar(
         title: const Text("Time Table"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

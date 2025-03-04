@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 
 class StudentChatRoom extends StatefulWidget {
@@ -93,9 +94,11 @@ class _StudentChatRoomState extends State<StudentChatRoom> {
           ),
           title: const Text("Chat Room"),
         ),
-        drawer: StudentAppDrawer(
-          studentProfile: widget.studentProfile,
-        ),
+        drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+            ? null
+            : StudentAppDrawer(
+                studentProfile: widget.studentProfile,
+              ),
         body: TabBarView(
           children: [
             _isLoading

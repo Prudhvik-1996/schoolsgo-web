@@ -1,19 +1,10 @@
 import 'package:clay_containers/clay_containers.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:restart_app/restart_app.dart';
-import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
-import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
-import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
 import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/splash_screen/splash_screen.dart';
-import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class GenerateNewFourDigitPinScreen extends StatefulWidget {
   const GenerateNewFourDigitPinScreen({

@@ -5,13 +5,14 @@ import 'package:schoolsgo_web/src/academic_planner/views/master_planner/master_p
 import 'package:schoolsgo_web/src/academic_planner/views/planner_creation.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TdsPlanner extends StatefulWidget {
   const TdsPlanner({
@@ -140,13 +141,15 @@ class _TdsPlannerState extends State<TdsPlanner> {
       borderRadius: 10,
       height: 60,
       child: DropdownSearch<Teacher>(
-        clearButton: widget.adminProfile != null ? IconButton(
-          onPressed: () {
-            setState(() => _selectedTeacher = null);
-            _applyFilters();
-          },
-          icon: const Icon(Icons.clear),
-        ) : Container(),
+        clearButton: widget.adminProfile != null
+            ? IconButton(
+                onPressed: () {
+                  setState(() => _selectedTeacher = null);
+                  _applyFilters();
+                },
+                icon: const Icon(Icons.clear),
+              )
+            : Container(),
         enabled: widget.adminProfile != null,
         mode: MediaQuery.of(context).orientation == Orientation.portrait ? Mode.BOTTOM_SHEET : Mode.MENU,
         selectedItem: _selectedTeacher,
@@ -279,15 +282,15 @@ class _TdsPlannerState extends State<TdsPlanner> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                  InkWell(
-                    child: const Icon(Icons.close),
-                    onTap: () {
-                      setState(() {
-                        _selectedSection = null;
-                      });
-                      _applyFilters();
-                    },
-                  ),
+                InkWell(
+                  child: const Icon(Icons.close),
+                  onTap: () {
+                    setState(() {
+                      _selectedSection = null;
+                    });
+                    _applyFilters();
+                  },
+                ),
                 const SizedBox(width: 10),
               ],
             )
@@ -624,8 +627,11 @@ class _TdsPlannerState extends State<TdsPlanner> {
             ),
         ],
       ),
-      drawer:
-          widget.adminProfile != null ? AdminAppDrawer(adminProfile: widget.adminProfile!) : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

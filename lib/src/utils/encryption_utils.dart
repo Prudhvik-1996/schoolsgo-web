@@ -43,14 +43,7 @@ String encrypt(int num) {
 }
 
 int decrypt(String code) {
-  return int.parse(code
-          .split("")
-          .map((e) => decryptChar(e))
-          .join("")
-          .split("-")
-          .map((e) => convStrToNum(e))
-          .join("")) ~/
-      8985;
+  return int.parse(code.split("").map((e) => decryptChar(e)).join("").split("-").map((e) => convStrToNum(e)).join("")) ~/ 8985;
 }
 
 String encryptChar(String char) {

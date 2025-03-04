@@ -98,7 +98,7 @@ class StudentMonthWiseAttendance {
     return data;
   }
 
-  String get mmmYYYYString => "${MONTHS[(month ?? 1) - 1].substring(0,3)}-$year";
+  String get mmmYYYYString => "${MONTHS[(month ?? 1) - 1].substring(0, 3)}-$year";
 
   double get totalWorkingDays => (present ?? 0) + (absent ?? 0);
 
@@ -191,6 +191,7 @@ Future<GetStudentMonthWiseAttendanceResponse> getStudentMonthWiseAttendance(
   debugPrint("GetStudentMonthWiseAttendanceResponse ${getStudentMonthWiseAttendanceResponse.toJson()}");
   return getStudentMonthWiseAttendanceResponse;
 }
+
 class CreateOrUpdateStudentMonthWiseAttendanceRequest {
 /*
 {
@@ -218,6 +219,7 @@ class CreateOrUpdateStudentMonthWiseAttendanceRequest {
     this.schoolId,
     this.studentMonthWiseAttendanceBeans,
   });
+
   CreateOrUpdateStudentMonthWiseAttendanceRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -231,6 +233,7 @@ class CreateOrUpdateStudentMonthWiseAttendanceRequest {
       studentMonthWiseAttendanceBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -245,11 +248,11 @@ class CreateOrUpdateStudentMonthWiseAttendanceRequest {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateOrUpdateStudentMonthWiseAttendanceResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -262,6 +265,7 @@ class CreateOrUpdateStudentMonthWiseAttendanceResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudentMonthWiseAttendanceResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -269,6 +273,7 @@ class CreateOrUpdateStudentMonthWiseAttendanceResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -277,11 +282,14 @@ class CreateOrUpdateStudentMonthWiseAttendanceResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateStudentMonthWiseAttendanceResponse> createOrUpdateStudentMonthWiseAttendance(CreateOrUpdateStudentMonthWiseAttendanceRequest createOrUpdateStudentMonthWiseAttendanceRequest) async {
-  debugPrint("Raising request to createOrUpdateStudentMonthWiseAttendance with request ${jsonEncode(createOrUpdateStudentMonthWiseAttendanceRequest.toJson())}");
+Future<CreateOrUpdateStudentMonthWiseAttendanceResponse> createOrUpdateStudentMonthWiseAttendance(
+    CreateOrUpdateStudentMonthWiseAttendanceRequest createOrUpdateStudentMonthWiseAttendanceRequest) async {
+  debugPrint(
+      "Raising request to createOrUpdateStudentMonthWiseAttendance with request ${jsonEncode(createOrUpdateStudentMonthWiseAttendanceRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_MONTH_WISE_STUDENT_ATTENDANCE_BEANS;
 
   CreateOrUpdateStudentMonthWiseAttendanceResponse createOrUpdateStudentMonthWiseAttendanceResponse = await HttpUtils.post(

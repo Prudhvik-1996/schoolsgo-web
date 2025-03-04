@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/suggestion_box/model/suggestion_box.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentSuggestionBoxView extends StatefulWidget {
   const StudentSuggestionBoxView({Key? key, required this.studentProfile}) : super(key: key);
@@ -848,7 +849,7 @@ class _StudentSuggestionBoxViewState extends State<StudentSuggestionBoxView> {
           ),
         ],
       ),
-      drawer: StudentAppDrawer(studentProfile: widget.studentProfile),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : StudentAppDrawer(studentProfile: widget.studentProfile),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _isAddNew

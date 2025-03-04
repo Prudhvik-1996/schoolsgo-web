@@ -27,6 +27,7 @@ class GetCircularsRequest {
     this.role,
     this.academicYearId,
   });
+
   GetCircularsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     circularId = json['circularId']?.toInt();
@@ -35,6 +36,7 @@ class GetCircularsRequest {
     role = json['role']?.toString();
     academicYearId = json['academicYearId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['circularId'] = circularId;
@@ -82,6 +84,7 @@ class CircularMediaBean {
     this.mediaUrl,
     this.status,
   });
+
   CircularMediaBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -93,6 +96,7 @@ class CircularMediaBean {
     mediaUrl = json['mediaUrl']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -171,6 +175,7 @@ class CircularBean {
     this.status,
     this.title,
   });
+
   CircularBean.fromJson(Map<String, dynamic> json) {
     origJson = json;
     agentId = json['agentId']?.toInt();
@@ -194,6 +199,7 @@ class CircularBean {
     status = json['status']?.toString();
     title = json['title']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -271,6 +277,7 @@ class GetCircularsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetCircularsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['circulars'] != null) {
@@ -286,6 +293,7 @@ class GetCircularsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (circulars != null) {
@@ -347,6 +355,7 @@ class CreateOrUpdateCircularResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateCircularResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     circularId = json['circularId']?.toInt();
@@ -355,6 +364,7 @@ class CreateOrUpdateCircularResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['circularId'] = circularId;

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:clay_containers/clay_containers.dart';
+
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:dropdown_search/dropdown_search.dart';
@@ -20,6 +21,9 @@ import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class AdminFeeReceiptsScreen extends StatefulWidget {
   const AdminFeeReceiptsScreen({
@@ -518,9 +522,11 @@ class _AdminFeeReceiptsScreenState extends State<AdminFeeReceiptsScreen> {
       appBar: AppBar(
         title: const Text("Fee Receipts"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _isAddNew

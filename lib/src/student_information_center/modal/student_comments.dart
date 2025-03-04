@@ -29,6 +29,7 @@ class GetStudentCommentsRequest {
     this.sectionId,
     this.studentId,
   });
+
   GetStudentCommentsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     onlyAdmin = json['onlyAdmin']?.toString();
@@ -37,6 +38,7 @@ class GetStudentCommentsRequest {
     sectionId = json['sectionId']?.toInt();
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['onlyAdmin'] = onlyAdmin;
@@ -46,6 +48,7 @@ class GetStudentCommentsRequest {
     data['studentId'] = studentId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -134,6 +137,7 @@ class StudentCommentBean {
     studentId = json['studentId']?.toInt();
     studentName = json['studentName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['isAdmin'] = isAdmin;
@@ -154,6 +158,7 @@ class StudentCommentBean {
     data['studentName'] = studentName;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -201,6 +206,7 @@ class GetStudentCommentsResponse {
     this.responseStatus,
     this.studentCommentBeans,
   });
+
   GetStudentCommentsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -216,6 +222,7 @@ class GetStudentCommentsResponse {
       studentCommentBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -232,11 +239,11 @@ class GetStudentCommentsResponse {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetStudentCommentsResponse> getStudentComments(
-    GetStudentCommentsRequest getStudentCommentsRequest) async {
+Future<GetStudentCommentsResponse> getStudentComments(GetStudentCommentsRequest getStudentCommentsRequest) async {
   debugPrint("Raising request to getStudentComments with request ${jsonEncode(getStudentCommentsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_STUDENT_COMMENTS;
 
@@ -296,6 +303,7 @@ class CreateOrUpdateStudentCommentResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudentCommentResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     commentId = json['commentId']?.toInt();
@@ -304,6 +312,7 @@ class CreateOrUpdateStudentCommentResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['commentId'] = commentId;
@@ -313,10 +322,12 @@ class CreateOrUpdateStudentCommentResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateStudentCommentResponse> createOrUpdateStudentComment(CreateOrUpdateStudentCommentRequest createOrUpdateStudentCommentRequest) async {
+Future<CreateOrUpdateStudentCommentResponse> createOrUpdateStudentComment(
+    CreateOrUpdateStudentCommentRequest createOrUpdateStudentCommentRequest) async {
   debugPrint("Raising request to createOrUpdateStudentComment with request ${jsonEncode(createOrUpdateStudentCommentRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_STUDENT_COMMENTS;
 

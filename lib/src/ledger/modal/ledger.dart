@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -27,6 +26,7 @@ class GetTransactionsRequest {
     this.startDate,
     this.endDate,
   });
+
   GetTransactionsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     franchiseId = json['franchiseId']?.toInt();
@@ -34,6 +34,7 @@ class GetTransactionsRequest {
     startDate = json['startDate']?.toInt();
     endDate = json['endDate']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['franchiseId'] = franchiseId;
@@ -128,6 +129,7 @@ class TransactionBean {
     this.transactionTime,
     this.transactionType,
   });
+
   TransactionBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -155,6 +157,7 @@ class TransactionBean {
     transactionTime = json['transactionTime']?.toInt();
     transactionType = json['transactionType']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -249,6 +252,7 @@ class GetTransactionsResponse {
     this.responseStatus,
     this.transactionList,
   });
+
   GetTransactionsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -264,6 +268,7 @@ class GetTransactionsResponse {
       transactionList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

@@ -14,6 +14,7 @@ import 'package:schoolsgo_web/src/school_management/student_management_screen.da
 import 'package:schoolsgo_web/src/school_management/student_promotion_screen.dart';
 import 'package:schoolsgo_web/src/school_management/student_section_migration_screen.dart';
 import 'package:schoolsgo_web/src/school_management/subjects_info_screen.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class SchoolManagementOptionsScreen extends StatefulWidget {
   const SchoolManagementOptionsScreen({
@@ -122,9 +123,11 @@ class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsS
       appBar: AppBar(
         title: const Text("School Management"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(
@@ -158,7 +161,7 @@ class _SchoolManagementOptionsScreenState extends State<SchoolManagementOptionsS
                   null,
                   SectionInfoScreen(
                     adminProfile: widget.adminProfile,
-                      schoolInfoBean: schoolInfoBean,
+                    schoolInfoBean: schoolInfoBean,
                   ),
                 ),
                 _getStudentManagementOption(

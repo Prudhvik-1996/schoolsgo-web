@@ -5,14 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/logbook/model/logbook.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class LogbookScreen extends StatefulWidget {
   const LogbookScreen({Key? key, this.adminProfile, this.teacherProfile}) : super(key: key);
@@ -778,11 +779,13 @@ class _LogbookScreenState extends State<LogbookScreen> {
           buildRoleButtonForAppBar(context, widget.teacherProfile == null ? widget.adminProfile! : widget.teacherProfile!),
         ],
       ),
-      drawer: widget.teacherProfile == null
-          ? AdminAppDrawer(adminProfile: widget.adminProfile!)
-          : TeacherAppDrawer(
-              teacherProfile: widget.teacherProfile!,
-            ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.teacherProfile == null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : TeacherAppDrawer(
+                  teacherProfile: widget.teacherProfile!,
+                ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
@@ -44,6 +43,7 @@ class GetSuggestionBoxRequest {
     this.teacherIds,
     this.postingSectionIds,
   });
+
   GetSuggestionBoxRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     anonymous = json['anonymous'];
@@ -72,6 +72,7 @@ class GetSuggestionBoxRequest {
       postingSectionIds = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['anonymous'] = anonymous;
@@ -164,6 +165,7 @@ class Suggestion {
     this.franchiseName,
     this.branchCode,
   });
+
   Suggestion.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = int.tryParse(json['agent']?.toString() ?? '');
@@ -189,6 +191,7 @@ class Suggestion {
     franchiseName = json['franchiseName']?.toString();
     branchCode = json['branchCode']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -270,6 +273,7 @@ class GetSuggestionBoxResponse {
     this.responseStatus,
     this.schoolId,
   });
+
   GetSuggestionBoxResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toString();
@@ -287,6 +291,7 @@ class GetSuggestionBoxResponse {
     responseStatus = json['responseStatus']?.toString();
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -359,6 +364,7 @@ class CreateSuggestionRequest {
     this.schoolId,
     this.title,
   });
+
   CreateSuggestionRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     againstTeacherId = int.tryParse(json['againstTeacherId']?.toString() ?? '');
@@ -371,6 +377,7 @@ class CreateSuggestionRequest {
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
     title = json['title']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['againstTeacherId'] = againstTeacherId;
@@ -410,6 +417,7 @@ class CreateSuggestionResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateSuggestionResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -417,6 +425,7 @@ class CreateSuggestionResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -467,6 +476,7 @@ class UpdateSuggestionRequest {
     this.status,
     this.schoolId,
   });
+
   UpdateSuggestionRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = int.tryParse(json['agent']?.toString() ?? '');
@@ -475,6 +485,7 @@ class UpdateSuggestionRequest {
     status = json['status']?.toString();
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -510,6 +521,7 @@ class UpdateSuggestionResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   UpdateSuggestionResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -517,6 +529,7 @@ class UpdateSuggestionResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

@@ -39,6 +39,7 @@ class GetAssignmentsAndStudyMaterialTilesRequest {
     this.tdsId,
     this.teacherId,
   });
+
   GetAssignmentsAndStudyMaterialTilesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     franchiseId = json['franchiseId']?.toInt();
@@ -50,6 +51,7 @@ class GetAssignmentsAndStudyMaterialTilesRequest {
     tdsId = json['tdsId']?.toInt();
     teacherId = json['teacherId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['franchiseId'] = franchiseId;
@@ -108,6 +110,7 @@ class GetAssignmentsAndStudyMaterialTilesResponse {
     this.responseStatus,
     this.teacherDealingSections,
   });
+
   GetAssignmentsAndStudyMaterialTilesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -123,6 +126,7 @@ class GetAssignmentsAndStudyMaterialTilesResponse {
       teacherDealingSections = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -196,6 +200,7 @@ class GetStudyMaterialRequest {
     this.tdsId,
     this.teacherId,
   });
+
   GetStudyMaterialRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     assignmentAndStudyMaterialId = int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
@@ -208,6 +213,7 @@ class GetStudyMaterialRequest {
     tdsId = int.tryParse(json['tdsId']?.toString() ?? '');
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['assignmentAndStudyMaterialId'] = assignmentAndStudyMaterialId;
@@ -268,6 +274,7 @@ class StudyMaterialMedia {
     this.mediaUrl,
     this.status,
   });
+
   StudyMaterialMedia.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toString();
@@ -282,6 +289,7 @@ class StudyMaterialMedia {
     mediaUrl = json['mediaUrl']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -376,6 +384,7 @@ class StudyMaterial {
     this.teacherId,
     this.teacherName,
   });
+
   StudyMaterial.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toString();
@@ -408,6 +417,7 @@ class StudyMaterial {
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     teacherName = json['teacherName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -500,6 +510,7 @@ class GetStudyMaterialResponse {
     this.responseStatus,
     this.totalAssignmentsAndStudyMaterialBeans,
   });
+
   GetStudyMaterialResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['assignmentsAndStudyMaterialBeans'] != null && (json['assignmentsAndStudyMaterialBeans'] is List)) {
@@ -516,6 +527,7 @@ class GetStudyMaterialResponse {
     responseStatus = json['responseStatus']?.toString();
     totalAssignmentsAndStudyMaterialBeans = int.tryParse(json['totalAssignmentsAndStudyMaterialBeans']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (assignmentsAndStudyMaterialBeans != null) {
@@ -585,6 +597,7 @@ class CreateOrUpdateStudyMaterialRequest {
     this.studyMaterialType,
     this.tdsId,
   });
+
   CreateOrUpdateStudyMaterialRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
@@ -596,6 +609,7 @@ class CreateOrUpdateStudyMaterialRequest {
     studyMaterialType = json['studyMaterialType']?.toString();
     tdsId = int.tryParse(json['tdsId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -637,6 +651,7 @@ class CreateOrUpdateStudyMaterialResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudyMaterialResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     assignmentAndStudyMaterialId = int.tryParse(json['assignmentAndStudyMaterialId']?.toString() ?? '');
@@ -645,6 +660,7 @@ class CreateOrUpdateStudyMaterialResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['assignmentAndStudyMaterialId'] = assignmentAndStudyMaterialId;
@@ -705,6 +721,7 @@ class CreateOrUpdateStudyMaterialMediaMapRequest {
     this.mediaList,
     this.schoolId,
   });
+
   CreateOrUpdateStudyMaterialMediaMapRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
@@ -718,6 +735,7 @@ class CreateOrUpdateStudyMaterialMediaMapRequest {
     }
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -758,6 +776,7 @@ class CreateOrUpdateStudyMaterialMediaMapResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudyMaterialMediaMapResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -765,6 +784,7 @@ class CreateOrUpdateStudyMaterialMediaMapResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

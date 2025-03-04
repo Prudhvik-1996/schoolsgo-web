@@ -5,12 +5,14 @@ import 'settings_service.dart';
 
 class SettingsController with ChangeNotifier {
   SettingsController(this._settingsService);
+
   final SettingsService _settingsService;
 
   late ThemeMode _themeMode;
   late String _textTheme;
 
   ThemeMode get themeMode => _themeMode;
+
   String get textTheme => _textTheme;
 
   Future<void> loadSettings() async {

@@ -27,6 +27,7 @@ class GetTeachersRequest {
     this.franchiseId,
     this.academicYearId,
   });
+
   GetTeachersRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = int.tryParse(json["schoolId"]?.toString() ?? '');
@@ -34,6 +35,7 @@ class GetTeachersRequest {
     franchiseId = int.tryParse(json["franchiseId"]?.toString() ?? '');
     academicYearId = int.tryParse(json["academicYearId"]?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["schoolId"] = schoolId;

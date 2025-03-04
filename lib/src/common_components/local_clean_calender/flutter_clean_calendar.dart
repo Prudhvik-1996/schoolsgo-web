@@ -68,6 +68,7 @@ class Range {
 /// [bottomBarArrowColor] can set the [Color] of the arrow to expand/compress the calendar in the bottom bar.
 /// [bottomBarColor] sets the [Color] of the bottom bar
 /// [expandableDateFormat] defines the formatting of the date in the bottom bar
+
 class Calendar extends StatefulWidget {
   final ValueChanged<DateTime>? onDateSelected;
   final ValueChanged<DateTime>? onMonthChanged;
@@ -440,21 +441,21 @@ class CalendarState extends State<Calendar> {
                               ),
                             ),
                             if (start != null && end != null)
-                            Expanded(
-                              flex: 20,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    timeChip(start),
-                                    const SizedBox(height: 10),
-                                    timeChip(end),
-                                  ],
+                              Expanded(
+                                flex: 20,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      timeChip(start),
+                                      const SizedBox(height: 10),
+                                      timeChip(end),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            )
+                              )
                           ],
                         ),
                       ),

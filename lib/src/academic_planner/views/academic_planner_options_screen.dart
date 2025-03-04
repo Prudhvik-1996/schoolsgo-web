@@ -5,6 +5,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class AdminAcademicPlannerOptionsScreen extends StatefulWidget {
   const AdminAcademicPlannerOptionsScreen({
@@ -88,11 +89,13 @@ class _AdminAcademicPlannerOptionsScreenState extends State<AdminAcademicPlanner
       appBar: AppBar(
         title: const Text("Academic Planner"),
       ),
-      drawer: widget.adminProfile != null
-          ? AdminAppDrawer(
-              adminProfile: widget.adminProfile!,
-            )
-          : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(
+                  adminProfile: widget.adminProfile!,
+                )
+              : TeacherAppDrawer(teacherProfile: widget.teacherProfile!),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

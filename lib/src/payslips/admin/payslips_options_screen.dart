@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/payslips/admin/months_and_years/payslips_months_and_years.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslip_components/payslips_components_screen.dart';
 import 'package:schoolsgo_web/src/payslips/admin/payslip_templates/payslip_templates_all_employees_screen.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class PayslipsOptionsScreen extends StatefulWidget {
   const PayslipsOptionsScreen({
@@ -89,9 +90,11 @@ class _PayslipsOptionsScreenState extends State<PayslipsOptionsScreen> {
       appBar: AppBar(
         title: const Text("Payslips"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

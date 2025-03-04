@@ -7,7 +7,6 @@ import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 
 class GetCalenderEventsRequest {
-
   String? endDate;
   int? eventId;
   int? schoolId;
@@ -22,6 +21,7 @@ class GetCalenderEventsRequest {
     this.sectionId,
     this.startDate,
   });
+
   GetCalenderEventsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     endDate = json['endDate']?.toString();
@@ -30,6 +30,7 @@ class GetCalenderEventsRequest {
     sectionId = json['sectionId']?.toInt();
     startDate = json['startDate']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['endDate'] = endDate;
@@ -39,11 +40,11 @@ class GetCalenderEventsRequest {
     data['startDate'] = startDate;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class SectionWiseEventBean {
-
   int? agentId;
   String? description;
   int? eventId;
@@ -62,6 +63,7 @@ class SectionWiseEventBean {
     this.sectionWiseEventId,
     this.status,
   });
+
   SectionWiseEventBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -72,6 +74,7 @@ class SectionWiseEventBean {
     sectionWiseEventId = json['sectionWiseEventId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -83,11 +86,11 @@ class SectionWiseEventBean {
     data['status'] = status;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class CalenderEvent {
-
   int? agentId;
   String? color;
   String? description;
@@ -123,6 +126,7 @@ class CalenderEvent {
   }) {
     getColorCode();
   }
+
   CalenderEvent.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -143,6 +147,7 @@ class CalenderEvent {
     status = json['status']?.toString();
     subject = json['subject']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -164,11 +169,11 @@ class CalenderEvent {
     data['subject'] = subject;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class GetCalenderEventsResponse {
-
   List<CalenderEvent?>? calenderEventList;
   String? errorCode;
   String? errorMessage;
@@ -183,6 +188,7 @@ class GetCalenderEventsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetCalenderEventsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['calenderEventList'] != null) {
@@ -198,6 +204,7 @@ class GetCalenderEventsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (calenderEventList != null) {
@@ -214,6 +221,7 @@ class GetCalenderEventsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -232,7 +240,6 @@ Future<GetCalenderEventsResponse> getCalenderEvents(GetCalenderEventsRequest get
 }
 
 class CreateOrUpdateCalenderEventsRequest {
-
   int? agentId;
   List<CalenderEvent?>? calenderEventBeans;
   int? schoolId;
@@ -243,6 +250,7 @@ class CreateOrUpdateCalenderEventsRequest {
     this.calenderEventBeans,
     this.schoolId,
   });
+
   CreateOrUpdateCalenderEventsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -256,6 +264,7 @@ class CreateOrUpdateCalenderEventsRequest {
     }
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -270,11 +279,11 @@ class CreateOrUpdateCalenderEventsRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
 class CreateOrUpdateCalenderEventsResponse {
-
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -287,6 +296,7 @@ class CreateOrUpdateCalenderEventsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateCalenderEventsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -294,6 +304,7 @@ class CreateOrUpdateCalenderEventsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -302,10 +313,12 @@ class CreateOrUpdateCalenderEventsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateCalenderEventsResponse> createOrUpdateCalenderEvents(CreateOrUpdateCalenderEventsRequest createOrUpdateCalenderEventsRequest) async {
+Future<CreateOrUpdateCalenderEventsResponse> createOrUpdateCalenderEvents(
+    CreateOrUpdateCalenderEventsRequest createOrUpdateCalenderEventsRequest) async {
   debugPrint("Raising request to createOrUpdateCalenderEvents with request ${jsonEncode(createOrUpdateCalenderEventsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_CALENDER_EVENTS;
 

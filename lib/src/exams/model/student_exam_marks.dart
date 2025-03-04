@@ -39,6 +39,7 @@ class StudentExamMediaBean {
     this.mediaUrlId,
     this.status,
   });
+
   StudentExamMediaBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -50,6 +51,7 @@ class StudentExamMediaBean {
     mediaUrlId = json['mediaUrlId']?.toInt();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -62,6 +64,7 @@ class StudentExamMediaBean {
     data['status'] = status;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -79,7 +82,11 @@ class StudentExamMarks {
 
   ScrollController mediaScrollController = ScrollController();
 
-  String getMarksObtained() => isAbsent == 'N' ? "Absent" : marksObtained == null ? "-" : doubleToStringAsFixed(marksObtained, decimalPlaces: 2);
+  String getMarksObtained() => isAbsent == 'N'
+      ? "Absent"
+      : marksObtained == null
+          ? "-"
+          : doubleToStringAsFixed(marksObtained, decimalPlaces: 2);
 
   StudentExamMarks({
     this.agent,
@@ -92,6 +99,7 @@ class StudentExamMarks {
     this.studentExamMediaBeans,
     this.studentId,
   });
+
   StudentExamMarks.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -111,6 +119,7 @@ class StudentExamMarks {
     }
     studentId = json['studentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -131,6 +140,7 @@ class StudentExamMarks {
     data['studentId'] = studentId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -175,6 +185,7 @@ class CreateOrUpdateExamMarksRequest {
     this.examMarks,
     this.schoolId,
   });
+
   CreateOrUpdateExamMarksRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -188,6 +199,7 @@ class CreateOrUpdateExamMarksRequest {
     }
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -202,6 +214,7 @@ class CreateOrUpdateExamMarksRequest {
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -227,6 +240,7 @@ class CreateOrUpdateExamMarksResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateExamMarksResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -234,6 +248,7 @@ class CreateOrUpdateExamMarksResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -242,6 +257,7 @@ class CreateOrUpdateExamMarksResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

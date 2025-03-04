@@ -24,6 +24,8 @@ import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class StudentCardWidgetV2 extends StatefulWidget {
   const StudentCardWidgetV2({
     Key? key,
@@ -546,8 +548,7 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
                           ],
                         ),
                       ),
-                      if (_isOtherLoading)
-                        const EpsilonDiaryLoadingWidget(),
+                      if (_isOtherLoading) const EpsilonDiaryLoadingWidget(),
                     ],
                   ),
                 ),
@@ -682,11 +683,13 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           child: RadioListTile<String?>(
             value: "male",
             groupValue: widget.studentProfile.sex,
-            onChanged: !_isEditMode ? null : (String? value) {
-              setState(() {
-                widget.studentProfile.sex = value;
-              });
-            },
+            onChanged: !_isEditMode
+                ? null
+                : (String? value) {
+                    setState(() {
+                      widget.studentProfile.sex = value;
+                    });
+                  },
             title: const SizedBox(
               width: 80,
               child: FittedBox(
@@ -703,11 +706,13 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
           child: RadioListTile<String?>(
             value: "female",
             groupValue: widget.studentProfile.sex,
-            onChanged: !_isEditMode ? null : (String? value) {
-              setState(() {
-                widget.studentProfile.sex = value;
-              });
-            },
+            onChanged: !_isEditMode
+                ? null
+                : (String? value) {
+                    setState(() {
+                      widget.studentProfile.sex = value;
+                    });
+                  },
             title: const SizedBox(
               width: 80,
               child: FittedBox(
@@ -923,10 +928,8 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
         children: [
           headerWidget("Parent Details"),
           const SizedBox(height: 20),
-          if (_isEditMode)
-            selectSiblingWidget(),
-          if (_isEditMode)
-            const SizedBox(height: 10),
+          if (_isEditMode) selectSiblingWidget(),
+          if (_isEditMode) const SizedBox(height: 10),
           ...fatherDetailsRows(),
           const SizedBox(height: 10),
           ...motherDetailsRows(),
@@ -1431,11 +1434,13 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             child: DropdownButton<String>(
               hint: const Center(child: Text("Select Category")),
               value: CASTE_CATEGORIES.where((e) => e == widget.studentProfile.category).firstOrNull,
-              onChanged: !_isEditMode ? null : (String? category) {
-                setState(() {
-                  widget.studentProfile.category = category;
-                });
-              },
+              onChanged: !_isEditMode
+                  ? null
+                  : (String? category) {
+                      setState(() {
+                        widget.studentProfile.category = category;
+                      });
+                    },
               items: CASTE_CATEGORIES
                   .map(
                     (e) => DropdownMenuItem<String>(
@@ -1831,34 +1836,36 @@ class _StudentCardWidgetV2State extends State<StudentCardWidgetV2> {
             child: DropdownButton<StudentStatus>(
               hint: const Center(child: Text("Select Category")),
               value: StudentStatus.values.where((e) => e.name == widget.studentProfile.studentStatus).firstOrNull,
-              onChanged: !_isEditMode ? null : (StudentStatus? status) {
-                setState(() {
-                  widget.studentProfile.studentStatus = status?.name;
-                });
-              },
+              onChanged: !_isEditMode
+                  ? null
+                  : (StudentStatus? status) {
+                      setState(() {
+                        widget.studentProfile.studentStatus = status?.name;
+                      });
+                    },
               items: StudentStatus.values
                   .map(
                     (e) => DropdownMenuItem<StudentStatus>(
-                  value: e,
-                  child: SizedBox(
-                    width: 75,
-                    height: 50,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: Text(
-                          e.description,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
+                      value: e,
+                      child: SizedBox(
+                        width: 75,
+                        height: 50,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(
+                              e.description,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              )
+                  )
                   .toList(),
             ),
           ),

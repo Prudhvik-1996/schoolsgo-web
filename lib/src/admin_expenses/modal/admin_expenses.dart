@@ -1,8 +1,8 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
-import 'package:collection/collection.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
@@ -168,6 +168,7 @@ class AdminExpenseBean {
   }
 
   bool getIsPocketTransaction() => (isPocketTransaction ?? "N") == "Y";
+
   bool getIsPartOfExpenseInstallments() => planId != null;
 
   String? get errorTextForExpenseType {
@@ -576,13 +577,17 @@ class ExpenseInstallmentPlanBean {
   TextEditingController amountEditingController = TextEditingController();
 
   String? get titleErrorText => (planTitle ?? "").trim().isEmpty ? "Title cannot be empty" : null;
+
   String? get descriptionErrorText => null;
+
   String? get amountErrorText => (amount ?? 0) == 0 ? "Amount must be greater than 0" : null;
 
   int get totalPaidAmount =>
       (expenseBeans ?? []).isEmpty ? 0 : (expenseBeans ?? []).where((e) => e?.status == 'active').map((e) => e?.amount ?? 0).reduce((a, b) => a + b);
 
-  int get installmentsTotal => (expenseInstallments ?? []).isEmpty ? 0 : (expenseInstallments ?? []).where((e) => e?.status == 'active').map((e) => e?.amount ?? 0).reduce((a, b) => a + b);
+  int get installmentsTotal => (expenseInstallments ?? []).isEmpty
+      ? 0
+      : (expenseInstallments ?? []).where((e) => e?.status == 'active').map((e) => e?.amount ?? 0).reduce((a, b) => a + b);
 
   List<ExpenseInstallmentBean> get activeInstallments =>
       (expenseInstallments ?? []).where((e) => e?.status == 'active').whereNotNull().sorted((a, b) {
@@ -753,7 +758,6 @@ Future<GetExpenseInstallmentPlansResponse> getExpenseInstallmentPlans(GetExpense
 class CreateOrUpdateExpenseInstallmentPlanRequest extends ExpenseInstallmentPlanBean {}
 
 class CreateOrUpdateExpenseInstallmentPlanResponse {
-
   String? errorCode;
   String? errorMessage;
   int? expenseInstallmentPlanId;
@@ -768,6 +772,7 @@ class CreateOrUpdateExpenseInstallmentPlanResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateExpenseInstallmentPlanResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -776,6 +781,7 @@ class CreateOrUpdateExpenseInstallmentPlanResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -785,11 +791,14 @@ class CreateOrUpdateExpenseInstallmentPlanResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<CreateOrUpdateExpenseInstallmentPlanResponse> createOrUpdateExpenseInstallmentPlan(CreateOrUpdateExpenseInstallmentPlanRequest createOrUpdateExpenseInstallmentPlanRequest) async {
-  debugPrint("Raising request to createOrUpdateExpenseInstallmentPlan with request ${jsonEncode(createOrUpdateExpenseInstallmentPlanRequest.toJson())}");
+Future<CreateOrUpdateExpenseInstallmentPlanResponse> createOrUpdateExpenseInstallmentPlan(
+    CreateOrUpdateExpenseInstallmentPlanRequest createOrUpdateExpenseInstallmentPlanRequest) async {
+  debugPrint(
+      "Raising request to createOrUpdateExpenseInstallmentPlan with request ${jsonEncode(createOrUpdateExpenseInstallmentPlanRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + CREATE_OR_UPDATE_EXPENSE_INSTALLMENT_PLAN;
 
   CreateOrUpdateExpenseInstallmentPlanResponse createOrUpdateExpenseInstallmentPlanResponse = await HttpUtils.post(

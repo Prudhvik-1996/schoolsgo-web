@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/hostel/admin/hostel_management_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/student_pocket_money/admin/admin_student_pocket_money_screen.dart';
 
 class AdminHostelOptionsScreen extends StatefulWidget {
@@ -86,9 +87,11 @@ class _AdminHostelOptionsScreenState extends State<AdminHostelOptionsScreen> {
       appBar: AppBar(
         title: const Text("Hostel"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

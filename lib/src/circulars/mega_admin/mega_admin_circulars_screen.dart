@@ -12,13 +12,14 @@ import 'package:schoolsgo_web/src/circulars/modal/circular_type.dart';
 import 'package:schoolsgo_web/src/circulars/modal/circulars.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/media_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/file_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class MegaAdminCircularsScreen extends StatefulWidget {
   const MegaAdminCircularsScreen({Key? key, required this.megaAdminProfile}) : super(key: key);
@@ -101,9 +102,11 @@ class _MegaAdminCircularsScreenState extends State<MegaAdminCircularsScreen> {
           buildRoleButtonForAppBar(context, widget.megaAdminProfile),
         ],
       ),
-      drawer: MegaAdminAppDrawer(
-        megaAdminProfile: widget.megaAdminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : MegaAdminAppDrawer(
+              megaAdminProfile: widget.megaAdminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : _uploadingFile != null

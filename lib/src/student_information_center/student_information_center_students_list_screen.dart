@@ -127,13 +127,13 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
         actions: [
           if (!_isLoading)
             IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: () async {
-              setState(() => _isLoading = true);
-              await downloadStudentMasterData();
-              setState(() => _isLoading = false);
-            },
-          ),
+              icon: const Icon(Icons.download),
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                await downloadStudentMasterData();
+                setState(() => _isLoading = false);
+              },
+            ),
         ],
       ),
       body: _isLoading

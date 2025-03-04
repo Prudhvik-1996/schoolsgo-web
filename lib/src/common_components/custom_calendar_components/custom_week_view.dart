@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/custom_calendar_components/internal_week_view.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 
-
-
 /// [Widget] to display week view.
 class CustomWeekView<T extends Object?> extends StatefulWidget {
   /// Builder to build tile for events.
@@ -178,12 +176,10 @@ class CustomWeekView<T extends Object?> extends StatefulWidget {
     this.headerStyle = const HeaderStyle(),
     this.safeAreaOption = const SafeAreaOption(),
     this.fullDayEventBuilder,
-  })  :
-        assert(width == null || width > 0,
-        "Calendar width must be greater than 0."),
+  })  : assert(width == null || width > 0, "Calendar width must be greater than 0."),
         assert(
-        weekDetectorBuilder == null || onDateLongPress == null,
-        """If you use [weekPressDetectorBuilder] 
+          weekDetectorBuilder == null || onDateLongPress == null,
+          """If you use [weekPressDetectorBuilder] 
           do not provide [onDateLongPress]""",
         ),
         super(key: key);
@@ -230,8 +226,7 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
     super.initState();
 
     _width = widget.width!;
-    _weekHeaderBuilder =
-        widget.weekPageHeaderBuilder ?? _defaultWeekPageHeaderBuilder;
+    _weekHeaderBuilder = widget.weekPageHeaderBuilder ?? _defaultWeekPageHeaderBuilder;
     _reloadCallback = _reload;
 
     _setWeekDays();
@@ -241,39 +236,34 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
 
     _regulateCurrentDate();
 
-    _scrollController =
-        ScrollController(initialScrollOffset: widget.scrollOffset);
+    _scrollController = ScrollController(initialScrollOffset: widget.scrollOffset);
     _pageController = PageController(initialPage: _currentIndex);
-
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
+    final newController = widget.controller ?? CalendarControllerProvider.of<T>(context).controller;
 
     if (_controller != newController) {
       _controller = newController;
 
       _controller!
-      // Removes existing callback.
+        // Removes existing callback.
         ..removeListener(_reloadCallback)
 
-      // Reloads the view if there is any change in controller or
-      // user adds new events.
+        // Reloads the view if there is any change in controller or
+        // user adds new events.
         ..addListener(_reloadCallback);
     }
-
   }
 
   @override
   void didUpdateWidget(CustomWeekView<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Update controller.
-    final newController = widget.controller ??
-        CalendarControllerProvider.of<T>(context).controller;
+    final newController = widget.controller ?? CalendarControllerProvider.of<T>(context).controller;
 
     if (newController != _controller) {
       _controller?.removeListener(_reloadCallback);
@@ -284,8 +274,7 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
     _setWeekDays();
 
     // Update date range.
-    if (widget.minDay != oldWidget.minDay ||
-        widget.maxDay != oldWidget.maxDay) {
+    if (widget.minDay != oldWidget.minDay || widget.maxDay != oldWidget.maxDay) {
       _setDateRange();
       _regulateCurrentDate();
 
@@ -322,28 +311,27 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
                     controller: _pageController,
                     onPageChanged: _onPageChange,
                     itemBuilder: (_, index) {
-                      final dates = DateTime(_minDate.year, _minDate.month,
-                          _minDate.day + (index * DateTime.daysPerWeek))
-                          .datesOfWeek(start: widget.startDay);
+                      final dates =
+                          DateTime(_minDate.year, _minDate.month, _minDate.day + (index * DateTime.daysPerWeek)).datesOfWeek(start: widget.startDay);
 
                       return CustomInternalWeekViewPage<T>(
-                          height: _height,
-                          width: _width,
-                          weekTitleWidth: _weekTitleWidth,
-                          weekTitleHeight: widget.weekTitleHeight,
-                          weekDayBuilder: _weekDayBuilder,
-                          weekNumberBuilder: _weekNumberBuilder,
-                          weekDetectorBuilder: _weekDetectorBuilder,
-                          onTileTap: widget.onEventTap,
-                          onDateLongPress: widget.onDateLongPress,
-                          onDateTap: widget.onDateTap,
-                          eventTileBuilder: _eventTileBuilder,
-                          dates: dates,
-                          verticalLineOffset: 0,
-                          showVerticalLine: true,
-                          controller: controller,
-                          scrollController: _scrollController,
-                          weekDays: _weekDays,
+                        height: _height,
+                        width: _width,
+                        weekTitleWidth: _weekTitleWidth,
+                        weekTitleHeight: widget.weekTitleHeight,
+                        weekDayBuilder: _weekDayBuilder,
+                        weekNumberBuilder: _weekNumberBuilder,
+                        weekDetectorBuilder: _weekDetectorBuilder,
+                        onTileTap: widget.onEventTap,
+                        onDateLongPress: widget.onDateLongPress,
+                        onDateTap: widget.onDateTap,
+                        eventTileBuilder: _eventTileBuilder,
+                        dates: dates,
+                        verticalLineOffset: 0,
+                        showVerticalLine: true,
+                        controller: controller,
+                        scrollController: _scrollController,
+                        weekDays: _weekDays,
                       );
                     },
                   ),
@@ -385,16 +373,15 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
     }
 
     assert(
-    _weekDays.isNotEmpty,
-    "weekDays can not be empty.\n"
+        _weekDays.isNotEmpty,
+        "weekDays can not be empty.\n"
         "Make sure you are providing weekdays in initialization of "
         "WeekView. or showWeekends is true if you are providing only "
         "saturday or sunday in weekDays.");
     _totalDaysInWeek = _weekDays.length;
   }
 
-  Widget _defaultFullDayEventBuilder(
-      List<CalendarEventData<T>> events, DateTime dateTime) {
+  Widget _defaultFullDayEventBuilder(List<CalendarEventData<T>> events, DateTime dateTime) {
     return FullDayEventView(
       events: events,
       boxConstraints: BoxConstraints(maxHeight: 65),
@@ -419,28 +406,22 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
 
     _currentStartDate = _currentWeek.firstDayOfWeek(start: widget.startDay);
     _currentEndDate = _currentWeek.lastDayOfWeek(start: widget.startDay);
-    _currentIndex =
-        _minDate.getWeekDifference(_currentEndDate, start: widget.startDay);
+    _currentIndex = _minDate.getWeekDifference(_currentEndDate, start: widget.startDay);
   }
 
   /// Sets the minimum and maximum dates for current view.
   void _setDateRange() {
-    _minDate = (widget.minDay ?? CalendarConstants.epochDate)
-        .firstDayOfWeek(start: widget.startDay)
-        .withoutTime;
+    _minDate = (widget.minDay ?? CalendarConstants.epochDate).firstDayOfWeek(start: widget.startDay).withoutTime;
 
-    _maxDate = (widget.maxDay ?? CalendarConstants.maxDate)
-        .lastDayOfWeek(start: widget.startDay)
-        .withoutTime;
+    _maxDate = (widget.maxDay ?? CalendarConstants.maxDate).lastDayOfWeek(start: widget.startDay).withoutTime;
 
     assert(
-    _minDate.isBefore(_maxDate),
-    "Minimum date must be less than maximum date.\n"
-        "Provided minimum date: $_minDate, maximum date: $_maxDate",
+      _minDate.isBefore(_maxDate),
+      "Minimum date must be less than maximum date.\n"
+      "Provided minimum date: $_minDate, maximum date: $_maxDate",
     );
 
-    _totalWeeks =
-        _minDate.getWeekDifference(_maxDate, start: widget.startDay) + 1;
+    _totalWeeks = _minDate.getWeekDifference(_maxDate, start: widget.startDay) + 1;
   }
 
   /// Default press detector builder. This builder will be used if
@@ -502,10 +483,8 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(widget.weekDayStringBuilder?.call(date.weekday - 1) ??
-              WEEKS[date.weekday - 1]),
-          Text(widget.weekDayDateStringBuilder?.call(date.day) ??
-              date.day.toString()),
+          Text(widget.weekDayStringBuilder?.call(date.weekday - 1) ?? WEEKS[date.weekday - 1]),
+          Text(widget.weekDayDateStringBuilder?.call(date.day) ?? date.day.toString()),
         ],
       ),
     );
@@ -561,11 +540,8 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
   /// Arguments [duration] and [curve] will override default values provided
   /// as [DayView.pageTransitionDuration] and [DayView.pageTransitionCurve]
   /// respectively.
-  Future<void> animateToPage(int page,
-      {Duration? duration, Curve? curve}) async {
-    await _pageController.animateToPage(page,
-        duration: duration ?? widget.pageTransitionDuration,
-        curve: curve ?? widget.pageTransitionCurve);
+  Future<void> animateToPage(int page, {Duration? duration, Curve? curve}) async {
+    await _pageController.animateToPage(page, duration: duration ?? widget.pageTransitionDuration, curve: curve ?? widget.pageTransitionCurve);
   }
 
   /// Returns current page number.
@@ -576,8 +552,7 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
     if (week.isBefore(_minDate) || week.isAfter(_maxDate)) {
       throw "Invalid date selected.";
     }
-    _pageController
-        .jumpToPage(_minDate.getWeekDifference(week, start: widget.startDay));
+    _pageController.jumpToPage(_minDate.getWeekDifference(week, start: widget.startDay));
   }
 
   /// Animate to page which gives day calendar for [week].
@@ -585,8 +560,7 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
   /// Arguments [duration] and [curve] will override default values provided
   /// as [CustomWeekView.pageTransitionDuration] and [CustomWeekView.pageTransitionCurve]
   /// respectively.
-  Future<void> animateToWeek(DateTime week,
-      {Duration? duration, Curve? curve}) async {
+  Future<void> animateToWeek(DateTime week, {Duration? duration, Curve? curve}) async {
     if (week.isBefore(_minDate) || week.isAfter(_maxDate)) {
       throw "Invalid date selected.";
     }
@@ -598,15 +572,14 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
   }
 
   /// Returns the current visible week's first date.
-  DateTime get currentDate => DateTime(
-      _currentStartDate.year, _currentStartDate.month, _currentStartDate.day);
+  DateTime get currentDate => DateTime(_currentStartDate.year, _currentStartDate.month, _currentStartDate.day);
 
   /// Animate to specific scroll controller offset
   void animateTo(
-      double offset, {
-        Duration duration = const Duration(milliseconds: 200),
-        Curve curve = Curves.linear,
-      }) {
+    double offset, {
+    Duration duration = const Duration(milliseconds: 200),
+    Curve curve = Curves.linear,
+  }) {
     _scrollController.animateTo(
       offset,
       duration: duration,
@@ -616,8 +589,7 @@ class CustomWeekViewState<T extends Object?> extends State<CustomWeekView<T>> {
 
   /// check if any dates contains current date or not.
   /// Returns true if it does else false.
-  bool _showLiveTimeIndicator(List<DateTime> dates) =>
-      dates.any((date) => date.compareWithoutTime(DateTime.now()));
+  bool _showLiveTimeIndicator(List<DateTime> dates) => dates.any((date) => date.compareWithoutTime(DateTime.now()));
 
   /// Default view header builder. This builder will be used if
   /// [widget.dayTitleBuilder] is null.

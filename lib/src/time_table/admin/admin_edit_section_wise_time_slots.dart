@@ -16,6 +16,8 @@ import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget
 
 import 'admin_bulk_edit_section_wise_time_slots.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class AdminEditSectionWiseTimeSlots extends StatefulWidget {
   final AdminProfile adminProfile;
 

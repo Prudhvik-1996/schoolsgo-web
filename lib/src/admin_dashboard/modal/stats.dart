@@ -20,17 +20,20 @@ class GetSchoolWiseStatsRequest {
     this.date,
     this.schoolId,
   });
+
   GetSchoolWiseStatsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     date = json['date']?.toString();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['date'] = date;
     data['schoolId'] = schoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -91,6 +94,7 @@ class GetSchoolWiseStatsResponse {
     this.totalNoOfEmployeesMarkedForAttendance,
     this.totalExpensesForTheDay,
   });
+
   GetSchoolWiseStatsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     date = json['date']?.toString();
@@ -111,6 +115,7 @@ class GetSchoolWiseStatsResponse {
     totalNoOfEmployeesMarkedForAttendance = json['totalNoOfEmployeesMarkedForAttendance']?.toInt();
     totalExpensesForTheDay = json['totalExpensesForTheDay']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['date'] = date;
@@ -132,11 +137,11 @@ class GetSchoolWiseStatsResponse {
     data['totalExpensesForTheDay'] = totalExpensesForTheDay;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
-Future<GetSchoolWiseStatsResponse> getSchoolWiseStats(
-    GetSchoolWiseStatsRequest getSchoolWiseStatsRequest) async {
+Future<GetSchoolWiseStatsResponse> getSchoolWiseStats(GetSchoolWiseStatsRequest getSchoolWiseStatsRequest) async {
   debugPrint("Raising request to getSchoolWiseStats with request ${jsonEncode(getSchoolWiseStatsRequest.toJson())}");
   String _url = SCHOOLS_GO_BASE_URL + GET_SCHOOL_WISE_STATS;
 

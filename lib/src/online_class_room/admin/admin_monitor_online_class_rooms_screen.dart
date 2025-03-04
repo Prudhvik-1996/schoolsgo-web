@@ -12,12 +12,15 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class AdminMonitorOnlineClassRoomsScreen extends StatefulWidget {
   const AdminMonitorOnlineClassRoomsScreen({Key? key, required this.adminProfile}) : super(key: key);
 
   final AdminProfile adminProfile;
 
   static const routeName = "/onlineclassroom";
+
   @override
   _AdminMonitorOnlineClassRoomsScreenState createState() => _AdminMonitorOnlineClassRoomsScreenState();
 }
@@ -846,7 +849,7 @@ class _AdminMonitorOnlineClassRoomsScreenState extends State<AdminMonitorOnlineC
           ),
         ],
       ),
-      drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : AdminAppDrawer(adminProfile: widget.adminProfile),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : CustomScrollView(

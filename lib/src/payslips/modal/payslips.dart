@@ -18,10 +18,12 @@ class GetMonthsAndYearsForSchoolsRequest {
   GetMonthsAndYearsForSchoolsRequest({
     this.schoolId,
   });
+
   GetMonthsAndYearsForSchoolsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['schoolId'] = schoolId;
@@ -67,6 +69,7 @@ class MonthAndYearForSchoolBean {
     this.status,
     this.year,
   });
+
   MonthAndYearForSchoolBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -78,6 +81,7 @@ class MonthAndYearForSchoolBean {
     status = json['status']?.toString();
     year = json['year']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -130,6 +134,7 @@ class GetMonthsAndYearsForSchoolsResponse {
     this.monthAndYearForSchoolBeans,
     this.responseStatus,
   });
+
   GetMonthsAndYearsForSchoolsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -145,6 +150,7 @@ class GetMonthsAndYearsForSchoolsResponse {
     }
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -204,6 +210,7 @@ class CreateMonthsAndYearsForSchoolsResponse {
     this.monthAndYearForSchoolId,
     this.responseStatus,
   });
+
   CreateMonthsAndYearsForSchoolsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -212,6 +219,7 @@ class CreateMonthsAndYearsForSchoolsResponse {
     monthAndYearForSchoolId = json['monthAndYearForSchoolId']?.toInt();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -257,11 +265,13 @@ class GetPayslipComponentsRequest {
     this.payslipComponentId,
     this.schoolId,
   });
+
   GetPayslipComponentsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     payslipComponentId = json['payslipComponentId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['payslipComponentId'] = payslipComponentId;
@@ -308,6 +318,7 @@ class PayslipComponentBean {
   }) {
     componentNameController.text = componentName ?? "";
   }
+
   PayslipComponentBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -319,6 +330,7 @@ class PayslipComponentBean {
     schoolName = json['schoolName']?.toString();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -369,6 +381,7 @@ class GetPayslipComponentsResponse {
     this.payslipComponentBeans,
     this.responseStatus,
   });
+
   GetPayslipComponentsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -384,6 +397,7 @@ class GetPayslipComponentsResponse {
     }
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -447,6 +461,7 @@ class CreateOrUpdatePayslipComponentsRequest {
     this.payslipComponents,
     this.schoolId,
   });
+
   CreateOrUpdatePayslipComponentsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -460,6 +475,7 @@ class CreateOrUpdatePayslipComponentsRequest {
     }
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -500,6 +516,7 @@ class CreateOrUpdatePayslipComponentsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdatePayslipComponentsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -507,6 +524,7 @@ class CreateOrUpdatePayslipComponentsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -553,12 +571,14 @@ class GetPayslipTemplateForEmployeeRequest {
     this.franchiseId,
     this.schoolId,
   });
+
   GetPayslipTemplateForEmployeeRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeId = json['employeeId']?.toInt();
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['employeeId'] = employeeId;
@@ -623,6 +643,7 @@ class PayslipTemplateComponentBean {
   }) {
     amountController.text = amount == null ? "-" : doubleToStringAsFixed(amount! / 100.0, decimalPlaces: 2);
   }
+
   PayslipTemplateComponentBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -640,6 +661,7 @@ class PayslipTemplateComponentBean {
     status = json['status']?.toString();
     templateComponentId = json['templateComponentId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -711,6 +733,7 @@ class PayslipTemplateForEmployeeBean {
     this.schoolDisplayName,
     this.schoolId,
   });
+
   PayslipTemplateForEmployeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeId = json['employeeId']?.toInt();
@@ -729,6 +752,7 @@ class PayslipTemplateForEmployeeBean {
     schoolDisplayName = json['schoolDisplayName']?.toString();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['employeeId'] = employeeId;
@@ -802,6 +826,7 @@ class GetPayslipTemplateForEmployeeResponse {
     this.payslipTemplateForEmployeeBeans,
     this.responseStatus,
   });
+
   GetPayslipTemplateForEmployeeResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -817,6 +842,7 @@ class GetPayslipTemplateForEmployeeResponse {
     }
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -896,6 +922,7 @@ class CreateOrUpdatePayslipTemplateForEmployeeBeanRequest {
     this.payslipTemplateForEmployeeBean,
     this.schoolId,
   });
+
   CreateOrUpdatePayslipTemplateForEmployeeBeanRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -903,6 +930,7 @@ class CreateOrUpdatePayslipTemplateForEmployeeBeanRequest {
         (json['payslipTemplateForEmployeeBean'] != null) ? PayslipTemplateForEmployeeBean.fromJson(json['payslipTemplateForEmployeeBean']) : null;
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -938,6 +966,7 @@ class CreateOrUpdatePayslipTemplateForEmployeeBeanResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdatePayslipTemplateForEmployeeBeanResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -945,6 +974,7 @@ class CreateOrUpdatePayslipTemplateForEmployeeBeanResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -995,6 +1025,7 @@ class GetEmployeePayslipsRequest {
     this.monthYearId,
     this.schoolId,
   });
+
   GetEmployeePayslipsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeId = json['employeeId']?.toInt();
@@ -1002,6 +1033,7 @@ class GetEmployeePayslipsRequest {
     monthYearId = json['monthYearId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['employeeId'] = employeeId;
@@ -1069,6 +1101,7 @@ class MonthWiseEmployeePayslipComponentBean {
     this.schoolName,
     this.year,
   });
+
   MonthWiseEmployeePayslipComponentBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     amount = json['amount']?.toInt();
@@ -1087,6 +1120,7 @@ class MonthWiseEmployeePayslipComponentBean {
     schoolName = json['schoolName']?.toString();
     year = json['year']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['amount'] = amount;
@@ -1119,6 +1153,7 @@ class MonthlyEmployeePayslipBean {
     this.monthAndYearBean,
     this.monthWiseEmployeePayslipComponentBeans,
   });
+
   MonthlyEmployeePayslipBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     monthAndYearBean = (json['monthAndYearBean'] != null) ? MonthAndYearForSchoolBean.fromJson(json['monthAndYearBean']) : null;
@@ -1131,6 +1166,7 @@ class MonthlyEmployeePayslipBean {
       monthWiseEmployeePayslipComponentBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (monthAndYearBean != null) {
@@ -1185,6 +1221,7 @@ class EmployeeBean {
     this.schoolId,
     this.photoUrl,
   });
+
   EmployeeBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeId = json['employeeId']?.toInt();
@@ -1203,6 +1240,7 @@ class EmployeeBean {
     schoolId = json['schoolId']?.toInt();
     photoUrl = json['photoUrl']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['employeeId'] = employeeId;
@@ -1299,6 +1337,7 @@ class EmployeePayslipBean {
     this.employeeBean,
     this.monthlyEmployeePayslipBeans,
   });
+
   EmployeePayslipBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     employeeBean = (json['employeeBean'] != null) ? EmployeeBean.fromJson(json['employeeBean']) : null;
@@ -1311,6 +1350,7 @@ class EmployeePayslipBean {
       monthlyEmployeePayslipBeans = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (employeeBean != null) {
@@ -1446,6 +1486,7 @@ class GetEmployeePayslipsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetEmployeePayslipsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['employeePayslipBeans'] != null) {
@@ -1461,6 +1502,7 @@ class GetEmployeePayslipsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (employeePayslipBeans != null) {
@@ -1556,6 +1598,7 @@ class EmployeeLopBean {
     this.status,
     this.year,
   });
+
   EmployeeLopBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1576,6 +1619,7 @@ class EmployeeLopBean {
     status = json['status']?.toString();
     year = json['year']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1643,6 +1687,7 @@ class CreateOrUpdateLossOfPayForEmployeesRequest {
     this.lopBeans,
     this.schoolId,
   });
+
   CreateOrUpdateLossOfPayForEmployeesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1657,6 +1702,7 @@ class CreateOrUpdateLossOfPayForEmployeesRequest {
     }
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1698,6 +1744,7 @@ class CreateOrUpdateLossOfPayForEmployeesResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateLossOfPayForEmployeesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1705,6 +1752,7 @@ class CreateOrUpdateLossOfPayForEmployeesResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -1760,6 +1808,7 @@ class PayEmployeeSalariesRequest {
     this.monthYearId,
     this.schoolId,
   });
+
   PayEmployeeSalariesRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
@@ -1775,6 +1824,7 @@ class PayEmployeeSalariesRequest {
     monthYearId = json['monthYearId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -1820,6 +1870,7 @@ class PayEmployeeSalariesResponse {
     this.responseStatus,
     this.transactionId,
   });
+
   PayEmployeeSalariesResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -1828,6 +1879,7 @@ class PayEmployeeSalariesResponse {
     responseStatus = json['responseStatus']?.toString();
     transactionId = json['transactionId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

@@ -12,6 +12,7 @@ class GetUserDetailsResponse {
     required this.responseStatus,
     required this.userDetails,
   });
+
   String? errorCode;
   String? errorMessage;
   String? httpStatus;
@@ -48,6 +49,7 @@ class UserDetails {
     this.userId,
     this.fourDigitPin,
   });
+
   String? firstName;
   String? lastName;
   String? mailId;
@@ -101,12 +103,14 @@ class UpdateUserFourDigitPinRequest {
     this.newFourDigitPin,
     this.userId,
   });
+
   UpdateUserFourDigitPinRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toInt();
     newFourDigitPin = json['newFourDigitPin']?.toString();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -140,6 +144,7 @@ class UpdateUserFourDigitPinResponse {
     this.errorMessage,
     this.httpStatus,
   });
+
   UpdateUserFourDigitPinResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     responseStatus = json['responseStatus']?.toString();
@@ -147,6 +152,7 @@ class UpdateUserFourDigitPinResponse {
     errorMessage = json['errorMessage']?.toString();
     httpStatus = json['httpStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['responseStatus'] = responseStatus;
@@ -189,11 +195,13 @@ class DoLoginWithLoginUserIdAndPasswordRequest {
     this.password,
     this.userLoginId,
   });
+
   DoLoginWithLoginUserIdAndPasswordRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     password = json['password']?.toString();
     userLoginId = json['userLoginId']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['password'] = password;
@@ -233,6 +241,7 @@ class DoLoginWithLoginUserIdAndPasswordResponse {
     this.studentId,
     this.userId,
   });
+
   DoLoginWithLoginUserIdAndPasswordResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -242,6 +251,7 @@ class DoLoginWithLoginUserIdAndPasswordResponse {
     studentId = json['studentId']?.toInt();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -296,6 +306,7 @@ class UpdateLoginCredentialsRequest {
     this.studentId,
     this.userId,
   });
+
   UpdateLoginCredentialsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -304,6 +315,7 @@ class UpdateLoginCredentialsRequest {
     studentId = json['studentId']?.toInt();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -348,6 +360,7 @@ class UpdateLoginCredentialsResponse {
     this.studentId,
     this.userId,
   });
+
   UpdateLoginCredentialsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -358,6 +371,7 @@ class UpdateLoginCredentialsResponse {
     studentId = json['studentId']?.toInt();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

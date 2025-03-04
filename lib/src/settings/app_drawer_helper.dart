@@ -22,6 +22,6 @@ class AppDrawerHelper {
   Future<void> updateAppDrawerState(bool isEnabled) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('IS_APP_DRAWER_ENABLED', isEnabled);
-    _isDrawerDisabled = !isEnabled; 
+    _isDrawerDisabled = !isEnabled;
   }
 }

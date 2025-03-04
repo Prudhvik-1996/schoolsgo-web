@@ -4,9 +4,11 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_fee_receipts_screen_v3.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class ReceptionistFeeOptionsScreen extends StatefulWidget {
-  const ReceptionistFeeOptionsScreen({Key? key,
+  const ReceptionistFeeOptionsScreen({
+    Key? key,
     required this.receptionistProfile,
   }) : super(key: key);
 
@@ -18,7 +20,6 @@ class ReceptionistFeeOptionsScreen extends StatefulWidget {
 }
 
 class _ReceptionistFeeOptionsScreenState extends State<ReceptionistFeeOptionsScreen> {
-
   Widget _getFeeOption(String title, String? description, StatefulWidget nextWidget) {
     return GestureDetector(
       onTap: () {
@@ -86,9 +87,11 @@ class _ReceptionistFeeOptionsScreenState extends State<ReceptionistFeeOptionsScr
       appBar: AppBar(
         title: const Text("Fee"),
       ),
-      drawer: ReceptionistAppDrawer(
-        receptionistProfile: widget.receptionistProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : ReceptionistAppDrawer(
+              receptionistProfile: widget.receptionistProfile,
+            ),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

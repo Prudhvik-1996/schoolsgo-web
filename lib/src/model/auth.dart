@@ -33,6 +33,7 @@ class GenerateOtpRequest {
     this.requestedPhone,
     this.userId,
   });
+
   GenerateOtpRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     channel = json['channel']?.toString();
@@ -42,6 +43,7 @@ class GenerateOtpRequest {
     requestedPhone = json['requestedPhone']?.toString();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['channel'] = channel;
@@ -99,6 +101,7 @@ class OtpBean {
     this.status,
     this.ttl,
   });
+
   OtpBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     createdTime = json['createdTime']?.toInt();
@@ -113,6 +116,7 @@ class OtpBean {
     status = json['status']?.toString();
     ttl = json['ttl']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['createdTime'] = createdTime;
@@ -169,6 +173,7 @@ class GenerateOtpResponse {
     this.otpBean,
     this.responseStatus,
   });
+
   GenerateOtpResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -177,6 +182,7 @@ class GenerateOtpResponse {
     otpBean = (json['otpBean'] != null) ? OtpBean.fromJson(json['otpBean']) : null;
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -228,6 +234,7 @@ class SendEmailRequest {
     this.recipient,
     this.subject,
   });
+
   SendEmailRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     attachment = json['attachment']?.toString();
@@ -235,6 +242,7 @@ class SendEmailRequest {
     recipient = json['recipient']?.toString();
     subject = json['subject']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['attachment'] = attachment;

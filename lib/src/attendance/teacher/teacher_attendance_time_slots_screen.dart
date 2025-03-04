@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/attendance/model/attendance_beans.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/teacher_mark_student_attendance_screen.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherAttendanceTimeslots extends StatefulWidget {
   final TeacherProfile teacherProfile;

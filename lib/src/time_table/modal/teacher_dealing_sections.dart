@@ -152,6 +152,7 @@ class TeacherDealingSection {
     this.sectionSeqOrder,
     this.subjectSeqOrder,
   });
+
   TeacherDealingSection.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
@@ -170,6 +171,7 @@ class TeacherDealingSection {
     sectionSeqOrder = int.tryParse(json['sectionSeqOrder']?.toString() ?? '');
     subjectSeqOrder = int.tryParse(json['subjectSeqOrder']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -231,6 +233,7 @@ class CreateOrUpdateTeacherDealingSectionsRequest {
     this.schoolId,
     this.tdsList,
   });
+
   CreateOrUpdateTeacherDealingSectionsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = int.tryParse(json['agentId']?.toString() ?? '');
@@ -244,6 +247,7 @@ class CreateOrUpdateTeacherDealingSectionsRequest {
       tdsList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;

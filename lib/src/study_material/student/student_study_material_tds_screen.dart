@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/study_material/model/study_material.dart';
 import 'package:schoolsgo_web/src/study_material/student/student_study_material_screen.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class StudentStudyMaterialTDSScreen extends StatefulWidget {
   const StudentStudyMaterialTDSScreen({Key? key, required this.studentProfile}) : super(key: key);
@@ -149,7 +150,7 @@ class _StudentStudyMaterialTdsScreenState extends State<StudentStudyMaterialTDSS
           ),
         ],
       ),
-      drawer: StudentAppDrawer(studentProfile: widget.studentProfile),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : StudentAppDrawer(studentProfile: widget.studentProfile),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : Container(

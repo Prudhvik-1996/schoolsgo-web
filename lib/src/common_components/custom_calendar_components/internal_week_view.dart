@@ -5,8 +5,6 @@
 import 'package:calendar_view/calendar_view.dart';
 import 'package:flutter/material.dart';
 
-
-
 /// A single page for week view.
 class CustomInternalWeekViewPage<T extends Object?> extends StatelessWidget {
   /// Width of the page.
@@ -111,7 +109,7 @@ class CustomInternalWeekViewPage<T extends Object?> extends StatelessWidget {
                 ),
                 ...List.generate(
                   filteredDates.length,
-                      (index) => SizedBox(
+                  (index) => SizedBox(
                     height: weekTitleHeight,
                     width: weekTitleWidth,
                     child: weekDayBuilder(
@@ -133,7 +131,7 @@ class CustomInternalWeekViewPage<T extends Object?> extends StatelessWidget {
               children: [
                 ...List.generate(
                   filteredDates.length,
-                      (index) => SizedBox(
+                  (index) => SizedBox(
                     width: weekTitleWidth,
                   ),
                 ),

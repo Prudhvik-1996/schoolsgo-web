@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class AdminExpensesOptionsScreen extends StatefulWidget {
   const AdminExpensesOptionsScreen({
@@ -90,9 +91,11 @@ class _AdminExpensesOptionsScreenState extends State<AdminExpensesOptionsScreen>
       appBar: AppBar(
         title: const Text("Admin Expenses"),
       ),
-      drawer: widget.adminProfile != null
-          ? AdminAppDrawer(adminProfile: widget.adminProfile!)
-          : ReceptionistAppDrawer(receptionistProfile: widget.receptionistProfile!),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+              : ReceptionistAppDrawer(receptionistProfile: widget.receptionistProfile!),
       body: ListView(
         padding: EdgeInsets.zero,
         primary: false,

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/custom_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/topic_wise_exams/topic_wise_exams_tds_screen.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class TeacherExamOptionsScreen extends StatefulWidget {
   const TeacherExamOptionsScreen({
@@ -105,44 +106,46 @@ class _TeacherExamOptionsScreenState extends State<TeacherExamOptionsScreen> {
       appBar: AppBar(
         title: const Text("Exams"),
       ),
-      drawer: TeacherAppDrawer(
-        teacherProfile: widget.teacherProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : TeacherAppDrawer(
+              teacherProfile: widget.teacherProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : ListView(
-        padding: EdgeInsets.zero,
-        primary: false,
-        children: <Widget>[
-          _getExamsOption(
-            "Topic Wise Exams",
-            null,
-            TopicWiseExamsTdsScreen(
-              adminProfile: null,
-              teacherProfile: widget.teacherProfile,
-              selectedAcademicYearId: selectedAcademicYearId,
+              padding: EdgeInsets.zero,
+              primary: false,
+              children: <Widget>[
+                _getExamsOption(
+                  "Topic Wise Exams",
+                  null,
+                  TopicWiseExamsTdsScreen(
+                    adminProfile: null,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: selectedAcademicYearId,
+                  ),
+                ),
+                _getExamsOption(
+                  "Exams Without Internals",
+                  null,
+                  CustomExamsScreen(
+                    adminProfile: null,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: selectedAcademicYearId,
+                  ),
+                ),
+                _getExamsOption(
+                  "Exams With Internals",
+                  null,
+                  FAExamsScreen(
+                    adminProfile: null,
+                    teacherProfile: widget.teacherProfile,
+                    selectedAcademicYearId: selectedAcademicYearId,
+                  ),
+                ),
+              ],
             ),
-          ),
-          _getExamsOption(
-            "Exams Without Internals",
-            null,
-            CustomExamsScreen(
-              adminProfile: null,
-              teacherProfile: widget.teacherProfile,
-              selectedAcademicYearId: selectedAcademicYearId,
-            ),
-          ),
-          _getExamsOption(
-            "Exams With Internals",
-            null,
-            FAExamsScreen(
-              adminProfile: null,
-              teacherProfile: widget.teacherProfile,
-              selectedAcademicYearId: selectedAcademicYearId,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

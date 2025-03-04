@@ -1,10 +1,12 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final double start;
   final double end;
+
   const GlassContainer({
     Key? key,
     required this.child,

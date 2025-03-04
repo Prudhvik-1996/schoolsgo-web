@@ -1051,7 +1051,6 @@ class StudentBusFeeLogBean {
 }
 
 class StudentBusFeeBean {
-
   int? fare;
   int? feePaid;
   int? routeId;
@@ -1132,7 +1131,6 @@ class StudentBusFeeBean {
     data['terminalNumber'] = terminalNumber;
     return data;
   }
-
 
   @override
   String toString() {

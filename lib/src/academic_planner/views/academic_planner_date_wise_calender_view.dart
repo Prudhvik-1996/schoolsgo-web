@@ -10,16 +10,17 @@ import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.da
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/teachers.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AcademicPlannerDateWiseCalenderView extends StatefulWidget {
   const AcademicPlannerDateWiseCalenderView({
@@ -241,7 +242,7 @@ class _AcademicPlannerDateWiseCalenderViewState extends State<AcademicPlannerDat
           buildRoleButtonForAppBar(context, widget.adminProfile),
         ],
       ),
-      drawer: AdminAppDrawer(adminProfile: widget.adminProfile),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : AdminAppDrawer(adminProfile: widget.adminProfile),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : Column(

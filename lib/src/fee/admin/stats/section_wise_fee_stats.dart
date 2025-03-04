@@ -20,6 +20,9 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/stats/constants/fee_report_type.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class SectionWiseFeeStats extends StatefulWidget {
   const SectionWiseFeeStats({
@@ -124,9 +127,11 @@ class _SectionWiseFeeStatsState extends State<SectionWiseFeeStats> {
                 const SizedBox(width: 8),
               ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : studentFeeReceipts.isEmpty

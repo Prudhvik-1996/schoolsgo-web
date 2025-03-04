@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/academic_planner/modal/planner_for_tds_bean.da
 import 'package:schoolsgo_web/src/academic_planner/modal/planner_slots.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/support_components/each_plan_widget.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/local_clean_calender/flutter_clean_calendar.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/academic_years.dart';
@@ -14,7 +15,6 @@ import 'package:schoolsgo_web/src/time_table/modal/teacher_dealing_sections.dart
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class PlannerCreationScreen extends StatefulWidget {
   const PlannerCreationScreen({

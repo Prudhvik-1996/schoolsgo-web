@@ -256,8 +256,7 @@ String _addOrdinalSuffix(int day) {
 
 List<String> generateMmmYYYYStrings(DateTime startDate, DateTime endDate) {
   // Assert if startDate is after endDate
-  assert(startDate.isBefore(endDate) || startDate.isAtSameMomentAs(endDate),
-  'startDate must be before or equal to endDate');
+  assert(startDate.isBefore(endDate) || startDate.isAtSameMomentAs(endDate), 'startDate must be before or equal to endDate');
 
   List<String> monthYearList = [];
   DateFormat dateFormat = DateFormat('MMM-yyyy');

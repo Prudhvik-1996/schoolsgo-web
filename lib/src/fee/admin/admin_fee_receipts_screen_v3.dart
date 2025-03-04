@@ -9,9 +9,9 @@ import 'package:schoolsgo_web/src/bus/modal/buses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/common_components/search_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/fee/admin/admin_student_wise_fee_stats_table_screen.dart';
-import 'package:schoolsgo_web/src/common_components/search_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/new_student_fee_receipt_widget.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/fee/admin/stats/date_wise_receipts_stats.dart';
@@ -22,6 +22,7 @@ import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/sms/modal/sms.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/http_utils.dart';
@@ -546,11 +547,13 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
                 ),
               ],
       ),
-      drawer: widget.adminProfile != null
-          ? AdminAppDrawer(
-              adminProfile: widget.adminProfile!,
-            )
-          : null,
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.adminProfile != null
+              ? AdminAppDrawer(
+                  adminProfile: widget.adminProfile!,
+                )
+              : null,
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()
           : isAddNew

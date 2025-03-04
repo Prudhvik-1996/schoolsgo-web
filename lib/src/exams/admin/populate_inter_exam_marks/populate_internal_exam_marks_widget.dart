@@ -67,7 +67,9 @@ class _PopulateInternalExamMarksWidgetState extends State<PopulateInternalExamMa
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const EpsilonDiaryLoadingWidget(defaultLoadingText: "Populating your data",);
+      return const EpsilonDiaryLoadingWidget(
+        defaultLoadingText: "Populating your data",
+      );
     }
     return ListView(
       children: [

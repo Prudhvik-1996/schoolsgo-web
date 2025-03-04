@@ -26,6 +26,7 @@ class GetBusPositionRequest {
     this.franchiseId,
     this.schoolId,
   });
+
   GetBusPositionRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     busId = json['busId']?.toInt();
@@ -33,6 +34,7 @@ class GetBusPositionRequest {
     franchiseId = json['franchiseId']?.toInt();
     schoolId = json['schoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['busId'] = busId;
@@ -88,6 +90,7 @@ class BusLocation {
     this.speed,
     this.status,
   });
+
   BusLocation.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     accuracy = json['accuracy']?.toDouble();
@@ -102,6 +105,7 @@ class BusLocation {
     speed = json['speed']?.toDouble();
     status = json['status']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['accuracy'] = accuracy;
@@ -160,6 +164,7 @@ class GetBusPositionResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetBusPositionResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['busLocationList'] != null) {
@@ -175,6 +180,7 @@ class GetBusPositionResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (busLocationList != null) {

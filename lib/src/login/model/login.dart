@@ -47,6 +47,7 @@ class DoLoginRequestOtpBean {
     this.status,
     this.ttl,
   });
+
   DoLoginRequestOtpBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     createdTime = json['createdTime']?.toInt();
@@ -61,6 +62,7 @@ class DoLoginRequestOtpBean {
     status = json['status']?.toString();
     ttl = json['ttl']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['createdTime'] = createdTime;
@@ -110,6 +112,7 @@ class FcmBean {
     this.userId,
     this.userName,
   });
+
   FcmBean.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fcmToken = json['fcmToken']?.toString();
@@ -120,6 +123,7 @@ class FcmBean {
     userId = json['userId']?.toInt();
     userName = json['userName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['fcmToken'] = fcmToken;
@@ -155,10 +159,12 @@ class CreateOrUpdateFcmTokenRequest {
   CreateOrUpdateFcmTokenRequest({
     this.fcmBean,
   });
+
   CreateOrUpdateFcmTokenRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fcmBean = (json['fcmBean'] != null) ? FcmBean.fromJson(json['fcmBean']) : null;
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (fcmBean != null) {
@@ -192,6 +198,7 @@ class CreateOrUpdateFcmTokenResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateFcmTokenResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -199,6 +206,7 @@ class CreateOrUpdateFcmTokenResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -262,12 +270,14 @@ class DoLoginRequest {
     this.createOrUpdateFcmTokenRequest,
     this.otpBean,
   });
+
   DoLoginRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     createOrUpdateFcmTokenRequest =
         (json['createOrUpdateFcmTokenRequest'] != null) ? CreateOrUpdateFcmTokenRequest.fromJson(json['createOrUpdateFcmTokenRequest']) : null;
     otpBean = (json['otpBean'] != null) ? DoLoginRequestOtpBean.fromJson(json['otpBean']) : null;
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (createOrUpdateFcmTokenRequest != null) {
@@ -304,6 +314,7 @@ class DoLoginResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   DoLoginResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -311,6 +322,7 @@ class DoLoginResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -353,11 +365,13 @@ class DoLogoutRequest {
     this.fcmToken,
     this.userId,
   });
+
   DoLogoutRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     fcmToken = json['fcmToken']?.toString();
     userId = json['userId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['fcmToken'] = fcmToken;
@@ -390,6 +404,7 @@ class DoLogoutResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   DoLogoutResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -397,6 +412,7 @@ class DoLogoutResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

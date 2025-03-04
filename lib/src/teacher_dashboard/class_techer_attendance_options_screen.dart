@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class ClassTeacherAttendanceOptionsScreen extends StatefulWidget {
   const ClassTeacherAttendanceOptionsScreen({
@@ -92,13 +93,15 @@ class _ClassTeacherAttendanceOptionsScreenState extends State<ClassTeacherAttend
       appBar: AppBar(
         title: const Text("Attendance"),
       ),
-      drawer: widget.teacherProfile != null
-          ? TeacherAppDrawer(
-              teacherProfile: widget.teacherProfile!,
-            )
-          : widget.adminProfile != null
-              ? AdminAppDrawer(adminProfile: widget.adminProfile!)
-              : null,
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : widget.teacherProfile != null
+              ? TeacherAppDrawer(
+                  teacherProfile: widget.teacherProfile!,
+                )
+              : widget.adminProfile != null
+                  ? AdminAppDrawer(adminProfile: widget.adminProfile!)
+                  : null,
       body: ListView(
         children: [
           _getClassOption(

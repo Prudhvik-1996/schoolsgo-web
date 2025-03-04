@@ -122,7 +122,6 @@ class Section {
     return toJson().toString().compareTo(other.toJson().toString());
   }
 
-
   @override
   String toString() {
     return 'Section{agent: $agent, description: $description, schoolId: $schoolId, sectionId: $sectionId, sectionName: $sectionName, sectionPhotoUrl: $sectionPhotoUrl, ocrAsPerTt: $ocrAsPerTt, seqOrder: $seqOrder, classTeacherId: $classTeacherId, __origJson: $__origJson}';
@@ -255,7 +254,6 @@ class CreateOrUpdateSectionRequest {
   int? linkedSchoolId;
   Map<String, dynamic> __origJson = {};
 
-
   CreateOrUpdateSectionRequest.fromSection(Section section) {
     agent = section.agent;
     classTeacherId = section.classTeacherId;
@@ -284,6 +282,7 @@ class CreateOrUpdateSectionRequest {
     this.seqOrder,
     this.linkedSchoolId,
   });
+
   CreateOrUpdateSectionRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agent = json['agent']?.toString();
@@ -300,6 +299,7 @@ class CreateOrUpdateSectionRequest {
     seqOrder = json['seqOrder']?.toInt();
     linkedSchoolId = json['linkedSchoolId']?.toInt();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agent'] = agent;
@@ -317,6 +317,7 @@ class CreateOrUpdateSectionRequest {
     data['linkedSchoolId'] = linkedSchoolId;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -342,6 +343,7 @@ class CreateOrUpdateSectionResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateSectionResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -349,6 +351,7 @@ class CreateOrUpdateSectionResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -357,6 +360,7 @@ class CreateOrUpdateSectionResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -409,6 +413,7 @@ class CreateOrUpdateSectionsRequest {
     this.schoolId,
     this.sectionsList,
   });
+
   CreateOrUpdateSectionsRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     agentId = json['agentId']?.toInt();
@@ -422,6 +427,7 @@ class CreateOrUpdateSectionsRequest {
       sectionsList = arr0;
     }
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['agentId'] = agentId;
@@ -436,6 +442,7 @@ class CreateOrUpdateSectionsRequest {
     }
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 
@@ -461,6 +468,7 @@ class CreateOrUpdateSectionsResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateSectionsResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -468,6 +476,7 @@ class CreateOrUpdateSectionsResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -476,6 +485,7 @@ class CreateOrUpdateSectionsResponse {
     data['responseStatus'] = responseStatus;
     return data;
   }
+
   Map<String, dynamic> origJson() => __origJson;
 }
 

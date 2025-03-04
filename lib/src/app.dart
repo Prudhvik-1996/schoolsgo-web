@@ -106,6 +106,8 @@ import 'time_table/student/student_time_table_view.dart';
 import 'time_table/teacher/teacher_time_table_view.dart';
 import 'user_dashboard/user_dashboard.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class MyApp extends StatefulWidget {
   const MyApp({
     Key? key,

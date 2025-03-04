@@ -1,5 +1,4 @@
 import 'package:clay_containers/widgets/clay_container.dart';
-
 // ignore: implementation_imports
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart';

@@ -8,6 +8,8 @@ import 'package:schoolsgo_web/src/school_management/student_card_widget_v2.dart'
 import 'package:schoolsgo_web/src/school_management/student_enrollment_form_screen.dart';
 import 'package:schoolsgo_web/src/utils/string_utils.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class StudentCardWidget extends StatefulWidget {
   const StudentCardWidget({
     Key? key,

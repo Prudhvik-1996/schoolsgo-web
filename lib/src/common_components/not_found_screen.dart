@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class E404NotFoundScreen extends StatefulWidget {
   const E404NotFoundScreen({Key? key}) : super(key: key);
@@ -21,7 +22,7 @@ class _E404NotFoundScreenState extends State<E404NotFoundScreen> {
           color: Theme.of(context).primaryColor != Colors.blue ? const Color(0xFF2c2c2c) : const Color(0xFFFFFFFF),
         ),
       ),
-      drawer: null,
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled() ? null : null,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

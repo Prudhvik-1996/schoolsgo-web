@@ -103,6 +103,4 @@ firebase deploy --only hosting --project epsilondiary
 
 ## Deployment process complete!
 
-This Markdown file provides a clear and structured overview of the deployment process, making it  
-easier to read and follow.  
-Each step is separated by a horizontal line (`---`) for better readability.
+This Markdown file provides a clear and structured overview of the deployment process.

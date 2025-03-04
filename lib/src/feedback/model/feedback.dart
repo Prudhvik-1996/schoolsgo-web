@@ -38,6 +38,7 @@ class GetStudentToTeacherFeedbackRequest {
     this.teacherId,
     this.teacherWiseAverageRating,
   });
+
   GetStudentToTeacherFeedbackRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     adminView = json['adminView'];
@@ -49,6 +50,7 @@ class GetStudentToTeacherFeedbackRequest {
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     teacherWiseAverageRating = json['teacherWiseAverageRating'];
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['adminView'] = adminView;
@@ -133,6 +135,7 @@ class StudentToTeacherFeedback {
     this.teacherName,
     this.averageRating,
   });
+
   StudentToTeacherFeedback.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     anonymus = json['anonymus'];
@@ -154,6 +157,7 @@ class StudentToTeacherFeedback {
     teacherId = int.tryParse(json['teacherId']?.toString() ?? '');
     teacherName = json['teacherName']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['anonymus'] = anonymus;
@@ -226,6 +230,7 @@ class GetStudentToTeacherFeedbackResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   GetStudentToTeacherFeedbackResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -241,6 +246,7 @@ class GetStudentToTeacherFeedbackResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;
@@ -312,6 +318,7 @@ class CreateOrUpdateStudentToTeacherFeedbackRequest {
     this.feedbackBeans,
     this.schoolId,
   });
+
   CreateOrUpdateStudentToTeacherFeedbackRequest.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     if (json['feedbackBeans'] != null && (json['feedbackBeans'] is List)) {
@@ -324,6 +331,7 @@ class CreateOrUpdateStudentToTeacherFeedbackRequest {
     }
     schoolId = int.tryParse(json['schoolId']?.toString() ?? '');
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     if (feedbackBeans != null) {
@@ -363,6 +371,7 @@ class CreateOrUpdateStudentToTeacherFeedbackResponse {
     this.httpStatus,
     this.responseStatus,
   });
+
   CreateOrUpdateStudentToTeacherFeedbackResponse.fromJson(Map<String, dynamic> json) {
     __origJson = json;
     errorCode = json['errorCode']?.toString();
@@ -370,6 +379,7 @@ class CreateOrUpdateStudentToTeacherFeedbackResponse {
     httpStatus = json['httpStatus']?.toString();
     responseStatus = json['responseStatus']?.toString();
   }
+
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['errorCode'] = errorCode;

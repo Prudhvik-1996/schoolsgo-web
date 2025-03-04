@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
-import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/ed_admin/add_new_school_page.dart';
 
 class AddNewSchoolButton extends StatefulWidget {

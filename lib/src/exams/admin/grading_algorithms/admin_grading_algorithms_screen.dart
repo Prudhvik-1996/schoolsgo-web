@@ -4,11 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/decimal_text_input_formatter.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/common_components/number_range_input_formatter.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class AdminGradingAlgorithmsScreen extends StatefulWidget {
   const AdminGradingAlgorithmsScreen({
@@ -81,12 +82,12 @@ class _AdminGradingAlgorithmsScreenState extends State<AdminGradingAlgorithmsScr
       appBar: AppBar(
         title: const Text("Grading Algorithms"),
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
-      body: _isLoading
-          ? const EpsilonDiaryLoadingWidget()
-          : _bodyScreen(),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
+      body: _isLoading ? const EpsilonDiaryLoadingWidget() : _bodyScreen(),
       floatingActionButton: _isLoading || widget.adminProfile.isMegaAdmin
           ? null
           : Column(

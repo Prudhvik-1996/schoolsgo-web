@@ -2,10 +2,10 @@ import 'package:clay_containers/widgets/clay_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
+import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
-import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 
 class AdminNotificationsScreen extends StatefulWidget {
   const AdminNotificationsScreen({
@@ -236,9 +236,7 @@ class _AdminNotificationsScreenState extends State<AdminNotificationsScreen> {
       appBar: AppBar(
         title: Text("Notifications"),
       ),
-      body: _isLoading
-          ? const EpsilonDiaryLoadingWidget()
-          : ListView(),
+      body: _isLoading ? const EpsilonDiaryLoadingWidget() : ListView(),
     );
   }
 }

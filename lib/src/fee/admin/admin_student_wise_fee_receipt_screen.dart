@@ -28,6 +28,8 @@ import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:schoolsgo_web/src/utils/int_utils.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class AdminStudentWiseFeeReceiptsScreen extends StatefulWidget {
   const AdminStudentWiseFeeReceiptsScreen({Key? key, required this.adminProfile, required this.studentAnnualFeeBean}) : super(key: key);
 
@@ -1541,9 +1543,11 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
         appBar: AppBar(
           title: const Text("Student Fee Receipts"),
         ),
-        drawer: AdminAppDrawer(
-          adminProfile: widget.adminProfile,
-        ),
+        drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+            ? null
+            : AdminAppDrawer(
+                adminProfile: widget.adminProfile,
+              ),
         body: const EpsilonDiaryLoadingWidget(),
       );
     }
@@ -1572,9 +1576,11 @@ class _AdminStudentWiseFeeReceiptsScreenState extends State<AdminStudentWiseFeeR
                       ),
               ],
       ),
-      drawer: AdminAppDrawer(
-        adminProfile: widget.adminProfile,
-      ),
+      drawer: AppDrawerHelper.instance.isAppDrawerDisabled()
+          ? null
+          : AdminAppDrawer(
+              adminProfile: widget.adminProfile,
+            ),
       body: pdfInBytes != null
           ? PdfPreview(
               build: (format) => pdfInBytes!,

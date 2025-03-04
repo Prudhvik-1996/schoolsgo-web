@@ -12,6 +12,8 @@ import 'package:schoolsgo_web/src/utils/date_utils.dart';
 import 'package:select_dialog/select_dialog.dart';
 import 'package:table_sticky_headers/table_sticky_headers.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class ExamTimeSlotSelectorWidget extends StatefulWidget {
   const ExamTimeSlotSelectorWidget({
     super.key,

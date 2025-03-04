@@ -1,5 +1,11 @@
 enum StudentStatus {
-  active, transferred, suspended, tc_issued, discontinued, long_absent, new_admission;
+  active,
+  transferred,
+  suspended,
+  tc_issued,
+  discontinued,
+  long_absent,
+  new_admission;
 
   String get description {
     switch (this) {

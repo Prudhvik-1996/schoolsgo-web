@@ -20,6 +20,8 @@ import 'package:schoolsgo_web/src/utils/int_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:substring_highlight/substring_highlight.dart';
 
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
+
 class AdminInventoryScreen extends StatefulWidget {
   const AdminInventoryScreen({
     Key? key,
