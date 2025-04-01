@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://epsilondiary.web.app/sitemap.xml

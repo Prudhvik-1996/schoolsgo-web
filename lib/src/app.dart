@@ -1,14 +1,7 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/academic_calendar/academic_calendar_screen.dart';
 import 'package:schoolsgo_web/src/academic_planner/views/academic_planner_options_screen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_options_screen.dart';
-
-// import 'package:provider/provider.dart';
-import 'package:schoolsgo_web/src/admin_expenses/admin/admin_expenses_screen_admin_view.dart';
 import 'package:schoolsgo_web/src/attendance/admin/admin_attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/attendance/teacher/attendance_options_screen.dart';
 import 'package:schoolsgo_web/src/bus/admin/admin_bus_options_screen.dart';
@@ -18,8 +11,9 @@ import 'package:schoolsgo_web/src/chat_room/teacher/teacher_chat_room.dart';
 import 'package:schoolsgo_web/src/circulars/admin/admin_circulars_screen.dart';
 import 'package:schoolsgo_web/src/circulars/employees/employees_circular_screen.dart';
 import 'package:schoolsgo_web/src/circulars/mega_admin/mega_admin_circulars_screen.dart';
-import 'package:schoolsgo_web/src/common_components/network_status/constants/network_status.dart';
-import 'package:schoolsgo_web/src/common_components/network_status/service/network_status_service.dart';
+import 'package:schoolsgo_web/src/common_components/about_page.dart';
+import 'package:schoolsgo_web/src/common_components/add_to_homescreen_widget.dart';
+import 'package:schoolsgo_web/src/common_components/route_observer_service.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/demo/demo_screen.dart';
 import 'package:schoolsgo_web/src/demo/student/student_demo_screen.dart';
@@ -36,7 +30,6 @@ import 'package:schoolsgo_web/src/hostel/admin/hostel_options_screen.dart';
 import 'package:schoolsgo_web/src/inventory/admin/admin_inventory_screen.dart';
 import 'package:schoolsgo_web/src/ledger/admin/admin_ledger_screen.dart';
 import 'package:schoolsgo_web/src/login/login_screen_v2.dart';
-import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_all_schools_page.dart';
 import 'package:schoolsgo_web/src/mega_admin/mega_admin_home_page.dart';
 import 'package:schoolsgo_web/src/notice_board/mega_admin/mega_admin_notice_board_screen.dart';
@@ -46,8 +39,6 @@ import 'package:schoolsgo_web/src/payslips/admin/payslips_options_screen.dart';
 import 'package:schoolsgo_web/src/profile/mega_admin/mega_admin_profile_screen.dart';
 import 'package:schoolsgo_web/src/receptionist_dashboard/receptionist_dashboard.dart';
 import 'package:schoolsgo_web/src/school_management/school_management_options_screen.dart';
-import 'package:schoolsgo_web/src/settings/model/app_version.dart';
-import 'package:schoolsgo_web/src/settings/notification_preference_settings.dart';
 import 'package:schoolsgo_web/src/sms/admin/admin_sms_options_screen.dart';
 import 'package:schoolsgo_web/src/stats/stats_home.dart';
 import 'package:schoolsgo_web/src/student_information_center/student_information_center_students_list_screen.dart';
@@ -57,7 +48,6 @@ import 'package:schoolsgo_web/src/task_manager/employee_tasks_screen.dart';
 import 'package:schoolsgo_web/src/task_manager/task_manager_screen.dart';
 import 'package:schoolsgo_web/src/teacher_dashboard/class_teacher_screen.dart';
 import 'package:schoolsgo_web/src/user_dashboard/user_dashboard_v2.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'admin_dashboard/admin_dashboard.dart';
 import 'attendance/student/student_attendance_view_screen.dart';
@@ -106,8 +96,6 @@ import 'time_table/student/student_time_table_view.dart';
 import 'time_table/teacher/teacher_time_table_view.dart';
 import 'user_dashboard/user_dashboard.dart';
 
-import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
-
 class MyApp extends StatefulWidget {
   const MyApp({
     Key? key,
@@ -120,92 +108,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _isLoading = true;
-  late bool isUserLoggedIn;
-  int? loggedInUserId;
-  String? loggedInEmail;
-  String? loggedInMobile;
-  String? fcmToken;
-
-  NetworkStatus networkStatus = NetworkStatus.Offline;
-
-  bool? loggedInWithEmail;
-  int? loggedInStudentId;
-  StudentProfile? loggedInStudentProfile;
-
   @override
   void initState() {
-    _loadLoggedInUserId();
     super.initState();
   }
 
-  Future<void> _loadLoggedInUserId() async {
-    setState(() {
-      _isLoading = true;
-    });
-    networkStatus = await NetworkStatusService().getInitialStatus();
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String currAppVersion = prefs.getString('CURRENT_APP_VERSION') ?? "v2.5.12";
-    AppVersion? latestAppVersion = await getAppVersion(null);
-    if (latestAppVersion?.versionName != null) {
-      await prefs.setString('CURRENT_APP_VERSION', latestAppVersion!.versionName!);
-    }
-    bool boolValue = prefs.getBool('IS_USER_LOGGED_IN') ?? false;
-    setState(() {
-      loggedInStudentId = prefs.getInt('LOGGED_IN_STUDENT_ID');
-    });
-    if (loggedInStudentId != null) {
-      GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(
-        GetStudentProfileRequest(
-          studentId: loggedInStudentId,
-        ),
-      );
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) {
-          return StudentDashBoard(
-            studentProfile: getStudentProfileResponse.studentProfiles!.first!,
-          );
-        }),
-        (Route<dynamic> route) => false,
-      );
-    } else {
-      setState(() {
-        isUserLoggedIn = boolValue;
-      });
-      if (isUserLoggedIn) {
-        int id = prefs.getInt('LOGGED_IN_USER_ID') ?? 0;
-        setState(() {
-          loggedInUserId = id;
-        });
-      }
-
-      if (isUserLoggedIn) {
-        Navigator.restorablePushNamed(
-          context,
-          SplashScreen.routeName,
-        );
-      } else {
-        Navigator.restorablePushNamed(
-          context,
-          LoginScreen.routeName,
-        );
-      }
-    }
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  String? getRouteName(BuildContext context) {
-    final ModalRoute<Object?>? modalRoute = ModalRoute.of(context);
-    if (modalRoute != null) {
-      return modalRoute.settings.name;
-    } else {
-      return null;
-    }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   @override
@@ -218,6 +128,7 @@ class _MyAppState extends State<MyApp> {
             return false;
           },
           child: MaterialApp(
+            navigatorObservers: [RouteObserverService()],
             title: "Epsilon Diary",
             debugShowCheckedModeBanner: false,
             restorationScopeId: 'app',
@@ -242,7 +153,6 @@ class _MyAppState extends State<MyApp> {
                   });
             },
             onGenerateRoute: (RouteSettings routeSettings) {
-              debugPrint("225 ${routeSettings.name}");
               return buildCustomMaterialPageRoute(routeSettings);
             },
           ),
@@ -255,11 +165,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialPageRoute<void>(
       settings: routeSettings,
       builder: (BuildContext context) {
-        // if (loggedInUserId == null) return const SplashScreen();
-        // NetworkStatus networkStatus = Provider.of<NetworkStatus>(context);
-        // if (networkStatus == NetworkStatus.Offline) {
-        //   return const NoInternetScreen();
-        // }
         if (routeSettings.name?.startsWith("/txnId/") ?? false) {
           int? transactionId = int.tryParse(routeSettings.name!.replaceAll("/txnId/", ""));
           if (transactionId == null) {
@@ -271,8 +176,12 @@ class _MyAppState extends State<MyApp> {
           }
         }
         switch (routeSettings.name) {
-          // case "manifest.json":
-          //   return
+          case "/install":
+            return const InstallEpsilonDiaryScreen();
+          case "/about":
+            return const AboutPage(
+              isFromSettings: false,
+            );
           case SettingsView.routeName:
             AdminProfile? argument;
             try {
@@ -292,7 +201,7 @@ class _MyAppState extends State<MyApp> {
               int? userId = int.tryParse(routeSettings.arguments.toString());
               if (userId != null) {
                 return UserDashboard(
-                  loggedInUserId: loggedInUserId ?? (routeSettings.arguments as int),
+                  loggedInUserId: (routeSettings.arguments as int),
                 );
               } else {
                 return UserDashboardV2(

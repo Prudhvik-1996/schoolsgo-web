@@ -91,7 +91,7 @@ class _UserDashboardState extends State<UserDashboard> {
       int? schoolId = prefs.getInt('LOGGED_IN_SCHOOL_ID');
       setState(() {
         _userDetails = getUserRolesResponse.userDetails!;
-        _studentProfiles = loggedInWithEmail ? (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList() : [];
+        _studentProfiles = (getUserRolesResponse.studentProfiles ?? []).map((e) => e!).toList();
         _teacherProfiles = loggedInWithEmail
             ? (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList()
             : (getUserRolesResponse.teacherProfiles ?? []).map((e) => e!).toList();

@@ -1,0 +1,10 @@
+app.web.epsilondiary.twa.app-core-1.1.0-0 /root/.gradle/caches/8.8/transforms/2144911bb09dce3a07f407e3b390637e/transformed/core-1.1.0/res
+app.web.epsilondiary.twa.app-browser-1.4.0-1 /root/.gradle/caches/8.8/transforms/b511174c15fdde7dea3e957094b4390b/transformed/browser-1.4.0/res
+app.web.epsilondiary.twa.app-androidbrowserhelper-2.5.0-2 /root/.gradle/caches/8.8/transforms/d3335fbdff4200978ad121d7b141def7/transformed/androidbrowserhelper-2.5.0/res
+app.web.epsilondiary.twa.app-pngs-3 /tmp/pwabuilder-cloudapk--19-3C0dmOBxmuIX/app/build/generated/res/pngs/release
+app.web.epsilondiary.twa.app-resValues-4 /tmp/pwabuilder-cloudapk--19-3C0dmOBxmuIX/app/build/generated/res/resValues/release
+app.web.epsilondiary.twa.app-packageReleaseResources-5 /tmp/pwabuilder-cloudapk--19-3C0dmOBxmuIX/app/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+app.web.epsilondiary.twa.app-packageReleaseResources-6 /tmp/pwabuilder-cloudapk--19-3C0dmOBxmuIX/app/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+app.web.epsilondiary.twa.app-release-7 /tmp/pwabuilder-cloudapk--19-3C0dmOBxmuIX/app/build/intermediates/merged_res/release/mergeReleaseResources
+app.web.epsilondiary.twa.app-main-8 /tmp/pwabuilder-cloudapk--19-3C0dmOBxmuIX/app/src/main/res
+app.web.epsilondiary.twa.app-release-9 /tmp/pwabuilder-cloudapk--19-3C0dmOBxmuIX/app/src/release/res

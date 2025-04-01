@@ -203,13 +203,13 @@ class _LedgerReportScreenState extends State<LedgerReportScreen> {
           DateTime? _newDate = await showDatePicker(
             context: context,
             initialDate: _endDate == null ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(_endDate!),
-            firstDate: DateTime(2021),
-            lastDate: DateTime(2024),
+            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+            lastDate: DateTime.now().add(const Duration(days: 365)),
             helpText: "Pick end date",
           );
           if (_newDate == null || _newDate.millisecondsSinceEpoch == _endDate) return;
           setState(() {
-            _endDate = _newDate.millisecondsSinceEpoch;
+            _endDate = _newDate.add(const Duration(days: 1)).millisecondsSinceEpoch;
           });
         },
         child: ClayButton(

@@ -162,15 +162,15 @@ class _ClassTeacherSectionScreenState extends State<ClassTeacherSectionScreen> {
                     selectedAcademicYearId: widget.selectedAcademicYearId,
                   ),
                 ),
-                _getClassOption(
-                  "Fee Dues",
-                  null,
-                  DueReportsScreen(
-                    adminProfile: widget.adminProfile,
-                    teacherProfile: widget.teacherProfile,
-                    defaultSelectedSection: widget.section,
-                  ),
-                ),
+                // _getClassOption(
+                //   "Fee Dues",
+                //   null,
+                //   DueReportsScreen(
+                //     adminProfile: widget.adminProfile,
+                //     teacherProfile: widget.teacherProfile,
+                //     defaultSelectedSection: widget.section,
+                //   ),
+                // ),
                 if (widget.teacherProfile != null)
                   _getClassOption(
                     "Exams",

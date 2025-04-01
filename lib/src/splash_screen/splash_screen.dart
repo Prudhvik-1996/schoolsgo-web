@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
+import 'package:schoolsgo_web/src/common_components/default_splash_screen.dart';
+import 'package:schoolsgo_web/src/common_components/route_observer_service.dart';
 import 'package:schoolsgo_web/src/login/login_screen.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart';
 import 'package:schoolsgo_web/src/model/user_details.dart' as user_details;
@@ -42,6 +44,10 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> hasUserBeenLoggedIn() async {
+    if (RouteObserverService.shouldSkipSplashScreen()) {
+      print("Skipping navigation");
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -110,37 +116,6 @@ class _SplashScreenState extends State<SplashScreen> {
         context,
         LoginScreen.routeName,
       );
-    }
-    try {
-      // _initilization = await Firebase.initializeApp(
-      //   options: const FirebaseOptions(
-      //     apiKey: "AIzaSyByAwOkUBofOmpKygDwCfEQtRT2I5ml5Lw",
-      //     authDomain: "web-epsilon-diary.firebaseapp.com",
-      //     projectId: "web-epsilon-diary",
-      //     storageBucket: "web-epsilon-diary.appspot.com",
-      //     messagingSenderId: "37324427087",
-      //     appId: "1:37324427087:web:57870e64256b8c6a29ff3a",
-      //     measurementId: "G-23LRNKNQ0B",
-      //   ),
-      // );
-      // print("99: ${_initilization?.name}");
-      // FirebaseMessagingWeb x = FirebaseMessagingWeb(app: Firebase.app());
-      // print("101: ${x.app.options.apiKey}");
-      // print("101: ${x.isAutoInitEnabled}");
-      // String? a = await x.getToken(
-      //   vapidKey: "BBHNvqbtHbnr-dW4yveOEypvxKgNOnl1iMopdkQ-sbt_WtRX7haRenlDnxj9BBvZy1E2dCIEabCKzpZ22NBmmNQ",
-      // );
-      // print("103: ${a}");
-      // FirebaseMessaging.instance
-      //     .getToken(vapidKey: "BBHNvqbtHbnr-dW4yveOEypvxKgNOnl1iMopdkQ-sbt_WtRX7haRenlDnxj9BBvZy1E2dCIEabCKzpZ22NBmmNQ")
-      //     .then((value) => print("Helllllloooooooo: $value"));
-      // print("110: ${FirebaseMessaging.instance.app.options.apiKey}");
-      // String? key = await FirebaseMessaging.instance.getToken(
-      //   vapidKey: "BBHNvqbtHbnr-dW4yveOEypvxKgNOnl1iMopdkQ-sbt_WtRX7haRenlDnxj9BBvZy1E2dCIEabCKzpZ22NBmmNQ",
-      // );
-      // print("114: $key");
-    } catch (e) {
-      print("110: ${e.toString()}");
     }
     setState(() {
       _isLoading = false;

@@ -5,7 +5,6 @@
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Schools Go Web",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -19,5 +18,10 @@
             "sizes": "512x512",
             "type": "image/png"
         }
-    ]
+    ],
+    "scope": "/",
+    "categories": ["education", "productivity"],
+    "description": "An advanced school management system to streamline administrative tasks and enhance communication.",
+    "related_applications": [],
+    "iarc_rating_id": "e-12345678"
 }

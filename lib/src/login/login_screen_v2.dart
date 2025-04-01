@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:schoolsgo_web/src/api_calls/api_calls.dart';
 import 'package:schoolsgo_web/src/common_components/common_components.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
+import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/email_login_widget.dart';
 import 'package:schoolsgo_web/src/login/google_login_in_widget.dart';
 import 'package:schoolsgo_web/src/login/mobile_login_widget.dart';
@@ -67,6 +68,20 @@ class _LoginScreenV2State extends State<LoginScreenV2> {
           backgroundColor: Theme.of(context).primaryColor != Colors.blue ? const Color(0xFF2c2c2c) : const Color(0xFFFFFFFF),
           iconTheme:
               Theme.of(context).primaryColor == Colors.blue ? const IconThemeData(color: Colors.black) : const IconThemeData(color: Colors.white),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "/about");
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: clayContainerTextColor(context), // Change this to your desired color
+              ),
+              child: const Padding(
+                padding: EdgeInsets.fromLTRB(16,0,16,0),
+                child: Text("About"),
+              ),
+            ),
+          ],
         ),
         drawer: const DefaultAppDrawer(),
         body: _isLoading

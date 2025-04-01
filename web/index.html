@@ -26,6 +26,11 @@
   <meta name="apple-mobile-web-app-title" content="Epsilon Diary">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
+  <meta property="og:title" content="Epsilon Diary - Smart School Management" />
+  <meta property="og:description" content="Epsilon Diary is an advanced school management system designed to streamline administrative tasks, enhance communication, and improve efficiency." />
+  <meta property="og:image" content="https://epsilondiary.web.app/assets/meta-image.png" />
+  <meta property="og:url" content="https://epsilondiary.web.app/" />
+
   <!-- Favicon -->
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -130,6 +135,47 @@
             event.preventDefault();
             break;
         }
+      }
+    });
+  </script>
+
+
+  <script>
+    let deferredPrompt;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+    });
+
+    function showAddToHomeScreenPrompt() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          deferredPrompt = null;
+        });
+      } else {
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (/iphone|ipad|ipod/.test(userAgent) && !window.navigator.standalone) {
+          alert('📲 On iPhone/iPad, please:\n1. Open Safari\n2. Tap the "Share" button\n3. Select "Add to Home Screen"');
+        } else if (userAgent.includes("windows") || userAgent.includes("mac")) {
+          alert('🖥️ On Windows/Mac, click the install button in your browser’s address bar.');
+        } else {
+          alert('Add to Home Screen option is not available on this device.');
+        }
+      }
+    }
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("Checking if About");
+      if (window.location.pathname === "/about") {
+        console.log("Confirming About");
+        document.querySelector('meta[property="og:title"]').setAttribute("content", "About Epsilon Diary");
+        document.querySelector('meta[property="og:description"]').setAttribute("content", "Learn more about Epsilon Diary, its features, and how it helps schools improve efficiency and communication.");
+        document.querySelector('meta[property="og:image"]').setAttribute("content", "https://epsilondiary.web.app/assets/meta-image.png");
+        document.querySelector('meta[property="og:url"]').setAttribute("content", "https://epsilondiary.web.app/about");
       }
     });
   </script>

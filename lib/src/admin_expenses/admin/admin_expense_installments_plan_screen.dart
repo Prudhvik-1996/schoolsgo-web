@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:schoolsgo_web/src/admin_expenses/admin/ExpenseInstallmentsScreen.dart';
 import 'package:schoolsgo_web/src/admin_expenses/admin/installment_plan_widgets.dart';
 import 'package:schoolsgo_web/src/admin_expenses/modal/admin_expenses.dart';
 import 'package:schoolsgo_web/src/common_components/clay_button.dart';
@@ -50,6 +51,21 @@ class _AdminInstallmentsPlanScreenState extends State<AdminInstallmentsPlanScree
       );
     } else {
       expenseInstallmentPlans = (response.expenseInstallmentPlans ?? []).whereNotNull().toList();
+      for (var eachPlan in expenseInstallmentPlans) {
+        int planWiseTotalPaid = eachPlan.totalPaidAmount;
+        List<ExpenseInstallmentBean> installments = (eachPlan.expenseInstallments ?? []).whereNotNull().toList();
+        for (int i = 0; i < installments.length; i++) {
+          ExpenseInstallmentBean eachInstallment = installments[i];
+          eachInstallment.installmentIndex = i;
+          eachInstallment.installmentPlanName = eachPlan.planTitle ?? "-";
+          planWiseTotalPaid -= eachInstallment.amount ?? 0;
+          if (planWiseTotalPaid < 0) {
+            eachInstallment.isPaid = false;
+          } else {
+            eachInstallment.isPaid = true;
+          }
+        }
+      }
     }
     setState(() => _isLoading = false);
   }
@@ -63,6 +79,38 @@ class _AdminInstallmentsPlanScreenState extends State<AdminInstallmentsPlanScree
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Expense Installment Plans"),
+        actions: [
+          PopupMenuButton<String>(
+            tooltip: "Current Installments",
+            onSelected: (String choice) async {
+              switch (choice) {
+                case "Installments":
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ExpenseInstallmentsScreen(
+                        installmentPlans: expenseInstallmentPlans,
+                        installments: expenseInstallmentPlans.map((e) => e.activeInstallments).expand((i) => i).toList(),
+                      ),
+                    ),
+                  );
+                  return;
+                default:
+                  return;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return {
+                "Installments",
+              }.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: _isLoading
           ? const EpsilonDiaryLoadingWidget()

@@ -508,6 +508,10 @@ class ExpenseInstallmentBean {
   String? status;
   Map<String, dynamic> __origJson = {};
 
+  int? installmentIndex;
+  String? installmentPlanName;
+  bool isPaid = false;
+
   TextEditingController amountEditingController = TextEditingController();
 
   String? get amountErrorText => null;

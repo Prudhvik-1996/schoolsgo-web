@@ -1,4 +1,5 @@
 const String SCHOOLS_GO_BASE_URL = "https://epsiloninfinityservices.com:8000/schoolsgo";
+// const String SCHOOLS_GO_BASE_URL = "http://localhost:8080/schoolsgo";
 const String SCHOOLS_GO_DRIVE_SERVICE_BASE_URL = "https://epsiloninfinityservices.com:8002/eis";
 const String SCHOOLS_GO_MESSAGING_SERVICE_BASE_URL = "https://epsiloninfinityservices.com:8001/schoolsgo";
 const String QR_BASE_URL = "https://api.qrserver.com/v1/create-qr-code/?data=";

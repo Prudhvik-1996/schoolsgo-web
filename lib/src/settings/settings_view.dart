@@ -1,21 +1,20 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:schoolsgo_web/src/common_components/about_page.dart';
+import 'package:schoolsgo_web/src/common_components/add_to_homescreen_widget.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/login/generate_new_four_digit_pin_screen.dart';
 import 'package:schoolsgo_web/src/login/generate_new_login_pin_screen.dart';
-import 'package:schoolsgo_web/src/login/model/login.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
+import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 import 'package:schoolsgo_web/src/settings/app_udates_log/app_updates_log_screen.dart';
 import 'package:schoolsgo_web/src/settings/model/app_version.dart';
 import 'package:schoolsgo_web/src/settings/notification_preference_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings_controller.dart';
-
-import 'package:schoolsgo_web/src/settings/app_drawer_helper.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({
@@ -87,6 +86,8 @@ class _SettingsViewState extends State<SettingsView> {
                 if (loggedInUserId != null) const Divider(),
                 if (loggedInUserId != null) _buildUpdatePasswordWidget(),
                 const Divider(),
+                _buildAboutWidget(),
+                const Divider(),
                 _buildUpdateLogsWidget(),
                 const Divider(),
               ],
@@ -114,6 +115,34 @@ class _SettingsViewState extends State<SettingsView> {
         context,
         MaterialPageRoute(builder: (context) {
           return const AppUpdatesLogScreen();
+        }),
+      ),
+    );
+  }
+
+  Widget _buildAboutWidget() {
+    return ListTile(
+      leading: const Icon(Icons.info_outline),
+      title: const Text("About"),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return const AboutPage(
+            isFromSettings: true,
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildInstallWidget() {
+    return ListTile(
+      leading: const Icon(Icons.download),
+      title: const Text("Add to home screen"),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return const InstallEpsilonDiaryScreen();
         }),
       ),
     );
