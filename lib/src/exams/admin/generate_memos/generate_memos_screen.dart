@@ -50,12 +50,19 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
 
   bool showAttendanceTable = true;
   bool showBlankAttendance = false;
+  bool showMoreAttendanceOptions = false;
+  bool showTotalAttendancePercentage = false;
   bool showGraph = false;
   bool showHeader = true;
   bool showCumulativeExams = false;
   bool showOnlyCumulativeExams = false;
   bool showRemarks = true;
   String studentPhotoSize = "S";
+  bool showAttendanceSummaryTable = false;
+  bool showCommentsPerSubject = false;
+  bool showGpaDenominator = false;
+  bool showMarkingAlgorithmTable = false;
+  AttendanceViewOption? attendanceViewOption = AttendanceViewOption.totalPercentage;
 
   List<String> monthYears = [];
   Set<String> selectedMonthYears = {};
@@ -174,6 +181,15 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
         studentPhotoSize: studentPhotoSize,
         mergeSubjectsForMemoBeans: isMergeSubjectsChecked ? mergeSubjectsForMemoBeans : [],
         otherSubjectIds: isOtherSubjectsChecked ? otherSubjectIds : [],
+        showTotalAttendancePercentage: showMoreAttendanceOptions
+            ? showAttendanceSummaryTable
+                ? false
+                : showTotalAttendancePercentage
+            : false,
+        showAttendanceSummaryTable: showMoreAttendanceOptions ? showAttendanceSummaryTable : false,
+        showCommentsPerSubject: showCommentsPerSubject,
+        showGpaDenominator: showGpaDenominator,
+        showMarkingAlgorithmTable: showMarkingAlgorithmTable,
       );
 
   @override
@@ -227,7 +243,60 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                                     setState(() => showRemarks = !showRemarks);
                                   }
                                 },
-                                title: const Text("Show Remarks"),
+                                title: const Text("Show Over all Remarks"),
+                              ),
+                            if (mainExamId != null)
+                              CheckboxListTile(
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: showCommentsPerSubject,
+                                onChanged: (bool? change) {
+                                  if (change != null) {
+                                    setState(() => showCommentsPerSubject = !showCommentsPerSubject);
+                                  }
+                                },
+                                title: const Text("Show subject wise remarks"),
+                              ),
+                            if (mainExamId != null)
+                              CheckboxListTile(
+                                controlAffinity: ListTileControlAffinity.leading,
+                                value: showMarkingAlgorithmTable,
+                                onChanged: (bool? change) {
+                                  if (change != null) {
+                                    setState(() => showMarkingAlgorithmTable = !showMarkingAlgorithmTable);
+                                  }
+                                },
+                                title: const Text("Show Grading System"),
+                              ),
+                            if (mainExamId != null)
+                              Column(
+                                children: [
+                                  if (mainExamId != null) const SizedBox(height: 10),
+                                  RadioListTile<bool>(
+                                    value: false,
+                                    groupValue: showGpaDenominator,
+                                    onChanged: (bool? value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          showGpaDenominator = value;
+                                        });
+                                      }
+                                    },
+                                    title: const Text("Show GPA as 9.8"),
+                                  ),
+                                  if (mainExamId != null) const SizedBox(height: 10),
+                                  RadioListTile<bool>(
+                                    value: true,
+                                    groupValue: showGpaDenominator,
+                                    onChanged: (bool? value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          showGpaDenominator = value;
+                                        });
+                                      }
+                                    },
+                                    title: const Text("Show GPA as 9.8 / 10"),
+                                  ),
+                                ],
                               ),
                             if (mainExamId != null) const SizedBox(height: 10),
                             if (mainExamId != null) mergeSubjectsWidget(),
@@ -763,6 +832,46 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                   title: Text(e ? "Show Blank Attendance" : "Show Populated Attendance"),
                 ),
               ),
+            if (mainExamId != null && showAttendanceTable) const SizedBox(height: 10),
+            if (showAttendanceTable) const Divider(),
+            if (mainExamId != null && showAttendanceTable)
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                value: showMoreAttendanceOptions,
+                onChanged: (bool? changed) => setState(() => showMoreAttendanceOptions = changed ?? false),
+                title: const Text("Show More Attendance options"),
+              ),
+            if (mainExamId != null && showAttendanceTable && showMoreAttendanceOptions)
+              Column(
+                children: [
+                  RadioListTile<AttendanceViewOption>(
+                    value: AttendanceViewOption.totalPercentage,
+                    groupValue: attendanceViewOption,
+                    onChanged: (AttendanceViewOption? value) {
+                      setState(() {
+                        attendanceViewOption = value;
+                        showTotalAttendancePercentage = value == AttendanceViewOption.totalPercentage;
+                        showAttendanceSummaryTable = value == AttendanceViewOption.summaryTable;
+                      });
+                    },
+                    title: const Text("Show Total Attendance Percentage"),
+                  ),
+                  RadioListTile<AttendanceViewOption>(
+                    value: AttendanceViewOption.summaryTable,
+                    groupValue: attendanceViewOption,
+                    onChanged: (AttendanceViewOption? value) {
+                      setState(() {
+                        attendanceViewOption = value;
+                        showTotalAttendancePercentage = value == AttendanceViewOption.totalPercentage;
+                        showAttendanceSummaryTable = value == AttendanceViewOption.summaryTable;
+                      });
+                    },
+                    title: const Text("Show Attendance Summary Table"),
+                  ),
+                ],
+              ),
+            if (mainExamId != null && showAttendanceTable) const SizedBox(height: 10),
+            if (showAttendanceTable) const Divider(),
             if (mainExamId != null && showAttendanceTable) const SizedBox(height: 10),
             if (mainExamId != null && showAttendanceTable)
               Scrollbar(
@@ -1503,4 +1612,9 @@ class _GenerateMemosScreenState extends State<GenerateMemosScreen> {
                 .toList();
         return availableSubjectIds.contains(es.subjectId);
       }).toList();
+}
+
+enum AttendanceViewOption {
+  totalPercentage,
+  summaryTable,
 }

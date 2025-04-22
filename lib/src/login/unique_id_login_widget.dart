@@ -43,7 +43,7 @@ class _UniqueIdLoginWidgetState extends State<UniqueIdLoginWidget> {
                   },
                   controller: loginIdEditingController,
                   enabled: true,
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     border: UnderlineInputBorder(),
                     focusedBorder: OutlineInputBorder(

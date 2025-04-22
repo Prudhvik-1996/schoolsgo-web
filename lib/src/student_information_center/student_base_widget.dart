@@ -123,13 +123,13 @@ class StudentBaseWidget extends StatelessWidget {
               SizedBox(
                 width: 75,
                 height: 75,
-                child: studentProfile.studentPhotoUrl == null
+                child: (studentProfile.studentPhotoThumbnailUrl ?? studentProfile.studentPhotoUrl) == null
                     ? Image.asset(
                         "assets/images/avatar.png",
                         fit: BoxFit.contain,
                       )
                     : Image.network(
-                        studentProfile.studentPhotoUrl!,
+                        (studentProfile.studentPhotoThumbnailUrl ?? studentProfile.studentPhotoUrl)!,
                         fit: BoxFit.contain,
                       ),
               ),

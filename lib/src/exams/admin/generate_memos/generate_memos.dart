@@ -54,10 +54,15 @@ class GenerateStudentMemosRequest {
   int? sectionId;
   bool? showAttendanceTable;
   bool? showBlankAttendance;
+  bool? showTotalAttendancePercentage;
   bool? showGraph;
   bool? showHeader;
   bool? showOnlyCumulativeExams;
   bool? showRemarks;
+  bool? showAttendanceSummaryTable;
+  bool? showCommentsPerSubject;
+  bool? showGpaDenominator;
+  bool? showMarkingAlgorithmTable;
   List<int?>? studentIds;
   List<String?>? monthYearsForAttendance;
   String? studentPhotoSize;
@@ -74,10 +79,15 @@ class GenerateStudentMemosRequest {
     this.sectionId,
     this.showAttendanceTable,
     this.showBlankAttendance,
+    this.showTotalAttendancePercentage,
     this.showGraph,
     this.showHeader,
     this.showOnlyCumulativeExams,
     this.showRemarks,
+    this.showAttendanceSummaryTable,
+    this.showCommentsPerSubject,
+    this.showGpaDenominator,
+    this.showMarkingAlgorithmTable,
     this.studentIds,
     this.mainExamType,
     this.monthYearsForAttendance,
@@ -101,10 +111,15 @@ class GenerateStudentMemosRequest {
     sectionId = json['sectionId']?.toInt();
     showAttendanceTable = json['showAttendanceTable'];
     showBlankAttendance = json['showBlankAttendance'];
+    showTotalAttendancePercentage = json['showTotalAttendancePercentage'];
     showGraph = json['showGraph'];
     showHeader = json['showHeader'];
     showOnlyCumulativeExams = json['showOnlyCumulativeExams'];
     showRemarks = json['showRemarks'];
+    showAttendanceSummaryTable = json['showAttendanceSummaryTable'];
+    showCommentsPerSubject = json['showCommentsPerSubject'];
+    showGpaDenominator = json['showGpaDenominator'];
+    showMarkingAlgorithmTable = json['showMarkingAlgorithmTable'];
     if (json['studentIds'] != null) {
       final v = json['studentIds'];
       final arr0 = <int>[];
@@ -155,10 +170,15 @@ class GenerateStudentMemosRequest {
     data['sectionId'] = sectionId;
     data['showAttendanceTable'] = showAttendanceTable;
     data['showBlankAttendance'] = showBlankAttendance;
+    data['showTotalAttendancePercentage'] = showTotalAttendancePercentage;
     data['showGraph'] = showGraph;
     data['showHeader'] = showHeader;
     data['showOnlyCumulativeExams'] = showOnlyCumulativeExams;
     data['showRemarks'] = showRemarks;
+    data['showAttendanceSummaryTable'] = showAttendanceSummaryTable;
+    data['showCommentsPerSubject'] = showCommentsPerSubject;
+    data['showGpaDenominator'] = showGpaDenominator;
+    data['showMarkingAlgorithmTable'] = showMarkingAlgorithmTable;
     if (studentIds != null) {
       final v = studentIds;
       final arr0 = [];

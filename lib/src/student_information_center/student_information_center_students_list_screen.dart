@@ -161,7 +161,10 @@ class _StudentInformationCenterStudentsListScreenState extends State<StudentInfo
                   child: ListView(
                     physics: const BouncingScrollPhysics(),
                     controller: ScrollController(),
-                    children: filteredStudentsList.map((e) => eachStudentCard(e)).toList(),
+                    children: [
+                      ...filteredStudentsList.map((e) => eachStudentCard(e)).toList(),
+                      const SizedBox(height: 300),
+                    ],
                   ),
                 ),
               ],
