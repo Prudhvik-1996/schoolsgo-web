@@ -4,6 +4,7 @@ import 'dart:html' as html;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 
 Future<String> downloadAttendanceQRPdf(
@@ -14,6 +15,9 @@ Future<String> downloadAttendanceQRPdf(
 
   final font = await PdfGoogleFonts.merriweatherRegular();
   final schoolNameFont = await PdfGoogleFonts.acmeRegular();
+
+  String? schoolReceiptHeader = await getSchoolDefaultFeeReceiptHeader(schoolInfo.schoolId);
+
   ImageProvider? qrImage;
   try {
     qrImage = await networkImage(qrUrl);
@@ -37,12 +41,12 @@ Future<String> downloadAttendanceQRPdf(
           );
         },
       ),
-      header: (_) => schoolInfo.receiptHeader != null
+      header: (_) => schoolReceiptHeader != null
           ? Padding(
               padding: const EdgeInsets.all(4),
               child: Image(
                 MemoryImage(
-                  const Base64Decoder().convert(schoolInfo.receiptHeader!),
+                  const Base64Decoder().convert(schoolReceiptHeader),
                 ),
                 fit: BoxFit.scaleDown,
               ),

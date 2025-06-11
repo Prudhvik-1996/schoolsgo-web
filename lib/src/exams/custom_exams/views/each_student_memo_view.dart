@@ -6,6 +6,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/each_student_pdf_download.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
@@ -33,6 +34,7 @@ class EachStudentMemoView extends StatefulWidget {
     required this.customExam,
     required this.studentProfile,
     required this.selectedSection,
+    required this.examMemoHeader,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
@@ -46,6 +48,8 @@ class EachStudentMemoView extends StatefulWidget {
   final CustomExam customExam;
   final StudentProfile studentProfile;
   final Section selectedSection;
+
+  final String? examMemoHeader;
 
   @override
   State<EachStudentMemoView> createState() => _EachStudentMemoViewState();
@@ -135,6 +139,8 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                   studentMonthWiseAttendanceList =
                       (getStudentMonthWiseAttendanceResponse.studentMonthWiseAttendanceList ?? []).whereNotNull().toList();
                 }
+                String? examMemoHeader = await getSchoolDefaultMemoHeader(widget.schoolInfo.schoolId);
+                String? principalSignature = await getDefaultPrincipalSignature(widget.schoolInfo.schoolId);
                 await EachStudentPdfDownloadForCustomExam(
                   schoolInfo: widget.schoolInfo,
                   adminProfile: widget.adminProfile,
@@ -148,6 +154,8 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                   studentProfiles: [widget.studentProfile],
                   selectedSection: widget.selectedSection,
                   updateMessage: (String? e) => debugPrint(e),
+                  examMemoHeader: examMemoHeader,
+                  principalSignature: principalSignature,
                 ).downloadMemo(studentMonthWiseAttendanceList);
                 setState(() => _isLoading = false);
               },
@@ -172,15 +180,15 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                       padding: const EdgeInsets.all(15),
                       child: Column(
                         children: [
-                          if (widget.schoolInfo.examMemoHeader != null)
+                          if (widget.examMemoHeader != null)
                             Image(
                               image: MemoryImage(
-                                const Base64Decoder().convert(widget.schoolInfo.examMemoHeader!),
+                                const Base64Decoder().convert(widget.examMemoHeader!),
                               ),
                               fit: BoxFit.scaleDown,
                             ),
-                          if (widget.schoolInfo.examMemoHeader != null) const SizedBox(height: 10),
-                          if (widget.schoolInfo.examMemoHeader != null) const Divider(color: Colors.grey, thickness: 1.0),
+                          if (widget.examMemoHeader != null) const SizedBox(height: 10),
+                          if (widget.examMemoHeader != null) const Divider(color: Colors.grey, thickness: 1.0),
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,

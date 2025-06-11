@@ -30,6 +30,7 @@ class SectionWiseMarkListPdf {
   CustomExam customExam;
   List<StudentProfile> studentsList;
   Section selectedSection;
+  String? examMemoHeader;
 
   Map<int, List<StudentExamMarks>> examMarks = {};
 
@@ -46,6 +47,7 @@ class SectionWiseMarkListPdf {
     required this.customExam,
     required this.studentsList,
     required this.selectedSection,
+    required this.examMemoHeader,
   }) {
     studentsList = <StudentProfile>{
       ...studentsList.where((e) => e.sectionId == selectedSection.sectionId),
@@ -130,12 +132,12 @@ class SectionWiseMarkListPdf {
             );
           },
         ),
-        header: (_) => schoolInfo.examMemoHeader != null
+        header: (_) => examMemoHeader != null
             ? Padding(
                 padding: const EdgeInsets.all(4),
                 child: Image(
                   MemoryImage(
-                    const Base64Decoder().convert(schoolInfo.examMemoHeader!),
+                    const Base64Decoder().convert(examMemoHeader!),
                   ),
                   fit: BoxFit.scaleDown,
                 ),

@@ -31,6 +31,7 @@ class EachStudentMemoView extends StatefulWidget {
     required this.faExam,
     required this.studentProfile,
     required this.selectedSection,
+    required this.examMemoHeader,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
@@ -44,6 +45,7 @@ class EachStudentMemoView extends StatefulWidget {
   final FAExam faExam;
   final StudentProfile studentProfile;
   final Section selectedSection;
+  final String? examMemoHeader;
 
   @override
   State<EachStudentMemoView> createState() => _EachStudentMemoViewState();
@@ -188,15 +190,15 @@ class _EachStudentMemoViewState extends State<EachStudentMemoView> {
                       padding: const EdgeInsets.all(15),
                       child: Column(
                         children: [
-                          if (widget.schoolInfo.examMemoHeader != null)
+                          if (widget.examMemoHeader != null)
                             Image(
                               image: MemoryImage(
-                                const Base64Decoder().convert(widget.schoolInfo.examMemoHeader!),
+                                const Base64Decoder().convert(widget.examMemoHeader!),
                               ),
                               fit: BoxFit.scaleDown,
                             ),
-                          if (widget.schoolInfo.examMemoHeader != null) const SizedBox(height: 10),
-                          if (widget.schoolInfo.examMemoHeader != null) const Divider(color: Colors.grey, thickness: 1.0),
+                          if (widget.examMemoHeader != null) const SizedBox(height: 10),
+                          if (widget.examMemoHeader != null) const Divider(color: Colors.grey, thickness: 1.0),
                           const SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,

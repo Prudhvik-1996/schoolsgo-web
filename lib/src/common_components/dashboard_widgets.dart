@@ -103,12 +103,12 @@ List<DashboardWidget<StudentProfile>> studentDashBoardWidgets(StudentProfile stu
         routeName: "/events",
         argument: studentProfile,
       ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
-        title: "Online Class Room",
-        routeName: "/onlineclassroom",
-        argument: studentProfile,
-      ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
+      //   title: "Online Class Room",
+      //   routeName: "/onlineclassroom",
+      //   argument: studentProfile,
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/feedback.svg"),
         title: "Feedback",
@@ -231,12 +231,12 @@ List<DashboardWidget<TeacherProfile>> teacherDashBoardWidgets(TeacherProfile tea
         routeName: "/events",
         argument: teacherProfile,
       ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
-        title: "Online Class Room",
-        routeName: "/onlineclassroom",
-        argument: teacherProfile,
-      ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
+      //   title: "Online Class Room",
+      //   routeName: "/onlineclassroom",
+      //   argument: teacherProfile,
+      // ),
       // DashboardWidget(
       //   image: SvgPicture.asset("assets/images/chat_room.svg"),
       //   title: "Chat Room",
@@ -445,32 +445,32 @@ List<DashboardWidget<AdminProfile>> adminDashBoardWidgets(AdminProfile adminProf
         routeName: "/events",
         argument: adminProfile,
       ),
-      DashboardWidget(
-        image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
-        title: "Online Class Room",
-        routeName: "/onlineclassroom",
-        argument: adminProfile,
-        subWidgets: [
-          DashboardWidget<AdminRouteWithParams<String>>(
-            title: "Manage Online Class Rooms",
-            routeName: AdminManageOnlineClassRoomsScreen.routeName,
-            argument: AdminRouteWithParams<String>(
-              adminProfile: adminProfile,
-              routeName: AdminManageOnlineClassRoomsScreen.routeName,
-              params: ["Manage Online Class Rooms"],
-            ),
-          ),
-          DashboardWidget<AdminRouteWithParams<String>>(
-            title: "Monitor Online Class Rooms",
-            routeName: AdminManageOnlineClassRoomsScreen.routeName,
-            argument: AdminRouteWithParams<String>(
-              adminProfile: adminProfile,
-              routeName: AdminManageOnlineClassRoomsScreen.routeName,
-              params: ["Monitor Online Class Rooms"],
-            ),
-          ),
-        ],
-      ),
+      // DashboardWidget(
+      //   image: SvgPicture.asset("assets/images/onlineclassroom.svg"),
+      //   title: "Online Class Room",
+      //   routeName: "/onlineclassroom",
+      //   argument: adminProfile,
+      //   subWidgets: [
+      //     DashboardWidget<AdminRouteWithParams<String>>(
+      //       title: "Manage Online Class Rooms",
+      //       routeName: AdminManageOnlineClassRoomsScreen.routeName,
+      //       argument: AdminRouteWithParams<String>(
+      //         adminProfile: adminProfile,
+      //         routeName: AdminManageOnlineClassRoomsScreen.routeName,
+      //         params: ["Manage Online Class Rooms"],
+      //       ),
+      //     ),
+      //     DashboardWidget<AdminRouteWithParams<String>>(
+      //       title: "Monitor Online Class Rooms",
+      //       routeName: AdminManageOnlineClassRoomsScreen.routeName,
+      //       argument: AdminRouteWithParams<String>(
+      //         adminProfile: adminProfile,
+      //         routeName: AdminManageOnlineClassRoomsScreen.routeName,
+      //         params: ["Monitor Online Class Rooms"],
+      //       ),
+      //     ),
+      //   ],
+      // ),
       DashboardWidget(
         image: SvgPicture.asset("assets/images/feedback.svg"),
         title: "Feedback",

@@ -28,6 +28,8 @@ class ManageFAExamsScreen extends StatefulWidget {
     required this.tdsList,
     required this.studentsList,
     required this.markingAlgorithms,
+    required this.examMemoHeader,
+    required this.principalSignature,
   });
 
   final SchoolInfoBean schoolInfo;
@@ -40,6 +42,8 @@ class ManageFAExamsScreen extends StatefulWidget {
   final List<TeacherDealingSection> tdsList;
   final List<StudentProfile> studentsList;
   final List<MarkingAlgorithmBean> markingAlgorithms;
+  final String? examMemoHeader;
+  final String? principalSignature;
 
   @override
   State<ManageFAExamsScreen> createState() => _ManageFAExamsScreenState();
@@ -124,6 +128,8 @@ class _ManageFAExamsScreenState extends State<ManageFAExamsScreen> {
                         markingAlgorithms: widget.markingAlgorithms,
                         isClassTeacher: false,
                         smsTemplate: null,
+                        examMemoHeader: widget.examMemoHeader,
+                        principalSignature: widget.principalSignature,
                       ),
                     ),
                     const SizedBox(height: 100),

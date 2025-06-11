@@ -43,7 +43,6 @@ class SchoolInfoBean {
   String? displayPictureUrl;
   int? displayPictureUrlId;
   int? estdYear;
-  String? examMemoHeader;
   String? faxNumber;
   String? founder;
   int? franchiseId;
@@ -53,9 +52,7 @@ class SchoolInfoBean {
   int? logoPhotoUrlId;
   String? mailId;
   String? mobile;
-  String? principalSignature;
   int? promotedSchoolId;
-  String? receiptHeader;
   String? schoolDisplayName;
   int? schoolId;
   String? schoolName;
@@ -75,7 +72,6 @@ class SchoolInfoBean {
     this.displayPictureUrl,
     this.displayPictureUrlId,
     this.estdYear,
-    this.examMemoHeader,
     this.faxNumber,
     this.founder,
     this.franchiseId,
@@ -85,9 +81,7 @@ class SchoolInfoBean {
     this.logoPhotoUrlId,
     this.mailId,
     this.mobile,
-    this.principalSignature,
     this.promotedSchoolId,
-    this.receiptHeader,
     this.schoolDisplayName,
     this.schoolId,
     this.schoolName,
@@ -108,7 +102,6 @@ class SchoolInfoBean {
     displayPictureUrl = json['displayPictureUrl']?.toString();
     displayPictureUrlId = json['displayPictureUrlId']?.toInt();
     estdYear = json['estdYear']?.toInt();
-    examMemoHeader = json['examMemoHeader']?.toString();
     faxNumber = json['faxNumber']?.toString();
     founder = json['founder']?.toString();
     franchiseId = json['franchiseId']?.toInt();
@@ -118,9 +111,7 @@ class SchoolInfoBean {
     logoPhotoUrlId = json['logoPhotoUrlId']?.toInt();
     mailId = json['mailId']?.toString();
     mobile = json['mobile']?.toString();
-    principalSignature = json['principalSignature']?.toString();
     promotedSchoolId = json['promotedSchoolId']?.toInt();
-    receiptHeader = json['receiptHeader']?.toString();
     schoolDisplayName = json['schoolDisplayName']?.toString();
     schoolId = json['schoolId']?.toInt();
     schoolName = json['schoolName']?.toString();
@@ -141,7 +132,6 @@ class SchoolInfoBean {
     data['displayPictureUrl'] = displayPictureUrl;
     data['displayPictureUrlId'] = displayPictureUrlId;
     data['estdYear'] = estdYear;
-    data['examMemoHeader'] = examMemoHeader;
     data['faxNumber'] = faxNumber;
     data['founder'] = founder;
     data['franchiseId'] = franchiseId;
@@ -151,9 +141,7 @@ class SchoolInfoBean {
     data['logoPhotoUrlId'] = logoPhotoUrlId;
     data['mailId'] = mailId;
     data['mobile'] = mobile;
-    data['principalSignature'] = principalSignature;
     data['promotedSchoolId'] = promotedSchoolId;
-    data['receiptHeader'] = receiptHeader;
     data['schoolDisplayName'] = schoolDisplayName;
     data['schoolId'] = schoolId;
     data['schoolName'] = schoolName;

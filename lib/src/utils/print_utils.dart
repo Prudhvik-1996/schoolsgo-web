@@ -21,6 +21,7 @@ import 'package:schoolsgo_web/src/utils/string_utils.dart';
 Future<Uint8List> printReceipts(
   BuildContext context,
   SchoolInfoBean schoolInfoBean,
+  String? receiptHeader,
   List<StudentFeeReceipt> receiptsToPrint,
   List<StudentProfile> studentProfiles,
   bool isTermWise, {
@@ -36,7 +37,7 @@ Future<Uint8List> printReceipts(
     [isAdminCopySelected ? "Admin Copy" : null, isStudentCopySelected ? "Student Copy" : null].whereNotNull().forEach((copyType) async {
       StudentFeeReceipt eachTransaction = receiptsToPrint[i];
       List<pw.Widget> widgets = [];
-      widgets.add(receiptHeaderWidget(schoolInfoBean, schoolNameFont, font));
+      widgets.add(receiptHeaderWidget(receiptHeader, schoolInfoBean.schoolDisplayName, schoolInfoBean.detailedAddress, schoolNameFont, font));
       widgets.add(pw.Padding(
         padding: const pw.EdgeInsets.symmetric(horizontal: 8.0),
         child: pw.Divider(color: PdfColors.black, thickness: 1),
@@ -430,13 +431,13 @@ pw.Row receiptNumberAndDateWidget(pw.Font font, StudentFeeReceipt eachTransactio
   );
 }
 
-pw.Widget receiptHeaderWidget(SchoolInfoBean schoolInfoBean, pw.Font schoolNameFont, pw.Font font) {
+pw.Widget receiptHeaderWidget(String? receiptHeader, String? schoolDisplayName, String? detailedAddress, pw.Font schoolNameFont, pw.Font font) {
   return pw.Padding(
       padding: const pw.EdgeInsets.fromLTRB(4, 4, 4, 2),
-      child: schoolInfoBean.receiptHeader != null
+      child: receiptHeader != null
           ? pw.Image(
               pw.MemoryImage(
-                const Base64Decoder().convert(schoolInfoBean.receiptHeader!),
+                const Base64Decoder().convert(receiptHeader!),
               ),
               fit: pw.BoxFit.scaleDown,
             )
@@ -451,12 +452,12 @@ pw.Widget receiptHeaderWidget(SchoolInfoBean schoolInfoBean, pw.Font schoolNameF
                     mainAxisSize: pw.MainAxisSize.min,
                     children: [
                       pw.Text(
-                        schoolInfoBean.schoolDisplayName ?? "-",
+                        schoolDisplayName ?? "-",
                         style: pw.TextStyle(font: schoolNameFont, fontSize: 30, color: PdfColors.blue),
                         textAlign: pw.TextAlign.center,
                       ),
                       pw.Text(
-                        schoolInfoBean.detailedAddress ?? "-",
+                        detailedAddress ?? "-",
                         style: pw.TextStyle(font: font, fontSize: 14, color: PdfColors.grey900),
                         textAlign: pw.TextAlign.center,
                       ),

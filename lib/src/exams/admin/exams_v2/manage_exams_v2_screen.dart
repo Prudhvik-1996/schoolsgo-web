@@ -30,6 +30,7 @@ class ManageExamsV2Screen extends StatefulWidget {
     required this.tdsList,
     required this.studentsList,
     required this.markingAlgorithms,
+    required this.examMemoHeader,
   });
 
   final SchoolInfoBean schoolInfo;
@@ -42,6 +43,7 @@ class ManageExamsV2Screen extends StatefulWidget {
   final List<TeacherDealingSection> tdsList;
   final List<StudentProfile> studentsList;
   final List<MarkingAlgorithmBean> markingAlgorithms;
+  final String? examMemoHeader;
 
   @override
   State<ManageExamsV2Screen> createState() => _ManageExamsV2ScreenState();
@@ -89,6 +91,7 @@ class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
           tdsList: widget.tdsList,
           studentsList: widget.studentsList,
           markingAlgorithms: widget.markingAlgorithms,
+          examMemoHeader: widget.examMemoHeader,
         );
       })).then((value) async {
         setState(() => _isLoading = true);
@@ -293,6 +296,7 @@ class _ManageExamsV2ScreenState extends State<ManageExamsV2Screen> {
       selectedSection: null,
       markingAlgorithms: widget.markingAlgorithms,
       showMoreOptions: false,
+      examMemoHeader: widget.examMemoHeader,
     );
   }
 }

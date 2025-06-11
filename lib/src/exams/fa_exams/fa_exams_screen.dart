@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/exams/fa_exams/manage_fa_exams_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/views/fa_exam_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
@@ -55,6 +56,8 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
   List<MarkingAlgorithmBean> markingAlgorithms = [];
 
   SmsTemplateBean? smsTemplate;
+  String? examMemoHeader;
+  String? principalSignature;
 
   @override
   void initState() {
@@ -187,6 +190,9 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
       }
     }
 
+    examMemoHeader = await getSchoolDefaultMemoHeader(widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId);
+    principalSignature = await getDefaultPrincipalSignature(widget.adminProfile?.schoolId ?? widget.teacherProfile?.schoolId);
+
     setState(() => _isLoading = false);
   }
 
@@ -204,6 +210,8 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
           tdsList: tdsList,
           studentsList: studentsList,
           markingAlgorithms: markingAlgorithms,
+          examMemoHeader: examMemoHeader,
+          principalSignature: principalSignature,
         );
       }));
     } else {
@@ -442,6 +450,8 @@ class _AdminFAExamsScreenState extends State<FAExamsScreen> {
                                 setLoading: (bool isLoading) => setState(() => _isLoading = isLoading),
                                 isClassTeacher: widget.defaultSelectedSection != null,
                                 smsTemplate: smsTemplate,
+                                examMemoHeader: examMemoHeader,
+                                principalSignature: principalSignature,
                               ),
                             ),
                           ),

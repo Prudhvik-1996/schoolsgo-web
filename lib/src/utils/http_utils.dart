@@ -74,4 +74,26 @@ class HttpUtils {
     final url = 'https://epsiloninfinityservices.com:8000/schoolsgo/ledger/getNewVoucherNumber?schoolId=$schoolId';
     return await get(url, (data) => data as int);
   }
+
+  static Future<String?> getForString(String url) async {
+    try {
+      final http.Response response = await http.get(
+        Uri.parse(url),
+        headers: const {
+          "Content-type": "application/json",
+        },
+      );
+
+      final body = response.body;
+      if (body.trim().isEmpty) return null;
+
+      return body;
+    } catch (e, stack) {
+      debugPrintStack(
+        label: "Unexpected error occurred while trying to retrieve data from $url :: ",
+        stackTrace: stack,
+      );
+      return null;
+    }
+  }
 }

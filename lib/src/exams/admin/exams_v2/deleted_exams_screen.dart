@@ -23,6 +23,7 @@ class DeletedExamsScreen extends StatefulWidget {
     required this.tdsList,
     required this.studentsList,
     required this.markingAlgorithms,
+    required this.examMemoHeader,
   });
 
   final SchoolInfoBean schoolInfo;
@@ -34,6 +35,7 @@ class DeletedExamsScreen extends StatefulWidget {
   final List<TeacherDealingSection> tdsList;
   final List<StudentProfile> studentsList;
   final List<MarkingAlgorithmBean> markingAlgorithms;
+  final String? examMemoHeader;
 
   @override
   State<DeletedExamsScreen> createState() => _DeletedExamsScreenState();
@@ -102,6 +104,7 @@ class _DeletedExamsScreenState extends State<DeletedExamsScreen> {
       selectedSection: null,
       markingAlgorithms: widget.markingAlgorithms,
       showMoreOptions: false,
+      examMemoHeader: widget.examMemoHeader,
     );
   }
 }

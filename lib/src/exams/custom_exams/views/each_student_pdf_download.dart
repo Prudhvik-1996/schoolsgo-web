@@ -33,6 +33,8 @@ class EachStudentPdfDownloadForCustomExam {
   final CustomExam customExam;
   final List<StudentProfile> studentProfiles;
   final Section selectedSection;
+  final String? examMemoHeader;
+  final String? principalSignature;
 
   final void Function(String? e) updateMessage;
 
@@ -53,6 +55,8 @@ class EachStudentPdfDownloadForCustomExam {
     required this.studentProfiles,
     required this.selectedSection,
     required this.updateMessage,
+    required this.examMemoHeader,
+    required this.principalSignature,
   });
 
   Future<void> downloadMemo(List<StudentMonthWiseAttendance> studentMonthWiseAttendanceList,
@@ -135,12 +139,12 @@ class EachStudentPdfDownloadForCustomExam {
               );
             },
           ),
-          header: (_) => schoolInfo.examMemoHeader != null
+          header: (_) => examMemoHeader != null
               ? Padding(
                   padding: const EdgeInsets.all(4),
                   child: Image(
                     MemoryImage(
-                      const Base64Decoder().convert(schoolInfo.examMemoHeader!),
+                      const Base64Decoder().convert(examMemoHeader!),
                     ),
                     fit: BoxFit.scaleDown,
                   ),
@@ -478,14 +482,14 @@ class EachStudentPdfDownloadForCustomExam {
                 ),
                 Column(
                   children: [
-                    if (schoolInfo.principalSignature != null)
+                    if (principalSignature != null)
                       Padding(
                         padding: const EdgeInsets.all(4),
                         child: Image(
                           height: 50,
                           width: 60,
                           MemoryImage(
-                            const Base64Decoder().convert(schoolInfo.principalSignature!),
+                            const Base64Decoder().convert(principalSignature!),
                           ),
                           fit: BoxFit.scaleDown,
                         ),
@@ -559,12 +563,12 @@ class EachStudentPdfDownloadForCustomExam {
               );
             },
           ),
-          header: (_) => schoolInfo.examMemoHeader != null
+          header: (_) => examMemoHeader != null
               ? Padding(
                   padding: const EdgeInsets.all(4),
                   child: Image(
                     MemoryImage(
-                      const Base64Decoder().convert(schoolInfo.examMemoHeader!),
+                      const Base64Decoder().convert(examMemoHeader!),
                     ),
                     fit: BoxFit.scaleDown,
                   ),
@@ -757,14 +761,14 @@ class EachStudentPdfDownloadForCustomExam {
                 ),
                 Column(
                   children: [
-                    if (schoolInfo.principalSignature != null)
+                    if (principalSignature != null)
                       Padding(
                         padding: const EdgeInsets.all(4),
                         child: Image(
                           height: 50,
                           width: 60,
                           MemoryImage(
-                            const Base64Decoder().convert(schoolInfo.principalSignature!),
+                            const Base64Decoder().convert(principalSignature!),
                           ),
                           fit: BoxFit.scaleDown,
                         ),

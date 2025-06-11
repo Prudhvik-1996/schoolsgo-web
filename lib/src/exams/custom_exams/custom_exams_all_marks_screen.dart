@@ -41,6 +41,7 @@ class CustomExamsAllMarksScreen extends StatefulWidget {
     required this.customExam,
     required this.studentsList,
     required this.selectedSection,
+    required this.examMemoHeader,
     required this.loadData,
   }) : super(key: key);
 
@@ -56,6 +57,7 @@ class CustomExamsAllMarksScreen extends StatefulWidget {
   final CustomExam customExam;
   final List<StudentProfile> studentsList;
   final Section selectedSection;
+  final String? examMemoHeader;
   final Future<void> Function() loadData;
 
   @override
@@ -163,6 +165,7 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
                     customExam: widget.customExam,
                     studentsList: widget.studentsList,
                     selectedSection: widget.selectedSection,
+                    examMemoHeader: widget.examMemoHeader,
                   ).downloadAsPdf();
                   setState(() => _isLoading = false);
                 },
@@ -399,6 +402,7 @@ class _CustomExamsAllMarksScreenState extends State<CustomExamsAllMarksScreen> {
                                 customExam: widget.customExam,
                                 studentProfile: studentsList[rowIndex],
                                 selectedSection: widget.selectedSection,
+                                examMemoHeader: widget.examMemoHeader,
                               );
                             },
                           ),

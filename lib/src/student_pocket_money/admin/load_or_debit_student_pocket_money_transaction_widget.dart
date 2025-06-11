@@ -4,6 +4,7 @@ import 'package:schoolsgo_web/src/common_components/clay_button.dart';
 import 'package:schoolsgo_web/src/constants/colors.dart';
 import 'package:schoolsgo_web/src/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_pocket_money/modal/student_pocket_money.dart';
@@ -303,9 +304,11 @@ class LoadOrDebitStudentPocketMoneyTransactionWidget extends StatelessWidget {
                 Navigator.pop(context);
                 await Future.delayed(const Duration(milliseconds: 400));
                 changeLoadingAction();
+                String? schoolReceiptHeader = await getSchoolDefaultFeeReceiptHeader(schoolInfo.schoolId);
                 await printReceipts(
                   context,
                   schoolInfo,
+                  schoolReceiptHeader,
                   [
                     StudentFeeReceipt(
                       studentId: pocketMoneyTransactionBean.studentId,

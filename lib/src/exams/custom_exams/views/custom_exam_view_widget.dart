@@ -14,6 +14,7 @@ import 'package:schoolsgo_web/src/exams/model/constants.dart';
 import 'package:schoolsgo_web/src/exams/model/exam_section_subject_map.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
 import 'package:schoolsgo_web/src/exams/model/student_exam_marks.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
@@ -40,11 +41,13 @@ class CustomExamViewWidget extends StatefulWidget {
     required this.selectedSection,
     required this.markingAlgorithms,
     required this.schoolInfo,
+    required this.examMemoHeader,
     required this.isClassTeacher,
     required this.smsTemplate,
   }) : super(key: key);
 
   final SchoolInfoBean schoolInfo;
+  final String? examMemoHeader;
   final AdminProfile? adminProfile;
   final TeacherProfile? teacherProfile;
   final int selectedAcademicYearId;
@@ -417,6 +420,7 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           markingAlgorithm: widget.customExam.markingAlgorithmId == null
                               ? null
                               : widget.markingAlgorithms.where((e) => e.markingAlgorithmId == widget.customExam.markingAlgorithmId).firstOrNull,
+                          examMemoHeader: widget.examMemoHeader,
                         );
                       })).then((_) => widget.loadData());
                     },
@@ -486,6 +490,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           }
                           setState(() => downloadMessage = "Got the attendance report");
                         }
+                        String? examMemoHeader = await getSchoolDefaultMemoHeader(widget.schoolInfo.schoolId);
+                        String? principalSignature = await getDefaultPrincipalSignature(widget.schoolInfo.schoolId);
                         await EachStudentPdfDownloadForCustomExam(
                           schoolInfo: widget.schoolInfo,
                           adminProfile: widget.adminProfile,
@@ -500,6 +506,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
                           selectedSection: widget.selectedSection!,
                           updateMessage: (String? e) => setState(() => downloadMessage = e),
+                          examMemoHeader: examMemoHeader,
+                          principalSignature: principalSignature,
                         ).downloadMemo(studentMonthWiseAttendanceList, attendanceType: attendanceType);
                         setState(() {
                           _isLoading = false;
@@ -545,6 +553,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           _isExpanded = false;
                         });
                         await Future.delayed(const Duration(seconds: 1));
+                        String? examMemoHeader = await getSchoolDefaultMemoHeader(widget.schoolInfo.schoolId);
+                        String? principalSignature = await getDefaultPrincipalSignature(widget.schoolInfo.schoolId);
                         await EachStudentPdfDownloadForCustomExam(
                           schoolInfo: widget.schoolInfo,
                           adminProfile: widget.adminProfile,
@@ -559,6 +569,8 @@ class _CustomExamViewWidgetState extends State<CustomExamViewWidget> {
                           studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
                           selectedSection: widget.selectedSection!,
                           updateMessage: (String? e) => setState(() => downloadMessage = e),
+                          examMemoHeader: examMemoHeader,
+                          principalSignature: principalSignature,
                         ).downloadHallTickets();
                         setState(() {
                           _isLoading = false;

@@ -43,6 +43,7 @@ class FaCumulativeExamMarksScreen extends StatefulWidget {
     required this.studentsList,
     required this.loadData,
     required this.isClassTeacher,
+    required this.examMemoHeader,
   });
 
   final SchoolInfoBean schoolInfo;
@@ -59,6 +60,7 @@ class FaCumulativeExamMarksScreen extends StatefulWidget {
   final List<StudentProfile> studentsList;
   final Future<void> Function() loadData;
   final bool isClassTeacher;
+  final String? examMemoHeader;
 
   @override
   State<FaCumulativeExamMarksScreen> createState() => _FaCumulativeExamMarksScreenState();
@@ -255,6 +257,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                     faExam: faExam,
                     studentsList: widget.studentsList,
                     selectedSection: widget.selectedSection,
+                    examMemoHeader: widget.examMemoHeader,
                   ).downloadAsPdf();
                   setState(() => _isLoading = false);
                 },
@@ -507,6 +510,7 @@ class _FaCumulativeExamMarksScreenState extends State<FaCumulativeExamMarksScree
                                 faExam: faExam,
                                 studentProfile: studentsList[rowIndex],
                                 selectedSection: widget.selectedSection,
+                                examMemoHeader: widget.examMemoHeader,
                               );
                             },
                           ),

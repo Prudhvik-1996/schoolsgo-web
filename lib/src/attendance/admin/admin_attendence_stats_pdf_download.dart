@@ -7,6 +7,7 @@ import 'package:collection/src/iterable_extensions.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
 import 'package:printing/printing.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/student_information_center/modal/date_range_attendance.dart';
@@ -34,6 +35,8 @@ class StudentAttendanceStatsPdfDownload {
     final font = await PdfGoogleFonts.merriweatherRegular();
     final schoolNameFont = await PdfGoogleFonts.acmeRegular();
 
+    String? schoolReceiptHeader = await getSchoolDefaultFeeReceiptHeader(schoolInfo.schoolId);
+
     pdf.addPage(
       MultiPage(
         pageTheme: PageTheme(
@@ -53,12 +56,12 @@ class StudentAttendanceStatsPdfDownload {
         ),
         header: (_) => Column(
           children: [
-            schoolInfo.receiptHeader != null
+            schoolReceiptHeader != null
                 ? Padding(
                     padding: const EdgeInsets.all(4),
                     child: Image(
                       MemoryImage(
-                        const Base64Decoder().convert(schoolInfo.receiptHeader!),
+                        const Base64Decoder().convert(schoolReceiptHeader!),
                       ),
                       fit: BoxFit.scaleDown,
                     ),

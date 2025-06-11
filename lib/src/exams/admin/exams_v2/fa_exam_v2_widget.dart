@@ -43,6 +43,7 @@ class FaExamV2Widget extends StatefulWidget {
     required this.studentsList,
     required this.editingEnabled,
     required this.showMoreOptions,
+    required this.examMemoHeader,
   });
 
   final AdminProfile adminProfile;
@@ -61,6 +62,8 @@ class FaExamV2Widget extends StatefulWidget {
 
   final bool editingEnabled;
   final bool showMoreOptions;
+
+  final String? examMemoHeader;
 
   @override
   State<FaExamV2Widget> createState() => _FaExamV2WidgetState();
@@ -553,6 +556,7 @@ class _FaExamV2WidgetState extends State<FaExamV2Widget> {
               loadData: _loadExam,
               studentsList: widget.studentsList,
               isClassTeacher: false,
+              examMemoHeader: widget.examMemoHeader,
             );
           })).then((_) => _loadExam());
         },

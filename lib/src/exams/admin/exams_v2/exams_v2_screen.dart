@@ -7,6 +7,7 @@ import 'package:schoolsgo_web/src/exams/admin/exams_v2/fa_exam_v2_widget.dart';
 import 'package:schoolsgo_web/src/exams/admin/exams_v2/manage_exams_v2_screen.dart';
 import 'package:schoolsgo_web/src/exams/fa_exams/model/fa_exams.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
@@ -41,6 +42,7 @@ class _ExamsV2ScreenState extends State<ExamsV2Screen> {
   List<MarkingAlgorithmBean> markingAlgorithms = [];
 
   late SchoolInfoBean schoolInfo;
+  String? examMemoHeader;
   List<StudentProfile> studentsList = [];
 
   @override
@@ -113,6 +115,8 @@ class _ExamsV2ScreenState extends State<ExamsV2Screen> {
       schoolInfo = getSchoolsResponse.schoolInfo!;
     }
 
+    examMemoHeader = await getSchoolDefaultMemoHeader(schoolInfo.schoolId);
+
     GetStudentProfileResponse getStudentProfileResponse = await getStudentProfile(GetStudentProfileRequest(
       schoolId: widget.adminProfile.schoolId,
     ));
@@ -158,6 +162,7 @@ class _ExamsV2ScreenState extends State<ExamsV2Screen> {
           tdsList: tdsList,
           studentsList: studentsList,
           markingAlgorithms: markingAlgorithms,
+          examMemoHeader: examMemoHeader,
         );
       })).then((value) async {
         setState(() => _isLoading = true);
@@ -226,6 +231,7 @@ class _ExamsV2ScreenState extends State<ExamsV2Screen> {
                           studentsList: studentsList.where((es) => es.sectionId == _selectedSection?.sectionId).toList(),
                           editingEnabled: false,
                           showMoreOptions: true,
+                          examMemoHeader: examMemoHeader,
                         ),
                       ),
                 const SizedBox(height: 100),

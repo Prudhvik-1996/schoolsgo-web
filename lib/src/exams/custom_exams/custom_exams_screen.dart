@@ -9,6 +9,7 @@ import 'package:schoolsgo_web/src/exams/custom_exams/manage_custom_exams_screen.
 import 'package:schoolsgo_web/src/exams/custom_exams/model/custom_exams.dart';
 import 'package:schoolsgo_web/src/exams/custom_exams/views/custom_exam_view_widget.dart';
 import 'package:schoolsgo_web/src/exams/model/marking_algorithms.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/subjects.dart';
@@ -53,6 +54,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
   List<MarkingAlgorithmBean> markingAlgorithms = [];
 
   late SchoolInfoBean schoolInfo;
+  String? examMemoHeader;
   SmsTemplateBean? smsTemplate;
 
   @override
@@ -170,6 +172,8 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
     } else {
       schoolInfo = getSchoolsResponse.schoolInfo!;
     }
+
+    examMemoHeader = await getSchoolDefaultMemoHeader(schoolInfo.schoolId);
 
     if (widget.adminProfile != null) {
       GetSmsTemplatesResponse getSmsTemplatesResponse = await getSmsTemplates(GetSmsTemplatesRequest(
@@ -430,6 +434,7 @@ class _CustomExamsScreenState extends State<CustomExamsScreen> {
                                   margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                   child: CustomExamViewWidget(
                                     schoolInfo: schoolInfo,
+                                    examMemoHeader: examMemoHeader,
                                     adminProfile: widget.adminProfile,
                                     teacherProfile: widget.teacherProfile,
                                     selectedAcademicYearId: widget.selectedAcademicYearId,

@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:schoolsgo_web/src/common_components/epsilon_diary_loading_widget.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
 import 'package:schoolsgo_web/src/utils/print_utils.dart';
@@ -78,9 +79,11 @@ class _ReceiptCopyScreenState extends State<ReceiptCopyScreen> {
       studentProfiles = (getStudentProfileResponse.studentProfiles ?? []).where((e) => e != null).map((e) => e!).toList();
     }
     setState(() => _isLoading = false);
+    String? schoolReceiptHeader = await getSchoolDefaultFeeReceiptHeader(schoolInfoBean.schoolId);
     printReceipts(
       context,
       schoolInfoBean,
+      schoolReceiptHeader,
       [receiptToPrint!],
       studentProfiles,
       false,

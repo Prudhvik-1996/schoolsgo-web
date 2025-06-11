@@ -51,6 +51,8 @@ class FAExamWidget extends StatefulWidget {
     required this.setLoading,
     required this.isClassTeacher,
     required this.smsTemplate,
+    required this.examMemoHeader,
+    required this.principalSignature,
   });
 
   final SchoolInfoBean schoolInfo;
@@ -71,6 +73,8 @@ class FAExamWidget extends StatefulWidget {
   final void Function(bool isLoading) setLoading;
   final bool isClassTeacher;
   final SmsTemplateBean? smsTemplate;
+  final String? examMemoHeader;
+  final String? principalSignature;
 
   @override
   State<FAExamWidget> createState() => _FAExamWidgetState();
@@ -212,6 +216,8 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                                 studentProfiles: widget.studentsList.where((es) => es.sectionId == widget.selectedSection?.sectionId).toList(),
                                 selectedSection: widget.selectedSection!,
                                 updateMessage: (String? e) => setState(() => downloadMessage = e),
+                                examMemoHeader: widget.examMemoHeader,
+                                principalSignature: widget.principalSignature,
                               ).downloadHallTickets();
                               setState(() {
                                 _isExpanded = true;
@@ -702,6 +708,8 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                     selectedSection: widget.selectedSection!,
                     updateMessage: (String? e) => setState(() => downloadMessage = e),
                     selectedInternal: null,
+                    examMemoHeader: widget.examMemoHeader,
+                    principalSignature: widget.principalSignature,
                   ).downloadMemo(studentMonthWiseAttendanceList, attendanceType: attendanceType);
                   setState(() {
                     _isExpanded = true;
@@ -755,6 +763,7 @@ class _FAExamWidgetState extends State<FAExamWidget> {
                     loadData: widget.loadData,
                     studentsList: widget.studentsList,
                     isClassTeacher: widget.isClassTeacher,
+                    examMemoHeader: widget.examMemoHeader,
                   );
                 })).then((_) => widget.loadData());
               },

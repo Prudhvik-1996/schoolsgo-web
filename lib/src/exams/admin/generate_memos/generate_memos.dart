@@ -59,9 +59,11 @@ class GenerateStudentMemosRequest {
   bool? showHeader;
   bool? showOnlyCumulativeExams;
   bool? showRemarks;
+  bool? highlightSummaryTable;
   bool? showAttendanceSummaryTable;
   bool? showCommentsPerSubject;
   bool? showGpaDenominator;
+  bool? showMaxMarksDenominator;
   bool? showMarkingAlgorithmTable;
   List<int?>? studentIds;
   List<String?>? monthYearsForAttendance;
@@ -84,9 +86,11 @@ class GenerateStudentMemosRequest {
     this.showHeader,
     this.showOnlyCumulativeExams,
     this.showRemarks,
+    this.highlightSummaryTable,
     this.showAttendanceSummaryTable,
     this.showCommentsPerSubject,
     this.showGpaDenominator,
+    this.showMaxMarksDenominator,
     this.showMarkingAlgorithmTable,
     this.studentIds,
     this.mainExamType,
@@ -116,9 +120,11 @@ class GenerateStudentMemosRequest {
     showHeader = json['showHeader'];
     showOnlyCumulativeExams = json['showOnlyCumulativeExams'];
     showRemarks = json['showRemarks'];
+    highlightSummaryTable = json['highlightSummaryTable'];
     showAttendanceSummaryTable = json['showAttendanceSummaryTable'];
     showCommentsPerSubject = json['showCommentsPerSubject'];
     showGpaDenominator = json['showGpaDenominator'];
+    showMaxMarksDenominator = json['showMaxMarksDenominator'];
     showMarkingAlgorithmTable = json['showMarkingAlgorithmTable'];
     if (json['studentIds'] != null) {
       final v = json['studentIds'];
@@ -175,9 +181,11 @@ class GenerateStudentMemosRequest {
     data['showHeader'] = showHeader;
     data['showOnlyCumulativeExams'] = showOnlyCumulativeExams;
     data['showRemarks'] = showRemarks;
+    data['highlightSummaryTable'] = highlightSummaryTable;
     data['showAttendanceSummaryTable'] = showAttendanceSummaryTable;
     data['showCommentsPerSubject'] = showCommentsPerSubject;
     data['showGpaDenominator'] = showGpaDenominator;
+    data['showMaxMarksDenominator'] = showMaxMarksDenominator;
     data['showMarkingAlgorithmTable'] = showMarkingAlgorithmTable;
     if (studentIds != null) {
       final v = studentIds;

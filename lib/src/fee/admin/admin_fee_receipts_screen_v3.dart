@@ -19,6 +19,7 @@ import 'package:schoolsgo_web/src/fee/admin/stats/section_wise_fee_stats.dart';
 import 'package:schoolsgo_web/src/fee/model/constants/constants.dart';
 import 'package:schoolsgo_web/src/fee/model/fee.dart';
 import 'package:schoolsgo_web/src/fee/model/receipts/fee_receipts.dart';
+import 'package:schoolsgo_web/src/model/school_metadata.dart';
 import 'package:schoolsgo_web/src/model/schools.dart';
 import 'package:schoolsgo_web/src/model/sections.dart';
 import 'package:schoolsgo_web/src/model/user_roles_response.dart';
@@ -445,9 +446,11 @@ class _AdminFeeReceiptsScreenV3State extends State<AdminFeeReceiptsScreenV3> {
             e.status != "deleted" &&
             (isReceptionist ? e.transactionDate == convertDateTimeToYYYYMMDDFormat(DateTime.now()) : true))
         .toList();
+    String? schoolReceiptHeader = await getSchoolDefaultFeeReceiptHeader(schoolInfoBean?.schoolId);
     await printReceipts(
       context,
       schoolInfoBean!,
+      schoolReceiptHeader,
       receiptsToPrint,
       studentProfiles,
       isTermWise,

@@ -33,6 +33,11 @@ const String UPDATE_LOGIN_CREDENTIALS = "/auth/updateLoginCredentials";
 const String DO_LOGOUT = "/auth/doLogout";
 const String CREATE_OR_UPDATE_USER_FCM_TOKEN = "/users/createOrUpdateUserFcmToken";
 
+const String GET_SCHOOL_METADATA = "/commons/getSchoolMetadata?schoolId={schoolId}&key={key}";
+const String GET_SCHOOL_DEFAULT_FEE_RECEIPT_HEADER = "/commons/getDefaultReceiptHeader?schoolId={schoolId}";
+const String GET_SCHOOL_DEFAULT_MEMO_HEADER = "/commons/getDefaultMemoHeader?schoolId={schoolId}";
+const String GET_SCHOOL_DEFAULT_PRINCIPAL_SIGNATURE = "/commons/getDefaultPrincipalSignature?schoolId={schoolId}";
+
 const String REQUEST_OTP = "/auth/requestOtp";
 const String SEND_EMAIL = "/email/sendMail";
 
